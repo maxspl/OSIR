@@ -1,0 +1,23 @@
+version: 1.0
+author:
+module: test_process_dir
+description:
+os: windows
+type: process
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: process_dir
+  cmd: -d {input_dir} -o {output_file}
+  source: 
+  version: 1.0
+input:
+  type: dir
+  path: extracted_files/SAM
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+

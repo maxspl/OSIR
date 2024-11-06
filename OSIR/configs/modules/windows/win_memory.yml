@@ -1,0 +1,28 @@
+version: 1.0
+author:
+module: win_memory
+description:
+os: windows
+type: process
+disk_only: True
+no_multithread: True
+processor_type: 
+  - internal
+  - external
+processor_os: unix
+tool: 
+  path: memprocfs/memprocfs
+  source: https://github.com/ufrisk/MemProcFS
+  version: v5.12.5
+  cmd: -device {input_file} -pythonexec {optional_pythonexec_path} -forensic 1
+input:
+  type: file
+  path: Memory/
+  name: \.ram$
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "/Endpoint_(.*?)/"
+optional:
+  pythonexec_path: replaced_by_internal_module

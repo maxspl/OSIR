@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/windows:2004
+
+SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+
+ARG USERNAME=win_docker_adm
+ARG PASSWORD=win_docker_adm
+
+RUN net user $env:USERNAME $env:PASSWORD /add; \
+    net localgroup Administrators $env:USERNAME /add
+    
+RUN winrm quickconfig -q -force; \
+    Start-Service winrm; \
+    Start-Sleep -Seconds 10; \
+    winrm set winrm/config/service/Auth '@{Basic=\"true\"}'; \
+    winrm set winrm/config/service '@{AllowUnencrypted=\"true\"}'; \
+    set winrm/config/winrs '@{MaxMemoryPerShellMB=\"0\"};'
+
+# Create a placeholder file to identify the Docker container
+RUN New-Item -Path 'C:\docker_identifier.txt' -ItemType File; \
+    Set-Content -Path 'C:\docker_identifier.txt' -Value 'This is a Docker container.'
+
+COPY src/ps1/setup_OSIR.ps1 C:/setup_OSIR.ps1
+
+# RUN powershell -ExecutionPolicy Bypass -File C:/setup_OSIR.ps1
+CMD powershell  -NoExit -ExecutionPolicy Bypass -File C:/setup_OSIR.ps1

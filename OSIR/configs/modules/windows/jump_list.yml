@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: jump_list
+description: Parsing of jump list artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/JLECmd.exe
+  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" -q --all --fd
+  source:
+  version: 
+input:
+  type: dir
+  path: Artefacts/recentFile
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}.csv"
+endpoint: "/Endpoint_(.*?)/"

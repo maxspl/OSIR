@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master setup in details &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Profiles" href="modules_and_profiles.html" />
+    <link rel="prev" title="Supported Modules" href="extracted_module_info.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Master setup in details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#options-explained">Options Explained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-configuration-file">Using a Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#agent-setup-in-details">Agent setup in details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Options Explained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Using a Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Example Usage</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Master setup in details</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/setup_details.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="master-setup-in-details">
+<h1>Master setup in details<a class="headerlink" href="#master-setup-in-details" title="Link to this heading"></a></h1>
+<p>The basic option is to use <strong>make</strong> command to start interactive setup.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+make<span class="w"> </span>master
+</pre></div>
+</div>
+<p>To access more setup option, run the setup script for the master directory.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR/setup/master
+sudo<span class="w"> </span>./master_setup.sh
+</pre></div>
+</div>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: ./master_setup.sh [-d] [-h] [-c]</span>
+<span class="go">Options:</span>
+<span class="go">  -d  Enable debug mode</span>
+<span class="go">  -h  Show this help message</span>
+<span class="go">  -c  Setup master from config file. Default is interactive</span>
+</pre></div>
+</div>
+<section id="options-explained">
+<h2>Options Explained<a class="headerlink" href="#options-explained" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>-d</strong>: Enable debug mode. This option provides more detailed output for troubleshooting.</p></li>
+<li><p><strong>-h</strong>: Show the help message. Use this option to see all available options and their descriptions.</p></li>
+<li><p><strong>-c</strong>: Setup master from a configuration file. If this option is not used, the script runs in interactive mode by default.</p></li>
+</ul>
+</section>
+<section id="using-a-configuration-file">
+<h2>Using a Configuration File<a class="headerlink" href="#using-a-configuration-file" title="Link to this heading"></a></h2>
+<p>Instead of running the script in interactive mode, you can use a configuration file. Here is an example of a configuration file that can be used:</p>
+<p><strong>Path</strong>: <cite>OSIR/setup/conf/master.yanl</cite></p>
+<p><strong>Content</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># Paramters of local (self deployed by master) or external (deployed by yourself) Splunk server</span>
+<span class="w">  </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_location</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># external (deployed by yourself or local (self deployed by master)</span>
+<span class="w">  </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_user</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_password</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_port</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># default is 8000</span>
+<span class="w">  </span><span class="nt">mport</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_mport</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># default is 8089</span>
+<span class="w">  </span><span class="nt">ssl</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_ssl</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># True or False</span>
+<span class="w">  </span><span class="nt">local_splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># what to do with Splunk data if a previous installation has been done</span>
+<span class="w">    </span><span class="nt">previous_data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">erase</span><span class="w"> </span><span class="c1"># possible values: erase, keep, stop</span>
+<span class="w">  </span><span class="nt">remote_splunk</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_remote_splunk_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># IP or FQDN if external Splunk</span>
+</pre></div>
+</div>
+<p>Replace the placeholders (e.g., <cite>{splunk_location}</cite>, <cite>{splunk_user}</cite>) with the actual values for your setup.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.</p>
+</div>
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<p>To run the script with the configuration file, use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>./master_setup.sh<span class="w"> </span>-c
+</pre></div>
+</div>
+</section>
+</section>
+<section id="agent-setup-in-details">
+<h1>Agent setup in details<a class="headerlink" href="#agent-setup-in-details" title="Link to this heading"></a></h1>
+<p>The basic option is to use <strong>make</strong> command to start interactive setup.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+make<span class="w"> </span>agent
+</pre></div>
+</div>
+<p>To access more setup option, run the setup script for the master directory.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR/setup/agent
+sudo<span class="w"> </span>./agent_setup.sh
+</pre></div>
+</div>
+<p>Usage:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: ./agent_setup.sh [-d] [-h] [-c]</span>
+<span class="go">Options:</span>
+<span class="go">  -d  Enable debug mode</span>
+<span class="go">  -h  Show this help message</span>
+<span class="go">  -c  Setup agent from config file. Default is interactive</span>
+</pre></div>
+</div>
+<section id="id1">
+<h2>Options Explained<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>-d</strong>: Enable debug mode. This option provides more detailed output for troubleshooting.</p></li>
+<li><p><strong>-h</strong>: Show the help message. Use this option to see all available options and their descriptions.</p></li>
+<li><p><strong>-c</strong>: Setup agent from a configuration file. If this option is not used, the script runs in interactive mode by default.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>Using a Configuration File<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>Instead of running the script in interactive mode, you can use a configuration file. Here is an example of a configuration file that can be used:</p>
+<p><strong>Path</strong>: <cite>OSIR/setup/conf/agent.yaml</cite></p>
+<p><strong>Content</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">master</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">master_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># If windows machine is remote but master and agent are on the same host, specify the IP used by Windows IP to connect master</span>
+<span class="nt">splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># Paramters of local (self deployed by master) or external (deployed by yourself) Splunk server</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_host</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_user</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_password</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_port</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># default is 8000</span>
+<span class="w">    </span><span class="nt">mport</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_mport</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># default is 8089</span>
+<span class="w">    </span><span class="nt">ssl</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_ssl</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># True or False</span>
+<span class="nt">windows_box</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_location</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># external (deployed by yourself) or local (self deployed by master)</span>
+<span class="w">    </span><span class="nt">cores</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_cores</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># Number of cores of the windows box, to adapt the number of concurrent tasks</span>
+<span class="w">    </span><span class="nt">remote_box</span><span class="p">:</span><span class="w"> </span><span class="c1"># if external (deployed by yourself) windows box</span>
+<span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_remote_box_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># IP or FQDN</span>
+<span class="w">        </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_remote_box_user</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># admin user</span>
+<span class="w">        </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_remote_box_password</span><span class="p p-Indicator">}</span>
+<span class="w">        </span><span class="nt">custom_mountpoint</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_remote_box_custom_mountpoint</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># Drive letter (Ex. D)</span>
+</pre></div>
+</div>
+<p>Replace the placeholders (e.g., <cite>{splunk_location}</cite>, <cite>{splunk_user}</cite>) with the actual values for your setup.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If using your own Windows box, Winrm must enabled and user provided must be admin. Internet access is also required to setup tools.</p>
+</div>
+</section>
+<section id="id3">
+<h2>Example Usage<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>To run the script with the configuration file, use the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>./agent_setup.sh<span class="w"> </span>-c
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="extracted_module_info.html" class="btn btn-neutral float-left" title="Supported Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="modules_and_profiles.html" class="btn btn-neutral float-right" title="Profiles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

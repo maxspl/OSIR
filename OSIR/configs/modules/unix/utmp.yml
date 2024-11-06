@@ -1,0 +1,21 @@
+version: 1.0
+author:
+module: utmp
+description: Parsing logs from '/var/log/utmp|btmp|wtmp'
+os: unix
+type: process
+requirements:
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: (?:utmp|btmp|wtmp)
+  path: var/log
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

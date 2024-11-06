@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: firefox
+description: Parsing of firefox artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: python
+  cmd: /OSIR/OSIR/bin/dumpzilla/dumpzilla.py {input_dir} --Export {output_dir}
+  source:
+  version: 
+input:
+  type: dir
+  path: AppData/Roaming/Mozilla/Firefox/Profiles/*
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "restore_fs\/(.*?)\/"

@@ -1,0 +1,51 @@
+version: 1.0
+author:
+module: dummy_external
+description: Dummy module to test WSL / Powershell connexion
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/AmcacheParser.exe
+  cmd: -f "{input_file}" --csv "{output_dir}" --csvf "{output_file}"
+  source:
+  version: 
+input:
+  type: file
+  name: Amcache\.hve$
+  path: Windows/AppCompat/Programs
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}-{input_file}.csv"
+endpoint: "/Endpoint_(.*?)/"
+
+version: 1.0
+author:
+module: dummy_external
+description: Dummy module to test WSL / Powershell connexion
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/AmcacheParser.exe
+  cmd: -f "{input_file}" --csv "{output_dir}" --csvf "{output_file}"
+  source:
+  version: 
+input:
+  type: file
+  name: Amcache\.hve$
+  path: Windows/AppCompat/Programs
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}-{input_file}.csv"
+endpoint: "/Endpoint_(.*?)/"

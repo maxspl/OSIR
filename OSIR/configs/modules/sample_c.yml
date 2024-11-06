@@ -1,0 +1,48 @@
+version: 1.0
+Author:
+Description:
+Os: 
+  - windows
+  - unix
+  - network
+Type: 
+  - preprocess
+  - process
+  - postprocess
+Requirements: 
+  - module 1
+  - module 2
+Processor_type: 
+  - internal
+  - external
+Processor_os: 
+  - windows
+  - linux
+Env:
+  - var_name=value
+Tool: 
+  path:
+    - windows_tool: Tools under {drive_name}\OSIR
+    - linux_tool: Tools under OSIR/OSIR/bin
+  source\:
+  version:
+Tool_source:
+Tool_version:
+Cmdline:
+Input:
+  Type: 
+    - directory
+    - file
+  Name: regex
+  Path: 
+Output:
+  Type: 
+    - single_file
+    - multiples_files
+  Format: 
+    - csv
+    - jsonl
+    - json
+    - raw
+  Output_dir: 
+  Output_name: 

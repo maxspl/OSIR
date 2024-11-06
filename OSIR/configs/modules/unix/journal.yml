@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: journal
+description: Parsing logs from '/var/log/journal/'
+os: unix
+type: process
+requirements:
+disk_only: True
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: journalctl
+  cmd: --file={input_file} --output=json > {output_dir}
+input:
+  type: file
+  name: (?:system|user)
+  path: var/log/journal/*
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

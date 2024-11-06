@@ -1,0 +1,13 @@
+splunk:
+  hec:
+    enable: True
+    ssl: True
+    port: 8088
+    token: <default_hec_token>
+  conf:
+    - key: server
+      value:
+        directory: /opt/splunk/etc/system/local/
+        content:
+          general:
+            allowRemoteLogin: always

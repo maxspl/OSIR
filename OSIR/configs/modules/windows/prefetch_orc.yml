@@ -1,0 +1,25 @@
+version: 1.0
+Author:
+Module: prefetch_orc
+Description:
+Os: windows
+Type: process
+Disk_only: False
+No_multithread: False
+Processor_type: 
+  - external
+Processor_os: windows
+tool: 
+  path: net6/PECmd.exe
+  cmd: -f "{input_file}" --json "{output_dir}" --jsonf "{output_file}"
+  source:
+  version:
+Input:
+  Type: file
+  Name: \.pf_{
+  Path: Prefetch
+Output:
+  Type: single_file
+  Format: json
+  Output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+

@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: evtx_orc
+description: Parsing of EVTX collected by DFIR ORC
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: evtx_dump
+  cmd: -f {output_file} -o jsonl {input_file} --no-confirm-overwrite
+  source: https://github.com/omerbenamram/evtx/releases/download/v0.8.2/evtx_dump-v0.8.2-x86_64-unknown-linux-gnu
+  version: 0.8.2
+input:
+  type: file
+  name: _[\w%-]+\.evtx_{
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+endpoint: "/Endpoint_(.*?)/"

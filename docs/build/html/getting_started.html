@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSIR basics &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Supported Modules" href="extracted_module_info.html" />
+    <link rel="prev" title="OSIR documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OSIR basics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#components-terminology">Components &amp; Terminology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#architectures">Architectures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#all-in-one-linux-host">All in one - LINUX HOST</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#all-in-one-windows-host">All in one - WINDOWS HOST</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distributed-agents">Distributed agents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-splunk-and-windows-hosts">External Splunk and Windows hosts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#network-flows">Network flows</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#all-in-one-host">All in one host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-agent-and-remote-windows-box">External agent and remote Windows box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-agent-remote-windows-box-and-external-splunk">External agent, remote Windows box and external Splunk</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#use-case-1">Use Case 1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-case-2">Use Case 2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#use-case-3">Use Case 3</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#all-in-one-deployment">All in one deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#master-installation">Master installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#agent-installation">Agent installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#from-unix-host">From Unix host</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#from-windows-host">From Windows host</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OSIR basics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="OSIR-basics">
+<h1>OSIR basics<a class="headerlink" href="#OSIR-basics" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>OSIR is a Python project designed for the automated processing of data using modules and profiles. It is primarily aimed at handling forensic artifacts but can be utilized for any type of files. OSIR acts as a scheduler, applying processing tools to files, where the output of some tools can serve as input to others.</p>
+</section>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Modular Design</strong>: Easily integrate new tools without writing code by using YAML configuration files.</p></li>
+<li><p><strong>Containerized</strong>: Fully containerized architecture for seamless deployment and management.</p></li>
+<li><p><strong>WebUI</strong>: Integrates an optional web UI to manages processing jobs.</p></li>
+<li><p><strong>Multi-OS</strong>: OSIR can run on Windows via WSL2 and on a Linux host.</p></li>
+</ul>
+</section>
+<section id="components-terminology">
+<h2>Components &amp; Terminology<a class="headerlink" href="#components-terminology" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Linux Master</strong>: Monitors a directory (called “case”) containing files to be processed and creates processing tasks for the agents.</p></li>
+<li><p><strong>Linux Agent</strong>: Processes tasks issued by the master and interacts with other components like the Windows machine or Splunk depending on the tasks.</p></li>
+<li><p><strong>Splunk (Optional)</strong>: Can be deployed locally on the same host as the master or remotely.</p></li>
+<li><p><strong>Windows Box (Optional)</strong>: Can be deployed locally on the same host as the master or remotely. Two ways of deploying automatically a Windows VM are currently supported: using vbox and Vagrant or using Dockur (Windows in Docker). If running OSIR agent on a Windows host, there is no need to deploy a Windows VM, the host itself is used.</p></li>
+<li><p><strong>Processing job</strong>: Action of processing a case containing files to process. Handled by master.</p></li>
+<li><p><strong>Processing tasks</strong>: Processing action decribed by a module configuration file, taking in input a directory or file and applying. Handled by agents.</p></li>
+</ul>
+</section>
+<section id="architectures">
+<h2>Architectures<a class="headerlink" href="#architectures" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The architectures depicted below can be mixed and adapted to fit your needs. For example, you can deploy multiple agents, use a single Windows box for several agents, and more.</p>
+</div>
+<section id="all-in-one-linux-host">
+<h3>All in one - LINUX HOST<a class="headerlink" href="#all-in-one-linux-host" title="Link to this heading"></a></h3>
+<img alt="All in one Architecture" src="_images/All-in-one_.png" />
+</section>
+<section id="all-in-one-windows-host">
+<h3>All in one - WINDOWS HOST<a class="headerlink" href="#all-in-one-windows-host" title="Link to this heading"></a></h3>
+<img alt="All in one Architecture" src="_images/all-in-one-windows.png" />
+</section>
+<section id="distributed-agents">
+<h3>Distributed agents<a class="headerlink" href="#distributed-agents" title="Link to this heading"></a></h3>
+<img alt="Distributed agents Architecture" src="_images/external-agent_.png" />
+</section>
+<section id="external-splunk-and-windows-hosts">
+<h3>External Splunk and Windows hosts<a class="headerlink" href="#external-splunk-and-windows-hosts" title="Link to this heading"></a></h3>
+<img alt="External Splunk and Windows Architecture" src="_images/External-Win-Splunk.png" />
+</section>
+</section>
+<section id="network-flows">
+<h2>Network flows<a class="headerlink" href="#network-flows" title="Link to this heading"></a></h2>
+<section id="all-in-one-host">
+<h3>All in one host<a class="headerlink" href="#all-in-one-host" title="Link to this heading"></a></h3>
+<img alt="All in one Architecture" src="_images/all-in-one-network-flows.png" />
+</section>
+<section id="external-agent-and-remote-windows-box">
+<h3>External agent and remote Windows box<a class="headerlink" href="#external-agent-and-remote-windows-box" title="Link to this heading"></a></h3>
+<img alt="External agent and remote Windows box" src="_images/semi-distributed-network-flows.png" />
+</section>
+<section id="external-agent-remote-windows-box-and-external-splunk">
+<h3>External agent, remote Windows box and external Splunk<a class="headerlink" href="#external-agent-remote-windows-box-and-external-splunk" title="Link to this heading"></a></h3>
+<img alt="External agent, remote Windows box and external Splunk" src="_images/distributed-network-flows.png" />
+</section>
+</section>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<section id="use-case-1">
+<h4>Use Case 1<a class="headerlink" href="#use-case-1" title="Link to this heading"></a></h4>
+<p>You have a Linux host (not a VM) and you need everything to run on this single machine.</p>
+<p>Theses requirements are needed:</p>
+<ul class="simple">
+<li><p>Docker</p></li>
+<li><p>Docker Compose</p></li>
+<li><dl class="simple">
+<dt>If you need to run Windows tools, there are 3 possibilities:</dt><dd><ul>
+<li><dl class="simple">
+<dt>OSIR sets up a VM with Vbox and Vagrant automatically, so you need :</dt><dd><ul>
+<li><p>Vagrant (installed automatically if needed)</p></li>
+<li><p>Virtual Box (installed automatically if needed)</p></li>
+<li><p>Enough disk space for a Windows VM (50GB)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>OSIR sets up a VM in Docker (Dockur project), so you only need dockur and around 30GB of disk space</p></li>
+<li><dl class="simple">
+<dt>You already have a Windows VM, so you need :</dt><dd><ul>
+<li><p>An admin account</p></li>
+<li><p>Winrm enabled</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Networks flows described in the nexts sections</p></li>
+</ul>
+</section>
+<section id="use-case-2">
+<h4>Use Case 2<a class="headerlink" href="#use-case-2" title="Link to this heading"></a></h4>
+<p>You have a Windows host (not a VM) and you need everything to run on this single machine.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>OSIR can be used on Windows system for all in one mode (server and agent on the same machine) and agent mode but not in server mode for distributed architecture.</p>
+</div>
+<p>Theses requirements are needed:</p>
+<ul class="simple">
+<li><p>WSL 2</p></li>
+<li><p>Docker installed in your WSL 2 VM</p></li>
+<li><p>Docker Compose installed in your WSL 2 VM</p></li>
+<li><p>Linux host</p></li>
+<li><p>Networks flows described in the nexts sections</p></li>
+</ul>
+</section>
+<section id="use-case-3">
+<h4>Use Case 3<a class="headerlink" href="#use-case-3" title="Link to this heading"></a></h4>
+<p>You have want to setup a distribued architecture with a server and multiples agent.
+- OSIR server can installed on a Linux host, even a VM but not in WSL
+- If you need to run Windows tools, each agent must have a Windows box configured, a single box reachable from each VM can be used.
+- Networks flows described in the nexts sections</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only basic use cases are described but OSIR can be configured in many other ways.</p>
+</div>
+</section>
+</section>
+<section id="all-in-one-deployment">
+<h3>All in one deployment<a class="headerlink" href="#all-in-one-deployment" title="Link to this heading"></a></h3>
+<p>This guided example will demonstrate how to setup the solution and how to use it.
+For the example, <strong>All in one architecture</strong> is used.</p>
+<p>Clone the repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>&lt;TO<span class="w"> </span>CHANGE<span class="w"> </span>after<span class="w"> </span>release&gt;
+</pre></div>
+</div>
+</section>
+<section id="master-installation">
+<h3>Master installation<a class="headerlink" href="#master-installation" title="Link to this heading"></a></h3>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Make sure that the following ports are not currently in use :</p>
+<ul class="simple">
+<li><p>80: pgadmin to administrate the postgres Database</p></li>
+<li><p>5432: postgres Database</p></li>
+<li><p>5672: AMQP protocol</p></li>
+<li><p>15672: rabbitmq Management interface</p></li>
+<li><p>6379: Reddis</p></li>
+<li><p>5555: Flower</p></li>
+<li><p>139: SMB used to access file from Windows box or remote agent</p></li>
+<li><p>445: SMB used to access file from Windows box or remote agent</p></li>
+<li><p>8501: Main Web interface</p></li>
+<li><p>8000: Splunk web interface</p></li>
+<li><p>8089: Splunk services interface</p></li>
+<li><p>9997: Splunk event listening port</p></li>
+<li><p>8088: HEC port for Splunk event forwarding</p></li>
+</ul>
+</div>
+<p>Launch the master setup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+make<span class="w"> </span>master
+</pre></div>
+</div>
+<p>Provide requested input, just press Enter each step to keep default options.</p>
+<img alt="Master installation" src="_images/Master-fresh-interactive-install_.png" />
+</section>
+<section id="agent-installation">
+<h3>Agent installation<a class="headerlink" href="#agent-installation" title="Link to this heading"></a></h3>
+<p>On the same host, launch the agent setup:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>agent
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The first agent setup will take time as it downloads and configures a Windows VM using Vagrant.</p>
+</div>
+<p>Provide requested input, just press Enter each step to keep default options.</p>
+<img alt="Agent installation" src="_images/Agent-fresh-interactive-install.png" />
+</section>
+<section id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
+<section id="from-unix-host">
+<h4>From Unix host<a class="headerlink" href="#from-unix-host" title="Link to this heading"></a></h4>
+<p>Create a directory (referenced as a ‘case’ in the documentation) under OSIR/share/cases/:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>OSIR/share/cases/my_first_case
+</pre></div>
+</div>
+<p>Copy the files you want to process under OSIR/share/cases/&lt;case name&gt;</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV01_Browsers.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV01_General.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV01_Powershell.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV01_SAM.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_Browsers.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_General.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_Powershell.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_SAM.7z<span class="w"> </span>OSIR/share/cases/my_first_case
+</pre></div>
+</div>
+<p>Start agent:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>agent-agent<span class="w"> </span>OSIR.py<span class="w"> </span>--agent
+</pre></div>
+</div>
+<p>Start master (open a new terminal to keep agent up):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>agent-agent<span class="w"> </span>OSIR.py<span class="w"> </span>--web
+</pre></div>
+</div>
+<p>Access the web UI and run the processing</p>
+<p>Use a defined profile or select several modules</p>
+<img alt="Master installation" src="_images/web_ui_processing_profile.png" />
+<img alt="Master installation" src="_images/web_ui_processing_modules.png" />
+<p>The processing tasks can be followed in ProcessingStatus pages:</p>
+<img alt="Master installation" src="_images/web_ui_processing_status.png" />
+<p>The processing job can be followed in MasterAgentStatus page:</p>
+<img alt="Master installation" src="_images/web_ui_master_status.png" />
+</section>
+<section id="from-windows-host">
+<h4>From Windows host<a class="headerlink" href="#from-windows-host" title="Link to this heading"></a></h4>
+<p>DFIR ORC triage</p>
+<p>To parse a DFIR_ORC collection, create a new case, upload the DFIR_ORC archive and run either the chosen profile or a specific module:</p>
+<img alt="DFIR ORC setup" src="_images/DFIR_ORC.gif" />
+<img alt="DFIR ORC execution" src="_images/DFIR_ORC_EXECUTE.gif" />
+<p>UAC triage</p>
+<p>To parse a UAC collection, create a new case, upload the UAC archive and run either the chosen profile or a specific module:</p>
+<img alt="UAC setup" src="_images/UAC_IMPORT.gif" />
+<img alt="UAC execution" src="_images/UAC_EXECUTE.gif" />
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="OSIR documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="extracted_module_info.html" class="btn btn-neutral float-right" title="Supported Modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

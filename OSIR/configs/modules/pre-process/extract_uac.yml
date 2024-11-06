@@ -1,0 +1,22 @@
+version: 1.0
+author: 
+module: extract_uac
+description:
+os: unix
+type: pre-process
+requirements:
+disk_only: True
+no_multithread: True
+processor_type: 
+  - internal
+processor_os: unix
+tool: 
+  path: tar
+  version: 22.01
+  cmd: -xvf {input_file} -C {output_dir}
+input:
+  type: file
+  name: ^uac-([\w-]+)-(?:\w+)-(?:\w+).tar.gz$
+output:
+  type: multiples_files
+  format: raw

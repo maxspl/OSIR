@@ -1,0 +1,47 @@
+FROM ubuntu:22.04
+
+RUN apt-get update -y \
+    && apt-get upgrade -y \
+    && apt-get -y install build-essential \
+        zlib1g-dev \
+        libncurses5-dev \
+        libgdbm-dev \ 
+        libnss3-dev \
+        libssl-dev \
+        libreadline-dev \
+        libffi-dev \
+        libsqlite3-dev \
+        libbz2-dev \
+        wget \
+        python3-pip \
+        smbclient \
+        cifs-utils \ 
+        libpq-dev
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Minsk
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt install software-properties-common -y
+RUN add-apt-repository ppa:deadsnakes/ppa
+RUN apt-get update -y
+RUN apt install python3.11 python3-pip python3.11-dev -y
+RUN apt install libusb-1.0-0
+RUN apt install libfuse2
+        
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+
+COPY sources/requirements.txt /tmp/
+    
+RUN python -m pip install -r /tmp/requirements.txt
+
+RUN apt install jc -y
+
+ENV PATH="/OSIR/OSIR:${PATH}"
+
+RUN  wget https://get.docker.com --output-document=get-docker.sh\
+    && sh get-docker.sh
+#TODO Fix missing deb
+RUN wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb\
+    && dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+
+CMD ["/bin/bash"]

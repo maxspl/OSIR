@@ -1,0 +1,17 @@
+services:
+  windows-container:
+    container_name: agent-windows
+    build: 
+      dockerfile: dockerfile/WindowsFile
+      context: .
+    volumes:
+      - ../../:C:/OSIR
+    ports:
+      - "0.0.0.0:55985:5985"
+    isolation: process  # Use process isolation, required for Windows containers
+    tty: true           # Allocate a TTY for the container
+    environment:
+      - ACCEPT_EULA=Y   # If the image requires acceptance of an EULA
+    extra_hosts:
+      - "host.docker.internal:host-gateway" 
+    hostname: OSIR_win_docker

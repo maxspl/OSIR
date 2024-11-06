@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: thor
+description: Scan of collected file using Thor (requires Forensic license).
+os: all
+type: process
+disk_only: False
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: thor/thor-linux-64
+  cmd: --lab --nocsv --silent --nolog -p {input_dir} --jsonfile {output_file}
+  source: https://www.nextron-systems.com/thor/
+  version: 1.0
+input:
+  type: dir
+  path: restore_fs/*
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "restore_fs\/(.*)"

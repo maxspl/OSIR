@@ -1,0 +1,488 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.utils.DbOSIR &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.utils.DbOSIR</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.utils.DbOSIR</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">psycopg2</span>
+<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="kn">import</span> <span class="n">sql</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span> <span class="nn">src.utils.BaseModule</span> <span class="kn">import</span> <span class="n">BaseModule</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="DbOSIR">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR">[docs]</a>
+<span class="k">class</span> <span class="nc">DbOSIR</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">case_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s1">&#39;OSIR_db&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="s1">&#39;dfir&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;dfir&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5432</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the DbOSIR class, connecting to the database and creating necessary tables.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            host (str): The database host.</span>
+<span class="sd">            case_path (str, optional): The case path. Defaults to None.</span>
+<span class="sd">            module_name (str, optional): The module name. Defaults to None.</span>
+<span class="sd">            dbname (str, optional): The database name. Defaults to &#39;OSIR_db&#39;.</span>
+<span class="sd">            user (str, optional): The database user. Defaults to &#39;dfir&#39;.</span>
+<span class="sd">            password (str, optional): The database password. Defaults to &#39;dfir&#39;.</span>
+<span class="sd">            port (int, optional): The database port. Defaults to 5432.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">dbname</span><span class="o">=</span><span class="n">dbname</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">autocommit</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Enable autocommit mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="n">module_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host_hostname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;HOST_HOSTNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;missing HOST_HOSTNAME env var&#39;</span><span class="p">)</span>  <span class="c1"># Default to &#39;%h&#39; if the env var is not set</span>
+        <span class="k">if</span> <span class="n">module_name</span> <span class="ow">and</span> <span class="n">module_name</span> <span class="o">==</span> <span class="s2">&quot;master_status&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_table_master_status</span><span class="p">(</span><span class="s2">&quot;master_status&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">module_name</span> <span class="ow">and</span> <span class="n">module_name</span> <span class="o">!=</span> <span class="s2">&quot;master_status&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">create_table_processing_status</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DbOSIR.create_table_processing_status">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.create_table_processing_status">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_table_processing_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a table for processing status if it doesn&#39;t exist.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            table_name (str): The name of the table to create.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> (</span>
+<span class="s2">                id SERIAL PRIMARY KEY,</span>
+<span class="s2">                case_uuid TEXT,</span>
+<span class="s2">                case_path TEXT,</span>
+<span class="s2">                agent TEXT,</span>
+<span class="s2">                input_file TEXT,</span>
+<span class="s2">                input_dir TEXT,</span>
+<span class="s2">                output_file TEXT,</span>
+<span class="s2">                output_dir TEXT,</span>
+<span class="s2">                output_prefix TEXT,</span>
+<span class="s2">                processing_status TEXT,</span>
+<span class="s2">                timestamp TIMESTAMPTZ DEFAULT NOW()</span>
+<span class="s2">            )</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_create_table_master_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the master status table if it doesn&#39;t exist.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            table_name (str): The name of the table to create.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            CREATE TABLE IF NOT EXISTS </span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s2"> (</span>
+<span class="s2">                id SERIAL PRIMARY KEY,</span>
+<span class="s2">                case_path TEXT,</span>
+<span class="s2">                status TEXT,</span>
+<span class="s2">                case_uuid TEXT,</span>
+<span class="s2">                modules_selected TEXT,</span>
+<span class="s2">                timestamp TIMESTAMPTZ DEFAULT NOW()</span>
+<span class="s2">            )</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DbOSIR.store_data">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.store_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">store_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store data into the specified module&#39;s table.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            case_path (str): The case path.</span>
+<span class="sd">            module (BaseModule): The module instance containing data to store.</span>
+<span class="sd">            status (str): The processing status.</span>
+<span class="sd">            case_uuid (str): The case UUID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Extracting values from module instance</span>
+        <span class="n">input_file</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span>
+        <span class="n">input_dir</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span>
+        <span class="n">output_prefix</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span>
+        
+        <span class="c1"># SQL statement with placeholders for each column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            INSERT INTO </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> (</span>
+<span class="s2">                case_uuid, </span>
+<span class="s2">                case_path,</span>
+<span class="s2">                agent,</span>
+<span class="s2">                input_file, </span>
+<span class="s2">                input_dir, </span>
+<span class="s2">                output_file, </span>
+<span class="s2">                output_dir, </span>
+<span class="s2">                output_prefix, </span>
+<span class="s2">                processing_status</span>
+<span class="s2">            )</span>
+<span class="s2">            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">),</span> 
+            <span class="n">case_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">host_hostname</span><span class="p">,</span> 
+            <span class="n">input_file</span><span class="p">,</span> 
+            <span class="n">input_dir</span><span class="p">,</span> 
+            <span class="n">output_file</span><span class="p">,</span> 
+            <span class="n">output_dir</span><span class="p">,</span> 
+            <span class="n">output_prefix</span><span class="p">,</span> 
+            <span class="n">status</span>
+        <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DbOSIR.update_record">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.update_record">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update an existing record in the specified module&#39;s table.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            module (BaseModule): The module instance containing data to update.</span>
+<span class="sd">            status (str): The processing status.</span>
+<span class="sd">            case_uuid (str): The case UUID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Extracting values from module instance</span>
+            <span class="n">input_file</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span>
+            <span class="n">input_dir</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span>
+            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span>
+            <span class="n">output_prefix</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span>
+            
+            <span class="c1"># Create the SET part of the SQL query dynamically</span>
+            <span class="n">update_data</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;agent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">host_hostname</span><span class="p">,</span>
+                <span class="s2">&quot;input_file&quot;</span><span class="p">:</span> <span class="n">input_file</span><span class="p">,</span>
+                <span class="s2">&quot;input_dir&quot;</span><span class="p">:</span> <span class="n">input_dir</span><span class="p">,</span>
+                <span class="s2">&quot;output_file&quot;</span><span class="p">:</span> <span class="n">output_file</span><span class="p">,</span>
+                <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="n">output_dir</span><span class="p">,</span>
+                <span class="s2">&quot;output_prefix&quot;</span><span class="p">:</span> <span class="n">output_prefix</span><span class="p">,</span>
+                <span class="s2">&quot;processing_status&quot;</span><span class="p">:</span> <span class="n">status</span>
+            <span class="p">}</span>
+            
+            <span class="n">set_clause</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> = %s&quot;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">update_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">update_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+            <span class="c1"># Add values for the WHERE clause</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">)</span>
+
+            <span class="c1"># Define the SQL UPDATE query</span>
+            
+            <span class="n">update_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">            UPDATE </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span>
+<span class="s2">            SET </span><span class="si">{</span><span class="n">set_clause</span><span class="si">}</span>
+<span class="s2">            WHERE case_uuid = %s</span>
+<span class="s2">                AND ((input_file != &#39;&#39; AND input_file = %s)</span>
+<span class="s2">                OR (input_dir != &#39;&#39; AND input_dir = %s))</span>
+<span class="s2">            &quot;&quot;&quot;</span>
+
+            <span class="c1"># Execute the SQL query with the correct values order</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">update_query</span><span class="p">,</span> <span class="n">values</span> <span class="o">+</span> <span class="p">[</span><span class="n">input_file</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">])</span>
+
+            <span class="c1"># Commit the changes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+            <span class="c1"># Check if the record was updated</span>
+            <span class="n">rows_updated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">rowcount</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Database updates </span><span class="si">{</span><span class="n">rows_updated</span><span class="si">}</span><span class="s2"> record(s).&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating record: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="DbOSIR.store_master_status">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.store_master_status">[docs]</a>
+    <span class="k">def</span> <span class="nf">store_master_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">modules_selected</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store or update the master status for a given case.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            case_path (str): The case path.</span>
+<span class="sd">            status (str): The processing status.</span>
+<span class="sd">            case_uuid (str): The case UUID.</span>
+<span class="sd">            modules_selected (str): The selected modules.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Check if the record exists</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT 1 FROM master_status WHERE case_path = </span><span class="si">%s</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_path</span><span class="p">,))</span>
+            <span class="n">exists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">exists</span><span class="p">:</span>
+                <span class="c1"># Record exists, update it</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    UPDATE master_status</span>
+<span class="s2">                    SET status = </span><span class="si">%s</span><span class="s2">, case_uuid = </span><span class="si">%s</span><span class="s2">, timestamp = </span><span class="si">%s</span><span class="s2">, modules_selected = </span><span class="si">%s</span>
+<span class="s2">                    WHERE case_path = </span><span class="si">%s</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">current_timestamp</span><span class="p">,</span> <span class="n">modules_selected</span><span class="p">,</span> <span class="n">case_path</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Record does not exist, insert new one</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    INSERT INTO master_status (case_path, status, case_uuid, modules_selected)</span>
+<span class="s2">                    VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">modules_selected</span><span class="p">))</span>
+
+            <span class="c1"># Commit the changes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+            <span class="c1"># Log the result</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;Updated&quot;</span> <span class="k">if</span> <span class="n">exists</span> <span class="k">else</span> <span class="s2">&quot;Inserted&quot;</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> master_status record for case_path: </span><span class="si">{</span><span class="n">case_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error in add_or_update_master_status: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span></div>
+
+            
+<div class="viewcode-block" id="DbOSIR.close">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.close">[docs]</a>
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the database connection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="DbOSIR.check_input_file">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.check_input_file">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Checks if the specified input file is currently being processed in any table except &#39;master_status&#39;.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                case_uuid (str): The UUID of the case.</span>
+<span class="sd">                input_file (str): The path of the input file to check.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                bool: True if the input file is currently being processed, False otherwise.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># Query to check if the input_file exists with processing_status not as &quot;processing_done&quot;</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT table_name</span>
+<span class="s2">                FROM information_schema.tables</span>
+<span class="s2">                WHERE table_schema=&#39;public&#39; AND table_name != &#39;master_status&#39;</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    SELECT 1</span>
+<span class="s2">                    FROM </span><span class="si">{}</span>
+<span class="s2">                    WHERE case_uuid = </span><span class="si">%s</span><span class="s2"> AND input_file = </span><span class="si">%s</span><span class="s2"> AND processing_status = &#39;processing_started&#39;</span>
+<span class="s2">                    LIMIT 1</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_file</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Query: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">mogrify</span><span class="p">(</span><span class="n">query</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span><span class="w"> </span><span class="n">input_file</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+        
+<div class="viewcode-block" id="DbOSIR.check_input_dir">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.check_input_dir">[docs]</a>
+    <span class="k">def</span> <span class="nf">check_input_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the specified input directory or its sub-items are currently being processed in any table except &#39;master_status&#39;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            case_uuid (str): The UUID of the case.</span>
+<span class="sd">            input_dir (str): The path of the input directory to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the input directory or its sub-items are currently being processed, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Query to check if the input_dir exists or is a sub item with processing_status not as &quot;processing_done&quot;</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT table_name</span>
+<span class="s2">                FROM information_schema.tables</span>
+<span class="s2">                WHERE table_schema=&#39;public&#39; AND table_name != &#39;master_status&#39;</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    SELECT 1</span>
+<span class="s2">                    FROM </span><span class="si">{}</span>
+<span class="s2">                    WHERE case_uuid = </span><span class="si">%s</span><span class="s2"> AND (</span>
+<span class="s2">                        input_dir = </span><span class="si">%s</span><span class="s2"> OR input_dir LIKE </span><span class="si">%s</span><span class="s2"> OR input_file LIKE </span><span class="si">%s</span>
+<span class="s2">                    ) AND processing_status = &#39;processing_started&#39;</span>
+<span class="s2">                    LIMIT 1</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+        
+<div class="viewcode-block" id="DbOSIR.is_processing_active">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.is_processing_active">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_processing_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if there is at least one table with a row for the given case_uuid</span>
+<span class="sd">        that has a column processing_status not equal to &#39;processing_done&#39;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            case_uuid (str): The case UUID.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if such a row exists, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT table_name</span>
+<span class="s2">                FROM information_schema.tables</span>
+<span class="s2">                WHERE table_schema = &#39;public&#39; AND table_name != &#39;master_status&#39;</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+            <span class="n">tables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">table</span> <span class="ow">in</span> <span class="n">tables</span><span class="p">:</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="n">sql</span><span class="o">.</span><span class="n">SQL</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    SELECT 1</span>
+<span class="s2">                    FROM </span><span class="si">{}</span>
+<span class="s2">                    WHERE case_uuid = </span><span class="si">%s</span><span class="s2"> AND processing_status != &#39;processing_done&#39;</span>
+<span class="s2">                    LIMIT 1</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sql</span><span class="o">.</span><span class="n">Identifier</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,))</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur</span><span class="o">.</span><span class="n">fetchone</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking processing status: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

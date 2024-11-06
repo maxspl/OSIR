@@ -1,0 +1,25 @@
+version: 1.0
+author:
+module: win_timeline
+description: Parsing of Windows Timeline (ActivitiesCache.db) artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/WxTCmd.exe
+  cmd: -f "{input_file}" --csv "{output_dir}"
+  source:
+  version: 
+input:
+  type: file
+  name: ActivitiesCache\.db
+  path: General/Artefacts/ActivityTimeline
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "/Endpoint_(.*?)/"

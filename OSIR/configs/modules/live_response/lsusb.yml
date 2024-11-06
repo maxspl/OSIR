@@ -1,0 +1,24 @@
+version: 1.0
+author: 
+module: lsusb
+description: Kelly Brazil - JsonConverter - Parsing the output of the command lsusb
+os: unix
+type: process
+requirements:
+disk_only: false
+no_multithread: false
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: cat
+  cmd: "{input_file} | jc --lsusb > {output_file}"
+input:
+  type: file
+  name: (?:lsusb)\.txt$
+  path: live_response/*
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

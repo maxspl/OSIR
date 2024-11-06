@@ -1,0 +1,25 @@
+version: 1.0
+author:
+module: srum
+description: Parsing of SRUM artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: artemis
+  cmd: acquire --format JSONL --output-dir {output_dir} srum --alt-file {input_file}
+  source: https://github.com/maxspl/artemis
+  version: 1.1
+input:
+  type: file
+  name: SRUDB\.dat
+  path: Windows/System32/sru
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "restore_fs\/(.*?)\/"

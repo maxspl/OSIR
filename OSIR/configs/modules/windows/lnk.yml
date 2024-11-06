@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: lnk
+description: Parsing of lnk artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/LECmd.exe
+  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" -q --all
+  source:
+  version: 
+input:
+  type: dir
+  path: extracted_files/General/Artefacts/lnk
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}.csv"
+endpoint: "/Endpoint_(.*?)/"

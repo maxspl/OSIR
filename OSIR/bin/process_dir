@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Function to display usage information
+usage() {
+    echo "Usage: $0 -d <directory> -o <output_file>"
+    exit 1
+}
+
+# Parse command-line options
+while getopts "d:o:" opt; do
+    case "$opt" in
+        d) directory=$OPTARG ;;
+        o) output_file=$OPTARG ;;
+        *) usage ;;
+    esac
+done
+
+# Check if both options were provided
+if [ -z "$directory" ] || [ -z "$output_file" ]; then
+    usage
+fi
+
+# Check if the specified directory exists
+if [ ! -d "$directory" ]; then
+    echo "Error: The specified directory does not exist."
+    exit 1
+fi
+
+# List files in the directory and save to the output file
+ls -l "$directory" > "$output_file"
+echo "Files in '$directory' have been listed in '$output_file'."
+

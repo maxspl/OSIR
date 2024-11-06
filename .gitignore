@@ -1,0 +1,38 @@
+# Vagrant and virtual machine files
+.vagrant/
+setup/windows_setup/.vagrant/
+setup/windows_setup/.vagrant/machines/dfir_box
+setup/windows_setup/src/dockur_storage/
+setup/windows_setup/src/win_iso/
+
+# Logs
+OSIR.log
+OSIR/log/OSIR.log
+OSIR/log/celery.log
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Configuration files
+setup/conf/agent.yml
+setup/conf/master_c.yml
+agent.yml
+master.yml
+
+# Environment files
+setup/agent/.env
+setup/master/.env
+
+# Data and storage directories
+setup/splunk/data/
+cases/
+postgres_data/
+share/smb_test_file
+
+# THOR binaries cannot be shared
+OSIR/bin/thor/
+OSIR/bin/thor-lite/
+
+# Splunk private app
+setup/splunk/apps/DFIR_ORC/

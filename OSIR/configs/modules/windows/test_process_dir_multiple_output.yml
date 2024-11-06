@@ -1,0 +1,22 @@
+version: 1.0
+author:
+module: test_process_dir_multiple_output
+description:
+os: windows
+type: process
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: process_dir_multiple_output
+  cmd: -d {input_dir} -o {output_dir}
+  source: 
+  version: 1.0
+input:
+  type: dir
+  path: extracted_files/Powershell
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "/Endpoint_(.*?)/"

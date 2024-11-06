@@ -1,0 +1,593 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profiles &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Documentation" href="api.html" />
+    <link rel="prev" title="Master setup in details" href="setup_details.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Profiles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-profile">Example Profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-new-profile">Create a new profile</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#modules">Modules</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#example-module">Example Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#srum-yml">srum.yml</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-required">version: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#author-required">author: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-required">module: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#description-required">description: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#os-required">os: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#type-required">type: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#disk-only-optional">disk_only: <strong>Optional</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#no-multithread-optional">no_multithread: <strong>Optional</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processor-os-required">processor_os: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processor-type-required">processor_type: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tool-required-only-if-processor-type-contains-external">tool: <strong>Required only if processor_type contains external</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#input-required">input: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output-required">output: <strong>Required</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#endpoint-optional">endpoint: <strong>Optional</strong></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-optional">optional: <strong>Optional</strong></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-new-module">Create a new module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Profiles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/modules_and_profiles.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="profiles">
+<h1>Profiles<a class="headerlink" href="#profiles" title="Link to this heading"></a></h1>
+<p>Profiles are YAML configuration files that define a set of modules to be executed. Each profile specifies the operating system, modules, and other metadata required for the process.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Profiles are located in OSIR/OSIR/configs/profiles. They can be placed in any subdirectory of this path, the directory name does not matter.</p>
+</div>
+<section id="example-profile">
+<h2>Example Profile<a class="headerlink" href="#example-profile" title="Link to this heading"></a></h2>
+<p>Below is an example profile <cite>DFIR_ORC.yml</cite>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="nt">author</span><span class="p">:</span>
+<span class="nt">description</span><span class="p">:</span>
+<span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">windows</span>
+<span class="nt">modules</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extract_orc.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">evtx_orc.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_process_dir</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_process_dir_multiple_output</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prefetch</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">restore_fs</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">amcache.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chromium.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">firefox.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hives_hklm.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hives_hkcu.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jump_list.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lnk.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">recycle_bin.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shell_bags.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shimcache.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">srum.yml</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">win_timeline.yml</span>
+</pre></div>
+</div>
+</section>
+<section id="create-a-new-profile">
+<h2>Create a new profile<a class="headerlink" href="#create-a-new-profile" title="Link to this heading"></a></h2>
+<p>To create a new profile, follow this structure :</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="nt">author</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">author_name</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile_description</span>
+<span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">os_typ</span>
+<span class="nt">modules</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">module1.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">module2.yml</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">INPUT ALL THE MODULE YOU WANT</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h1>
+<p>Modules are individual YAML files that define specific tasks to be executed. Each module includes metadata such as the version, author, description, operating system, type, and requirements.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Modules are essential and are the core of the project. Each processing tool is specified by a module. They are used to specify:</p>
+<ul class="simple">
+<li><p>the tool to run and its options</p></li>
+<li><p>the input file or the directory</p></li>
+<li><p>the output file or the directory</p></li>
+<li><p>…</p></li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Modules are located in OSIR/OSIR/configs/modules. They can be placed in any subdirectory of this path, the directory name does not matter.</p>
+</div>
+<section id="example-module">
+<h2>Example Module<a class="headerlink" href="#example-module" title="Link to this heading"></a></h2>
+<section id="srum-yml">
+<h3>srum.yml<a class="headerlink" href="#srum-yml" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="nt">author</span><span class="p">:</span>
+<span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">srum</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Parsing of SRUM artifact.</span>
+<span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">windows</span>
+<span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">process</span>
+<span class="nt">disk_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="nt">no_multithread</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="nt">processor_type</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external</span>
+<span class="nt">processor_os</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unix</span>
+<span class="nt">tool</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">artemis</span>
+<span class="w">  </span><span class="nt">cmd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acquire --format JSONL --output-dir {output_dir} srum --alt-file {input_file}</span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/maxspl/artemis</span>
+<span class="w">  </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1</span>
+<span class="nt">input</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SRUDB\.dat</span>
+<span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Windows/System32/sru</span>
+<span class="nt">output</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">multiple_files</span>
+<span class="w">  </span><span class="nt">format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">csv</span>
+<span class="w">  </span><span class="nt">output_prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{endpoint_name}--{module}-&quot;</span>
+<span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;restore_fs\\/(.*?)\\/&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<section id="version-required">
+<h3>version: <strong>Required</strong><a class="headerlink" href="#version-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The version of the module.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="author-required">
+<h3>author: <strong>Required</strong><a class="headerlink" href="#author-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The author of the module.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="module-required">
+<h3>module: <strong>Required</strong><a class="headerlink" href="#module-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The name of the module. Requires to be the same name as the module file name.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="description-required">
+<h3>description: <strong>Required</strong><a class="headerlink" href="#description-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Description of the module.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="os-required">
+<h3>os: <strong>Required</strong><a class="headerlink" href="#os-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The operating system the module is designed for.</p></li>
+<li><p>Informational, not used to process the input.</p></li>
+<li><p>Examples of value: Windows, Unix, Network etc.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="type-required">
+<h3>type: <strong>Required</strong><a class="headerlink" href="#type-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The type of module (e.g., pre-process, process, post-process).</p></li>
+<li><p>Informational, not used to process the input.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="disk-only-optional">
+<h3>disk_only: <strong>Optional</strong><a class="headerlink" href="#disk-only-optional" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Boolean indicating if the module can only take input via direct access (not via SMB), ie. only if the agent is on the same host as the master.</p></li>
+<li><p>Default value is False.</p></li>
+<li><p>Used to determine the queue for the task.</p></li>
+<li><p>Useful for tasks that require many disk operations like decompressing 7z.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="no-multithread-optional">
+<h3>no_multithread: <strong>Optional</strong><a class="headerlink" href="#no-multithread-optional" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Boolean indicating if the module must be processed by a queue that does not allow concurent tasks.</p></li>
+<li><p>Default value is False.</p></li>
+<li><p>Each tasks with this option will be processed sequentially on each agent.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="processor-os-required">
+<h3>processor_os: <strong>Required</strong><a class="headerlink" href="#processor-os-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Operating system for the processor.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="processor-type-required">
+<h3>processor_type: <strong>Required</strong><a class="headerlink" href="#processor-type-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Two processor types exist:</dt><dd><ul>
+<li><p>external: if processor_os is unix, a subprocess run the tool specified inside the agent docker. If the processor_os is Windows the tool specified is run on the Windows box via WinRM</p></li>
+<li><p>internal: a internal processor is a python module (exposing defined functions, described in the documentation) under OSIR/OSIR/src/modules/. The name of the python module must the name of the module specified in the config file of the module</p></li>
+<li><p>Example: OSIR/OSIR/configs/modules/pre-process/extract_orc.yml is using the module OSIR/OSIR/src/modules/windows/extract_orc.py</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>List of values.</p></li>
+<li><p>Possible values: internal, external (can contain both if the internal module uses an external tool defined in the config file)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="tool-required-only-if-processor-type-contains-external">
+<h3>tool: <strong>Required only if processor_type contains external</strong><a class="headerlink" href="#tool-required-only-if-processor-type-contains-external" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>path: <strong>Required</strong></dt><dd><ul>
+<li><p>Path to the tool.</p></li>
+<li><dl class="simple">
+<dt>If processor_os is unix, there are 3 choices:</dt><dd><ul>
+<li><p>relative path from OSIR/OSIR/bin/ on agent docker</p></li>
+<li><p>full path of the tool on agent docker</p></li>
+<li><p>path of the tool presents in the PATH env var of agent docker</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>If processor_os is windows, only one choice for the moment:</dt><dd><ul>
+<li><p>full path from &lt;mount_point&gt;OSIRbin where &lt;mount_point&gt; is defined in agent config, default is C:</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>cmd: <strong>Required</strong></dt><dd><ul>
+<li><p>Command line of the tool. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>source: <strong>Optional</strong></dt><dd><ul>
+<li><p>URL to the source of the tool.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>version: <strong>Optional</strong></dt><dd><ul>
+<li><p>Version of the tool.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="input-required">
+<h3>input: <strong>Required</strong><a class="headerlink" href="#input-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>type:  <strong>Required</strong></dt><dd><ul>
+<li><p>Possible values: file, dir</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>name: <strong>Required</strong></dt><dd><ul>
+<li><p>Regex pattern to identify the input file.</p></li>
+<li><p>Can only be used input type is file.</p></li>
+<li><p>If input type is file, path option can also be used.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>path: <strong>Required</strong></dt><dd><ul>
+<li><p>Path suffix of the input file or directory.</p></li>
+<li><p>File or dir to match must end the path specified.</p></li>
+<li><p>Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>How to use module output as input of a new module ? Just specify input.name or/and input.path. The tool automatically processes each new file to match a module.</p>
+</div>
+</section>
+<section id="output-required">
+<h3>output: <strong>Required</strong><a class="headerlink" href="#output-required" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>type: <strong>Required</strong></dt><dd><ul>
+<li><p>Type of output</p></li>
+<li><p>Possible values: single_file, multiple_files, None</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>format: <strong>Optional</strong></dt><dd><ul>
+<li><p>Format of the output (e.g., csv, jsonl).</p></li>
+<li><p>Informational, not used to process the output.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>output_prefix: <strong>Optional</strong></dt><dd><ul>
+<li><p>Can only be used if output type is multiple_files.</p></li>
+<li><p>Use to add a prefix to each file and directory that are the output.</p></li>
+<li><p>Usefull when tools don’t allow to specify output name.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>output_file: <strong>Optional</strong></dt><dd><ul>
+<li><p>Name of the output file. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>output_dir: <strong>Optional</strong></dt><dd><ul>
+<li><p>Name of the output directory. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)</p></li>
+<li><p>Default is default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/&lt;module_name&gt;</p></li>
+<li><p>As a default value exists, no need to define it to use it in command line if default value is desired.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</section>
+<section id="endpoint-optional">
+<h3>endpoint: <strong>Optional</strong><a class="headerlink" href="#endpoint-optional" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Regex pattern to capture the name of the input in the path of the input dir or the input directory.</p></li>
+<li><p>Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="optional-optional">
+<h3>optional: <strong>Optional</strong><a class="headerlink" href="#optional-optional" title="Link to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>List of &lt;key: value&gt; that will be used as exposed variables and can be referenced in the command line.</p></li>
+<li><p>Ex: if optional contain password: ABCD and the command line contains {optional_password}, it will be replaced with ABCD.</p></li>
+</ul>
+</div></blockquote>
+</section>
+</section>
+<section id="create-a-new-module">
+<h2>Create a new module<a class="headerlink" href="#create-a-new-module" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>To create a new module from scratch you can:</dt><dd><ul class="simple">
+<li><p><strong>Manual</strong>: Create a .yml file using an existing one as example and add the binary required if exernal type or create python module if internal type.</p></li>
+<li><p><strong>Automatic</strong>: Run the Python helper to follow a guided module creation like discribed below.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Automatic process only support basic modules options.</p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>module
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Then, the helper will propose two types of processes:</dt><dd><ul class="simple">
+<li><p><strong>short</strong>: It will only generates the sample files and gives their path, you have to modify them.</p></li>
+<li><p><strong>long</strong>: It will ask you all (in fact, some options are available through the helper) required fields and generated the module ready to work.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Below is an example of how to create a module for parsing ‘/var/log/debug’. It will working internal Python module but doing only basic action, the parsing logic must be added by yourself:</p>
+<img alt="Make module" src="_images/MakeModule.gif" />
+<p>After the creation you can execute the module on a extracted collect :</p>
+<img alt="Execute module" src="_images/ExecuteDebug.gif" />
+<p>And the result of the created module can be see in the cases_path/debug/</p>
+<img alt="Examine results" src="_images/ResultDebug.gif" />
+</section>
+</section>
+<section id="exposed-variables">
+<h1>Exposed variables<a class="headerlink" href="#exposed-variables" title="Link to this heading"></a></h1>
+<p>Exposed variables are replaced by the OSIR agent during execution. To be used in the config files, they need to be contained in {}.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Exposed Variables</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 40.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Where It Can Be Used</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{input_file}</span></code></p></td>
+<td><p>Path of the input file that matched input options in module config file.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code>, <code class="docutils literal notranslate"><span class="pre">output.output_file</span></code>, <code class="docutils literal notranslate"><span class="pre">output_prefix</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{input_dir}</span></code></p></td>
+<td><p>Path of the input directory that matched input options in module config file.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{output_file}</span></code></p></td>
+<td><p>Name of the output file, defined in output options in module config file.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{output_dir}</span></code></p></td>
+<td><p>Path of the output directory, default is the name of the module in the case.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{module}</span></code></p></td>
+<td><p>Name of the module.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code>, <code class="docutils literal notranslate"><span class="pre">output.output_file</span></code>, <code class="docutils literal notranslate"><span class="pre">output_prefix</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{endpoint_name}</span></code></p></td>
+<td><p>Value extracted from pattern regex specified in endpoint option.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">output.output_file</span></code>, <code class="docutils literal notranslate"><span class="pre">output_prefix</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{case_name}</span></code></p></td>
+<td><p>Name of the case being processed.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">{case_path}</span></code></p></td>
+<td><p>Path of the case being processed.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">input.path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{optional_*}</span></code></p></td>
+<td><p>Optional values, usage described in module documentation.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tool.cmd</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="setup_details.html" class="btn btn-neutral float-left" title="Master setup in details" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

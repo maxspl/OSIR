@@ -1,0 +1,21 @@
+version: 1.0
+author:
+module: cron
+description: Parsing logs from '/var/log/cron'
+os: unix
+type: process
+requirements:
+disk_only: True
+no_multithread: True
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: (?:cron)
+  path: var/log
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

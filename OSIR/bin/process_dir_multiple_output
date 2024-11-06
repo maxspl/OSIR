@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Initialize variables
+input_dir=""
+output_dir=""
+
+# Parse command-line options
+while getopts ":d:o:" opt; do
+  case ${opt} in
+    d )
+      input_dir=$OPTARG
+      ;;
+    o )
+      output_dir=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+    : )
+      echo "Option -$OPTARG requires an argument." 1>&2
+      exit 1
+      ;;
+  esac
+done
+
+# Check if output directory has been set
+if [ -z "$output_dir" ]; then
+  echo "Output directory not specified."
+  exit 1
+fi
+
+# Create directories
+mkdir -p "$output_dir/msp_1"
+mkdir -p "$output_dir/msp_2"
+
+# Create files
+touch "$output_dir/msp_1/msp.txt"
+touch "$output_dir/msp_2/msp.txt"
+
+echo "Directories and files have been created successfully."
+

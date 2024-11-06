@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: prefetch
+description:
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/PECmd.exe
+  cmd: -d "{input_dir}" --json "{output_dir}" --jsonf "{output_file}" -q
+  source:
+  version:
+input:
+  type: dir
+  path: Windows/Prefetch
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "restore_fs\/(.*?)\/"

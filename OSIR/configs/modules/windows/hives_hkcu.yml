@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: hives_hkcu
+description: Parsing of registry hives artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/RECmd/RECmd.exe
+  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" --bn "{drive}\OSIR\bin\net6\RECmd\BatchExamples\DFIRBatch.reb" --recover
+  source:
+  version: 
+input:
+  type: dir
+  path: Users/
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}.csv"
+endpoint: "restore_fs\/(.*?)\/"

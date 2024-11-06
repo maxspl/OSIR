@@ -1,0 +1,21 @@
+version: 1.0
+author:
+module: bodyfile
+description: Parsing logs from '/bodyfile' in UAC collect
+os: unix
+type: process
+requirements:
+disk_only: True
+no_multithread: True
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: (?:bodyfile).txt$
+  path: bodyfile/
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

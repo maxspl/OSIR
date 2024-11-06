@@ -1,0 +1,26 @@
+FROM alpine:latest
+#TODO Fix issue samba-server doesn't exist in alpine:3.12
+RUN apk add --no-cache --update \
+    samba-common-tools \
+    samba-client \
+    samba-server
+
+
+RUN sleep 10
+COPY ../../conf/smb.conf /etc/samba/smb.conf
+
+EXPOSE 139/tcp 445/tcp
+
+# In case we need to attach
+RUN apk add --no-cache bash
+
+# Add user as guest account is not authorized by design from Windows
+RUN adduser vagrant_smb --disabled-password --gecos ""
+RUN echo "vagrant_smb:vagrant_smb" | chpasswd
+RUN (echo "vagrant_smb"; echo "vagrant_smb") | smbpasswd -s -a "vagrant_smb"
+RUN addgroup sambashare
+RUN adduser vagrant_smb sambashare
+RUN adduser root sambashare
+RUN mkdir /Shared
+RUN chown -R :sambashare /Shared
+CMD ["smbd", "--foreground", "--no-process-group"]

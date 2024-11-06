@@ -1,0 +1,25 @@
+version: 1.0
+author:
+module: shimcache
+description: Parsing of ShimCache artifact.
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/AppCompatCacheParser.exe
+  cmd: -f "{input_file}" --csv "{output_dir}" --csvf "{output_file}"
+  source:
+  version: 
+input:
+  type: file
+  name: SYSTEM$
+  path: Windows/System32/config
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}-{input_file}.csv"
+endpoint: "restore_fs\/(.*?)\/"

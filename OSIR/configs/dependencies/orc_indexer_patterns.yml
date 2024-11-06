@@ -1,0 +1,14 @@
+win_memory_csv:
+    name_rex: \.csv$
+    path_suffix: win_memory
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+win_memory_json:
+    name_rex: \.json$
+    path_suffix: win_memory
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "date"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"

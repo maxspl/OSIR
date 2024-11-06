@@ -1,0 +1,26 @@
+version: 1.0
+author:
+module: shell_bags
+description: Parsing of shell bags artifact.
+os: windows
+type: process
+requirements: 
+  - restore_fs
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: net6/SBECmd.exe
+  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}"
+  source:
+  version: 
+input:
+  type: dir
+  path: C/Users
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}.csv"
+endpoint: "restore_fs\/(.*?)\/"

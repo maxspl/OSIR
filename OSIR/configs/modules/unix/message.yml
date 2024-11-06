@@ -1,0 +1,21 @@
+version: 1.0
+author:
+module: message
+description: Parsing logs from '/var/log/message'
+os: unix
+type: process
+requirements:
+disk_only: True
+no_multithread: false
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: (?:message)
+  path: var/log
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

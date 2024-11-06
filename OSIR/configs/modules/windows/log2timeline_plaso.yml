@@ -1,0 +1,24 @@
+version: 1.0
+author:
+module: log2timeline_plaso
+description: run log2timeline to create a Plaso storage file
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: docker
+  cmd: run --rm -v agent_OSIR_volume:/OSIR/ log2timeline/plaso log2timeline.py --storage_file {output_file} --parsers lnk {input_dir}
+  source: https://hub.docker.com/r/log2timeline/plaso
+  version: latest
+input:
+  type: dir
+  path: extracted_files
+output:
+  type: single_file
+  format: plaso
+  output_file: "{endpoint_name}--{module}-log2timeline.plaso"
+endpoint: "/Endpoint_(.*?)/"
