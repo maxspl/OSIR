@@ -71,6 +71,8 @@ Processing of case (**several cases can be processed in same time**):
 
 # Documentation
 
+Project documentation: https://osir.readthedocs.io
+
 # Currently supported modules
 
 
