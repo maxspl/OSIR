@@ -1,0 +1,25 @@
+version: 1.0
+author:
+module: extract_orc
+description:
+os: windows
+type: pre-process
+disk_only: True
+no_multithread: True
+processor_type: 
+  - internal
+  - external
+processor_os: unix
+tool: 
+  path: 7zz
+  source: 
+  version: 24.07
+  cmd: x -o{output_dir} -y {input_file} -p"{optional_password}"
+input:
+  type: file
+  name: ^DFIR-ORC_(?:Server|WorkStation|DomainController)_((?:\w|-|\.)+)_(\w+)\.7z$
+output:
+  type: multiple_files
+  format: raw
+optional:
+  password: avproof

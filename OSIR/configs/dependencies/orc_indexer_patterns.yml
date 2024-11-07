@@ -1,3 +1,97 @@
+
+evtx_orc:
+    name_rex: \.jsonl$
+    path_suffix: evtx_orc
+    sourcetype: evtx:jsonl
+    host_path: "Event.System.Computer"
+    timestamp_path: "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+amcache:
+    name_rex: \.csv$
+    path_suffix: amcache
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "KeyLastWriteTimestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+chromium:
+    name_rex: \.jsonl$
+    path_suffix: chromium
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "datetime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f+00:00"
+hives:
+    name_rex: --hives_*\w*\.csv
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "LastWriteTimestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+jump_list:
+    name_rex: \.csv$
+    path_suffix: jump_list
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "SourceModified"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+lnk:
+    name_rex: \.csv$
+    path_suffix: lnk
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "SourceModified"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+prefetch:
+    name_rex: \.jsonl$
+    path_suffix: prefetch
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "SourceModified"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+recycle_bin:
+    name_rex: \.csv$
+    path_suffix: recycle_bin
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "DeletedOn"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+shell_bags:
+    name_rex: \.csv$
+    path_suffix: shell_bags
+    sourcetype: _json
+    host_rex: ([a-zA-Z0-9\.-]+)--
+    timestamp_path: "LastWriteTime"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+shimcache:
+    name_rex: \.csv$
+    path_suffix: shimcache
+    sourcetype: '_json'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "LastModifiedTimeUTC"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+srum:
+    name_rex: --srum-.*\.jsonl$
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "data.timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+thor:
+    name_rex: \.jsonl$
+    path_suffix: thor
+    sourcetype: _json
+    host_rex: ([\w\.-]+)--
+    timestamp_path: "time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+ntfs_info:
+    name_rex: NTFSInfo.*csv$
+    path_suffix: NTFSInfoFull_detail
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: "LastModificationDate"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+orc_csv:
+    name_rex: extract_orc\/.*\.csv$
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
 win_memory_csv:
     name_rex: \.csv$
     path_suffix: win_memory
