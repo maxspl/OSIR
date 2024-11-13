@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import yaml
 import concurrent.futures
+from src.utils.BaseModule import BaseInput
 from streamlit_extras.colored_header import colored_header
 from src.utils.BaseProfile import BaseProfile
 from src.tasks import task_manager
@@ -36,6 +37,19 @@ class FileManager:
                         paths.append(relative_path)
         return paths
 
+    @staticmethod
+    def get_files_in_cases(directory):
+        """
+        Get a list of files in a given directory (recursive).
+
+        Args:
+            directory (str): The directory to search for subdirectories.
+
+        Returns:
+            list: A list of files found in the directory.
+        """
+        return [os.path.relpath(os.path.join(root, file), directory) for root, _, files in os.walk(directory) for file in files]
+        
     @staticmethod
     def get_yaml_files(directory):
         """
@@ -161,16 +175,46 @@ class ConfigurationApp:
             color_name="violet-70",
         )
 
-        tabs = st.tabs(["Main", "Helper"])
+        tabs = st.tabs(["Main", "Apply Module", "Helper"])
 
         with tabs[0]:
             self.main_tab()
 
-        with tabs[1]:
+        with tabs[2]:
             self.helper_tab()
+
+        with tabs[1]:
+            self.module_applier()
 
         MasterSideBar.sidebar()
 
+    def module_applier(self):
+        st.title("Apply Module")
+
+        st.write("This section allows you to apply a specific module to a file. Select a case, then a file, and finally a module, then start the action.")
+
+        # Add an empty option at the start of self.cases and self.modules_w_parentdir
+        selected_case = st.selectbox("Case", [""] + self.cases, help="Select a case directory.", key="apply_file")
+
+         # Only show file dropdown if a case is selected
+        if selected_case:
+            files_in_case = FileManager.get_files_in_cases(os.path.join(self.CASES_DIR, selected_case))
+            file = st.selectbox("File", [""] + files_in_case, help="Select a file to apply the module to.")
+        else:
+            file = None  # In case no file is selected
+        
+        if file:
+            module = st.selectbox("Modules", [""] + self.modules_w_parentdir, help="Select specific modules to be exclusively used.")
+            selected_modules = [os.path.basename(module)] if module else []
+        else:
+            module = None
+       
+
+        # Action button
+        if st.button("Submits "):
+            self.process_submission_file(selected_modules, selected_case, file)
+
+        
     def main_tab(self):
         """
         Method to set up and handle the main tab in the UI.
@@ -253,7 +297,44 @@ class ConfigurationApp:
     #         cases_usage = SystemManager.get_directory_size(self.CASES_DIR)
     #         st.write(f"**Used:** {cases_usage:.2f} GB")
 
-    def process_submission(self, selected_profile, selected_modules, module_add, module_remove, selected_case):
+    def process_submission_file(self, selected_module: list[str], selected_case: str, selected_file: str):
+        case_path = os.path.join(self.CASES_DIR, selected_case)
+        try:
+            job = task_manager.ProcessorJob(
+                case_path, None, selected_module, [], []
+            )
+        except FileNotFoundError as e:
+            st.error(f"Error creating ProcessorJob: {e}")
+            logger.error(f"Error creating ProcessorJob: {e}")
+            return
+
+        modules_selected = job._get_modules_selected()
+
+        # Used only for display, given more information with the module parent dir inside modules dir
+        module_w_parentdir = FileManager.resolve_modules_parent_dir(modules_selected)
+        modules_selected_str = "\n".join([f"- {module}" for module in module_w_parentdir])
+
+        # Display the selected modules in a better format
+        st.info(f"Modules selected:\n\n{modules_selected_str}")
+
+        monitor_case = MonitorCase.MonitorCase(case_path, modules_selected)
+        
+        # Apply the file to the uniq module :
+        monitor_case.module_instances[0].input = BaseInput({})
+        monitor_case.module_instances[0].input.type = "file" 
+        monitor_case.module_instances[0].input.name = os.path.basename(selected_file)
+        # logger.debug(os.path.basename(os.path.dirname(selected_file)) + '/*')
+        # monitor_case.module_instances[0].input.path = os.path.basename(os.path.dirname(selected_file)) + '/*'
+
+        # Use ThreadPoolExecutor to run the setup_handler in the background
+        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        executor.submit(monitor_case.setup_handler)
+
+        st.success("Processing started.")
+        st.page_link("pages/🏨_ProcessingStatus.py", label="Processing status", icon="🏨")
+
+
+    def process_submission(self, selected_profile, selected_modules, module_add, module_remove, selected_case,):
         """
         Process the input values and initiate the processing job.
 
@@ -263,7 +344,6 @@ class ConfigurationApp:
             module_add (str): Comma-separated string of modules to add.
             module_remove (str): Comma-separated string of modules to remove.
             selected_case (str): The selected case directory.
-
         Returns:
             None
         """

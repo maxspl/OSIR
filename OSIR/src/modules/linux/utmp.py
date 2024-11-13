@@ -68,7 +68,9 @@ class UtmpModule(PyModule, UnixUtils):
 
             with open(self._file_to_process, "rb") as utmp_file:
                 while chunk := utmp_file.read(384):  # Read 384 bytes per record
-                    writer_queue.put(self.parse(chunk))
+                    test = self.parse(chunk)
+                    logger.debug(test)
+                    writer_queue.put(test)
 
             writer_queue.put(None)
             logger.debug(f"{self.module.module_name} done")

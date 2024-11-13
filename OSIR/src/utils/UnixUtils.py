@@ -159,6 +159,7 @@ class UnixUtils:
             queue (Queue): Queue containing log data.
             output_path (Optional[str]): Path to save the output JSONL file. If None, generated based on module endpoint.
         """
+        logger.debug("ici")
         if not output_path:
             pattern = re.compile(self.module.endpoint)
             match = pattern.search(self.module.input.file)
@@ -169,9 +170,10 @@ class UnixUtils:
                 os.makedirs(output_path, exist_ok=True)
 
             output_path = os.path.join(output_path, os.path.basename(self.module.input.file)+'.jsonl')
-
+        logger.debug(output_path)
         with open(output_path, "a") as file:
             while True:
+                logger.debug("ici")
                 data = queue.get()
                 if data is None:
                     break
