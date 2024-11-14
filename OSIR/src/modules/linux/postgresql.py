@@ -32,6 +32,8 @@ class PostgresqlModule(PyModule, UnixUtils):
             "severity": lambda log: self.get_severity(log)
         }
 
+        self._format_output_file()
+
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module

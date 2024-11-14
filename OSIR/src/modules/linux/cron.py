@@ -38,6 +38,9 @@ class CronModule(PyModule, UnixUtils):
             ("service_related", lambda log: self.safe_search(r"LIST\s\(([^\)]*)\)", log))
         ]
 
+        self._format_output_file()
+
+
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.
