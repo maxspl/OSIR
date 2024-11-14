@@ -35,6 +35,8 @@ class MailModule(PyModule, UnixUtils):
             "subject": lambda log: self.safe_search(r'(?<=Subject: ).*?(?=\sfrom)', log),
             "message_id": lambda log: self.safe_search(r'^\S+\s+\d+\s\d+:\d+:\d+\s\S+\s\S+\s([A-Z0-9]+):', log)
         }
+
+        self._format_output_file()
         
     def __call__(self) -> bool:
         """

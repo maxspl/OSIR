@@ -159,27 +159,36 @@ class UnixUtils:
             queue (Queue): Queue containing log data.
             output_path (Optional[str]): Path to save the output JSONL file. If None, generated based on module endpoint.
         """
-        logger.debug("ici")
-        if not output_path:
-            pattern = re.compile(self.module.endpoint)
-            match = pattern.search(self.module.input.file)
-            endpoint_name = match.groups()[0]
-            output_path = os.path.join(self.default_output_dir, endpoint_name)
+        try:
+            if not output_path:
+                if hasattr(self.module, 'endpoint') and self.module.endpoint:
+                    pattern = re.compile(self.module.endpoint)
+                    match = pattern.search(self.module.input.file)
+                    endpoint_name = match.groups()[0]
+                    output_path = os.path.join(self.default_output_dir, endpoint_name)
 
-            if not os.path.exists(output_path):
-                os.makedirs(output_path, exist_ok=True)
+                    if not os.path.exists(output_path):
+                        os.makedirs(output_path, exist_ok=True)
 
-            output_path = os.path.join(output_path, os.path.basename(self.module.input.file)+'.jsonl')
-        logger.debug(output_path)
-        with open(output_path, "a") as file:
-            while True:
-                logger.debug("ici")
-                data = queue.get()
-                if data is None:
-                    break
-                json.dump(data, file)
-                file.write('\n')
-                queue.task_done()
+                    output_path = os.path.join(output_path, os.path.basename(self.module.input.file)+'.jsonl')
+                else:
+                    # TODO : Maybe change this to something more reliable when the endpoint is not provided
+                    if self.module.output.output_file.startswith('--'):
+                        self.module.output.output_file = 'DEFAULT' + self.module.output.output_file
+
+                    output_path = os.path.join(self.default_output_dir,  self.module.output.output_file)
+
+            with open(output_path, "a") as file:
+                while True:
+                    data = queue.get()
+                    if data is None:
+                        break
+                    json.dump(data, file)
+                    file.write('\n')
+                    queue.task_done()
+
+        except Exception as exc:
+            logger.error_handler(exc, "Error setting up writter thread")
 
     def start_writer_thread(self):
         """

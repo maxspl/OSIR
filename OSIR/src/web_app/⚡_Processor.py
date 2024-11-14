@@ -322,9 +322,9 @@ class ConfigurationApp:
         # Apply the file to the uniq module :
         monitor_case.module_instances[0].input = BaseInput({})
         monitor_case.module_instances[0].input.type = "file" 
-        monitor_case.module_instances[0].input.name = os.path.basename(selected_file)
-        # logger.debug(os.path.basename(os.path.dirname(selected_file)) + '/*')
-        # monitor_case.module_instances[0].input.path = os.path.basename(os.path.dirname(selected_file)) + '/*'
+        monitor_case.module_instances[0].input.name = '^' + os.path.basename(selected_file) + '$'
+        if monitor_case.module_instances[0].endpoint:
+            monitor_case.module_instances[0].endpoint = ''
 
         # Use ThreadPoolExecutor to run the setup_handler in the background
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)

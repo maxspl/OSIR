@@ -55,6 +55,8 @@ class UtmpModule(PyModule, UnixUtils):
             ("IPv4", lambda log: ipaddress.IPv4Address(struct.unpack(">L", log[348:352])[0]).__str__())
         ]
 
+        self._format_output_file()
+
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.
@@ -68,9 +70,7 @@ class UtmpModule(PyModule, UnixUtils):
 
             with open(self._file_to_process, "rb") as utmp_file:
                 while chunk := utmp_file.read(384):  # Read 384 bytes per record
-                    test = self.parse(chunk)
-                    logger.debug(test)
-                    writer_queue.put(test)
+                    writer_queue.put(self.parse(chunk))
 
             writer_queue.put(None)
             logger.debug(f"{self.module.module_name} done")
