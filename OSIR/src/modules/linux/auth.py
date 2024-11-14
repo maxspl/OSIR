@@ -24,10 +24,6 @@ class MODULE_NAMEModule(PyModule, UnixUtils):
 
         self._file_to_process = module.input.file
 
-        self.structure = [
-            ("_raw", lambda log: log)  # Raw log entry
-        ]
-
         self._format_output_file()
 
     def __call__(self) -> bool:
@@ -42,22 +38,17 @@ class MODULE_NAMEModule(PyModule, UnixUtils):
             logger.debug(f"Processing file {self._file_to_process}")
 
             for log in self.get_log():
-                writer_queue.put(self.parse(log))
+                to_return = {'_raw': log}
+
+                match = re.match('^(?P<date>\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<process>[-_\w]+)\[?(?P<pid>\d+)?\]?:\s(?P<message>.+)$', log)
+                
+                if match:
+                    to_return.update(match.groupdict())
+
+                writer_queue.put(to_return)
 
             writer_queue.put(None)
             logger.debug(f"{self.module.module_name} done")
 
         except Exception as exc:
             logger.error_handler(exc)
-
-    def parse(self, log):
-        """
-        Parse a single log entry based on the structure defined.
-
-        Args:
-            log (str): The log entry to parse.
-
-        Returns:
-            dict: Parsed log data.
-        """
-        return {field: parser(log) for field, parser in self.structure}
