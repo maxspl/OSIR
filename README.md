@@ -53,6 +53,12 @@ Processing of case (**several cases can be processed in same time**):
 
 # Quick start
 
+## Clone the project including dependencies
+
+```bash
+git clone --recurse-submodules https://github.com/maxspl/OSIR
+```
+
 ## Example of usage: parsing DFIR ORC triage on Ubuntu host
 
 ![usage](./docs/source/_img/Usage.gif)

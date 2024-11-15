@@ -138,7 +138,7 @@ Clone the repository:
 
 .. code-block:: bash
 
-    git clone <TO CHANGE after release>
+    git clone --recurse-submodules https://github.com/maxspl/OSIR.git
 
 Master installation
 *******************
