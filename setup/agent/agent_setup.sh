@@ -574,6 +574,12 @@ manual_install(){
             exit 0
         fi
 
+        # If master host is localhost but Windows is remote, we need to use the IP address, not local host or Windows will try to connect via 10.0.2.2
+        if [[ "$master_host" == "localhost" || "$master_host" == "127.0.0.1" || "$master_host" == "host.docker.internal" ]]; then
+            (echo >&2 "${ERROR} You are using remote Windows but the master is localhost, you need to specify the real IP address of the master host.")
+            exit 0
+        fi
+
         # Ask user : remote Windows host user
         default_user="vagrant"
         read -p "$(echo -n >&2 "${USERINPUT} Enter the remote Windows user (need to be admin). [Default is: $default_user]: ")" user
