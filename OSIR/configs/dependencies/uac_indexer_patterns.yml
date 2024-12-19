@@ -1,0 +1,130 @@
+
+arp:
+    name_rex: \.jsonl$
+    path_suffix: arp
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+blkid:
+    name_rex: \.jsonl$
+    path_suffix: blkid
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+bodyfile:
+    name_rex: bodyfile.*\.jsonl$
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: "mtime"
+    timestamp_format: "%s"
+boot:
+    name_rex: boot.*\.jsonl$
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+df:
+    name_rex: \.jsonl$
+    path_suffix: df
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+dmidecode:
+    name_rex: \.jsonl$
+    path_suffix: dmidecode
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+dkpg:
+    name_rex: dpkg.*\.jsonl$
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: "_time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+env:
+    name_rex: \.jsonl$
+    path_suffix: env
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+findmnt:
+    name_rex: \.jsonl$
+    path_suffix: findmnt
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+free:
+    name_rex: \.jsonl$
+    path_suffix: free
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+iptables:
+    name_rex: \.jsonl$
+    path_suffix: iptables
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+journal:
+    name_rex: \.jsonl$
+    path_suffix: journal
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+    timestamp_path: "__REALTIME_TIMESTAMP"
+last:
+    name_rex: \.jsonl$
+    path_suffix: last
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+    timestamp_path: "login"
+    timestamp_format: "%a %b %d %H:%M"
+lastlog:
+    name_rex: lastlog.*\.jsonl$
+    path_suffix: lastlog
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: "_time"
+    timestamp_format: "%Y/%m/%d %H:%M:%S"
+lsblk:
+    name_rex: \.jsonl$
+    path_suffix: lsblk
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+lsmod:
+    name_rex: \.jsonl$
+    path_suffix: lsmod
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+mount:
+    name_rex: \.jsonl$
+    path_suffix: mount
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+ps:
+    name_rex: \.jsonl$
+    path_suffix: ps
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+sysctl:
+    name_rex: \.jsonl$
+    path_suffix: sysctl
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+syslog:
+    name_rex: syslog.*\.jsonl$
+    path_suffix: syslog
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+systemctl:
+    name_rex: \.jsonl$
+    path_suffix: systemctl_luf
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+top:
+    name_rex: \.jsonl$
+    path_suffix: top
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+    timestamp_path: "time"
+    timestamp_format: "%H:%M:%S"
+utmp:
+    name_rex: utmp.*\.jsonl$
+    sourcetype: _json
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: "tv_sec"
+    timestamp_format: "%Y/%m/%d %H:%M:%S"
+vmstat:
+    name_rex: \.jsonl$
+    path_suffix: vmstat
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
