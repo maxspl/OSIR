@@ -108,16 +108,25 @@ class ModuleHandler(FileSystemEventHandler):
             module_name = module_info["module_name"]
             self.DbOSIR.create_table_processing_status(module_name)
 
-    def monitor_directory(self, case_path, interval=5):
+    def monitor_directory(self, case_path, interval=5, reprocess=False):
         """
         Monitors the directory for changes at specified intervals.
 
         Args:
             case_path (str): Path of the case to monitor.
             interval (int, optional): Interval in seconds to wait between scans. Default is 5 seconds.
+            reprocess (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
         """
         casesnapshot = CaseSnapshot(case_path)
-        previous_entries = set()
+        
+        if not reprocess:
+            # Fetch previously stored entries
+            logger.debug(f"Fetching previously stored entries for case_uuid={self.case_uuid}")
+            previous_entries = set(self.DbOSIR.get_stored_case_snapshot(case_path))
+            if not previous_entries:
+                logger.debug("No previous entries found, starting with an empty set.")
+        else:
+            previous_entries = set()
 
         while True:
             logger.debug("Scanning for new files/folders")
@@ -146,8 +155,11 @@ class ModuleHandler(FileSystemEventHandler):
                 if not self.DbOSIR.is_processing_active(self.case_uuid):
                     with self.timers_lock:
                         if not self.active_timers:
+                            logger.debug("Case snaphost is being saved before exiting...")
+                            self.DbOSIR.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
                             exit()
             previous_entries = current_entries
+            
             time.sleep(interval)
     
     def on_created(self, event):  # triggered for files and dir but targets dirs only

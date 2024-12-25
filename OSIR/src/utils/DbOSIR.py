@@ -31,6 +31,7 @@ class DbOSIR:
             self._create_table_master_status("master_status")
         elif module_name and module_name != "master_status":
             self.create_table_processing_status(module_name)
+        self._create_case_snapshot_table()  # Create table used for case snapshot
 
     def create_table_processing_status(self, table_name):
         """
@@ -230,7 +231,7 @@ class DbOSIR:
     def check_input_file(self, case_uuid, input_file):
         try:
             """
-            Checks if the specified input file is currently being processed in any table except 'master_status'.
+            Checks if the specified input file is currently being processed in any table except 'master_status' and 'case_snapshot'.
 
             Args:
                 case_uuid (str): The UUID of the case.
@@ -243,7 +244,7 @@ class DbOSIR:
             query = sql.SQL("""
                 SELECT table_name
                 FROM information_schema.tables
-                WHERE table_schema='public' AND table_name != 'master_status'
+                WHERE table_schema='public' AND table_name != 'master_status' AND table_name != 'case_snapshot'
             """)
             self.cur.execute(query)
             tables = self.cur.fetchall()
@@ -269,7 +270,7 @@ class DbOSIR:
     def check_input_dir(self, case_uuid, input_dir):
         """
         Checks if the specified input directory or its sub-items are currently being processed in any table except 'master_status'.
-
+        Following table are excluded : 'processing_done', 'case_snapshot'
         Args:
             case_uuid (str): The UUID of the case.
             input_dir (str): The path of the input directory to check.
@@ -282,7 +283,7 @@ class DbOSIR:
             query = sql.SQL("""
                 SELECT table_name
                 FROM information_schema.tables
-                WHERE table_schema='public' AND table_name != 'master_status'
+                WHERE table_schema='public' AND table_name != 'master_status' AND table_name != 'case_snapshot'
             """)
             self.cur.execute(query)
             tables = self.cur.fetchall()
@@ -310,6 +311,7 @@ class DbOSIR:
         """
         Check if there is at least one table with a row for the given case_uuid
         that has a column processing_status not equal to 'processing_done'.
+        Following table are excluded : 'processing_done', 'case_snapshot'
 
         Args:
             case_uuid (str): The case UUID.
@@ -321,7 +323,7 @@ class DbOSIR:
             query = sql.SQL("""
                 SELECT table_name
                 FROM information_schema.tables
-                WHERE table_schema = 'public' AND table_name != 'master_status'
+                WHERE table_schema = 'public' AND table_name != 'master_status' AND table_name != 'case_snapshot'
             """)
             self.cur.execute(query)
             tables = self.cur.fetchall()
@@ -342,3 +344,74 @@ class DbOSIR:
         except Exception as e:
             logger.error(f"Error checking processing status: {str(e)}")
             return False
+            
+    def _create_case_snapshot_table(self):
+        """
+        Ensure the `case_snapshot` table exists in the database.
+        """
+        query = """
+        CREATE TABLE IF NOT EXISTS case_snapshot (
+            case_uuid TEXT NOT NULL,
+            case_path TEXT NOT NULL,
+            path TEXT NOT NULL,
+            entry_type TEXT NOT NULL,
+            PRIMARY KEY (case_uuid, path)
+        )
+        """
+        try:
+            self.cur.execute(query)
+            self.conn.commit()
+            logger.debug("Table `case_snapshot` ensured.")
+        except Exception as e:
+            logger.error(f"Error creating `case_snapshot` table: {str(e)}")
+            self.conn.rollback()
+
+    def get_stored_case_snapshot(self, case_path):
+        """
+        Retrieve stored directory entries for the specified case UUID.
+
+        Args:
+            case_path (str): The path of the case.
+
+        Returns:
+            list: A list of (path, entry_type) tuples.
+        """
+        query = """
+        SELECT path, entry_type
+        FROM case_snapshot
+        WHERE case_path = %s
+        """
+        try:
+            self.cur.execute(query, (case_path,))
+            rows = self.cur.fetchall()
+            logger.debug(f"Retrieved {len(rows)} entries for case_path: {case_path}")
+            return [(row[0], row[1]) for row in rows]
+        except Exception as e:
+            logger.error(f"Error fetching entries for case_path {case_path}: {str(e)}")
+            return []
+
+    def store_case_snapshot(self, case_uuid, case_path, entries_list):
+        import io
+        try:
+            # 1) Delete old entries first
+            delete_query = "DELETE FROM case_snapshot WHERE case_uuid = %s"
+            self.cur.execute(delete_query, (case_uuid,))
+            # 2) Prepare data as CSV format in memory
+            output = io.StringIO()
+            for path, entry_type in entries_list:
+                output.write(f"{case_uuid}\t{case_path}\t{path}\t{entry_type}\n")
+            output.seek(0)  # Move cursor back to start
+
+            # 3) Use copy_from to bulk-insert
+            self.cur.copy_from(
+                file=output,
+                table='case_snapshot',
+                columns=('case_uuid', 'case_path', 'path', 'entry_type'),
+                null=''  # specify how to handle NULL if needed
+            )
+
+            # 4) Commit changes
+            self.conn.commit()
+        except Exception as e:
+            self.conn.rollback()
+            logger.error(f"Bulk insert error for case_uuid {case_uuid}: {str(e)}")
