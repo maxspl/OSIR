@@ -67,6 +67,8 @@ services:
     ports:
       - "5672:5672"      # AMQP protocol port
       - "15672:15672"    # Management interface port
+    volumes:
+      - ./dockerfile/sources/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     environment:
       - RABBITMQ_DEFAULT_USER=dfir
       - RABBITMQ_DEFAULT_PASS=dfir
