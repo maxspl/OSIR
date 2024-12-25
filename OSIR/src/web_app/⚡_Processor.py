@@ -196,7 +196,7 @@ class ConfigurationApp:
         # Add an empty option at the start of self.cases and self.modules_w_parentdir
         selected_case = st.selectbox("Case", [""] + self.cases, help="Select a case directory.", key="apply_file")
 
-         # Only show file dropdown if a case is selected
+        # Only show file dropdown if a case is selected
         if selected_case:
             files_in_case = FileManager.get_files_in_cases(os.path.join(self.CASES_DIR, selected_case))
             file = st.selectbox("File", [""] + files_in_case, help="Select a file to apply the module to.")
@@ -208,13 +208,11 @@ class ConfigurationApp:
             selected_modules = [os.path.basename(module)] if module else []
         else:
             module = None
-       
 
         # Action button
-        if st.button("Submits "):
+        if st.button("Submit "):
             self.process_submission_file(selected_modules, selected_case, file)
 
-        
     def main_tab(self):
         """
         Method to set up and handle the main tab in the UI.
@@ -245,9 +243,14 @@ class ConfigurationApp:
         if not self.cases:
             st.warning("No cases found in /OSIR/share/cases/.")
 
+        reprocess_case = st.checkbox(
+            "Reprocess files of the case that were processed previously.",
+            help="Check to reprocess files of the selected case that were processed earlier."
+        )
+
         if st.button("Submit"):
             logger.debug("Module ADD" + str(module_add))
-            self.process_submission(selected_profile, selected_modules, module_add, module_remove, selected_case)
+            self.process_submission(selected_profile, selected_modules, module_add, module_remove, selected_case, reprocess_case)
 
     def helper_tab(self):
         """
@@ -317,7 +320,7 @@ class ConfigurationApp:
         # Display the selected modules in a better format
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
-        monitor_case = MonitorCase.MonitorCase(case_path, modules_selected)
+        monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case=True)
         
         # Apply the file to the uniq module :
         monitor_case.module_instances[0].input = BaseInput({})
@@ -333,8 +336,7 @@ class ConfigurationApp:
         st.success("Processing started.")
         st.page_link("pages/🏨_ProcessingStatus.py", label="Processing status", icon="🏨")
 
-
-    def process_submission(self, selected_profile, selected_modules, module_add, module_remove, selected_case,):
+    def process_submission(self, selected_profile, selected_modules, module_add, module_remove, selected_case, reprocess_case):
         """
         Process the input values and initiate the processing job.
 
@@ -344,6 +346,8 @@ class ConfigurationApp:
             module_add (str): Comma-separated string of modules to add.
             module_remove (str): Comma-separated string of modules to remove.
             selected_case (str): The selected case directory.
+            reprocess_case (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
+
         Returns:
             None
         """
@@ -396,7 +400,7 @@ class ConfigurationApp:
         # Display the selected modules in a better format
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
-        monitor_case = MonitorCase.MonitorCase(case_path, modules_selected)
+        monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case)
 
         # Use ThreadPoolExecutor to run the setup_handler in the background
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
