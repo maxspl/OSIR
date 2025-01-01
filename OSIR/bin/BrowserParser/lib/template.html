@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrowserParser Artifact Report</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left !important; /* Force left alignment */
+            border: 1px solid black;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+        }
+        th .sort-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            padding: 0;
+        }
+        .sort-button:focus {
+            outline: none;
+        }
+        th .resizer {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            user-select: none;
+        }
+        th.resizing {
+            background: #f0f0f0;
+        }
+        th .sort-indicator {
+            font-size: 14px;
+            color: #888;
+        }
+    </style>
+    
+</head>
+<body>
+
+    <h2>Artifact Information</h2>
+    <p>Time Generated (UTC): <strong>{{ date }}</strong></p>
+    <p>Artifact Name: <strong>{{ artifact }}</strong></p>
+    <p>Username: <strong>{{ user }}</strong></p>
+    <p>Browser: <strong> {{ browser }} </strong></p>
+
+    <h2>Sortable and Resizable Table</h2>
+
+    <!-- The generated table will be inserted here -->
+    {{ table }}
+
+    <script>
+        function sortTable(columnIndex) {
+            const table = document.querySelector("table");
+            let rows = Array.from(table.rows).slice(1); // Skip the header row
+            const header = table.rows[0].cells[columnIndex];
+            const isAscending = header.getAttribute('data-sort') === 'asc';
+
+            // Toggle sort direction
+            const newDirection = isAscending ? 'desc' : 'asc';
+            header.setAttribute('data-sort', newDirection);
+
+            // Update sort indicators
+            updateSortIndicators(columnIndex, newDirection);
+
+            // Sort rows
+            rows.sort((rowA, rowB) => {
+                const cellA = rowA.cells[columnIndex].innerText.toLowerCase();
+                const cellB = rowB.cells[columnIndex].innerText.toLowerCase();
+                if (newDirection === 'asc') {
+                    return cellA > cellB ? 1 : -1;
+                } else {
+                    return cellA < cellB ? 1 : -1;
+                }
+            });
+
+            // Append sorted rows back to the table
+            rows.forEach(row => table.tBodies[0].appendChild(row));
+        }
+
+        function updateSortIndicators(activeIndex, direction) {
+            // Remove sort indicators from all headers
+            document.querySelectorAll(".sort-button").forEach(button => {
+                button.innerText = '▲'; // Default to ascending
+            });
+
+            // Add sort indicator to the active header
+            const activeHeader = document.querySelectorAll("th")[activeIndex];
+            const sortButton = activeHeader.querySelector(".sort-button");
+            sortButton.innerText = direction === 'asc' ? '▲' : '▼';
+        }
+
+        function makeResizableColumns() {
+            const headers = document.querySelectorAll("th");
+            headers.forEach((header, index) => {
+                const resizer = document.createElement("div");
+                resizer.classList.add("resizer");
+                header.appendChild(resizer);
+
+                // Variables for tracking mouse movements
+                let startX, startWidth;
+
+                resizer.addEventListener("mousedown", function (e) {
+                    startX = e.pageX;
+                    startWidth = header.offsetWidth;
+
+                    // Add resizing class to indicate resizing in progress
+                    header.classList.add("resizing");
+
+                    function onMouseMove(e) {
+                        const newWidth = startWidth + (e.pageX - startX);
+                        header.style.width = newWidth + "px";
+                    }
+
+                    function onMouseUp() {
+                        document.removeEventListener("mousemove", onMouseMove);
+                        document.removeEventListener("mouseup", onMouseUp);
+                        header.classList.remove("resizing");
+                    }
+
+                    document.addEventListener("mousemove", onMouseMove);
+                    document.addEventListener("mouseup", onMouseUp);
+                });
+            });
+        }
+
+        // Add sort buttons to headers
+        function addSortButtons() {
+            const headers = document.querySelectorAll("th");
+            headers.forEach((header, index) => {
+                const sortButton = document.createElement("button");
+                sortButton.classList.add("sort-button");
+                sortButton.innerText = '▲'; // Default to ascending arrow
+                sortButton.addEventListener("click", () => sortTable(index));
+
+                header.appendChild(sortButton);
+            });
+        }
+
+        // Initialize the resizable and sortable functionality
+        makeResizableColumns();
+        addSortButtons();
+    </script>
+
+</body>
+</html>
