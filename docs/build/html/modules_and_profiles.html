@@ -392,6 +392,7 @@
 <dt>path: <strong>Required</strong></dt><dd><ul>
 <li><p>Path suffix of the input file or directory.</p></li>
 <li><p>File or dir to match must end the path specified.</p></li>
+<li><p><strong>It’s also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r”” For an example, see windows/browsers module.</strong></p></li>
 <li><p>Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru</p></li>
 </ul>
 </dd>
@@ -401,7 +402,7 @@
 </div></blockquote>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>How to use module output as input of a new module ? Just specify input.name or/and input.path. The tool automatically processes each new file to match a module.</p>
+<p>How to use module output as input of a new module ? Just specify input.name or/and input.path corresponding to the output of the first module. The tool automatically processes each new file to match a module.</p>
 </div>
 </section>
 <section id="output-required">

@@ -334,6 +334,13 @@ Supported Modules
      - external
      - net6/AmcacheParser.exe
    * - windows
+     - browsers.yml
+     - Parsing of browsers artifact.
+     - 
+     - 1.0
+     - external
+     - python
+   * - windows
      - chromium.yml
      - Parsing of chromium artifact.
      - 

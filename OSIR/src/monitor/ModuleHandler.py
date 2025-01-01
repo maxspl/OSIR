@@ -180,12 +180,24 @@ class ModuleHandler(FileSystemEventHandler):
             # Create a tuple of (file_path, module_name)
             file_module_pair = (event.src_path, module_name)
 
+            # Check if path_pattern_suffix is a regex
+            is_path_pattern_suffix_regex = path_pattern_suffix.startswith("r\"") and path_pattern_suffix.endswith("\"")
+            if is_path_pattern_suffix_regex:
+                # Strip r"" and compile the regex
+                path_regex = re.compile(path_pattern_suffix[2:-1])
+            else:
+                wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None
+
             # Handle dirs
             if (module_path not in event.src_path and  # don't process input if it is in the same module directory
                     input_type == "dir" and
                     event.is_directory):  
+                
+                if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for directories
+                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed (regex match)")
+                    self.handle_directory_event(event, module_info)
                 # Handle case where input dir is case directory
-                if (path_pattern_suffix == "{case_path}" and
+                elif (path_pattern_suffix == "{case_path}" and
                         event.src_path == self.case_path):
                     logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
                     self.handle_directory_event(event, module_info)
@@ -201,8 +213,12 @@ class ModuleHandler(FileSystemEventHandler):
                     input_type == "file" and
                     not event.is_directory and
                     file_module_pair not in self.last_processed):
-
-                if path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
+                
+                if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for files
+                    if re.search(file_regex, os.path.basename(event.src_path)):
+                        self.last_processed.add(file_module_pair)
+                        self.handle_file_event(event, module_info)
+                elif path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
                     if event.src_path.lower().endswith(path_pattern_suffix.lower()):
                         self.last_processed.add(file_module_pair)
                         self.handle_file_event(event, module_info)
