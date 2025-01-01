@@ -471,7 +471,7 @@ operating system compatibility, and requirement fulfillment among the modules.</
 
 </section>
 <section id="module-src.utils.DbOSIR">
-<span id="src-utils-dbOSIR-module"></span><h2>src.utils.DbOSIR module<a class="headerlink" href="#module-src.utils.DbOSIR" title="Link to this heading"></a></h2>
+<span id="src-utils-dbosir-module"></span><h2>src.utils.DbOSIR module<a class="headerlink" href="#module-src.utils.DbOSIR" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.utils.DbOSIR.DbOSIR">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.DbOSIR.</span></span><span class="sig-name descname"><span class="pre">DbOSIR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OSIR_db'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dfir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dfir'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5432</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/utils/DbOSIR.html#DbOSIR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.utils.DbOSIR.DbOSIR" title="Link to this definition"></a></dt>
@@ -479,19 +479,18 @@ operating system compatibility, and requirement fulfillment among the modules.</
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.DbOSIR.DbOSIR.check_input_dir">
 <span class="sig-name descname"><span class="pre">check_input_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/utils/DbOSIR.html#DbOSIR.check_input_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.utils.DbOSIR.DbOSIR.check_input_dir" title="Link to this definition"></a></dt>
-<dd><p>Checks if the specified input directory or its sub-items are currently being processed in any table except ‘master_status’.</p>
+<dd><p>Checks if the specified input directory or its sub-items are currently being processed in any table except ‘master_status’.
+Following table are excluded : ‘processing_done’, ‘case_snapshot’
+:param case_uuid: The UUID of the case.
+:type case_uuid: str
+:param input_dir: The path of the input directory to check.
+:type input_dir: str</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>case_uuid</strong> (<em>str</em>) – The UUID of the case.</p></li>
-<li><p><strong>input_dir</strong> (<em>str</em>) – The path of the input directory to check.</p></li>
-</ul>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the input directory or its sub-items are currently being processed, False otherwise.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if the input directory or its sub-items are currently being processed, False otherwise.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -519,10 +518,28 @@ operating system compatibility, and requirement fulfillment among the modules.</
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.utils.DbOSIR.DbOSIR.get_stored_case_snapshot">
+<span class="sig-name descname"><span class="pre">get_stored_case_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/utils/DbOSIR.html#DbOSIR.get_stored_case_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.utils.DbOSIR.DbOSIR.get_stored_case_snapshot" title="Link to this definition"></a></dt>
+<dd><p>Retrieve stored directory entries for the specified case UUID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>case_path</strong> (<em>str</em>) – The path of the case.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of (path, entry_type) tuples.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.utils.DbOSIR.DbOSIR.is_processing_active">
 <span class="sig-name descname"><span class="pre">is_processing_active</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/utils/DbOSIR.html#DbOSIR.is_processing_active"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.utils.DbOSIR.DbOSIR.is_processing_active" title="Link to this definition"></a></dt>
 <dd><p>Check if there is at least one table with a row for the given case_uuid
-that has a column processing_status not equal to ‘processing_done’.</p>
+that has a column processing_status not equal to ‘processing_done’.
+Following table are excluded : ‘processing_done’, ‘case_snapshot’</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>case_uuid</strong> (<em>str</em>) – The case UUID.</p>
@@ -535,6 +552,11 @@ that has a column processing_status not equal to ‘processing_done’.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.utils.DbOSIR.DbOSIR.store_case_snapshot">
+<span class="sig-name descname"><span class="pre">store_case_snapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entries_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/utils/DbOSIR.html#DbOSIR.store_case_snapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.utils.DbOSIR.DbOSIR.store_case_snapshot" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.DbOSIR.DbOSIR.store_data">
