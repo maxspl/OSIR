@@ -209,7 +209,7 @@ output: **Required**
         - Name of the output file. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
     - output_dir: **Optional** 
         - Name of the output directory. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
-        - Default is default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/<module_name> 
+        - Default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/<module_name> 
         - As a default value exists, no need to define it to use it in command line if default value is desired.
 
 endpoint: **Optional** 

@@ -39,6 +39,13 @@ Supported Modules
      - 1.0
      - external
      - thor-lite/thor-lite-linux-64
+   * - linux
+     - uac_indexation.yml
+     - Splunk ingestion of parsed artifacts
+     - 
+     - 1.0
+     - external
+     - python
    * - module_os
      - sample.yml
      - module_description
@@ -63,6 +70,13 @@ Supported Modules
    * - unix
      - audit.yml
      - Parsing logs from '/var/log/audit'
+     - 
+     - 1.0
+     - internal
+     - 
+   * - unix
+     - auth.yml
+     - Parsing logs from '/var/log/auth.log'
      - 
      - 1.0
      - internal
@@ -176,7 +190,7 @@ Supported Modules
      - journal.yml
      - Parsing logs from '/var/log/journal/'
      - 
-     - 1.0
+     - 1.1
      - external
      - journalctl
    * - unix
@@ -390,13 +404,6 @@ Supported Modules
      - external
      - docker
    * - windows
-     - memory.yml
-     - For the moment, it used to test if file being written is detected before processing
-     - 
-     - 1.0
-     - external
-     - ls
-   * - windows
      - orc_indexation.yml
      - Splunk ingestion of parsed artifacts
      - 
@@ -459,6 +466,13 @@ Supported Modules
      - 1.0
      - external
      - process_dir_multiple_output
+   * - windows
+     - win_memory.yml
+     - 
+     - 
+     - 1.0
+     - internal, external
+     - memprocfs/memprocfs
    * - windows
      - win_timeline.yml
      - Parsing of Windows Timeline (ActivitiesCache.db) artifact.

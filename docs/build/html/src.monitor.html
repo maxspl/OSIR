@@ -207,13 +207,14 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.monitor.ModuleHandler.ModuleHandler.monitor_directory">
-<span class="sig-name descname"><span class="pre">monitor_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/monitor/ModuleHandler.html#ModuleHandler.monitor_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.monitor.ModuleHandler.ModuleHandler.monitor_directory" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">monitor_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reprocess</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/monitor/ModuleHandler.html#ModuleHandler.monitor_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.monitor.ModuleHandler.ModuleHandler.monitor_directory" title="Link to this definition"></a></dt>
 <dd><p>Monitors the directory for changes at specified intervals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>case_path</strong> (<em>str</em>) – Path of the case to monitor.</p></li>
 <li><p><strong>interval</strong> (<em>int</em><em>, </em><em>optional</em>) – Interval in seconds to wait between scans. Default is 5 seconds.</p></li>
+<li><p><strong>reprocess</strong> (<em>bool</em>) – If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.</p></li>
 </ul>
 </dd>
 </dl>
@@ -265,7 +266,7 @@
 <span id="src-monitor-monitorcase-module"></span><h2>src.monitor.MonitorCase module<a class="headerlink" href="#module-src.monitor.MonitorCase" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.monitor.MonitorCase.MonitorCase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.monitor.MonitorCase.</span></span><span class="sig-name descname"><span class="pre">MonitorCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/monitor/MonitorCase.html#MonitorCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.monitor.MonitorCase.MonitorCase" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.monitor.MonitorCase.</span></span><span class="sig-name descname"><span class="pre">MonitorCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reprocess_case</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/monitor/MonitorCase.html#MonitorCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.monitor.MonitorCase.MonitorCase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Monitors a specified case path for changes that trigger module actions based on the defined module configurations.</p>
 <dl class="py method">

@@ -86,7 +86,8 @@
              
   <h1>Source code for src.tasks.task_client</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span>
-
+<span class="kn">from</span> <span class="nn">src.utils.BaseModule</span> <span class="kn">import</span> <span class="n">BaseModule</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">Celery</span>
 <span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">signature</span>
 <span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
@@ -112,21 +113,32 @@
 <span class="sd">        CELERY_BROKER_URL (str): The URL of the Celery message broker.</span>
 <span class="sd">        CELERY_RESULT_BACKEND (str): The URL of the backend used to store task results.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">module_instance</span><span class="p">:</span> <span class="n">BaseModule</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">module_data</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">:</span> 
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span>
+    <span class="k">elif</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span> 
+        <span class="nb">input</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
     <span class="n">agent_config</span> <span class="o">=</span> <span class="n">AgentConfig</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span><span class="p">:</span>
         <span class="n">master_host</span> <span class="o">=</span> <span class="s2">&quot;host.docker.internal&quot;</span>  <span class="c1"># Agent cannot use localhost to communicate with other docker</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">master_host</span> <span class="o">=</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
+
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Task Pushed : </span><span class="se">\n</span>
 <span class="s2">                Task Name : </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
 <span class="s2">                Case Path : </span><span class="si">{</span><span class="n">case_path</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
+<span class="s2">                Input : </span><span class="si">{</span><span class="nb">input</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
 <span class="s2">                Case UUID : </span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
     <span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_BROKER_URL&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;pyamqp://dfir:dfir@</span><span class="si">{</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:5672//&#39;</span><span class="p">)</span>
     <span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_RESULT_BACKEND&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;redis://</span><span class="si">{</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:6379/0&#39;</span><span class="p">)</span>
 
     <span class="n">Celery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;OSIR&#39;</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="n">CELERY_BROKER_URL</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">CELERY_RESULT_BACKEND</span><span class="p">)</span>
-    <span class="n">task_signature</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_data</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">),</span> <span class="n">immutable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">)</span>
-    <span class="n">task_signature</span><span class="o">.</span><span class="n">apply_async</span><span class="p">()</span></div>
+    <span class="n">task_signature</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_data</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">),</span> <span class="n">immutable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">queue</span><span class="o">=</span><span class="n">queue</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">task_signature</span><span class="o">.</span><span class="n">apply_async</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;task id : </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 
