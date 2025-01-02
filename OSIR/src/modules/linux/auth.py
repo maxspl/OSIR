@@ -7,7 +7,7 @@ from src.log.logger_config import AppLogger, CustomLogger
 logger: CustomLogger = AppLogger().get_logger()
 
 
-class MODULE_NAMEModule(PyModule, UnixUtils):
+class AuthModule(PyModule, UnixUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """

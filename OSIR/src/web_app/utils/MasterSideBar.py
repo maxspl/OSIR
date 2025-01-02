@@ -13,7 +13,8 @@ class SystemManager:
     def __init__(self, key=""):
         self.location_details = get_page_location(component_key=key)
         time.sleep(2)
-        self.host = self.location_details["hostname"]
+        if self.location_details and "hostname" in self.location_details:
+            self.host = self.location_details["hostname"]
         
     @staticmethod
     def get_host_specs():

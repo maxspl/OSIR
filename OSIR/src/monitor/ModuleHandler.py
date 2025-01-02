@@ -201,6 +201,9 @@ class ModuleHandler(FileSystemEventHandler):
                         event.src_path == self.case_path):
                     logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
                     self.handle_directory_event(event, module_info)
+                elif ("{case_path}" in path_pattern_suffix and event.src_path == path_pattern_suffix.replace("{case_path}", self.case_path)):
+                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
+                    self.handle_directory_event(event, module_info)
                 elif path_pattern_suffix.endswith('/*') and os.path.dirname(event.src_path).lower().endswith(wildcard_pattern.lower()):
                     logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
                     self.handle_directory_event(event, module_info)

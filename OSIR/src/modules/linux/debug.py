@@ -7,7 +7,7 @@ from src.log.logger_config import AppLogger, CustomLogger
 logger: CustomLogger = AppLogger().get_logger()
 
 
-class debugModule(PyModule, UnixUtils):
+class DebugModule(PyModule, UnixUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """

@@ -26,8 +26,9 @@ class UnixUtils:
     """
     def __init__(self, case_path: str, module_instance: BaseModule):
         self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())
-        if not os.path.exists(self.default_output_dir):
-            os.makedirs(self.default_output_dir)
+        if self.module.type != "post_parsing":
+            if not os.path.exists(self.default_output_dir):
+                os.makedirs(self.default_output_dir)
         self.case_path: str = case_path
         self.module: BaseModule = module_instance
 
@@ -197,7 +198,9 @@ class UnixUtils:
         Returns:
             Queue: A queue that will hold data to be processed by the writer thread.
         """
-        q = queue.Queue()
+        # TODO : SET THIS VALUE IN A CONFIG FILE
+        MAX_QUEUE_SIZE = 100000
+        q = queue.Queue(maxsize=MAX_QUEUE_SIZE)
         writer_thread = threading.Thread(target=self._thread_save_jsonl, args=(q,))
         writer_thread.start()
         return q
