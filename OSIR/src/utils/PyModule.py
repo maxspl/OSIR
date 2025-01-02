@@ -45,9 +45,11 @@ class PyModule():
             
         # Default output dir is module dir
         self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())
-        if not os.path.exists(self.default_output_dir):
-            os.makedirs(self.default_output_dir)
-            os.chmod(self.default_output_dir, 0o777)  # Set directory permissions to 777
+
+        if self.module.type != "post_parsing":
+            if not os.path.exists(self.default_output_dir):
+                os.makedirs(self.default_output_dir)
+                os.chmod(self.default_output_dir, 0o777)  # Set directory permissions to 777
 
     def run_ext_tool(self) -> bool:
         """
