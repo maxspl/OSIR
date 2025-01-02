@@ -181,12 +181,12 @@ class ModuleHandler(FileSystemEventHandler):
             file_module_pair = (event.src_path, module_name)
 
             # Check if path_pattern_suffix is a regex
-            is_path_pattern_suffix_regex = path_pattern_suffix.startswith("r\"") and path_pattern_suffix.endswith("\"")
+            is_path_pattern_suffix_regex = path_pattern_suffix.startswith("r\"") and path_pattern_suffix.endswith("\"") if path_pattern_suffix else None
             if is_path_pattern_suffix_regex:
                 # Strip r"" and compile the regex
                 path_regex = re.compile(path_pattern_suffix[2:-1])
             else:
-                wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None
+                wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None  # Wildcard can be used after suffix to match any directory (not recursive)
 
             # Handle dirs
             if (module_path not in event.src_path and  # don't process input if it is in the same module directory
