@@ -33,6 +33,8 @@ class DpkgModule(PyModule, UnixUtils):
             ("_raw", lambda log: log)
         ]
 
+        self._format_output_file()
+        
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.

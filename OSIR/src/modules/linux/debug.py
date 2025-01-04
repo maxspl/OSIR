@@ -7,7 +7,7 @@ from src.log.logger_config import AppLogger, CustomLogger
 logger: CustomLogger = AppLogger().get_logger()
 
 
-class debugModule(PyModule, UnixUtils):
+class DebugModule(PyModule, UnixUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """
@@ -27,6 +27,8 @@ class debugModule(PyModule, UnixUtils):
         self.structure = [
             ("_raw", lambda log: log)  # Raw log entry
         ]
+
+        self._format_output_file()
 
     def __call__(self) -> bool:
         """

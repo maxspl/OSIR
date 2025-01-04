@@ -139,7 +139,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_register_tasks</span><span class="p">()</span>
 
-
     <span class="k">def</span> <span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wait until the input file or directory is free to use, i.e., not being used by another module.</span>
@@ -207,7 +206,7 @@
 <span class="sd">        Registers internal and external processing tasks with Celery, defining their behavior and exception handling.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nd">@self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;internal_processor_task&quot;</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">task_internal_processor</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">task_internal_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - internal_processor  &quot;&quot;&quot;</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">module_instance</span><span class="p">:</span> <span class="n">BaseModule</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">module_bytes</span><span class="p">)</span>
@@ -238,7 +237,7 @@
                 <span class="c1"># logger.erro(f&quot;fail run the task. Error {str(e)}&quot;)</span>
 
         <span class="nd">@self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;external_processor_task&quot;</span><span class="p">)</span>
-        <span class="k">def</span> <span class="nf">task_external_processor</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">task_external_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - external_processor  &quot;&quot;&quot;</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">module_instance</span><span class="p">:</span> <span class="n">BaseModule</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">module_bytes</span><span class="p">)</span>
@@ -254,12 +253,11 @@
                 <span class="c1"># Wait if file is currently beeing written</span>
                 <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
                 <span class="k">while</span> <span class="n">file_written</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - file </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">fil</span><span class="si">}</span><span class="s2"> is opened. Waiting...&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - file </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2"> is opened. Waiting...&quot;</span><span class="p">)</span>
                     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
                     <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">update_record</span><span class="p">(</span><span class="n">module_instance</span><span class="p">,</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">)</span>
-
                 <span class="n">processor</span><span class="o">.</span><span class="n">run_module</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">update_record</span><span class="p">(</span><span class="n">module_instance</span><span class="p">,</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>

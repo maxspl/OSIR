@@ -44,6 +44,8 @@ class LastlogModule(PyModule, UnixUtils):
             "legacy": 28
         }
 
+        self._format_output_file()
+
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.

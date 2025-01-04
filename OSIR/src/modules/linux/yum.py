@@ -33,6 +33,8 @@ class YumModule(PyModule, UnixUtils):
             "event_type": lambda log: "package_install" if "Installed" in log else "package_update" if "Updated" in log else None
         }
 
+        self._format_output_file()
+        
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.

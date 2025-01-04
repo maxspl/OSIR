@@ -108,16 +108,25 @@ class ModuleHandler(FileSystemEventHandler):
             module_name = module_info["module_name"]
             self.DbOSIR.create_table_processing_status(module_name)
 
-    def monitor_directory(self, case_path, interval=5):
+    def monitor_directory(self, case_path, interval=5, reprocess=False):
         """
         Monitors the directory for changes at specified intervals.
 
         Args:
             case_path (str): Path of the case to monitor.
             interval (int, optional): Interval in seconds to wait between scans. Default is 5 seconds.
+            reprocess (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
         """
         casesnapshot = CaseSnapshot(case_path)
-        previous_entries = set()
+        
+        if not reprocess:
+            # Fetch previously stored entries
+            logger.debug(f"Fetching previously stored entries for case_uuid={self.case_uuid}")
+            previous_entries = set(self.DbOSIR.get_stored_case_snapshot(case_path))
+            if not previous_entries:
+                logger.debug("No previous entries found, starting with an empty set.")
+        else:
+            previous_entries = set()
 
         while True:
             logger.debug("Scanning for new files/folders")
@@ -146,8 +155,11 @@ class ModuleHandler(FileSystemEventHandler):
                 if not self.DbOSIR.is_processing_active(self.case_uuid):
                     with self.timers_lock:
                         if not self.active_timers:
+                            logger.debug("Case snaphost is being saved before exiting...")
+                            self.DbOSIR.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
                             exit()
             previous_entries = current_entries
+            
             time.sleep(interval)
     
     def on_created(self, event):  # triggered for files and dir but targets dirs only
@@ -168,13 +180,28 @@ class ModuleHandler(FileSystemEventHandler):
             # Create a tuple of (file_path, module_name)
             file_module_pair = (event.src_path, module_name)
 
+            # Check if path_pattern_suffix is a regex
+            is_path_pattern_suffix_regex = path_pattern_suffix.startswith("r\"") and path_pattern_suffix.endswith("\"") if path_pattern_suffix else None
+            if is_path_pattern_suffix_regex:
+                # Strip r"" and compile the regex
+                path_regex = re.compile(path_pattern_suffix[2:-1])
+            else:
+                wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None  # Wildcard can be used after suffix to match any directory (not recursive)
+
             # Handle dirs
             if (module_path not in event.src_path and  # don't process input if it is in the same module directory
                     input_type == "dir" and
                     event.is_directory):  
+                
+                if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for directories
+                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed (regex match)")
+                    self.handle_directory_event(event, module_info)
                 # Handle case where input dir is case directory
-                if (path_pattern_suffix == "{case_path}" and
+                elif (path_pattern_suffix == "{case_path}" and
                         event.src_path == self.case_path):
+                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
+                    self.handle_directory_event(event, module_info)
+                elif ("{case_path}" in path_pattern_suffix and event.src_path == path_pattern_suffix.replace("{case_path}", self.case_path)):
                     logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
                     self.handle_directory_event(event, module_info)
                 elif path_pattern_suffix.endswith('/*') and os.path.dirname(event.src_path).lower().endswith(wildcard_pattern.lower()):
@@ -189,8 +216,12 @@ class ModuleHandler(FileSystemEventHandler):
                     input_type == "file" and
                     not event.is_directory and
                     file_module_pair not in self.last_processed):
-
-                if path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
+                
+                if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for files
+                    if re.search(file_regex, os.path.basename(event.src_path)):
+                        self.last_processed.add(file_module_pair)
+                        self.handle_file_event(event, module_info)
+                elif path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
                     if event.src_path.lower().endswith(path_pattern_suffix.lower()):
                         self.last_processed.add(file_module_pair)
                         self.handle_file_event(event, module_info)

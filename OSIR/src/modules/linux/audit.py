@@ -25,8 +25,8 @@ class AuditModule(PyModule, UnixUtils):
         UnixUtils.__init__(self, case_path, module)
 
         self._file_to_process = module.input.file
+        self._format_output_file()
 
-    @pinfo
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.
@@ -100,7 +100,7 @@ class AuditModule(PyModule, UnixUtils):
         date_res = ""
         try:
             match = re.search(r"msg=audit\((\d+)", log)
-            date_res = match.group(1) if match else self.parse_date(log, 2024)
+            date_res = match.group(1) if match else 'N/A'
         except Exception as exc:
             logger.error_handler(exc)
         return date_res

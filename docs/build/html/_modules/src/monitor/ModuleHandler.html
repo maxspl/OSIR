@@ -89,9 +89,11 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">import</span> <span class="nn">threading</span>  <span class="c1"># Import threading to use Lock</span>
 <span class="kn">import</span> <span class="nn">pkgutil</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 <span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
 <span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span> <span class="nn">src.tasks</span> <span class="kn">import</span> <span class="n">task_client</span>
@@ -192,6 +194,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">master_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
         
+        <span class="c1"># Initialize a set and a lock to keep track of active timers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        
         <span class="c1"># DB management</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="p">)</span>
 
@@ -202,19 +208,28 @@
 
 <div class="viewcode-block" id="ModuleHandler.monitor_directory">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.monitor_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">monitor_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">monitor_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">reprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Monitors the directory for changes at specified intervals.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            case_path (str): Path of the case to monitor.</span>
 <span class="sd">            interval (int, optional): Interval in seconds to wait between scans. Default is 5 seconds.</span>
+<span class="sd">            reprocess (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">casesnapshot</span> <span class="o">=</span> <span class="n">CaseSnapshot</span><span class="p">(</span><span class="n">case_path</span><span class="p">)</span>
-        <span class="n">previous_entries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">reprocess</span><span class="p">:</span>
+            <span class="c1"># Fetch previously stored entries</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetching previously stored entries for case_uuid=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">previous_entries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">get_stored_case_snapshot</span><span class="p">(</span><span class="n">case_path</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">previous_entries</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No previous entries found, starting with an empty set.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">previous_entries</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Scanning for new files/folders&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Scanning for new files/folders&quot;</span><span class="p">)</span>
             <span class="n">scan_case_start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="n">casesnapshot</span><span class="o">.</span><span class="n">scan_directory</span><span class="p">()</span>
             <span class="n">current_entries</span> <span class="o">=</span> <span class="n">casesnapshot</span><span class="o">.</span><span class="n">get_entries_set</span><span class="p">()</span>
@@ -238,8 +253,13 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No new item detected. Checking if a task is still ongoing before exiting...&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">is_processing_active</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">):</span>
-                    <span class="n">exit</span><span class="p">()</span>
+                    <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Case snaphost is being saved before exiting...&quot;</span><span class="p">)</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">store_case_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">current_entries</span><span class="p">))</span>
+                            <span class="n">exit</span><span class="p">()</span>
             <span class="n">previous_entries</span> <span class="o">=</span> <span class="n">current_entries</span>
+            
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span></div>
 
     
@@ -263,12 +283,24 @@
             <span class="c1"># Create a tuple of (file_path, module_name)</span>
             <span class="n">file_module_pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
 
+            <span class="c1"># Check if path_pattern_suffix is a regex</span>
+            <span class="n">is_path_pattern_suffix_regex</span> <span class="o">=</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;r</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_path_pattern_suffix_regex</span><span class="p">:</span>
+                <span class="c1"># Strip r&quot;&quot; and compile the regex</span>
+                <span class="n">path_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">path_pattern_suffix</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">wildcard_pattern</span> <span class="o">=</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/*&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">path_pattern_suffix</span> <span class="k">else</span> <span class="kc">None</span>
+
             <span class="c1"># Handle dirs</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">module_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span> <span class="ow">and</span>  <span class="c1"># don&#39;t process input if it is in the same module directory</span>
                     <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;dir&quot;</span> <span class="ow">and</span>
                     <span class="n">event</span><span class="o">.</span><span class="n">is_directory</span><span class="p">):</span>  
+                
+                <span class="k">if</span> <span class="n">is_path_pattern_suffix_regex</span> <span class="ow">and</span> <span class="n">path_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">):</span>  <span class="c1"># Regex match for directories</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39; will be processed (regex match)&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">handle_directory_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
                 <span class="c1"># Handle case where input dir is case directory</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">path_pattern_suffix</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span> <span class="ow">and</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="n">path_pattern_suffix</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span> <span class="ow">and</span>
                         <span class="n">event</span><span class="o">.</span><span class="n">src_path</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">):</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39; will be processed&quot;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">handle_directory_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
@@ -284,13 +316,17 @@
                     <span class="n">input_type</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span> <span class="ow">and</span>
                     <span class="ow">not</span> <span class="n">event</span><span class="o">.</span><span class="n">is_directory</span> <span class="ow">and</span>
                     <span class="n">file_module_pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="p">):</span>
-
-                <span class="k">if</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">file_regex</span><span class="o">.</span><span class="n">pattern</span><span class="p">:</span>  <span class="c1"># If only path specified, the event file must end with the path in config</span>
+                
+                <span class="k">if</span> <span class="n">is_path_pattern_suffix_regex</span> <span class="ow">and</span> <span class="n">path_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">):</span>  <span class="c1"># Regex match for files</span>
+                    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">file_regex</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">file_module_pair</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">handle_file_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">file_regex</span><span class="o">.</span><span class="n">pattern</span><span class="p">:</span>  <span class="c1"># If only path specified, the event file must end with the path in config</span>
                     <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">file_module_pair</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">handle_file_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
                 <span class="c1"># NEED A REVIEW OF THIS ADD !!!!!!!!</span>
-                <span class="k">elif</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="s1">&#39;/*&#39;</span> <span class="ow">in</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/*&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">file_regex</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)):</span>
+                <span class="k">elif</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="s1">&#39;/*&#39;</span> <span class="ow">in</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/*&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">file_regex</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">file_module_pair</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">handle_file_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
 
@@ -341,6 +377,8 @@
         <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cooldown</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_for_idle</span><span class="p">,</span> <span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">])</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Starting timer for IDLE check of &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
             <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Timer started for IDLE check of &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -382,6 +420,9 @@
         <span class="k">if</span> <span class="n">current_size</span> <span class="o">==</span> <span class="n">previous_size</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39; is now idle&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process_directory</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
+            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39; is still busy, rescheduling check&quot;</span><span class="p">)</span>
             <span class="c1"># Reschedule the check if the directory size has changed</span>
@@ -415,7 +456,7 @@
                 <span class="c1"># logger.debug(f&quot;Executing internal module {module_instance.module_name}.py&quot;)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module missing </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module missing </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run external processor for </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span></div>
@@ -434,13 +475,15 @@
         <span class="n">module_name</span> <span class="o">=</span> <span class="n">module_info</span><span class="p">[</span><span class="s2">&quot;module_name&quot;</span><span class="p">]</span>
         <span class="n">module_instance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_module_instance</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
         
+        <span class="c1"># Create a deep copy for this thread/task</span>
+        <span class="n">module_instance</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_input</span><span class="p">(</span><span class="n">directory_path</span><span class="p">,</span> <span class="s2">&quot;dir&quot;</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Processing the directory: </span><span class="si">{</span><span class="n">directory_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         
-        <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">directory_path</span>
+        <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">directory_path</span>  <span class="c1"># MSP maybe useless because of _set_input</span>
         
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input: </span><span class="si">{</span><span class="nb">input</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">processor_type</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">get_processor_type</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span><span class="o">.</span><span class="n">store_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="s2">&quot;task_created&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;internal&quot;</span> <span class="ow">in</span> <span class="n">processor_type</span><span class="p">:</span>
@@ -448,9 +491,10 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;run internal processor for </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module missing </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module missing </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> to process input : </span><span class="si">{</span><span class="n">directory_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># self._push_task(module_instance)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pushing task for </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> to process </span><span class="si">{</span><span class="n">directory_path</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span></div>
 
                 
@@ -475,6 +519,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            module_instance: The module instance to be processed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">disk_only</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">get_disk_only</span><span class="p">()</span>
         <span class="n">no_multithread</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">get_no_multithread</span><span class="p">()</span>
         <span class="n">processor_type</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">get_processor_type</span><span class="p">()</span>
@@ -497,7 +542,7 @@
         <span class="c1"># Collect task parameters</span>
         <span class="n">task_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">PyModule</span><span class="o">.</span><span class="n">remove_prefix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">),</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">module_instance</span><span class="p">),</span> <span class="n">task_name</span><span class="p">,</span> <span class="n">queue_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">)</span>
         <span class="n">task_client</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="o">*</span><span class="n">task_params</span><span class="p">)</span>
-    
+
 <div class="viewcode-block" id="ModuleHandler.module_exists">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.module_exists">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -548,7 +593,6 @@
 <span class="sd">            The module instance if found, None otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">instance</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_instances</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">module_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">module_name</span> <span class="o">==</span> <span class="n">module_name</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">instance</span>
         <span class="k">return</span> <span class="kc">None</span></div>

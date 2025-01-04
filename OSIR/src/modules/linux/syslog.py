@@ -38,6 +38,8 @@ class SyslogModule(PyModule, UnixUtils):
             "command_line": lambda log: self.safe_search(r"CMD\s\((.*)\)", log) if "CMD" in log else None,
             "job_name": lambda log: self.safe_search(r"Job\s\`([^\']+)'", log) if "Job" in log else None,
         }
+
+        self._format_output_file()
     
     def __call__(self) -> bool:
         """

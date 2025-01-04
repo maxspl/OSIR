@@ -13,16 +13,18 @@ class MonitorCase:
     """
     Monitors a specified case path for changes that trigger module actions based on the defined module configurations.
     """
-    def __init__(self, case_path, modules):
+    def __init__(self, case_path, modules, reprocess_case):
         """
         Initializes the monitoring setup with the specified case path and modules.
 
         Args:
             case_path (str): The path to the directory to be monitored.
             modules (list): List of modules to apply to the monitoring events.
+            reprocess_case (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
         """
         self.case_path = case_path
         self.modules = modules
+        self.reprocess_case = reprocess_case
         
         self.module_instances = [BaseModule.BaseModule(module) for module in modules]  # Transform list of str to list of module
         self.cooldown_period = 20  # Cooldown period in seconds 
@@ -83,7 +85,7 @@ class MonitorCase:
             modules_info.append(module_info)
             
         handler = ModuleHandler(self.case_path, modules_info, self.cooldown_period, self.module_instances, self.case_uuid)
-        monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10))
+        monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10, self.reprocess_case))
         monitor_case_thread.start()
         monitor_case_thread.join()
         self.on_inactivity()

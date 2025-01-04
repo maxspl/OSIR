@@ -187,9 +187,10 @@ input: **Required**
     - path: **Required** 
         - Path suffix of the input file or directory.
         - File or dir to match must end the path specified.
+        - **It's also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.** 
         - Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru
 
-.. tip:: How to use module output as input of a new module ? Just specify input.name or/and input.path. The tool automatically processes each new file to match a module.
+.. tip:: How to use module output as input of a new module ? Just specify input.name or/and input.path corresponding to the output of the first module. The tool automatically processes each new file to match a module.
 
 
 output: **Required** 
@@ -209,7 +210,7 @@ output: **Required**
         - Name of the output file. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
     - output_dir: **Optional** 
         - Name of the output directory. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
-        - Default is default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/<module_name> 
+        - Default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/<module_name> 
         - As a default value exists, no need to define it to use it in command line if default value is desired.
 
 endpoint: **Optional** 

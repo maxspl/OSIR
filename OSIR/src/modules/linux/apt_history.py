@@ -35,6 +35,9 @@ class BootModule(PyModule, UnixUtils):
             ("_time", lambda log: self.safe_search(r"Start-Date:\s(.*?)\n", log)),
             ("_raw", lambda log: log)  # Raw log entry
         ] 
+        
+        self._format_output_file()
+
 
     def __call__(self) -> bool:
         """

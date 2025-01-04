@@ -55,6 +55,8 @@ class UtmpModule(PyModule, UnixUtils):
             ("IPv4", lambda log: ipaddress.IPv4Address(struct.unpack(">L", log[348:352])[0]).__str__())
         ]
 
+        self._format_output_file()
+
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.

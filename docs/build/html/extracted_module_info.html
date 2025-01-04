@@ -134,15 +134,23 @@
 <td><p>external</p></td>
 <td><p>thor-lite/thor-lite-linux-64</p></td>
 </tr>
-<tr class="row-even"><td><p>module_os</p></td>
+<tr class="row-even"><td><p>linux</p></td>
+<td><p>uac_indexation.yml</p></td>
+<td><p>Splunk ingestion of parsed artifacts</p></td>
+<td></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>python</p></td>
+</tr>
+<tr class="row-odd"><td><p>module_os</p></td>
 <td><p>sample.yml</p></td>
 <td><p>module_description</p></td>
-<td><p>Show your name !</p></td>
+<td><p>author_name</p></td>
 <td><p>1.0</p></td>
 <td><p>module_processor_type</p></td>
 <td><p>module_tool_name</p></td>
 </tr>
-<tr class="row-odd"><td><p>network</p></td>
+<tr class="row-even"><td><p>network</p></td>
 <td><p>zeek.yml</p></td>
 <td><p>SParsing of pcap files using zeek</p></td>
 <td></td>
@@ -150,17 +158,25 @@
 <td><p>external</p></td>
 <td><p>docker</p></td>
 </tr>
-<tr class="row-even"><td><p>unix</p></td>
+<tr class="row-odd"><td><p>unix</p></td>
 <td><p>arp.yml</p></td>
-<td><p>Parsing the output of the command arp or arp -a with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command arp or arp -a</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
-<tr class="row-odd"><td><p>unix</p></td>
+<tr class="row-even"><td><p>unix</p></td>
 <td><p>audit.yml</p></td>
+<td><p>Parsing logs from ‘/var/log/audit’</p></td>
 <td></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>unix</p></td>
+<td><p>auth.yml</p></td>
+<td><p>Parsing logs from ‘/var/log/auth.log’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -168,15 +184,15 @@
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>blkid.yml</p></td>
-<td><p>Parsing the output of the command blkid with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command blkid</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>bodyfile.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/bodyfile’ in UAC collect</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -184,7 +200,7 @@
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>boot.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/boot’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -192,7 +208,7 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>cron.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/cron’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -200,31 +216,31 @@
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>debug.yml</p></td>
-<td><p>Parse the /var/log/debug file</p></td>
-<td><p>Show your name !</p></td>
+<td><p>Parsing logs from ‘/var/log/debug’</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
 <td></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>df.yml</p></td>
-<td><p>Parsing the output of the command df and df -h with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command df and df -h</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>dmidecode.yml</p></td>
-<td><p>Parsing the output of the command dmidecode with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command dmidecode</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>dpkg-l.yml</p></td>
-<td><p>Parsing the output of the command dpkg -l with JC</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command dpkg -l</p></td>
 <td><p>Kelly Brazil</p></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
@@ -232,7 +248,7 @@
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>dpkg.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/dpkg’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -240,8 +256,8 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>env.yml</p></td>
-<td><p>Parsing the output of the command env with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command env</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -256,47 +272,47 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>findmnt.yml</p></td>
-<td><p>Parsing the output of the command findmnt with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command findmnt</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>free.yml</p></td>
-<td><p>Parsing the output of the command free with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command free</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>ip_route.yml</p></td>
-<td><p>Parsing the output of the command ip route with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command ip route</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>iptables.yml</p></td>
-<td><p>Parsing the output of the command iptables with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command iptables</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>journal.yml</p></td>
+<td><p>Parsing logs from ‘/var/log/journal/’</p></td>
 <td></td>
-<td></td>
-<td><p>1.0</p></td>
+<td><p>1.1</p></td>
 <td><p>external</p></td>
 <td><p>journalctl</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>kernel.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/kernel’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -304,15 +320,15 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>last.yml</p></td>
-<td><p>Parsing the output of the command last and lastb with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command last and lastb</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>lastlog.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/lastlog’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -320,31 +336,31 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>lsblk.yml</p></td>
-<td><p>Parsing the output of the command lsblk with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lsblk</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>lsmod.yml</p></td>
-<td><p>Parsing the output of the command lsmod with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lsmod</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>lsusb.yml</p></td>
-<td><p>Parsing the output of the command lsusb with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lsusb</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>mail.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/mail’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -352,7 +368,7 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>message.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/message’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -360,23 +376,23 @@
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>mount.yml</p></td>
-<td><p>Parsing the output of the command mount with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command mount</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>netstat.yml</p></td>
-<td><p>Parsing the output of the command netstat with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command netstat</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>postgresql.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/postgresql’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -384,23 +400,23 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>ps.yml</p></td>
-<td><p>Parsing the output of the command ps and ps -ef with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command ps and ps -ef</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>sysctl.yml</p></td>
-<td><p>Parsing the output of the command sysctl -a with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command sysctl -a</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>syslog.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/syslog’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -408,23 +424,23 @@
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>systemctl_luf.yml</p></td>
-<td><p>Parsing the output of the command systemctl list-unit-files with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command systemctl list-unit-files</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>top.yml</p></td>
-<td><p>Parsing the output of the command top and top -b with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command top and top -b</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>utmp.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/utmp btmp wtmp’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -432,15 +448,15 @@
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>vmstat.yml</p></td>
-<td><p>Parsing the output of the command vmstat with JC</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Kelly Brazil - JsonConverter - Parsing the output of the command vmstat</p></td>
+<td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>yum.yml</p></td>
-<td></td>
+<td><p>Parsing logs from ‘/var/log/yum’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
@@ -455,6 +471,14 @@
 <td><p>net6/AmcacheParser.exe</p></td>
 </tr>
 <tr class="row-even"><td><p>windows</p></td>
+<td><p>browsers.yml</p></td>
+<td><p>Parsing of browsers artifact.</p></td>
+<td></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>python</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>chromium.yml</p></td>
 <td><p>Parsing of chromium artifact.</p></td>
 <td></td>
@@ -462,7 +486,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>dummy_external.yml</p></td>
 <td><p>Dummy module to test WSL / Powershell connexion</p></td>
 <td></td>
@@ -470,7 +494,7 @@
 <td><p>external</p></td>
 <td><p>net6/AmcacheParser.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>evtx_orc.yml</p></td>
 <td><p>Parsing of EVTX collected by DFIR ORC</p></td>
 <td></td>
@@ -478,7 +502,7 @@
 <td><p>external</p></td>
 <td><p>evtx_dump</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>extract_orc.yml</p></td>
 <td></td>
 <td></td>
@@ -486,7 +510,7 @@
 <td><p>internal, external</p></td>
 <td><p>7zz</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>firefox.yml</p></td>
 <td><p>Parsing of firefox artifact.</p></td>
 <td></td>
@@ -494,7 +518,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>hives_hkcu.yml</p></td>
 <td><p>Parsing of registry hives artifact.</p></td>
 <td></td>
@@ -502,7 +526,7 @@
 <td><p>external</p></td>
 <td><p>net6/RECmd/RECmd.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>hives_hklm.yml</p></td>
 <td><p>Parsing of registry hives artifact.</p></td>
 <td></td>
@@ -510,7 +534,7 @@
 <td><p>external</p></td>
 <td><p>net6/RECmd/RECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>jump_list.yml</p></td>
 <td><p>Parsing of jump list artifact.</p></td>
 <td></td>
@@ -518,7 +542,7 @@
 <td><p>external</p></td>
 <td><p>net6/JLECmd.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>lnk.yml</p></td>
 <td><p>Parsing of lnk artifact.</p></td>
 <td></td>
@@ -526,21 +550,13 @@
 <td><p>external</p></td>
 <td><p>net6/LECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>log2timeline_plaso.yml</p></td>
 <td><p>run log2timeline to create a Plaso storage file</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>docker</p></td>
-</tr>
-<tr class="row-even"><td><p>windows</p></td>
-<td><p>memory.yml</p></td>
-<td><p>For the moment, it used to test if file being written is detected before processing</p></td>
-<td></td>
-<td><p>1.0</p></td>
-<td><p>external</p></td>
-<td><p>ls</p></td>
 </tr>
 <tr class="row-odd"><td><p>windows</p></td>
 <td><p>orc_indexation.yml</p></td>
@@ -615,6 +631,14 @@
 <td><p>process_dir_multiple_output</p></td>
 </tr>
 <tr class="row-even"><td><p>windows</p></td>
+<td><p>win_memory.yml</p></td>
+<td></td>
+<td></td>
+<td><p>1.0</p></td>
+<td><p>internal, external</p></td>
+<td><p>memprocfs/memprocfs</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_timeline.yml</p></td>
 <td><p>Parsing of Windows Timeline (ActivitiesCache.db) artifact.</p></td>
 <td></td>

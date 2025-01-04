@@ -122,8 +122,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="OSIR-basics">
-<h1>OSIR basics<a class="headerlink" href="#OSIR-basics" title="Link to this heading"></a></h1>
+  <section id="osir-basics">
+<h1>OSIR basics<a class="headerlink" href="#osir-basics" title="Link to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>OSIR is a Python project designed for the automated processing of data using modules and profiles. It is primarily aimed at handling forensic artifacts but can be utilized for any type of files. OSIR acts as a scheduler, applying processing tools to files, where the output of some tools can serve as input to others.</p>
@@ -140,8 +140,8 @@
 <section id="components-terminology">
 <h2>Components &amp; Terminology<a class="headerlink" href="#components-terminology" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>Linux Master</strong>: Monitors a directory (called “case”) containing files to be processed and creates processing tasks for the agents.</p></li>
-<li><p><strong>Linux Agent</strong>: Processes tasks issued by the master and interacts with other components like the Windows machine or Splunk depending on the tasks.</p></li>
+<li><p><strong>Master</strong>: Monitors a directory (called “case”) containing files to be processed and creates processing tasks for the agents.</p></li>
+<li><p><strong>Agent</strong>: Processes tasks issued by the master and interacts with other components like the Windows machine or Splunk depending on the tasks.</p></li>
 <li><p><strong>Splunk (Optional)</strong>: Can be deployed locally on the same host as the master or remotely.</p></li>
 <li><p><strong>Windows Box (Optional)</strong>: Can be deployed locally on the same host as the master or remotely. Two ways of deploying automatically a Windows VM are currently supported: using vbox and Vagrant or using Dockur (Windows in Docker). If running OSIR agent on a Windows host, there is no need to deploy a Windows VM, the host itself is used.</p></li>
 <li><p><strong>Processing job</strong>: Action of processing a case containing files to process. Handled by master.</p></li>

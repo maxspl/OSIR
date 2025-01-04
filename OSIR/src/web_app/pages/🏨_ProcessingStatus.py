@@ -58,7 +58,7 @@ class ProcessingStatus:
             table_names = [table[0] for table in tables]
 
             for table_name in table_names:
-                if table_name == "master_status":
+                if table_name == "master_status" or table_name == "case_snapshot":
                     continue
                 query = text(f"SELECT * FROM {table_name} WHERE case_path LIKE :case_path")
                 params = {"case_path": f"%/{selected_case_name}"}
@@ -83,7 +83,7 @@ class ProcessingStatus:
 
     def display_ongoing_tasks(self, selected_case_name):
         """
-        Display a single table containing data from all DB tables except 'master_status',
+        Display a single table containing data from all DB tables except 'master_status' and 'case_snapshot',
         filtered to display only rows where the column 'processing_status' does not contain 'processing_done'.
 
         Args:
@@ -103,7 +103,7 @@ class ProcessingStatus:
             table_names = [table[0] for table in tables]
 
             for table_name in table_names:
-                if table_name == "master_status":
+                if table_name == "master_status" or table_name == "case_snapshot":
                     continue
 
                 query = text(f"SELECT * FROM {table_name} WHERE case_path LIKE :case_path")
