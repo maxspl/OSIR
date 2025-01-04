@@ -13,7 +13,8 @@ bodyfile:
     name_rex: bodyfile.*\.jsonl$
     sourcetype: _json
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: "mtime"
+    timestamp_path: 
+        - "mtime"
     timestamp_format: "%s"
 boot:
     name_rex: boot.*\.jsonl$
@@ -33,7 +34,8 @@ dkpg:
     name_rex: dpkg.*\.jsonl$
     sourcetype: _json
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: "_time"
+    timestamp_path: 
+        - "_time"
     timestamp_format: "%Y-%m-%d %H:%M:%S"
 env:
     name_rex: \.jsonl$
@@ -60,20 +62,23 @@ journal:
     path_suffix: journal
     sourcetype: _json
     host_rex: _([\w\.-]+)--
-    timestamp_path: "__REALTIME_TIMESTAMP"
+    timestamp_path: 
+        - "__REALTIME_TIMESTAMP"
 last:
     name_rex: \.jsonl$
     path_suffix: last
     sourcetype: _json
     host_rex: _([\w\.-]+)--
-    timestamp_path: "login"
+    timestamp_path: 
+        - "login"
     timestamp_format: "%a %b %d %H:%M"
 lastlog:
     name_rex: lastlog.*\.jsonl$
     path_suffix: lastlog
     sourcetype: _json
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: "_time"
+    timestamp_path: 
+        - "_time"
     timestamp_format: "%Y/%m/%d %H:%M:%S"
 lsblk:
     name_rex: \.jsonl$
@@ -115,13 +120,15 @@ top:
     path_suffix: top
     sourcetype: _json
     host_rex: _([\w\.-]+)--
-    timestamp_path: "time"
+    timestamp_path: 
+        - "time"
     timestamp_format: "%H:%M:%S"
 utmp:
     name_rex: utmp.*\.jsonl$
     sourcetype: _json
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: "tv_sec"
+    timestamp_path: 
+        - "tv_sec"
     timestamp_format: "%Y/%m/%d %H:%M:%S"
 vmstat:
     name_rex: \.jsonl$
