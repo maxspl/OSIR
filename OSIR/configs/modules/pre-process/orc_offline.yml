@@ -1,0 +1,26 @@
+version: 1.0
+author: maxspl
+module: orc_offline
+description: 
+os: windows
+type: pre-process
+disk_only: False
+no_multithread: True
+processor_type: 
+  - external
+processor_os: windows
+tool: 
+  path: python.exe
+  cmd: >-
+    {drive}\OSIR\bin\dfir_orc_offline\DFIR_ORC_wrapper.py
+    -i "{input_file}" -o "{output_dir}" -e "{endpoint_name}"
+  source: https://github.com/dfir-orc
+  version: latest
+input:
+  type: file
+  name: \.dd$
+  path: r"\/[^\/]+--"
+output:
+  type: multiple_files
+  format: raw
+endpoint: "\/([^\/]+)--"

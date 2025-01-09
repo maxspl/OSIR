@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<wolf childdebug="no" command_timeout="1200">
+    <log>
+        <console level="critical" backtrace="off"></console>
+        <file level="error" backtrace="error">
+              <output disposition="truncate">DFIR-ORC_{SystemType}_{FullComputerName}_{TimeStamp}.log</output>
+        </file>
+    </log>
+    <outline disposition="truncate">DFIR-ORC_{SystemType}_{FullComputerName}_{TimeStamp}.json</outline>
+    <!--             -->
+    <!-- ORC OFFLINE -->
+    <!--             -->
+
+    <archive name="DFIR-ORC_{SystemType}_{FullComputerName}_Offline.7z" keyword="ORC_Offline" concurrency="2" repeat="Once" compression="fast" archive_timeout="120">
+
+        <command keyword="NTFSInfo_offline" queue="flush">
+            <execute name="Orc.exe" run="self:#NTFSInfo" />
+            <argument>/config=res:#NTFSInfo_offline_config.xml</argument>
+            <output  name="NTFSInfo_i30Info.7z" source="File" argument="/i30info={FileName}"/>
+            <output  name="NTFSInfo_SecDesc.7z" source="File" argument="/SecDescr={FileName}"/>
+            <output  name="NTFSInfo_detail.7z"  source="File" argument="/fileinfo={FileName}" />
+            <output  name="NTFSInfo_detail.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="FatInfo_offline" queue="flush">
+            <execute name="Orc.exe" run="self:#FatInfo" />
+            <argument>/config=res:#FatInfo_offline_config.xml</argument>
+            <output name="FatInfo_detail.7z"  source="File" argument="/out={FileName}" />
+            <output name="FatInfo_detail.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="USNInfo_offline" queue="flush">
+            <execute name="Orc.exe" run="self:#USNInfo" />
+            <output  name="USNInfo.7z" source="File" argument="/out={FileName}" />
+            <output  name="USNInfo.log" source="StdOutErr" />
+            <argument>%OfflineLocation%</argument>
+        </command>
+
+        <command keyword="GetFuzzyHash_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetFuzzyHash_offline_config.xml /fuzzyhash=tlsh,ssdeep</argument>
+            <output  name="FuzzyHash.7z" source="File" argument="/out={FileName}" />
+            <output  name="FuzzyHash.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetSystemHives_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetHives_offline_config.xml</argument>
+            <output  name="SystemHives.7z" source="File" argument="/out={FileName}" />
+            <output  name="SystemHives.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetUserHives_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetUserHives_offline_config.xml</argument>
+            <output  name="UserHives.7z" source="File" argument="/out={FileName}" />
+            <output  name="UserHives.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetLegacyBootCode_offline">
+            <execute name="Orc.exe" run="self:#GetSectors" />
+            <output  name="BootCode.7z" source="File" argument="/LegacyBootCode /SlackSpace /Out={FileName}" />
+            <output  name="BootCode.log" source="StdOutErr" />
+        </command>
+
+        <!-- Ajout GetUefiFull -->
+
+        <command keyword="GetUefiFull_offline">
+            <execute name="Orc.exe" run="self:#GetSectors" />
+            <output  name="UefiFull.7z" source="File" argument="/UefiFull /Out={FileName}" />
+            <output  name="UefiFull.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetSDS_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetSDS_offline_config.xml</argument>
+            <output  name="Secure.7z" source="File" argument="/out={FileName}" />
+            <output  name="Secure.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetADS_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetADS_offline_config.xml</argument>
+            <output name="ADS.7z" source="File" argument="/out={FileName}" />
+            <output name="ADS.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetCatroot_offline"  queue="flush">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetCatRoot_offline_config.xml</argument>
+            <output  name="CatRoot.7z" source="File" argument="/out={FileName}" />
+            <output  name="CatRoot.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetEVT_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetEVT_offline_config.xml</argument>
+            <output  name="Event.7z" source="File" argument="/out={FileName}" />
+            <output  name="Event.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetEXE_TMP_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetEXE_TMP_offline_config.xml</argument>
+            <output  name="EXE_TMP.7z" source="File" argument="/out={FileName}" />
+            <output  name="EXE_TMP.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetArtefacts_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetArtefacts_offline_config.xml</argument>
+            <output  name="Artefacts.7z" source="File" argument="/out={FileName}" />
+            <output  name="Artefacts.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetTextLogs_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetTextLogs_offline_config.xml</argument>
+            <output  name="TextLogs.7z" source="File" argument="/out={FileName}" />
+            <output  name="TextLogs.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetScripts_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetScript_offline_config.xml</argument>
+            <output  name="Scripts.7z" source="File" argument="/out={FileName}" />
+            <output  name="Scripts.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetErrors_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetErrors_offline_config.xml</argument>
+            <output  name="Errors.7z" source="File" argument="/out={FileName}" />
+            <output  name="Errors.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetMemoryDmp_offline" >
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetMemDmp_offline_config.xml</argument>
+            <output  name="Memory_dmp.7z" source="File" argument="/out={FileName}" />
+            <output  name="Memory_dmp.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetBrowsersComplet_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetBrowsersComplet_offline_config.xml</argument>
+            <output  name="Browsers_complet.7z" source="File" argument="/out={FileName}" />
+            <output  name="Browsers_complet.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetSamHive_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetSAM_hive_offline_config.xml</argument>
+            <output  name="SAM.7z" source="File" argument="/out={FileName}" />
+            <output  name="SAM.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetExtAttrs_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetExtAttrs_offline_config.xml</argument>
+            <output  name="ExtAttrs.7z" source="File" argument="/out={FileName}" />
+            <output  name="ExtAttrs.log" source="StdOutErr" />
+        </command>
+
+        <command keyword="GetResidents_offline">
+            <execute name="Orc.exe" run="self:#GetThis" />
+            <argument>/config=res:#GetResidents_offline_config.xml</argument>
+            <output  name="Residents.7z" source="File" argument="/out={FileName}" />
+            <output  name="Residents.log" source="StdOutErr" />
+        </command>
+
+    </archive>
+
+</wolf>
