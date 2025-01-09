@@ -320,9 +320,9 @@ class PyModule():
             # Check if '/share' is found
             if position != -1:
                 # Add the length of '/share' to include it in the result
-                path_to_replace = in_path[:position]
+                path_to_replace = in_path[:position + 1]
                 UNC_input_path = in_path.replace(path_to_replace, "\\\\{master_host}\\")
-                converted_UNC_input_path = str(PureWindowsPath(Path(UNC_input_path)))  # Convert path to windows
+                converted_UNC_input_path = str(PureWindowsPath(Path(UNC_input_path)))  # Convert path to window
                 return converted_UNC_input_path
             else:
                 logger.error("Error: '/share' not found in the path")
