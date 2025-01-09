@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<toolembed>
+	<input>.\tools\DFIR-Orc_x64.exe</input>
+	<output>.\output\%ORC_OUTPUT%</output>
+
+	<run64 args="WolfLauncher" >7z:#Tools|DFIR-Orc_x64.exe</run64>
+	<run32 args="WolfLauncher" >self:#</run32>
+
+	<file name="WOLFLAUNCHER_CONFIG" path=".\%ORC_CONFIG_FOLDER%\DFIR-ORC_config.xml"/>
+
+
+
+	<file name="GetADS_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetADS_offline_config.xml"/>
+	<file name="GetArtefacts_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetArtefacts_offline_config.xml"/>
+	<file name="GetExtAttrs_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetExtAttrs_offline_config.xml"/>
+	<file name="GetTextLogs_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetTextLogs_offline_config.xml"/>
+	<file name="GetHives_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetHives_offline_config.xml"/>
+	<file name="GetSDS_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetSDS_offline_config.xml"/>
+	<file name="GetCatRoot_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetCatRoot_offline_config.xml"/>
+	<file name="GetScript_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetScript_offline_config.xml"/>
+	<file name="GetErrors_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetErrors_offline_config.xml"/>
+	<file name="GetMemDmp_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetMemDmp_offline_config.xml"/>
+	<file name="GetEVT_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetEVT_offline_config.xml"/>
+	<file name="GetUserHives_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetUserHives_offline_config.xml"/>
+	<file name="GetEXE_TMP_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetEXE_TMP_offline_config.xml"/>
+	<file name="GetBrowsersComplet_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetBrowsersComplet_offline_config.xml"/>
+	<!-- <file name="GetYaraSamples_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetYaraSamples_offline_config.xml"/> -->
+	<file name="GetFuzzyHash_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetFuzzyHash_offline_config.xml"/>
+	<file name="NTFSInfo_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\NTFSInfo_offline_config.xml"/>
+	<file name="GetSAM_hive_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetSAM_hive_offline_config.xml"/>
+	<file name="FatInfo_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\FatInfo_offline_config.xml"/>
+	<file name="GetResidents_offline_config.xml" path=".\%ORC_CONFIG_FOLDER%\GetResidents_offline_config.xml"/>
+
+
+
+
+
+	<file name="yara_rules" path=".\%ORC_CONFIG_FOLDER%\ruleset.yara" />
+
+        <archive name="Tools" format="7z" compression="Ultra">
+		<file name="DFIR-Orc_x64.exe" path=".\tools\DFIR-Orc_x64.exe"/>
+	</archive>
+</toolembed>
