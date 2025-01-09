@@ -84,8 +84,9 @@ Log "Running Get-ZimmermanTools script."
 & "$bin_dir\Get-ZimmermanTools.ps1" -Dest $bin_dir 2>&1 | Out-File -FilePath $logFile -Append
 
 # Install dependencies
-Log "Installing .NET 6.0 desktop runtime and Python 3.11."
+Log "Installing .NET 6.0, .NET 9.0 desktop runtime and Python 3.11."
 choco install dotnet-6.0-desktopruntime -y 2>&1 | Out-File -FilePath $logFile -Append
+choco install dotnet-9.0-desktopruntime -y 2>&1 | Out-File -FilePath $logFile -Append
 choco install python311 -y 2>&1 | Out-File -FilePath $logFile -Append
 
 # Reload path
