@@ -399,6 +399,9 @@ class DbOSIR:
             # 2) Prepare data as CSV format in memory
             output = io.StringIO()
             for path, entry_type in entries_list:
+                if '\\' in path:
+                    logger.warning(f"Skipping entry due to invalid backslash: path={path}, entry_type={entry_type}")
+                    continue
                 output.write(f"{case_uuid}\t{case_path}\t{path}\t{entry_type}\n")
             output.seek(0)  # Move cursor back to start
 
