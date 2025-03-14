@@ -25,6 +25,7 @@ CONF_PATH=$(realpath "$MASTER_DIR/../conf")
 SHARE_PATH=$(realpath "$MASTER_DIR/../../share")
 debug_mode=true
 config_mode=false # If set, nothing is ask to the user. Configuration is pulled from agent.yml
+offline_mode=false  # OFFLINE MODE FLAG
 keep_splunk_data=true # If set, install Splunk without erasing previous data
 erase_splunk=false # If set, Splunk data is erased for new installation
 
@@ -35,7 +36,7 @@ fqdn_regex='^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 
 # Parse command line arguments
-while getopts "hdc" arg; do
+while getopts "hdco" arg; do   # ADD "o" FOR OFFLINE
   case $arg in
     h)
       show_help=true
@@ -45,6 +46,9 @@ while getopts "hdc" arg; do
       ;;
     c)
       config_mode=true
+      ;;
+    o)  # OFFLINE MODE
+      offline_mode=true
       ;;
     *)
       echo "Unknown argument: $arg"
@@ -98,25 +102,31 @@ local_splunk_installation(){
 
     # Launch docker
 
-    # Check if WSL
-    if is_wsl; then
-        export COMPOSE_PROFILES="default,splunk" # Temp value to troubleshot, should be default,splunk
+    if $offline_mode; then
+        if is_wsl; then
+            export COMPOSE_PROFILES="default-offline,master-offline,splunk-offline"  
+        else
+            export COMPOSE_PROFILES="default-offline,master-offline,splunk-offline,smb-offline"
+        fi
     else
-        export COMPOSE_PROFILES="all"
+        if is_wsl; then
+            export COMPOSE_PROFILES="default,master-online,splunk-online"
+        else
+            export COMPOSE_PROFILES="default,master-online,splunk-online,smb-online"
+        fi
     fi
-    export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" master) 
-    
+
+    export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" master)
     if $debug_mode; then
         $SETUP_SCRIPT_PATH/setup_docker.sh master
     else
         $SETUP_SCRIPT_PATH/setup_docker.sh master > /dev/null
     fi
 
-    # Check exit code
     if [ $? -eq 1 ]; then
-        (echo >&2 "${ERROR} Failed to launch docker requirements.")
+        (echo >&2 "${ERROR} Failed to launch Docker containers for local Splunk.")
         exit 1
-    fi
+    fi  
 }
 
 remote_splunk_installation(){
@@ -133,12 +143,22 @@ remote_splunk_installation(){
 
     # Launch docker
 
-    # Check if WSL
-    if is_wsl; then
-        export COMPOSE_PROFILES="default"
+    # OFFLINE check
+    if $offline_mode; then
+        if is_wsl; then
+            # Maybe no samba in WSL
+            export COMPOSE_PROFILES="default-offline,master-offline"
+        else
+            export COMPOSE_PROFILES="default-offline,master-offline,smb-offline"
+        fi
     else
-        export COMPOSE_PROFILES="default,smb"
+        if is_wsl; then
+            export COMPOSE_PROFILES="default,master-online"
+        else
+            export COMPOSE_PROFILES="default,master-online,smb-online"
+        fi
     fi
+
 
     export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" master)
     if $debug_mode; then
@@ -345,6 +365,7 @@ main() {
         echo "  -d  Enable debug mode"
         echo "  -h  Show this help message"
         echo "  -c  Setup master from config file. Default is interactive"
+    echo "  -o  Offline mode (use master-offline, splunk-offline, samba-offline, etc.)"
         exit 0
     fi
     # Install interactive or from config

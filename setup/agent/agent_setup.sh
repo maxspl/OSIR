@@ -37,6 +37,7 @@ CONF_PATH=$(realpath "$MASTER_DIR/../conf")
 
 debug_mode=false
 config_mode=false # If set, nothing is ask to the user. Configuration is pulled from agent.yml
+offline_mode=false 
 
 # Regular expression to match an IP address
 ip_regex='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
@@ -44,7 +45,7 @@ ip_regex='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
 fqdn_regex='^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 # Parse command line arguments
-while getopts "hdc" arg; do
+while getopts "hdco" arg; do
   case $arg in
     h)
       show_help=true
@@ -55,6 +56,9 @@ while getopts "hdc" arg; do
     c)
       config_mode=true
       ;;
+    o)
+      offline_mode=true
+      ;;
     *)
       echo "Unknown argument: $arg"
       exit 1
@@ -63,6 +67,7 @@ while getopts "hdc" arg; do
 done
 
 export DEBUG_MODE=$debug_mode
+export OFFLINE_MODE=$offline_mode
 
 get_yml_value(){
     source $SETUP_SCRIPT_PATH/yaml.sh
@@ -88,39 +93,54 @@ function check_localhost {
 }
 
 local_installation(){
-    # Launch docker
-    # Check if WSL
-    if is_wsl; then
-        export COMPOSE_PROFILES="wsl" 
-    else
-        export COMPOSE_PROFILES="default"
-    fi
-    export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent) 
+    # Launch Docker
+    # OFFLINE MODE: decide which Docker Compose profile/service to use
+    if $offline_mode; then
+        # Offline uses the agent-offline service (prebuilt)
+        if is_wsl; then
+            export COMPOSE_PROFILES="wsl,agent-offline"
+        else
+            export COMPOSE_PROFILES="agent-offline"
+        fi
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
 
-    if $debug_mode; then
-        $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
     else
-        $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        # Normal (online) mode: build from Dockerfile
+        if is_wsl; then
+            export COMPOSE_PROFILES="wsl"
+        else
+            export COMPOSE_PROFILES="default"
+        fi
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
+
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
     fi
-    # Check exit code
+
     if [ $? -eq 1 ]; then
         (echo >&2 "${ERROR} Failed to launch docker requirements.")
         exit 1
     fi
     
-    if ! is_wsl;then
+    if ! is_wsl; then
         # Export to env requirements
-        export RAM_REQ="17000000" # ~16GB of ram
-        export DISK_REQ="50000"  # 16GB of disk
+        export RAM_REQ="17000000"
+        export DISK_REQ="50000"
 
-        # Check and install requirements
         if $debug_mode; then
             $SETUP_SCRIPT_PATH/requirements.sh vbox
         else
             $SETUP_SCRIPT_PATH/requirements.sh vbox > /dev/null
         fi
 
-        # Setup Windows box
         host="host.docker.internal"
         user="vagrant"
         password="vagrant"
@@ -138,110 +158,23 @@ local_installation(){
         else
             $SETUP_SCRIPT_PATH/setup_windows_host.sh windows_setup > /dev/null
         fi
-
-        # (echo >&2 "${INFO} A Fifo processus will be created to handle Windows Command.")
-        # $SETUP_SCRIPT_PATH/fifo.sh &
-        # Obtient le PID du dernier processus en arrière-plan
-        # FIFO_PID=$!
-        # Affiche le PID du processus créé
-        # (echo >&2 "${GOODTOGO} FIFO process created with PID: $FIFO_PID")
     fi
 
-    # Check if Master is localhost
     check_localhost $master_host
-    # Check exit code
     if [ $? -eq 0 ]; then
         (echo >&2 "${INFO} Master is localhost, agent will not use Samba.")
-    elif [ $? -eq 1 ]; then
+    else
         (echo >&2 "${INFO} Master is not localhost, agent will use Samba.")
-        # Check if samba is working
         if $debug_mode; then
-            $SETUP_SCRIPT_PATH/check_samba.sh 
+            $SETUP_SCRIPT_PATH/check_samba.sh
         else
             $SETUP_SCRIPT_PATH/check_samba.sh > /dev/null
         fi
     fi
-    # Check exit code : stop if Samba share cannot be accessed
     if [ $? -eq 1 ]; then
         exit 1
     fi
-    
-
 }
-
-
-# local_installation_win_docker(){
-#     if ! is_wsl;then
-#         (echo >&2 "${ERROR} There may be an issue with options selected. Windows location is docker but your are not running this script from WSL.")
-#         exit 1
-#     else
-#         # Export to env requirements
-#         export RAM_REQ="17000000" # ~16GB of ram
-#         export DISK_REQ="50000"  # 16GB of disk
-
-#         # Check requirements
-#         if $debug_mode; then
-#             $SETUP_SCRIPT_PATH/requirements.sh docker_desktop
-#         else
-#             $SETUP_SCRIPT_PATH/requirements.sh docker_desktop > /dev/null
-#         fi
-
-#         # Setup Windows box
-#         export WIN_DOCKER_HOST=$1 # IP must be specified by user
-#         export WIN_DOCKER_USER="win_docker_adm"
-#         export WIN_DOCKER_PASSWORD="win_docker_adm"
-#         export WIN_DOCKER_MOUNT_POINT="C:"
-
-#         (echo >&2 "${INFO} Running in WSL and windows docker selected, Vagrant will not be setup.")
-
-#         if $debug_mode; then
-#             $SETUP_SCRIPT_PATH/setup_box_docker.sh windows_setup
-#         else
-#             $SETUP_SCRIPT_PATH/setup_box_docker.sh windows_setup > /dev/null
-#         fi
-
-#     fi
-
-#     # Launch docker for agent-agent
-#     # Check if WSL
-#     if is_wsl; then
-#         export COMPOSE_PROFILES="wsl" 
-#     else
-#         export COMPOSE_PROFILES="default"
-#     fi
-#     export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent) 
-#     if $debug_mode; then
-#         $SETUP_SCRIPT_PATH/setup_docker.sh agent
-#     else
-#         $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
-#     fi
-#     # Check exit code
-#     if [ $? -eq 1 ]; then
-#         (echo >&2 "${ERROR} Failed to launch docker requirements.")
-#         exit 1
-#     fi
-
-#     # Check if Master is localhost
-#     check_localhost $master_host
-#     # Check exit code
-#     if [ $? -eq 0 ]; then
-#         (echo >&2 "${INFO} Master is localhost, agent will not use Samba.")
-#     elif [ $? -eq 1 ]; then
-#         (echo >&2 "${INFO} Master is not localhost, agent will use Samba.")
-#         # Check if samba is working
-#         if $debug_mode; then
-#             $SETUP_SCRIPT_PATH/check_samba.sh 
-#         else
-#             $SETUP_SCRIPT_PATH/check_samba.sh > /dev/null
-#         fi
-#     fi
-#     # Check exit code : stop if Samba share cannot be accessed
-#     if [ $? -eq 1 ]; then
-#         exit 1
-#     fi
-    
-
-# }
 
 is_wsl() {
   # Vérifie si /proc/version contient "Microsoft"
@@ -261,20 +194,31 @@ remote_installation(){
         $SETUP_SCRIPT_PATH/requirements.sh > /dev/null
     fi
 
-    # Launch docker
-    export COMPOSE_PROFILES="default"
-    export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)  # Used by setup_docker.sh 
-    if $debug_mode; then
-        $SETUP_SCRIPT_PATH/setup_docker.sh agent
+    # OFFLINE MODE in remote installation
+    if $offline_mode; then
+        export COMPOSE_PROFILES="agent-offline"
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
+
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
     else
-        $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        export COMPOSE_PROFILES="default"
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
+
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
     fi
-    # Check exit code
+
     if [ $? -eq 1 ]; then
         (echo >&2 "${ERROR} Failed to launch docker requirements.")
         exit 1
     fi
-
     # Check if Master is localhost
     check_localhost $master_host
     # Check exit code
@@ -373,39 +317,31 @@ dockur_win_installation(){
         $SETUP_SCRIPT_PATH/requirements.sh > /dev/null
     fi
 
-    # Prepare ISO for dockur
-    setup_dockur_win
+    # OFFLINE MODE in dockur
+    if $offline_mode; then
+        export COMPOSE_PROFILES="agent-offline,win-offline"
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
 
-    # Launch docker
-    export COMPOSE_PROFILES="default,win"
-    export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)  # Used by setup_docker.sh 
-    if $debug_mode; then
-        $SETUP_SCRIPT_PATH/setup_docker.sh agent
-    else
-        $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
-    fi
-    # Check exit code
-    if [ $? -eq 1 ]; then
-        (echo >&2 "${ERROR} Failed to launch docker requirements.")
-        exit 1
-    fi
-
-    # Check if Master is localhost
-    check_localhost $master_host
-    # Check exit code
-    if [ $? -eq 0 ]; then
-        (echo >&2 "${INFO} Master is localhost, agent will not use Samba.")
-    elif [ $? -eq 1 ]; then
-        (echo >&2 "${INFO} Master is not localhost, agent will use Samba.")
-        # Check if samba is working
         if $debug_mode; then
-            $SETUP_SCRIPT_PATH/check_samba.sh 
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
         else
-            $SETUP_SCRIPT_PATH/check_samba.sh > /dev/null
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
+    else
+        # Prepare ISO for dockur
+        setup_dockur_win
+        export COMPOSE_PROFILES="default,win"
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
+
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
         fi
     fi
-    # Check exit code : stop if Samba share cannot be accessed
+
     if [ $? -eq 1 ]; then
+        (echo >&2 "${ERROR} Failed to launch docker requirements.")
         exit 1
     fi
 
@@ -723,6 +659,7 @@ main() {
         echo "  -d  Enable debug mode"
         echo "  -h  Show this help message"
         echo "  -c  Setup agent from config file. Default is interactive"
+        echo "  -o  Offline mode (use prebuilt agent-offline image instead of building locally)"
         exit 0
     fi
     # Install interactive or from config

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>src.monitor.MonitorCase &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -85,24 +86,24 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.monitor.MonitorCase</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">uuid</span>
-<span class="kn">from</span> <span class="nn">src.utils</span> <span class="kn">import</span> <span class="n">BaseModule</span>
-<span class="kn">from</span> <span class="nn">.ModuleHandler</span> <span class="kn">import</span> <span class="n">ModuleHandler</span>
-<span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
-<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span> <span class="n">Event</span>
-<span class="kn">from</span> <span class="nn">src.utils</span> <span class="kn">import</span> <span class="n">DbOSIR</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ModuleHandler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span> <span class="n">Event</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbOSIR</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="MonitorCase">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.MonitorCase.MonitorCase">[docs]</a>
-<span class="k">class</span> <span class="nc">MonitorCase</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MonitorCase</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Monitors a specified case path for changes that trigger module actions based on the defined module configurations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the monitoring setup with the specified case path and modules.</span>
 
@@ -126,13 +127,13 @@
 
 <div class="viewcode-block" id="MonitorCase.on_inactivity">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.MonitorCase.MonitorCase.on_inactivity">[docs]</a>
-    <span class="k">def</span> <span class="nf">on_inactivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_inactivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to be called when inactivity is detected.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_OSIR</span><span class="o">.</span><span class="n">store_master_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updated database status to processing_done due to inactivity.&quot;</span><span class="p">)</span></div>
 
         
-    <span class="k">def</span> <span class="nf">_generate_unique_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_unique_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates a unique identifier prefixed with a specific string.</span>
 
@@ -150,7 +151,7 @@
 
 <div class="viewcode-block" id="MonitorCase.setup_handler">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.MonitorCase.MonitorCase.setup_handler">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets up file and directory event handlers for each module, configuring and starting an observer to monitor the filesystem.</span>
 <span class="sd">        &quot;&quot;&quot;</span>

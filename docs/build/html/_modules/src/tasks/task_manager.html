@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>src.tasks.task_manager &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -85,19 +86,19 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.tasks.task_manager</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
-<span class="kn">from</span> <span class="nn">..utils.BaseModule</span> <span class="kn">import</span> <span class="n">BaseModule</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">..log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils.BaseModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModule</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
     
 <div class="viewcode-block" id="ProcessorJob">
 <a class="viewcode-back" href="../../../src.tasks.html#src.tasks.task_manager.ProcessorJob">[docs]</a>
-<span class="k">class</span> <span class="nc">ProcessorJob</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessorJob</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages the configuration and validation of processing modules based on a specified profile and user inputs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">selected_modules</span><span class="p">,</span> <span class="n">modules_to_add</span><span class="p">,</span> <span class="n">modules_to_remove</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">profile</span><span class="p">,</span> <span class="n">selected_modules</span><span class="p">,</span> <span class="n">modules_to_add</span><span class="p">,</span> <span class="n">modules_to_remove</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the ProcessorJob with details about the case, profile, and module adjustments.</span>
 
@@ -117,7 +118,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">module_instances</span> <span class="o">=</span> <span class="p">[</span><span class="n">BaseModule</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module_selected</span><span class="p">)</span> <span class="k">for</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_selected</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules_selected</span><span class="p">]</span>  <span class="c1"># Tranform list of str to list of module</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_modules_configs</span><span class="p">()</span>
             
-    <span class="k">def</span> <span class="nf">_get_modules_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_modules_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the final list of modules to be used based on the profile and any modifications specified.</span>
 
@@ -147,7 +148,7 @@
 
         <span class="k">return</span> <span class="n">modules</span> 
 
-    <span class="k">def</span> <span class="nf">_validate_modules_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_modules_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Validates the configurations of all selected modules, checking their existence, operating system compatibility, and requirements.</span>
 <span class="sd">        </span>

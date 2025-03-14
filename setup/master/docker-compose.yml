@@ -17,10 +17,32 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     profiles:
-      - "default"
+      - "master-online"
+      - "all"
+
+  master-offline:
+    image: master-master
+    container_name: master-master
+    stdin_open: true
+    tty: true
+    privileged: true
+    environment:
+      - HOST_HOSTNAME=${HOST_HOSTNAME}
+      - HOST_IP_LIST=${HOST_IP_LIST}
+    volumes:
+      - ../../:/OSIR
+    ports:
+      - "8501:8501"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    profiles:
+      - "master-offline"
       - "all"
 
   samba:
+    build:
+      context: ../ 
+      dockerfile: ./master/dockerfile/SambaFile
     tty: true
     network_mode: bridge
     volumes:
@@ -28,12 +50,23 @@ services:
     ports:
       - "139:139"
       - "445:445"
-    build:
-      context: ../ 
-      dockerfile: ./master/dockerfile/SambaFile
     container_name: master-samba
     profiles:
-      - "smb"      # Assign samba service to the smb profile
+      - "smb-online"      # Assign samba service to the smb profile
+      - "all"
+
+  samba-offline:
+    tty: true
+    network_mode: bridge
+    volumes:
+      - ./../../share:/Shared
+    ports:
+      - "139:139"
+      - "445:445"
+    image: master-samba
+    container_name: master-samba
+    profiles:
+      - "smb-offline"      # Assign samba service to the smb profile
       - "all"
 
   splunk:
@@ -58,11 +91,36 @@ services:
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
     profiles:
-      - "splunk"
+      - "splunk-online"
+      - "all"
+
+  splunk-offline:
+    image: master-splunk
+    container_name: master-splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_PASSWORD=DFIR_passwd
+      - SPLUNK_LICENSE_URI=Free
+    ports:
+      - "8000:8000"  # Splunk web interface
+      - "8089:8089"  # Splunk services interface
+      - "9997:9997"  # Event listening port
+      - "8088:8088"  # HEC port
+    volumes: 
+      - ../splunk/data/etc/:/opt/splunk/etc
+      - ../splunk/data/var/:/opt/splunk/var
+      - ../splunk/apps/SA-ADTimeline/:/opt/splunk/etc/apps/SA-ADTimeline/ # ADTimeline app
+      - ../splunk/apps/TA_evtx_dump/:/opt/splunk/etc/apps/TA_evtx_dump/ # EVTX dump app
+      - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
+      - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
+    profiles:
+      - "splunk-offline"
       - "all"
 
   rabbitmq:
-    image: rabbitmq:3-management
+    build:
+      dockerfile: RabbitmqFile
+      context: ./dockerfile
     container_name: master-rabbitmq
     ports:
       - "5672:5672"      # AMQP protocol port
@@ -77,8 +135,26 @@ services:
       - "default"
       - "all"
 
+  rabbitmq-offline:
+    image: master-rabbitmq
+    container_name: master-rabbitmq
+    ports:
+      - "5672:5672"      # AMQP protocol port
+      - "15672:15672"    # Management interface port
+    volumes:
+      - ./dockerfile/sources/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    environment:
+      - RABBITMQ_DEFAULT_USER=dfir
+      - RABBITMQ_DEFAULT_PASS=dfir
+    restart: unless-stopped
+    profiles:
+      - "default-offline"
+      - "all"
+
   redis:
-    image: redis:latest
+    build:
+      dockerfile: RedisFile
+      context: ./dockerfile
     container_name: master-redis
     ports:
       - "6379:6379"      # Redis port
@@ -89,8 +165,22 @@ services:
       - "default"
       - "all"
 
+  redis-offline:
+    image: master-redis
+    container_name: master-redis
+    ports:
+      - "6379:6379"      # Redis port
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    restart: unless-stopped
+    profiles:
+      - "default-offline"
+      - "all"
+
   flower:
-    image: mher/flower
+    build:
+      dockerfile: FlowerFile
+      context: ./dockerfile
     container_name: master-flower
     command: 
       - "celery"
@@ -110,8 +200,31 @@ services:
       - "default"
       - "all"
 
+  flower-offline:
+    image: master-flower
+    container_name: master-flower
+    command: 
+      - "celery"
+      - "--broker=amqp://dfir:dfir@rabbitmq:5672//"
+      - "--result-backend=redis://redis:6379/0 "
+      - "flower"
+      - "--broker_api=http://dfir:dfir@rabbitmq:15672/api//"
+      - "--port=5555"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq-offline
+      - redis-offline
+    environment:
+      - FLOWER_UNAUTHENTICATED_API=true
+    profiles:
+      - "default-offline"
+      - "all"
+
   postgres:
-    image: postgres:latest
+    build:
+      dockerfile: PostgresFile
+      context: ./dockerfile
     container_name: master-postgres
     environment:
       POSTGRES_DB: OSIR_db
@@ -123,8 +236,23 @@ services:
       - "default"
       - "all"
 
+  postgres-offline:
+    image: master-postgres
+    container_name: master-postgres
+    environment:
+      POSTGRES_DB: OSIR_db
+      POSTGRES_USER: dfir
+      POSTGRES_PASSWORD: dfir
+    ports:
+      - "5432:5432"
+    profiles:
+      - "default-offline"
+      - "all"
+
   pgadmin:
-    image: dpage/pgadmin4
+    build:
+      dockerfile: PgadminFile
+      context: ./dockerfile
     container_name: master-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: dfir@OSIR.com
@@ -137,4 +265,20 @@ services:
       - postgres
     profiles:
       - "default"
+      - "all"
+
+  pgadmin-offline:
+    image: master-pgadmin
+    container_name: master-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dfir@OSIR.com
+      PGADMIN_DEFAULT_PASSWORD: dfir
+    ports:
+      - "80:80"
+    volumes:
+      - ./dockerfile/sources/servers.json:/pgadmin4/servers.json
+    depends_on:
+      - postgres-offline
+    profiles:
+      - "default-offline"
       - "all"

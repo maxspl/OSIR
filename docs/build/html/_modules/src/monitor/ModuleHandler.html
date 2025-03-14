@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>src.monitor.ModuleHandler &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -85,22 +86,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.monitor.ModuleHandler</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Timer</span>
-<span class="kn">import</span> <span class="nn">threading</span>  <span class="c1"># Import threading to use Lock</span>
-<span class="kn">import</span> <span class="nn">pkgutil</span>
-<span class="kn">import</span> <span class="nn">importlib</span>
-<span class="kn">import</span> <span class="nn">pickle</span>
-<span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
-<span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
-<span class="kn">from</span> <span class="nn">src.tasks</span> <span class="kn">import</span> <span class="n">task_client</span>
-<span class="kn">from</span> <span class="nn">src.utils.DbOSIR</span> <span class="kn">import</span> <span class="n">DbOSIR</span>
-<span class="kn">from</span> <span class="nn">src.utils.PyModule</span> <span class="kn">import</span> <span class="n">PyModule</span>
-<span class="kn">from</span> <span class="nn">src.utils.AgentConfig</span> <span class="kn">import</span> <span class="n">AgentConfig</span>
-<span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">DirCreatedEvent</span><span class="p">,</span> <span class="n">FileCreatedEvent</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Timer</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>  <span class="c1"># Import threading to use Lock</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pkgutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">watchdog.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">task_client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.DbOSIR</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbOSIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.PyModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">PyModule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.AgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">watchdog.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirCreatedEvent</span><span class="p">,</span> <span class="n">FileCreatedEvent</span>
 
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
@@ -108,11 +109,11 @@
 
 <div class="viewcode-block" id="CaseSnapshot">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.CaseSnapshot">[docs]</a>
-<span class="k">class</span> <span class="nc">CaseSnapshot</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CaseSnapshot</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Class to snapshot the directory entries.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the CaseSnapshot with the given case path.</span>
 
@@ -124,13 +125,13 @@
 
 <div class="viewcode-block" id="CaseSnapshot.scan_directory">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.CaseSnapshot.scan_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">scan_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scan_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Scan the directory and subdirectories to record entries.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entries</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Reset entries before scanning</span>
         
-        <span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">current_path</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">scan</span><span class="p">(</span><span class="n">current_path</span><span class="p">):</span>
             <span class="k">with</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">current_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">it</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
@@ -146,7 +147,7 @@
     
 <div class="viewcode-block" id="CaseSnapshot.get_entries_set">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.CaseSnapshot.get_entries_set">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_entries_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entries_set</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Get a set of the directory entries for easy comparison.</span>
 
@@ -161,11 +162,11 @@
 
 <div class="viewcode-block" id="ModuleHandler">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler">[docs]</a>
-<span class="k">class</span> <span class="nc">ModuleHandler</span><span class="p">(</span><span class="n">FileSystemEventHandler</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModuleHandler</span><span class="p">(</span><span class="n">FileSystemEventHandler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Handles file system events to trigger processing modules based on file or directory changes that match specified patterns.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">modules_info</span><span class="p">,</span> <span class="n">cooldown_period</span><span class="p">,</span> <span class="n">module_instances</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">modules_info</span><span class="p">,</span> <span class="n">cooldown_period</span><span class="p">,</span> <span class="n">module_instances</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the ModuleHandler with configurations to monitor file and directory events related to a specific case.</span>
 
@@ -208,7 +209,7 @@
 
 <div class="viewcode-block" id="ModuleHandler.monitor_directory">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.monitor_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">monitor_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">reprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">monitor_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">reprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Monitors the directory for changes at specified intervals.</span>
 
@@ -265,7 +266,7 @@
     
 <div class="viewcode-block" id="ModuleHandler.on_created">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.on_created">[docs]</a>
-    <span class="k">def</span> <span class="nf">on_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>  <span class="c1"># triggered for files and dir but targets dirs only</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>  <span class="c1"># triggered for files and dir but targets dirs only</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Specific handler for &#39;created&#39; events, which are triggered when a new file or directory is created.</span>
 
@@ -284,12 +285,12 @@
             <span class="n">file_module_pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span> <span class="n">module_name</span><span class="p">)</span>
 
             <span class="c1"># Check if path_pattern_suffix is a regex</span>
-            <span class="n">is_path_pattern_suffix_regex</span> <span class="o">=</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;r</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">is_path_pattern_suffix_regex</span> <span class="o">=</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;r</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">path_pattern_suffix</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">is_path_pattern_suffix_regex</span><span class="p">:</span>
                 <span class="c1"># Strip r&quot;&quot; and compile the regex</span>
                 <span class="n">path_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">path_pattern_suffix</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">wildcard_pattern</span> <span class="o">=</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/*&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">path_pattern_suffix</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="n">wildcard_pattern</span> <span class="o">=</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/*&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">path_pattern_suffix</span> <span class="k">else</span> <span class="kc">None</span>  <span class="c1"># Wildcard can be used after suffix to match any directory (not recursive)</span>
 
             <span class="c1"># Handle dirs</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">module_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span> <span class="ow">and</span>  <span class="c1"># don&#39;t process input if it is in the same module directory</span>
@@ -302,6 +303,9 @@
                 <span class="c1"># Handle case where input dir is case directory</span>
                 <span class="k">elif</span> <span class="p">(</span><span class="n">path_pattern_suffix</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span> <span class="ow">and</span>
                         <span class="n">event</span><span class="o">.</span><span class="n">src_path</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39; will be processed&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">handle_directory_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">path_pattern_suffix</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">src_path</span> <span class="o">==</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)):</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39; will be processed&quot;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">handle_directory_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">path_pattern_suffix</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;/*&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">wildcard_pattern</span><span class="o">.</span><span class="n">lower</span><span class="p">()):</span>
@@ -342,7 +346,7 @@
 
 <div class="viewcode-block" id="ModuleHandler.handle_file_event">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.handle_file_event">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_file_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_file_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes file events that match configured patterns.</span>
 
@@ -357,7 +361,7 @@
 
 <div class="viewcode-block" id="ModuleHandler.handle_directory_event">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.handle_directory_event">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_directory_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_directory_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes directory events that match configured patterns and sets up checks for idleness.</span>
 
@@ -386,7 +390,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39; is busy&quot;</span><span class="p">)</span></div>
 
     
-    <span class="k">def</span> <span class="nf">_get_directory_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_directory_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculates the total size of files within a specified directory.</span>
 
@@ -404,7 +408,7 @@
                     <span class="n">total_size</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">total_size</span>
     
-    <span class="k">def</span> <span class="nf">_check_for_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_for_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the directory has been idle based on size changes and triggers further processing if idle.</span>
 
@@ -432,7 +436,7 @@
 
 <div class="viewcode-block" id="ModuleHandler.process_file">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.process_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initiates processing of a file based on the module configuration.</span>
 
@@ -464,7 +468,7 @@
         
 <div class="viewcode-block" id="ModuleHandler.process_directory">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.process_directory">[docs]</a>
-    <span class="k">def</span> <span class="nf">process_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory_path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory_path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initiates processing of a directory based on the module configuration.</span>
 
@@ -498,7 +502,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span></div>
 
                 
-    <span class="k">def</span> <span class="nf">_set_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">,</span> <span class="n">input_type</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">,</span> <span class="n">input_type</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the input parameters for the module instance based on the type and path of the input.</span>
 
@@ -512,7 +516,7 @@
         <span class="k">elif</span> <span class="n">input_type</span> <span class="o">==</span> <span class="s1">&#39;dir&#39;</span><span class="p">:</span>
             <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span> <span class="o">=</span> <span class="n">input_path</span>
 
-    <span class="k">def</span> <span class="nf">_push_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_push_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pushes a task to the task queue for processing based on the current module configuration.</span>
 
@@ -546,7 +550,7 @@
 <div class="viewcode-block" id="ModuleHandler.module_exists">
 <a class="viewcode-back" href="../../../src.monitor.html#src.monitor.ModuleHandler.ModuleHandler.module_exists">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">module_exists</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">module_exists</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verifies if a specific module exists within the defined module directory.</span>
 
@@ -582,7 +586,7 @@
                     <span class="k">return</span> <span class="kc">False</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_module_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_module_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieves the module instance by name.</span>
 

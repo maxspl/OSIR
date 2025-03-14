@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>src.utils.SmbMounter &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -85,25 +86,25 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.utils.SmbMounter</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">src.utils.AgentConfig</span> <span class="kn">import</span> <span class="n">AgentConfig</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.AgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentConfig</span>
 <span class="c1"># from src.log.logger import AppLogger</span>
-<span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
-<span class="kn">import</span> <span class="nn">subprocess</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="SMBMounter">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.SmbMounter.SMBMounter">[docs]</a>
-<span class="k">class</span> <span class="nc">SMBMounter</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SMBMounter</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages the mounting, monitoring, and unmounting of an SMB share, ensuring continuous accessibility.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mount_point</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;3.0&#39;</span><span class="p">,</span> <span class="n">check_interval</span><span class="o">=</span><span class="mi">15</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mount_point</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s1">&#39;3.0&#39;</span><span class="p">,</span> <span class="n">check_interval</span><span class="o">=</span><span class="mi">15</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the SMBMounter with the necessary parameters for mounting an SMB share.</span>
 
@@ -134,7 +135,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">share</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;//</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s2">/share&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">test_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mount_point</span><span class="p">,</span> <span class="s2">&quot;smb_test_file&quot;</span><span class="p">)</span>  <span class="c1"># File created by master_setup.sh</span>
             
-    <span class="k">def</span> <span class="nf">_is_mounted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_mounted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the SMB share is currently mounted.</span>
 
@@ -148,7 +149,7 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">_can_access_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_can_access_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verifies whether a test file or directory within the mounted SMB share is accessible.</span>
 
@@ -171,7 +172,7 @@
 
 <div class="viewcode-block" id="SMBMounter.mount">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.SmbMounter.SMBMounter.mount">[docs]</a>
-    <span class="k">def</span> <span class="nf">mount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Attempts to mount the SMB share at the specified mount point.</span>
 
@@ -204,7 +205,7 @@
 
 <div class="viewcode-block" id="SMBMounter.unmount">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.SmbMounter.SMBMounter.unmount">[docs]</a>
-    <span class="k">def</span> <span class="nf">unmount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">unmount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Attempts to unmount the SMB share.</span>
 
@@ -225,7 +226,7 @@
             <span class="k">return</span> <span class="kc">False</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_check_and_remount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_and_remount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Periodically checks if the SMB share is mounted and accessible, and attempts to remount it if not.</span>
 <span class="sd">        This function is intended to be run in a separate thread.</span>
@@ -240,7 +241,7 @@
 
 <div class="viewcode-block" id="SMBMounter.start_monitoring">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.SmbMounter.SMBMounter.start_monitoring">[docs]</a>
-    <span class="k">def</span> <span class="nf">start_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Starts a background thread that continuously monitors the mount point to ensure it remains mounted and accessible.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -256,7 +257,7 @@
 
 <div class="viewcode-block" id="SMBMounter.stop_monitoring">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.SmbMounter.SMBMounter.stop_monitoring">[docs]</a>
-    <span class="k">def</span> <span class="nf">stop_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Stops the monitoring thread.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
