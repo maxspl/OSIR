@@ -376,6 +376,13 @@ Supported Modules
      - external
      - python
    * - windows
+     - hayabusa.yml
+     - Hayabusa scan of evtx files
+     - maxspl
+     - 1.0
+     - external
+     - hayabusa/hayabusa-3.0.1-lin-x64-gnu
+   * - windows
      - hives_hkcu.yml
      - Parsing of registry hives artifact.
      - 
@@ -417,6 +424,13 @@ Supported Modules
      - 1.0
      - external
      - python
+   * - windows
+     - orc_offline.yml
+     - 
+     - maxspl
+     - 1.0
+     - external
+     - python.exe
    * - windows
      - prefetch.yml
      - 

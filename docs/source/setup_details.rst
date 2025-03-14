@@ -146,3 +146,88 @@ To run the script with the configuration file, use the following command:
 .. code-block:: bash
 
     sudo ./agent_setup.sh -c 
+
+Air Gap setup
+=============
+
+**Offline setup is possible:**
+
+**1.** Setup Master and Agent on hosts with **internet access** (cf. previous sections)
+
+**2.** Save **Master images**
+
+.. code-block:: bash
+
+    sudo make master_full_offline_release
+.. note:: It will produce this file: OSIR/setup/offline_release/master_containers.tar
+
+**3.** Save **Agent images**
+
+.. code-block:: bash
+
+    sudo make agent_full_offline_release
+
+.. note:: It will produce this file: OSIR/setup/offline_release/agent_containers.tar
+
+**4.** Optional: if your original OSIR setup does not include Splunk and/or Dockur (Windows in Docker) dockers, you can still do the previous steps and generate these dockers from another setup as follows:
+
+For Splunk:
+
+.. code-block:: bash
+
+    sudo make master_splunk_offline_release
+
+.. note:: It will produce this file: OSIR/setup/offline_release/splunk_containers.tar
+
+For Windows in Docker:
+
+.. code-block:: bash
+
+    sudo make agent_dockur_offline_release
+
+.. note:: It will produce this file: OSIR/setup/offline_release/win_containers.tar
+
+**5.** Transfer **OSIR/setup/offline_release/** directory to the **air-gapped hosts** in the **same OSIR path**.
+
+**6.** Optional: If **Windows in Docker** is used in the air-gapped host, also **copy** the following directory into the air-gapped host in the same OSIR path: **OSIR/setup/windows_setup/src/dockur_storage/**
+
+
+**7.** **Load** the docker images in the **air-gapped hosts**
+
+Master:
+
+.. code-block:: bash
+
+    sudo make master_load_full_release
+
+Agent:
+
+.. code-block:: bash
+
+    sudo make agent_load_full_release
+
+Splunk (Only if step 4 was done):
+
+.. code-block:: bash
+
+    sudo make master_load_splunk_release
+
+Windows in Docker (Only if step 4 was done):
+
+.. code-block:: bash
+
+    sudo make agent_load_dockur_release
+
+**8.** Start Master and Agent
+
+Master:
+
+.. code-block:: bash
+
+    sudo make master_offline
+
+Agent:
+
+.. code-block:: bash
+
+    sudo make agent_offline

@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Master setup in details &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -61,6 +61,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id3">Example Usage</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -226,6 +227,72 @@ sudo<span class="w"> </span>./agent_setup.sh
 </pre></div>
 </div>
 </section>
+</section>
+<section id="air-gap-setup">
+<h1>Air Gap setup<a class="headerlink" href="#air-gap-setup" title="Link to this heading"></a></h1>
+<p><strong>Offline setup is possible:</strong></p>
+<p><strong>1.</strong> Setup Master and Agent on hosts with <strong>internet access</strong> (cf. previous sections)</p>
+<p><strong>2.</strong> Save <strong>Master images</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_full_offline_release
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It will produce this file: OSIR/setup/offline_release/master_containers.tar</p>
+</div>
+<p><strong>3.</strong> Save <strong>Agent images</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_full_offline_release
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It will produce this file: OSIR/setup/offline_release/agent_containers.tar</p>
+</div>
+<p><strong>4.</strong> Optional: if your original OSIR setup does not include Splunk and/or Dockur (Windows in Docker) dockers, you can still do the previous steps and generate these dockers from another setup as follows:</p>
+<p>For Splunk:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_splunk_offline_release
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It will produce this file: OSIR/setup/offline_release/splunk_containers.tar</p>
+</div>
+<p>For Windows in Docker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_dockur_offline_release
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It will produce this file: OSIR/setup/offline_release/win_containers.tar</p>
+</div>
+<p><strong>5.</strong> Transfer <strong>OSIR/setup/offline_release/</strong> directory to the <strong>air-gapped hosts</strong> in the <strong>same OSIR path</strong>.</p>
+<p><strong>6.</strong> Optional: If <strong>Windows in Docker</strong> is used in the air-gapped host, also <strong>copy</strong> the following directory into the air-gapped host in the same OSIR path: <strong>OSIR/setup/windows_setup/src/dockur_storage/</strong></p>
+<p><strong>7.</strong> <strong>Load</strong> the docker images in the <strong>air-gapped hosts</strong></p>
+<p>Master:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_load_full_release
+</pre></div>
+</div>
+<p>Agent:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_load_full_release
+</pre></div>
+</div>
+<p>Splunk (Only if step 4 was done):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_load_splunk_release
+</pre></div>
+</div>
+<p>Windows in Docker (Only if step 4 was done):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_load_dockur_release
+</pre></div>
+</div>
+<p><strong>8.</strong> Start Master and Agent</p>
+<p>Master:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_offline
+</pre></div>
+</div>
+<p>Agent:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_offline
+</pre></div>
+</div>
 </section>
 
 

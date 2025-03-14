@@ -20,6 +20,25 @@ services:
     profiles:
       - "default"
       - "all"
+  agent-offline:
+    container_name: agent-agent 
+    image: agent-agent
+    stdin_open: true
+    tty: true
+    privileged: true
+    volumes:
+      - OSIR_volume:/OSIR
+      - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway" 
+    environment:
+      - HOST_HOSTNAME=${HOST_HOSTNAME}
+      - HOST_IP_LIST=${HOST_IP_LIST}
+      - WINDOWS_CORES=${WINDOWS_CORES}
+    hostname: OSIR-AGENT
+    profiles:
+      - "all"
+      - "agent-offline"
   agent-wsl:
     container_name: agent-agent 
     build:
@@ -46,8 +65,10 @@ services:
     profiles:
       - "wsl"
       - "all"
-  agent-windows:
-    image: dockurr/windows
+  windows:
+    build:
+      dockerfile: DockurFile
+      context: ./dockerfile
     container_name: agent-windows
     environment:
       # - VERSION="tiny10" # Ignored because specified in volume
@@ -70,6 +91,30 @@ services:
     profiles:
       - "all"
       - "win"
+  windows-offline:
+    image: agent-windows
+    container_name: agent-windows
+    environment:
+      # - VERSION="tiny10" # Ignored because specified in volume
+      - USERNAME=vagrant
+      - PASSWORD=vagrant
+      - DISK_SIZE=20G
+    devices:
+      - /dev/kvm
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - 8006:8006
+      - 3389:3389/tcp
+      - 3389:3389/udp
+      - 5985:5985
+    stop_grace_period: 2m
+    volumes:
+      - ./../windows_setup/src/ps1:/oem
+      - ./../windows_setup/src/dockur_storage/:/storage # contains local iso file tiny10x64_23h2.iso renamed as custom.iso
+    profiles:
+      - "all"
+      - "win-offline"
 volumes:
   OSIR_volume:
     driver: local

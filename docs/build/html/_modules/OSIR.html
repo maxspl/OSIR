@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OSIR &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -86,24 +87,24 @@
              
   <h1>Source code for OSIR</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
-<span class="kn">import</span> <span class="nn">argparse</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">threading</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">src.tasks.task_manager</span> <span class="k">as</span> <span class="nn">task_manager</span>
-<span class="kn">import</span> <span class="nn">src.tasks.tasks</span> <span class="k">as</span> <span class="nn">tasks</span>
-<span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
-<span class="kn">import</span> <span class="nn">src.monitor.MonitorCase</span> <span class="k">as</span> <span class="nn">MonitorCase</span>
-<span class="kn">import</span> <span class="nn">src.utils.SmbMounter</span> <span class="k">as</span> <span class="nn">SmbMounter</span>
-<span class="kn">import</span> <span class="nn">src.utils.BaseProfile</span> <span class="k">as</span> <span class="nn">BaseProfile</span>
-<span class="kn">from</span> <span class="nn">streamlit.web</span> <span class="kn">import</span> <span class="n">cli</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">src.tasks.task_manager</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">task_manager</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">src.tasks.tasks</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">src.monitor.MonitorCase</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">MonitorCase</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">src.utils.SmbMounter</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">SmbMounter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">src.utils.BaseProfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">BaseProfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">streamlit.web</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="comma_separated_strings">
 <a class="viewcode-back" href="../OSIR.html#OSIR.comma_separated_strings">[docs]</a>
-<span class="k">def</span> <span class="nf">comma_separated_strings</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">comma_separated_strings</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Converts a comma-separated string into a list of strings, ensuring each item has a &#39;.yml&#39; extension.</span>
 
@@ -123,7 +124,7 @@
 
 <div class="viewcode-block" id="parse_args">
 <a class="viewcode-back" href="../OSIR.html#OSIR.parse_args">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_args</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_args</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Parses command line arguments to configure the processing environment and tasks.</span>
 
@@ -169,7 +170,7 @@
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../OSIR.html#OSIR.main">[docs]</a>
-<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main function that sets up and launches the monitoring and processing tasks based on command line arguments.</span>
 <span class="sd">    This function orchestrates the entire process, from parsing arguments to setting up monitoring for case files</span>

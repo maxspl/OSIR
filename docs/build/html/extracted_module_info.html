@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Supported Modules &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
@@ -51,6 +51,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -519,6 +520,14 @@
 <td><p>python</p></td>
 </tr>
 <tr class="row-even"><td><p>windows</p></td>
+<td><p>hayabusa.yml</p></td>
+<td><p>Hayabusa scan of evtx files</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>hayabusa/hayabusa-3.0.1-lin-x64-gnu</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>hives_hkcu.yml</p></td>
 <td><p>Parsing of registry hives artifact.</p></td>
 <td></td>
@@ -526,7 +535,7 @@
 <td><p>external</p></td>
 <td><p>net6/RECmd/RECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>hives_hklm.yml</p></td>
 <td><p>Parsing of registry hives artifact.</p></td>
 <td></td>
@@ -534,7 +543,7 @@
 <td><p>external</p></td>
 <td><p>net6/RECmd/RECmd.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>jump_list.yml</p></td>
 <td><p>Parsing of jump list artifact.</p></td>
 <td></td>
@@ -542,7 +551,7 @@
 <td><p>external</p></td>
 <td><p>net6/JLECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>lnk.yml</p></td>
 <td><p>Parsing of lnk artifact.</p></td>
 <td></td>
@@ -550,7 +559,7 @@
 <td><p>external</p></td>
 <td><p>net6/LECmd.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>log2timeline_plaso.yml</p></td>
 <td><p>run log2timeline to create a Plaso storage file</p></td>
 <td></td>
@@ -558,13 +567,21 @@
 <td><p>external</p></td>
 <td><p>docker</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>orc_indexation.yml</p></td>
 <td><p>Splunk ingestion of parsed artifacts</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>python</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>orc_offline.yml</p></td>
+<td></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>python.exe</p></td>
 </tr>
 <tr class="row-even"><td><p>windows</p></td>
 <td><p>prefetch.yml</p></td>
