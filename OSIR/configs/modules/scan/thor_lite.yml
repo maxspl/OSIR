@@ -22,3 +22,13 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
 endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'thor:files':
+    name_rex: \.jsonl$
+    path_suffix: 'thor_lite'
+    sourcetype: 'thor:files'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "Thor"

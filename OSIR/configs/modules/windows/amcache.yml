@@ -1,4 +1,4 @@
-version: 1.0
+version: 1.1
 author:
 module: amcache
 description: Parsing of amcache artifact.
@@ -23,3 +23,14 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}-{input_file}.csv"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:amcache':
+    name_rex: \.csv$
+    path_suffix: 'amcache'
+    sourcetype: 'windows:files:amcache'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "KeyLastWriteTimestamp"
+        - "FileKeyLastWriteTimestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "AmCache"
