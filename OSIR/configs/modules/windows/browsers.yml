@@ -22,3 +22,19 @@ output:
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'application:firefox':
+    name_rex: .*firefox.*\.json$
+    path_suffix: 'browsers'
+    sourcetype: 'application:browser:firefox'
+    host_rex: ([\w\.-]+)--
+  'application:chrome':
+    name_rex: .*chrome.*\.json$
+    path_suffix: 'browsers'
+    sourcetype: 'application:browser:chrome'
+    host_rex: ([\w\.-]+)--
+  'application:edge':
+    name_rex: .*edge.*\.json$
+    path_suffix: 'browsers'
+    sourcetype: 'application:browser:edge'
+    host_rex: ([\w\.-]+)--
