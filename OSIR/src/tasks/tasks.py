@@ -33,7 +33,11 @@ class CeleryWorker:
             self.master_host = "host.docker.internal"  # Agent cannot use localhost to communicate with other docker
         else:
             self.master_host = self.agent_config.master_host
-        self.CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://dfir:dfir@{self.master_host}:5672//')
+
+        RABBITMQ_USER = os.getenv('RABBITMQ_DEFAULT_USER', 'missing RABBITMQ_DEFAULT_USER env var')
+        RABBITMQ_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS', 'missing RABBITMQ_DEFAULT_PASS env var')
+
+        self.CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{self.master_host}:5672//')
         self.CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', f'redis://{self.master_host}:6379/0')
 
         self.app = Celery(name='OSIR', backend=self.CELERY_RESULT_BACKEND)

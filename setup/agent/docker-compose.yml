@@ -16,6 +16,10 @@ services:
       - HOST_HOSTNAME=${HOST_HOSTNAME}
       - HOST_IP_LIST=${HOST_IP_LIST}
       - WINDOWS_CORES=${WINDOWS_CORES}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     hostname: OSIR-AGENT
     profiles:
       - "default"
@@ -35,6 +39,10 @@ services:
       - HOST_HOSTNAME=${HOST_HOSTNAME}
       - HOST_IP_LIST=${HOST_IP_LIST}
       - WINDOWS_CORES=${WINDOWS_CORES}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     hostname: OSIR-AGENT
     profiles:
       - "all"
@@ -72,8 +80,8 @@ services:
     container_name: agent-windows
     environment:
       # - VERSION="tiny10" # Ignored because specified in volume
-      - USERNAME=vagrant
-      - PASSWORD=vagrant
+      - USERNAME=${WINDOWS_USER}
+      - PASSWORD=${WINDOWS_PASSWORD}
       - DISK_SIZE=20G
     devices:
       - /dev/kvm
@@ -96,8 +104,8 @@ services:
     container_name: agent-windows
     environment:
       # - VERSION="tiny10" # Ignored because specified in volume
-      - USERNAME=vagrant
-      - PASSWORD=vagrant
+      - USERNAME=${WINDOWS_USER}
+      - PASSWORD=${WINDOWS_PASSWORD}
       - DISK_SIZE=20G
     devices:
       - /dev/kvm
