@@ -5,6 +5,7 @@ from celery import Celery
 from celery import signature
 from src.log.logger_config import AppLogger
 from src.utils.AgentConfig import AgentConfig
+import os
 
 logger = AppLogger(__name__).get_logger()
 
@@ -43,7 +44,10 @@ def run_task(case_path, module_data, task, queue, case_uuid):
                 Case Path : {case_path} \n
                 Input : {input} \n
                 Case UUID : {case_uuid} \n""")
-    CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://dfir:dfir@{master_host}:5672//')
+    
+    RABBITMQ_USER = os.getenv('RABBITMQ_DEFAULT_USER', 'missing RABBITMQ_DEFAULT_USER env var')
+    RABBITMQ_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS', 'missing RABBITMQ_DEFAULT_PASS env var')
+    CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{master_host}:5672//')
     CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', f'redis://{master_host}:6379/0')
 
     Celery(name='OSIR', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)

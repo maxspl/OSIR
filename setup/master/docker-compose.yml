@@ -10,6 +10,10 @@ services:
     environment:
       - HOST_HOSTNAME=${HOST_HOSTNAME}
       - HOST_IP_LIST=${HOST_IP_LIST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
       - ../../:/OSIR
     ports:
@@ -29,6 +33,10 @@ services:
     environment:
       - HOST_HOSTNAME=${HOST_HOSTNAME}
       - HOST_IP_LIST=${HOST_IP_LIST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
       - ../../:/OSIR
     ports:
@@ -76,8 +84,8 @@ services:
     container_name: master-splunk
     environment:
       - SPLUNK_START_ARGS=--accept-license
-      - SPLUNK_PASSWORD=DFIR_passwd
-      - SPLUNK_LICENSE_URI=Free
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
+      - SPLUNK_LICENSE_URI=${SPLUNK_LICENCE}
     ports:
       - "8000:8000"  # Splunk web interface
       - "8089:8089"  # Splunk services interface
@@ -99,8 +107,8 @@ services:
     container_name: master-splunk
     environment:
       - SPLUNK_START_ARGS=--accept-license
-      - SPLUNK_PASSWORD=DFIR_passwd
-      - SPLUNK_LICENSE_URI=Free
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
+      - SPLUNK_LICENSE_URI=${SPLUNK_LICENCE}
     ports:
       - "8000:8000"  # Splunk web interface
       - "8089:8089"  # Splunk services interface
@@ -128,8 +136,8 @@ services:
     volumes:
       - ./dockerfile/sources/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     environment:
-      - RABBITMQ_DEFAULT_USER=dfir
-      - RABBITMQ_DEFAULT_PASS=dfir
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     restart: unless-stopped
     profiles:
       - "default"
@@ -144,8 +152,8 @@ services:
     volumes:
       - ./dockerfile/sources/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     environment:
-      - RABBITMQ_DEFAULT_USER=dfir
-      - RABBITMQ_DEFAULT_PASS=dfir
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     restart: unless-stopped
     profiles:
       - "default-offline"
@@ -227,9 +235,9 @@ services:
       context: ./dockerfile
     container_name: master-postgres
     environment:
-      POSTGRES_DB: OSIR_db
-      POSTGRES_USER: dfir
-      POSTGRES_PASSWORD: dfir
+      - POSTGRES_DB=OSIR_db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     profiles:
@@ -240,9 +248,9 @@ services:
     image: master-postgres
     container_name: master-postgres
     environment:
-      POSTGRES_DB: OSIR_db
-      POSTGRES_USER: dfir
-      POSTGRES_PASSWORD: dfir
+      - POSTGRES_DB=OSIR_db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     profiles:
@@ -255,8 +263,8 @@ services:
       context: ./dockerfile
     container_name: master-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: dfir@OSIR.com
-      PGADMIN_DEFAULT_PASSWORD: dfir
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_USER}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
     ports:
       - "80:80"
     volumes:
@@ -271,8 +279,8 @@ services:
     image: master-pgadmin
     container_name: master-pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: dfir@OSIR.com
-      PGADMIN_DEFAULT_PASSWORD: dfir
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_USER}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
     ports:
       - "80:80"
     volumes:

@@ -9,7 +9,7 @@ logger = AppLogger(__name__).get_logger()
 
 
 class DbOSIR:
-    def __init__(self, host, case_path=None, module_name=None, dbname='OSIR_db', user='dfir', password='dfir', port=5432):
+    def __init__(self, host, case_path=None, module_name=None, dbname='OSIR_db', port=5432):
         """
         Initialize the DbOSIR class, connecting to the database and creating necessary tables.
 
@@ -18,10 +18,10 @@ class DbOSIR:
             case_path (str, optional): The case path. Defaults to None.
             module_name (str, optional): The module name. Defaults to None.
             dbname (str, optional): The database name. Defaults to 'OSIR_db'.
-            user (str, optional): The database user. Defaults to 'dfir'.
-            password (str, optional): The database password. Defaults to 'dfir'.
             port (int, optional): The database port. Defaults to 5432.
         """
+        user = os.getenv('POSTGRES_USER', 'missing POSTGRES_USER env var')
+        password = os.getenv('POSTGRES_PASSWORD', 'missing POSTGRES_PASSWORD env var')
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
         self.conn.autocommit = True  # Enable autocommit mode
         self.cur = self.conn.cursor()
