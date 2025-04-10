@@ -7,6 +7,7 @@ import pkgutil
 import importlib
 import pickle
 import copy
+from pathlib import Path
 from watchdog.events import FileSystemEventHandler
 from src.log.logger_config import AppLogger
 from src.tasks import task_client
@@ -297,6 +298,24 @@ class ModuleHandler(FileSystemEventHandler):
                     total_size += os.path.getsize(filepath)
         return total_size
     
+    def _check_parent(self, path, module_info):
+        module_name = module_info["module_name"]
+
+        logger.debug(f"Checking if {module_name} idle is not parent of another idle")
+
+        # Convert path to a Path object
+        path = Path(path).resolve()
+
+        for current_idle_path in list(self.active_timers):
+            current_idle_path_resolved = Path(current_idle_path).resolve()
+
+            # Check if the current path is a parent of the active timer path
+            if current_idle_path_resolved.is_relative_to(path) and path != current_idle_path_resolved:
+                logger.debug(f"{module_name} is parent of {current_idle_path}, the module can't be executed")
+                return False
+
+        return True
+    
     def _check_for_idle(self, path, module_info):
         """
         Checks if the directory has been idle based on size changes and triggers further processing if idle.
@@ -310,7 +329,7 @@ class ModuleHandler(FileSystemEventHandler):
         current_size = self._get_directory_size(path)
         previous_size = self.last_size.get(path, 0)
         
-        if current_size == previous_size:
+        if current_size == previous_size and self._check_parent(path, module_info):
             logger.debug(f"{module_name} Directory '{path}' is now idle")
             self.process_directory(path, module_info)
             with self.timers_lock:
