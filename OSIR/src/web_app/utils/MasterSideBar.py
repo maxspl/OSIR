@@ -65,7 +65,8 @@ def sidebar():
         # location_details = get_page_location()
         # time.sleep(1)
         # host = location_details["hostname"]
-        host = SystemManager().host
+        system_manager = SystemManager()
+        host = getattr(system_manager, 'host', 'localhost')
 
         # Get splunk host
         agent_config = AgentConfig()

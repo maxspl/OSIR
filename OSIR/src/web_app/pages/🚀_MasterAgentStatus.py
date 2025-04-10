@@ -207,7 +207,10 @@ with tab2:
 with tab3:
     master_sidebar = MasterSideBar.SystemManager(key="masteragentstatus")
     location_details = master_sidebar.location_details
-    host = location_details["hostname"]
+    if location_details and "hostname" in location_details: 
+        host = location_details["hostname"]
+    else:
+        host = "localhost"
 
     # Set the URL for the iframe
     iframe_url = f"http://{host}:5555/"
