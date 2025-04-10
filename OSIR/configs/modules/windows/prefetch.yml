@@ -22,3 +22,13 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:prefetch':
+    name_rex: \.jsonl$
+    path_suffix: 'prefetch'
+    sourcetype: 'windows:files:prefetch'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "LastRun"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Prefetch"

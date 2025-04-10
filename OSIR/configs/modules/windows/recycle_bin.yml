@@ -22,3 +22,12 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:recyclebin':
+    name_rex: \.csv$
+    path_suffix: 'recycle_bin'
+    sourcetype: 'windows:files:recyclebin'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "DeletedOn"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"

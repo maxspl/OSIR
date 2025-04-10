@@ -22,3 +22,17 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:hkcu':
+    name_rex: --hives_*\w*\.csv
+    path_rex: '.*\/hives_hkcu.*'
+    sourcetype: 'windows:registry:kcu'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "LastWriteTimestamp"
+        - "Timestamp"
+        - "LastOpened"
+        - "LastModified"
+        - "ExecutedOn"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    artifact: "Hives"
