@@ -40,22 +40,26 @@ class DbOSIR:
         Args:
             table_name (str): The name of the table to create.
         """
-        self.cur.execute(f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                id SERIAL PRIMARY KEY,
-                case_uuid TEXT,
-                case_path TEXT,
-                agent TEXT,
-                input_file TEXT,
-                input_dir TEXT,
-                output_file TEXT,
-                output_dir TEXT,
-                output_prefix TEXT,
-                processing_status TEXT,
-                timestamp TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        self.conn.commit()
+        try:
+            self.cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {table_name} (
+                    id SERIAL PRIMARY KEY,
+                    case_uuid TEXT,
+                    case_path TEXT,
+                    agent TEXT,
+                    input_file TEXT,
+                    input_dir TEXT,
+                    output_file TEXT,
+                    output_dir TEXT,
+                    output_prefix TEXT,
+                    processing_status TEXT,
+                    timestamp TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            self.conn.commit()
+        except Exception as e:
+            logger.error(f"Error creating table: {e}")
+            raise
 
     def _create_table_master_status(self, table_name):
         """
@@ -64,17 +68,21 @@ class DbOSIR:
         Args:
             table_name (str): The name of the table to create.
         """
-        self.cur.execute(f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                id SERIAL PRIMARY KEY,
-                case_path TEXT,
-                status TEXT,
-                case_uuid TEXT,
-                modules_selected TEXT,
-                timestamp TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        self.conn.commit()
+        try:
+            self.cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {table_name} (
+                    id SERIAL PRIMARY KEY,
+                    case_path TEXT,
+                    status TEXT,
+                    case_uuid TEXT,
+                    modules_selected TEXT,
+                    timestamp TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            self.conn.commit()
+        except Exception as e:
+            logger.error(f"Error creating table: {e}")
+            raise
 
     def store_data(self, case_path, module: BaseModule, status, case_uuid):
         """
