@@ -24,3 +24,14 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:shellbags':
+    name_rex: \.csv$
+    path_suffix: 'shell_bags'
+    sourcetype: 'windows:registry:hku:shellbags'
+    host_rex: _UsrClass_(.*)--shell_bags.csv
+    timestamp_path: 
+        - "LastWriteTime"
+        - "AccessedOn"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "ShellBags"

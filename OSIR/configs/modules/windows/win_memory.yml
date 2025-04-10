@@ -26,3 +26,221 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   pythonexec_path: replaced_by_internal_module
+splunk:
+  'windows:live_response:devices':
+    name_rex: win_memory-devices
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:device'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:device"
+  'windows:live_response:drivers':
+    name_rex: win_memory-drivers
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:drivers'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:drivers"
+  'windows:live_response:files':
+    name_rex: win_memory-files
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:files'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:files"
+  'windows:live_response:findevil':
+    name_rex: win_memory-findevil
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:findevil'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:findevil"
+  'windows:live_response:handles':
+    name_rex: win_memory-handles
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:handles'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:handles"
+  'windows:live_response:modules':
+    name_rex: win_memory-modules
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:modules'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:modules"
+  'windows:live_response:net':
+    name_rex: win_memory-net
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:net'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:net"
+  'windows:live_response:prefetch':
+    name_rex: win_memory-prefetch
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:prefetch'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "RunTime1"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:prefetch"
+  'windows:live_response:process':
+    name_rex: win_memory-process
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:process'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "CreateTime"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:process"
+  'windows:live_response:registry':
+    name_rex: win_memory-registry
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:registry'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "lastwrite"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "Memprocfs:registry"
+  'windows:live_response:services':
+    name_rex: win_memory-services
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:services'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:services"
+  'windows:live_response:tasks':
+    name_rex: win_memory-tasks
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:tasks'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "TimeCreate"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:tasks"
+  'windows:live_response:threads':
+    name_rex: win_memory-threads
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:threads'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "CreateTime"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:threads"
+  'windows:live_response:timeline_all':
+    name_rex: win_memory-timeline_all
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_all'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_all"
+  'windows:live_response:timeline':
+    name_rex: win_memory-timeline.json
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "date"
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline"
+  'windows:live_response:timeline_kernelobject':
+    name_rex: win_memory-timeline_kernelobject
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_kernelobject'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_kernelobject"
+  'windows:live_response:timeline_net':
+    name_rex: win_memory-timeline_net
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_net'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_net"
+  'windows:live_response:timeline_ntfs':
+    name_rex: win_memory-timeline_ntfs
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_ntfs'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_ntfs"
+  'windows:live_response:timeline_prefetch':
+    name_rex: win_memory-timeline_prefetch
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_prefetch'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_prefetch"
+  'windows:live_response:timeline_process':
+    name_rex: win_memory-timeline_process
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_process'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_process"
+  'windows:live_response:timeline_registry':
+    name_rex: win_memory-timeline_registry
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_registry'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_registry"
+  'windows:live_response:timeline_task':
+    name_rex: win_memory-timeline_task
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_task'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_task"
+  'windows:live_response:timeline_thread':
+    name_rex: win_memory-timeline_thread
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_thread'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_thread"
+  'windows:live_response:timeline_web':
+    name_rex: win_memory-timeline_web
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:timeline_web'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:timeline_web"
+  'windows:live_response:unloaded_modules':
+    name_rex: win_memory-unloaded_modules
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:unloaded_modules'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "UnloadTime"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Memprocfs:unloaded_modules"
+  'windows:live_response:virtualmachines':
+    name_rex: win_memory-virtualmachines
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:virtualmachines'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:virtualmachines"
+  'windows:live_response:yara':
+    name_rex: win_memory-yara
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:yara'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:yara"

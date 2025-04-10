@@ -23,3 +23,13 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}-{input_file}.csv"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:shimcache':
+    name_rex: \.csv$
+    path_suffix: 'shimcache'
+    sourcetype: 'windows:registry:hklm:shimcache'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "LastModifiedTimeUTC"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "ShimCache"

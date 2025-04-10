@@ -23,3 +23,12 @@ output:
   format: csv
   output_prefix: "{endpoint_name}--{module}-"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:srum':
+    name_rex: --srum-.*\.jsonl$
+    sourcetype: 'windows:files:srum'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "SRUM"

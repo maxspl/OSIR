@@ -22,3 +22,63 @@ output:
   format: jsonl
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'windows:evtx:system':
+    name_rex: System\.evtx.*\.jsonl$
+    path_suffix: 'evtx_orc'
+    sourcetype: 'windows:evtx:system'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "EVTX"
+
+  'windows:evtx:sysmon':
+    name_rex: Sysmon.*\.evtx.*\.jsonl$
+    path_suffix: 'evtx_orc'
+    sourcetype: 'windows:evtx:sysmon'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "EVTX"
+
+  'windows:evtx:security':
+    name_rex: Security\.evtx.*\.jsonl$
+    path_suffix: 'evtx_orc'
+    sourcetype: 'windows:evtx:security'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "EVTX"
+
+  'windows:evtx:powershell:operational':
+    name_rex: PowerShell.*Operational\.evtx.*\.jsonl$
+    path_suffix: 'evtx_orc'
+    sourcetype: 'windows:evtx:powershell:operational'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "EVTX"
+
+  'windows:evtx:powershell':
+    name_rex: PowerShell\.evtx.*\.jsonl$
+    path_suffix: 'evtx_orc'
+    sourcetype: 'windows:evtx:powershell'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "EVTX"
+
+  'windows:evtx':
+    name_rex: \.evtx.*\.jsonl$
+    path_suffix: 'evtx_orc'
+    sourcetype: 'windows:evtx'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "Event.System.TimeCreated.#attributes.SystemTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "EVTX"

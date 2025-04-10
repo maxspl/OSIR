@@ -22,3 +22,14 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
 endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'windows:jumplist':
+    name_rex: \.csv$
+    path_suffix: 'jump_list'
+    sourcetype: 'windows:files:jumplist'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "CreationTime"
+        - "SourceModified"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    artifact: "JumpList"
