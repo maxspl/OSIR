@@ -69,6 +69,10 @@ services:
       - WINDOWS_CORES=${WINDOWS_CORES}
       - WSL_INTEROP=${WSL_INTEROP}   # Adding WSL_INTEROP environment variable
       - OSIR_PATH=${OSIR_PATH}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     hostname: OSIR-AGENT
     profiles:
       - "wsl"
