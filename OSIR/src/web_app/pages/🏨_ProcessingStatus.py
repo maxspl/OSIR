@@ -127,6 +127,24 @@ class ProcessingStatus:
         else:
             st.info("No task ongoing")
 
+    def clear_tables_for_case(self, case_name: str):
+        """
+        Delete all rows from all relevant tables for the given case name.
+        Skips 'master_status' and 'case_snapshot'.
+
+        Args:
+            case_name (str): The case name whose data should be deleted.
+        """
+        with self.db_accessor.engine.begin() as conn:  # use begin() for transaction support
+            tables_query = text("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
+            tables = conn.execute(tables_query)
+
+            for table in tables:
+                table_name = table[0]
+
+                delete_query = text(f"DELETE FROM {table_name} WHERE case_path LIKE :case_path")
+                conn.execute(delete_query, {"case_path": f"%/{case_name}"})
+
 
 st.set_page_config(
     page_title="OSIR",
@@ -158,6 +176,16 @@ with tab1:
 
     # Display the DB tables
     processing_status.display_DB_tables(selected_case_name, filter_string)
+
+    # Confirm before clearing
+    with st.expander("⚠️ Dangerous action: Clear all tables for this case"):
+        st.warning("This will permanently delete all entries in all database tables related to the selected case.")
+        confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion.")
+
+        if st.button("❌ Clear all tables for this case", type="primary", disabled=not confirm_delete):
+            with st.spinner(f"Deleting entries for case: {selected_case_name}..."):
+                processing_status.clear_tables_for_case(selected_case_name)
+            st.success(f"✅ All data related to case '{selected_case_name}' was deleted from the database.")
 
 with tab2:
     colored_header(
