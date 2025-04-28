@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>src.utils.DbOSIR &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -85,20 +86,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.utils.DbOSIR</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">psycopg2</span>
-<span class="kn">from</span> <span class="nn">psycopg2</span> <span class="kn">import</span> <span class="n">sql</span>
-<span class="kn">import</span> <span class="nn">datetime</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">src.log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
-<span class="kn">from</span> <span class="nn">src.utils.BaseModule</span> <span class="kn">import</span> <span class="n">BaseModule</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">psycopg2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">psycopg2</span><span class="w"> </span><span class="kn">import</span> <span class="n">sql</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.BaseModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModule</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="DbOSIR">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR">[docs]</a>
-<span class="k">class</span> <span class="nc">DbOSIR</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">case_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s1">&#39;OSIR_db&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="s1">&#39;dfir&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;dfir&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5432</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DbOSIR</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">case_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s1">&#39;OSIR_db&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="s1">&#39;dfir&#39;</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;dfir&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5432</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the DbOSIR class, connecting to the database and creating necessary tables.</span>
 
@@ -124,7 +125,7 @@
 
 <div class="viewcode-block" id="DbOSIR.create_table_processing_status">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.create_table_processing_status">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_table_processing_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_table_processing_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a table for processing status if it doesn&#39;t exist.</span>
 
@@ -149,7 +150,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_create_table_master_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_table_master_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the master status table if it doesn&#39;t exist.</span>
 
@@ -170,7 +171,7 @@
 
 <div class="viewcode-block" id="DbOSIR.store_data">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.store_data">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Store data into the specified module&#39;s table.</span>
 
@@ -218,7 +219,7 @@
 
 <div class="viewcode-block" id="DbOSIR.update_record">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.update_record">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update an existing record in the specified module&#39;s table.</span>
 
@@ -278,7 +279,7 @@
         
 <div class="viewcode-block" id="DbOSIR.store_master_status">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.store_master_status">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_master_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">modules_selected</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_master_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">modules_selected</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Store or update the master status for a given case.</span>
 
@@ -324,7 +325,7 @@
             
 <div class="viewcode-block" id="DbOSIR.close">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.close">[docs]</a>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Close the database connection.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -334,7 +335,7 @@
         
 <div class="viewcode-block" id="DbOSIR.check_input_file">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.check_input_file">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_input_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_file</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Checks if the specified input file is currently being processed in any table except &#39;master_status&#39; and &#39;case_snapshot&#39;.</span>
@@ -376,7 +377,7 @@
         
 <div class="viewcode-block" id="DbOSIR.check_input_dir">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.check_input_dir">[docs]</a>
-    <span class="k">def</span> <span class="nf">check_input_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_input_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_dir</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the specified input directory or its sub-items are currently being processed in any table except &#39;master_status&#39;.</span>
 <span class="sd">        Following table are excluded : &#39;processing_done&#39;, &#39;case_snapshot&#39;</span>
@@ -419,7 +420,7 @@
         
 <div class="viewcode-block" id="DbOSIR.is_processing_active">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.is_processing_active">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_processing_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_processing_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if there is at least one table with a row for the given case_uuid</span>
 <span class="sd">        that has a column processing_status not equal to &#39;processing_done&#39;.</span>
@@ -458,7 +459,7 @@
             <span class="k">return</span> <span class="kc">False</span></div>
 
             
-    <span class="k">def</span> <span class="nf">_create_case_snapshot_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_case_snapshot_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Ensure the `case_snapshot` table exists in the database.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -481,7 +482,7 @@
 
 <div class="viewcode-block" id="DbOSIR.get_stored_case_snapshot">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.get_stored_case_snapshot">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_stored_case_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_stored_case_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve stored directory entries for the specified case UUID.</span>
 
@@ -508,8 +509,8 @@
 
 <div class="viewcode-block" id="DbOSIR.store_case_snapshot">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.DbOSIR.DbOSIR.store_case_snapshot">[docs]</a>
-    <span class="k">def</span> <span class="nf">store_case_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">entries_list</span><span class="p">):</span>
-        <span class="kn">import</span> <span class="nn">io</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">store_case_snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">entries_list</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># 1) Delete old entries first</span>
             <span class="n">delete_query</span> <span class="o">=</span> <span class="s2">&quot;DELETE FROM case_snapshot WHERE case_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span>
@@ -517,6 +518,9 @@
             <span class="c1"># 2) Prepare data as CSV format in memory</span>
             <span class="n">output</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
             <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">entry_type</span> <span class="ow">in</span> <span class="n">entries_list</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping entry due to invalid backslash: path=</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">, entry_type=</span><span class="si">{</span><span class="n">entry_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
                 <span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">case_path</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">entry_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">output</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Move cursor back to start</span>
 

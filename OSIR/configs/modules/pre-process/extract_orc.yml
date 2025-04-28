@@ -1,4 +1,4 @@
-version: 1.0
+version: 1.1
 author:
 module: extract_orc
 description:
@@ -23,3 +23,50 @@ output:
   format: raw
 optional:
   password: avproof
+splunk:
+  'filesystem:ntfs:info':
+    name_rex: NTFSInfo.*.csv$
+    path_rex: '.*\/NTFSInfo.*'
+    sourcetype: 'filesystem:ntfs:info'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "FileNameLastModificationDate"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+  'filesystem:ntfs:usn':
+    name_rex: USNInfo.*.csv$
+    path_rex: '.*\/USNInfo.*'
+    sourcetype: 'filesystem:ntfs:usn'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "TimeStamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+  'filesystem:ntfs:i30':
+    name_rex: I30Info.*.csv$
+    path_rex: '.*\/NTFSInfo.*i30Info.*'
+    sourcetype: 'filesystem:ntfs:i30'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "FileNameCreationDate"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+  'windows:autoruns':
+    name_rex: autoruns.csv$
+    path_suffix: 'General'
+    sourcetype: 'windows:autoruns'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "Time"
+    timestamp_format: "%Y%m%d-%H%M%S"
+  'orc:collected_files':
+    name_rex: GetThis.csv$
+    path_rex: '.*\/extract_orc.*'
+    sourcetype: 'orc:collected_files'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "CreationDate"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+  'orc:csv':
+    name_rex: \.csv$
+    path_rex: '.*\/extract_orc.*'
+    sourcetype: 'orc:files'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "Orc"

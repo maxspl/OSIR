@@ -9,7 +9,7 @@ logger = AppLogger(__name__).get_logger()
 
 
 class DbOSIR:
-    def __init__(self, host, case_path=None, module_name=None, dbname='OSIR_db', user='dfir', password='dfir', port=5432):
+    def __init__(self, host, case_path=None, module_name=None, dbname='OSIR_db', port=5432):
         """
         Initialize the DbOSIR class, connecting to the database and creating necessary tables.
 
@@ -18,10 +18,10 @@ class DbOSIR:
             case_path (str, optional): The case path. Defaults to None.
             module_name (str, optional): The module name. Defaults to None.
             dbname (str, optional): The database name. Defaults to 'OSIR_db'.
-            user (str, optional): The database user. Defaults to 'dfir'.
-            password (str, optional): The database password. Defaults to 'dfir'.
             port (int, optional): The database port. Defaults to 5432.
         """
+        user = os.getenv('POSTGRES_USER', 'missing POSTGRES_USER env var')
+        password = os.getenv('POSTGRES_PASSWORD', 'missing POSTGRES_PASSWORD env var')
         self.conn = psycopg2.connect(dbname=dbname, user=user, password=password, host=host, port=port)
         self.conn.autocommit = True  # Enable autocommit mode
         self.cur = self.conn.cursor()
@@ -40,22 +40,26 @@ class DbOSIR:
         Args:
             table_name (str): The name of the table to create.
         """
-        self.cur.execute(f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                id SERIAL PRIMARY KEY,
-                case_uuid TEXT,
-                case_path TEXT,
-                agent TEXT,
-                input_file TEXT,
-                input_dir TEXT,
-                output_file TEXT,
-                output_dir TEXT,
-                output_prefix TEXT,
-                processing_status TEXT,
-                timestamp TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        self.conn.commit()
+        try:
+            self.cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {table_name} (
+                    id SERIAL PRIMARY KEY,
+                    case_uuid TEXT,
+                    case_path TEXT,
+                    agent TEXT,
+                    input_file TEXT,
+                    input_dir TEXT,
+                    output_file TEXT,
+                    output_dir TEXT,
+                    output_prefix TEXT,
+                    processing_status TEXT,
+                    timestamp TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            self.conn.commit()
+        except Exception as e:
+            logger.error(f"Error creating table: {e}")
+            raise
 
     def _create_table_master_status(self, table_name):
         """
@@ -64,17 +68,21 @@ class DbOSIR:
         Args:
             table_name (str): The name of the table to create.
         """
-        self.cur.execute(f"""
-            CREATE TABLE IF NOT EXISTS {table_name} (
-                id SERIAL PRIMARY KEY,
-                case_path TEXT,
-                status TEXT,
-                case_uuid TEXT,
-                modules_selected TEXT,
-                timestamp TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        self.conn.commit()
+        try:
+            self.cur.execute(f"""
+                CREATE TABLE IF NOT EXISTS {table_name} (
+                    id SERIAL PRIMARY KEY,
+                    case_path TEXT,
+                    status TEXT,
+                    case_uuid TEXT,
+                    modules_selected TEXT,
+                    timestamp TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            self.conn.commit()
+        except Exception as e:
+            logger.error(f"Error creating table: {e}")
+            raise
 
     def store_data(self, case_path, module: BaseModule, status, case_uuid):
         """
@@ -399,6 +407,9 @@ class DbOSIR:
             # 2) Prepare data as CSV format in memory
             output = io.StringIO()
             for path, entry_type in entries_list:
+                if '\\' in path:
+                    logger.warning(f"Skipping entry due to invalid backslash: path={path}, entry_type={entry_type}")
+                    continue
                 output.write(f"{case_uuid}\t{case_path}\t{path}\t{entry_type}\n")
             output.seek(0)  # Move cursor back to start
 

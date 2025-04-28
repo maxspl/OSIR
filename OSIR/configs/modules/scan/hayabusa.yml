@@ -1,0 +1,24 @@
+version: 1.0
+author: maxspl
+module: hayabusa
+description: Hayabusa scan of evtx files
+os: windows
+type: process
+disk_only: False
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: hayabusa/hayabusa-3.0.1-lin-x64-gnu
+  cmd: update-rules; /OSIR/OSIR/bin/hayabusa/hayabusa-3.0.1-lin-x64-gnu json-timeline -d {input_dir} -a  -L -o {output_file} -U --min-level=low --no-wizard --quiet -C --no-summary
+  source: https://github.com/Yamato-Security/hayabusa
+  version: 3.0.1
+input:
+  type: dir
+  path: C/Windows/System32/winevt/Logs/
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "restore_fs\/(.*?)\/"

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>src.utils.PyModule &mdash; OSIR 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
 
   
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -85,26 +86,26 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.utils.PyModule</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
-<span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">hashlib</span>
-<span class="kn">from</span> <span class="nn">src.utils.AgentConfig</span> <span class="kn">import</span> <span class="n">AgentConfig</span>
-<span class="kn">from</span> <span class="nn">src.utils.BaseModule</span> <span class="kn">import</span> <span class="n">BaseModule</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span><span class="p">,</span> <span class="n">PureWindowsPath</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.AgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.utils.BaseModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModule</span>
 
-<span class="kn">from</span> <span class="nn">..log.logger_config</span> <span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="PyModule">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule">[docs]</a>
-<span class="k">class</span> <span class="nc">PyModule</span><span class="p">():</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PyModule</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Manages the execution of modules within a Python environment, handling both local and remote executions based on configuration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">BaseModule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes the PyModule instance by setting up paths, configurations, and determining execution context based on module details.</span>
 
@@ -130,17 +131,19 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">smb_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">master_ip</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_wsl</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">smb_host</span> <span class="o">=</span> <span class="n">AgentConfig</span><span class="p">()</span><span class="o">.</span><span class="n">wsl_host</span> <span class="c1"># Why not using self.agent_config ?</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">smb_host</span> <span class="o">=</span> <span class="n">AgentConfig</span><span class="p">()</span><span class="o">.</span><span class="n">wsl_host</span>  <span class="c1"># Why not using self.agent_config ?</span>
             
         <span class="c1"># Default output dir is module dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">get_module_name</span><span class="p">())</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="mo">0o777</span><span class="p">)</span>  <span class="c1"># Set directory permissions to 777</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;post_parsing&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="mo">0o777</span><span class="p">)</span>  <span class="c1"># Set directory permissions to 777</span>
 
 <div class="viewcode-block" id="PyModule.run_ext_tool">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.run_ext_tool">[docs]</a>
-    <span class="k">def</span> <span class="nf">run_ext_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_ext_tool</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Executes an external tool based on the module&#39;s configuration and the operating system.</span>
 
@@ -154,8 +157,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_command_local</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">run_local</span><span class="p">()</span>
             <span class="k">case</span> <span class="s1">&#39;windows&#39;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_wsl</span><span class="p">():</span> <span class="c1"># Change to adapt to remote master </span>
-                    
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_wsl</span><span class="p">():</span>  <span class="c1"># Change to adapt to remote master</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">update_command_wsl</span><span class="p">()</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">run_wsl</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -167,7 +169,7 @@
 
 <div class="viewcode-block" id="PyModule.is_wsl">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.is_wsl">[docs]</a>
-    <span class="k">def</span> <span class="nf">is_wsl</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_wsl</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the script is running inside Windows Subsystem for Linux (WSL).</span>
 
@@ -190,11 +192,11 @@
 
 <div class="viewcode-block" id="PyModule.update_command_remote">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.update_command_remote">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_command_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_command_remote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Modifies the command string for remote execution, incorporating environmental variables and configuration specifics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Replace {drive} in tool path and in cmd</span>
+        <span class="c1"># Replace {drive} placeholders in path &amp; cmd for remote usage</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                 <span class="s2">&quot;</span><span class="si">{drive}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive_letter</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
@@ -203,78 +205,18 @@
                 <span class="s2">&quot;</span><span class="si">{drive}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive_letter</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1"># Replace input dir</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">:</span>
-            <span class="n">sanitized_input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">,</span><span class="s2">&quot;`$&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{input_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_windows_suffix</span><span class="p">(</span><span class="n">sanitized_input_dir</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Replace input file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
-            <span class="n">sanitized_input_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;$&quot;</span><span class="p">,</span><span class="s2">&quot;`$&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{input_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_windows_suffix</span><span class="p">(</span><span class="n">sanitized_input_file</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Format and Replace output file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_file</span><span class="p">()</span>
-            <span class="c1"># If output dir specified in cmd, only output file base name is used, not full path</span>
-            <span class="k">if</span> <span class="s2">&quot;output_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_windows_suffix</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span><span class="p">))</span>
-                <span class="p">)</span>
-
-        <span class="c1"># Format and Replace output dir</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_dir</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_windows_suffix</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
-            <span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># if output_dir not specified in config file, can still use module dir as output_dir</span>
-            <span class="k">if</span> <span class="s2">&quot;output_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span>  <span class="c1"># necessary for prefix renaming</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_windows_suffix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
-
-        <span class="c1"># Format and Replace output prefix</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_prefix</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Replace optional config key in cmd</span>
-        <span class="k">if</span> <span class="s2">&quot;{optional_&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">optional</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">placeholder</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">optional_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">placeholder</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;optional args seems required in cmd </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="si">}</span><span class="s2"> but does not seem to be specified in configuration&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Replace case_name in cmd</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>  <span class="c1"># lower is needed for Splunk (indexes are always lower case)</span>
-
-        <span class="c1"># Replace master host in cmd for SMB communication</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="si">{master_host}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">smb_host</span>
-        <span class="p">)</span></div>
+        <span class="c1"># Delegate the rest of placeholder replacements</span>
+        <span class="c1"># using Windows suffix for paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_command</span><span class="p">(</span><span class="n">suffix_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_windows_suffix</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PyModule.update_command_wsl">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.update_command_wsl">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_command_wsl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_command_wsl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Adjusts command strings for execution within Windows Subsystem for Linux, considering path conversions and environment specifics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        
-        <span class="c1"># Replace {drive} in tool path and in cmd</span>
+        <span class="c1"># Replace {drive} placeholders in path &amp; cmd for WSL usage</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                 <span class="s2">&quot;</span><span class="si">{drive}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive_letter</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
@@ -283,18 +225,49 @@
                 <span class="s2">&quot;</span><span class="si">{drive}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">drive_letter</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
             <span class="p">)</span>
 
+        <span class="c1"># Delegate the rest of placeholder replacements</span>
+        <span class="c1"># using WSL suffix for paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_command</span><span class="p">(</span><span class="n">suffix_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_wsl_suffix</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PyModule.update_command_local">
+<a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.update_command_local">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_command_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modifies the command string for local execution based on the module&#39;s input and output configurations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># No drive placeholders to replace for local usage</span>
+        <span class="c1"># Directly update placeholders</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_command</span><span class="p">(</span><span class="n">suffix_function</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># No path conversion needed</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">suffix_function</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Common method for updating command placeholders (input_dir, input_file,</span>
+<span class="sd">        output_file, output_dir, etc.) depending on the passed suffix function.</span>
+<span class="sd">        If suffix_function is None, no path conversion is done (local usage).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            suffix_function (callable | None): A function that takes a Unix-like path</span>
+<span class="sd">                                               and returns the converted path for</span>
+<span class="sd">                                               remote/WSL usage, or None for local.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First, resolve endpoint name if present, then replace {endpoint_name} in cmd</span>
+        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_endpoint_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">endpoint_name</span><span class="p">)</span>
+
         <span class="c1"># Replace input dir</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{input_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wsl_suffix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">updated_dir</span> <span class="o">=</span> <span class="p">(</span><span class="n">suffix_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+                           <span class="k">if</span> <span class="n">suffix_function</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{input_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">updated_dir</span><span class="p">)</span>
 
         <span class="c1"># Replace input file</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{input_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wsl_suffix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
-            <span class="p">)</span>
-        
+            <span class="n">updated_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">suffix_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">suffix_function</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{input_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">updated_file</span><span class="p">)</span>
+
         <span class="c1"># Format and Replace output file</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_file</span><span class="p">()</span>
@@ -304,28 +277,32 @@
                     <span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wsl_suffix</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span><span class="p">))</span>
-                <span class="p">)</span>
+                <span class="n">file_full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span><span class="p">)</span>
+                <span class="c1"># If needed, convert path</span>
+                <span class="n">converted_path</span> <span class="o">=</span> <span class="n">suffix_function</span><span class="p">(</span><span class="n">file_full_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">suffix_function</span> <span class="k">else</span> <span class="n">file_full_path</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">converted_path</span><span class="p">)</span>
 
         <span class="c1"># Format and Replace output dir</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_dir</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wsl_suffix</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
-            <span class="p">)</span>
+            <span class="n">dir_full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="c1"># If needed, convert path</span>
+            <span class="n">converted_dir</span> <span class="o">=</span> <span class="n">suffix_function</span><span class="p">(</span><span class="n">dir_full_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">suffix_function</span> <span class="k">else</span> <span class="n">dir_full_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">converted_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if output_dir not specified in config file, can still use module dir as output_dir</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span>  <span class="c1"># necessary for prefix renaming</span>
+            <span class="n">converted_dir</span> <span class="o">=</span> <span class="p">(</span><span class="n">suffix_function</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+                             <span class="k">if</span> <span class="n">suffix_function</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">converted_dir</span><span class="p">)</span>
 
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># if output_dir not specified in config file, can still use module dir as output_dir</span>
-            <span class="k">if</span> <span class="s2">&quot;output_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span>  <span class="c1"># necessary for prefix renaming</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wsl_suffix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">))</span>
-        
         <span class="c1"># Format and Replace output prefix</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_prefix</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">prefix_full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
+            <span class="c1"># If needed, convert path</span>
+            <span class="n">converted_prefix</span> <span class="o">=</span> <span class="n">suffix_function</span><span class="p">(</span><span class="n">prefix_full_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">suffix_function</span> <span class="k">else</span> <span class="n">prefix_full_path</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">converted_prefix</span><span class="p">)</span>
 
         <span class="c1"># Replace optional config key in cmd</span>
         <span class="k">if</span> <span class="s2">&quot;{optional_&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
@@ -338,84 +315,34 @@
 
         <span class="c1"># Replace case_name in cmd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>  <span class="c1"># lower is needed for Splunk (indexes are always lower case)</span>
-        
+
         <span class="c1"># Replace master host in cmd for SMB communication</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="si">{master_host}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">smb_host</span>
-        <span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{master_host}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">smb_host</span><span class="p">)</span>
 
-
-<div class="viewcode-block" id="PyModule.update_command_local">
-<a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.update_command_local">[docs]</a>
-    <span class="k">def</span> <span class="nf">update_command_local</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_endpoint_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Modifies the command string for local execution based on the module&#39;s input and output configurations.</span>
+<span class="sd">        Extracts the endpoint name from the input file or directory using the module&#39;s endpoint regex.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The extracted endpoint name, or an empty string if not found.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">:</span>
+            <span class="c1"># If input.file is set, use that; else check input.dir</span>
+            <span class="n">path_to_check</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span>
+            <span class="k">if</span> <span class="n">path_to_check</span><span class="p">:</span>
+                <span class="n">endpoint_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">path_to_check</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">endpoint_match</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">endpoint_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span>
 
-        <span class="c1"># Replace input dir</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{input_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Replace input file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{input_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Format and Replace output file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_file</span><span class="p">()</span>
-            <span class="c1"># If output dir specified in cmd, only output file base name is used, not full path</span>
-            <span class="k">if</span> <span class="s2">&quot;output_dir&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{output_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_file</span><span class="p">)</span>
-                <span class="p">)</span>
-
-        <span class="c1"># Format and Replace output dir</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_dir</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># if output_dir not specified in config file, can still use module dir as output_dir</span>
-            <span class="c1"># if &quot;output_dir&quot; in self.module.tool.cmd:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span>  <span class="c1"># necessary for prefix renaming</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
-
-        <span class="c1"># Format and Replace output prefix</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_format_output_prefix</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="si">{output_dir}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_output_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Replace optional config key in cmd</span>
-        <span class="k">if</span> <span class="s2">&quot;{optional_&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">optional</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">optional</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="n">placeholder</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">optional_</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">placeholder</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;optional args seems required in cmd </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="si">}</span><span class="s2"> but does not seem to be specified in configuration&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Replace case_name in cmd</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>  <span class="c1"># lower is needed for Splunk (indexes are always lower case)</span></div>
-
-
-    <span class="k">def</span> <span class="nf">_rename_items_recursively</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rename_items_recursively</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Recursively renames files and directories in the output directory with a specified prefix to organize output data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
         
         <span class="c1"># First, we need to process all directories from the bottom of the directory tree</span>
-        <span class="n">prefix_extented</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.*&quot;</span><span class="p">))</span> <span class="c1"># Replace the endpoint name in the prefix with regex to avoid renaming files of other endpoints</span>
+        <span class="n">prefix_extented</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.*&quot;</span><span class="p">))</span>  <span class="c1"># Replace the endpoint name in the prefix with regex to avoid renaming files of other endpoints</span>
         <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="c1"># Rename all files in the current directory</span>
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
@@ -437,7 +364,7 @@
 <div class="viewcode-block" id="PyModule.remove_prefix">
 <a class="viewcode-back" href="../../../src.utils.html#src.utils.PyModule.PyModule.remove_prefix">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">remove_prefix</span><span class="p">(</span><span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_prefix</span><span class="p">(</span><span class="n">input_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Removes a specific prefix from a given string, used to handle specific path manipulations.</span>
 
@@ -453,7 +380,7 @@
 
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_wsl_suffix</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wsl_suffix</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a Unix-like path to a Windows UNC path, for wsl -&gt; powershell operation.</span>
 
@@ -482,7 +409,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_windows_suffix</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_windows_suffix</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a Unix-like path to a Windows UNC path, essential for cross-environment operations.</span>
 
@@ -501,9 +428,9 @@
             <span class="c1"># Check if &#39;/share&#39; is found</span>
             <span class="k">if</span> <span class="n">position</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
                 <span class="c1"># Add the length of &#39;/share&#39; to include it in the result</span>
-                <span class="n">path_to_replace</span> <span class="o">=</span> <span class="n">in_path</span><span class="p">[:</span><span class="n">position</span><span class="p">]</span>
+                <span class="n">path_to_replace</span> <span class="o">=</span> <span class="n">in_path</span><span class="p">[:</span><span class="n">position</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
                 <span class="n">UNC_input_path</span> <span class="o">=</span> <span class="n">in_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">path_to_replace</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\\</span><span class="si">{master_host}</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">converted_UNC_input_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PureWindowsPath</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">UNC_input_path</span><span class="p">)))</span>  <span class="c1"># Convert path to windows</span>
+                <span class="n">converted_UNC_input_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">PureWindowsPath</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">UNC_input_path</span><span class="p">)))</span>  <span class="c1"># Convert path to window</span>
                 <span class="k">return</span> <span class="n">converted_UNC_input_path</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error: &#39;/share&#39; not found in the path&quot;</span><span class="p">)</span>
@@ -512,7 +439,7 @@
             <span class="k">return</span> <span class="kc">None</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_windows_suffix_docker</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_windows_suffix_docker</span><span class="p">(</span><span class="n">in_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Converts a Unix-like path to a Windows path with a &#39;C:&#39; drive prefix.</span>
 
@@ -528,20 +455,14 @@
         <span class="n">windows_path</span> <span class="o">=</span> <span class="n">PureWindowsPath</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">in_path</span><span class="p">))</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;C:</span><span class="si">{</span><span class="n">windows_path</span><span class="si">}</span><span class="s2">&quot;</span>
     
-    <span class="k">def</span> <span class="nf">_format_output_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_output_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Formats the output file name based on the module&#39;s configuration, applying necessary transformations for endpoint and file names.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># {endpoint_name}--{module}-{input_file}.jsonl</span>
 
         <span class="c1"># Extract endpoint</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
-            <span class="n">endpoint_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span> <span class="k">else</span> <span class="kc">False</span>
-            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">endpoint_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">endpoint_match</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">:</span>
-            <span class="n">endpoint_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span> <span class="k">else</span> <span class="kc">False</span>
-            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">endpoint_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">endpoint_match</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_endpoint_name</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
             <span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
@@ -560,16 +481,14 @@
             <span class="n">input_path_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_format_output_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_output_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Formats the output directory path based on the module&#39;s configuration, applying endpoint and file name-based transformations.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># {endpoint_name}--{module}-{input_file}</span>
 
-        <span class="c1"># Get and possibly truncate input file name and dir name</span>
         <span class="c1"># Extract endpoint</span>
-        <span class="n">endpoint_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span> <span class="k">else</span> <span class="kc">False</span>
-        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">endpoint_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">endpoint_match</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_endpoint_name</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
             <span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
@@ -588,17 +507,12 @@
             <span class="n">input_path_hash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_format_output_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_output_prefix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Formats the output prefix for files based on the module&#39;s configuration, particularly useful in managing multiple outputs systematically.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
-            <span class="n">endpoint_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span> <span class="k">else</span> <span class="kc">False</span>
-            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">endpoint_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">endpoint_match</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">:</span>
-            <span class="n">endpoint_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span> <span class="k">else</span> <span class="kc">False</span>
-            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">endpoint_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">endpoint_match</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># Extract endpoint</span>
+        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_endpoint_name</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
             <span class="n">input_file_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
@@ -610,13 +524,13 @@
             <span class="n">input_file_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
 
         <span class="c1"># Replace placeholders in output_prefix</span>
-        <span class="nb">hash</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
+        <span class="n">hash_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix_saved</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
             <span class="n">module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span>
             <span class="n">input_file</span><span class="o">=</span><span class="n">input_file_name</span><span class="p">,</span>
-            <span class="n">input_path_hash</span><span class="o">=</span><span class="nb">hash</span>
+            <span class="n">input_path_hash</span><span class="o">=</span><span class="n">hash_value</span>
         <span class="p">)</span>
 
         <span class="c1"># Replace placeholders in output_prefix except endpoint name (used in _rename_items_recursively)</span>
@@ -624,11 +538,10 @@
             <span class="n">endpoint_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span>
             <span class="n">input_file</span><span class="o">=</span><span class="n">input_file_name</span><span class="p">,</span>
-            <span class="n">input_path_hash</span><span class="o">=</span><span class="nb">hash</span>
+            <span class="n">input_path_hash</span><span class="o">=</span><span class="n">hash_value</span>
         <span class="p">)</span>
 
-
-    <span class="k">def</span> <span class="nf">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_path</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">in_path</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Produces md5 truncated hash of a given path.</span>
 

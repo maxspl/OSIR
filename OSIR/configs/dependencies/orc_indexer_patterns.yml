@@ -102,7 +102,8 @@ ntfs_info:
         - "LastModificationDate"
     timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
 orc_csv:
-    name_rex: extract_orc\/.*\.csv$
+    name_rex: \.csv$
+    path_rex: extract_orc\/
     sourcetype: _json
     host_rex: "\/Endpoint_(.*?)\/"
 win_memory_csv:
@@ -121,3 +122,11 @@ win_memory_json:
     timestamp_path: 
         - "date"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+hayabusa:
+    name_rex: \.jsonl$
+    path_suffix: hayabusa
+    sourcetype: _json
+    host_path: "Computer"
+    timestamp_path: 
+        - "Timestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f %z"

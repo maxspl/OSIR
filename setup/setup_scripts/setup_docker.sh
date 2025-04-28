@@ -14,26 +14,45 @@ is_wsl() {
   return $?
 }
 
-start_docker_compose(){
-    echo "HOST_HOSTNAME=$(hostname)" > $DOCKER_COMPOSE_REPO/.env
-    echo "HOST_IP_LIST=$(hostname -I | tr ' ' ',')" >> $DOCKER_COMPOSE_REPO/.env
-    echo "WINDOWS_CORES=$WINDOWS_CORES" >> $DOCKER_COMPOSE_REPO/.env
-    # Check if running on WSL
+start_docker_compose() {
+    ENV_FILE="$DOCKER_COMPOSE_REPO/.env"
+
+    # Ensure .env exists and ends with a newline
+    touch "$ENV_FILE"
+    [ -s "$ENV_FILE" ] && tail -c1 "$ENV_FILE" | read -r _ || echo >> "$ENV_FILE"
+
+    # Helper to update or append variable
+    set_env_var() {
+        local var_name="$1"
+        local var_value="$2"
+
+        if grep -q "^$var_name=" "$ENV_FILE"; then
+            sed -i "s|^$var_name=.*|$var_name=$var_value|" "$ENV_FILE"
+        else
+            echo "$var_name=$var_value" >> "$ENV_FILE"
+        fi
+    }
+
+    set_env_var "HOST_HOSTNAME" "$(hostname)"
+    set_env_var "HOST_IP_LIST" "$(hostname -I | tr ' ' ',')"
+    set_env_var "WINDOWS_CORES" "$WINDOWS_CORES"
+
     if is_wsl; then
-        echo "WSL_INTEROP=$WSL_INTEROP" >> $DOCKER_COMPOSE_REPO/.env
-        echo "OSIR_PATH=$(wslpath -w '$MASTER_DIR/../../../')" >> "$DOCKER_COMPOSE_REPO/.env"    
+        set_env_var "WSL_INTEROP" "$WSL_INTEROP"
+        set_env_var "OSIR_PATH" "$(wslpath -w "$MASTER_DIR/../../../")"
     fi
 
-    # Check if the DOCKER_PROFILE environment variable is set and not empty
-    if [ ! -z "$COMPOSE_PROFILES" ]; then
-        # sudo docker compose -f $DOCKER_COMPOSE_REPO/docker-compose.yml --profile $DOCKER_PROFILE up -d
-        sudo COMPOSE_PROFILES=$COMPOSE_PROFILES docker compose -f $DOCKER_COMPOSE_REPO/docker-compose.yml up -d
+    if [ -n "$COMPOSE_PROFILES" ]; then
+        sudo COMPOSE_PROFILES="$COMPOSE_PROFILES" docker compose -f "$DOCKER_COMPOSE_REPO/docker-compose.yml" up -d
     else 
-        sudo docker compose -f $DOCKER_COMPOSE_REPO/docker-compose.yml up -d
+        sudo docker compose -f "$DOCKER_COMPOSE_REPO/docker-compose.yml" up -d
     fi
-    start_docker=false # Do not start docker compose again
+
+    start_docker=false
     check_container
 }
+
+
 
 check_container(){
     # Check for missing docker images in AGENT_DOCKER_IMAGES

@@ -25,12 +25,19 @@ class UnixUtils:
 
     """
     def __init__(self, case_path: str, module_instance: BaseModule):
-        self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())
-        if self.module.type != "post_parsing":
-            if not os.path.exists(self.default_output_dir):
-                os.makedirs(self.default_output_dir)
         self.case_path: str = case_path
         self.module: BaseModule = module_instance
+        
+        if self.module:
+            self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())
+            if self.module.type != "post_parsing":
+                if not os.path.exists(self.default_output_dir):
+                    os.makedirs(self.default_output_dir)
+        else:
+            # TODO : Handle in a proper way when the module associated with the UnixUtils is None
+            pass
+            #logger.warning("The module_instance passed to the UnixUtils is None.")
+
 
     @staticmethod
     def get_severity(line):
@@ -72,19 +79,34 @@ class UnixUtils:
     def get_log(self):
         """
         Generates each line from a log file, handling .gz compressed files if needed.
+        
+        Test multiple encodings :
+            'utf-8', 'latin1', 'iso-8859-1', 'windows-1252'
 
         Yields:
             str: A single log line.
         """
-        
+        encodings = ['utf-8', 'latin1', 'iso-8859-1', 'windows-1252']
+
         if self.module.input.file.endswith(".gz"):
-            with gzip.open(self.module.input.file, 'rt') as input_file:
-                for line in input_file:
-                    yield line  
+            for encoding in encodings:
+                try:
+                    with gzip.open(self.module.input.file, 'rt', encoding=encoding) as input_file:
+                        for line in input_file:
+                            yield line
+                    break  # Exit the loop if successful
+                except (UnicodeDecodeError, OSError) as e:
+                    print(f"Error reading gzip file with encoding {encoding}: {e}")
         else:
-            with open(self.module.input.file, 'r') as input_file:
-                for line in input_file:
-                    yield line
+            for encoding in encodings:
+                try:
+                    with open(self.module.input.file, 'r', encoding=encoding) as input_file:
+                        for line in input_file:
+                            yield line
+                    break  # Exit the loop if successful
+                except (UnicodeDecodeError, OSError) as e:
+                    print(f"Error reading file with encoding {encoding}: {e}")
+
 
     @staticmethod
     def date_format(log_line):
@@ -191,7 +213,7 @@ class UnixUtils:
         except Exception as exc:
             logger.error_handler(exc, "Error setting up writter thread")
 
-    def start_writer_thread(self):
+    def start_writer_thread(self, output_path=None):
         """
         Starts a writer thread that will handle saving data to JSONL files.
 
@@ -201,7 +223,7 @@ class UnixUtils:
         # TODO : SET THIS VALUE IN A CONFIG FILE
         MAX_QUEUE_SIZE = 100000
         q = queue.Queue(maxsize=MAX_QUEUE_SIZE)
-        writer_thread = threading.Thread(target=self._thread_save_jsonl, args=(q,))
+        writer_thread = threading.Thread(target=self._thread_save_jsonl, args=(q, output_path))
         writer_thread.start()
         return q
     

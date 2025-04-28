@@ -22,3 +22,13 @@ output:
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
 endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'windows:lnk':
+    name_rex: \.csv$
+    path_suffix: 'lnk'
+    sourcetype: 'windows:files:lnk'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "SourceModified"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    artifact: "Lnk"

@@ -2,6 +2,7 @@ import streamlit as st
 import os
 import yaml
 import concurrent.futures
+import pandas as pd
 from src.utils.BaseModule import BaseInput
 from streamlit_extras.colored_header import colored_header
 from src.utils.BaseProfile import BaseProfile
@@ -214,30 +215,74 @@ class ConfigurationApp:
             self.process_submission_file(selected_modules, selected_case, file)
 
     def main_tab(self):
-        """
-        Method to set up and handle the main tab in the UI.
-        """
-        selected_profile = st.selectbox("Profile", [""] + self.profiles, help="Select a profile.")
-        if selected_profile:
-            selected_modules = []
-        else:
+        st.subheader("Select Modules")
 
-            selected_modules_w_parentdir = st.multiselect("Modules", self.modules_w_parentdir, help="Select specific modules to be exclusively used.")
-            selected_modules = [os.path.basename(module) for module in selected_modules_w_parentdir]
+        selected_profile = st.selectbox("Profile", [""] + self.profiles, help="Select a profile.")
+        use_table_view = st.toggle("🔁 Switch to table view for module selection", value=False)
+
+        selected_modules = []
         module_add = module_remove = []
 
         if selected_profile:
             profile_path = os.path.join(self.PROFILES_DIR, selected_profile)
             profile_content = FileManager.load_yaml_file(profile_path)
+
             if 'modules' in profile_content:
                 profile_modules = [
-                    module + ".yml" if not module.endswith('.yml') else module for module in profile_content['modules']
+                    module + ".yml" if not module.endswith('.yml') else module
+                    for module in profile_content['modules']
                 ]
                 modules_without_parentdir = [os.path.basename(module) for module in self.modules]
-                selected_modules = [module for module in profile_modules if module in modules_without_parentdir]  # Keep existing modules
+                selected_modules = [m for m in profile_modules if m in modules_without_parentdir]
 
-            module_add = st.multiselect("Add Modules", self.modules_w_parentdir, help="Add specific modules to the list.")
-            module_remove = st.multiselect("Remove Modules", self.modules_w_parentdir, help="Remove specific modules from the list.")
+            module_add = st.multiselect("Add Modules", self.modules_w_parentdir, help="Add specific modules.")
+            module_remove = st.multiselect("Remove Modules", self.modules_w_parentdir, help="Remove specific modules.")
+        else:
+            if not use_table_view:
+                selected_modules_w_parentdir = st.multiselect(
+                    "Modules", self.modules_w_parentdir,
+                    help="Select specific modules to be exclusively used (classic view)."
+                )
+                selected_modules = [os.path.basename(m) for m in selected_modules_w_parentdir]
+            else:
+                module_rows = []
+                for mod in self.modules_w_parentdir:
+                    full_path = os.path.join(self.MODULES_DIR, mod)
+                    try:
+                        content = FileManager.load_yaml_file(full_path)
+                        module_rows.append({
+                            "module_path": mod,  # now showing full relative path
+                            "module": os.path.basename(mod),
+                            "description": content.get("description", ""),
+                            "processor_type": ", ".join(content.get("processor_type", [])) if isinstance(content.get("processor_type"), list) else str(content.get("processor_type")),
+                        })
+                    except Exception as e:
+                        module_rows.append({
+                            "module_path": mod,
+                            "module": os.path.basename(mod),
+                            "description": f"Error: {e}",
+                            "processor_type": "",
+                        })
+
+                df = pd.DataFrame(module_rows)
+
+                column_config = {
+                    "module_path": st.column_config.TextColumn("Module Path", help="Relative path inside configs/modules/"),
+                    "description": st.column_config.TextColumn("Description", width="large"),
+                    "processor_type": st.column_config.TextColumn("Processor Type", help="e.g. external, internal"),
+                }
+
+                event = st.dataframe(
+                    df[["module_path", "description", "processor_type"]],
+                    column_config=column_config,
+                    use_container_width=True,
+                    hide_index=True,
+                    selection_mode="multi-row",
+                    on_select="rerun"
+                )
+
+                selected_indices = event.selection.rows if event and event.selection else []
+                selected_modules = [df.iloc[i]["module"] for i in selected_indices]
 
         selected_case = st.selectbox("Case", self.cases, help="Select a case directory.")
         if not self.cases:
@@ -250,7 +295,14 @@ class ConfigurationApp:
 
         if st.button("Submit"):
             logger.debug("Module ADD" + str(module_add))
-            self.process_submission(selected_profile, selected_modules, module_add, module_remove, selected_case, reprocess_case)
+            self.process_submission(
+                selected_profile,
+                selected_modules,
+                module_add,
+                module_remove,
+                selected_case,
+                reprocess_case
+            )
 
     def helper_tab(self):
         """
