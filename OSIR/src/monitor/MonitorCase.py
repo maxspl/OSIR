@@ -32,7 +32,7 @@ class MonitorCase:
         
         self.stop_event = Event()
         
-        self.db_OSIR = DbOSIR.DbOSIR("postgres", module_name="master_status")  # Use docker service name
+        self.db_OSIR = DbOSIR.DbOSIR("master-postgres", module_name="master_status")  # Use docker service name
         self.db_OSIR.store_master_status(case_path, "processing_case", self.case_uuid, self.modules)
 
     def on_inactivity(self):
