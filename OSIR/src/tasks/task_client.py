@@ -4,7 +4,6 @@ import pickle
 from celery import Celery
 from celery import signature
 from src.log.logger_config import AppLogger
-from src.utils.AgentConfig import AgentConfig
 import os
 
 logger = AppLogger(__name__).get_logger()
@@ -33,12 +32,6 @@ def run_task(case_path, module_data, task, queue, case_uuid):
     else:
         input = ""
 
-    agent_config = AgentConfig()
-    if agent_config.standalone:
-        master_host = "host.docker.internal"  # Agent cannot use localhost to communicate with other docker
-    else:
-        master_host = agent_config.master_host
-
     logger.debug(f"""Task Pushed : \n
                 Task Name : {task} \n
                 Case Path : {case_path} \n
@@ -47,8 +40,8 @@ def run_task(case_path, module_data, task, queue, case_uuid):
     
     RABBITMQ_USER = os.getenv('RABBITMQ_DEFAULT_USER', 'missing RABBITMQ_DEFAULT_USER env var')
     RABBITMQ_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS', 'missing RABBITMQ_DEFAULT_PASS env var')
-    CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{master_host}:5672//')
-    CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', f'redis://{master_host}:6379/0')
+    CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@master-rabbitmq:5672//')
+    CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', 'redis://master-redis:6379/0')
 
     Celery(name='OSIR', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
     task_signature = signature(task, args=(input, case_path, module_data, case_uuid), immutable=True, queue=queue)
