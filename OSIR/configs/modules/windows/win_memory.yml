@@ -51,6 +51,12 @@ splunk:
     sourcetype: 'windows:live_response:ram:findevil'
     host_rex: ([\w\.-]+)--
     artifact: "Memprocfs:findevil"
+  'windows:live_response:general':
+    name_rex: win_memory-general
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:general'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:general"
   'windows:live_response:handles':
     name_rex: win_memory-handles
     path_suffix: 'win_memory'
@@ -105,6 +111,12 @@ splunk:
     sourcetype: 'windows:live_response:ram:services'
     host_rex: ([\w\.-]+)--
     artifact: "Memprocfs:services"
+  'windows:live_response:sysinfo':
+    name_rex: win_memory-sysinfo
+    path_suffix: 'win_memory'
+    sourcetype: 'windows:live_response:ram:sysinfo'
+    host_rex: ([\w\.-]+)--
+    artifact: "Memprocfs:sysinfo"
   'windows:live_response:tasks':
     name_rex: win_memory-tasks
     path_suffix: 'win_memory'
