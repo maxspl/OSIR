@@ -145,7 +145,7 @@ def process_sysinfo(path_sysinfo):
                     json.dump(entry_line, f)
                     f.write("\n")
 
-    print("Fichier JSONL prêt pour Splunk : systeminformations.jsonl")
+    print("systeminformations.jsonl processed and written to: " + write_path)
 
 try:
     print("")
