@@ -28,7 +28,6 @@ class CeleryWorker:
         """
         self.logger = AppLogger(__name__).get_logger()
         self.agent_config = AgentConfig()
-        # if self.agent_config.get_master_details()['host'] in ["127.0.0.1", "localhost"]:
         if self.agent_config.standalone:
             self.master_host = "host.docker.internal"  # Agent cannot use localhost to communicate with other docker
         else:
