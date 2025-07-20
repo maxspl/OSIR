@@ -33,6 +33,8 @@ RUN set -eux; \
         cifs-utils \
         wget \
         jc \
+        graphviz \
+        git \
         software-properties-common; \
     \
     # add Deadsnakes PPA for Python 3.12
@@ -53,6 +55,12 @@ RUN set -eux; \
 COPY sources/requirements.txt /tmp/requirements.txt
 RUN set -eux; \
     python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
+
+# - Install DECODE from https://github.com/ANSSI-FR/DECODE -----------------------
+RUN set -eux; \
+    git clone --depth 1 https://github.com/ANSSI-FR/DECODE.git /opt/decode && \
+    python -m pip install --no-cache-dir /opt/decode --break-system-packages && \
+    rm -rf /opt/decode
 
 # - Docker CLI & legacy OpenSSL (libssl1.1) ------------------
 RUN set -eux; \
