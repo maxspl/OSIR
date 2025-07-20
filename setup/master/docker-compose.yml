@@ -138,7 +138,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    restart: unless-stopped
     profiles:
       - "default"
       - "all"
@@ -154,7 +153,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    restart: unless-stopped
     profiles:
       - "default-offline"
       - "all"
@@ -168,7 +166,6 @@ services:
       - "6379:6379"      # Redis port
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    restart: unless-stopped
     profiles:
       - "default"
       - "all"
@@ -180,7 +177,6 @@ services:
       - "6379:6379"      # Redis port
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    restart: unless-stopped
     profiles:
       - "default-offline"
       - "all"
