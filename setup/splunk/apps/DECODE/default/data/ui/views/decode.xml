@@ -1,0 +1,159 @@
+<form version="1.2">
+  <label>DECODE</label>
+  <description>Analysis of DECODE results</description>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="dropdown" token="index_token" searchWhenChanged="true">
+      <label>Index</label>
+      <fieldForLabel>index</fieldForLabel>
+      <fieldForValue>index</fieldForValue>
+      <search>
+        <query>| tstats count where index=* by index</query>
+        <earliest>0</earliest>
+        <latest></latest>
+      </search>
+      <default>$env:app$</default>
+      <initialValue>$env:app$</initialValue>
+    </input>
+    <input type="multiselect" token="host_token">
+      <label>Host</label>
+      <search>
+        <query>|tstats count where index=$index_token$ sourcetype=anssi:decode by host | fields - count</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <choice value="*">ALL</choice>
+      <initialValue>*</initialValue>
+      <delimiter> OR </delimiter>
+      <default>*</default>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <valuePrefix>host=</valuePrefix>
+    </input>
+    <input type="multiselect" token="filter_token">
+      <label>Filters</label>
+      <choice value="">No filter</choice>
+      <choice value="NOT File=&quot;*.ni.dll&quot;">Windows NativeImages</choice>
+      <choice value="NOT ParentName=&quot;\\Windows\\WinSxS\\*&quot;">Windows SxS</choice>
+      <choice value="NOT ParentName=&quot;\\Windows\\assembly\\*&quot;">Windows assembly</choice>
+      <choice value="NOT ParentName=&quot;\\Program Files\\WindowsApps\\*&quot;">WindowsApps</choice>
+      <choice value="NOT ParentName=&quot;\\Program Files (x86)\\Microsoft\\EdgeUpdate\\*&quot;">Edge Update</choice>
+      <initialValue></initialValue>
+      <default></default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Statistics</title>
+      <chart>
+        <title>AuthenticodeStatus count</title>
+        <search>
+          <query>index=$index_token$ sourcetype=anssi:decode $host_token$ | rex mode=sed field=ParentName "s/\//\\\/g" | search $filter_token$ | chart count by host, AuthenticodeStatus</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.fieldColors">{"NotSigned":0xE67E22,"SignedVerified":0xF1C40F,"Unknown":0xE74C3C,"SignedNotVerified":0xE74C3C}</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Analysis</title>
+      <table>
+        <title>AuthenticodeStatus SignedNotVerified et Unknown</title>
+        <search>
+          <query>index=$index_token$ sourcetype=anssi:decode $host_token$ AuthenticodeStatus!=NotSigned AND AuthenticodeStatus!=SignedVerified | rex mode=sed field=ParentName "s/\//\\\/g" | search $filter_token$  | dedup host, ParentName, File, SHA1 | sort -final_score, -FileNameCreationDate | fields *</query>
+        </search>
+        <option name="count">20</option>
+        <option name="rowNumbers">false</option>
+        <format type="color" field="Analysis">
+          <colorPalette type="map">{"False": #BA4A00}</colorPalette>
+        </format>
+        <fields>["host","FullPath","FileNameCreationDate","final_score","Features","Path","Isolated","WarningInListDLLs","Analysis","SHA1"]</fields>
+        <drilldown>
+          <set token="fileName">$row.File$</set>
+          <set token="hostName">$row.host$</set>
+          <link>#context_view</link>
+        </drilldown>
+      </table>
+      <table>
+        <title>AuthenticodeStatus NotSigned</title>
+        <search>
+          <query>index=$index_token$ sourcetype=anssi:decode $host_token$ AuthenticodeStatus=NotSigned | rex mode=sed field=ParentName "s/\//\\\/g" | search $filter_token$ | dedup host, ParentName, File, SHA1 | sort -final_score, -FileNameCreationDate | fields *</query>
+        </search>
+        <option name="rowNumbers">0</option>
+        <option name="count">20</option>
+        <format type="color" field="Analysis">
+          <colorPalette type="map">{"False": #BA4A00}</colorPalette>
+        </format>
+        <fields>["host","FullPath","FileNameCreationDate","final_score","Features","Path","Isolated","WarningInListDLLs","Analysis","SHA1"]</fields>
+        <drilldown>
+          <set token="fileName">$row.File$</set>
+          <set token="hostName">$row.host$</set>
+          <link>#context_view</link>
+        </drilldown>
+      </table>
+      <table>
+        <title>AuthenticodeStatus SignedVerified</title>
+        <search>
+          <query>index=$index_token$ sourcetype=anssi:decode $host_token$ AuthenticodeStatus=SignedVerified | rex mode=sed field=ParentName "s/\//\\\/g" | search $filter_token$ | dedup host, ParentName, File, SHA1 | sort -final_score, -FileNameCreationDate | fields *</query>
+        </search>
+        <option name="rowNumbers">0</option>
+        <option name="count">20</option>
+        <format type="color" field="Analysis">
+          <colorPalette type="map">{"False": #BA4A00}</colorPalette>
+        </format>
+        <fields>["host","FullPath","FileNameCreationDate","final_score","Features","Path","Isolated","WarningInListDLLs","Analysis","SHA1"]</fields>
+        <drilldown>
+          <set token="fileName">$row.File$</set>
+          <set token="hostName">$row.host$</set>
+          <link>#context_view</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel id="context_view">
+      <title>Context</title>
+      <input type="dropdown" token="sourcetype_token" searchWhenChanged="true">
+        <label>Timeline sourcetype</label>
+        <fieldForLabel>sourcetype</fieldForLabel>
+        <fieldForValue>sourcetype</fieldForValue>
+        <search>
+          <query>| tstats count where index=$index_token$ by sourcetype</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <!-- sourcetype not publicly available yet <default>timeline:orc2timeline</default> -->
+      </input>
+      <input type="text" token="span_value" searchWhenChanged="true">
+        <label>Span</label>
+        <default>5</default>
+        <initialValue>5</initialValue>
+      </input>
+      <input type="dropdown" token="span_unit" searchWhenChanged="true">
+        <label></label>
+        <choice value="s">secondes</choice>
+        <choice value="m">minutes</choice>
+        <choice value="d">days</choice>
+        <default>s</default>
+        <initialValue>s</initialValue>
+      </input>
+      <table>
+        <title>Current search : $fileName$</title>
+        <search>
+          <query>index=$index_token$ host=$hostName$ sourcetype=$sourcetype_token$ $fileName$ | localize timebefore=$span_value$$span_unit$ timeafter=$span_value$$span_unit$ | map search="search index=$index_token$ host=$hostName$ sourcetype=$sourcetype_token$ earliest=$$starttime$$ latest=$$endtime$$" | sort _time</query>
+        </search>
+        <option name="count">30</option>
+        <option name="drilldown">none</option>
+        <option name="rowNumbers">false</option>
+        <format type="color" field="_raw">
+          <colorPalette type="expression">if(like(value, "%$fileName$%"), "#E54861", "#F2F4F5")</colorPalette>
+        </format>
+        <fields>["_raw"]</fields>
+      </table>
+    </panel>
+  </row>
+</form>

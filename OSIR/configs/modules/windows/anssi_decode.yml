@@ -1,0 +1,32 @@
+version: 1.0
+author: maxspl
+module: anssi_decode
+description: ANSSI tool designed for detecting anomalous Portable Executable (PE) files among the NTFSInfo data collected by DFIR-ORC
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+tool: 
+  path: machine_analysis
+  cmd: --log-file "{output_log}" --csv_output "{output_csv}" --pdf_output "{output_pdf}" "{input_file}"
+  source: https://github.com/ANSSI-FR/DECODE
+  version: 2.0.9
+input:
+  type: dir
+  path: extracted_files/General/NTFSInfoFull_detail
+output:
+  type: multiple_files
+  format: raw
+endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'windows:decode':
+    name_rex: 'decode_result_\w+\.csv'
+    sourcetype: 'anssi:decode'
+    host_rex: anssi_decode\/(.*?)\/
+    timestamp_path: 
+        - "FileNameLastModificationDate"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    artifact: "decode"
