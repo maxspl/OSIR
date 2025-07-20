@@ -11,7 +11,7 @@ check_winrm(){
     # Run a simple whoami command to winrm is working
     output=$(sudo docker exec agent-agent sh -c \
         "cd /OSIR/setup/setup_scripts; \
-        python3.11 -c 'import remote_box_setup; \
+        python -c 'import remote_box_setup; \
         remote_box_setup.check_winrm(\"$WIN_DOCKER_HOST\", \"$WIN_DOCKER_USER\", \"$WIN_DOCKER_PASSWORD\", \"$WIN_DOCKER_MOUNT_POINT\", port=55985)'")
     if echo "$output" | grep -q "Successful winrm command"; then
         (echo >&2 "${GOODTOGO} WinRM is working.")
@@ -40,7 +40,7 @@ configure_OSIR(){
     # Run a simple whoami command to winrm is working
     output=$(sudo docker exec agent-agent sh -c \
         "cd /OSIR/setup/setup_scripts; \
-        python3.11 -c 'import remote_box_setup; \
+        python -c 'import remote_box_setup; \
         remote_box_setup.setup_OSIR(\"$WIN_DOCKER_HOST\", \"$WIN_DOCKER_USER\", \"$WIN_DOCKER_PASSWORD\", \"/OSIR/setup/windows_setup/src/ps1/setup_OSIR.ps1\", \"$MASTER_IP\", \"$WIN_DOCKER_MOUNT_POINT\")'")
     if echo "$output" | grep -q "Failed winrm"; then
         (echo >&2 "${ERROR} Failed to configure windows box.")

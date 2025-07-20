@@ -1,47 +1,67 @@
-FROM ubuntu:22.04
+# - Base image --------------------------------
+FROM ubuntu:24.04
 
-RUN apt-get update -y \
-    && apt-get upgrade -y \
-    && apt-get -y install build-essential \
+# - Environment --------------------------------
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Europe/Minsk \
+    PATH="/OSIR/OSIR:${PATH}"
+
+# - Base system & tooling ---------------------------
+RUN set -eux; \
+    # timezone
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ >/etc/timezone; \
+    \
+    # package index & core libs
+    apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
         zlib1g-dev \
         libncurses5-dev \
-        libgdbm-dev \ 
+        libgdbm-dev \
         libnss3-dev \
         libssl-dev \
         libreadline-dev \
         libffi-dev \
         libsqlite3-dev \
         libbz2-dev \
-        wget \
-        python3-pip \
+        libpq-dev \
+        libleveldb-dev \
+        libusb-1.0-0 \
+        libfuse2 \
         smbclient \
-        cifs-utils \ 
-        libpq-dev
+        cifs-utils \
+        wget \
+        jc \
+        software-properties-common; \
+    \
+    # add Deadsnakes PPA for Python 3.12
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        python3.12-full \
+        python3.12-dev  \
+        python3-pip; \
+    \
+    # make python3.12 the default python
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1; \
+    \
+    # clean apt cache to shrink image
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Minsk
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt install software-properties-common -y
-RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt-get update -y
-RUN apt install python3.11 python3-pip python3.11-dev -y
-RUN apt install libusb-1.0-0
-RUN apt install libfuse2
-        
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
+# - Python dependencies (cached layer) ---------------------
+COPY sources/requirements.txt /tmp/requirements.txt
+RUN set -eux; \
+    python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
 
-COPY sources/requirements.txt /tmp/
-    
-RUN python -m pip install -r /tmp/requirements.txt
+# - Docker CLI & legacy OpenSSL (libssl1.1) ------------------
+RUN set -eux; \
+    wget -qO get-docker.sh https://get.docker.com && \
+    sh get-docker.sh && rm get-docker.sh; \
+    \
+    wget -qO /tmp/libssl1.1.deb \
+        http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    dpkg -i /tmp/libssl1.1.deb && rm /tmp/libssl1.1.deb
 
-RUN apt install jc -y
-
-ENV PATH="/OSIR/OSIR:${PATH}"
-
-RUN  wget https://get.docker.com --output-document=get-docker.sh\
-    && sh get-docker.sh
-#TODO Fix missing deb
-RUN wget http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb\
-    && dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
-
+# - Default command ------------------------------
 CMD ["/bin/bash"]

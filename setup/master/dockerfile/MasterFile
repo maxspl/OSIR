@@ -1,41 +1,54 @@
-FROM ubuntu:22.04
+# - Base image --------------------------------
+FROM ubuntu:24.04
 
+# - Environment --------------------------------
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Europe/Minsk \
+    PATH="/OSIR/OSIR:${PATH}"
 
-# FIX PACKAGE PYTHON3.11 NOT FOUND
-# https://stackoverflow.com/questions/75159821/installing-python-3-11-1-on-a-docker-container
-# RUN rm -f /etc/apt/sources.list.d/hashicorp.list
-RUN apt-get update -y \
-    && apt-get upgrade -y \
-    && apt-get -y install build-essential \
+# - System setup -------------------------------
+RUN set -eux; \
+    # Time-zone
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ >/etc/timezone; \
+    \
+    # Core packages (single layer, no recommends)
+    apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        software-properties-common \
+        build-essential \
         zlib1g-dev \
         libncurses5-dev \
-        libgdbm-dev \ 
+        libgdbm-dev \
         libnss3-dev \
         libssl-dev \
         libreadline-dev \
         libffi-dev \
         libsqlite3-dev \
         libbz2-dev \
-        wget \
-        python3-pip \
+        libpq-dev \
         smbclient \
-        cifs-utils \ 
-        libpq-dev
+        cifs-utils \
+        wget; \
+    \
+    # add Deadsnakes PPA for Python 3.12
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        python3.12-full \
+        python3.12-dev  \
+        python3-pip; \
+    \
+    # make python3.12 the default python
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1; \
+    \
+    # Clean up APT cache to shrink image
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Europe/Minsk
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt install software-properties-common -y
-RUN add-apt-repository ppa:deadsnakes/ppa
-RUN apt-get update -y
-RUN apt install python3.11 python3-pip python3.11-dev -y
+# - Python dependencies (cached layer) --------------------
+COPY sources/requirements.txt /tmp/requirements.txt
+RUN set -eux; \
+    python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
-
-COPY sources/requirements.txt /tmp/
-    
-RUN python -m pip install -r /tmp/requirements.txt
-
-ENV PATH="/OSIR/OSIR:${PATH}"
-
+# - Default command ------------------------------
 CMD ["/bin/bash"]

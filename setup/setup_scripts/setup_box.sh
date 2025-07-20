@@ -10,40 +10,11 @@ start_box(){
     vagrant up
 }
 
-# check_winrm(){
-#     # Run a simple whoami command to winrm is working
-#     output=$(sudo docker exec agent-agent sh -c \
-#         "cd /OSIR/setup/setup_scripts; \
-#         python3.11 -c 'import remote_box_setup; \
-#         remote_box_setup.check_winrm(\"$host\", \"$user\", \"$password\", \"$mount_point\")'")
-#     if echo "$output" | grep -q "Successful winrm command"; then
-#         (echo >&2 "${GOODTOGO} WinRM is working.")
-#         (echo "${DEBUG} $output") # Print to sdtout for debug only
-#     else 
-#         (echo >&2 "${ERROR} WinRM is not working.")
-#         (echo "${DEBUG} $output") # Print to sdtout for debug only
-#     fi
-
-#     # Check if OSIR already installed. Test-Path returns true is installation path exists
-#     if echo "$output" | grep -q "True" ; then
-#         (echo >&2 "${GOODTOGO} OSIR has already been configured on the remote host.")
-#         (echo "${INFO} $output") # Print to sdtout for debug only
-#     elif echo "$output" | grep -q "False" ; then
-#         (echo >&2 "${INFO} OSIR is not configured on the remote host.")
-#         (echo "${INFO} $output") # Print to sdtout for debug only
-#         return 1
-#     else
-#         (echo >&2 "${INFO} WinRM command for OSIR installation check seems to fails.")
-#         (echo "${INFO} $output") # Print to sdtout for debug only
-#         exit 0
-#     fi
-# }
-
 check_winrm(){
     # Run a simple whoami command to check if WinRM is working
     output=$(sudo docker exec agent-agent sh -c \
         "cd /OSIR/setup/setup_scripts; \
-        python3.11 -c 'import remote_box_setup; \
+        python -c 'import remote_box_setup; \
         remote_box_setup.check_winrm(\"$host\", \"$user\", \"$password\", \"$mount_point\")'")
     
     if echo "$output" | grep -q "Successful winrm command"; then
@@ -60,7 +31,7 @@ check_winrm(){
 is_OSIR_installed(){
     output=$(sudo docker exec agent-agent sh -c \
         "cd /OSIR/setup/setup_scripts; \
-        python3.11 -c 'import remote_box_setup; \
+        python -c 'import remote_box_setup; \
         remote_box_setup.check_winrm(\"$host\", \"$user\", \"$password\", \"$mount_point\")'")
     # Check if OSIR is already installed. Test-Path returns true if installation path exists
     if echo "$output" | grep -q "True"; then
@@ -82,7 +53,7 @@ check_smb(){
     # Check if smb share can be accessed from windows
     output=$(sudo docker exec agent-agent sh -c \
         "cd /OSIR/setup/setup_scripts; \
-        python3.11 -c 'import remote_box_setup; \
+        python -c 'import remote_box_setup; \
         remote_box_setup.check_smb(\"$host\", \"$user\", \"$password\", \"/OSIR/setup/windows_setup/src/ps1/setup_unsecure_smb.ps1\", \"$MASTER_IP\")'") #$MASTER_IP from env
     if echo "$output" | grep -q "Failed winrm"; then 
         (echo >&2 "${ERROR} SMB share cannot be accessed from Windows box.")
@@ -122,7 +93,7 @@ configure_OSIR(){
     # Run a simple whoami command to winrm is working
     output=$(sudo docker exec agent-agent sh -c \
         "cd /OSIR/setup/setup_scripts; \
-        python3.11 -c 'import remote_box_setup; \
+        python -c 'import remote_box_setup; \
         remote_box_setup.setup_OSIR(\"$host\", \"$user\", \"$password\", \"/OSIR/setup/windows_setup/src/ps1/setup_OSIR.ps1\", \"$MASTER_IP\", \"$mount_point\")'")
     if echo "$output" | grep -q "Failed winrm"; then
         (echo >&2 "${ERROR} Failed to configure windows box.")
