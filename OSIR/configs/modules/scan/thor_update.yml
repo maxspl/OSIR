@@ -1,0 +1,22 @@
+version: 1.0
+author:
+module: thor_update
+description: Update Thor signature files using thor-util.
+os: all
+type: process
+disk_only: False
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: thor/thor-util
+  cmd: update --sigdev
+  source: https://www.nextron-systems.com/thor/
+  version: 1.0
+input:
+  type: dir
+  path: "{case_path}"
+output:
+  type: single_file
+  format: raw
