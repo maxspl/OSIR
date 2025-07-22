@@ -26,8 +26,8 @@ class BootModule(PyModule, UnixUtils):
 
         # Structure using regex and lambdas with safe_search for parsing log entries
         self.structure = [
-            ("_offset", lambda log: self.safe_search(r"\d{1,}\.\d{1,}(?=\])", log)),  # Example: 0.1234
-            ("_type", lambda log: self.safe_search(r"(?<=\]\s).*(?=\[)", log)),  # Example: system boot, etc.
+            ("_offset", lambda log: self.safe_search(r"(\d{1,}\.\d{1,})(?=\])", log)),  # Example: 0.1234
+            ("_type", lambda log: self.safe_search(r"(?<=\]\s)(.*)(?=\[)", log)),  # Example: system boot, etc.
             ("_raw", lambda log: log)  # Raw log entry
         ]
 
