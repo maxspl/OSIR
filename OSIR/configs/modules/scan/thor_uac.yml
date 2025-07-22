@@ -21,7 +21,7 @@ output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "extract_uac\/Endpoint_(.*)"
+endpoint: "extract_uac\/Endpoint_(.*?)\/"
 splunk:
   'thor:files':
     name_rex: \.jsonl$
