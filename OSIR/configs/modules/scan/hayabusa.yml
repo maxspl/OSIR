@@ -22,3 +22,13 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'hayabusa':
+    name_rex: \.jsonl$
+    path_suffix: 'hayabusa'
+    sourcetype: '_json'
+    host_path: "Computer"
+    timestamp_path: 
+        - "Timestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f %z"
+    artifact: "hayabusa"
