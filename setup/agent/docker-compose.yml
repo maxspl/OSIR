@@ -89,6 +89,7 @@ services:
       - DISK_SIZE=20G
     devices:
       - /dev/kvm
+      - /dev/net/tun
     cap_add:
       - NET_ADMIN
     ports:
@@ -113,6 +114,7 @@ services:
       - DISK_SIZE=20G
     devices:
       - /dev/kvm
+      - /dev/net/tun
     cap_add:
       - NET_ADMIN
     ports:

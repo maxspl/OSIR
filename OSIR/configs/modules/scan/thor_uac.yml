@@ -1,7 +1,7 @@
 version: 1.0
 author:
-module: thor
-description: Scan of collected file using Thor (requires Forensic license).
+module: thor_uac
+description: Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
 os: all
 type: process
 disk_only: False
@@ -16,16 +16,16 @@ tool:
   version: 1.0
 input:
   type: dir
-  path: restore_fs/*
+  path: r"extract_uac\/[^\/]+\/extracted_files$"
 output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "restore_fs\/(.*)"
+endpoint: "extract_uac\/Endpoint_(.*?)\/"
 splunk:
   'thor:files':
     name_rex: \.jsonl$
-    path_suffix: 'thor'
+    path_suffix: 'thor_uac'
     sourcetype: 'thor:files'
     host_rex: ([\w\.-]+)--
     timestamp_path: 

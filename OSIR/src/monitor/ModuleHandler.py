@@ -93,16 +93,16 @@ class ModuleHandler(FileSystemEventHandler):
 
         self.agent_config = AgentConfig()
         if self.agent_config.standalone:
-            self.master_host = "host.docker.internal"  # Agent cannot use localhost to communicate with other docker
+            db_postgres = "master-postgres"
         else:
-            self.master_host = self.agent_config.master_host
+            db_postgres = self.agent_config.master_host
         
         # Initialize a set and a lock to keep track of active timers
         self.active_timers = set()
         self.timers_lock = threading.Lock()
         
         # DB management
-        self.DbOSIR = DbOSIR(self.master_host)
+        self.DbOSIR = DbOSIR(db_postgres)
 
         # Create tables for each
         for module_info in self.modules_info:

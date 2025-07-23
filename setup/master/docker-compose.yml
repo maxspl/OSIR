@@ -98,6 +98,7 @@ services:
       - ../splunk/apps/TA_evtx_dump/:/opt/splunk/etc/apps/TA_evtx_dump/ # EVTX dump app
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
+      - ../splunk/apps/DECODE/:/opt/splunk/etc/apps/DECODE/ # DECODE app
     profiles:
       - "splunk-online"
       - "all"
@@ -121,6 +122,7 @@ services:
       - ../splunk/apps/TA_evtx_dump/:/opt/splunk/etc/apps/TA_evtx_dump/ # EVTX dump app
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
+      - ../splunk/apps/DECODE/:/opt/splunk/etc/apps/DECODE/ # DECODE app
     profiles:
       - "splunk-offline"
       - "all"
@@ -138,7 +140,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    restart: unless-stopped
     profiles:
       - "default"
       - "all"
@@ -154,7 +155,6 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    restart: unless-stopped
     profiles:
       - "default-offline"
       - "all"
@@ -168,7 +168,6 @@ services:
       - "6379:6379"      # Redis port
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    restart: unless-stopped
     profiles:
       - "default"
       - "all"
@@ -180,7 +179,6 @@ services:
       - "6379:6379"      # Redis port
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
-    restart: unless-stopped
     profiles:
       - "default-offline"
       - "all"
