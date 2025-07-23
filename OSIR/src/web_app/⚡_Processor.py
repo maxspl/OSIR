@@ -428,8 +428,8 @@ class ConfigurationApp:
             None
         """
         # Process the input values
-        modules_to_add = module_add
-        modules_to_remove = module_remove
+        modules_to_add = [os.path.basename(m) for m in (module_add or [])]
+        modules_to_remove = [os.path.basename(m) for m in (module_remove or [])]
 
         # Validate inputs similar to the original argparse checks
         if not selected_profile and not selected_modules:
