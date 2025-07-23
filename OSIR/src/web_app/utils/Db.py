@@ -7,7 +7,7 @@ class Db_accessor:
         # Database connection details
         self.db_user = os.getenv('POSTGRES_USER', 'missing POSTGRES_USER env var')
         self.db_password = os.getenv('POSTGRES_PASSWORD', 'missing POSTGRES_PASSWORD env var')
-        self.db_host = 'postgres'
+        self.db_host = 'master-postgres'
         self.db_port = '5432'
         self.db_name = 'OSIR_db'
 
