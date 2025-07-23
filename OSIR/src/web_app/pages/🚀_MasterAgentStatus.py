@@ -200,7 +200,7 @@ with tab2:
         color_name="violet-70",
     )
 
-    flower_api_url = "http://flower:5555" 
+    flower_api_url = "http://master-flower:5555" 
     master_status.display_flower_workers(flower_api_url)
     
 
