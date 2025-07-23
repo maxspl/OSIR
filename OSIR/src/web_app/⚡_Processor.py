@@ -52,7 +52,7 @@ class FileManager:
         return [os.path.relpath(os.path.join(root, file), directory) for root, _, files in os.walk(directory) for file in files]
         
     @staticmethod
-    def get_yaml_files(directory):
+    def get_yaml_files(directory, relative=False):
         """
         Get a list of .yml files in a given directory recursively.
 
@@ -67,7 +67,10 @@ class FileManager:
             for file in files:
                 if file.endswith('.yml'):
                     # yaml_files.append(os.path.relpath(os.path.join(root, file), directory))
-                    yaml_files.append(file)
+                    path = os.path.join(root, file)
+                    yaml_files.append(
+                        os.path.relpath(path, directory) if relative else file
+                    )
         return yaml_files
 
     @staticmethod
@@ -143,7 +146,7 @@ class ConfigurationApp:
         self.PROFILES_DIR = StaticVars.PROFILES_DIR
         self.MODULES_DIR = StaticVars.MODULES_DIR
         self.CASES_DIR = StaticVars.CASES_DIR
-        self.profiles = FileManager.get_yaml_files(self.PROFILES_DIR)
+        self.profiles = FileManager.get_yaml_files(self.PROFILES_DIR, relative=True)
         self.modules = FileManager.get_yaml_files(self.MODULES_DIR)
         self.cases = FileManager.get_cases(self.CASES_DIR)
 
@@ -227,16 +230,37 @@ class ConfigurationApp:
             profile_path = os.path.join(self.PROFILES_DIR, selected_profile)
             profile_content = FileManager.load_yaml_file(profile_path)
 
-            if 'modules' in profile_content:
-                profile_modules = [
-                    module + ".yml" if not module.endswith('.yml') else module
-                    for module in profile_content['modules']
-                ]
-                modules_without_parentdir = [os.path.basename(module) for module in self.modules]
-                selected_modules = [m for m in profile_modules if m in modules_without_parentdir]
+            # -- modules declared in the profile (basename, always ending in .yml) ------
+            profile_modules = [
+                m + ".yml" if not m.endswith(".yml") else m
+                for m in profile_content.get("modules", [])
+            ]
+            profile_module_names = {os.path.basename(m) for m in profile_modules}
 
-            module_add = st.multiselect("Add Modules", self.modules_w_parentdir, help="Add specific modules.")
-            module_remove = st.multiselect("Remove Modules", self.modules_w_parentdir, help="Remove specific modules.")
+            # existing: pre‑select modules that come from the profile
+            modules_without_parentdir = [os.path.basename(m) for m in self.modules]
+            selected_modules = [m for m in profile_modules if m in modules_without_parentdir]
+
+            # tailor the choices for add / remove -------------------------------
+            add_candidates = [
+                m for m in self.modules_w_parentdir
+                if os.path.basename(m) not in profile_module_names
+            ]
+            remove_candidates = [
+                m for m in self.modules_w_parentdir
+                if os.path.basename(m) in profile_module_names
+            ]
+
+            module_add = st.multiselect(
+                "Add Modules",
+                add_candidates,
+                help="Only modules that are not already listed in the selected profile."
+            )
+            module_remove = st.multiselect(
+                "Remove Modules",
+                remove_candidates,
+                help="Only modules that are currently listed in the selected profile."
+            )
         else:
             if not use_table_view:
                 selected_modules_w_parentdir = st.multiselect(
