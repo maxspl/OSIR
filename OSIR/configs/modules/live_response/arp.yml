@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --arp > {output_file}"
+  cmd: "{input_file} | jc --arp | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: (?:arp)
