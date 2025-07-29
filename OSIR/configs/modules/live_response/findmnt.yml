@@ -1,7 +1,7 @@
 version: 1.0
 author: 
-module: env
-description: Kelly Brazil - JsonConverter - Parsing the output of the command env
+module: findmnt
+description: Kelly Brazil - JsonConverter - Parsing the output of the command findmnt
 os: unix
 type: process
 requirements:
@@ -12,10 +12,10 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --env | jq -c '.[]' > {output_file}"
+  cmd: "{input_file} | jc --findmnt | jq -c '.[]' > {output_file}"
 input:
   type: file
-  name: env.txt$
+  name: findmnt.txt$
   path: live_response/*
 output:
   type: single_file
