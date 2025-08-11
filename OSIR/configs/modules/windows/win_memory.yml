@@ -76,7 +76,7 @@ splunk:
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "Time"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    timestamp_format: "%Y-%m-%d %H:%M:%S UTC"
     artifact: "Memprocfs:net"
   'windows:live_response:prefetch':
     name_rex: win_memory-prefetch
@@ -103,7 +103,7 @@ splunk:
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "lastwrite"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "Memprocfs:registry"
   'windows:live_response:services':
     name_rex: win_memory-services
