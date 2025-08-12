@@ -1,0 +1,23 @@
+version: 1.0
+author:
+module: orc_indexer
+description: plunk logs ingestion (ORC) using json2splunk configuration from dependencies/orc_indexer_patterns.yml
+os: windows
+type: post-process
+requirements:
+disk_only: False
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: python
+  cmd: /OSIR/OSIR/bin/json2splunk/json2splunk.py --input {input_dir} --index {case_name} --config_spl /OSIR/setup/conf/agent.yml --indexer_patterns /OSIR/OSIR/configs/dependencies/orc_indexer_patterns.yml
+  source: https://github.com/maxspl/json2splunk
+  version: 1.25.06.2024
+input:
+  type: dir
+  path: "{case_path}"
+output:
+  type: None
+
