@@ -8,7 +8,7 @@ Classes description:
 - DockerClient: Shells out to docker and parses results (easy to mock).
 - BoxPrinter: All banner/box UI rendering in one place.
 - ProcessRunner: Helpers to stream/attach child processes.
-- Component: Parameterized behavior for MASTER/AGENT (install/start/uninstall/status).
+- Component: Parameterized behavior for MASTER/AGENT (install/start/stop/status).
 - Launcher: CLI parsing, sudo elevation, config reuse/new prompts, dispatch.
 """
 from __future__ import annotations
@@ -513,8 +513,8 @@ class Component:
         self.install(cfg, repo_root)
         self.start(cfg)
 
-    def uninstall(self, extra_flags: List[str], repo_root: Path) -> None:
-        """Uninstall the component using its uninstall script.
+    def stop(self, extra_flags: List[str], repo_root: Path) -> None:
+        """Stop the component using its uninstall script.
 
         Args:
             extra_flags: Additional CLI flags to pass to the uninstall script.
@@ -524,10 +524,10 @@ class Component:
             SystemExit: If the uninstall script fails.
         """
         cmd: List[str] = ["bash", str(self.uninstall_script), *extra_flags]
-        print(f"[+] Uninstalling {self.key}…")
+        print(f"[+] Stopping {self.key}…")
         exit_code = ProcessRunner.run_process(cmd, cwd=repo_root, stream=True)
         if exit_code != 0:
-            sys.exit(f"{self.label.capitalize()} uninstall failed with exit code {exit_code}.")
+            sys.exit(f"{self.label.capitalize()} stopping failed with exit code {exit_code}.")
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -726,8 +726,8 @@ class Launcher:
         p_start_all.add_argument("--debug", action="store_true")
         p_start_all.add_argument("--config", action="store_true")
 
-        p_uninstall = subparsers.add_parser("uninstall", help="Uninstall master or agent")
-        un_sub = p_uninstall.add_subparsers(dest="component", required=True)
+        p_stop = subparsers.add_parser("stop", help="Stop master or agent")
+        un_sub = p_stop.add_subparsers(dest="component", required=True)
 
         p_un_master = un_sub.add_parser("master")
         p_un_master.add_argument("-i", "--images", action="store_true")
@@ -800,17 +800,17 @@ class Launcher:
             self.master.launch(cfg, self.repo_root)
             self.agent.launch(cfg, self.repo_root)
 
-    def cmd_uninstall(self, args: argparse.Namespace) -> None:
-        """Handle the 'uninstall' command for master or agent.
+    def cmd_stop(self, args: argparse.Namespace) -> None:
+        """Handle the 'stop' command for master or agent.
 
         Args:
-            args: Parsed CLI arguments for uninstall.
+            args: Parsed CLI arguments for stop.
         """
         if args.component == "master":
             flags: List[str] = []
             if getattr(args, "images", False):
                 flags.append("-i")
-            self.master.uninstall(flags, self.repo_root)
+            self.master.stop(flags, self.repo_root)
         elif args.component == "agent":
             flags: List[str] = []
             if getattr(args, "vagrant", False):
@@ -819,7 +819,7 @@ class Launcher:
                 flags.append("-d")
             if getattr(args, "images", False):
                 flags.append("-i")
-            self.agent.uninstall(flags, self.repo_root)
+            self.agent.stop(flags, self.repo_root)
 
     def cmd_status(self, args: argparse.Namespace) -> None:
         """Handle the 'status' command.
@@ -895,8 +895,8 @@ class Launcher:
         args = self.parse_arguments()
         if args.command == "start":
             self.cmd_start(args)
-        elif args.command == "uninstall":
-            self.cmd_uninstall(args)
+        elif args.command == "stop":
+            self.cmd_stop(args)
         elif args.command == "status":
             self.cmd_status(args)
 
