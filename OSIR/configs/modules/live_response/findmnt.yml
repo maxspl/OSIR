@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:findmnt':
+    name_rex: \.jsonl$
+    path_suffix: findmnt
+    sourcetype: 'linux:live_response:findmnt'
+    host_rex: _([\w\.-]+)--
+    artifact: findmnt

@@ -19,3 +19,12 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:syslog':
+    name_rex: syslog.*\.jsonl$
+    sourcetype: 'linux:syslog'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+    - "_time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "syslog"

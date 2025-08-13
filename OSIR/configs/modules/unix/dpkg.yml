@@ -19,3 +19,12 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:dpkg':
+    name_rex: dpkg.*\.jsonl$
+    sourcetype: 'linux:dpkg'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "dpkg"
