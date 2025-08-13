@@ -1,0 +1,35 @@
+version: 1.0
+author:
+module: pstree_sysmon
+description: Parse output of EVTX module to build process tree from security.evtx - event ID 1
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: python
+  cmd: OSIR/OSIR/bin/log2pstree/log2pstree.py --input {input_file} --pid-path "Event.EventData.ProcessId" --ppid-path "Event.EventData.ParentProcessId" --exe-path "Event.EventData.Image" --cmdline-path "Event.EventData.CommandLine" --time-path "Event.System.TimeCreated.#attributes.SystemTime" --event-id-path "Event.System.EventID" --event-id-value "1" --output-dir {output_dir}
+  source: https://github.com/maxspl/log2pstree
+  version: 2025.08.07
+input:
+  type: file
+  name: _Security\.evtx.*?\.jsonl$
+  path: evtx_orc/
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "evtx_orc\/(.*?)--"
+splunk:
+  'windows:sysmon:pstree':
+    name_rex: nodes\.jsonl$
+    path_suffix: 'pstree_sysmon/'
+    sourcetype: 'windows:sysmon:pstree'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "pstree_sysmon"

@@ -1,0 +1,35 @@
+version: 1.0
+author: maxspl
+module: pstree_live_response
+description: Parse processes1.csv to produce pstree
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: python
+  cmd: OSIR/OSIR/bin/log2pstree/log2pstree.py --input {input_file} --pid-path "ProcessId" --ppid-path "ParentProcessId" --exe-path "ProcessName" --cmdline-path "CommandLine" --time-path "CreationDate" --output-dir {output_dir}
+  source: https://github.com/maxspl/log2pstree
+  version: 2025.08.07
+input:
+  type: file
+  name: ^processes1\.csv$
+  path: extracted_files/Powershell
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'windows:live_response:pstree':
+    name_rex: nodes\.jsonl$
+    path_suffix: 'pstree_live_response/'
+    sourcetype: 'windows:live_response:pstree'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "pstree_live_response"
