@@ -35,10 +35,13 @@ class InjectionModule(PyModule, UnixUtils):
         """
         try:
             logger.debug(f"Processing file {self._dir_to_process}")
-
             for dir_name in os.listdir(self._dir_to_process):
                 if os.path.isdir(os.path.join(self._dir_to_process, dir_name)):
-                    module_to_process = BaseModule(dir_name)
+                    try:
+                        module_to_process = BaseModule(dir_name)
+                    except FileNotFoundError:
+                        logger.warning(f"Skipping directory '{dir_name}' — no matching module found.")
+                        continue  # Skip to next directory
                     if module_to_process:
                         logger.debug(f"Module found {dir_name}")
                         indexer_data = module_to_process.data.get('splunk',None)
