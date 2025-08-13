@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:sysctl':
+    name_rex: \.jsonl$
+    path_suffix: sysctl
+    sourcetype: _json
+    host_rex: _([\w\.-]+)--
+    artifact: sysctl

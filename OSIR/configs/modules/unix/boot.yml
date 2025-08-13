@@ -19,3 +19,9 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:boot':
+    name_rex: boot.*\.jsonl$
+    sourcetype: 'linux:boot'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "boot"

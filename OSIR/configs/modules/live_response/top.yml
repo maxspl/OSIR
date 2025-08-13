@@ -22,3 +22,13 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:top':
+    name_rex: \.jsonl$
+    path_suffix: top
+    sourcetype: 'linux:live_response:top'
+    host_rex: _([\w\.-]+)--
+    timestamp_path: 
+        - "time"
+    timestamp_format: "%H:%M:%S"
+    artifact: top

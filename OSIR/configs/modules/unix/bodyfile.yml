@@ -19,3 +19,12 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:files:bodyfile':
+    name_rex: bodyfile.*\.jsonl$
+    sourcetype: 'linux:files:bodyfile'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "mtime"
+    timestamp_format: "%s"
+    artifact: "bodyfile"
