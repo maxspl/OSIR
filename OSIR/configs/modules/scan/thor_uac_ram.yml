@@ -1,0 +1,34 @@
+version: 1.0
+author:
+module: thor_uac
+description: Scan of RAM restored file system from volatility3 restoreFs module using Thor (requires Forensic license).
+os: all
+type: process
+disk_only: False
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: thor/thor-linux-64
+  cmd: --lab --nocsv --silent --nolog -p {input_dir} --jsonfile {output_file}
+  source: https://www.nextron-systems.com/thor/
+  version: 1.0
+input:
+  type: dir
+  path: r"linux_memory_full\/[^\/]+\/RecoverFs$"
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-ram.jsonl"
+endpoint: "linux_memory_full\/Endpoint_(.*?)\/"
+splunk:
+  'thor:files':
+    name_rex: \.jsonl$
+    path_suffix: 'thor_uac'
+    sourcetype: 'thor:files'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "Thor"
