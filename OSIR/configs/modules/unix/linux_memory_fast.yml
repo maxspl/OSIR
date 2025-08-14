@@ -1,0 +1,205 @@
+version: 1.0
+author:
+module: linux_memory_fast
+description:
+os: unix
+type: process
+disk_only: True
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: python
+  cmd: /OSIR/OSIR/src/modules/linux/linux_memory/linux_memory.py -f {input_file} -o {output_dir} --threads 8 -p linux.vmcoreinfo.VMCoreInfo linux.boottime.Boottime linux.pslist.PsList linux.pstree.PsTree linux.psscan.PsScan linux.psaux.PsAux linux.malfind.Malfind linux.bash.Bash linux.pagecache.Files linux.elfs.Elfs linux.sockstat.Sockstat linux.check_syscall.Check_syscall linux.check_idt.Check_idt linux.hidden_modules.Hidden_modules -t /OSIR/OSIR/bin --auto-symbol
+
+input:
+  type: file
+  path: memory_dump/
+  name: \.(ram|raw|elf|dmp|dump|bin|mem|img|core|lime)$
+output:
+  type: multiple_files
+  format: raw
+  output_dir: "{endpoint_name}--{module}-"
+endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:volatility3:bash':
+    name_rex: linux.bash.*\.json$
+    sourcetype: 'linux:volatility3:ram:bash'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "CommandTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S%z"
+    artifact: "volatility3:bash"
+  'linux:volatility3:boottime':
+    name_rex: linux.boottime.*\.json$
+    sourcetype: 'linux:volatility3:ram:boottime'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "Boot Time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "volatility3:boottime"
+  'linux:volatility3:check_idt':
+    name_rex: linux.check_idt.*\.json$
+    sourcetype: 'linux:volatility3:ram:check_idt'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:check_idt"
+  'linux:volatility3:check_modules':
+    name_rex: linux.check_modules.*\.json$
+    sourcetype: 'linux:volatility3:ram:check_modules'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:check_modules"
+  'linux:volatility3:check_syscall':
+    name_rex: linux.check_syscall.*\.json$
+    sourcetype: 'linux:volatility3:ram:check_syscall'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:check_syscall"
+  'linux:volatility3:ebpf':
+    name_rex: linux.ebpf.*\.json$
+    sourcetype: 'linux:volatility3:ram:ebpf'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:ebpf"
+  'linux:volatility3:elfs':
+    name_rex: linux.elfs.*\.json$
+    sourcetype: 'linux:volatility3:ram:elfs'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:elfs"
+  'linux:volatility3:envars':
+    name_rex: linux.envars.*\.json$
+    sourcetype: 'linux:volatility3:ram:envars'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:envars"
+  'linux:volatility3:hidden_modules':
+    name_rex: linux.hidden_modules.*\.json$
+    sourcetype: 'linux:volatility3:ram:hidden_modules'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:hidden_modules"
+  'linux:volatility3:iomem':
+    name_rex: linux.iomem.*\.json$
+    sourcetype: 'linux:volatility3:ram:iomem'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:iomem"
+  'linux:volatility3:ipAddr':
+    name_rex: linux.ip.Addr\.json$
+    sourcetype: 'linux:volatility3:ram:ipaddr'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:ipaddr"
+  'linux:volatility3:ipLink':
+    name_rex: linux.ip.Link\.json$
+    sourcetype: 'linux:volatility3:ram:iplink'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:iplink"
+  'linux:volatility3:kmsg':
+    name_rex: linux.kmsg.*\.json$
+    sourcetype: 'linux:volatility3:ram:kmsg'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:kmsg"
+  'linux:volatility3:library_list':
+    name_rex: linux.library_list.*\.json$
+    sourcetype: 'linux:volatility3:ram:library_list'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:library_list"
+  'linux:volatility3:lsmod':
+    name_rex: linux.lsmod.*\.json$
+    sourcetype: 'linux:volatility3:ram:lsmod'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:lsmod"
+  'linux:volatility3:lsof':
+    name_rex: linux.lsof.*\.json$
+    sourcetype: 'linux:volatility3:ram:lsof'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:lsof"
+  'linux:volatility3:malfind':
+    name_rex: linux.malfind.*\.json$
+    sourcetype: 'linux:volatility3:ram:malfind'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:malfind"
+  'linux:volatility3:modxview':
+    name_rex: linux.modxview.*\.json$
+    sourcetype: 'linux:volatility3:ram:modxview'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:modxview"
+  'linux:volatility3:mountinfo':
+    name_rex: linux.mountinfo.*\.json$
+    sourcetype: 'linux:volatility3:ram:mountinfo'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:mountinfo"
+  'linux:volatility3:netfilter':
+    name_rex: linux.netfilter.*\.json$
+    sourcetype: 'linux:volatility3:ram:netfilter'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:netfilter"
+  'linux:volatility3:pagecacheFiles':
+    name_rex: linux.pagecache.Files\.json$
+    sourcetype: 'linux:volatility3:ram:pagecacheFiles'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:pagecacheFiles"
+    timestamp_path: 
+        - "AccessTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S%z"
+  'linux:volatility3:pagecacheRecoverFs':
+    name_rex: linux.pagecache.RecoverFs\.json$
+    sourcetype: 'linux:volatility3:ram:pagecacheRecoverFs'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:pagecacheRecoverFs"
+    timestamp_path: 
+        - "AccessTime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S%z"
+  'linux:volatility3:pidhashtable':
+    name_rex: linux.pidhashtable.*\.json$
+    sourcetype: 'linux:volatility3:ram:pidhashtable'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:pidhashtable"
+  'linux:volatility3:procMaps':
+    name_rex: linux.proc.Maps\.json$
+    sourcetype: 'linux:volatility3:ram:procMaps'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:procMaps"
+  'linux:volatility3:psaux':
+    name_rex: linux.psaux.*\.json$
+    sourcetype: 'linux:volatility3:ram:psaux'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:psaux"
+  'linux:volatility3:pscallstack':
+    name_rex: linux.pscallstack.*\.json$
+    sourcetype: 'linux:volatility3:ram:pscallstack'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:pscallstack"
+  'linux:volatility3:pslist':
+    name_rex: linux.pslist.*\.json$
+    sourcetype: 'linux:volatility3:ram:pslist'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "CREATION TIME"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "volatility3:pslist"
+  'linux:volatility3:psscan':
+    name_rex: linux.psscan.*\.json$
+    sourcetype: 'linux:volatility3:ram:psscan'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:psscan"
+  'linux:volatility3:pstree':
+    name_rex: linux.pstree.*\.json$
+    sourcetype: 'linux:volatility3:ram:pstree'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:pstree"
+  'linux:volatility3:sockstat':
+    name_rex: linux.sockstat.*\.json$
+    sourcetype: 'linux:volatility3:ram:sockstat'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:sockstat"
+  'linux:volatility3:tracingFtrace':
+    name_rex: linux.tracing.ftrace.*\.json$    
+    sourcetype: 'linux:volatility3:ram:tracingFtrace'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:tracingFtrace"
+  'linux:volatility3:ttyCheck':
+    name_rex: linux.tty_check.*\.json$
+    sourcetype: 'linux:volatility3:ram:ttyCheck'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:ttyCheck"
+  'linux:volatility3:vmcoreinfo':
+    name_rex: linux.vmcoreinfo.*\.json$
+    sourcetype: 'linux:volatility3:ram:vmcoreinfo'
+    host_rex: "\/Endpoint_(.*?)\/"
+    artifact: "volatility3:vmcoreinfo"

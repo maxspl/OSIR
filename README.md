@@ -59,6 +59,12 @@ Processing of case (**several cases can be processed in same time**):
 git clone --recurse-submodules https://github.com/maxspl/OSIR
 ```
 
+For Ubuntu Symbols autobuild, dwarf2json has to be built using :
+```bash
+cd OSIR/bin/dwarf2json
+go build
+```
+
 ## Example of usage: parsing DFIR ORC triage on Ubuntu host
 
 ![usage](./docs/source/_img/Usage.gif)
