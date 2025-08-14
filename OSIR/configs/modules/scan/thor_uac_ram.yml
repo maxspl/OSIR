@@ -1,6 +1,6 @@
 version: 1.0
 author:
-module: thor_uac
+module: thor_uac_ram
 description: Scan of RAM restored file system from volatility3 restoreFs module using Thor (requires Forensic license).
 os: all
 type: process
@@ -25,7 +25,7 @@ endpoint: "linux_memory_full\/Endpoint_(.*?)\/"
 splunk:
   'thor:files':
     name_rex: \.jsonl$
-    path_suffix: 'thor_uac'
+    path_suffix: 'thor_uac_ram'
     sourcetype: 'thor:files'
     host_rex: ([\w\.-]+)--
     timestamp_path: 

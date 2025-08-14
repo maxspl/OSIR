@@ -1,6 +1,6 @@
 version: 1.0
 author:
-module: thor_orc
+module: thor_orc_ram
 description: Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
 os: all
 type: process
@@ -23,10 +23,10 @@ output:
   output_file: "{endpoint_name}--{module}-ram.jsonl"
 endpoint: "win_memory\/(.*?)--win_memory-restore_fs-ram"
 splunk:
-  'thor:ram:files':
+  'thor:files':
     name_rex: \.jsonl$
-    path_suffix: 'thor_orc'
-    sourcetype: 'thor:ram:files'
+    path_suffix: 'thor_orc_ram'
+    sourcetype: 'thor:files'
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "time"
