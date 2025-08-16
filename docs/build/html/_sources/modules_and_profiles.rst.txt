@@ -152,12 +152,27 @@ processor_os: **Required**
     
 processor_type: **Required**
 ****************************
-    - Two processor types exist:
-        - external: if processor_os is unix, a subprocess run the tool specified inside the agent docker. If the processor_os is Windows the tool specified is run on the Windows box via WinRM
-        - internal: a internal processor is a python module (exposing defined functions, described in the documentation) under OSIR/OSIR/src/modules/. The name of the python module must the name of the module specified in the config file of the module
-        - Example: OSIR/OSIR/configs/modules/pre-process/extract_orc.yml is using the module OSIR/OSIR/src/modules/windows/extract_orc.py
-    - List of values.
-    - Possible values: internal, external (can contain both if the internal module uses an external tool defined in the config file)
+Defines how the module processes data. Two processor types exist:
+
+- **external**
+  
+  - The module relies on an external executable tool.
+  - If ``processor_os: unix``, the tool is executed inside the **agent Docker container** using ``subprocess``.
+  - If ``processor_os: windows``, the tool is executed on a **remote Windows machine via WinRM``.
+  - Example: a decompression module that calls ``7zz`` externally.
+
+- **internal**
+  
+  - The module is implemented as a **Python module** located under ``OSIR/OSIR/src/modules/``.
+  - The Python file must have the **same name** as the module defined in the configuration.
+  - Example: ``OSIR/OSIR/configs/modules/pre-process/extract_orc.yml`` uses ``OSIR/OSIR/src/modules/windows/extract_orc.py``.
+
+- **combined usage**
+  
+  - You can specify **both** ``internal`` and ``external`` if the internal Python module wraps
+    or orchestrates an external tool defined in the configuration.
+
+**Possible values:** ``internal``, ``external`` (list of one or both).
 
 tool: **Required only if processor_type contains external** 
 ***********************************************************
@@ -187,8 +202,9 @@ input: **Required**
     - path: **Required** 
         - Path suffix of the input file or directory.
         - File or dir to match must end the path specified.
-        - **It's also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.** 
         - Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru
+        - **It's also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.** 
+        - **wildcard is supported**. The path field supports a single-level wildcard (*), which matches all immediate subdirectories or files under the specified directory. For example, restore_fs/* will match restore_fs/host_a/ and restore_fs/host_b/, but it will not match deeper paths like restore_fs/host_a/C/.
 
 .. tip:: How to use module output as input of a new module ? Just specify input.name or/and input.path corresponding to the output of the first module. The tool automatically processes each new file to match a module.
 
@@ -216,7 +232,7 @@ output: **Required**
 endpoint: **Optional** 
 **********************
 
-    - Regex pattern to capture the name of the input in the path of the input dir or the input directory. 
+    - Regex pattern to capture the name of the endpoint in the path of the input dir or the input directory. 
     - Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.
 
 optional: **Optional**
