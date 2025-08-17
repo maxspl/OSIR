@@ -83,6 +83,7 @@ services:
       dockerfile: SplunkFile
     container_name: master-splunk
     environment:
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
       - SPLUNK_LICENSE_URI=${SPLUNK_LICENCE}
@@ -107,6 +108,7 @@ services:
     image: master-splunk
     container_name: master-splunk
     environment:
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
       - SPLUNK_LICENSE_URI=${SPLUNK_LICENCE}
