@@ -147,52 +147,58 @@ def process_sysinfo(path_sysinfo):
 
     print("systeminformations.jsonl processed and written to: " + write_path)
 
+
+def copy_vfs_files(vmm, output_dir, vfs_path):
+    import os
+    vfs_files = vmm.vfs.list(vfs_path)
+    for vfs_file in vfs_files:
+        if not vfs_files[vfs_file]['f_isdir']:
+            offset = 0
+            dst_path = os.path.join(output_dir, vfs_file)
+            full_vfs_path = os.path.join(vfs_path, vfs_file).replace('\\', '/')
+            print("copy file '%s' to '%s'" % (full_vfs_path, dst_path))
+            with open(dst_path, "wb") as file:
+                while offset < vfs_files[vfs_file]['size']:
+                    chunk = vmm.vfs.read(full_vfs_path, 0x00100000, offset)
+                    offset += len(chunk)
+                    file.write(chunk)
+
+def copy_vfs_all(vmm, dst_path_base, vfs_path):
+    import os
+    stack = [(vfs_path, dst_path_base)]
+    
+    while stack:
+        vfs_dir, local_dir = stack.pop()
+        vfs_files = vmm.vfs.list(vfs_dir)
+
+        os.makedirs(local_dir, exist_ok=True)
+
+        for vfs_file, entry in vfs_files.items():
+            vfs_full_path = os.path.join(vfs_dir, vfs_file)
+            dst_full_path = os.path.join(local_dir, vfs_file)
+
+            if entry['f_isdir']:
+                stack.append((vfs_full_path, dst_full_path))
+            else:
+                offset = 0
+                print("copy file '%s' to '%s'" % (vfs_full_path, dst_full_path))
+                with open(dst_full_path, "wb") as file:
+                    while offset < entry['size']:
+                        chunk = vmm.vfs.read(vfs_full_path, 0x00100000, offset)
+                        offset += len(chunk)
+                        file.write(chunk)
+
 try:
     print("")
     print("3. Copy CSV files from forensic mode (if enabled)")
     print("-------------------------------------------------")
     dst_path_base = '{output_dir}' 
-    vfs_files = vmm.vfs.list("/forensic/csv/")
-    for vfs_file in vfs_files:
-        if not vfs_files[vfs_file]['f_isdir']:
-            offset = 0
-            vfs_path = "/forensic/csv/" + vfs_file
-            dst_path = os.path.join(dst_path_base, vfs_file)
-            print("copy file '%s' to '%s'" % (vfs_path, dst_path))
-            with open(dst_path, "wb") as file:
-                while offset < vfs_files[vfs_file]['size']:
-                    chunk = vmm.vfs.read(vfs_path, 0x00100000, offset)
-                    offset += len(chunk)
-                    file.write(chunk)
 
-    vfs_files = vmm.vfs.list("/forensic/json/")
-    for vfs_file in vfs_files:
-        if not vfs_files[vfs_file]['f_isdir']:
-            offset = 0
-            vfs_path = "/forensic/json/" + vfs_file
-            dst_path = os.path.join(dst_path_base, vfs_file)
-            print("copy file '%s' to '%s'" % (vfs_path, dst_path))
-            with open(dst_path, "wb") as file:
-                while offset < vfs_files[vfs_file]['size']:
-                    chunk = vmm.vfs.read(vfs_path, 0x00100000, offset)
-                    offset += len(chunk)
-                    file.write(chunk)
-
-    vfs_files = vmm.vfs.list("/sys/sysinfo/")
-    for vfs_file in vfs_files:
-        if vfs_files[vfs_file]['f_isdir']:
-            continue
-        offset = 0
-        vfs_path = "/sys/sysinfo/" + vfs_file
-        dst_path = os.path.join(dst_path_base, vfs_file)
-        print("copy file '%s' to '%s'" % (vfs_path, dst_path))
-        with open(dst_path, "wb") as file:
-            while offset < vfs_files[vfs_file]['size']:
-                chunk = vmm.vfs.read(vfs_path, 0x00100000, offset)
-                offset += len(chunk)
-                file.write(chunk)
+    copy_vfs_files(vmm, dst_path_base, "/forensic/csv/")
+    copy_vfs_files(vmm, dst_path_base, "/forensic/json/")
+    copy_vfs_files(vmm, dst_path_base, "/sys/sysinfo/")
+    copy_vfs_all(vmm, os.path.join(dst_path_base, "restore_fs-ram"), "/forensic/files/")
     
-
 
     for file in os.listdir(dst_path_base):
         if file == 'process.csv':
