@@ -1,7 +1,7 @@
 version: 1.0
 author:
-module: thor_uac_ram
-description: Scan of RAM restored file system from volatility3 restoreFs module using Thor (requires Forensic license).
+module: thor_orc_ram
+description: Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
 os: all
 type: process
 disk_only: False
@@ -16,16 +16,16 @@ tool:
   version: 1.0
 input:
   type: dir
-  path: r"linux_memory_full\/[^\/]+\/RecoverFs$"
+  path: win_memory/*
 output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}-ram.jsonl"
-endpoint: "linux_memory_full\/Endpoint_(.*?)\/"
+endpoint: "win_memory\/(.*?)--win_memory-restore_fs-ram"
 splunk:
   'thor:files':
     name_rex: \.jsonl$
-    path_suffix: 'thor_uac_ram'
+    path_suffix: 'thor_orc_ram'
     sourcetype: 'thor:files'
     host_rex: ([\w\.-]+)--
     timestamp_path: 
