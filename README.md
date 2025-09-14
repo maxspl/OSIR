@@ -2,7 +2,7 @@
 
 OSIR is a Python project designed for the automated processing of data using modules and profiles. It is primarily aimed at handling forensic artifacts but can be utilized for any type of files. OSIR acts as a scheduler, applying processing tools to files, where the output of some tools can serve as input to others.
 
-OSIR is a dockerized and distributed parsing framework that works on Linux and Windows. The current project supports multiples triages outputs like DFIR ORC and UAC.
+OSIR is a dockerized and distributed parsing framework that works on Linux and Windows. The current project supports multiple triage outputs like DFIR ORC and UAC.
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
