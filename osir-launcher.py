@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from shutil import get_terminal_size
 from typing import Iterable, List, Tuple, Dict, Optional
+from contextlib import contextmanager
 
 # Optional wide-character support for perfect box alignment with emojis/Unicode.
 try:
@@ -110,6 +111,129 @@ def format_ports(ports_raw: str) -> str:
         return ", ".join(parts) if parts else "-"
     except Exception:
         return ports_raw or "-"
+
+
+# ────────────────────────────────────────────────────────────────────────────────
+# Temporary in-place compose patching
+# ────────────────────────────────────────────────────────────────────────────────
+def _load_yaml_or_die(path: Path) -> Dict:
+    try:
+        import yaml  # type: ignore
+    except Exception:
+        sys.exit("PyYAML is required for --debug-shell. Please run: pip install pyyaml")
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception as e:
+        sys.exit(f"Failed to parse compose file '{path}': {e}")
+
+
+def _dump_yaml_or_die(obj: Dict) -> str:
+    try:
+        import yaml  # type: ignore
+        return yaml.safe_dump(obj, sort_keys=False)
+    except Exception as e:
+        sys.exit(f"Failed to serialize YAML: {e}")
+
+def _matching_service_names(component: str, container_name: str) -> List[str]:
+    """Service names we will try to patch.
+
+    Your compose uses:
+      master            (container_name: master-master)
+      master-offline    (container_name: master-master)
+    and for agent:
+      agent
+      agent-offline
+    """
+    base = component  # 'master' or 'agent'
+    return [
+        base,                # 'master' / 'agent'
+        f"{base}-offline",   # 'master-offline' / 'agent-offline'
+        container_name,      # 'master-master' / 'agent-agent' (just in case)
+    ]
+
+
+def _services_to_patch(compose_obj: Dict, names: List[str], container_name: str) -> List[str]:
+    services = compose_obj.get("services") or {}
+    found: List[str] = []
+    # 1) Direct name matches
+    for n in names:
+        if n in services:
+            found.append(n)
+    # 2) container_name matches
+    for svc_name, svc in services.items():
+        if isinstance(svc, dict) and str(svc.get("container_name", "")).strip() == container_name:
+            if svc_name not in found:
+                found.append(svc_name)
+    return found
+
+
+@contextmanager
+def temporarily_patch_compose_in_place(compose_path: Path, component: str, container_name: str, ui: "BoxPrinter"):
+    """Backup docker-compose.yml, patch entrypoint->bash for selected services, then restore.
+
+    We detect services by:
+      - trying names like ['master', 'master-master'] (or agent variants)
+      - and any service whose 'container_name' equals the container_name we need.
+
+    We also print which file and which services were patched for transparency.
+    """
+    compose_path = compose_path.resolve()
+    backup_path = compose_path.with_suffix(compose_path.suffix + ".bak")
+    original_text = compose_path.read_text(encoding="utf-8")
+    compose_obj = _load_yaml_or_die(compose_path)
+
+    # Find target services
+    candidates = _matching_service_names(component, container_name)
+    targets = _services_to_patch(compose_obj, candidates, container_name)
+
+    if not targets:
+        ui.box(
+            "DEBUG SHELL – Compose patcher",
+            f"Compose file: {compose_path}\n"
+            f"Could not find a service matching any of: {', '.join(candidates)}\n"
+            f"and no service with container_name == {container_name}.\n\n"
+            "No patch applied. Your stack may still start OSIR.py.\n"
+            "Tip: set the service name to match or set container_name to the expected container.",
+        )
+        # Yield without changing the file
+        try:
+            yield
+        finally:
+            pass
+        return
+
+    # Apply patch
+    services = compose_obj.get("services") or {}
+    for name in targets:
+        svc = services.get(name) or {}
+        svc["entrypoint"] = ["bash"]
+        svc["command"] = []
+        svc["tty"] = True
+        svc["stdin_open"] = True
+        services[name] = svc
+
+    patched_text = _dump_yaml_or_die(compose_obj)
+
+    # Write backup + patched
+    backup_path.write_text(original_text, encoding="utf-8")
+    compose_path.write_text(patched_text, encoding="utf-8")
+
+    ui.box(
+        "DEBUG SHELL – Compose patcher",
+        f"Compose file patched: {compose_path}\n"
+        f"Services set to entrypoint=bash: {', '.join(targets)}\n\n"
+        "Note: running containers will be (re)created by your setup script using this patched entrypoint.\n"
+        "The original compose file will be restored right after setup finishes.",
+    )
+
+    try:
+        yield
+    finally:
+        # Always restore compose
+        try:
+            compose_path.write_text(backup_path.read_text(encoding="utf-8"), encoding="utf-8")
+        finally:
+            backup_path.unlink(missing_ok=True)
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -316,13 +440,14 @@ class ProcessRunner:
     """Helpers to execute child processes with optional streaming output."""
 
     @staticmethod
-    def run_process(command: List[str], cwd: Optional[Path] = None, stream: bool = True) -> int:
+    def run_process(command: List[str], cwd: Optional[Path] = None, stream: bool = True, env: Optional[Dict[str, str]] = None) -> int:
         """Run a child process, optionally streaming stdout to the console.
 
         Args:
             command: Command and arguments.
             cwd: Working directory for the command.
             stream: If True, stream stdout live; otherwise capture silently.
+            env: Optional environment overrides.
 
         Returns:
             int: Process exit code.
@@ -333,6 +458,7 @@ class ProcessRunner:
             stdout=subprocess.PIPE if stream else None,
             stderr=subprocess.STDOUT if stream else None,
             text=True,
+            env=env,
         )
         if stream and process.stdout:
             try:
@@ -345,12 +471,13 @@ class ProcessRunner:
         return process.wait()
 
     @staticmethod
-    def run_interactive(command: List[str], cwd: Optional[Path] = None) -> int:
+    def run_interactive(command: List[str], cwd: Optional[Path] = None, env: Optional[Dict[str, str]] = None) -> int:
         """Run a child process interactively, inheriting stdio.
 
         Args:
             command: Command and arguments.
             cwd: Working directory for the command.
+            env: Optional environment overrides.
 
         Returns:
             int: Process exit code, or 130 on Ctrl-C.
@@ -360,6 +487,7 @@ class ProcessRunner:
                 command,
                 cwd=str(cwd) if cwd else None,
                 check=False,
+                env=env,
             )
             return completed.returncode
         except KeyboardInterrupt:
@@ -379,12 +507,14 @@ class AppConfig:
         attach: Attach to the process rather than backgrounding it.
         config_master: Reuse/apply master configuration (implies '-c' for master).
         config_agent: Reuse/apply agent configuration (implies '-c' for agent).
+        debug_shell: Start containers with entrypoint=bash so you can run OSIR manually.
     """
     offline: bool = False
     debug: bool = False
     attach: bool = False
     config_master: bool = False
     config_agent: bool = False
+    debug_shell: bool = False
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -433,6 +563,16 @@ class Component:
         """
         return self.docker.container_has_process(self.container, self.expected_process)
 
+    def _locate_compose_file(self, repo_root: Path) -> Path:
+        """Locate the compose file used by the setup script for this component.
+
+        We always use setup/<component>/docker-compose.yml as you confirmed.
+        """
+        p = repo_root / "setup" / self.key / "docker-compose.yml"
+        if not p.is_file():
+            sys.exit(f"Compose file not found for {self.key}: {p}")
+        return p
+
     def install(self, cfg: AppConfig, repo_root: Path) -> None:
         """Run the component's setup script.
 
@@ -451,35 +591,64 @@ class Component:
         if (self.key == "master" and cfg.config_master) or (self.key == "agent" and cfg.config_agent):
             cmd.append("-c")
         self.ui.box(f"{self.label} – Setup", f"Executing {self.key} setup script…")
-        exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+
+        if cfg.debug_shell:
+            compose_path = self._locate_compose_file(repo_root)
+            if not compose_path.exists():
+                sys.exit(f"Compose file not found for {self.key}: {compose_path}")
+
+            with temporarily_patch_compose_in_place(compose_path, self.key, self.container, self.ui):
+                exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+        else:
+            exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+
         if exit_code != 0:
             sys.exit(f"{self.label.capitalize()} setup failed with exit code {exit_code}.")
 
     def start(self, cfg: AppConfig) -> None:
-        """Start the component process inside its container.
+        """Start (or attach to) the container that already has OSIR.py as PID 1."""
+        info = self.docker.inspect_container(self.container)
+        if not info:
+            sys.exit(f"Container '{self.container}' not found. Run the {self.key} setup first.")
 
-        Args:
-            cfg: Current application configuration.
-
-        Raises:
-            SystemExit: If the background start fails.
-        """
         self.ui.box(
             f"{self.label} – Start",
-            f"Starting {self.expected_process} inside container '{self.container}'…",
+            f"Ensuring container '{self.container}' is running (ENTRYPOINT may be OSIR.py or bash)…",
         )
+
+        running = bool(info.get("running", False))
+
+        if cfg.debug_shell:
+            manual = "--web" if self.key == "master" else "--agent"
+            self.ui.box(
+                f"{self.label} – DEBUG SHELL",
+                "Container started with bash as entrypoint.\n\n"
+                "⚠️  Now you have to run manually inside the shell:\n"
+                f"   python3 /app/OSIR.py {manual}\n\n"
+                "The container will exit if you close this shell without starting OSIR.py.",
+            )
+
         if cfg.attach:
-            exec_cmd = ["docker", "exec", "-it", self.container, *self.expected_process.split()]
-            ProcessRunner.run_interactive(exec_cmd)
-        else:
-            exec_cmd = ["docker", "exec", "-d", self.container, *self.expected_process.split()]
-            rc = ProcessRunner.run_process(exec_cmd, stream=False)
-            if rc != 0:
-                sys.exit(f"Failed to start {self.key} in background (exit {rc}).")
-            if self.key == "master":
-                print("✅ Master started in background. Connect to http://master_host:8501 to start using OSIR.")
+            if running:
+                ProcessRunner.run_interactive(["docker", "attach", self.container])
             else:
-                print("✅ Agent started in background.")
+                rc = ProcessRunner.run_interactive(["docker", "start", "-a", self.container])
+                if rc != 0:
+                    sys.exit(f"Failed to start {self.key} attached (exit {rc}).")
+            return
+
+        if running:
+            print(f"✅ {self.label} already running.")
+            return
+
+        rc = ProcessRunner.run_process(["docker", "start", self.container], stream=False)
+        if rc != 0:
+            sys.exit(f"Failed to start {self.key} in background (exit {rc}).")
+
+        if self.key == "master":
+            print("✅ Master started. Connect to http://master_host:8501 to start using OSIR.")
+        else:
+            print("✅ Agent started.")
 
     def launch(self, cfg: AppConfig, repo_root: Path) -> None:
         """Install then start the component unless it is already running.
@@ -714,17 +883,20 @@ class Launcher:
         p_start_master.add_argument("--debug", action="store_true")
         p_start_master.add_argument("--config", action="store_true")
         p_start_master.add_argument("--attach", action="store_true")
+        p_start_master.add_argument("--debug-shell", action="store_true")
 
         p_start_agent = start_sub.add_parser("agent")
         p_start_agent.add_argument("--offline", action="store_true")
         p_start_agent.add_argument("--debug", action="store_true")
         p_start_agent.add_argument("--config", action="store_true")
         p_start_agent.add_argument("--attach", action="store_true")
+        p_start_agent.add_argument("--debug-shell", action="store_true")
 
         p_start_all = start_sub.add_parser("all")
         p_start_all.add_argument("--offline", action="store_true")
         p_start_all.add_argument("--debug", action="store_true")
         p_start_all.add_argument("--config", action="store_true")
+        p_start_all.add_argument("--debug-shell", action="store_true")
 
         p_stop = subparsers.add_parser("stop", help="Stop master or agent")
         un_sub = p_stop.add_subparsers(dest="component", required=True)
@@ -789,6 +961,7 @@ class Launcher:
             attach=getattr(args, "attach", False),
             config_master=getattr(args, "config_master", False),
             config_agent=getattr(args, "config_agent", False),
+            debug_shell=getattr(args, "debug_shell", False),
         )
 
         if args.component == "master":
