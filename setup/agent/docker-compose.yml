@@ -24,6 +24,7 @@ services:
     profiles:
       - "default"
       - "all"
+    restart: always
   agent-offline:
     container_name: agent-agent 
     image: agent-agent
@@ -47,6 +48,7 @@ services:
     profiles:
       - "all"
       - "agent-offline"
+    restart: always
   agent-wsl:
     container_name: agent-agent 
     build:
@@ -77,6 +79,7 @@ services:
     profiles:
       - "wsl"
       - "all"
+    restart: always
   windows:
     build:
       dockerfile: DockurFile
@@ -104,6 +107,7 @@ services:
     profiles:
       - "all"
       - "win"
+    restart: always
   windows-offline:
     image: agent-windows
     container_name: agent-windows
@@ -129,6 +133,7 @@ services:
     profiles:
       - "all"
       - "win-offline"
+    restart: always
 volumes:
   OSIR_volume:
     driver: local
