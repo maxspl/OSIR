@@ -624,7 +624,7 @@ class Component:
                 f"{self.label} – DEBUG SHELL",
                 "Container started with bash as entrypoint.\n\n"
                 "⚠️  Now you have to run manually inside the shell:\n"
-                f"   python3 /app/OSIR.py {manual}\n\n"
+                f"   OSIR.py {manual}\n\n"
                 "The container will exit if you close this shell without starting OSIR.py.",
             )
 
