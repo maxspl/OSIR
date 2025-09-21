@@ -11,6 +11,7 @@ from src.monitor import MonitorCase
 from src.log.logger_config import AppLogger
 from src.web_app.utils import MasterSideBar
 from src.web_app.utils import StaticVars
+from code_editor import code_editor
 
 logger = AppLogger(__name__).get_logger()
 
@@ -19,13 +20,13 @@ class FileManager:
     @staticmethod
     def resolve_modules_parent_dir(modules):
         """
-        Convert a list of modules to a list of their relative paths from a base directory.
+        Convert a list of module filenames to their relative paths from the base modules directory.
 
         Args:
-            modules (list): A list of module file names.
+            modules (list[str]): A list of module file names (e.g., "foo.yml").
 
         Returns:
-            list: A list of relative paths for the modules found in the base directory.
+            list[str]: Relative paths under the modules directory (e.g., "windows/foo.yml").
         """
         MODULES_DIR = "/OSIR/OSIR/configs/modules/"
         paths = []
@@ -44,13 +45,17 @@ class FileManager:
         Get a list of files in a given directory (recursive).
 
         Args:
-            directory (str): The directory to search for subdirectories.
+            directory (str): The directory to search for files.
 
         Returns:
-            list: A list of files found in the directory.
+            list[str]: A list of relative file paths found in the directory.
         """
-        return [os.path.relpath(os.path.join(root, file), directory) for root, _, files in os.walk(directory) for file in files]
-        
+        return [
+            os.path.relpath(os.path.join(root, file), directory)
+            for root, _, files in os.walk(directory)
+            for file in files
+        ]
+
     @staticmethod
     def get_yaml_files(directory, relative=False):
         """
@@ -58,44 +63,42 @@ class FileManager:
 
         Args:
             directory (str): The directory to search for .yml files.
+            relative (bool): If True, return paths relative to `directory`. If False, return basenames.
 
         Returns:
-            list: A list of .yml files found in the directory.
+            list[str]: A list of YAML file paths or basenames.
         """
         yaml_files = []
         for root, _, files in os.walk(directory):
             for file in files:
                 if file.endswith('.yml'):
-                    # yaml_files.append(os.path.relpath(os.path.join(root, file), directory))
                     path = os.path.join(root, file)
-                    yaml_files.append(
-                        os.path.relpath(path, directory) if relative else file
-                    )
+                    yaml_files.append(os.path.relpath(path, directory) if relative else file)
         return yaml_files
 
     @staticmethod
     def get_cases(directory):
         """
-        Get a list of directories in a given directory.
+        Get a list of subdirectories in a given directory.
 
         Args:
-            directory (str): The directory to search for subdirectories.
+            directory (str): The directory to search.
 
         Returns:
-            list: A list of subdirectories found in the directory.
+            list[str]: A list of subdirectory names.
         """
         return [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
 
     @staticmethod
     def load_yaml_file(filepath):
         """
-        Load content from a YAML file.
+        Load and parse content from a YAML file.
 
         Args:
             filepath (str): The path to the YAML file.
 
         Returns:
-            dict: The content of the YAML file.
+            dict: The parsed YAML content.
         """
         with open(filepath, 'r') as file:
             return yaml.safe_load(file)
@@ -106,7 +109,7 @@ class FileManager:
 #     def get_host_specs():
 #         """
 #         Retrieve host specifications such as CPU count, RAM, and disk usage.
-
+#
 #         Returns:
 #             dict: A dictionary containing the host's CPU count, RAM, and disk usage details.
 #         """
@@ -118,15 +121,15 @@ class FileManager:
 #             "Disk Free": psutil.disk_usage('/').free / (1024 ** 3),  # Convert bytes to GB
 #         }
 #         return specs
-
+#
 #     @staticmethod
 #     def get_directory_size(directory):
 #         """
 #         Get total size of files in a specific directory.
-
+#
 #         Args:
 #             directory (str): The directory to calculate the total size.
-
+#
 #         Returns:
 #             float: The total size of the directory in gigabytes.
 #         """
@@ -141,16 +144,28 @@ class FileManager:
 
 
 class ConfigurationApp:
+    """
+    Streamlit application for selecting profiles/modules, editing module configurations
+    in-memory, and launching processing on selected cases/files.
+    """
 
     def __init__(self):
+        """
+        Initialize configuration paths, discover profiles/modules/cases, and set up
+        an in-memory store for edited module YAMLs that persists across reruns.
+        """
         self.PROFILES_DIR = StaticVars.PROFILES_DIR
         self.MODULES_DIR = StaticVars.MODULES_DIR
         self.CASES_DIR = StaticVars.CASES_DIR
         self.profiles = FileManager.get_yaml_files(self.PROFILES_DIR, relative=True)
         self.modules = FileManager.get_yaml_files(self.MODULES_DIR)
         self.cases = FileManager.get_cases(self.CASES_DIR)
-
         self.modules_w_parentdir = FileManager.resolve_modules_parent_dir(self.modules)
+
+        # Persist edits across reruns
+        if "edited_modules" not in st.session_state:
+            st.session_state["edited_modules"] = {}
+        self.edited_modules: dict[str, str] = st.session_state["edited_modules"]
 
     @staticmethod
     def comma_separated_strings(value):
@@ -161,7 +176,7 @@ class ConfigurationApp:
             value (str): The comma-separated string.
 
         Returns:
-            list: A list of strings with '.yml' extensions.
+            list[str]: A list of strings with '.yml' extensions.
         """
         if not value:
             return []
@@ -171,7 +186,7 @@ class ConfigurationApp:
 
     def run(self):
         """
-        Main method to run the ConfigurationApp, setting up the UI with tabs and calling the respective methods.
+        Entry point for the Streamlit app. Renders tabs and master sidebar content.
         """
         colored_header(
             label="Case processor",
@@ -192,12 +207,82 @@ class ConfigurationApp:
 
         MasterSideBar.sidebar()
 
+    def display_module_editors(self, selected_modules: list[str]) -> None:
+        """
+        Render an editor for the provided module(s). Intended to be called with
+        a single module at a time for a no-scrolling UX.
+
+        Notes:
+            - Edits are stored in-memory only (self.edited_modules + st.session_state).
+            - The underlying YAML files on disk are NOT modified.
+            - Uses a guard to ignore transient empty values emitted by the editor when switching.
+
+        Args:
+            selected_modules (list[str]): List of module basenames to edit (e.g., ["foo.yml"]).
+        """
+        for module_name in selected_modules or []:
+            # Find the relative path inside configs/modules for this basename
+            rel_path = None
+            for rel in self.modules_w_parentdir:
+                if os.path.basename(rel) == module_name:
+                    rel_path = rel
+                    break
+            if not rel_path:
+                continue
+
+            full_path = os.path.join(self.MODULES_DIR, rel_path)
+            try:
+                content_dict = FileManager.load_yaml_file(full_path)
+                original = yaml.safe_dump(content_dict, sort_keys=False)
+            except Exception as e:
+                original = f"# Error loading YAML for {module_name}: {e}"
+
+            # Per-module editor buffer in session state
+            state_key = f"mod_yaml__{module_name}"
+            if state_key not in st.session_state:
+                st.session_state[state_key] = self.edited_modules.get(module_name, original)
+
+            st.write(f"### ✏️ Edit configuration for `{module_name}`")
+
+            # Render editor from our buffer; code_editor returns a dict with "text"
+            result = code_editor(
+                st.session_state[state_key],
+                lang="yaml",
+                height=[20, 36],   # min/max visible line counts
+                theme="vs-dark",
+                key=f"code_editor__{module_name}",
+            )
+
+            new_text = result.get("text") if isinstance(result, dict) else None
+
+            # Commit only meaningful updates (avoid accidental wipe when editor emits "")
+            if new_text is not None:
+                if new_text != st.session_state[state_key] and not (new_text == "" and st.session_state[state_key] != ""):
+                    st.session_state[state_key] = new_text
+                    self.edited_modules[module_name] = new_text
+
+            # Live YAML validation of the current buffer
+            try:
+                yaml.safe_load(st.session_state[state_key])
+                st.caption("✅ YAML valid")
+            except Exception as e:
+                st.error(f"YAML error: {e}")
+
+            st.divider()
+
     def module_applier(self):
+        """
+        UI to run exactly one module on a user-selected file of a case.
+        Optionally allows editing that module's configuration in-memory before running.
+        """
         st.title("Apply Module")
 
-        st.write("This section allows you to apply a specific module to a file. Select a case, then a file, and finally a module, then start the action.")
+        st.write(
+            "This section allows you to apply a specific module to a file. "
+            "Select a case, then a file, and finally a module, then start the action."
+        )
 
-        # Add an empty option at the start of self.cases and self.modules_w_parentdir
+        # Case selection (prefixed with an empty choice)
         selected_case = st.selectbox("Case", [""] + self.cases, help="Select a case directory.", key="apply_file")
 
         # Only show file dropdown if a case is selected
@@ -206,18 +291,25 @@ class ConfigurationApp:
             file = st.selectbox("File", [""] + files_in_case, help="Select a file to apply the module to.")
         else:
             file = None  # In case no file is selected
-        
+
+        selected_modules = []
         if file:
-            module = st.selectbox("Modules", [""] + self.modules_w_parentdir, help="Select specific modules to be exclusively used.")
+            module = st.selectbox("Module", [""] + self.modules_w_parentdir, help="Pick exactly one module to run/edit.")
             selected_modules = [os.path.basename(module)] if module else []
-        else:
-            module = None
+
+            # Single-module editor flow (optional)
+            if selected_modules and st.checkbox("Edit this module's configuration (optional)"):
+                self.display_module_editors([selected_modules[0]])
 
         # Action button
         if st.button("Submit "):
             self.process_submission_file(selected_modules, selected_case, file)
 
     def main_tab(self):
+        """
+        Main UI for selecting profiles and/or modules, optionally editing the selected
+        modules' configurations (in-memory), and launching processing on a case.
+        """
         st.subheader("Select Modules")
 
         selected_profile = st.selectbox("Profile", [""] + self.profiles, help="Select a profile.")
@@ -237,7 +329,7 @@ class ConfigurationApp:
             ]
             profile_module_names = {os.path.basename(m) for m in profile_modules}
 
-            # existing: pre‑select modules that come from the profile
+            # existing: pre-select modules that come from the profile
             modules_without_parentdir = [os.path.basename(m) for m in self.modules]
             selected_modules = [m for m in profile_modules if m in modules_without_parentdir]
 
@@ -269,16 +361,19 @@ class ConfigurationApp:
                 )
                 selected_modules = [os.path.basename(m) for m in selected_modules_w_parentdir]
             else:
+                # Build rows for the table view
                 module_rows = []
                 for mod in self.modules_w_parentdir:
                     full_path = os.path.join(self.MODULES_DIR, mod)
                     try:
                         content = FileManager.load_yaml_file(full_path)
                         module_rows.append({
-                            "module_path": mod,  # now showing full relative path
+                            "module_path": mod,  # show full relative path
                             "module": os.path.basename(mod),
                             "description": content.get("description", ""),
-                            "processor_type": ", ".join(content.get("processor_type", [])) if isinstance(content.get("processor_type"), list) else str(content.get("processor_type")),
+                            "processor_type": ", ".join(content.get("processor_type", []))
+                                if isinstance(content.get("processor_type"), list)
+                                else str(content.get("processor_type")),
                         })
                     except Exception as e:
                         module_rows.append({
@@ -290,23 +385,31 @@ class ConfigurationApp:
 
                 df = pd.DataFrame(module_rows)
 
-                column_config = {
-                    "module_path": st.column_config.TextColumn("Module Path", help="Relative path inside configs/modules/"),
-                    "description": st.column_config.TextColumn("Description", width="large"),
-                    "processor_type": st.column_config.TextColumn("Processor Type", help="e.g. external, internal"),
-                }
-
-                event = st.dataframe(
-                    df[["module_path", "description", "processor_type"]],
-                    column_config=column_config,
+                # Render the table and read selection from session_state
+                st.dataframe(
+                    df[["module_path", "module", "description", "processor_type"]],
                     use_container_width=True,
                     hide_index=True,
-                    selection_mode="multi-row",
-                    on_select="rerun"
+                    selection_mode="multi-row",    # select many modules to run
+                    on_select="rerun",
+                    key="modules_table"
                 )
 
-                selected_indices = event.selection.rows if event and event.selection else []
-                selected_modules = [df.iloc[i]["module"] for i in selected_indices]
+                state = st.session_state.get("modules_table", {})
+                rows = state.get("selection", {}).get("rows", []) if isinstance(state, dict) else []
+                selected_modules = [df.iloc[i]["module"] for i in rows] if rows else []
+
+        # Edit exactly one module at a time (no long scrolls)
+        if selected_modules:
+            with st.expander("Edit module configuration (optional)", expanded=False):
+                module_choices = [os.path.basename(m) for m in selected_modules]
+                module_to_edit = st.selectbox(
+                    "Module to edit",
+                    module_choices,
+                    help="Pick one module, edit it, then pick the next."
+                )
+                if module_to_edit:
+                    self.display_module_editors([module_to_edit])
 
         selected_case = st.selectbox("Case", self.cases, help="Select a case directory.")
         if not self.cases:
@@ -330,7 +433,8 @@ class ConfigurationApp:
 
     def helper_tab(self):
         """
-        Method to set up and handle the helper tab in the UI.
+        Auxiliary tab to quickly view the content of profiles and modules.
+        Helpful for understanding what's configured without leaving the UI.
         """
         st.title("Helper")
         helper_choice = st.selectbox("Choose to display content of a Profile or Module", ["Profile", "Module"])
@@ -364,10 +468,10 @@ class ConfigurationApp:
     #         st.write(f"**Disk Total:** {specs['Disk Total']:.2f} GB")
     #         st.write(f"**Disk Used:** {specs['Disk Used']:.2f} GB")
     #         st.write(f"**Disk Free:** {specs['Disk Free']:.2f} GB")
-
+    #
     #         if (specs['Disk Free'] / specs['Disk Total']) < 0.1:
     #             st.error("Warning: Disk free space is less than 10% of the total disk space!")
-
+    #
     #         colored_header(
     #             label="Cases Usage (/OSIR/share/cases)",
     #             description=" ",
@@ -377,6 +481,17 @@ class ConfigurationApp:
     #         st.write(f"**Used:** {cases_usage:.2f} GB")
 
     def process_submission_file(self, selected_module: list[str], selected_case: str, selected_file: str):
+        """
+        Launch processing for a specific file using a single selected module.
+
+        Args:
+            selected_module (list[str]): A list containing one module basename (e.g., ["foo.yml"]).
+            selected_case (str): The selected case directory name.
+            selected_file (str): The relative file path inside the case to process.
+
+        Returns:
+            None
+        """
         case_path = os.path.join(self.CASES_DIR, selected_case)
         try:
             job = task_manager.ProcessorJob(
@@ -389,23 +504,22 @@ class ConfigurationApp:
 
         modules_selected = job._get_modules_selected()
 
-        # Used only for display, given more information with the module parent dir inside modules dir
+        # Used only for display: show module with its parent dir inside modules dir
         module_w_parentdir = FileManager.resolve_modules_parent_dir(modules_selected)
         modules_selected_str = "\n".join([f"- {module}" for module in module_w_parentdir])
 
-        # Display the selected modules in a better format
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
         monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case=True)
-        
-        # Apply the file to the uniq module :
+
+        # Limit processing to the single selected file for the (unique) module
         monitor_case.module_instances[0].input = BaseInput({})
-        monitor_case.module_instances[0].input.type = "file" 
+        monitor_case.module_instances[0].input.type = "file"
         monitor_case.module_instances[0].input.name = '^' + os.path.basename(selected_file) + '$'
         if monitor_case.module_instances[0].endpoint:
             monitor_case.module_instances[0].endpoint = ''
 
-        # Use ThreadPoolExecutor to run the setup_handler in the background
+        # Run the setup in a background thread
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(monitor_case.setup_handler)
 
@@ -418,16 +532,16 @@ class ConfigurationApp:
 
         Args:
             selected_profile (str): The selected profile name.
-            selected_modules (list): A list of selected module names.
-            module_add (str): Comma-separated string of modules to add.
-            module_remove (str): Comma-separated string of modules to remove.
-            selected_case (str): The selected case directory.
-            reprocess_case (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
+            selected_modules (list[str]): A list of selected module basenames.
+            module_add (list[str]): Modules to add (relative paths under configs/modules).
+            module_remove (list[str]): Modules to remove (relative paths under configs/modules).
+            selected_case (str): The selected case directory name.
+            reprocess_case (bool): If True, reprocess all files even if previously processed.
 
         Returns:
             None
         """
-        # Process the input values
+        # Process the input values (normalize to basenames)
         modules_to_add = [os.path.basename(m) for m in (module_add or [])]
         modules_to_remove = [os.path.basename(m) for m in (module_remove or [])]
 
@@ -469,16 +583,15 @@ class ConfigurationApp:
 
         modules_selected = job._get_modules_selected()
 
-        # Used only for display, given more information with the module parent dir inside modules dir
+        # Used only for display: show module with its parent dir inside modules dir
         module_w_parentdir = FileManager.resolve_modules_parent_dir(modules_selected)
         modules_selected_str = "\n".join([f"- {module}" for module in module_w_parentdir])
 
-        # Display the selected modules in a better format
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
         monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case)
 
-        # Use ThreadPoolExecutor to run the setup_handler in the background
+        # Run the setup in a background thread
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(monitor_case.setup_handler)
 
