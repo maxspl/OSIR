@@ -3,7 +3,7 @@ import os
 import yaml
 import concurrent.futures
 import pandas as pd
-from src.utils.BaseModule import BaseInput
+from src.utils.BaseModule import BaseInput, BaseOutput
 from streamlit_extras.colored_header import colored_header
 from src.utils.BaseProfile import BaseProfile
 from src.tasks import task_manager
@@ -480,6 +480,60 @@ class ConfigurationApp:
     #         cases_usage = SystemManager.get_directory_size(self.CASES_DIR)
     #         st.write(f"**Used:** {cases_usage:.2f} GB")
 
+    def _apply_overrides_to_monitor_case(self, monitor_case):
+        """
+        Apply in-memory YAML overrides (self.edited_modules) to each live module instance.
+        This does NOT touch files on disk; it only mutates the in-memory objects that
+        MonitorCase will use during this run.
+
+        Args:
+            monitor_case: a MonitorCase.MonitorCase instance with module_instances loaded.
+        """
+        if not getattr(self, "edited_modules", None):
+            return
+
+        for instance in getattr(monitor_case, "module_instances", []):
+            # Try common attribute names to find the module file basename, e.g., "foo.yml"
+            key = getattr(instance, "_filename", None) or getattr(instance, "filename", None)
+            if not key:
+                continue
+            if key not in self.edited_modules:
+                continue
+
+            try:
+                parsed = yaml.safe_load(self.edited_modules[key]) or {}
+            except Exception as e:
+                logger.error(f"[override] Invalid YAML for {key}: {e}")
+                continue
+
+            # Core swap-in of the parsed YAML
+            try:
+                # Keep this generous: many BaseModule fields are pulled from YAML
+                instance.data            = parsed
+                instance.version         = parsed.get("version")
+                instance.author          = parsed.get("author")
+                instance.description     = parsed.get("description")
+                instance.type            = parsed.get("type")
+                instance.os              = parsed.get("os")
+                instance.requirements    = parsed.get("requirements", [])
+                instance.processor_type  = parsed.get("processor_type", [])
+                instance.processor_os    = parsed.get("processor_os", "Unknown processor os")
+                instance.disk_only       = parsed.get("disk_only", False)
+                instance.no_multithread  = parsed.get("no_multithread", False)
+                instance.input           = BaseInput(parsed.get("input", {}))
+                instance.output          = BaseOutput(parsed.get("output", {}))
+                instance.env             = parsed.get("env", "")
+                instance.optional        = parsed.get("optional", "")
+                instance.endpoint        = parsed.get("endpoint", "")
+
+                # If the module needs to (re)build a tool/runner from YAML
+                if hasattr(instance, "init_tool"):
+                    instance.init_tool()
+
+                logger.debug(f"[override] Applied in-memory config to {key}")
+            except Exception as e:
+                logger.error(f"[override] Failed applying in-memory config to {key}: {e}")
+
     def process_submission_file(self, selected_module: list[str], selected_case: str, selected_file: str):
         """
         Launch processing for a specific file using a single selected module.
@@ -511,6 +565,9 @@ class ConfigurationApp:
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
         monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case=True)
+
+        # Apply in-memory YAML overrides BEFORE constraining input to a single file
+        self._apply_overrides_to_monitor_case(monitor_case)
 
         # Limit processing to the single selected file for the (unique) module
         monitor_case.module_instances[0].input = BaseInput({})
@@ -590,6 +647,9 @@ class ConfigurationApp:
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
         monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case)
+
+        # Apply in-memory YAML overrides to all module instances for this run
+        self._apply_overrides_to_monitor_case(monitor_case)
 
         # Run the setup in a background thread
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
