@@ -302,21 +302,31 @@
 </section>
 <section id="processor-type-required">
 <h3>processor_type: <strong>Required</strong><a class="headerlink" href="#processor-type-required" title="Link to this heading"></a></h3>
-<blockquote>
-<div><ul class="simple">
-<li><dl class="simple">
-<dt>Two processor types exist:</dt><dd><ul>
-<li><p>external: if processor_os is unix, a subprocess run the tool specified inside the agent docker. If the processor_os is Windows the tool specified is run on the Windows box via WinRM</p></li>
-<li><p>internal: a internal processor is a python module (exposing defined functions, described in the documentation) under OSIR/OSIR/src/modules/. The name of the python module must the name of the module specified in the config file of the module</p></li>
-<li><p>Example: OSIR/OSIR/configs/modules/pre-process/extract_orc.yml is using the module OSIR/OSIR/src/modules/windows/extract_orc.py</p></li>
+<p>Defines how the module processes data. Two processor types exist:</p>
+<ul class="simple">
+<li><p><strong>external</strong></p>
+<ul>
+<li><p>The module relies on an external executable tool.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">processor_os:</span> <span class="pre">unix</span></code>, the tool is executed inside the <strong>agent Docker container</strong> using <code class="docutils literal notranslate"><span class="pre">subprocess</span></code>.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">processor_os:</span> <span class="pre">windows</span></code>, the tool is executed on a <a href="#id1"><span class="problematic" id="id2">**</span></a>remote Windows machine via WinRM``.</p></li>
+<li><p>Example: a decompression module that calls <code class="docutils literal notranslate"><span class="pre">7zz</span></code> externally.</p></li>
 </ul>
-</dd>
-</dl>
 </li>
-<li><p>List of values.</p></li>
-<li><p>Possible values: internal, external (can contain both if the internal module uses an external tool defined in the config file)</p></li>
+<li><p><strong>internal</strong></p>
+<ul>
+<li><p>The module is implemented as a <strong>Python module</strong> located under <code class="docutils literal notranslate"><span class="pre">OSIR/OSIR/src/modules/</span></code>.</p></li>
+<li><p>The Python file must have the <strong>same name</strong> as the module defined in the configuration.</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">OSIR/OSIR/configs/modules/pre-process/extract_orc.yml</span></code> uses <code class="docutils literal notranslate"><span class="pre">OSIR/OSIR/src/modules/windows/extract_orc.py</span></code>.</p></li>
 </ul>
-</div></blockquote>
+</li>
+<li><p><strong>combined usage</strong></p>
+<ul>
+<li><p>You can specify <strong>both</strong> <code class="docutils literal notranslate"><span class="pre">internal</span></code> and <code class="docutils literal notranslate"><span class="pre">external</span></code> if the internal Python module wraps
+or orchestrates an external tool defined in the configuration.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Possible values:</strong> <code class="docutils literal notranslate"><span class="pre">internal</span></code>, <code class="docutils literal notranslate"><span class="pre">external</span></code> (list of one or both).</p>
 </section>
 <section id="tool-required-only-if-processor-type-contains-external">
 <h3>tool: <strong>Required only if processor_type contains external</strong><a class="headerlink" href="#tool-required-only-if-processor-type-contains-external" title="Link to this heading"></a></h3>
@@ -393,8 +403,9 @@
 <dt>path: <strong>Required</strong></dt><dd><ul>
 <li><p>Path suffix of the input file or directory.</p></li>
 <li><p>File or dir to match must end the path specified.</p></li>
-<li><p><strong>It’s also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r”” For an example, see windows/browsers module.</strong></p></li>
 <li><p>Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru</p></li>
+<li><p><strong>It’s also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r”” For an example, see windows/browsers module.</strong></p></li>
+<li><p><strong>wildcard is supported</strong>. The path field supports a single-level wildcard (*), which matches all immediate subdirectories or files under the specified directory. For example, restore_fs/* will match restore_fs/host_a/ and restore_fs/host_b/, but it will not match deeper paths like restore_fs/host_a/C/.</p></li>
 </ul>
 </dd>
 </dl>
@@ -458,7 +469,7 @@
 <h3>endpoint: <strong>Optional</strong><a class="headerlink" href="#endpoint-optional" title="Link to this heading"></a></h3>
 <blockquote>
 <div><ul class="simple">
-<li><p>Regex pattern to capture the name of the input in the path of the input dir or the input directory.</p></li>
+<li><p>Regex pattern to capture the name of the endpoint in the path of the input dir or the input directory.</p></li>
 <li><p>Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.</p></li>
 </ul>
 </div></blockquote>
@@ -507,8 +518,8 @@
 <section id="exposed-variables">
 <h1>Exposed variables<a class="headerlink" href="#exposed-variables" title="Link to this heading"></a></h1>
 <p>Exposed variables are replaced by the OSIR agent during execution. To be used in the config files, they need to be contained in {}.</p>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-text">Exposed Variables</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Exposed Variables</span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 40.0%" />

@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --df > {output_file}"
+  cmd: "{input_file} | jc --df | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: (?:df)
@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:df':
+    name_rex: \.jsonl$
+    path_suffix: df
+    sourcetype: 'linux:live_response:df'
+    host_rex: _([\w\.-]+)--
+    artificat: df

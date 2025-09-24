@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --top > {output_file}"
+  cmd: "{input_file} | jc --top | jq -c '.[]' > {output_file}"
 input:
   type: file
   name:  ^(?:top_-b)
@@ -22,3 +22,13 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:top':
+    name_rex: \.jsonl$
+    path_suffix: top
+    sourcetype: 'linux:live_response:top'
+    host_rex: _([\w\.-]+)--
+    timestamp_path: 
+        - "time"
+    timestamp_format: "%H:%M:%S"
+    artifact: top

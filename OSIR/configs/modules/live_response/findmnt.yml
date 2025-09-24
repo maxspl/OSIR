@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --findmnt > {output_file}"
+  cmd: "{input_file} | jc --findmnt | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: findmnt.txt$
@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:findmnt':
+    name_rex: \.jsonl$
+    path_suffix: findmnt
+    sourcetype: 'linux:live_response:findmnt'
+    host_rex: _([\w\.-]+)--
+    artifact: findmnt

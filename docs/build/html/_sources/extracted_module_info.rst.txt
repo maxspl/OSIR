@@ -17,7 +17,7 @@ Supported Modules
      - 
      - 1.0
      - 
-     - net6/PECmd.exe
+     - net9/PECmd.exe
    * - 
      - sample_c.yml
      - 
@@ -26,22 +26,36 @@ Supported Modules
      - 
      - 
    * - all
-     - thor.yml
-     - Scan of collected file using Thor (requires Forensic license).
-     - 
-     - 1.0
-     - external
-     - thor/thor-linux-64
-   * - all
      - thor_lite.yml
      - Scan of collected file using Thor Lite.
      - 
      - 1.0
      - external
      - thor-lite/thor-lite-linux-64
+   * - all
+     - thor_orc.yml
+     - Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).
+     - 
+     - 1.0
+     - external
+     - thor/thor-linux-64
+   * - all
+     - thor_uac.yml
+     - Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
+     - 
+     - 1.0
+     - external
+     - thor/thor-linux-64
+   * - all
+     - thor_update.yml
+     - Update Thor signature files using thor-util.
+     - 
+     - 1.0
+     - external
+     - thor/thor-util
    * - linux
-     - uac_indexation.yml
-     - Splunk ingestion of parsed artifacts
+     - uac_indexer.yml
+     - Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
      - 
      - 1.0
      - external
@@ -330,19 +344,19 @@ Supported Modules
      - amcache.yml
      - Parsing of amcache artifact.
      - 
-     - 1.0
+     - 1.1
      - external
-     - net6/AmcacheParser.exe
+     - net9/AmcacheParser.exe
+   * - windows
+     - anssi_decode.yml
+     - ANSSI tool designed for detecting anomalous Portable Executable (PE) files among the NTFSInfo data collected by DFIR-ORC
+     - maxspl
+     - 1.0
+     - internal
+     - machine_analysis
    * - windows
      - browsers.yml
      - Parsing of browsers artifact.
-     - 
-     - 1.0
-     - external
-     - python
-   * - windows
-     - chromium.yml
-     - Parsing of chromium artifact.
      - 
      - 1.0
      - external
@@ -353,7 +367,7 @@ Supported Modules
      - 
      - 1.0
      - external
-     - net6/AmcacheParser.exe
+     - net9/AmcacheParser.exe
    * - windows
      - evtx_orc.yml
      - Parsing of EVTX collected by DFIR ORC
@@ -365,16 +379,9 @@ Supported Modules
      - extract_orc.yml
      - 
      - 
-     - 1.0
+     - 1.1
      - internal, external
      - 7zz
-   * - windows
-     - firefox.yml
-     - Parsing of firefox artifact.
-     - 
-     - 1.0
-     - external
-     - python
    * - windows
      - hayabusa.yml
      - Hayabusa scan of evtx files
@@ -388,28 +395,35 @@ Supported Modules
      - 
      - 1.0
      - external
-     - net6/RECmd/RECmd.exe
+     - net9/RECmd/RECmd.exe
    * - windows
      - hives_hklm.yml
      - Parsing of registry hives artifact.
      - 
      - 1.0
      - external
-     - net6/RECmd/RECmd.exe
+     - net9/RECmd/RECmd.exe
+   * - windows
+     - indexer.yml
+     - Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk configuration instead of dependencies/*_indexer_patterns.yml
+     - 
+     - 1.0
+     - internal
+     - python
    * - windows
      - jump_list.yml
      - Parsing of jump list artifact.
      - 
      - 1.0
      - external
-     - net6/JLECmd.exe
+     - net9/JLECmd.exe
    * - windows
      - lnk.yml
      - Parsing of lnk artifact.
      - 
      - 1.0
      - external
-     - net6/LECmd.exe
+     - net9/LECmd.exe
    * - windows
      - log2timeline_plaso.yml
      - run log2timeline to create a Plaso storage file
@@ -418,8 +432,8 @@ Supported Modules
      - external
      - docker
    * - windows
-     - orc_indexation.yml
-     - Splunk ingestion of parsed artifacts
+     - orc_indexer.yml
+     - plunk logs ingestion (ORC) using json2splunk configuration from dependencies/orc_indexer_patterns.yml
      - 
      - 1.0
      - external
@@ -437,14 +451,35 @@ Supported Modules
      - 
      - 1.0
      - external
-     - net6/PECmd.exe
+     - net9/PECmd.exe
+   * - windows
+     - pstree_live_response.yml
+     - Parse processes1.csv to produce pstree
+     - maxspl
+     - 1.0
+     - external
+     - python
+   * - windows
+     - pstree_security.yml
+     - Parse output of EVTX module to build process tree from security.evtx - event ID 4688
+     - 
+     - 1.0
+     - external
+     - python
+   * - windows
+     - pstree_sysmon.yml
+     - Parse output of EVTX module to build process tree from security.evtx - event ID 1
+     - 
+     - 1.0
+     - external
+     - python
    * - windows
      - recycle_bin.yml
      - Parsing of recycle bin artifact.
      - 
      - 1.0
      - external
-     - net6/RBCmd.exe
+     - net9/RBCmd.exe
    * - windows
      - restore_fs.yml
      - Restore original filesystem structure from DFIR ORC triage
@@ -458,14 +493,14 @@ Supported Modules
      - 
      - 1.0
      - external
-     - net6/SBECmd.exe
+     - net9/SBECmd.exe
    * - windows
      - shimcache.yml
      - Parsing of ShimCache artifact.
      - 
      - 1.0
      - external
-     - net6/AppCompatCacheParser.exe
+     - net9/AppCompatCacheParser.exe
    * - windows
      - srum.yml
      - Parsing of SRUM artifact.
@@ -500,4 +535,4 @@ Supported Modules
      - 
      - 1.0
      - external
-     - net6/WxTCmd.exe
+     - net9/WxTCmd.exe

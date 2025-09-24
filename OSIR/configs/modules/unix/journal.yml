@@ -22,3 +22,12 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:journal':
+    name_rex: \.jsonl$
+    path_suffix: journal
+    sourcetype: 'linux:journal'
+    host_rex: _([\w\.-]+)--
+    timestamp_path: 
+        - "__REALTIME_TIMESTAMP"
+    artifact: "journal"

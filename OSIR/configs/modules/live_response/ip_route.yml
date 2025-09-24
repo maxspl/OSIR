@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --ip-route > {output_file}"
+  cmd: "{input_file} | jc --ip-route | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: ip_route.txt$
@@ -22,3 +22,14 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:ip_route':
+    name_rex: \.csv$
+    path_suffix: 'amcache'
+    sourcetype: 'windows:files:amcache'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "KeyLastWriteTimestamp"
+        - "FileKeyLastWriteTimestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "AmCache"

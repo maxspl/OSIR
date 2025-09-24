@@ -23,6 +23,7 @@ services:
     profiles:
       - "master-online"
       - "all"
+    restart: always
 
   master-offline:
     image: master-master
@@ -46,6 +47,7 @@ services:
     profiles:
       - "master-offline"
       - "all"
+    restart: always
 
   samba:
     build:
@@ -62,6 +64,7 @@ services:
     profiles:
       - "smb-online"      # Assign samba service to the smb profile
       - "all"
+    restart: always
 
   samba-offline:
     tty: true
@@ -76,6 +79,7 @@ services:
     profiles:
       - "smb-offline"      # Assign samba service to the smb profile
       - "all"
+    restart: always
 
   splunk:
     build:
@@ -83,6 +87,7 @@ services:
       dockerfile: SplunkFile
     container_name: master-splunk
     environment:
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
       - SPLUNK_LICENSE_URI=${SPLUNK_LICENCE}
@@ -102,11 +107,13 @@ services:
     profiles:
       - "splunk-online"
       - "all"
+    restart: always
 
   splunk-offline:
     image: master-splunk
     container_name: master-splunk
     environment:
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
       - SPLUNK_START_ARGS=--accept-license
       - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
       - SPLUNK_LICENSE_URI=${SPLUNK_LICENCE}
@@ -126,6 +133,7 @@ services:
     profiles:
       - "splunk-offline"
       - "all"
+    restart: always
 
   rabbitmq:
     build:
@@ -143,6 +151,7 @@ services:
     profiles:
       - "default"
       - "all"
+    restart: always
 
   rabbitmq-offline:
     image: master-rabbitmq
@@ -158,6 +167,7 @@ services:
     profiles:
       - "default-offline"
       - "all"
+    restart: always
 
   redis:
     build:
@@ -171,6 +181,7 @@ services:
     profiles:
       - "default"
       - "all"
+    restart: always
 
   redis-offline:
     image: master-redis
@@ -182,6 +193,7 @@ services:
     profiles:
       - "default-offline"
       - "all"
+    restart: always
 
   flower:
     build:
@@ -205,6 +217,7 @@ services:
     profiles:
       - "default"
       - "all"
+    restart: always
 
   flower-offline:
     image: master-flower
@@ -226,6 +239,7 @@ services:
     profiles:
       - "default-offline"
       - "all"
+    restart: always
 
   postgres:
     build:
@@ -241,6 +255,7 @@ services:
     profiles:
       - "default"
       - "all"
+    restart: always
 
   postgres-offline:
     image: master-postgres
@@ -254,6 +269,7 @@ services:
     profiles:
       - "default-offline"
       - "all"
+    restart: always
 
   pgadmin:
     build:
@@ -272,6 +288,7 @@ services:
     profiles:
       - "default"
       - "all"
+    restart: always
 
   pgadmin-offline:
     image: master-pgadmin
@@ -288,3 +305,4 @@ services:
     profiles:
       - "default-offline"
       - "all"
+    restart: always

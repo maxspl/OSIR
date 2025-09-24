@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --systemctl-luf > {output_file}"
+  cmd: "{input_file} | jc --systemctl-luf | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: systemctl_list-unit-files.txt
@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:systemctl':
+    name_rex: \.jsonl$
+    path_suffix: systemctl_luf
+    sourcetype: 'linux:live_response:systemctl'
+    host_rex: _([\w\.-]+)--
+    artifact: systemctl

@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --blkid > {output_file}"
+  cmd: "{input_file} | jc --blkid | jq -c '.[]'> {output_file}"
 input:
   type: file
   name: (?:blkid)
@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:blkid':
+    name_rex: \.jsonl$
+    path_suffix: blkid
+    sourcetype: 'linux:live_response:blkid'
+    host_rex: _([\w\.-]+)--
+    artifact: blkid

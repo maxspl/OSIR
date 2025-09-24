@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --ps > {output_file}"
+  cmd: "{input_file} | jc --ps | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: ^(?:ps|ps_-ef)\.txt$
@@ -22,3 +22,10 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:ps':
+    name_rex: \.jsonl$
+    path_suffix: ps
+    sourcetype: 'linux:live-live_response:ps'
+    host_rex: _([\w\.-]+)--
+    artifact: ps

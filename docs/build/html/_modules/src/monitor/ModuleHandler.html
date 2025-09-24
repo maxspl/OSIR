@@ -95,6 +95,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">watchdog.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.log.logger_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">task_client</span>
@@ -191,16 +192,16 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span> <span class="o">=</span> <span class="n">AgentConfig</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">master_host</span> <span class="o">=</span> <span class="s2">&quot;host.docker.internal&quot;</span>  <span class="c1"># Agent cannot use localhost to communicate with other docker</span>
+            <span class="n">db_postgres</span> <span class="o">=</span> <span class="s2">&quot;master-postgres&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">master_host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
+            <span class="n">db_postgres</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
         
         <span class="c1"># Initialize a set and a lock to keep track of active timers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
         
         <span class="c1"># DB management</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">DbOSIR</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">(</span><span class="n">db_postgres</span><span class="p">)</span>
 
         <span class="c1"># Create tables for each</span>
         <span class="k">for</span> <span class="n">module_info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules_info</span><span class="p">:</span>
@@ -408,6 +409,24 @@
                     <span class="n">total_size</span> <span class="o">+=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">total_size</span>
     
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
+        <span class="n">module_name</span> <span class="o">=</span> <span class="n">module_info</span><span class="p">[</span><span class="s2">&quot;module_name&quot;</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checking if </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> idle is not parent of another idle&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert path to a Path object</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">current_idle_path</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span><span class="p">):</span>
+            <span class="n">current_idle_path_resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">current_idle_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+            <span class="c1"># Check if the current path is a parent of the active timer path</span>
+            <span class="k">if</span> <span class="n">current_idle_path_resolved</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span> <span class="o">!=</span> <span class="n">current_idle_path_resolved</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> is parent of </span><span class="si">{</span><span class="n">current_idle_path</span><span class="si">}</span><span class="s2">, the module can&#39;t be executed&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+    
     <span class="k">def</span><span class="w"> </span><span class="nf">_check_for_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Checks if the directory has been idle based on size changes and triggers further processing if idle.</span>
@@ -421,7 +440,7 @@
         <span class="n">current_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_directory_size</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">previous_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_size</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         
-        <span class="k">if</span> <span class="n">current_size</span> <span class="o">==</span> <span class="n">previous_size</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">current_size</span> <span class="o">==</span> <span class="n">previous_size</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_parent</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&#39; is now idle&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">process_directory</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">module_info</span><span class="p">)</span>
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span><span class="p">:</span>

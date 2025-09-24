@@ -12,7 +12,7 @@ processor_type:
 processor_os: unix
 tool: 
   path: cat
-  cmd: "{input_file} | jc --last > {output_file}"
+  cmd: "{input_file} | jc --last | jq -c '.[]' > {output_file}"
 input:
   type: file
   name: (?:last|lastb)\.txt$
@@ -22,3 +22,13 @@ output:
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:last':
+    name_rex: \.jsonl$
+    path_suffix: last
+    sourcetype: 'linux:live_response:last'
+    host_rex: _([\w\.-]+)--
+    timestamp_path: 
+        - "login"
+    timestamp_format: "%a %b %d %H:%M"
+    artifact: last

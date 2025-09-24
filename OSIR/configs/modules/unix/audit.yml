@@ -19,3 +19,12 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:audit':
+    name_rex: ^audit\.log.*\.jsonl$
+    sourcetype: 'linux:audit'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%s"
+    artifact: "audit"
