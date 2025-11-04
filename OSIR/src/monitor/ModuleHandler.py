@@ -362,11 +362,12 @@ class ModuleHandler(FileSystemEventHandler):
         processor_type = module_instance.get_processor_type()
         self.DbOSIR.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
         if "internal" in processor_type:
-            if self.module_exists(module_instance.module_name):
+            py_module_name = getattr(module_instance, 'alt_module', None) or module_instance.module_name  # try first alt_module, fallback to module_name
+            if self.module_exists(py_module_name):
                 # logger.debug(f"Executing internal module {module_instance.module_name}.py")
                 self._push_task(module_instance)
             else:
-                logger.error(f"Module missing {module_instance.module_name}")
+                logger.error(f"Module missing {py_module_name}")
         else:
             logger.debug(f"run external processor for {module_instance.module_name}")
             self._push_task(module_instance)
@@ -460,7 +461,6 @@ class ModuleHandler(FileSystemEventHandler):
         Returns:
             bool: True if the module exists, False otherwise.
         """ 
-
         directory = os.path.dirname(__file__)  # Gets the directory of the current script
         relative_path = os.path.join(directory, '..')
         absolute_path = os.path.abspath(relative_path)  # Converts to absolute path
@@ -468,7 +468,6 @@ class ModuleHandler(FileSystemEventHandler):
 
         # Base import path for modules
         base_path = 'src.modules.'
-        
         # Walk through each directory and sub-directory in the 'modules' directory
         for _, name, is_pkg in pkgutil.walk_packages([modules_directory], base_path):
             if not is_pkg:
