@@ -118,6 +118,10 @@ module: **Required**
 ********************
     - The name of the module. Requires to be the same name as the module file name.
 
+alt_module: **Optional**
+************************
+    - Relevant only for internal modules. Specifies an alternate module name, i.e. OSIR will try to launch the Python module with this name instead of the default module name.
+
 description: **Required**
 *************************
     - Description of the module.
@@ -158,7 +162,7 @@ Defines how the module processes data. Two processor types exist:
   
   - The module relies on an external executable tool.
   - If ``processor_os: unix``, the tool is executed inside the **agent Docker container** using ``subprocess``.
-  - If ``processor_os: windows``, the tool is executed on a **remote Windows machine via WinRM``.
+  - If ``processor_os: windows``, the tool is executed on a **remote Windows machine via WinRM``**
   - Example: a decompression module that calls ``7zz`` externally.
 
 - **internal**
