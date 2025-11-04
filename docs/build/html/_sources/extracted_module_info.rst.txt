@@ -40,6 +40,13 @@ Supported Modules
      - external
      - thor/thor-linux-64
    * - all
+     - thor_orc_ram.yml
+     - Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
+     - 
+     - 1.0
+     - external
+     - thor/thor-linux-64
+   * - all
      - thor_uac.yml
      - Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
      - 
@@ -116,6 +123,13 @@ Supported Modules
      - 1.0
      - internal
      - 
+   * - unix
+     - collect_info_uac.yml
+     - Hash of DFIR UAC collected file
+     - 
+     - 1.0
+     - external
+     - /usr/bin/find
    * - unix
      - cron.yml
      - Parsing logs from '/var/log/cron'
@@ -334,6 +348,13 @@ Supported Modules
      - external
      - cat
    * - unix
+     - web_access.yml
+     - Parsing web access logs
+     - maxspl
+     - 1.0
+     - external
+     - TurboLP
+   * - unix
      - yum.yml
      - Parsing logs from '/var/log/yum'
      - 
@@ -361,6 +382,13 @@ Supported Modules
      - 1.0
      - external
      - python
+   * - windows
+     - collect_info_orc.yml
+     - Hash of DFIR ORC collected file
+     - 
+     - 1.0
+     - external
+     - /usr/bin/find
    * - windows
      - dummy_external.yml
      - Dummy module to test WSL / Powershell connexion
@@ -453,6 +481,13 @@ Supported Modules
      - external
      - net9/PECmd.exe
    * - windows
+     - ps1_history.yml
+     - Parse ConsoleHost_history.txt
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
      - pstree_live_response.yml
      - Parse processes1.csv to produce pstree
      - maxspl
@@ -523,6 +558,62 @@ Supported Modules
      - external
      - process_dir_multiple_output
    * - windows
+     - wer.yml
+     - Parse .wer files
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_arp_cache.yml
+     - Parse arp_cache.txt from DFIR ORC (arp -a command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_bits.yml
+     - Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_dns_cache.yml
+     - Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fields lang depends on the system lang
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_dns_records.yml
+     - Parse DNS_records.txt from DFIR ORC (custom ps1 command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_enunlocs.yml
+     - Parse Enumlocs.txt from DFIR ORC
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_handle.yml
+     - Parse handle from DFIR ORC (handle.exe /a command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_listdlls.yml
+     - Parse Listdlls.txt from DFIR ORC (Listdlls.exe command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
      - win_memory.yml
      - 
      - 
@@ -530,9 +621,37 @@ Supported Modules
      - internal, external
      - memprocfs/memprocfs
    * - windows
-     - win_timeline.yml
-     - Parsing of Windows Timeline (ActivitiesCache.db) artifact.
-     - 
+     - win_netstat.yml
+     - Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)
+     - maxspl
      - 1.0
+     - internal
+     - 
+   * - windows
+     - win_routes.yml
+     - Parse routes.txt from DFIR ORC (route.exe PRINT command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_tcpvcon.yml
+     - Parse routes.txt from DFIR ORC (Tcpvcon.exe -a -n -c command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_timeline.yml
+     - Parsing of Windows Timeline (ActivitiesCache.db) artifact. Tool from Nihith (https://github.com/bolisettynihith/ActivitiesCacheParser)
+     - maxspl
+     - 1.1
      - external
-     - net9/WxTCmd.exe
+     - python
+   * - windows
+     - win_wmi_eventconsumer.yml
+     - Parse EventConsumer.txt from DFIR ORC (powershell.exe Get-WMIObject -Namespace root\Subscription -Class __EventConsumer command)
+     - maxspl
+     - 1.0
+     - internal
+     - 

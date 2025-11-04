@@ -136,6 +136,14 @@
 <td><p>thor/thor-linux-64</p></td>
 </tr>
 <tr class="row-even"><td><p>all</p></td>
+<td><p>thor_orc_ram.yml</p></td>
+<td><p>Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).</p></td>
+<td></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>thor/thor-linux-64</p></td>
+</tr>
+<tr class="row-odd"><td><p>all</p></td>
 <td><p>thor_uac.yml</p></td>
 <td><p>Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).</p></td>
 <td></td>
@@ -143,7 +151,7 @@
 <td><p>external</p></td>
 <td><p>thor/thor-linux-64</p></td>
 </tr>
-<tr class="row-odd"><td><p>all</p></td>
+<tr class="row-even"><td><p>all</p></td>
 <td><p>thor_update.yml</p></td>
 <td><p>Update Thor signature files using thor-util.</p></td>
 <td></td>
@@ -151,7 +159,7 @@
 <td><p>external</p></td>
 <td><p>thor/thor-util</p></td>
 </tr>
-<tr class="row-even"><td><p>linux</p></td>
+<tr class="row-odd"><td><p>linux</p></td>
 <td><p>uac_indexer.yml</p></td>
 <td><p>Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml</p></td>
 <td></td>
@@ -159,7 +167,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>module_os</p></td>
+<tr class="row-even"><td><p>module_os</p></td>
 <td><p>sample.yml</p></td>
 <td><p>module_description</p></td>
 <td><p>author_name</p></td>
@@ -167,7 +175,7 @@
 <td><p>module_processor_type</p></td>
 <td><p>module_tool_name</p></td>
 </tr>
-<tr class="row-even"><td><p>network</p></td>
+<tr class="row-odd"><td><p>network</p></td>
 <td><p>zeek.yml</p></td>
 <td><p>SParsing of pcap files using zeek</p></td>
 <td></td>
@@ -175,7 +183,7 @@
 <td><p>external</p></td>
 <td><p>docker</p></td>
 </tr>
-<tr class="row-odd"><td><p>unix</p></td>
+<tr class="row-even"><td><p>unix</p></td>
 <td><p>arp.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command arp or arp -a</p></td>
 <td></td>
@@ -183,7 +191,7 @@
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
-<tr class="row-even"><td><p>unix</p></td>
+<tr class="row-odd"><td><p>unix</p></td>
 <td><p>audit.yml</p></td>
 <td><p>Parsing logs from ‘/var/log/audit’</p></td>
 <td></td>
@@ -191,7 +199,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>unix</p></td>
+<tr class="row-even"><td><p>unix</p></td>
 <td><p>auth.yml</p></td>
 <td><p>Parsing logs from ‘/var/log/auth.log’</p></td>
 <td></td>
@@ -199,7 +207,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>unix</p></td>
+<tr class="row-odd"><td><p>unix</p></td>
 <td><p>blkid.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command blkid</p></td>
 <td></td>
@@ -207,7 +215,7 @@
 <td><p>external</p></td>
 <td><p>cat</p></td>
 </tr>
-<tr class="row-odd"><td><p>unix</p></td>
+<tr class="row-even"><td><p>unix</p></td>
 <td><p>bodyfile.yml</p></td>
 <td><p>Parsing logs from ‘/bodyfile’ in UAC collect</p></td>
 <td></td>
@@ -215,13 +223,21 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>unix</p></td>
+<tr class="row-odd"><td><p>unix</p></td>
 <td><p>boot.yml</p></td>
 <td><p>Parsing logs from ‘/var/log/boot’</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>internal</p></td>
 <td></td>
+</tr>
+<tr class="row-even"><td><p>unix</p></td>
+<td><p>collect_info_uac.yml</p></td>
+<td><p>Hash of DFIR UAC collected file</p></td>
+<td></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>/usr/bin/find</p></td>
 </tr>
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>cron.yml</p></td>
@@ -472,6 +488,14 @@
 <td><p>cat</p></td>
 </tr>
 <tr class="row-even"><td><p>unix</p></td>
+<td><p>web_access.yml</p></td>
+<td><p>Parsing web access logs</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>TurboLP</p></td>
+</tr>
+<tr class="row-odd"><td><p>unix</p></td>
 <td><p>yum.yml</p></td>
 <td><p>Parsing logs from ‘/var/log/yum’</p></td>
 <td></td>
@@ -479,7 +503,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>amcache.yml</p></td>
 <td><p>Parsing of amcache artifact.</p></td>
 <td></td>
@@ -487,7 +511,7 @@
 <td><p>external</p></td>
 <td><p>net9/AmcacheParser.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>anssi_decode.yml</p></td>
 <td><p>ANSSI tool designed for detecting anomalous Portable Executable (PE) files among the NTFSInfo data collected by DFIR-ORC</p></td>
 <td><p>maxspl</p></td>
@@ -495,13 +519,21 @@
 <td><p>internal</p></td>
 <td><p>machine_analysis</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>browsers.yml</p></td>
 <td><p>Parsing of browsers artifact.</p></td>
 <td></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>python</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>collect_info_orc.yml</p></td>
+<td><p>Hash of DFIR ORC collected file</p></td>
+<td></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>/usr/bin/find</p></td>
 </tr>
 <tr class="row-even"><td><p>windows</p></td>
 <td><p>dummy_external.yml</p></td>
@@ -608,6 +640,14 @@
 <td><p>net9/PECmd.exe</p></td>
 </tr>
 <tr class="row-odd"><td><p>windows</p></td>
+<td><p>ps1_history.yml</p></td>
+<td><p>Parse ConsoleHost_history.txt</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>pstree_live_response.yml</p></td>
 <td><p>Parse processes1.csv to produce pstree</p></td>
 <td><p>maxspl</p></td>
@@ -615,7 +655,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>pstree_security.yml</p></td>
 <td><p>Parse output of EVTX module to build process tree from security.evtx - event ID 4688</p></td>
 <td></td>
@@ -623,7 +663,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>pstree_sysmon.yml</p></td>
 <td><p>Parse output of EVTX module to build process tree from security.evtx - event ID 1</p></td>
 <td></td>
@@ -631,7 +671,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>recycle_bin.yml</p></td>
 <td><p>Parsing of recycle bin artifact.</p></td>
 <td></td>
@@ -639,7 +679,7 @@
 <td><p>external</p></td>
 <td><p>net9/RBCmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>restore_fs.yml</p></td>
 <td><p>Restore original filesystem structure from DFIR ORC triage</p></td>
 <td></td>
@@ -647,7 +687,7 @@
 <td><p>external</p></td>
 <td><p>Restore_FS</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>shell_bags.yml</p></td>
 <td><p>Parsing of shell bags artifact.</p></td>
 <td></td>
@@ -655,7 +695,7 @@
 <td><p>external</p></td>
 <td><p>net9/SBECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>shimcache.yml</p></td>
 <td><p>Parsing of ShimCache artifact.</p></td>
 <td></td>
@@ -663,7 +703,7 @@
 <td><p>external</p></td>
 <td><p>net9/AppCompatCacheParser.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>srum.yml</p></td>
 <td><p>Parsing of SRUM artifact.</p></td>
 <td></td>
@@ -671,7 +711,7 @@
 <td><p>external</p></td>
 <td><p>artemis</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>test_process_dir.yml</p></td>
 <td></td>
 <td></td>
@@ -679,7 +719,7 @@
 <td><p>external</p></td>
 <td><p>process_dir</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>test_process_dir_multiple_output.yml</p></td>
 <td></td>
 <td></td>
@@ -687,7 +727,71 @@
 <td><p>external</p></td>
 <td><p>process_dir_multiple_output</p></td>
 </tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>wer.yml</p></td>
+<td><p>Parse .wer files</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_arp_cache.yml</p></td>
+<td><p>Parse arp_cache.txt from DFIR ORC (arp -a command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>win_bits.yml</p></td>
+<td><p>Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_dns_cache.yml</p></td>
+<td><p>Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fields lang depends on the system lang</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>win_dns_records.yml</p></td>
+<td><p>Parse DNS_records.txt from DFIR ORC (custom ps1 command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_enunlocs.yml</p></td>
+<td><p>Parse Enumlocs.txt from DFIR ORC</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>win_handle.yml</p></td>
+<td><p>Parse handle from DFIR ORC (handle.exe /a command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_listdlls.yml</p></td>
+<td><p>Parse Listdlls.txt from DFIR ORC (Listdlls.exe command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_memory.yml</p></td>
 <td></td>
 <td></td>
@@ -695,13 +799,45 @@
 <td><p>internal, external</p></td>
 <td><p>memprocfs/memprocfs</p></td>
 </tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_netstat.yml</p></td>
+<td><p>Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>win_routes.yml</p></td>
+<td><p>Parse routes.txt from DFIR ORC (route.exe PRINT command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_tcpvcon.yml</p></td>
+<td><p>Parse routes.txt from DFIR ORC (Tcpvcon.exe -a -n -c command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
+</tr>
 <tr class="row-even"><td><p>windows</p></td>
 <td><p>win_timeline.yml</p></td>
-<td><p>Parsing of Windows Timeline (ActivitiesCache.db) artifact.</p></td>
-<td></td>
-<td><p>1.0</p></td>
+<td><p>Parsing of Windows Timeline (ActivitiesCache.db) artifact. Tool from Nihith (<a class="reference external" href="https://github.com/bolisettynihith/ActivitiesCacheParser">https://github.com/bolisettynihith/ActivitiesCacheParser</a>)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.1</p></td>
 <td><p>external</p></td>
-<td><p>net9/WxTCmd.exe</p></td>
+<td><p>python</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>win_wmi_eventconsumer.yml</p></td>
+<td><p>Parse EventConsumer.txt from DFIR ORC (powershell.exe Get-WMIObject -Namespace rootSubscription -Class __EventConsumer command)</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>internal</p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
