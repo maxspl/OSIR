@@ -1,0 +1,23 @@
+version: 1.0
+author: maxspl
+module: win_bits
+alt_module: live_response_dispatcher
+description: Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose command)
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: BITS_jobs.txt
+  path: extracted_files/General/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+optional:
+  parser: bits_jobs

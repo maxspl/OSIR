@@ -1,0 +1,23 @@
+version: 1.0
+author: maxspl
+module: win_dns_cache
+alt_module: live_response_dispatcher
+description: Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fields lang depends on the system lang
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: dns_cache.txt
+  path: extracted_files/General/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+optional:
+  parser: dns_cache

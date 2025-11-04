@@ -1,0 +1,23 @@
+version: 1.0
+author: maxspl
+module: win_enumlocs
+alt_module: live_response_dispatcher
+description: Parse Enumlocs.txt from DFIR ORC
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: Enumlocs.txt
+  path: extracted_files/General/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+optional:
+  parser: enumlocs
