@@ -271,6 +271,7 @@ class BaseModule():
             self.version: str = data.get('version', 'Unknown version')
             self.author: str = data.get('author', 'Unknown author')
             self.module_name: str = data.get('module', 'No module name available')
+            self.alt_module: str = data.get('alt_module')
             self.description: str = data.get('description', 'No description available')
             self.os: str = data.get('os', 'Unknown OS')
             self.type: str = data.get('type', 'Unknown type')

@@ -50,15 +50,15 @@ class InternalProcessor:
 
         base_package = 'src.modules'
         
+        target_name = self._module_instance.alt_module or self._module_instance.module_name  # Try to load alt_module, fallback to module_name
         try:
             for _, module_name, is_pkg in pkgutil.walk_packages([modules_directory], base_package + "."):
-                if not is_pkg:
-                    if module_name.endswith(self._module_instance.module_name):
-                        module = importlib.import_module(module_name)
-                        for attr_name in dir(module):
-                            attr = getattr(module, attr_name)
-                            if isinstance(attr, type) and issubclass(attr, PyModule) and attr is not PyModule:
-                                return attr(self.case_path, self._module_instance)
+                if not is_pkg and module_name.endswith(target_name):
+                    module = importlib.import_module(module_name)
+                    for attr_name in dir(module):
+                        attr = getattr(module, attr_name)
+                        if isinstance(attr, type) and issubclass(attr, PyModule) and attr is not PyModule:
+                            return attr(self.case_path, self._module_instance)
         except Exception as e:
             logger.debug(f"Failed to import {self._module_instance.module_name}. Error {str(e)}")
             logger.debug(traceback.format_exc())
