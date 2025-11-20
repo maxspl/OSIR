@@ -151,6 +151,13 @@ class ANSSI_Decode(PyModule):
             logger.exception("Failed to extract VolumeID from filename.")
 
         # ------------------------------------------------------------------ #
+        # Also try to extract the offset from the filename, e.g.:
+        # NTFSInfo_00000001_PhysicalDrive_1_Offset_122683392_.csv
+        # ------------------------------------------------------------------ #
+        offset_match = re.search(r"Offset_(\d+)", os.path.basename(ntfs_info_file))
+        offset_str: Optional[str] = offset_match.group(1) if offset_match else None
+
+        # ------------------------------------------------------------------ #
         # Try reading volstats.csv
         # ------------------------------------------------------------------ #
         if os.path.isfile(volstats_file):
@@ -159,11 +166,24 @@ class ANSSI_Decode(PyModule):
                 with open(volstats_file, encoding="utf-8") as f_desc:
                     reader = csv.DictReader(f_desc)
                     for row in reader:
-                        if row.get("VolumeID").lower() == fallback_volume_id.lower():
-                            mount_point = row.get("MountPoint", "").strip()
-                            if mount_point:
-                                # Remove ":\" from mount point if present (e.g. C:\ -> C)
-                                return mount_point.replace(":\\", "")
+                        vol_id = row.get("VolumeID")
+                        location = row.get("Location") or ""
+                        mount_point = (row.get("MountPoint") or "").strip()
+                        
+                        # 1) If we have a VolumeID from the filename, try to match it
+                        if fallback_volume_id and vol_id:
+                            if vol_id.lower() == fallback_volume_id.lower():
+                                if mount_point:
+                                    # Remove ":\" from mount point if present (e.g. C:\ -> C)
+                                    return mount_point.replace(":\\", "").replace(":", "")
+
+                        # 2) If we DON'T have a VolumeID in the filename but we do
+                        #    have an Offset_..., match offset=... from Location
+                        if not fallback_volume_id and offset_str:
+                            offset_in_loc_match = re.search(r"offset=(\d+)", location)
+                            if offset_in_loc_match and offset_in_loc_match.group(1) == offset_str:
+                                if mount_point:
+                                    return mount_point.replace(":\\", "").replace(":", "")
             except Exception as exc:
                 logger.error("Error reading volstats.csv: %s", exc)
 
