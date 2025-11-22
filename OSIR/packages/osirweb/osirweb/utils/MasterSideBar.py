@@ -2,12 +2,13 @@ import streamlit as st
 import os
 import psutil
 import subprocess
-from streamlit_extras.colored_header import colored_header
-from src.utils.AgentConfig import AgentConfig
-from src.web_app.utils import StaticVars
-from streamlit_js_eval import get_page_location
 import time
 
+from streamlit_extras.colored_header import colored_header
+from streamlit_js_eval import get_page_location
+
+from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
+from packages.osirweb.osirweb.utils import StaticVars
 
 class SystemManager:
     def __init__(self, key=""):

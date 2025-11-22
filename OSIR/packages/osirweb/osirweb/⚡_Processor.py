@@ -3,15 +3,17 @@ import os
 import yaml
 import concurrent.futures
 import pandas as pd
-from src.utils.BaseModule import BaseInput, BaseOutput
+
 from streamlit_extras.colored_header import colored_header
-from src.utils.BaseProfile import BaseProfile
 from src.tasks import task_manager
 from src.monitor import MonitorCase
-from packages.osirlib.osirlib.logger import AppLogger
-from src.web_app.utils import MasterSideBar
-from src.web_app.utils import StaticVars
 from code_editor import code_editor
+
+from packages.osirweb.osirweb.utils import StaticVars, MasterSideBar
+from packages.osirlib.osirlib.core.BaseProfile import BaseProfile
+from packages.osirlib.osirlib.core.BaseModule import BaseInput, BaseOutput
+from packages.osirlib.osirlib.logger import AppLogger
+
 
 logger = AppLogger(__name__).get_logger()
 

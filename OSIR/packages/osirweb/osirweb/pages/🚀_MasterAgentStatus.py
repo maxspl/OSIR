@@ -6,8 +6,8 @@ from utils.Db import Db_accessor
 from datetime import datetime, timedelta
 import pytz  # You might need to install pytz if not already available
 from streamlit_extras.colored_header import colored_header 
-from src.web_app.utils import MasterSideBar
 
+from packages.osirweb.osirweb.utils import MasterSideBar
 
 # Database formatter class
 class MasterStatus:

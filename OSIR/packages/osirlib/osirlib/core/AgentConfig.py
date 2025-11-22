@@ -31,7 +31,7 @@ class AgentConfig:
         """
         # Open agent config
         directory = os.path.dirname(__file__)  # Gets the directory of the current script
-        relative_path = os.path.join(directory, '..', '..', '..', 'setup', 'conf', 'agent.yml')
+        relative_path = os.path.join(directory, '..', '..', '..', '..', '..', 'setup', 'conf', 'agent.yml')
         absolute_path = os.path.abspath(relative_path)  # Converts to absolute path
         self.agent_config = absolute_path
         self._parse()
