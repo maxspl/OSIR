@@ -3,12 +3,16 @@ import argparse
 import sys
 import threading
 import os
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.BaseProfile import BaseProfile
+
 import src.tasks.task_manager as task_manager
 import src.tasks.tasks as tasks
-from src.log.logger_config import AppLogger
 import src.monitor.MonitorCase as MonitorCase
 import src.utils.SmbMounter as SmbMounter
-import src.utils.BaseProfile as BaseProfile
+
+
 from streamlit.web import cli
 
 logger = AppLogger(__name__).get_logger()
@@ -96,7 +100,7 @@ def main():
     
     if args.web:
         logger.info("Launching web app...")
-        cli.main_run(["/OSIR/OSIR/src/web_app/⚡_Processor.py"])
+        cli.main_run(["/OSIR/OSIR/packages/osirweb/osirweb/⚡_Processor.py"])
 
     case_path = os.path.join("/OSIR/share/cases", args.case)
     if not os.path.isdir(case_path):

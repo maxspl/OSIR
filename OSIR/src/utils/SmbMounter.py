@@ -1,10 +1,10 @@
-from src.utils.AgentConfig import AgentConfig
-from src.log.logger_config import AppLogger
-
 import subprocess
 import os
 import time
 import threading
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
 
 logger = AppLogger().get_logger()
 

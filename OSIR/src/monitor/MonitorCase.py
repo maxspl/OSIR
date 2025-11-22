@@ -1,10 +1,12 @@
 import os
 import uuid
-from src.utils import BaseModule
+
 from .ModuleHandler import ModuleHandler
-from src.log.logger_config import AppLogger
 from threading import Thread, Event
 from src.utils import DbOSIR
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.BaseModule import BaseModule
 
 logger = AppLogger(__name__).get_logger()
 

@@ -7,12 +7,15 @@ import os
 import time
 from celery import Celery
 from os import environ, cpu_count
-from src.log.logger_config import AppLogger
+
 from src.processor import InternalProcessor
 from src.processor import ExternalProcessor
-from src.utils.BaseModule import BaseModule
+
 from src.utils.DbOSIR import DbOSIR
-from src.utils.AgentConfig import AgentConfig
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.BaseModule import BaseModule
+from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
 
 logger = AppLogger().get_logger()
 

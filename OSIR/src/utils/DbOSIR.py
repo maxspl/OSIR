@@ -2,8 +2,9 @@ import psycopg2
 from psycopg2 import sql
 import datetime
 import os
-from src.log.logger_config import AppLogger
-from src.utils.BaseModule import BaseModule
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.BaseModule import BaseModule
 
 logger = AppLogger(__name__).get_logger()
 

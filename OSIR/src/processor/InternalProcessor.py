@@ -1,10 +1,11 @@
 import os
-from ..utils import BaseModule
-from ..log.logger_config import AppLogger 
-from src.utils.PyModule import PyModule
 import pkgutil
 import importlib
 import traceback
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.PyModule import PyModule
+from packages.osirlib.osirlib.core.BaseModule import BaseModule
 
 logger = AppLogger(__name__).get_logger()
 

@@ -1,20 +1,24 @@
 import re
 import time
 import os
-from threading import Timer
-import threading  # Import threading to use Lock
+import threading
 import pkgutil
 import importlib
 import pickle
 import copy
+
 from pathlib import Path
-from watchdog.events import FileSystemEventHandler
-from src.log.logger_config import AppLogger
-from src.tasks import task_client
+from threading import Timer
+
 from src.utils.DbOSIR import DbOSIR
-from src.utils.PyModule import PyModule
-from src.utils.AgentConfig import AgentConfig
+
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
+from watchdog.events import FileSystemEventHandler
+
+from packages.osirlib.osirlib.logger import AppLogger
+from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
+from packages.osirlib.osirlib.core.PyModule import PyModule
+from packages.osirlib.osirlib.task import task_client
 
 
 logger = AppLogger(__name__).get_logger()
