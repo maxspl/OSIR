@@ -3,10 +3,10 @@ from pathlib import Path, PureWindowsPath
 import shutil
 import re
 import hashlib
-from src.utils.AgentConfig import AgentConfig
-from src.utils.BaseModule import BaseModule
+from osirlib.core.AgentConfig import AgentConfig
+from osirlib.core.BaseModule import BaseModule
 
-from ..log.logger_config import AppLogger
+from osirlib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 

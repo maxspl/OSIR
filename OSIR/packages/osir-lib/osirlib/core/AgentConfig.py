@@ -1,7 +1,7 @@
 import os
 import yaml
-from src.log.logger_config import AppLogger
-from src.utils.singleton import singleton
+from osirlib.logger import AppLogger
+from osirlib.core.singleton import singleton
 
 logger = AppLogger(__name__).get_logger()
 

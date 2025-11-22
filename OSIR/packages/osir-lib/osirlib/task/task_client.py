@@ -1,10 +1,12 @@
-from os import environ
-from src.utils.BaseModule import BaseModule
 import pickle
+import os
+
+from os import environ
 from celery import Celery
 from celery import signature
-from src.log.logger_config import AppLogger
-import os
+from osirlib.logger import AppLogger
+from osirlib.core.BaseModule import BaseModule
+
 
 logger = AppLogger(__name__).get_logger()
 

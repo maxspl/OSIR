@@ -2,9 +2,9 @@ from __future__ import annotations
 import os
 import json
 from typing import Dict, List, Any
-from src.utils.BaseModule import BaseModule
-from src.utils.PyModule import PyModule
-from src.log.logger_config import AppLogger, CustomLogger
+from osirlib.core.BaseModule import BaseModule
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 

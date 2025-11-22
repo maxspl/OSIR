@@ -3,9 +3,9 @@ import re
 import shutil
 import random
 import string
-from ...utils.BaseModule import BaseModule 
-from src.utils.PyModule import PyModule
-from ...log.logger import AppLogger 
+from osirlib.core.BaseModule import BaseModule 
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger 
 
 logger = AppLogger(__name__).get_logger()
 

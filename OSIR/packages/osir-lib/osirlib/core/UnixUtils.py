@@ -5,9 +5,9 @@ import os
 import queue
 import re
 import threading
-from src.utils.decorator import timeit
-from src.utils.BaseModule import BaseModule
-from src.log.logger_config import AppLogger, CustomLogger
+from osirlib.core.decorator import timeit
+from osirlib.core.BaseModule import BaseModule
+from osirlib.logger import AppLogger, CustomLogger
 from typing import Callable
 
 logger: CustomLogger = AppLogger().get_logger()

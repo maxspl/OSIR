@@ -1,15 +1,16 @@
 import subprocess
-from typing import Any
+import winrm
 import yaml
 import os
 import shutil
-from pathlib import Path, PureWindowsPath
-import winrm
-from src.utils.AgentConfig import AgentConfig
 import requests.exceptions
 import time
 import uuid
-from src.log.logger_config import AppLogger
+
+from typing import Any
+from pathlib import Path, PureWindowsPath
+from osirlib.core.AgentConfig import AgentConfig
+from osirlib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 

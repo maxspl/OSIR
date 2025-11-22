@@ -1,8 +1,8 @@
 from typing import Any
 import yaml
 import os
-from src.utils.BaseModule import BaseModule
-from ..log.logger_config import AppLogger
+from osirlib.core.BaseModule import BaseModule
+from osirlib.logger import AppLogger
  
 logger = AppLogger(__name__).get_logger()
 
