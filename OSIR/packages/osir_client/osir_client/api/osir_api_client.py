@@ -5,6 +5,7 @@ from osir_client.api.osir_api_case import OSIRAPICase
 from osir_client.api.osir_api_response import OSIRAPIResponse
 
 logger = AppLogger(__name__).get_logger()
+
 API_VERSION = "1.0"
 
 class OSIRAPIClient:

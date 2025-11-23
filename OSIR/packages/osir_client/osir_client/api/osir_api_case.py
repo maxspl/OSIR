@@ -29,5 +29,16 @@ class OSIRAPICase(BaseModel):
             _response = OSIRAPIResponse(self._client.get("/api/version"))
         except Exception as e:
             logger.error_handler(e)
-            
+
         return self
+
+    def list(self):
+        if not self.name:
+            raise ValueError("The 'name' parameter is required and cannot be None.")
+
+        try:
+            _response = OSIRAPIResponse(self._client.get("/api/case"))
+            
+        except Exception as e:
+            logger.error_handler(e)
+ 

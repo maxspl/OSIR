@@ -9,7 +9,8 @@ from src.tasks import task_manager
 from src.monitor import MonitorCase
 from code_editor import code_editor
 
-from packages.osirweb.osirweb.utils import StaticVars, MasterSideBar
+from packages.osirlib.osirlib.core.StaticVars import StaticVars
+from packages.osirweb.osirweb.utils import MasterSideBar
 from packages.osirlib.osirlib.core.BaseProfile import BaseProfile
 from packages.osirlib.osirlib.core.BaseModule import BaseInput, BaseOutput
 from packages.osirlib.osirlib.core.FileManager import FileManager
