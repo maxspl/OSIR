@@ -8,7 +8,7 @@ from streamlit_extras.colored_header import colored_header
 from streamlit_js_eval import get_page_location
 
 from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
-from packages.osirlib.osirlib.core.StaticVars import StaticVars
+from packages.osirlib.osirlib.core import StaticVars
 
 class SystemManager:
     def __init__(self, key=""):
