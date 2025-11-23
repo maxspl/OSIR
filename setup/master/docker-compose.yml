@@ -306,3 +306,18 @@ services:
       - "default-offline"
       - "all"
     restart: always
+
+  fastapi:
+    build:
+      dockerfile: FastApiFile
+      context: ./dockerfile
+    container_name: master-api
+    ports:
+      - "8502:8502"
+    volumes:
+      - ../../:/OSIR
+    profiles:
+      - "default"
+      - "all"
+    command: ["bash", "-c", "while true; do sleep 1000; done"]
+    restart: no

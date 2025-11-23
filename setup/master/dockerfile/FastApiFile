@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY sources/requirements_api.txt /tmp/requirements.txt
+
+RUN set -eux; \
+    python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
+
+EXPOSE 8502
