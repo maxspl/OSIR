@@ -11,7 +11,7 @@ API_VERSION = "1.0"
 class OSIRAPIClient:
     def __init__(self, api_url: str):
         self.api_url = api_url.rstrip("/")
-        self.osir_case = OSIRAPICase()
+        self.osir_case = OSIRAPICase(self)
 
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         url = f"{self.api_url}/{endpoint.lstrip('/')}"

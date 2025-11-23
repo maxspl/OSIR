@@ -1,16 +1,30 @@
-
-import json
+from pydantic import BaseModel
+from typing import Dict, Any
 from osirlib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
+class OSIRAPIResponse(BaseModel):
+    version: str
+    status: int
+    response: Dict[str, Any]
 
-class OSIRAPIResponse(object):
-    def __init__(self, response: dict = None):
+    def __init__(self, response: Dict[str, Any]):
         try:
-            self.version = response.get('version', None)
-            self.status = response.get('status', None)
-            self.response = response.get('response')
+            version = response['version']
+            status = response['status']
+            response_data = response['response']
+        except KeyError as e:
+            logger.error(f"Missing required field: {e}")
+            raise ValueError(f"Missing required field: {e}")
 
-        except Exception as e:
-            logger.error_handler(e)
+        super().__init__(version=version, status=status, response=response_data)
+
+    def info(self):
+        if self.status != 200:
+            logger.error(self.model_dump())
+
+        elif 'message' in self.response :
+            logger.info(self.response['message'])    
+                
+        

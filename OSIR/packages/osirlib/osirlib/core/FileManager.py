@@ -88,4 +88,25 @@ class FileManager:
         """
         with open(filepath, 'r') as file:
             return yaml.safe_load(file)
+    
+    @staticmethod
+    def create_case(directory: str, case_name: str):
+        """
+        Create a new case directory and.
+        Args:
+            directory (str): The directory where the case will be created.
+            case_name (str): The name of the case (will be the directory name).
+        Returns:
+            str: The path to the created case directory.
+        Raises:
+            FileExistsError: If the case directory already exists.
+        """
+        case_path = os.path.join(directory, case_name)
+
+        if os.path.exists(case_path):
+            raise FileExistsError(f"Case '{case_name}' already exists in '{directory}'.")
+
+        os.makedirs(case_path)
+
+        return case_path
 
