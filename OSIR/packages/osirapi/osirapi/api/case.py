@@ -4,8 +4,9 @@ router = APIRouter()
 
 API_VERSION = "1.0"
 
-@router.get("/version")
+@router.get("/case")
 def get_version():
+    
     return {
         "version": API_VERSION,
         "status": 200,

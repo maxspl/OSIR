@@ -17,12 +17,17 @@ class OSIRAPICase(BaseModel):
 
     def create(self, name: Optional[str] = None):
         if name is None:
-            return 
-        
+            raise ValueError("The 'name' parameter is required and cannot be None.")
+                
         if self._client is None:
-            return 
-         
+            logger.error("Client is not initialized. Cannot proceed with the request.")
+            return  
+        
         self.name = name
-        _response = OSIRAPIResponse(self._client.get("/api/version"))
 
+        try:
+            _response = OSIRAPIResponse(self._client.get("/api/version"))
+        except Exception as e:
+            logger.error_handler(e)
+            
         return self
