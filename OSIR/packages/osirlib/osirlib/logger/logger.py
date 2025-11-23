@@ -1,7 +1,7 @@
 import logging
 import os
 import traceback
-from ..core.singleton import singleton
+from osirlib.core.singleton import singleton
 
 
 class CustomLogger(logging.getLoggerClass()):

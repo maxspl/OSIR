@@ -1,8 +1,8 @@
 import re
-from ...core.UnixUtils import UnixUtils
-from ...core.BaseModule import BaseModule
-from ...core.PyModule import PyModule
-from ...logger import AppLogger, CustomLogger
+from osirlib.core.UnixUtils import UnixUtils
+from osirlib.core.BaseModule import BaseModule
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 

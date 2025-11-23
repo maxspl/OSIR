@@ -1,9 +1,9 @@
 import os
 import re
 import shutil
-from ...core.BaseModule import BaseModule 
-from ...core.PyModule import PyModule
-from ...logger import AppLogger 
+from osirlib.core.BaseModule import BaseModule 
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger 
 
 logger = AppLogger(__name__).get_logger()
 

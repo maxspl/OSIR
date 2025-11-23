@@ -72,5 +72,9 @@ RUN set -eux; \
         http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
     dpkg -i /tmp/libssl1.1.deb && rm /tmp/libssl1.1.deb
 
+RUN python -m pip install --upgrade pip 
+RUN python -m pip install -e OSIR/OSIR/packages/osirlib/
+RUN python -m pip install -e OSIR/OSIR/packages/osirweb/
+
 # - Default command ------------------------------
 CMD ["OSIR.py", "--agent"]

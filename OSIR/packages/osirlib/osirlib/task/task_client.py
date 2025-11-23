@@ -5,8 +5,8 @@ from os import environ
 from celery import Celery
 from celery import signature
 
-from ..logger import AppLogger
-from ..core.BaseModule import BaseModule
+from osirlib.logger import AppLogger
+from osirlib.core.BaseModule import BaseModule
 
 
 logger = AppLogger(__name__).get_logger()

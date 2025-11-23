@@ -1,5 +1,5 @@
 import time
-from ..logger import AppLogger
+from osirlib.logger import AppLogger
 
 """
     Measures the execution time of a function and logs it.

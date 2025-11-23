@@ -8,9 +8,9 @@ import threading
 
 from typing import Callable
 
-from ..core.decorator import timeit
-from ..core.BaseModule import BaseModule
-from ..logger import AppLogger, CustomLogger
+from osirlib.core.decorator import timeit
+from osirlib.core.BaseModule import BaseModule
+from osirlib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 

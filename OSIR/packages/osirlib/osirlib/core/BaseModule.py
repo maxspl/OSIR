@@ -9,8 +9,9 @@ import uuid
 
 from typing import Any
 from pathlib import Path, PureWindowsPath
-from ..core.AgentConfig import AgentConfig
-from ..logger import AppLogger
+
+from osirlib.core.AgentConfig import AgentConfig
+from osirlib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 

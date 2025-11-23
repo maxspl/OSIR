@@ -1,9 +1,9 @@
 import re
-from ...core.decorator import pinfo
-from ...core.UnixUtils import UnixUtils
-from ...core.BaseModule import BaseModule
-from ...core.PyModule import PyModule
-from ...logger import AppLogger, CustomLogger
+from osirlib.core.decorator import pinfo
+from osirlib.core.UnixUtils import UnixUtils
+from osirlib.core.BaseModule import BaseModule
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger, CustomLogger
 from urllib.parse import unquote
 
 logger: CustomLogger = AppLogger().get_logger()

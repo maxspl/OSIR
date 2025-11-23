@@ -1,22 +1,23 @@
 from __future__ import annotations
 import os
 from typing import Callable, Dict
-from ...core.BaseModule import BaseModule
-from ...core.PyModule import PyModule
-from ...logger import AppLogger, CustomLogger
+
+from osirlib.core.BaseModule import BaseModule
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger, CustomLogger
 
 # Import all parsers
-from ...modules.windows.live_response.arp_cache_parser import ArpCacheParser
-from ...modules.windows.live_response.bits_jobs_parser import BitsJobsParser
-from ...modules.windows.live_response.dns_cache_parser import DnsCacheParser
-from ...modules.windows.live_response.dns_records_parser import DnsRecordsParser
-from ...modules.windows.live_response.enumlocs_parser import EnumLocsParser
-from ...modules.windows.live_response.handle_parser import HandleParser
-from ...modules.windows.live_response.listdlls_parser import ListDllsParser
-from ...modules.windows.live_response.netstat_parser import NetstatParser
-from ...modules.windows.live_response.routes_parser import RoutesParser
-from ...modules.windows.live_response.tcpvcon_parser import TcpvconParser
-from ...modules.windows.live_response.wmi_eventconsumer_parser import WmiEventConsumerParser
+from osirlib.modules.windows.live_response.arp_cache_parser import ArpCacheParser
+from osirlib.modules.windows.live_response.bits_jobs_parser import BitsJobsParser
+from osirlib.modules.windows.live_response.dns_cache_parser import DnsCacheParser
+from osirlib.modules.windows.live_response.dns_records_parser import DnsRecordsParser
+from osirlib.modules.windows.live_response.enumlocs_parser import EnumLocsParser
+from osirlib.modules.windows.live_response.handle_parser import HandleParser
+from osirlib.modules.windows.live_response.listdlls_parser import ListDllsParser
+from osirlib.modules.windows.live_response.netstat_parser import NetstatParser
+from osirlib.modules.windows.live_response.routes_parser import RoutesParser
+from osirlib.modules.windows.live_response.tcpvcon_parser import TcpvconParser
+from osirlib.modules.windows.live_response.wmi_eventconsumer_parser import WmiEventConsumerParser
 
 logger: CustomLogger = AppLogger().get_logger()
 

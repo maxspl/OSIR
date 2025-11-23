@@ -6,9 +6,9 @@ import unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-from ...core.BaseModule import BaseModule
-from ...core.PyModule import PyModule
-from ...logger import AppLogger, CustomLogger
+from osirlib.core.BaseModule import BaseModule
+from osirlib.core.PyModule import PyModule
+from osirlib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
