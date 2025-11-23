@@ -28,11 +28,11 @@ def create_case(request: CaseCreateRequest):
 
     case_name = request.name
 
-    
+    state, case_path = FileManager.create_case(StaticVars.CASES_DIR, case_name=case_name)
     return {
         "version": API_VERSION,
         "status": 200,
         "response": {
-            "message": 'Case created in ' + FileManager.create_case(StaticVars.CASES_DIR, case_name=case_name)
+            "message": f'Case {state} in {case_path}'  
         }
     }

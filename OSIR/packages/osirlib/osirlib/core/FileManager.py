@@ -1,6 +1,7 @@
 import os
 import yaml
 
+from osirlib.core import StaticVars
 
 class FileManager:
     @staticmethod
@@ -14,14 +15,14 @@ class FileManager:
         Returns:
             list[str]: Relative paths under the modules directory (e.g., "windows/foo.yml").
         """
-        MODULES_DIR = "/OSIR/OSIR/configs/modules/"
+
         paths = []
-        for root, _, files in os.walk(MODULES_DIR):
+        for root, _, files in os.walk(StaticVars.MODULES_DIR):
             for file in files:
                 for module in modules:
                     if file == module:
                         # Get the relative path by removing the MODULES_DIR part from the full path
-                        relative_path = os.path.relpath(os.path.join(root, file), MODULES_DIR)
+                        relative_path = os.path.relpath(os.path.join(root, file), StaticVars.MODULES_DIR)
                         paths.append(relative_path)
         return paths
 
@@ -104,9 +105,9 @@ class FileManager:
         case_path = os.path.join(directory, case_name)
 
         if os.path.exists(case_path):
-            raise FileExistsError(f"Case '{case_name}' already exists in '{directory}'.")
+            return ('Exists', case_path)
 
         os.makedirs(case_path)
 
-        return case_path
+        return ('Created', case_path)
 
