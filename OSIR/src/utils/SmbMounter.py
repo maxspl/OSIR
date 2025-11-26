@@ -3,8 +3,8 @@ import os
 import time
 import threading
 
-from packages.osirlib.osirlib.logger import AppLogger
-from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
+from packages.osir_lib.osir_lib.logger import AppLogger
+from packages.osir_lib.osir_lib.core.AgentConfig import AgentConfig
 
 logger = AppLogger().get_logger()
 

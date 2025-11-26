@@ -15,10 +15,10 @@ from src.utils.DbOSIR import DbOSIR
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 
-from packages.osirlib.osirlib.logger import AppLogger
-from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
-from packages.osirlib.osirlib.core.PyModule import PyModule
-from packages.osirlib.osirlib.task import task_client
+from packages.osir_lib.osir_lib.logger import AppLogger
+from packages.osir_lib.osir_lib.core.AgentConfig import AgentConfig
+from packages.osir_lib.osir_lib.core.PyModule import PyModule
+from packages.osir_lib.osir_lib.task import task_client
 
 
 logger = AppLogger(__name__).get_logger()

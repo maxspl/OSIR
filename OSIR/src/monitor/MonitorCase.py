@@ -5,8 +5,8 @@ from .ModuleHandler import ModuleHandler
 from threading import Thread, Event
 from src.utils import DbOSIR
 
-from packages.osirlib.osirlib.logger import AppLogger
-from packages.osirlib.osirlib.core.BaseModule import BaseModule
+from packages.osir_lib.osir_lib.logger import AppLogger
+from packages.osir_lib.osir_lib.core.BaseModule import BaseModule
 
 logger = AppLogger(__name__).get_logger()
 

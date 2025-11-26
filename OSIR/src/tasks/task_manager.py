@@ -1,5 +1,5 @@
-from packages.osirlib.osirlib.logger import AppLogger
-from packages.osirlib.osirlib.core import BaseModule
+from packages.osir_lib.osir_lib.logger import AppLogger
+from packages.osir_lib.osir_lib.core import BaseModule
 
 logger = AppLogger(__name__).get_logger()
 

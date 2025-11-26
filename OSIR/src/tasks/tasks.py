@@ -13,9 +13,9 @@ from src.processor import ExternalProcessor
 
 from src.utils.DbOSIR import DbOSIR
 
-from packages.osirlib.osirlib.logger import AppLogger
-from packages.osirlib.osirlib.core.BaseModule import BaseModule
-from packages.osirlib.osirlib.core.AgentConfig import AgentConfig
+from packages.osir_lib.osir_lib.logger import AppLogger
+from packages.osir_lib.osir_lib.core.BaseModule import BaseModule
+from packages.osir_lib.osir_lib.core.AgentConfig import AgentConfig
 
 logger = AppLogger().get_logger()
 

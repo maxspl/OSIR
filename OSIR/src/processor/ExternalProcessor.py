@@ -1,6 +1,6 @@
-from packages.osirlib.osirlib.core.PyModule import PyModule
-from packages.osirlib.osirlib.core import BaseModule
-from packages.osirlib.osirlib.logger import AppLogger 
+from packages.osir_lib.osir_lib.core.PyModule import PyModule
+from packages.osir_lib.osir_lib.core import BaseModule
+from packages.osir_lib.osir_lib.logger import AppLogger 
        
 logger = AppLogger(__name__).get_logger()
 

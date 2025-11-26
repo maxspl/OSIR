@@ -4,8 +4,8 @@ import sys
 import threading
 import os
 
-from packages.osirlib.osirlib.logger import AppLogger
-from packages.osirlib.osirlib.core.BaseProfile import BaseProfile
+from packages.osir_lib.osir_lib.logger import AppLogger
+from packages.osir_lib.osir_lib.core.BaseProfile import BaseProfile
 
 import src.tasks.task_manager as task_manager
 import src.tasks.tasks as tasks
@@ -100,7 +100,7 @@ def main():
     
     if args.web:
         logger.info("Launching web app...")
-        cli.main_run(["/OSIR/OSIR/packages/osirweb/osirweb/⚡_Processor.py"])
+        cli.main_run(["/OSIR/OSIR/packages/osir_web/osir_web/⚡_Processor.py"])
 
     case_path = os.path.join("/OSIR/share/cases", args.case)
     if not os.path.isdir(case_path):
