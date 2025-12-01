@@ -1,11 +1,20 @@
 import os
 from collections import defaultdict
+
+from pydantic import ValidationError
 from fastapi import APIRouter
 
 from osir_lib.core.FileManager import FileManager
-from osir_lib.core.BaseModule import BaseModule
 from osir_lib.core import StaticVars
 from osir_api.api.version import API_VERSION
+from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+
+from osir_api.api.exceptions import (
+    ModuleNotFoundException,
+    ModuleValidationException,
+    ModuleLoadException,
+    UnexpectedException
+)
 
 router = APIRouter()
 
@@ -69,28 +78,23 @@ def module_exists(module_path: str):
 
     if not sanitize_module.endswith('.yml'):
         sanitize_module = sanitize_module + '.yml'
-    
     for module in modules:
         if module.endswith(sanitize_module):
-            exists = True
-            module_info = BaseModule(sanitize_module.split('/')[-1])
-            break
-
-    if not exists:
-        return {
-            "version": API_VERSION,
-            "status": 200,
-            "response": {
-                "exists": exists, 
-                "module": sanitize_module
+            try:
+                module_info = OsirModuleModel.from_yaml(FileManager.full_path_module(module))  # ou le vrai chemin
+            except FileNotFoundError:
+                raise ModuleNotFoundException(sanitize_module)
+            except ValidationError as e:
+                raise ModuleValidationException(str(e))
+            except ValueError as e:
+                raise ModuleLoadException(str(e))
+            except Exception as e:
+                raise UnexpectedException(str(e))
+            
+            return {
+                "version": API_VERSION,
+                "status": 200,
+                "response": module_info.model_dump()
             }
-        }
 
-    return {
-        "version": API_VERSION,
-        "status": 200,
-        "response": {
-            "module_info": module_info.__dict__(), 
-            "module": sanitize_module
-        }
-    }
+    raise ModuleNotFoundException(sanitize_module) 

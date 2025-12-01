@@ -3,6 +3,16 @@ import os
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from osir_api.api.exceptions import (
+    ModuleNotFoundException,
+    ModuleValidationException,
+    ModuleLoadException,
+    UnexpectedException,
+    module_not_found_handler,
+    module_validation_handler,
+    module_load_handler,
+    unexpected_error_handler
+)
 
 MODULES_DIR = "/OSIR/OSIR/configs/modules/network"
 
@@ -11,6 +21,13 @@ app = FastAPI(
     description="API pour exécuter des modules OSIR",
     version="1.0.0"
 )
+
+# Register exception handlers
+app.add_exception_handler(ModuleNotFoundException, module_not_found_handler)
+app.add_exception_handler(ModuleValidationException, module_validation_handler)
+app.add_exception_handler(ModuleLoadException, module_load_handler)
+app.add_exception_handler(UnexpectedException, unexpected_error_handler)
+
 
 API_FOLDER = Path(__file__).parent / "api"
 ROUTE_PREFIX = "/api"

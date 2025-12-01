@@ -27,6 +27,10 @@ class FileManager:
         return paths
 
     @staticmethod
+    def full_path_module(module_relative_path: str):
+        return os.path.join(StaticVars.MODULES_DIR, module_relative_path)
+
+    @staticmethod
     def get_files_in_cases(directory):
         """
         Get a list of files in a given directory (recursive).
