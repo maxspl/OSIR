@@ -3,9 +3,9 @@ import re
 import shutil
 import random
 import string
-from ...utils.BaseModule import BaseModule 
+from src.utils.BaseModule import BaseModule 
 from src.utils.PyModule import PyModule
-from ...log.logger import AppLogger 
+from src.log.logger_config import AppLogger 
 
 logger = AppLogger(__name__).get_logger()
 
