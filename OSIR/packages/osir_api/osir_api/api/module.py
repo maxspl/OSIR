@@ -18,7 +18,33 @@ from osir_api.api.exceptions import (
 
 router = APIRouter()
 
+def module_instance(module_path: str):
+    # GLOB PATTERN ? 
+    yaml_files = FileManager.get_yaml_files(StaticVars.MODULES_DIR)
+    modules = FileManager.resolve_modules_parent_dir(yaml_files)
 
+    sanitize_module = module_path.replace('.','/').replace('\\','/')
+
+    if sanitize_module.endswith('/yml'):
+        sanitize_module = sanitize_module.replace('/yml','.yml')
+
+    if not sanitize_module.endswith('.yml'):
+        sanitize_module = sanitize_module + '.yml'
+    for module in modules:
+        if module.endswith(sanitize_module):
+            try:
+                return OsirModuleModel.from_yaml(FileManager.full_path_module(module))  # ou le vrai chemin
+            except FileNotFoundError:
+                raise ModuleNotFoundException(sanitize_module)
+            except ValidationError as e:
+                raise ModuleValidationException(str(e))
+            except ValueError as e:
+                raise ModuleLoadException(str(e))
+            except Exception as e:
+                raise UnexpectedException(str(e))
+    
+    raise ModuleNotFoundException(sanitize_module)
+ 
 def make_node():
     """Returns a normalized node structure."""
     return defaultdict(make_node, {"modules": []})
@@ -65,36 +91,13 @@ def get_modules():
     return response
 
 @router.get("/module/exists/{module_path}")
-def module_exists(module_path: str):
-    exists = False
+def module_exists(module_path: str):   
+    return {
+        "version": API_VERSION,
+        "status": 200,
+        "response": module_instance(module_path=module_path).model_dump()
+    }
 
-    yaml_files = FileManager.get_yaml_files(StaticVars.MODULES_DIR)
-    modules = FileManager.resolve_modules_parent_dir(yaml_files)
-
-    sanitize_module = module_path.replace('.','/').replace('\\','/')
-
-    if sanitize_module.endswith('/yml'):
-        sanitize_module = sanitize_module.replace('/yml','.yml')
-
-    if not sanitize_module.endswith('.yml'):
-        sanitize_module = sanitize_module + '.yml'
-    for module in modules:
-        if module.endswith(sanitize_module):
-            try:
-                module_info = OsirModuleModel.from_yaml(FileManager.full_path_module(module))  # ou le vrai chemin
-            except FileNotFoundError:
-                raise ModuleNotFoundException(sanitize_module)
-            except ValidationError as e:
-                raise ModuleValidationException(str(e))
-            except ValueError as e:
-                raise ModuleLoadException(str(e))
-            except Exception as e:
-                raise UnexpectedException(str(e))
-            
-            return {
-                "version": API_VERSION,
-                "status": 200,
-                "response": module_info.model_dump()
-            }
-
-    raise ModuleNotFoundException(sanitize_module) 
+@router.get("/module/run/{module_path}")
+def run_module(module_path: str):
+    module = module_instance(module_path=module_path)

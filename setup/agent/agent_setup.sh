@@ -252,8 +252,7 @@ remote_installation(){
 }
 setup_dockur_win(){
     # Define the directories
-    # ISO_URL="https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso" 
-    ISO_URL="https://natopia.fr/tiny10_x64_23h2.iso"
+    ISO_URL="https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso" 
     ISO_NAME="tiny10_x64_23h2.iso"
     ISO_DIR="$MASTER_DIR/../windows_setup/src/win_iso"
     DOCKUR_STORAGE_DIR="$MASTER_DIR/../windows_setup/src/dockur_storage"
