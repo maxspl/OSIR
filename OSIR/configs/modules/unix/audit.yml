@@ -1,5 +1,5 @@
 version: 1.0
-author: 
+author: Typ
 module: audit
 description: Parsing logs from '/var/log/audit'
 os: unix
@@ -12,8 +12,8 @@ processor_type:
 processor_os: unix
 input:
   type: file
-  name: (?:audit)
-  path: var/log/audit
+  paths: 
+    - "*var/log/*audit*"
 output:
   type: single_file
   format: json

@@ -16,6 +16,8 @@ from osir_api.api.exceptions import (
     UnexpectedException
 )
 
+from osir_service.orchestration.TaskService import TaskService
+
 router = APIRouter()
 
 def module_instance(module_path: str):
@@ -100,4 +102,4 @@ def module_exists(module_path: str):
 
 @router.get("/module/run/{module_path}")
 def run_module(module_path: str):
-    module = module_instance(module_path=module_path)
+    TaskService.run_task("test", module_instance(module_path=module_path), "internal_processor_task", queue=None, case_uuid='tot')

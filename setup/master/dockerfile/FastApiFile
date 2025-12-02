@@ -10,5 +10,5 @@ RUN set -eux; \
     python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
 
 EXPOSE 8502
-
+# redis / celery
 #uvicorn osir_api.main:app --host "0.0.0.0" --port 8502

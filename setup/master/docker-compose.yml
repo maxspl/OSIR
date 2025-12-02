@@ -307,11 +307,18 @@ services:
       - "all"
     restart: always
 
-  fastapi:
+  api:
     build:
       dockerfile: FastApiFile
       context: ./dockerfile
     container_name: master-api
+    environment:
+      - HOST_HOSTNAME=${HOST_HOSTNAME}
+      - HOST_IP_LIST=${HOST_IP_LIST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     ports:
       - "8502:8502"
     volumes:
