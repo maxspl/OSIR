@@ -100,7 +100,7 @@ def main():
     
     if args.web:
         logger.info("Launching web app...")
-        cli.main_run(["/OSIR/OSIR/packages/osir_web/osir_web/⚡_Processor.py"])
+        cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/⚡_Processor.py"])
 
     case_path = os.path.join("/OSIR/share/cases", args.case)
     if not os.path.isdir(case_path):
