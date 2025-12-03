@@ -3,8 +3,8 @@ from psycopg2 import sql
 import datetime
 import os
 
-from packages.osir_lib.osir_lib.logger import AppLogger
-from packages.osir_lib.osir_lib.core.BaseModule import BaseModule
+from osir_lib.logger import AppLogger
+from osir_lib.core.BaseModule import BaseModule
 
 logger = AppLogger(__name__).get_logger()
 

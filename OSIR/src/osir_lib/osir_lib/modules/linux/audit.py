@@ -25,7 +25,7 @@ class AuditModule(PyModule, UnixUtils):
         UnixUtils.__init__(self, case_path, module)
 
         self._file_to_process = module.input.file
-        self._format_output_file()
+        # self._format_output_file()
 
     def __call__(self) -> bool:
         """

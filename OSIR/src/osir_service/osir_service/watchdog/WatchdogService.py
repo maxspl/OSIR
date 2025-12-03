@@ -10,16 +10,14 @@ import copy
 from pathlib import Path
 from threading import Timer
 
-from src.utils.DbOSIR import DbOSIR
-
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 
-from packages.osir_lib.osir_lib.logger import AppLogger
-from packages.osir_lib.osir_lib.core.AgentConfig import AgentConfig
-from packages.osir_lib.osir_lib.core.PyModule import PyModule
-from packages.osir_lib.osir_lib.task import task_client
-
+from osir_lib.logger import AppLogger
+from osir_lib.core.AgentConfig import AgentConfig
+from osir_lib.core.PyModule import PyModule
+from osir_service.orchestration.TaskService import TaskService
+from osir_service.postgres.PostgresService import DbOSIR
 
 logger = AppLogger(__name__).get_logger()
 
@@ -452,7 +450,7 @@ class ModuleHandler(FileSystemEventHandler):
 
         # Collect task parameters
         task_params = (PyModule.remove_prefix(self.case_path), pickle.dumps(module_instance), task_name, queue_name, self.case_uuid)
-        task_client.run_task(*task_params)
+        TaskService.push_task(*task_params)
 
     @staticmethod
     def module_exists(module_name):

@@ -4,14 +4,14 @@ import sys
 import threading
 import os
 
-from packages.osir_lib.osir_lib.logger import AppLogger
-from packages.osir_lib.osir_lib.core.BaseProfile import BaseProfile
+from osir_lib.logger import AppLogger
+from osir_lib.core.BaseProfile import BaseProfile
 
-import src.tasks.task_manager as task_manager
-import src.tasks.tasks as tasks
-import src.monitor.MonitorCase as MonitorCase
-import src.utils.SmbMounter as SmbMounter
-
+# TOREMOVE
+import osir_service.orchestration.ProcessorJob as task_manager
+import osir_service.agent.AgentService as tasks
+import osir_service.watchdog.MonitorCase as MonitorCase
+import osir_service.smb.SMBService as SmbMounter
 
 from streamlit.web import cli
 

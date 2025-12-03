@@ -385,26 +385,6 @@ class BaseModule():
         """
         return self.type
 
-    def get_requirements(self):
-        """
-        Retrieves the requirements for the module. Each requirement is ensured to end with '.yml'.
-
-        Returns:
-            List[str]: A list of requirements, each formatted with a '.yml' extension.
-        """
-        requirements = self.requirements
-
-        # Check if 'Requirements' is a string and process accordingly
-        if isinstance(requirements, str):
-            # Append ".yml" if it does not already end with ".yml"
-            return requirements + '.yml' if not requirements.endswith('.yml') else requirements
-        elif isinstance(requirements, list):
-            # Append ".yml" to each element in the list if it does not already end with ".yml"
-            return [req + '.yml' if not req.endswith('.yml') else req for req in requirements]
-        else:
-            # Return an empty list if 'Requirements' is neither a list nor a string
-            return []
-
     def get_processor_type(self):
         """
         Retrieves the types of processors that the module can utilize.

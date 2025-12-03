@@ -20,6 +20,8 @@ class OsirModuleModel(BaseModel):
     no_multithread: bool
     processor_type: list[PROCESSOR_TYPE]
     processor_os: PROCESSOR_OS
+    alt_module: Optional[str] = None
+    env: Optional[list[str]] = None
     tool: Optional[OsirToolModel] = None
     input: OsirInputModel
     output: OsirOutputModel 
@@ -52,3 +54,12 @@ class OsirModuleModel(BaseModel):
             raise ValueError(f"Failed to parse YAML file {path}: {e}") from e
         except ValidationError as e:
             raise ValueError(f"Data validation error for module: {e}") from e
+
+    def get_module_name(self):
+        """
+        Retrieves the name of the module.
+
+        Returns:
+            str: The module name.
+        """
+        return self.module

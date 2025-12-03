@@ -8,20 +8,22 @@ import time
 from celery import Celery
 from os import environ, cpu_count
 
-from src.processor import InternalProcessor
-from src.processor import ExternalProcessor
 
-from src.utils.DbOSIR import DbOSIR
 
+
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
 from osir_lib.core.BaseModule import BaseModule
 from osir_lib.core.AgentConfig import AgentConfig
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+from osir_service.orchestration.TaskProcessorService import InternalProcessor
+from osir_service.orchestration.TaskProcessorService import ExternalProcessor
+from osir_service.postgres.PostgresService import DbOSIR
 
 logger = AppLogger().get_logger()
 
 
-class AgentService:
+class CeleryWorker:
     """
     Manages a Celery worker that handles task execution in a distributed environment, supporting different processing
     modes based on the configuration and environment.
@@ -127,8 +129,8 @@ class AgentService:
             """ celery task - internal_processor  """
             try:
                 logger.debug("RIGHT BEFORE BUG")
-                module_instance = OsirModuleModel.model_validate_json(module_bytes)
-                processor = InternalProcessor.InternalProcessor(case_path, module_instance)
+                module_instance = OsirModule(**OsirModuleModel.model_validate_json(module_bytes).model_dump())
+                processor = InternalProcessor(case_path, module_instance)
 
                 # Open db
                 self.DbOSIR = DbOSIR(self.master_host, module_name=module_instance.module_name)
@@ -158,8 +160,8 @@ class AgentService:
         def task_external_processor(input_dir, case_path, module_bytes, case_uuid):
             """ celery task - external_processor  """
             try:
-                module_instance: BaseModule = pickle.loads(module_bytes)
-                processor = ExternalProcessor.ExternalProcessor(case_path, module_instance)
+                module_instance = OsirModuleModel.model_validate_json(module_bytes)
+                processor = InternalProcessor(case_path, module_instance)
 
                 # Open db
                 self.DbOSIR = DbOSIR(self.master_host, module_name=module_instance.module_name)

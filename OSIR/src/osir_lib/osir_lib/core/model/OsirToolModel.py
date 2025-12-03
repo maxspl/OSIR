@@ -7,3 +7,4 @@ class OsirToolModel(BaseModel):
     source: Optional[str] = None
     version: Optional[str] = None
     license: Optional[str] = None
+    env: Optional[list[str]] = None
