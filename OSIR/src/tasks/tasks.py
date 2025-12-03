@@ -126,7 +126,8 @@ class CeleryWorker:
         def task_internal_processor(input_dir, case_path, module_bytes, case_uuid):
             """ celery task - internal_processor  """
             try:
-                module_instance: BaseModule = pickle.loads(module_bytes)
+                logger.debug("RIGHT BEFORE BUG")
+                module_instance: OsirModuleModel = pickle.loads(module_bytes)
                 processor = InternalProcessor.InternalProcessor(case_path, module_instance)
 
                 # Open db

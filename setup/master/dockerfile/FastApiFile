@@ -6,8 +6,16 @@ RUN apt-get update && apt-get install -y \
 
 COPY sources/requirements_api.txt /tmp/requirements.txt
 
+RUN python -m pip install --upgrade pip 
+
 RUN set -eux; \
     python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
+
+
+RUN python -m pip install celery redis
+RUN python -m pip install -e OSIR/OSIR/packages/osir_lib/
+RUN python -m pip install -e OSIR/OSIR/packages/osir_api/
+RUN python -m pip install -e OSIR/OSIR/packages/osir_service/
 
 EXPOSE 8502
 # redis / celery

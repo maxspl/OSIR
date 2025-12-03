@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
 class OsirProfileModel(BaseModel):
-    version: str
+    version: float
     author: str
     description: str
     os: str
-    modules: str
+    modules: list[str]

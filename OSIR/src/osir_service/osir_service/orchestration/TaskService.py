@@ -32,7 +32,7 @@ class TaskService:
             return f"{module.processor_os}_multithread"
 
     @staticmethod
-    def run_task(case_path, module_instance: OsirModuleModel, task, queue, case_uuid):
+    def push_task(case_path, module_instance: OsirModuleModel, task, queue, case_uuid):
         """
         Submits a task for asynchronous execution using Celery, specifying the task's parameters and execution queue.
 
