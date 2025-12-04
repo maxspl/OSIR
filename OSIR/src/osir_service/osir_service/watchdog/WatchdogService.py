@@ -10,6 +10,7 @@ import copy
 from pathlib import Path
 from threading import Timer
 
+from osir_lib.core import StaticVars
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 
@@ -18,6 +19,7 @@ from osir_lib.core.AgentConfig import AgentConfig
 from osir_lib.core.PyModule import PyModule
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.postgres.PostgresService import DbOSIR
+from osir_lib.core.OsirModule import OsirModule
 
 logger = AppLogger(__name__).get_logger()
 
@@ -87,7 +89,7 @@ class ModuleHandler(FileSystemEventHandler):
         self.watch_directory = case_path
         self.case_path = case_path
         self.last_modified_times = {}
-        self.module_instances = module_instances
+        self.module_instances: list[OsirModule] = module_instances
         self.case_uuid = case_uuid
         
         self.last_size = {}
@@ -173,7 +175,8 @@ class ModuleHandler(FileSystemEventHandler):
             event: The event object representing the file or directory creation event.
         """
         for module_info in self.modules_info:
-            file_regex = re.compile(module_info["file_regex"])
+            if module_info["file_regex"]:
+                file_regex = re.compile(module_info["file_regex"])
             path_pattern_suffix = module_info["path_pattern_suffix"]
             if path_pattern_suffix:
                 wildcard_pattern = path_pattern_suffix.rstrip('/*')  # Wildcard can be used after suffix to match any directory (not recursive)
@@ -361,7 +364,7 @@ class ModuleHandler(FileSystemEventHandler):
         logger.debug(f"""{module_name}.yaml - Processing : \n
                     Case Path : {self.case_path} \n
                     File Input: {file_path.split(self.case_path)[-1]} \n""")
-        processor_type = module_instance.get_processor_type()
+        processor_type = module_instance.processor_type
         self.DbOSIR.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
         if "internal" in processor_type:
             py_module_name = getattr(module_instance, 'alt_module', None) or module_instance.module_name  # try first alt_module, fallback to module_name
@@ -394,7 +397,7 @@ class ModuleHandler(FileSystemEventHandler):
         
         module_instance.input.dir = directory_path  # MSP maybe useless because of _set_input
         
-        processor_type = module_instance.get_processor_type()
+        processor_type = module_instance.processor_type
         self.DbOSIR.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
         if "internal" in processor_type:
             if self.module_exists(module_instance.module_name):
@@ -421,35 +424,14 @@ class ModuleHandler(FileSystemEventHandler):
         elif input_type == 'dir':
             module_instance.input.dir = input_path
 
-    def _push_task(self, module_instance):
+    def _push_task(self, module_instance: OsirModule):
         """
         Pushes a task to the task queue for processing based on the current module configuration.
 
         Args:
             module_instance: The module instance to be processed.
         """
-
-        disk_only = module_instance.get_disk_only()
-        no_multithread = module_instance.get_no_multithread()
-        processor_type = module_instance.get_processor_type()
-        processor_os = module_instance.get_processor_os()
-        if "internal" in processor_type:
-            task_name = "internal_processor_task"
-            logger.debug(f"Pushing the internal task '{module_instance.module_name}.py' to Celery ")
-        else:
-            task_name = "external_processor_task"
-
-        if disk_only and no_multithread:
-            queue_name = f"{processor_os}_no_multithread_disk_only"
-        elif disk_only:
-            queue_name = f"{processor_os}_multithread_disk_only"
-        elif no_multithread:
-            queue_name = f"{processor_os}_no_multithread"
-        else:
-            queue_name = f"{processor_os}_multithread"
-
-        # Collect task parameters
-        task_params = (PyModule.remove_prefix(self.case_path), pickle.dumps(module_instance), task_name, queue_name, self.case_uuid)
+        task_params = (PyModule.remove_prefix(self.case_path), module_instance, self.case_uuid)
         TaskService.push_task(*task_params)
 
     @staticmethod
@@ -463,13 +445,9 @@ class ModuleHandler(FileSystemEventHandler):
         Returns:
             bool: True if the module exists, False otherwise.
         """ 
-        directory = os.path.dirname(__file__)  # Gets the directory of the current script
-        relative_path = os.path.join(directory, '..')
-        absolute_path = os.path.abspath(relative_path)  # Converts to absolute path
-        modules_directory = os.path.join(absolute_path, 'modules')
-
+        modules_directory = StaticVars.PY_MODULES_DIR
         # Base import path for modules
-        base_path = 'src.modules.'
+        base_path = 'osir_lib.modules.'
         # Walk through each directory and sub-directory in the 'modules' directory
         for _, name, is_pkg in pkgutil.walk_packages([modules_directory], base_path):
             if not is_pkg:
@@ -486,7 +464,7 @@ class ModuleHandler(FileSystemEventHandler):
                     logger.debug(f"Failed to import {name}: {e}")
                     return False
 
-    def _get_module_instance(self, module_name):
+    def _get_module_instance(self, module_name) -> OsirModule | None:
         """
         Retrieves the module instance by name.
 

@@ -12,13 +12,17 @@ from osir_lib.core.OsirTool import OsirTool
 from osir_lib.core.OsirConnector import OsirConnector
 
 class OsirModule(OsirModuleModel):
-    module_name: Optional[str] = None
-    _module_filepath: Optional[str] = None
-
     """
         Domain class extending OsirModuleModel.
         Automatically replaces nested models by their domain equivalents.
     """
+
+    module_name: Optional[str] = None
+    _module_filepath: Optional[str] = None
+    tool: Optional[OsirTool] = None        
+    input: Optional[OsirInput] = None     
+    output: Optional[OsirOutput] = None   
+    connector: Optional[OsirConnector] = None
 
     def __init__(self, **data):
         super().__init__(**data)

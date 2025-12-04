@@ -12,8 +12,8 @@ processor_type:
 processor_os: unix
 input:
   type: file
-  paths: 
-    - "*var/log/*audit*"
+  name: (?:auth\.log)
+  path: var/log/
 output:
   type: single_file
   format: json

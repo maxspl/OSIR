@@ -4,7 +4,7 @@ from os import environ
 from celery import Celery
 from celery import signature
 
-from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -14,14 +14,14 @@ class TaskService:
         pass
     
     @staticmethod
-    def get_task_name(module: OsirModuleModel):
+    def get_task_name(module: OsirModule):
         if "internal" in module.processor_type:
             return "internal_processor_task"
         else:
             return "external_processor_task"        
     
     @staticmethod
-    def get_queue_name(module: OsirModuleModel):
+    def get_queue_name(module: OsirModule):
         if module.disk_only and module.no_multithread:
             return f"{module.processor_os}_no_multithread_disk_only"
         elif module.disk_only :
@@ -32,7 +32,7 @@ class TaskService:
             return f"{module.processor_os}_multithread"
 
     @staticmethod
-    def push_task(case_path, module_instance: OsirModuleModel, task, queue, case_uuid):
+    def push_task(case_path, module_instance: OsirModule, case_uuid):
         """
         Submits a task for asynchronous execution using Celery, specifying the task's parameters and execution queue.
 
@@ -47,9 +47,14 @@ class TaskService:
             CELERY_BROKER_URL (str): The URL of the Celery message broker.
             CELERY_RESULT_BACKEND (str): The URL of the backend used to store task results.
         """
+        if not module_instance.input._match:
+            if module_instance.input.type == "file":
+                module_instance.input._match = module_instance.input.file
+            else:
+                module_instance.input._match = module_instance.input.dir
 
         logger.info(f"""Task Pushed : \n
-                    Task Name : {task} \n
+                    Task Name : {module_instance.module_name} \n
                     Task Type : {module_instance.processor_type} \n
                     Case Path : {case_path} \n
                     Input : {module_instance.input._match} \n

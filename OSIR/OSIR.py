@@ -4,11 +4,11 @@ import sys
 import threading
 import os
 
+from osir_lib.core.OsirProfile import OsirProfile
 from osir_lib.logger import AppLogger
 from osir_lib.core.BaseProfile import BaseProfile
 
 # TOREMOVE
-import osir_service.orchestration.ProcessorJob as task_manager
 import osir_service.agent.AgentService as tasks
 import osir_service.watchdog.MonitorCase as MonitorCase
 import osir_service.smb.SMBService as SmbMounter
@@ -117,8 +117,10 @@ def main():
     modules_to_remove = args.module_remove if args.module_remove else []
     
     # Get the modules to process
-    job = task_manager.ProcessorJob(case_path, profile_instance, selected_modules, modules_to_add, modules_to_remove)
-    modules = job._get_modules_selected()
+    profile = OsirProfile(modules=selected_modules)
+    profile.remove_modules(modules_to_remove)
+    profile.add_modules(modules_to_add)
+    modules = profile.modules
     
     monitor_case = MonitorCase.MonitorCase(case_path, modules)
 

@@ -4,7 +4,7 @@ import uuid
 from threading import Thread, Event
 
 from osir_lib.logger import AppLogger
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_service.postgres.PostgresService import DbOSIR
 from osir_service.watchdog.WatchdogService import ModuleHandler
 
@@ -28,13 +28,13 @@ class MonitorCase:
         self.modules = modules
         self.reprocess_case = reprocess_case
         
-        self.module_instances = [BaseModule.BaseModule(module) for module in modules]  # Transform list of str to list of module
+        self.module_instances = [OsirModule.from_name(module) for module in modules]  # Transform list of str to list of module
         self.cooldown_period = 20  # Cooldown period in seconds 
         self.case_uuid = self._generate_unique_id(os.path.basename(self.case_path))
         
         self.stop_event = Event()
         
-        self.db_OSIR = DbOSIR.DbOSIR("master-postgres", module_name="master_status")  # Use docker service name
+        self.db_OSIR = DbOSIR("master-postgres", module_name="master_status")  # Use docker service name
         self.db_OSIR.store_master_status(case_path, "processing_case", self.case_uuid, self.modules)
 
     def on_inactivity(self):
@@ -62,33 +62,34 @@ class MonitorCase:
         """
         Sets up file and directory event handlers for each module, configuring and starting an observer to monitor the filesystem.
         """
-        modules_info = []
-        for module_instance in self.module_instances:
-            module_name = module_instance.module_name
-            file_regex = module_instance.input.name
+        try:
+            modules_info = []
+            for module_instance in self.module_instances:
+                module_name = module_instance.module_name
+                logger.info(module_instance.input.name)
+                file_regex = module_instance.input.name
 
-            if module_instance.input.path:
-                path_pattern = module_instance.input.path.rstrip('/')
-            else:
-                path_pattern = None  # No path criteria given
+                if module_instance.input.path:
+                    path_pattern = module_instance.input.path.rstrip('/')
+                else:
+                    path_pattern = None  # No path criteria given
 
-            if not module_instance.input.type:
-                logger.error("type is missing in module configuration")
-                exit()  # To change
-            else:
                 input_type = module_instance.input.type
 
-            module_info = {
-                "module_name": module_name,
-                "file_regex": file_regex,
-                "path_pattern_suffix": path_pattern,
-                "input_type": input_type
-            }
-            modules_info.append(module_info)
-            
-        handler = ModuleHandler(self.case_path, modules_info, self.cooldown_period, self.module_instances, self.case_uuid)
-        monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10, self.reprocess_case))
-        monitor_case_thread.start()
-        monitor_case_thread.join()
-        self.on_inactivity()
+                module_info = {
+                    "module_name": module_name,
+                    "file_regex": file_regex,
+                    "path_pattern_suffix": path_pattern,
+                    "input_type": input_type
+                }
+                modules_info.append(module_info)
+                
+            handler = ModuleHandler(self.case_path, modules_info, self.cooldown_period, self.module_instances, self.case_uuid)
+            handler.monitor_directory(self.case_path, 10, self.reprocess_case)
+        except Exception as e:
+            logger.error_handler(e)
+        # monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10, self.reprocess_case))
+        # monitor_case_thread.start()
+        # monitor_case_thread.join()
+        # self.on_inactivity()
 

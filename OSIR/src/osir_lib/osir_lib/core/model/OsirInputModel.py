@@ -8,10 +8,10 @@ class OsirInputModel(BaseModel):
     type: INPUT_TYPE
 
     #OLD 
-    file: Optional[Path] = None
-    dir: Optional[Path] = None
-    path: Optional[Path] = None
-    name: Optional[Path] = None
+    file: Optional[str] = None
+    dir: Optional[str] = None
+    path: Optional[str] = None
+    name: Optional[str] = None
 
     # NEW 
     paths: Optional[list[str]] = None

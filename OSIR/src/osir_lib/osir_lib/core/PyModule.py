@@ -3,6 +3,7 @@ from pathlib import Path, PureWindowsPath
 import shutil
 import re
 import hashlib
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.AgentConfig import AgentConfig
 from osir_lib.core.BaseModule import BaseModule
 
@@ -15,7 +16,7 @@ class PyModule():
     """
     Manages the execution of modules within a Python environment, handling both local and remote executions based on configuration.
     """
-    def __init__(self, case_path: str, module_instance: BaseModule) -> None:
+    def __init__(self, case_path: str, module_instance: OsirModule) -> None:
         """
         Initializes the PyModule instance by setting up paths, configurations, and determining execution context based on module details.
 
@@ -60,6 +61,8 @@ class PyModule():
         """
 
         logger.debug(f"Run external tool by PyModule : {self.module.module_name}")
+        test = self.module.model_dump()
+        logger.debug(f"{test}")
         match self.module.processor_os:
             case 'unix':
                 self.update_command_local()
@@ -164,7 +167,7 @@ class PyModule():
             self.module.tool.cmd = self.module.tool.cmd.replace("{input_file}", updated_file)
 
         # Format and Replace output file
-        if self.module.output.output_file != '':
+        if self.module.output.output_file:
             self._format_output_file()
             # If output dir specified in cmd, only output file base name is used, not full path
             if "output_dir" in self.module.tool.cmd:
@@ -178,7 +181,7 @@ class PyModule():
                 self.module.tool.cmd = self.module.tool.cmd.replace("{output_file}", converted_path)
 
         # Format and Replace output dir
-        if self.module.output.output_dir != '':
+        if self.module.output.output_dir:
             self._format_output_dir()
             dir_full_path = os.path.join(self.default_output_dir, self.module.output.output_dir)
             # If needed, convert path
@@ -192,7 +195,7 @@ class PyModule():
             self.module.tool.cmd = self.module.tool.cmd.replace("{output_dir}", converted_dir)
 
         # Format and Replace output prefix
-        if self.module.output.output_prefix != '':
+        if self.module.output.output_prefix:
             self._format_output_prefix()
             prefix_full_path = os.path.join(self.default_output_dir, self.module.output.output_prefix)
             # If needed, convert path

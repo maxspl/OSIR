@@ -558,11 +558,11 @@ class ConfigurationApp:
 
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
-        monitor_case = MonitorCase.MonitorCase(case_path, modules_selected, reprocess_case)
+        monitor_case = MonitorCase(case_path, modules_selected, reprocess_case)
 
         # Apply in-memory YAML overrides to all module instances for this run
         self._apply_overrides_to_monitor_case(monitor_case)
-
+        
         # Run the setup in a background thread
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(monitor_case.setup_handler)

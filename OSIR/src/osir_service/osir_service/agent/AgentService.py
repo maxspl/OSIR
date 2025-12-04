@@ -160,7 +160,7 @@ class CeleryWorker:
         def task_external_processor(input_dir, case_path, module_bytes, case_uuid):
             """ celery task - external_processor  """
             try:
-                module_instance = OsirModuleModel.model_validate_json(module_bytes)
+                module_instance = OsirModule(**OsirModuleModel.model_validate_json(module_bytes).model_dump())
                 processor = InternalProcessor(case_path, module_instance)
 
                 # Open db
