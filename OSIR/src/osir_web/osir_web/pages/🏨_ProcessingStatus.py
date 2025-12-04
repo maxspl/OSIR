@@ -3,7 +3,7 @@ import pandas as pd
 from sqlalchemy import text
 from utils.Db import Db_accessor
 from streamlit_extras.colored_header import colored_header 
-from packages.osir_web.osir_web.utils import MasterSideBar
+from osir_web.utils import MasterSideBar
 
 
 # Database formatter class

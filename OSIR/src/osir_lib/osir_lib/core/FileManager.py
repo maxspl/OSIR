@@ -1,7 +1,9 @@
 import os
 import yaml
-
 from osir_lib.core import StaticVars
+from osir_lib.logger import AppLogger
+
+logger = AppLogger(__name__).get_logger()
 
 class FileManager:
     @staticmethod
@@ -25,6 +27,41 @@ class FileManager:
                         relative_path = os.path.relpath(os.path.join(root, file), StaticVars.MODULES_DIR)
                         paths.append(relative_path)
         return paths
+    
+    @staticmethod
+    def get_module_path(module: str):
+        module = module if module.endswith('.yml') else module + '.yml'
+
+        candidate = os.path.join(StaticVars.MODULES_DIR, module)
+        if os.path.exists(candidate):
+            return candidate
+
+        for root, dirs, files in os.walk(StaticVars.MODULES_DIR):
+            for file in files:
+                if file == module:
+                    return os.path.join(root, file)
+                
+        logger.error(f"No module found with name {module} in directory {StaticVars.MODULES_DIR}")
+        
+        raise FileNotFoundError(f"No module found with name {module} in directory {StaticVars.MODULES_DIR}")
+
+    @staticmethod
+    def get_profile_path(profile: str):
+        profile = profile if profile.endswith('.yml') else profile + '.yml'
+
+        candidate = os.path.join(StaticVars.PROFILES_DIR, profile)
+        if os.path.exists(candidate):
+            return candidate
+
+        for root, dirs, files in os.walk(StaticVars.PROFILES_DIR):
+            for file in files:
+                if file == profile:
+                    return os.path.join(root, file)
+                
+        logger.error(f"No profile found with name {profile} in directory {StaticVars.PROFILES_DIR}")
+        
+        raise FileNotFoundError(f"No profile found with name {profile} in directory {StaticVars.PROFILES_DIR}")
+
 
     @staticmethod
     def full_path_module(module_relative_path: str):

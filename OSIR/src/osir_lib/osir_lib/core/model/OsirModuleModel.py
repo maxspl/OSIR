@@ -10,7 +10,7 @@ from osir_lib.core.model.OsirToolModel import OsirToolModel
 from osir_lib.core.model.connector.OsirConnectorModel import OsirConnectorModel
 
 class OsirModuleModel(BaseModel):
-    version: float
+    version: float | str
     author: str
     module: str
     description: str
@@ -53,7 +53,7 @@ class OsirModuleModel(BaseModel):
         except yaml.YAMLError as e:
             raise ValueError(f"Failed to parse YAML file {path}: {e}") from e
         except ValidationError as e:
-            raise ValueError(f"Data validation error for module: {e}") from e
+            raise ValueError(f"Data validation error for module {path}: {e}") from e
 
     def get_module_name(self):
         """

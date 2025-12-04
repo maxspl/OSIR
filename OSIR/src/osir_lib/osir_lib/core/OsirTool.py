@@ -9,8 +9,8 @@ from osir_lib.logger import AppLogger
 logger = AppLogger(__name__).get_logger()
 
 class OsirTool(OsirToolModel):
-    def __init__():
-        super()
+    def __init__(self, **data):
+        super().__init__(**data)
 
     def init_tool(self, processor_os):
         """

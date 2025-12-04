@@ -1,25 +1,35 @@
 version: 1.0
-Author:
-Module: prefetch_orc
-Description:
-Os: windows
-Type: process
-Disk_only: False
-No_multithread: False
-Processor_type: 
+author: maxspl
+module: prefetch
+description:
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
   - external
-Processor_os: windows
+processor_os: windows
 tool: 
   path: net9/PECmd.exe
-  cmd: -f "{input_file}" --json "{output_dir}" --jsonf "{output_file}"
+  cmd: -d "{input_dir}" --json "{output_dir}" --jsonf "{output_file}" -q
   source:
   version:
-Input:
-  Type: file
-  Name: \.pf_{
-  Path: Prefetch
-Output:
-  Type: single_file
-  Format: json
-  Output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
-
+input:
+  type: file
+  name: \.pf_{
+  path: Prefetch
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+splunk:
+  'windows:prefetch':
+    name_rex: \.jsonl$
+    path_suffix: 'prefetch'
+    sourcetype: 'windows:files:prefetch'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "LastRun"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: "Prefetch"

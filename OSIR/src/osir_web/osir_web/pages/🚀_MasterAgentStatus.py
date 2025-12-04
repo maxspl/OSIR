@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import pytz  # You might need to install pytz if not already available
 from streamlit_extras.colored_header import colored_header 
 
-from packages.osir_web.osir_web.utils import MasterSideBar
+from osir_web.utils import MasterSideBar
 
 # Database formatter class
 class MasterStatus:

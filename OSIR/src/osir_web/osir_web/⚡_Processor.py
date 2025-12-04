@@ -4,18 +4,18 @@ import yaml
 import concurrent.futures
 import pandas as pd
 
-from streamlit_extras.colored_header import colored_header
-from src.tasks import task_manager
-from src.monitor import MonitorCase
 from code_editor import code_editor
+from streamlit_extras.colored_header import colored_header
+from osir_web.utils import MasterSideBar
 
-from packages.osir_lib.osir_lib.core import StaticVars
-from packages.osir_web.osir_web.utils import MasterSideBar
-from packages.osir_lib.osir_lib.core.BaseProfile import BaseProfile
-from packages.osir_lib.osir_lib.core.BaseModule import BaseInput, BaseOutput
-from packages.osir_lib.osir_lib.core.FileManager import FileManager
+from osir_lib.core import StaticVars
+from osir_lib.core.BaseProfile import BaseProfile
+from osir_lib.core.BaseModule import BaseInput, BaseOutput
+from osir_lib.core.FileManager import FileManager
+from osir_lib.logger.logger import AppLogger
+from osir_lib.core.OsirProfile import OsirProfile
 
-from packages.osir_lib.osir_lib.logger import AppLogger
+from osir_service.watchdog.MonitorCase import MonitorCase
 
 
 logger = AppLogger(__name__).get_logger()
@@ -464,15 +464,13 @@ class ConfigurationApp:
         """
         case_path = os.path.join(self.CASES_DIR, selected_case)
         try:
-            job = task_manager.ProcessorJob(
-                case_path, None, selected_module, [], []
-            )
+            job = OsirProfile(modules=selected_module)
         except FileNotFoundError as e:
             st.error(f"Error creating ProcessorJob: {e}")
             logger.error(f"Error creating ProcessorJob: {e}")
             return
 
-        modules_selected = job._get_modules_selected()
+        modules_selected = job.modules
 
         # Used only for display: show module with its parent dir inside modules dir
         module_w_parentdir = FileManager.resolve_modules_parent_dir(modules_selected)
@@ -536,7 +534,7 @@ class ConfigurationApp:
             st.error(f"You selected a case that does not exist. Verify that {case_path} is the right path to process")
             return
 
-        profile_instance = BaseProfile(selected_profile) if selected_profile else None
+        profile_instance = OsirProfile.from_yaml(FileManager.get_profile_path(selected_profile)) if selected_profile else None
 
         # Debugging: Print or log the modules being processed
         logger.debug(f"Processing job with profile: {selected_profile}")
@@ -546,15 +544,13 @@ class ConfigurationApp:
         logger.debug(f"Case path: {case_path}")
 
         try:
-            job = task_manager.ProcessorJob(
-                case_path, profile_instance, selected_modules, modules_to_add, modules_to_remove
-            )
+            job = profile_instance
         except FileNotFoundError as e:
             st.error(f"Error creating ProcessorJob: {e}")
             logger.error(f"Error creating ProcessorJob: {e}")
             return
 
-        modules_selected = job._get_modules_selected()
+        modules_selected = job.modules
 
         # Used only for display: show module with its parent dir inside modules dir
         module_w_parentdir = FileManager.resolve_modules_parent_dir(modules_selected)
