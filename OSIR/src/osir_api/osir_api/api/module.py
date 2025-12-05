@@ -16,7 +16,8 @@ from osir_api.api.exceptions import (
     UnexpectedException
 )
 
-from osir_service.orchestration.TaskService import TaskService
+from osir_service.ipc.OsirIpcModel import OsirIpcModel
+from osir_service.ipc.OsirIpcClient import OsirIpcClient
 
 router = APIRouter()
 
@@ -102,4 +103,12 @@ def module_exists(module_path: str):
 
 @router.get("/module/run/{module_path}")
 def run_module(module_path: str):
-    TaskService.run_task("test", module_instance(module_path=module_path), "internal_processor_task", queue=None, case_uuid='tot')
+    client = OsirIpcClient()
+    action = OsirIpcModel(action="exec_module", modules=[module_path], case_path="/OSIR/share/cases/test_1")
+
+    return {
+        "version": API_VERSION,
+        "status": 200,
+        "response": client.send(action)
+    }
+   

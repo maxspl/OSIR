@@ -85,11 +85,11 @@ class MonitorCase:
                 modules_info.append(module_info)
                 
             handler = ModuleHandler(self.case_path, modules_info, self.cooldown_period, self.module_instances, self.case_uuid)
-            handler.monitor_directory(self.case_path, 10, self.reprocess_case)
+            monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10, self.reprocess_case))
+            monitor_case_thread.start()
+            monitor_case_thread.join()
+            self.on_inactivity()
         except Exception as e:
             logger.error_handler(e)
-        # monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10, self.reprocess_case))
-        # monitor_case_thread.start()
-        # monitor_case_thread.join()
-        # self.on_inactivity()
+        
 

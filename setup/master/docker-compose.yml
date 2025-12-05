@@ -18,6 +18,7 @@ services:
       - ../../:/OSIR
     ports:
       - "8501:8501"
+      - "8989:8989"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     profiles:
@@ -327,4 +328,4 @@ services:
       - "default"
       - "all"
     command: ["bash", "-c", "while true; do sleep 1000; done"]
-    restart: no
+    restart: always

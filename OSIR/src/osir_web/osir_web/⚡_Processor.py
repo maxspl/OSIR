@@ -9,7 +9,6 @@ from streamlit_extras.colored_header import colored_header
 from osir_web.utils import MasterSideBar
 
 from osir_lib.core import StaticVars
-from osir_lib.core.BaseProfile import BaseProfile
 from osir_lib.core.BaseModule import BaseInput, BaseOutput
 from osir_lib.core.FileManager import FileManager
 from osir_lib.logger.logger import AppLogger
@@ -562,7 +561,7 @@ class ConfigurationApp:
 
         # Apply in-memory YAML overrides to all module instances for this run
         self._apply_overrides_to_monitor_case(monitor_case)
-        
+
         # Run the setup in a background thread
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         executor.submit(monitor_case.setup_handler)

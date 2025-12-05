@@ -10,6 +10,7 @@ from osir_lib.core.BaseProfile import BaseProfile
 
 # TOREMOVE
 import osir_service.agent.AgentService as tasks
+from osir_service.ipc.IpcService import IpcService
 import osir_service.watchdog.MonitorCase as MonitorCase
 import osir_service.smb.SMBService as SmbMounter
 
@@ -99,6 +100,9 @@ def main():
         worker.start_worker()
     
     if args.web:
+        logger.info("Launching IPC Service")
+        IpcService(host='0.0.0.0', port=8989).start()
+    
         logger.info("Launching web app...")
         cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/⚡_Processor.py"])
 
@@ -128,6 +132,7 @@ def main():
     setup_thread = threading.Thread(target=monitor_case.setup_handler)
     setup_thread.start()
 
+    
     # Wait for the _setup_handler() thread to finish before exiting the code
     try:
         # Wait for the _setup_handler() thread to finish before exiting the code

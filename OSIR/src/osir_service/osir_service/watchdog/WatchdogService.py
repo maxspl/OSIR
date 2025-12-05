@@ -14,12 +14,12 @@ from osir_lib.core import StaticVars
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 
-from osir_lib.logger import AppLogger
 from osir_lib.core.AgentConfig import AgentConfig
 from osir_lib.core.PyModule import PyModule
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.postgres.PostgresService import DbOSIR
 from osir_lib.core.OsirModule import OsirModule
+from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
