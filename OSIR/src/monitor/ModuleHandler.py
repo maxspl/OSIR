@@ -364,7 +364,7 @@ class ModuleHandler(FileSystemEventHandler):
         if "internal" in processor_type:
             py_module_name = getattr(module_instance, 'alt_module', None) or module_instance.module_name  # try first alt_module, fallback to module_name
             if self.module_exists(py_module_name):
-                # logger.debug(f"Executing internal module {module_instance.module_name}.py")
+                logger.debug(f"run internal processor for {py_module_name}")
                 self._push_task(module_instance)
             else:
                 logger.error(f"Module missing {py_module_name}")
@@ -395,11 +395,12 @@ class ModuleHandler(FileSystemEventHandler):
         processor_type = module_instance.get_processor_type()
         self.DbOSIR.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
         if "internal" in processor_type:
-            if self.module_exists(module_instance.module_name):
-                logger.debug(f"run internal processor for {module_instance.module_name}")
+            py_module_name = getattr(module_instance, 'alt_module', None) or module_instance.module_name  # try first alt_module, fallback to module_name
+            if self.module_exists(py_module_name):
+                logger.debug(f"run internal processor for {py_module_name}")
                 self._push_task(module_instance)
             else:
-                logger.debug(f"Module missing {module_instance.module_name} to process input : {directory_path}")
+                logger.debug(f"Module missing {py_module_name} to process input : {directory_path}")
             # self._push_task(module_instance)
         else:
             logger.debug(f"Pushing task for {module_name} to process {directory_path} - {module_instance.input.dir}")
