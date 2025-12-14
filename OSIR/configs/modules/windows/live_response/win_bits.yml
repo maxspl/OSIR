@@ -21,3 +21,14 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: bits_jobs
+splunk:
+  'windows:live_response:bits':
+    name_rex: --win_bits\.jsonl$
+    path_suffix: win_bits
+    host_rex: ([\w\.-]+)--
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "BITS"
+    normalize:
+      - ecs_normalize/windows/live_response/bits.vrl 

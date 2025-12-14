@@ -1,0 +1,298 @@
+# -----------------------------------------------------------------------------
+# Windows Autoruns CSV → ECS-ish
+# Columns (from sample):
+#   Time, Entry Location, Entry, Enabled, Category, Profile, Description,
+#   Signer, Company, Image Path, Version, Launch String,
+#   MD5, SHA-1, PESHA-1, PESHA-256, SHA-256, IMP
+# -----------------------------------------------------------------------------
+
+# Ensure .event exists
+if !exists(.event) {
+  .event = {}
+}
+
+# Keep raw event once
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+.event.dataset  = "windows.autoruns"
+.event.module   = "windows"
+.event.kind     = "state"
+.event.category = ["process"]
+.event.type     = ["info"]
+.event.action   = "autoruns_entry"
+.event.code     = "autoruns_entry"
+.event.outcome  = "success"
+.event.provider = "Windows Autoruns CSV"
+
+# -----------------------------------------------------------------------------
+# 1) Time → .timestamp / .event.created
+#     Example: 20250412-234058  (YYYYMMDD-HHMMSS)
+# -----------------------------------------------------------------------------
+ts_value = null
+ts_raw   = null
+
+if exists(.Time) {
+  ts_raw = to_string!(del(.Time))
+} else if exists(."﻿Time") {
+  # BOM-prefixed header, just in case
+  ts_raw = to_string!(del(."﻿Time"))
+} else if exists(."��Time") {
+  # Mojibake variant, just in case
+  ts_raw = to_string!(del(."��Time"))
+}
+
+if ts_raw != null && ts_raw != "" {
+  ts = parse_timestamp(ts_raw, "%Y%m%d-%H%M%S") ?? null
+  if ts != null {
+    ts_value = ts
+  } else {
+    .event.Ext.autoruns.time_raw = ts_raw
+  }
+}
+
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = "autoruns_time"
+}
+
+# -----------------------------------------------------------------------------
+# 2) Entry Location
+# -----------------------------------------------------------------------------
+entry_loc_raw = null
+
+if exists(."Entry Location") {
+  entry_loc_raw = to_string!(del(."Entry Location"))
+}
+
+if entry_loc_raw != null && entry_loc_raw != "" {
+  .event.Ext.autoruns.entry_location = entry_loc_raw
+  # Treat as registry path (common case for autoruns)
+  .registry.path = entry_loc_raw
+}
+
+# -----------------------------------------------------------------------------
+# 3) Entry name
+# -----------------------------------------------------------------------------
+entry_raw = null
+
+if exists(.Entry) {
+  entry_raw = to_string!(del(.Entry))
+}
+
+if entry_raw != null && entry_raw != "" {
+  # Use as event id and keep in Ext
+  .event.id = entry_raw
+  .event.Ext.autoruns.entry = entry_raw
+}
+
+# -----------------------------------------------------------------------------
+# 4) Enabled → boolean-ish flag
+# -----------------------------------------------------------------------------
+enabled_raw = null
+
+if exists(.Enabled) {
+  enabled_raw = to_string!(del(.Enabled))
+}
+
+if enabled_raw != null && enabled_raw != "" {
+  .event.Ext.autoruns.enabled_raw = enabled_raw
+
+  er_l = downcase!(enabled_raw)
+  if er_l == "enabled" || er_l == "true" || er_l == "1" {
+    .event.Ext.autoruns.enabled = true
+  } else if er_l == "disabled" || er_l == "false" || er_l == "0" {
+    .event.Ext.autoruns.enabled = false
+  }
+}
+
+# -----------------------------------------------------------------------------
+# 5) Category / Profile
+# -----------------------------------------------------------------------------
+category_raw = null
+
+if exists(.Category) {
+  category_raw = to_string!(del(.Category))
+}
+
+if category_raw != null && category_raw != "" {
+  .event.Ext.autoruns.category = category_raw
+}
+
+profile_raw = null
+
+if exists(.Profile) {
+  profile_raw = to_string!(del(.Profile))
+}
+
+if profile_raw != null && profile_raw != "" {
+  .event.Ext.autoruns.profile = profile_raw
+}
+
+# -----------------------------------------------------------------------------
+# 6) Description
+# -----------------------------------------------------------------------------
+desc_raw = null
+
+if exists(.Description) {
+  desc_raw = to_string!(del(.Description))
+}
+
+if desc_raw != null && desc_raw != "" {
+  # Put in both process.title and file.description
+  .process.title = desc_raw
+  .file.description = desc_raw
+}
+
+# -----------------------------------------------------------------------------
+# 7) Signer → basic code signature info
+# -----------------------------------------------------------------------------
+signer_raw = null
+
+if exists(.Signer) {
+  signer_raw = to_string!(del(.Signer))
+}
+
+if signer_raw != null && signer_raw != "" {
+  .file.Ext.autoruns.signer_raw = signer_raw
+
+  sr_l = downcase!(signer_raw)
+
+  # Heuristic: contains "(verified)" → trusted
+  if contains(sr_l, "verified") {
+    .file.code_signature.trusted = true
+  }
+
+  # Keep whole string as subject_name for lack of better parsing
+  .file.code_signature.subject_name = signer_raw
+}
+
+# -----------------------------------------------------------------------------
+# 8) Company
+# -----------------------------------------------------------------------------
+company_raw = null
+
+if exists(.Company) {
+  company_raw = to_string!(del(.Company))
+}
+
+if company_raw != null && company_raw != "" {
+  .file.company = company_raw
+}
+
+# -----------------------------------------------------------------------------
+# 9) Image Path → file.path / process.executable / file.name
+# -----------------------------------------------------------------------------
+img_raw = null
+
+if exists(."Image Path") {
+  img_raw = to_string!(del(."Image Path"))
+}
+
+if img_raw != null && img_raw != "" {
+  .file.path = img_raw
+  .process.executable = img_raw
+
+  # Derive filename from last path segment
+  clean = replace!(img_raw, "\\", "/")
+  parts = split!(clean, "/")
+  plen  = length(parts)
+
+  if plen > 0 {
+    .file.name = to_string!(get!(parts, [plen - 1]))
+  }
+}
+
+# -----------------------------------------------------------------------------
+# 10) Version
+# -----------------------------------------------------------------------------
+ver_raw = null
+
+if exists(.Version) {
+  ver_raw = to_string!(del(.Version))
+}
+
+if ver_raw != null && ver_raw != "" {
+  .file.version = ver_raw
+}
+
+# -----------------------------------------------------------------------------
+# 11) Launch String → process.command_line
+# -----------------------------------------------------------------------------
+launch_raw = null
+
+if exists(."Launch String") {
+  launch_raw = to_string!(del(."Launch String"))
+}
+
+if launch_raw != null && launch_raw != "" {
+  .process.command_line = launch_raw
+  .event.Ext.autoruns.launch_string_raw = launch_raw
+}
+
+# -----------------------------------------------------------------------------
+# 12) Hashes
+# -----------------------------------------------------------------------------
+
+# MD5
+md5_raw = null
+if exists(.MD5) {
+  md5_raw = to_string!(del(.MD5))
+}
+if md5_raw != null && md5_raw != "" {
+  .file.hash.md5 = md5_raw
+}
+
+# SHA-1
+sha1_raw = null
+if exists(."SHA-1") {
+  sha1_raw = to_string!(del(."SHA-1"))
+}
+if sha1_raw != null && sha1_raw != "" {
+  .file.hash.sha1 = sha1_raw
+}
+
+# PESHA-1 (portable executable hash variant – keep in Ext)
+pesha1_raw = null
+if exists(."PESHA-1") {
+  pesha1_raw = to_string!(del(."PESHA-1"))
+}
+if pesha1_raw != null && pesha1_raw != "" {
+  .file.Ext.autoruns.pesha1 = pesha1_raw
+}
+
+# PESHA-256
+pesha256_raw = null
+if exists(."PESHA-256") {
+  pesha256_raw = to_string!(del(."PESHA-256"))
+}
+if pesha256_raw != null && pesha256_raw != "" {
+  .file.Ext.autoruns.pesha256 = pesha256_raw
+}
+
+# SHA-256
+sha256_raw = null
+if exists(."SHA-256") {
+  sha256_raw = to_string!(del(."SHA-256"))
+}
+if sha256_raw != null && sha256_raw != "" {
+  .file.hash.sha256 = sha256_raw
+}
+
+# IMP (imphash)
+imp_raw = null
+if exists(.IMP) {
+  imp_raw = to_string!(del(.IMP))
+}
+if imp_raw != null && imp_raw != "" {
+  .file.hash.imphash = imp_raw
+}

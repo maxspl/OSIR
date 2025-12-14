@@ -1,0 +1,439 @@
+# -----------------------------------------------------------------------------
+# Windows WMI Event Consumers → ECS
+# Input: win_wmi_eventconsumer JSONL (type = "wmi_eventconsumer")
+# -----------------------------------------------------------------------------
+
+.event.dataset = "windows.wmi_eventconsumer"
+.event.module  = "windows"
+
+.event.kind     = "event"
+.event.category = ["configuration"]
+.event.type     = ["info"]
+.event.action   = "wmi_eventconsumer"
+.event.outcome  = "success"
+
+# -----------------------------------------------------------------------------
+# Host mapping (PSComputerName / MachineName / __SERVER / UNCServerName)
+# -----------------------------------------------------------------------------
+
+host_name = null
+
+if exists(.PSComputerName) {
+    host_name = to_string!(del(.PSComputerName))
+}
+
+if host_name == null && exists(.MachineName) {
+    raw = to_string!(.MachineName)
+    if raw != "" {
+        host_name = raw
+    }
+}
+
+if host_name == null && exists(.__SERVER) {
+    host_name = to_string!(.__SERVER)
+}
+
+if host_name == null && exists(.UNCServerName) {
+    raw = to_string!(.UNCServerName)
+    if raw != "" {
+        host_name = raw
+    }
+}
+
+if host_name != null && host_name != "" {
+    .host.name = host_name
+}
+
+# Also keep some host-related details in wmi.* if still useful
+if exists(.host.name) {
+    .wmi.event_consumer.host = .host.name
+}
+
+# If MachineName / __SERVER / UNCServerName remain (e.g. empty when checked above)
+if exists(.MachineName) {
+    .wmi.event_consumer.machine_name = to_string!(del(.MachineName))
+}
+if exists(.__SERVER) {
+    .wmi.event_consumer.server = to_string!(del(.__SERVER))
+}
+if exists(.UNCServerName) {
+    .wmi.event_consumer.unc_server_name = to_string!(del(.UNCServerName))
+}
+
+# -----------------------------------------------------------------------------
+# WMI class / meta info (__CLASS, __SUPERCLASS, __DERIVATION, etc.)
+# -----------------------------------------------------------------------------
+
+if exists(.__CLASS) {
+    cls = to_string!(del(.__CLASS))
+    .wmi.event_consumer.class = cls
+}
+
+if exists(.__SUPERCLASS) {
+    .wmi.event_consumer.superclass = to_string!(del(.__SUPERCLASS))
+}
+
+if exists(.__DYNASTY) {
+    .wmi.event_consumer.dynasty = to_string!(del(.__DYNASTY))
+}
+
+if exists(.__DERIVATION) {
+    .wmi.event_consumer.derivation = to_string!(del(.__DERIVATION))
+}
+
+if exists(.__GENUS) {
+    raw = to_string!(del(.__GENUS))
+    genus = to_int(raw) ?? null
+    if genus != null {
+        .wmi.event_consumer.genus = genus
+    } else if raw != "" {
+        .wmi.event_consumer.genus_raw = raw
+    }
+}
+
+if exists(.__NAMESPACE) {
+    .wmi.event_consumer.namespace = to_string!(del(.__NAMESPACE))
+}
+
+if exists(.__PATH) {
+    .wmi.event_consumer.path = to_string!(del(.__PATH))
+}
+
+if exists(.__RELPATH) {
+    .wmi.event_consumer.relpath = to_string!(del(.__RELPATH))
+}
+
+if exists(.__PROPERTY_COUNT) {
+    raw = to_string!(del(.__PROPERTY_COUNT))
+    cnt = to_int(raw) ?? null
+    if cnt != null {
+        .wmi.event_consumer.property_count = cnt
+    } else if raw != "" {
+        .wmi.event_consumer.property_count_raw = raw
+    }
+}
+
+# Source "type" field (router hint)
+if exists(.type) {
+    .wmi.event_consumer.source_type = to_string!(del(.type))
+}
+
+# -----------------------------------------------------------------------------
+# Generic consumer identity (Name, CreatorSID)
+# -----------------------------------------------------------------------------
+
+if exists(.Name) {
+    name = to_string!(del(.Name))
+    .wmi.event_consumer.name = name
+
+    # Use as event.id if nothing set yet
+    if !exists(.event.id) && name != "" {
+        .event.id = name
+    }
+}
+
+if exists(.CreatorSID) {
+    # Example: "{1, 5, 0, 0...}" → keep raw
+    .wmi.event_consumer.creator_sid_raw = to_string!(del(.CreatorSID))
+}
+
+# -----------------------------------------------------------------------------
+# CommandLineEventConsumer-specific fields
+# -----------------------------------------------------------------------------
+
+# ExecutablePath → process.executable / process.name
+if exists(.ExecutablePath) {
+    exe = to_string!(del(.ExecutablePath))
+    if exe != "" {
+        .process.executable                  = exe
+        .process.name                        = basename!(exe)
+        .wmi.event_consumer.executable_path  = exe
+        .event.category                      = ["process", "configuration"]
+    }
+}
+
+# CommandLineTemplate → process.command_line (template)
+if exists(.CommandLineTemplate) {
+    cmd_tpl = to_string!(del(.CommandLineTemplate))
+    if cmd_tpl != "" {
+        .process.command_line                      = cmd_tpl
+        .wmi.event_consumer.command_line_template  = cmd_tpl
+    }
+}
+
+# WorkingDirectory → process.working_directory
+if exists(.WorkingDirectory) {
+    wd = to_string!(del(.WorkingDirectory))
+    if wd != "" {
+        .process.working_directory         = wd
+        .wmi.event_consumer.working_directory = wd
+    }
+}
+
+# DesktopName / WindowTitle
+if exists(.DesktopName) {
+    .wmi.event_consumer.desktop_name = to_string!(del(.DesktopName))
+}
+
+if exists(.WindowTitle) {
+    .wmi.event_consumer.window_title = to_string!(del(.WindowTitle))
+}
+
+# ShowWindowCommand (integer or raw)
+if exists(.ShowWindowCommand) {
+    raw = to_string!(del(.ShowWindowCommand))
+    val = to_int(raw) ?? null
+    if val != null {
+        .wmi.event_consumer.show_window_command = val
+    } else if raw != "" {
+        .wmi.event_consumer.show_window_command_raw = raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Coordinates / sizes (X/Y... fields)
+# -----------------------------------------------------------------------------
+
+if exists(.XCoordinate) {
+    raw = to_string!(del(.XCoordinate))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.x_coordinate = v
+    } else if raw != "" {
+        .wmi.event_consumer.x_coordinate_raw = raw
+    }
+}
+
+if exists(.XNumCharacters) {
+    raw = to_string!(del(.XNumCharacters))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.x_num_characters = v
+    } else if raw != "" {
+        .wmi.event_consumer.x_num_characters_raw = raw
+    }
+}
+
+if exists(.XSize) {
+    raw = to_string!(del(.XSize))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.x_size = v
+    } else if raw != "" {
+        .wmi.event_consumer.x_size_raw = raw
+    }
+}
+
+if exists(.YCoordinate) {
+    raw = to_string!(del(.YCoordinate))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.y_coordinate = v
+    } else if raw != "" {
+        .wmi.event_consumer.y_coordinate_raw = raw
+    }
+}
+
+if exists(.YNumCharacters) {
+    raw = to_string!(del(.YNumCharacters))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.y_num_characters = v
+    } else if raw != "" {
+        .wmi.event_consumer.y_num_characters_raw = raw
+    }
+}
+
+if exists(.YSize) {
+    raw = to_string!(del(.YSize))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.y_size = v
+    } else if raw != "" {
+        .wmi.event_consumer.y_size_raw = raw
+    }
+}
+
+# FillAttribute raw (rarely used)
+if exists(.FillAttribute) {
+    raw = to_string!(del(.FillAttribute))
+    if raw != "" {
+        .wmi.event_consumer.fill_attribute = raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Boolean flags (CreateNewConsole, RunInteractively, etc.)
+# -----------------------------------------------------------------------------
+
+if exists(.CreateNewConsole) {
+    raw = to_string!(del(.CreateNewConsole))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.create_new_console = (lower == "true")
+    }
+}
+
+if exists(.CreateNewProcessGroup) {
+    raw = to_string!(del(.CreateNewProcessGroup))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.create_new_process_group = (lower == "true")
+    }
+}
+
+if exists(.CreateSeparateWowVdm) {
+    raw = to_string!(del(.CreateSeparateWowVdm))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.create_separate_wowvdm = (lower == "true")
+    }
+}
+
+if exists(.CreateSharedWowVdm) {
+    raw = to_string!(del(.CreateSharedWowVdm))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.create_shared_wowvdm = (lower == "true")
+    }
+}
+
+if exists(.ForceOffFeedback) {
+    raw = to_string!(del(.ForceOffFeedback))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.force_off_feedback = (lower == "true")
+    }
+}
+
+if exists(.ForceOnFeedback) {
+    raw = to_string!(del(.ForceOnFeedback))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.force_on_feedback = (lower == "true")
+    }
+}
+
+if exists(.RunInteractively) {
+    raw = to_string!(del(.RunInteractively))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.run_interactively = (lower == "true")
+    }
+}
+
+if exists(.UseDefaultErrorMode) {
+    raw = to_string!(del(.UseDefaultErrorMode))
+    if raw != "" {
+        lower = downcase!(raw)
+        .wmi.event_consumer.use_default_error_mode = (lower == "true")
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Timeouts / queues / priority
+# -----------------------------------------------------------------------------
+
+if exists(.KillTimeout) {
+    raw = to_string!(del(.KillTimeout))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.kill_timeout_ms = v
+    } else if raw != "" {
+        .wmi.event_consumer.kill_timeout_raw = raw
+    }
+}
+
+if exists(.MaximumQueueSize) {
+    raw = to_string!(del(.MaximumQueueSize))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.maximum_queue_size = v
+    } else if raw != "" {
+        .wmi.event_consumer.maximum_queue_size_raw = raw
+    }
+}
+
+if exists(.Priority) {
+    raw = to_string!(del(.Priority))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.priority = v
+    } else if raw != "" {
+        .wmi.event_consumer.priority_raw = raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# NTEventLogEventConsumer-specific fields
+# (Category, EventID, EventType, SourceName, etc.)
+# -----------------------------------------------------------------------------
+
+if exists(.Category) {
+    raw = to_string!(del(.Category))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.nt.category = v
+    } else if raw != "" {
+        .wmi.event_consumer.nt.category_raw = raw
+    }
+}
+
+if exists(.EventID) {
+    raw = to_string!(del(.EventID))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.nt.event_id = v
+    } else if raw != "" {
+        .wmi.event_consumer.nt.event_id_raw = raw
+    }
+}
+
+if exists(.EventType) {
+    raw = to_string!(del(.EventType))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.nt.event_type = v
+    } else if raw != "" {
+        .wmi.event_consumer.nt.event_type_raw = raw
+    }
+}
+
+if exists(.SourceName) {
+    src = to_string!(del(.SourceName))
+    if src != "" {
+        .wmi.event_consumer.nt.source_name = src
+        .log.logger = src
+    }
+}
+
+if exists(.InsertionStringTemplates) {
+    raw = to_string!(del(.InsertionStringTemplates))
+    if raw != "" {
+        .wmi.event_consumer.nt.insertion_string_templates = raw
+    }
+}
+
+if exists(.NumberOfInsertionStrings) {
+    raw = to_string!(del(.NumberOfInsertionStrings))
+    v = to_int(raw) ?? null
+    if v != null {
+        .wmi.event_consumer.nt.number_of_insertion_strings = v
+    } else if raw != "" {
+        .wmi.event_consumer.nt.number_of_insertion_strings_raw = raw
+    }
+}
+
+if exists(.NameOfRawDataProperty) {
+    raw = to_string!(del(.NameOfRawDataProperty))
+    if raw != "" {
+        .wmi.event_consumer.nt.raw_data_property_name = raw
+    }
+}
+
+if exists(.NameOfUserSIDProperty) {
+    raw = to_string!(del(.NameOfUserSIDProperty))
+    if raw != "" {
+        .wmi.event_consumer.nt.user_sid_property_name = raw
+    }
+}

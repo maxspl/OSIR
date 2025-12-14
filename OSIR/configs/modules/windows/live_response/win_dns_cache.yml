@@ -21,3 +21,11 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: dns_cache
+splunk:
+  'windows:live_response:dns_cache':
+    name_rex: --win_dns_cache\.jsonl$
+    path_suffix: win_dns_cache
+    host_rex: ([\w\.-]+)--
+    artifact: "DNS_CACHE"
+    normalize:
+      - ecs_normalize/windows/live_response/dns_cache.vrl

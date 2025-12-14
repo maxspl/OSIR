@@ -1,0 +1,156 @@
+# -----------------------------------------------------------------------------
+# Windows Handle snapshot → ECS
+# Source: win_handle JSONL (Sysinternals handle64.exe output)
+# -----------------------------------------------------------------------------
+
+.event.dataset = "windows.handle"
+.event.module  = "windows"
+
+.event.kind     = "event"
+.event.category = ["process"]
+.event.type     = ["info"]
+.event.action   = "handle_entry"
+
+# -----------------------------------------------------------------------------
+# Entry type ("handle_entry")
+# -----------------------------------------------------------------------------
+
+if exists(.type) {
+    t = to_string!(del(.type))
+    .handle.entry_type = t
+
+    if !exists(.event.code) && t != "" {
+        .event.code = t
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Process info (pid / name)
+# -----------------------------------------------------------------------------
+
+if exists(.pid) {
+    pid_raw = to_string!(del(.pid))
+    pid_i   = to_int(pid_raw) ?? null
+
+    if pid_i != null {
+        .process.pid = pid_i
+        .handle.pid  = pid_i
+    } else if pid_raw != "" {
+        .handle.pid_raw = pid_raw
+    }
+}
+
+if exists(.process_name) {
+    pn = to_string!(del(.process_name))
+    if pn != "" {
+        .process.name        = pn
+        .handle.process_name = pn
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Handle type / id
+# -----------------------------------------------------------------------------
+
+handle_type_l = null
+
+if exists(.handle_type) {
+    ht = to_string!(del(.handle_type))
+    .handle.type = ht
+    if ht != "" {
+        handle_type_l = downcase!(ht)
+    }
+}
+
+if exists(.handle_id) {
+    hid = to_string!(del(.handle_id))
+    if hid != "" {
+        # Keep as hex string; you can add base-16 → int later if you want
+        .handle.id = hid
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Handle name (for File/Directory → file.path)
+# -----------------------------------------------------------------------------
+
+if exists(.name) {
+    nm = to_string!(del(.name))
+    if nm != "" {
+        .handle.name = nm
+
+        if handle_type_l != null && (handle_type_l == "file" || handle_type_l == "directory") {
+            .file.path      = nm
+            .event.category = ["file"]
+        }
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Rights
+# -----------------------------------------------------------------------------
+
+if exists(.rights) {
+    r = to_string!(del(.rights))
+    if r != "" {
+        .handle.rights = r
+    }
+}
+
+# -----------------------------------------------------------------------------
+# User (DOMAIN\user or \NT AUTHORITY\SYSTEM)
+# -----------------------------------------------------------------------------
+
+if exists(.user) {
+    user_raw = to_string!(del(.user))
+    .handle.user = user_raw
+
+    parts = split(user_raw, "\\")
+    parts_len = length(parts)
+
+    if parts_len >= 2 {
+        # username = last element
+        username = get!(parts, [parts_len - 1])
+
+        # domain = everything before the last element, joined back with "\"
+        domain_parts = slice(parts, 0, parts_len - 1) ?? []
+        domain = join(domain_parts, "\\") ?? ""
+
+        # remove a single leading "\" if present (e.g. "\NT AUTHORITY")
+        if starts_with(domain, "\\") {
+            domain = slice(domain, 1, length(domain) - 1) ?? domain
+        }
+
+        if username != "" {
+            .user.name = username
+        }
+        if domain != "" {
+            .user.domain = domain
+        }
+
+        if domain != "" && username != "" && !exists(.user.full_name) {
+            full = (domain + "\\" + username) ?? ""
+            if full != "" {
+                .user.full_name = full
+            }
+        }
+    } else {
+        # Fallback: only a username, no domain
+        if user_raw != "" {
+            .user.name = user_raw
+        }
+    }
+}
+
+
+# -----------------------------------------------------------------------------
+# Optional: tweak event.category by handle type (light touch)
+# -----------------------------------------------------------------------------
+
+if handle_type_l != null && !exists(.file.path) {
+    if handle_type_l == "file" || handle_type_l == "directory" {
+        .event.category = ["file"]
+    } else if handle_type_l == "process" || handle_type_l == "thread" {
+        .event.category = ["process"]
+    }
+}

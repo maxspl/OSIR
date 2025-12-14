@@ -26,10 +26,12 @@ endpoint: "/Endpoint_(.*?)/"
 splunk:
   'windows:live_response:pstree':
     name_rex: nodes\.jsonl$
-    path_suffix: 'pstree_live_response/'
+    path_suffix: 'pstree_live_response'
     sourcetype: 'windows:live_response:pstree'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "time"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "pstree_live_response"
+    normalize:
+      - ecs_normalize/windows/pstree_nodes.vrl    

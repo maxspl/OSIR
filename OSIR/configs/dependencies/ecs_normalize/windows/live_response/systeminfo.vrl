@@ -1,0 +1,564 @@
+# -----------------------------------------------------------------------------
+# Windows systeminfo → ECS-ish
+# Handles both English and French CSV headers
+# -----------------------------------------------------------------------------
+
+# Ensure .event exists
+if !exists(.event) {
+  .event = {}
+}
+
+# Keep raw event (once)
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+.event.dataset  = "windows.systeminfo"
+.event.module   = "windows"
+.event.kind     = "state"
+.event.category = ["host"]
+.event.type     = ["info"]
+.event.action   = "systeminfo"
+.event.code     = "systeminfo"
+.event.outcome  = "success"
+.event.provider = "Windows Systeminfo"
+
+# -----------------------------------------------------------------------------
+# 1) Host name
+#     EN: "Host Name"
+#     FR: "Nom de l'hôte" (mojibake in sample: "Nom de l'h�te")
+# -----------------------------------------------------------------------------
+host_name = null
+
+if exists(."Host Name") {
+  host_name = to_string!(del(."Host Name"))
+} else if exists(."Nom de l'hôte") {
+  host_name = to_string!(del(."Nom de l'hôte"))
+} else if exists(."Nom de l'h�te") {
+  host_name = to_string!(del(."Nom de l'h�te"))
+}
+
+if host_name != null && host_name != "" {
+  .host.name = host_name
+}
+
+# -----------------------------------------------------------------------------
+# 2) OS name
+#     EN: "OS Name"
+#     FR: "Nom du système d'exploitation" (sample mojibake: "Nom du syst�me d'exploitation")
+# -----------------------------------------------------------------------------
+os_name_raw = null
+
+if exists(."OS Name") {
+  os_name_raw = to_string!(del(."OS Name"))
+} else if exists(."Nom du système d'exploitation") {
+  os_name_raw = to_string!(del(."Nom du système d'exploitation"))
+} else if exists(."Nom du syst�me d'exploitation") {
+  os_name_raw = to_string!(del(."Nom du syst�me d'exploitation"))
+}
+
+if os_name_raw != null && os_name_raw != "" {
+  .host.os.name = os_name_raw
+}
+
+# -----------------------------------------------------------------------------
+# 3) OS version
+#     EN: "OS Version"
+#     FR: "Version du système" (sample: "Version du syst�me")
+#     Example: "10.0.19045 N/A Build 19045"
+# -----------------------------------------------------------------------------
+os_version_raw = null
+
+if exists(."OS Version") {
+  os_version_raw = to_string!(del(."OS Version"))
+} else if exists(."Version du système") {
+  os_version_raw = to_string!(del(."Version du système"))
+} else if exists(."Version du syst�me") {
+  os_version_raw = to_string!(del(."Version du syst�me"))
+}
+
+if os_version_raw != null && os_version_raw != "" {
+  # Try to extract numeric version as first token
+  parts = split!(os_version_raw, " ")
+  if length(parts) > 0 {
+    .host.os.version = to_string!(parts[0])
+  } else {
+    .host.os.version = os_version_raw
+  }
+  .host.os.Ext.systeminfo.version_raw = os_version_raw
+}
+
+# -----------------------------------------------------------------------------
+# 4) OS Manufacturer
+#     EN: "OS Manufacturer"
+#     FR: "Fabricant du système d'exploitation" (sample: "Fabricant du syst�me d'exploitation")
+# -----------------------------------------------------------------------------
+os_manufacturer_raw = null
+
+if exists(."OS Manufacturer") {
+  os_manufacturer_raw = to_string!(del(."OS Manufacturer"))
+} else if exists(."Fabricant du système d'exploitation") {
+  os_manufacturer_raw = to_string!(del(."Fabricant du système d'exploitation"))
+} else if exists(."Fabricant du syst�me d'exploitation") {
+  os_manufacturer_raw = to_string!(del(."Fabricant du syst�me d'exploitation"))
+}
+
+if os_manufacturer_raw != null && os_manufacturer_raw != "" {
+  .host.os.Ext.systeminfo.manufacturer = os_manufacturer_raw
+}
+
+# -----------------------------------------------------------------------------
+# 5) OS configuration / build type
+# -----------------------------------------------------------------------------
+os_config_raw = null
+
+if exists(."OS Configuration") {
+  os_config_raw = to_string!(del(."OS Configuration"))
+} else if exists(."Configuration du système d'exploitation") {
+  os_config_raw = to_string!(del(."Configuration du système d'exploitation"))
+} else if exists(."Configuration du syst�me d'exploitation") {
+  os_config_raw = to_string!(del(."Configuration du syst�me d'exploitation"))
+}
+
+if os_config_raw != null && os_config_raw != "" {
+  .host.os.Ext.systeminfo.configuration = os_config_raw
+}
+
+os_build_type_raw = null
+
+if exists(."OS Build Type") {
+  os_build_type_raw = to_string!(del(."OS Build Type"))
+} else if exists(."Type de build du système d'exploitation") {
+  os_build_type_raw = to_string!(del(."Type de build du système d'exploitation"))
+} else if exists(."Type de build du syst�me d'exploitation") {
+  os_build_type_raw = to_string!(del(."Type de build du syst�me d'exploitation"))
+}
+
+if os_build_type_raw != null && os_build_type_raw != "" {
+  .host.os.Ext.systeminfo.build_type = os_build_type_raw
+}
+
+# -----------------------------------------------------------------------------
+# 6) Registered owner / organization / product ID
+# -----------------------------------------------------------------------------
+reg_owner_raw = null
+
+if exists(."Registered Owner") {
+  reg_owner_raw = to_string!(del(."Registered Owner"))
+} else if exists(."Propriétaire enregistré") {
+  reg_owner_raw = to_string!(del(."Propriétaire enregistré"))
+} else if exists(."Propri�taire enregistr�") {
+  reg_owner_raw = to_string!(del(."Propri�taire enregistr�"))
+}
+
+if reg_owner_raw != null && reg_owner_raw != "" {
+  .host.os.Ext.systeminfo.registered_owner = reg_owner_raw
+}
+
+reg_org_raw = null
+
+if exists(."Registered Organization") {
+  reg_org_raw = to_string!(del(."Registered Organization"))
+} else if exists(."Organisation enregistrée") {
+  reg_org_raw = to_string!(del(."Organisation enregistrée"))
+} else if exists(."Organisation enregistr�e") {
+  reg_org_raw = to_string!(del(."Organisation enregistr�e"))
+}
+
+if reg_org_raw != null && reg_org_raw != "" {
+  .host.os.Ext.systeminfo.registered_organization = reg_org_raw
+}
+
+product_id_raw = null
+
+if exists(."Product ID") {
+  product_id_raw = to_string!(del(."Product ID"))
+} else if exists(."Identificateur de produit") {
+  product_id_raw = to_string!(del(."Identificateur de produit"))
+}
+
+if product_id_raw != null && product_id_raw != "" {
+  .host.os.Ext.systeminfo.product_id = product_id_raw
+}
+
+# -----------------------------------------------------------------------------
+# 7) System manufacturer / model / type
+# -----------------------------------------------------------------------------
+sys_manufacturer_raw = null
+
+if exists(."System Manufacturer") {
+  sys_manufacturer_raw = to_string!(del(."System Manufacturer"))
+} else if exists(."Fabricant du système") {
+  sys_manufacturer_raw = to_string!(del(."Fabricant du système"))
+} else if exists(."Fabricant du syst�me") {
+  sys_manufacturer_raw = to_string!(del(."Fabricant du syst�me"))
+}
+
+if sys_manufacturer_raw != null && sys_manufacturer_raw != "" {
+  .host.Ext.systeminfo.system_manufacturer = sys_manufacturer_raw
+}
+
+sys_model_raw = null
+
+if exists(."System Model") {
+  sys_model_raw = to_string!(del(."System Model"))
+} else if exists(."Modèle du système") {
+  sys_model_raw = to_string!(del(."Modèle du système"))
+} else if exists(."Mod�le du syst�me") {
+  sys_model_raw = to_string!(del(."Mod�le du syst�me"))
+}
+
+if sys_model_raw != null && sys_model_raw != "" {
+  .host.Ext.systeminfo.system_model = sys_model_raw
+}
+
+sys_type_raw = null
+
+if exists(."System Type") {
+  sys_type_raw = to_string!(del(."System Type"))
+} else if exists(."Type du système") {
+  sys_type_raw = to_string!(del(."Type du système"))
+} else if exists(."Type du syst�me") {
+  sys_type_raw = to_string!(del(."Type du syst�me"))
+}
+
+if sys_type_raw != null && sys_type_raw != "" {
+  .host.architecture = sys_type_raw
+}
+
+# -----------------------------------------------------------------------------
+# 8) Processor(s)
+# -----------------------------------------------------------------------------
+proc_raw = null
+
+if exists(."Processor(s)") {
+  proc_raw = to_string!(del(."Processor(s)"))
+} else if exists(."Processeur(s)") {
+  proc_raw = to_string!(del(."Processeur(s)"))
+}
+
+if proc_raw != null && proc_raw != "" {
+  .host.cpu.Ext.systeminfo.processors_raw = proc_raw
+}
+
+# -----------------------------------------------------------------------------
+# 9) BIOS Version
+# -----------------------------------------------------------------------------
+bios_raw = null
+
+if exists(."BIOS Version") {
+  bios_raw = to_string!(del(."BIOS Version"))
+} else if exists(."Version du BIOS") {
+  bios_raw = to_string!(del(."Version du BIOS"))
+}
+
+if bios_raw != null && bios_raw != "" {
+  .host.firmware.Ext.systeminfo.bios_version = bios_raw
+}
+
+# -----------------------------------------------------------------------------
+# 10) Directories and boot device
+# -----------------------------------------------------------------------------
+win_dir_raw = null
+
+if exists(."Windows Directory") {
+  win_dir_raw = to_string!(del(."Windows Directory"))
+} else if exists(."Répertoire Windows") {
+  win_dir_raw = to_string!(del(."Répertoire Windows"))
+} else if exists(."R�pertoire Windows") {
+  win_dir_raw = to_string!(del(."R�pertoire Windows"))
+}
+
+if win_dir_raw != null && win_dir_raw != "" {
+  .host.os.Ext.systeminfo.windows_directory = win_dir_raw
+}
+
+sys_dir_raw = null
+
+if exists(."System Directory") {
+  sys_dir_raw = to_string!(del(."System Directory"))
+} else if exists(."Répertoire système") {
+  sys_dir_raw = to_string!(del(."Répertoire système"))
+} else if exists(."R�pertoire syst�me") {
+  sys_dir_raw = to_string!(del(."R�pertoire syst�me"))
+}
+
+if sys_dir_raw != null && sys_dir_raw != "" {
+  .host.os.Ext.systeminfo.system_directory = sys_dir_raw
+}
+
+boot_device_raw = null
+
+if exists(."Boot Device") {
+  boot_device_raw = to_string!(del(."Boot Device"))
+} else if exists(."Périphérique d'amorçage") {
+  boot_device_raw = to_string!(del(."Périphérique d'amorçage"))
+} else if exists(."P�riph�rique d'amor�age") {
+  boot_device_raw = to_string!(del(."P�riph�rique d'amor�age"))
+}
+
+if boot_device_raw != null && boot_device_raw != "" {
+  .host.Ext.systeminfo.boot_device = boot_device_raw
+}
+
+# -----------------------------------------------------------------------------
+# 11) Locale & timezone
+# -----------------------------------------------------------------------------
+sys_locale_raw = null
+
+if exists(."System Locale") {
+  sys_locale_raw = to_string!(del(."System Locale"))
+} else if exists(."Option régionale du système") {
+  sys_locale_raw = to_string!(del(."Option régionale du système"))
+} else if exists(."Option r�gionale du syst�me") {
+  sys_locale_raw = to_string!(del(."Option r�gionale du syst�me"))
+}
+
+if sys_locale_raw != null && sys_locale_raw != "" {
+  .host.os.Ext.systeminfo.system_locale = sys_locale_raw
+}
+
+input_locale_raw = null
+
+if exists(."Input Locale") {
+  input_locale_raw = to_string!(del(."Input Locale"))
+} else if exists(."Paramètres régionaux d'entrée") {
+  input_locale_raw = to_string!(del(."Paramètres régionaux d'entrée"))
+} else if exists(."Param�tres r�gionaux d'entr�e") {
+  input_locale_raw = to_string!(del(."Param�tres r�gionaux d'entr�e"))
+}
+
+if input_locale_raw != null && input_locale_raw != "" {
+  .host.os.Ext.systeminfo.input_locale = input_locale_raw
+}
+
+tz_raw = null
+
+if exists(."Time Zone") {
+  tz_raw = to_string!(del(."Time Zone"))
+} else if exists(."Fuseau horaire") {
+  tz_raw = to_string!(del(."Fuseau horaire"))
+}
+
+if tz_raw != null && tz_raw != "" {
+  .event.timezone = tz_raw
+  .host.os.Ext.systeminfo.timezone = tz_raw
+}
+
+# -----------------------------------------------------------------------------
+# 12) Memory fields
+#     (we keep them raw, but group under host.Ext.systeminfo.*)
+# -----------------------------------------------------------------------------
+total_phys_raw = null
+if exists(."Total Physical Memory") {
+  total_phys_raw = to_string!(del(."Total Physical Memory"))
+} else if exists(."Mémoire physique totale") {
+  total_phys_raw = to_string!(del(."Mémoire physique totale"))
+} else if exists(."M�moire physique totale") {
+  total_phys_raw = to_string!(del(."M�moire physique totale"))
+}
+if total_phys_raw != null && total_phys_raw != "" {
+  .host.Ext.systeminfo.total_physical_memory_raw = total_phys_raw
+}
+
+avail_phys_raw = null
+if exists(."Available Physical Memory") {
+  avail_phys_raw = to_string!(del(."Available Physical Memory"))
+} else if exists(."Mémoire physique disponible") {
+  avail_phys_raw = to_string!(del(."Mémoire physique disponible"))
+} else if exists(."M�moire physique disponible") {
+  avail_phys_raw = to_string!(del(."M�moire physique disponible"))
+}
+if avail_phys_raw != null && avail_phys_raw != "" {
+  .host.Ext.systeminfo.available_physical_memory_raw = avail_phys_raw
+}
+
+vm_max_raw = null
+if exists(."Virtual Memory: Max Size") {
+  vm_max_raw = to_string!(del(."Virtual Memory: Max Size"))
+} else if exists(."Mémoire virtuelle�: taille maximale") {
+  vm_max_raw = to_string!(del(."Mémoire virtuelle�: taille maximale"))
+} else if exists(."M�moire virtuelle�: taille maximale") {
+  vm_max_raw = to_string!(del(."M�moire virtuelle�: taille maximale"))
+}
+if vm_max_raw != null && vm_max_raw != "" {
+  .host.Ext.systeminfo.virtual_memory_max_raw = vm_max_raw
+}
+
+vm_avail_raw = null
+if exists(."Virtual Memory: Available") {
+  vm_avail_raw = to_string!(del(."Virtual Memory: Available"))
+} else if exists(."Mémoire virtuelle�: disponible") {
+  vm_avail_raw = to_string!(del(."Mémoire virtuelle�: disponible"))
+} else if exists(."M�moire virtuelle�: disponible") {
+  vm_avail_raw = to_string!(del(."M�moire virtuelle�: disponible"))
+}
+if vm_avail_raw != null && vm_avail_raw != "" {
+  .host.Ext.systeminfo.virtual_memory_available_raw = vm_avail_raw
+}
+
+vm_inuse_raw = null
+if exists(."Virtual Memory: In Use") {
+  vm_inuse_raw = to_string!(del(."Virtual Memory: In Use"))
+} else if exists(."Mémoire virtuelle�: en cours d'utilisation") {
+  vm_inuse_raw = to_string!(del(."Mémoire virtuelle�: en cours d'utilisation"))
+} else if exists(."M�moire virtuelle�: en cours d'utilisation") {
+  vm_inuse_raw = to_string!(del(."M�moire virtuelle�: en cours d'utilisation"))
+}
+if vm_inuse_raw != null && vm_inuse_raw != "" {
+  .host.Ext.systeminfo.virtual_memory_in_use_raw = vm_inuse_raw
+}
+
+pagefile_raw = null
+if exists(."Page File Location(s)") {
+  pagefile_raw = to_string!(del(."Page File Location(s)"))
+} else if exists(."Emplacements des fichiers d'échange") {
+  pagefile_raw = to_string!(del(."Emplacements des fichiers d'échange"))
+} else if exists(."Emplacements des fichiers d'�change") {
+  pagefile_raw = to_string!(del(."Emplacements des fichiers d'�change"))
+}
+if pagefile_raw != null && pagefile_raw != "" {
+  .host.Ext.systeminfo.pagefile_locations_raw = pagefile_raw
+}
+
+# -----------------------------------------------------------------------------
+# 13) Domain / logon server
+# -----------------------------------------------------------------------------
+domain_raw = null
+if exists(."Domain") {
+  domain_raw = to_string!(del(."Domain"))
+} else if exists(."Domaine") {
+  domain_raw = to_string!(del(."Domaine"))
+}
+if domain_raw != null && domain_raw != "" {
+  .host.domain = domain_raw
+}
+
+logon_server_raw = null
+if exists(."Logon Server") {
+  logon_server_raw = to_string!(del(."Logon Server"))
+} else if exists(."Serveur d'ouverture de session") {
+  logon_server_raw = to_string!(del(."Serveur d'ouverture de session"))
+} else if exists(."Serveur d'ouverture de session") {
+  logon_server_raw = to_string!(del(."Serveur d'ouverture de session"))
+}
+if logon_server_raw != null && logon_server_raw != "" {
+  .host.Ext.systeminfo.logon_server = logon_server_raw
+}
+
+# -----------------------------------------------------------------------------
+# 14) Hotfix(s)
+# -----------------------------------------------------------------------------
+hotfix_raw = null
+if exists(."Hotfix(s)") {
+  hotfix_raw = to_string!(del(."Hotfix(s)"))
+} else if exists(."Correctif(s)") {
+  hotfix_raw = to_string!(del(."Correctif(s)"))
+} else if exists(."Corrections installées.") {
+  hotfix_raw = to_string!(del(."Corrections installées."))
+} else if exists(."Corrections install�es.") {
+  hotfix_raw = to_string!(del(."Corrections install�es."))
+}
+if hotfix_raw != null && hotfix_raw != "" {
+  .host.Ext.systeminfo.hotfixes_raw = hotfix_raw
+}
+
+# -----------------------------------------------------------------------------
+# 15) Network card(s)
+# -----------------------------------------------------------------------------
+netcards_raw = null
+if exists(."Network Card(s)") {
+  netcards_raw = to_string!(del(."Network Card(s)"))
+} else if exists(."Carte(s) réseau") {
+  netcards_raw = to_string!(del(."Carte(s) réseau"))
+} else if exists(."Carte(s) r�seau") {
+  netcards_raw = to_string!(del(."Carte(s) r�seau"))
+}
+if netcards_raw != null && netcards_raw != "" {
+  .host.Ext.systeminfo.network_cards_raw = netcards_raw
+}
+
+# -----------------------------------------------------------------------------
+# 16) Hyper-V Requirements
+# -----------------------------------------------------------------------------
+hyperv_raw = null
+if exists(."Hyper-V Requirements") {
+  hyperv_raw = to_string!(del(."Hyper-V Requirements"))
+} else if exists(."Configuration requise pour Hyper-V") {
+  hyperv_raw = to_string!(del(."Configuration requise pour Hyper-V"))
+}
+if hyperv_raw != null && hyperv_raw != "" {
+  .host.Ext.systeminfo.hyperv_requirements_raw = hyperv_raw
+}
+
+# -----------------------------------------------------------------------------
+# 17) Original Install Date / System Boot Time → .timestamp
+#
+# We prefer System Boot Time (systeminfo snapshot ≈ current boot),
+# and fall back to Original Install Date if boot time parsing fails.
+#
+# EN: "Original Install Date", "System Boot Time"
+# FR: "Date d'installation originale", "Heure de démarrage du système"
+# -----------------------------------------------------------------------------
+ts_value  = null
+ts_source = null
+
+# Common helper: parse both US (MM/DD/YYYY, 12h) and EU (DD/MM/YYYY, 24h)
+# NOTE: must be inline, so we just duplicate the pattern where needed.
+
+# 17.1 System Boot Time (preferred)
+boot_raw = null
+if exists(."System Boot Time") {
+  boot_raw = to_string!(del(."System Boot Time"))
+} else if exists(."Heure de démarrage du système") {
+  boot_raw = to_string!(del(."Heure de démarrage du système"))
+} else if exists(."Heure de d�marrage du syst�me") {
+  boot_raw = to_string!(del(."Heure de d�marrage du syst�me"))
+}
+
+if boot_raw != null && boot_raw != "" && ts_value == null {
+  ts = parse_timestamp(boot_raw, "%m/%d/%Y, %I:%M:%S %p") ?? parse_timestamp(boot_raw, "%d/%m/%Y, %T") ?? null
+  if ts != null {
+    ts_value  = ts
+    ts_source = "systeminfo_boot_time"
+  } else {
+    .host.Ext.systeminfo.boot_time_raw = boot_raw
+  }
+}
+
+# 17.2 Original Install Date (fallback)
+inst_raw = null
+if exists(."Original Install Date") {
+  inst_raw = to_string!(del(."Original Install Date"))
+} else if exists(."Date d'installation originale") {
+  inst_raw = to_string!(del(."Date d'installation originale"))
+} else if exists(."Date d'installation originale") {
+  inst_raw = to_string!(del(."Date d'installation originale"))
+}
+
+if inst_raw != null && inst_raw != "" {
+  # Store raw regardless
+  .host.os.Ext.systeminfo.install_date_raw = inst_raw
+
+  if ts_value == null {
+    its = parse_timestamp(inst_raw, "%m/%d/%Y, %I:%M:%S %p") ?? parse_timestamp(inst_raw, "%d/%m/%Y, %T") ?? null
+    if its != null {
+      ts_value  = its
+      ts_source = "systeminfo_original_install_date"
+    }
+  }
+}
+
+# 17.3 Apply timestamp if we resolved one
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}

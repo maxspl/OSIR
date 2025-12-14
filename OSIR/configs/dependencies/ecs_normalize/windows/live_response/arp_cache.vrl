@@ -1,0 +1,114 @@
+# -----------------------------------------------------------------------------
+# Windows ARP Cache
+#   Input fields:
+#     type, interface_ip, interface_index,
+#     ip_address, mac_address, entry_type
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event 
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Basic ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.arp_cache"
+.event.module   = "windows"
+
+# ARP table snapshot on the host
+.event.kind     = "state"
+.event.category = ["network"]
+.event.type     = ["info", "arp"]
+
+.event.outcome  = "success"
+.event.provider = "Windows ARP Cache"
+
+# ARP is a layer-2/3 protocol associated with IPv4 here
+.network.protocol = "arp"
+.network.type     = "ipv4"
+
+# -----------------------------------------------------------------------------
+# Basic event classification from "type"
+# -----------------------------------------------------------------------------
+
+rec_type = null
+if exists(.type) {
+    rec_type = to_string!(del(.type))
+    .event.code   = rec_type
+    .event.action = downcase(rec_type)
+}
+
+# -----------------------------------------------------------------------------
+# Interface information (where ARP entry lives)
+# -----------------------------------------------------------------------------
+
+# Interface IP → source.ip + host.ip
+if exists(.interface_ip) {
+    iface_ip = to_string!(del(.interface_ip))
+
+    .source.ip = iface_ip
+    .network.Ext.arp.interface_ip = iface_ip
+
+    # Simple host.ip enrichment for this event
+    .host.ip = [iface_ip]
+}
+
+# Interface index (keep raw, often hex like "0x4")
+if exists(.interface_index) {
+    idx_raw = to_string!(del(.interface_index))
+    .network.Ext.arp.interface_index = idx_raw
+}
+
+# -----------------------------------------------------------------------------
+# ARP neighbor: IP ↔ MAC
+# -----------------------------------------------------------------------------
+
+if exists(.ip_address) {
+    neigh_ip = to_string!(del(.ip_address))
+    .destination.ip = neigh_ip
+    .network.Ext.arp.neighbor_ip = neigh_ip
+
+    # Infer IP family for network.type (just in case)
+    ip_str = neigh_ip
+    if contains(ip_str, ":") {
+        .network.type = "ipv6"
+    } else {
+        .network.type = "ipv4"
+    }
+}
+
+if exists(.mac_address) {
+    mac_raw = to_string!(del(.mac_address))
+    .network.Ext.arp.neighbor_mac_raw = mac_raw
+
+    # "94-e2-3c-ec-c9-30" → "94:e2:3c:ec:c9:30"
+    mac_norm = downcase(replace(mac_raw, "-", ":"))
+    .network.Ext.arp.neighbor_mac = mac_norm
+
+    # Also store as destination MAC (L2 neighbor)
+    .destination.mac = mac_norm
+}
+
+# -----------------------------------------------------------------------------
+# Entry type (dynamic/static, localized FR → EN)
+# -----------------------------------------------------------------------------
+
+if exists(.entry_type) {
+    et_raw = to_string!(del(.entry_type))
+    et_l   = downcase(et_raw)
+
+    .network.Ext.arp.entry_type_raw = et_raw
+
+    norm = et_l
+    if et_l == "dynamique" {
+        norm = "dynamic"
+    } else if et_l == "statique" {
+        norm = "static"
+    }
+
+    .network.Ext.arp.entry_type = norm
+}

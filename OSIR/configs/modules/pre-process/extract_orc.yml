@@ -24,14 +24,37 @@ output:
 optional:
   password: avproof
 splunk:
+  'windows:live_response:systeminfo':
+      name_rex: Systeminfo\.csv
+      host_rex: "\/Endpoint_(.*?)\/"
+      path_suffix: General
+      sourcetype: _json               
+      timestamp_path:
+        - "timestamp" 
+      timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+      normalize:
+        - ecs_normalize/windows/live_response/systeminfo.vrl    
+  'windows:live_response:processes':
+      name_rex: processes\d\.csv$
+      host_rex: "\/Endpoint_(.*?)\/"
+      path_suffix: Powershell
+      sourcetype: _json          
+      timestamp_path:
+        - "timestamp" 
+      timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+      normalize:
+        - ecs_normalize/windows/live_response/ps1_processes.vrl         
   'filesystem:ntfs:info':
     name_rex: NTFSInfo.*.csv$
     path_rex: '.*\/NTFSInfo.*'
     sourcetype: 'filesystem:ntfs:info'
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: 
-        - "FileNameLastModificationDate"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    encoding: utf-8
+    normalize:
+      - ecs_normalize/windows/NTFSInfo.vrl        
   'filesystem:ntfs:usn':
     name_rex: USNInfo.*.csv$
     path_rex: '.*\/USNInfo.*'
@@ -45,17 +68,22 @@ splunk:
     path_rex: '.*\/NTFSInfo.*i30Info.*'
     sourcetype: 'filesystem:ntfs:i30'
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: 
-        - "FileNameCreationDate"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
-  'windows:autoruns':
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    encoding: utf-8
+    normalize:
+      - ecs_normalize/windows/NTFSInfo_i30.vrl
+  'windows:live_response:autoruns':
     name_rex: autoruns.csv$
     path_suffix: 'General'
     sourcetype: 'windows:autoruns'
     host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: 
-        - "Time"
-    timestamp_format: "%Y%m%d-%H%M%S"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/live_response/autoruns.vrl                   
   'orc:collected_files':
     name_rex: GetThis.csv$
     path_rex: '.*\/extract_orc.*'

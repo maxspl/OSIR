@@ -21,3 +21,11 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: tcpvcon
+splunk:
+  'windows:live_response:win_tcpvcon':
+    name_rex: --win_tcpvcon\.jsonl$
+    path_suffix: win_tcpvcon 
+    host_rex: ([\w\.-]+)--
+    artifact: "TCPVCON"
+    normalize:
+      - ecs_normalize/windows/live_response/tcpvcon.vrl 

@@ -28,8 +28,9 @@ splunk:
     path_suffix: 'jump_list'
     sourcetype: 'windows:files:jumplist'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "CreationTime"
-        - "SourceModified"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
     artifact: "JumpList"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/jump_list.vrl       

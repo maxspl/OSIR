@@ -1,0 +1,852 @@
+###############################
+# COMMON NORMALIZATION (ALL) #
+###############################
+
+# Keep original payload (must be first, before any del())
+if exists(.Event) && !exists(.event.original) {
+    .event.original = encode_json!(.Event)
+}
+
+# Normalize @timestamp
+if exists(.Event.System.TimeCreated."#attributes".SystemTime) {
+    .timestamp = del(.Event.System.TimeCreated."#attributes".SystemTime)
+}
+
+# Event ID (coalesce #text / value)
+event_id_candidates = compact([
+    del(.Event.System.EventID."#text"),
+    .Event.System.EventID
+])
+if length(event_id_candidates) > 0 {
+    .event.code = get!(event_id_candidates, [0])
+}
+
+if exists(.Event.System.EventRecordID) {
+    .event.id = to_string!(.Event.System.EventRecordID)
+}
+
+# All of these are normal "events"
+.event.kind = "event"
+
+# Channel / module / dataset
+if exists(.Event.System.Channel) {
+    ch = del(.Event.System.Channel)
+    .event.module    = ch
+    .winlog.channel  = ch
+}
+
+# Host
+if exists(.Event.System.Computer) {
+    comp = del(.Event.System.Computer)
+    .host.name             = comp
+    .winlog.computer_name  = comp
+}
+
+# Provider
+if exists(.Event.System.Provider."#attributes".Name) {
+    name = del(.Event.System.Provider."#attributes".Name)
+    .winlog.provider_name = name
+    .event.provider       = name
+}
+
+if exists(.Event.System.Provider."#attributes".Guid) {
+    .winlog.provider_guid = del(.Event.System.Provider."#attributes".Guid)
+}
+
+# Execution info (process / thread running the logger)
+if exists(.Event.System.Execution."#attributes".ProcessID) {
+    .winlog.process.pid = to_int!(del(.Event.System.Execution."#attributes".ProcessID))
+}
+if exists(.Event.System.Execution."#attributes".ThreadID) {
+    .winlog.process.thread.id = to_int!(del(.Event.System.Execution."#attributes".ThreadID))
+}
+
+# Level / task / opcode / keywords / version
+if exists(.Event.System.Level) {
+    .winlog.level = del(.Event.System.Level)
+}
+if exists(.Event.System.Task) {
+    .winlog.task = del(.Event.System.Task)
+}
+if exists(.Event.System.Opcode) {
+    .winlog.opcode = del(.Event.System.Opcode)
+}
+if exists(.Event.System.Keywords) {
+    .winlog.keywords = del(.Event.System.Keywords)
+}
+if exists(.Event.System.Version) {
+    .winlog.version = del(.Event.System.Version)
+}
+
+# Security.UserID 
+if exists(.Event.System.Security."#attributes".UserID) {
+    .winlog.security.user_id = del(.Event.System.Security."#attributes".UserID)
+}
+
+# Copy EventData / UserData as winlog.* payloads for everything
+if exists(.Event.EventData) {
+    .winlog.event_data = .Event.EventData
+}
+if exists(.Event.UserData) {
+    .winlog.user_data = .Event.UserData
+}
+
+# GENERIC SUBJECT/TARGET USER MAPPING FOR SECURITY EVENTS
+if exists(.Event.EventData.SubjectUserSid) {
+    .user.id = .Event.EventData.SubjectUserSid
+}
+if exists(.Event.EventData.SubjectUserName) {
+    .user.name = .Event.EventData.SubjectUserName
+}
+if exists(.Event.EventData.SubjectDomainName) {
+    .user.domain = .Event.EventData.SubjectDomainName
+}
+if exists(.Event.EventData.SubjectLogonId) {
+    .winlog.subject.logon_id = .Event.EventData.SubjectLogonId
+}
+
+if exists(.Event.EventData.TargetUserSid) {
+    .user.target.id = .Event.EventData.TargetUserSid
+}
+if exists(.Event.EventData.TargetUserName) {
+    .user.target.name = .Event.EventData.TargetUserName
+}
+if exists(.Event.EventData.TargetDomainName) {
+    .user.target.domain = .Event.EventData.TargetDomainName
+}
+if exists(.Event.EventData.TargetLogonId) {
+    .winlog.target.logon_id = .Event.EventData.TargetLogonId
+}
+
+# Generic fallbacks for user.name (only if not already set)
+if !exists(.user.name) {
+    user_name_candidates = compact([
+        .Event.EventData.User,
+        .Event.EventData.username,
+        .Event.EventData.jobOwner,
+        .Event.EventData.SourceUser,
+        .Event.EventData.SourceUserName,
+        .Event.UserData.LogFileCleared.SubjectUserName
+    ])
+
+    if length(user_name_candidates) > 0 {
+        .user.name = get!(user_name_candidates, [0])
+    }
+}
+
+# Events 104/1102 domain
+if !exists(.user.domain) && exists(.Event.UserData.LogFileCleared.SubjectDomainName) {
+    .user.domain = .Event.UserData.LogFileCleared.SubjectDomainName
+}
+
+###############################
+# GENERIC DOMAIN / HOSTNAME   #
+###############################
+
+if exists(.Event.EventData.TargetUser) && !exists(.user.target.name) {
+    .user.target.name = .Event.EventData.TargetUser
+}
+
+# Destination domain: DestinationHostname > ServerName
+if !exists(.destination.domain) {
+    destination_domain_candidates = compact([
+        .Event.EventData.DestinationHostname,
+        .Event.EventData.ServerName
+    ])
+
+    if length(destination_domain_candidates) > 0 {
+        .destination.domain = get!(destination_domain_candidates, [0])
+    }
+}
+
+# Source domain: SourceHostname > WorkstationName (non-empty)
+if !exists(.source.domain) {
+    source_domain_candidates = compact([
+        .Event.EventData.SourceHostname,
+        .Event.EventData.WorkstationName
+    ])
+
+    if length(source_domain_candidates) > 0 {
+        .source.domain = get!(source_domain_candidates, [0])
+    }
+}
+
+###############################
+# GENERIC IP / PORT FIELDS    #
+###############################
+
+# Source IP: IpAddress > SourceIp > SourceAddress > NetworkAddress
+if !exists(.source.ip) {
+    source_ip_candidates = compact([
+        .Event.EventData.IpAddress,
+        .Event.EventData.SourceIp,
+        .Event.EventData.SourceAddress,
+        .Event.EventData.NetworkAddress
+    ])
+
+    if length(source_ip_candidates) > 0 {
+        .source.ip = get!(source_ip_candidates, [0])
+    }
+}
+
+# Destination IP: DestinationIp > DestAddress
+if !exists(.destination.ip) {
+    destination_ip_candidates = compact([
+        .Event.EventData.DestinationIp,
+        .Event.EventData.DestAddress
+    ])
+
+    if length(destination_ip_candidates) > 0 {
+        .destination.ip = get!(destination_ip_candidates, [0])
+    }
+}
+
+# VPN / remote client IP
+if !exists(.client.ip) && exists(.Event.EventData.ClientIP) {
+    .client.ip = .Event.EventData.ClientIP
+}
+
+# Ports – keep as strings (avoid parse errors)
+
+# Source port: IpPort > SourcePort
+if !exists(.source.port) {
+    source_port_candidates = compact([
+        .Event.EventData.IpPort,
+        .Event.EventData.SourcePort
+    ])
+
+    if length(source_port_candidates) > 0 {
+        .source.port = get!(source_port_candidates, [0])
+    }
+}
+
+# Destination port: DestinationPort > DestPort
+if !exists(.destination.port) {
+    destination_port_candidates = compact([
+        .Event.EventData.DestinationPort,
+        .Event.EventData.DestPort
+    ])
+
+    if length(destination_port_candidates) > 0 {
+        .destination.port = get!(destination_port_candidates, [0])
+    }
+}
+
+###############################
+# GENERIC URL FIELDS          #
+###############################
+
+if !exists(.url.full) {
+    url_candidates = compact([
+        .Event.EventData.url,
+        .Event.EventData.Url
+    ])
+
+    if length(url_candidates) > 0 {
+        .url.full = get!(url_candidates, [0])
+    }
+}
+
+###############################
+# GENERIC FILE / PATH FIELDS  #
+###############################
+
+# file.path: TargetFilename > TargetFileName > ImageLoaded > ShareLocalPath
+if !exists(.file.path) {
+    file_path_candidates = compact([
+        .Event.EventData.TargetFilename,
+        .Event.EventData.TargetFileName,
+        .Event.EventData.ImageLoaded,
+        .Event.EventData.ShareLocalPath
+    ])
+
+    if length(file_path_candidates) > 0 {
+        .file.path = get!(file_path_candidates, [0])
+    }
+}
+
+# Sysmon image fields etc. – process.executable
+# Priority: Image > Application > NewProcessName
+if !exists(.process.executable) {
+    process_executable_candidates = compact([
+        .Event.EventData.Image,
+        .Event.EventData.Application,
+        .Event.EventData.NewProcessName
+    ])
+
+    if length(process_executable_candidates) > 0 {
+        .process.executable = get!(process_executable_candidates, [0])
+    }
+}
+
+# Windows Security process name field
+if exists(.Event.EventData.ProcessName) && !exists(.process.name) {
+    .process.name = .Event.EventData.ProcessName
+}
+
+# Parent process executable
+if exists(.Event.EventData.ParentProcessName) && !exists(.process.parent.executable) {
+    .process.parent.executable = .Event.EventData.ParentProcessName
+}
+
+# File shares / SMB path (relative name)
+if exists(.Event.EventData.RelativeTargetName) && !exists(.file.name) {
+    .file.name = .Event.EventData.RelativeTargetName
+}
+
+###############################
+# SYSMon EVENTS (1,2,3,...)  #
+###############################
+
+# Sysmon 1 - Process Create
+if .Event.System.EventID == 1 && .event.dataset == "windows.sysmon" {
+    .event.category = ["process"]
+    .event.type     = ["start"]
+    .event.action   = "process_created"
+
+    if exists(.Event.EventData.Image) {
+        .process.executable = .Event.EventData.Image
+        .process.name       = basename!(.Event.EventData.Image)
+    }
+    if exists(.Event.EventData.CommandLine) {
+        .process.command_line = .Event.EventData.CommandLine
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+
+    # Parent
+    if exists(.Event.EventData.ParentImage) {
+        .process.parent.executable = .Event.EventData.ParentImage
+        .process.parent.name       = basename!(.Event.EventData.ParentImage)
+    }
+    if exists(.Event.EventData.ParentProcessId) {
+        .process.parent.pid = parse_int!(.Event.EventData.ParentProcessId)
+    }
+    if exists(.Event.EventData.ParentCommandLine) {
+        .process.parent.command_line = .Event.EventData.ParentCommandLine
+    }
+
+    # Entity IDs
+    if exists(.Event.EventData.ProcessGuid) {
+        .process.entity_id = .Event.EventData.ProcessGuid
+    }
+    if exists(.Event.EventData.ParentProcessGuid) {
+        .process.parent.entity_id = .Event.EventData.ParentProcessGuid
+    }
+
+    # Integrity / session / hashes kept in winlog.event_data
+}
+
+# Sysmon 2 - File creation time changed
+if .Event.System.EventID == 2 && .event.dataset == "windows.sysmon" {
+    .event.category = ["file"]
+    .event.type     = ["change"]
+
+    if exists(.Event.EventData.TargetFilename) {
+        .file.path = .Event.EventData.TargetFilename
+    }
+    if exists(.Event.EventData.Image) {
+        .process.executable = .Event.EventData.Image
+        .process.name       = basename!(.Event.EventData.Image)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# Sysmon 3 - Network connection
+if .Event.System.EventID == 3 && .event.dataset == "windows.sysmon" {
+    .event.category = ["network"]
+    .event.type     = ["connection"]
+
+    if exists(.Event.EventData.Image) {
+        .process.executable = .Event.EventData.Image
+        .process.name       = basename!(.Event.EventData.Image)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+    if exists(.Event.EventData.SourceIp) {
+        .source.ip = .Event.EventData.SourceIp
+    }
+    if exists(.Event.EventData.SourcePort) {
+        .source.port = parse_int!(.Event.EventData.SourcePort)
+    }
+    if exists(.Event.EventData.DestinationIp) {
+        .destination.ip = .Event.EventData.DestinationIp
+    }
+    if exists(.Event.EventData.DestinationPort) {
+        .destination.port = parse_int!(.Event.EventData.DestinationPort)
+    }
+    if exists(.Event.EventData.Protocol) {
+        .network.transport = downcase!(.Event.EventData.Protocol)
+    }
+}
+
+# Sysmon 10 - ProcessAccess
+if .Event.System.EventID == 10 && .event.dataset == "windows.sysmon" {
+    .event.category = ["process"]
+    .event.type     = ["access"]
+    .event.action   = "process_accessed"
+
+    if exists(.Event.EventData.SourceImage) {
+        .process.executable = .Event.EventData.SourceImage
+        .process.name       = basename!(.Event.EventData.SourceImage)
+    }
+    if exists(.Event.EventData.SourceProcessId) {
+        .process.pid = parse_int!(.Event.EventData.SourceProcessId)
+    }
+    if exists(.Event.EventData.TargetImage) {
+        .process.target.executable = .Event.EventData.TargetImage
+        .process.target.name       = basename!(.Event.EventData.TargetImage)
+    }
+    if exists(.Event.EventData.TargetProcessId) {
+        .process.target.pid = parse_int!(.Event.EventData.TargetProcessId)
+    }
+}
+
+# Sysmon 11 / 15 / 2 / 23 - File-related
+if (.Event.System.EventID == 11 || .Event.System.EventID == 15 || .Event.System.EventID == 23 || .Event.System.EventID == 2) && .event.dataset == "windows.sysmon" {
+    .event.category = ["file"]
+    .event.type     = ["creation"]
+    if exists(.Event.EventData.TargetFilename) {
+        .file.path = .Event.EventData.TargetFilename
+    }
+    if exists(.Event.EventData.Image) {
+        .process.executable = .Event.EventData.Image
+        .process.name       = basename!(.Event.EventData.Image)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# Sysmon 12 / 13 - Registry
+if (.Event.System.EventID == 12 || .Event.System.EventID == 13) && .event.dataset == "windows.sysmon" {
+    .event.category = ["registry"]
+    .event.type     = ["change"]
+    if exists(.Event.EventData.TargetObject) {
+        .registry.key = .Event.EventData.TargetObject
+    }
+    if exists(.Event.EventData.Image) {
+        .process.executable = .Event.EventData.Image
+        .process.name       = basename!(.Event.EventData.Image)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# Sysmon 16 - Config change
+if .Event.System.EventID == 16 && .event.dataset == "windows.sysmon" {
+    .event.category = ["configuration"]
+    .event.type     = ["change"]
+}
+
+# Sysmon 17 / 18 - Pipe created / connected
+if (.Event.System.EventID == 17 || .Event.System.EventID == 18) && .event.dataset == "windows.sysmon" {
+    .event.category = ["ipc"]
+    .event.type     = ["access"]
+    if exists(.Event.EventData.PipeName) {
+        .file.path = .Event.EventData.PipeName
+    }
+    if exists(.Event.EventData.Image) {
+        .process.executable = .Event.EventData.Image
+        .process.name       = basename!(.Event.EventData.Image)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# Sysmon 19 / 20 / 21 / 22 - WMI & DNS etc.
+if (.Event.System.EventID == 19 || .Event.System.EventID == 20 || .Event.System.EventID == 21 || .Event.System.EventID == 22) && .event.dataset == "windows.sysmon" {
+    .event.category = ["configuration"]
+    .event.type     = ["change"]
+}
+
+###############################
+# SECURITY: LOGON / ACCOUNT   #
+###############################
+
+# 4624 - Successful logon
+if .Event.System.EventID == 4624 {
+    .event.category = ["authentication"]
+    .event.type     = ["start"]
+    .event.action   = "logged-in"
+    .event.outcome  = "success"
+
+    if exists(.Event.EventData.TargetUserName) {
+        .user.name = .Event.EventData.TargetUserName
+    }
+    if exists(.Event.EventData.TargetDomainName) {
+        .user.domain = .Event.EventData.TargetDomainName
+    }
+    if exists(.Event.EventData.TargetUserSid) {
+        .user.id = .Event.EventData.TargetUserSid
+    }
+
+    if exists(.Event.EventData.IpAddress) {
+        .source.ip = .Event.EventData.IpAddress
+    }
+    if exists(.Event.EventData.IpPort) {
+        .source.port = .Event.EventData.IpPort
+    }
+
+    if exists(.Event.EventData.ProcessName) {
+        .process.executable = .Event.EventData.ProcessName
+        .process.name       = basename!(.Event.EventData.ProcessName)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# 4625 - Failed logon
+if .Event.System.EventID == 4625 {
+    .event.category = ["authentication"]
+    .event.type     = ["start"]
+    .event.action   = "logged-in"
+    .event.outcome  = "failure"
+
+    if exists(.Event.EventData.TargetUserName) {
+        .user.name = .Event.EventData.TargetUserName
+    }
+    if exists(.Event.EventData.TargetDomainName) {
+        .user.domain = .Event.EventData.TargetDomainName
+    }
+    if exists(.Event.EventData.TargetUserSid) {
+        .user.id = .Event.EventData.TargetUserSid
+    }
+
+    if exists(.Event.EventData.IpAddress) {
+        .source.ip = .Event.EventData.IpAddress
+    }
+    if exists(.Event.EventData.IpPort) {
+        .source.port = .Event.EventData.IpPort
+    }
+
+    if exists(.Event.EventData.ProcessName) {
+        .process.executable = .Event.EventData.ProcessName
+        .process.name       = basename!(.Event.EventData.ProcessName)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# 4634 - Logoff
+if .Event.System.EventID == 4634 {
+    .event.category = ["authentication"]
+    .event.type     = ["end"]
+    .event.action   = "logged-out"
+}
+
+# 4648 - Logon with explicit credentials
+if .Event.System.EventID == 4648 {
+    .event.category = ["authentication"]
+    .event.type     = ["start"]
+    .event.action   = "logged-in"
+
+    if exists(.Event.EventData.IpAddress) {
+        .source.ip = .Event.EventData.IpAddress
+    }
+    if exists(.Event.EventData.IpPort) {
+        .source.port = .Event.EventData.IpPort
+    }
+
+    if exists(.Event.EventData.TargetUserName) {
+        .user.target.name = .Event.EventData.TargetUserName
+    }
+    if exists(.Event.EventData.TargetDomainName) {
+        .user.target.domain = .Event.EventData.TargetDomainName
+    }
+
+    if exists(.Event.EventData.ProcessName) {
+        .process.executable = .Event.EventData.ProcessName
+        .process.name       = basename!(.Event.EventData.ProcessName)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# 4656 / 4661 / 4662 / 4663 - Handle/object access
+if (.Event.System.EventID == 4656 || .Event.System.EventID == 4661 || .Event.System.EventID == 4662 || .Event.System.EventID == 4663) {
+    .event.category = ["file"]
+    .event.type     = ["access"]
+
+    if exists(.Event.EventData.ObjectName) {
+        .file.path = .Event.EventData.ObjectName
+    }
+    if exists(.Event.EventData.ProcessName) {
+        .process.executable = .Event.EventData.ProcessName
+        .process.name       = basename!(.Event.EventData.ProcessName)
+    }
+    if exists(.Event.EventData.ProcessId) {
+        .process.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+}
+
+# 4672 - Special privileges assigned
+if .Event.System.EventID == 4672 {
+    .event.category = ["iam"]
+    .event.type     = ["change"]
+}
+
+# 4673 - Sensitive privilege use
+if .Event.System.EventID == 4673 {
+    .event.category = ["iam"]
+    .event.type     = ["access"]
+}
+
+# 4688 - Process creation (already quite detailed)
+if .Event.System.EventID == 4688 {
+    .event.category = ["process"]
+    .event.type     = ["start"]
+    .event.action   = "created-process"
+
+    .event.code = to_string!(.Event.System.EventID)
+
+    if exists(.Event.System.EventRecordID) {
+        .event.id = to_string!(.Event.System.EventRecordID)
+    }
+
+    .event.module  = "security"
+    .event.dataset = "windows.security"
+
+    .winlog.event_id      = .Event.System.EventID
+    .winlog.record_id     = .Event.System.EventRecordID
+
+    if exists(.Event.System.Provider."#attributes".Name) {
+        .winlog.provider_name = .Event.System.Provider."#attributes".Name
+        .event.provider       = .Event.System.Provider."#attributes".Name
+    }
+    if exists(.Event.System.Provider."#attributes".Guid) {
+        .winlog.provider_guid = .Event.System.Provider."#attributes".Guid
+    }
+
+    if exists(.Event."#attributes".xmlns) {
+        .winlog.xmlns = del(.Event."#attributes".xmlns)
+    }
+
+    if exists(.Event.EventData) {
+        .winlog.event_data = .Event.EventData
+    }
+
+    if exists(.Event.EventData.NewProcessId) {
+        .process.pid = parse_int!(.Event.EventData.NewProcessId)
+    }
+    if exists(.Event.EventData.NewProcessName) {
+        .process.executable = .Event.EventData.NewProcessName
+        .process.name       = basename!(.Event.EventData.NewProcessName)
+    }
+    if exists(.Event.EventData.CommandLine) && .Event.EventData.CommandLine != "" {
+        .process.command_line = .Event.EventData.CommandLine
+    }
+
+    if exists(.Event.EventData.ProcessId) {
+        .process.parent.pid = parse_int!(.Event.EventData.ProcessId)
+    }
+    if exists(.Event.EventData.ParentProcessName) {
+        .process.parent.executable = .Event.EventData.ParentProcessName
+        .process.parent.name       = basename!(.Event.EventData.ParentProcessName)
+    }
+
+    if exists(.Event.EventData.MandatoryLabel) {
+        .winlog.event_data.MandatoryLabel = .Event.EventData.MandatoryLabel
+    }
+    if exists(.Event.EventData.TokenElevationType) {
+        .winlog.event_data.TokenElevationType = .Event.EventData.TokenElevationType
+    }
+}
+
+# 4698 / 4699 / 4702 - Scheduled task creation/change/delete
+if (.Event.System.EventID == 4698 || .Event.System.EventID == 4699 || .Event.System.EventID == 4702) {
+    .event.category = ["scheduled"]
+    .event.type     = ["change"]
+    if exists(.Event.EventData.TaskName) {
+        .scheduled_task.name = .Event.EventData.TaskName
+    }
+}
+
+# 4703 - Token right adjusted
+if .Event.System.EventID == 4703 {
+    .event.category = ["iam"]
+    .event.type     = ["change"]
+}
+
+# 4719 - System audit policy changed
+if .Event.System.EventID == 4719 {
+    .event.category = ["configuration"]
+    .event.type     = ["change"]
+}
+
+# 4720 / 4722 / 4724 / 4732 - User/account / group changes
+if (.Event.System.EventID == 4720 || .Event.System.EventID == 4722 || .Event.System.EventID == 4724 || .Event.System.EventID == 4732) {
+    .event.category = ["iam"]
+    .event.type     = ["change"]
+
+    if exists(.Event.EventData.TargetUserName) {
+        .user.target.name = .Event.EventData.TargetUserName
+    }
+    if exists(.Event.EventData.TargetDomainName) {
+        .user.target.domain = .Event.EventData.TargetDomainName
+    }
+    if exists(.Event.EventData.TargetSid) {
+        .user.target.id = .Event.EventData.TargetSid
+    }
+}
+
+###############################
+# ANTIVIRUS / DEFENDER        #
+###############################
+
+# 1116 / 1117 - Malware detected / remediated
+if (.Event.System.EventID == 1116 || .Event.System.EventID == 1117) {
+    .event.category = ["malware"]
+    .event.type     = ["info"]
+
+    if exists(.Event.EventData."Threat Name") {
+        .threat.indicator.name = .Event.EventData."Threat Name"
+    }
+    if exists(.Event.EventData."Severity Name") {
+        .event.severity = .Event.EventData."Severity Name"
+    }
+}
+
+###############################
+# POWERSHELL SCRIPTBLOCK (4104)
+###############################
+
+if .Event.System.EventID == 4104 {
+    .event.category = ["process"]
+    .event.type     = ["info"]
+    .event.action   = "powershell-scriptblock-logged"
+
+    if exists(.Event.EventData.ScriptBlockText) {
+        .powershell.script_block_text = .Event.EventData.ScriptBlockText
+    }
+    if exists(.Event.EventData.ScriptBlockId) {
+        .powershell.script_block_id = .Event.EventData.ScriptBlockId
+    }
+    if exists(.Event.EventData.Path) {
+        .file.path = .Event.EventData.Path
+    }
+}
+
+###############################
+# DEFAULT FALLBACK CATEGORIES #
+###############################
+
+# As a final safety net, if event.category is still missing, assign a generic one
+if !exists(.event.category) {
+    if .event.dataset == "windows.security" {
+        .event.category = ["authentication"]
+    } else if .event.dataset == "windows.sysmon" {
+        .event.category = ["process"]
+    } else {
+        .event.category = ["host"]
+    }
+}
+
+###############################
+# CLEANUP: DELETE RAW FIELDS  #
+###############################
+# Now only the fields we haven't already inlined with del()
+
+# UserData (LogFileCleared)
+del(.Event.UserData.LogFileCleared.SubjectUserName)
+del(.Event.UserData.LogFileCleared.SubjectDomainName)
+
+# Generic EventData user / subject / target
+del(.Event.EventData.SubjectUserSid)
+del(.Event.EventData.SubjectUserName)
+del(.Event.EventData.SubjectDomainName)
+del(.Event.EventData.SubjectLogonId)
+
+del(.Event.EventData.TargetUserSid)
+del(.Event.EventData.TargetUserName)
+del(.Event.EventData.TargetDomainName)
+del(.Event.EventData.TargetLogonId)
+del(.Event.EventData.TargetUser)
+
+del(.Event.EventData.User)
+del(.Event.EventData.username)
+del(.Event.EventData.jobOwner)
+del(.Event.EventData.SourceUser)
+del(.Event.EventData.SourceUserName)
+
+# Hostname/domain
+del(.Event.EventData.DestinationHostname)
+del(.Event.EventData.ServerName)
+del(.Event.EventData.SourceHostname)
+del(.Event.EventData.WorkstationName)
+
+# IP addresses / ports
+del(.Event.EventData.IpAddress)
+del(.Event.EventData.SourceIp)
+del(.Event.EventData.SourceAddress)
+del(.Event.EventData.NetworkAddress)
+del(.Event.EventData.DestinationIp)
+del(.Event.EventData.DestAddress)
+del(.Event.EventData.ClientIP)
+
+del(.Event.EventData.IpPort)
+del(.Event.EventData.SourcePort)
+del(.Event.EventData.DestinationPort)
+del(.Event.EventData.DestPort)
+
+# URLs
+del(.Event.EventData.url)
+del(.Event.EventData.Url)
+
+# File / path fields
+del(.Event.EventData.TargetFilename)
+del(.Event.EventData.TargetFileName)
+del(.Event.EventData.ImageLoaded)
+del(.Event.EventData.ShareLocalPath)
+del(.Event.EventData.Image)
+del(.Event.EventData.Application)
+del(.Event.EventData.NewProcessName)
+del(.Event.EventData.ProcessName)
+del(.Event.EventData.ParentProcessName)
+del(.Event.EventData.RelativeTargetName)
+del(.Event.EventData.ObjectName)
+del(.Event.EventData.PipeName)
+del(.Event.EventData.Path)
+
+# Process + parent IDs / GUIDs / command line
+del(.Event.EventData.ProcessId)
+del(.Event.EventData.ParentProcessId)
+del(.Event.EventData.NewProcessId)
+del(.Event.EventData.SourceProcessId)
+del(.Event.EventData.TargetProcessId)
+
+del(.Event.EventData.CommandLine)
+del(.Event.EventData.ParentCommandLine)
+
+del(.Event.EventData.ProcessGuid)
+del(.Event.EventData.ParentProcessGuid)
+
+del(.Event.EventData.SourceImage)
+del(.Event.EventData.TargetImage)
+
+# Registry
+del(.Event.EventData.TargetObject)
+
+# Task scheduler
+del(.Event.EventData.TaskName)
+
+# AV / Defender
+del(.Event.EventData."Threat Name")
+del(.Event.EventData."Severity Name")
+
+# ScriptBlock logging
+del(.Event.EventData.ScriptBlockText)
+del(.Event.EventData.ScriptBlockId)
+
+# Token / integrity fields explicitly copied back to winlog.event_data
+del(.Event.EventData.MandatoryLabel)
+del(.Event.EventData.TokenElevationType)
