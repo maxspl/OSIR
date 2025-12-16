@@ -6,7 +6,6 @@ import os
 
 from osir_lib.core.OsirProfile import OsirProfile
 from osir_lib.logger import AppLogger
-from osir_lib.core.BaseProfile import BaseProfile
 
 # TOREMOVE
 import osir_service.agent.AgentService as tasks
@@ -113,7 +112,8 @@ def main():
         
     # Create an instance of the profile class
     # profile_instance = task_manager.profile(args.profile) if args.profile else None
-    profile_instance = BaseProfile.BaseProfile(args.profile) if args.profile else None
+
+    profile_instance = OsirProfile.from_name(args.profile) if args.profile else None
     
     # Initialize module lists based on command-line arguments
     selected_modules = args.module if args.module else []

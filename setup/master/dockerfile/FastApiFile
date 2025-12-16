@@ -13,9 +13,9 @@ RUN set -eux; \
 
 
 RUN python -m pip install celery redis
-RUN python -m pip install -e OSIR/OSIR/packages/osir_lib/
-RUN python -m pip install -e OSIR/OSIR/packages/osir_api/
-RUN python -m pip install -e OSIR/OSIR/packages/osir_service/
+RUN python -m pip install -e /OSIR/OSIR/src/osir_api
+RUN python -m pip install -e /OSIR/OSIR/src/osir_lib
+RUN python -m pip install -e /OSIR/OSIR/src/osir_service
 
 EXPOSE 8502
 # redis / celery

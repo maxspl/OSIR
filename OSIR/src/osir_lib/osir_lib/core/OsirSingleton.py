@@ -1,5 +1,4 @@
 
-
 def singleton(cls):
     """
     Decorator to transform a class into a singleton. Ensures that only one instance of the class exists within the application.

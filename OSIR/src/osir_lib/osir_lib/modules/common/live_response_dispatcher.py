@@ -2,7 +2,7 @@ from __future__ import annotations
 import os
 from typing import Callable, Dict
 
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -43,7 +43,7 @@ class WinLiveResponseDispatcher(PyModule):
     Uses PyModule's _format_output_file/_format_output_dir when provided.
     """
 
-    def __init__(self, case_path: str, module: BaseModule) -> None:
+    def __init__(self, case_path: str, module: OsirModule) -> None:
         super().__init__(case_path, module)
 
     def __call__(self) -> bool:

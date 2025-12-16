@@ -10,11 +10,11 @@ import copy
 from pathlib import Path
 from threading import Timer
 
-from osir_lib.core import StaticVars
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 
-from osir_lib.core.AgentConfig import AgentConfig
+from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_lib.core.PyModule import PyModule
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.postgres.PostgresService import DbOSIR
@@ -95,7 +95,7 @@ class ModuleHandler(FileSystemEventHandler):
         self.last_size = {}
         self.last_processed = set()
 
-        self.agent_config = AgentConfig()
+        self.agent_config = OsirAgentConfig()
         if self.agent_config.standalone:
             db_postgres = "master-postgres"
         else:
@@ -445,7 +445,7 @@ class ModuleHandler(FileSystemEventHandler):
         Returns:
             bool: True if the module exists, False otherwise.
         """ 
-        modules_directory = StaticVars.PY_MODULES_DIR
+        modules_directory = OSIR_PATHS.PY_MODULES_DIR
         # Base import path for modules
         base_path = 'osir_lib.modules.'
         # Walk through each directory and sub-directory in the 'modules' directory

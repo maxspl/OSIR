@@ -6,7 +6,7 @@ import unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -44,12 +44,12 @@ class WerParser(PyModule):
     This module walks the provided input directory and parses each WER report.
     """
 
-    def __init__(self, case_path: str, module: BaseModule) -> None:
+    def __init__(self, case_path: str, module: OsirModule) -> None:
         """Initialize the WerParser.
 
         Args:
             case_path (str): Base case path used by the framework.
-            module (BaseModule): Module configuration with input/output descriptors.
+            module (OsirModule): Module configuration with input/output descriptors.
         """
         super().__init__(case_path, module)
 

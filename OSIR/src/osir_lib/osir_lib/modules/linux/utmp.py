@@ -2,7 +2,7 @@ import ipaddress
 import struct
 import time
 from osir_lib.core.UnixUtils import UnixUtils
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -12,13 +12,13 @@ class UtmpModule(PyModule, UnixUtils):
     """
     PyModule to perform processing operations on binary UTMP files.
     """
-    def __init__(self, case_path: str, module: BaseModule):
+    def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
 
         Args:
             case_path (str): The directory path where case files are stored and operations are performed.
-            module (BaseModule): Instance of BaseModule containing configuration details for the extraction process.
+            module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
         PyModule.__init__(self, case_path, module)
         UnixUtils.__init__(self, case_path, module)

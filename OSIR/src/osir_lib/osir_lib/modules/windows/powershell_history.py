@@ -3,7 +3,7 @@ import os
 import json
 from typing import Dict, List, Any
 
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -15,7 +15,7 @@ class PowerShellHistoryParser(PyModule):
     Parse Windows Powershell history file.
     """
 
-    def __init__(self, case_path: str, module: BaseModule) -> None:
+    def __init__(self, case_path: str, module: OsirModule) -> None:
         super().__init__(case_path, module)
 
     def __call__(self) -> bool:

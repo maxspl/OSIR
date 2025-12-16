@@ -2,8 +2,8 @@ import re
 import os
 import copy
 from datetime import datetime
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.UnixUtils import UnixUtils
-from osir_lib.core.BaseModule import BaseModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -13,13 +13,13 @@ class InjectionModule(PyModule, UnixUtils):
     """
     PyModule to inject log into Splunk.
     """
-    def __init__(self, case_path: str, module: BaseModule):
+    def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
 
         Args:
             case_path (str): The directory path where case files are stored and operations are performed.
-            module (BaseModule): Instance of BaseModule containing configuration details for the extraction process.
+            module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
         PyModule.__init__(self, case_path, module)
         UnixUtils.__init__(self, case_path, module)
@@ -38,7 +38,7 @@ class InjectionModule(PyModule, UnixUtils):
             for dir_name in os.listdir(self._dir_to_process):
                 if os.path.isdir(os.path.join(self._dir_to_process, dir_name)):
                     try:
-                        module_to_process = BaseModule(dir_name)
+                        module_to_process = OsirModule.from_name(dir_name)
                     except FileNotFoundError:
                         logger.warning(f"Skipping directory '{dir_name}' — no matching module found.")
                         continue  # Skip to next directory

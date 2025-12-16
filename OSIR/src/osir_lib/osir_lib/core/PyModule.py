@@ -4,8 +4,7 @@ import shutil
 import re
 import hashlib
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.AgentConfig import AgentConfig
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 
 from osir_lib.logger import AppLogger
 
@@ -22,11 +21,11 @@ class PyModule():
 
         Args:
             case_path (str): The base path for the case where module execution data is stored.
-            module_instance (BaseModule): The module instance to execute.
+            module_instance (OsirModule): The module instance to execute.
         """
         self.case_path = case_path
         self.module = module_instance
-        self.agent_config = AgentConfig()
+        self.agent_config = OsirAgentConfig()
         self.master_ip = self.agent_config.master_host
         self.drive_letter = self.agent_config.windows_mnt_point
         # self.whoami = self.whoami()
@@ -61,8 +60,6 @@ class PyModule():
         """
 
         logger.debug(f"Run external tool by PyModule : {self.module.module_name}")
-        test = self.module.model_dump()
-        logger.debug(f"{test}")
         match self.module.processor_os:
             case 'unix':
                 self.update_command_local()

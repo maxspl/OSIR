@@ -8,12 +8,11 @@ from code_editor import code_editor
 from streamlit_extras.colored_header import colored_header
 from osir_web.utils import MasterSideBar
 
-from osir_lib.core import StaticVars
-from osir_lib.core.BaseModule import BaseInput, BaseOutput
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.FileManager import FileManager
 from osir_lib.logger.logger import AppLogger
 from osir_lib.core.OsirProfile import OsirProfile
-
+from osir_lib.core.OsirInput import OsirInput
 from osir_service.watchdog.MonitorCase import MonitorCase
 
 
@@ -69,9 +68,9 @@ class ConfigurationApp:
         Initialize configuration paths, discover profiles/modules/cases, and set up
         an in-memory store for edited module YAMLs that persists across reruns.
         """
-        self.PROFILES_DIR = StaticVars.PROFILES_DIR
-        self.MODULES_DIR = StaticVars.MODULES_DIR
-        self.CASES_DIR = StaticVars.CASES_DIR
+        self.PROFILES_DIR = OSIR_PATHS.PROFILES_DIR
+        self.MODULES_DIR = OSIR_PATHS.MODULES_DIR
+        self.CASES_DIR = OSIR_PATHS.CASES_DIR
         self.profiles = FileManager.get_yaml_files(self.PROFILES_DIR, relative=True)
         self.modules = FileManager.get_yaml_files(self.MODULES_DIR)
         self.cases = FileManager.get_cases(self.CASES_DIR)
@@ -368,86 +367,60 @@ class ConfigurationApp:
                 module_content = FileManager.load_yaml_file(module_path)
                 st.write(module_content)
 
-    # def sidebar(self):
-    #     """Set up and display the sidebar with host specifications and cases usage."""
-    #     with st.sidebar:
-    #         colored_header(
-    #             label="Master Specifications",
-    #             description=" ",
-    #             color_name="violet-70",
-    #         )
-    #         specs = SystemManager.get_host_specs()
-    #         st.write(f"**Master host:** {os.getenv('HOST_HOSTNAME', '')}")
-    #         st.write(f"**CPU Count:** {specs['CPU Count']}")
-    #         st.write(f"**RAM:** {specs['RAM']:.2f} GB")
-    #         st.write(f"**Disk Total:** {specs['Disk Total']:.2f} GB")
-    #         st.write(f"**Disk Used:** {specs['Disk Used']:.2f} GB")
-    #         st.write(f"**Disk Free:** {specs['Disk Free']:.2f} GB")
-    #
-    #         if (specs['Disk Free'] / specs['Disk Total']) < 0.1:
-    #             st.error("Warning: Disk free space is less than 10% of the total disk space!")
-    #
-    #         colored_header(
-    #             label="Cases Usage (/OSIR/share/cases)",
-    #             description=" ",
-    #             color_name="violet-70",
-    #         )
-    #         cases_usage = SystemManager.get_directory_size(self.CASES_DIR)
-    #         st.write(f"**Used:** {cases_usage:.2f} GB")
+    # TODO : Rewrite this
+    # def _apply_overrides_to_monitor_case(self, monitor_case):
+    #     """
+    #     Apply in-memory YAML overrides (self.edited_modules) to each live module instance.
+    #     This does NOT touch files on disk; it only mutates the in-memory objects that
+    #     MonitorCase will use during this run.
 
-    def _apply_overrides_to_monitor_case(self, monitor_case):
-        """
-        Apply in-memory YAML overrides (self.edited_modules) to each live module instance.
-        This does NOT touch files on disk; it only mutates the in-memory objects that
-        MonitorCase will use during this run.
+    #     Args:
+    #         monitor_case: a MonitorCase.MonitorCase instance with module_instances loaded.
+    #     """
+    #     if not getattr(self, "edited_modules", None):
+    #         return
 
-        Args:
-            monitor_case: a MonitorCase.MonitorCase instance with module_instances loaded.
-        """
-        if not getattr(self, "edited_modules", None):
-            return
+    #     for instance in getattr(monitor_case, "module_instances", []):
+    #         # Try common attribute names to find the module file basename, e.g., "foo.yml"
+    #         key = getattr(instance, "_filename", None) or getattr(instance, "filename", None)
+    #         if not key:
+    #             continue
+    #         if key not in self.edited_modules:
+    #             continue
 
-        for instance in getattr(monitor_case, "module_instances", []):
-            # Try common attribute names to find the module file basename, e.g., "foo.yml"
-            key = getattr(instance, "_filename", None) or getattr(instance, "filename", None)
-            if not key:
-                continue
-            if key not in self.edited_modules:
-                continue
+    #         try:
+    #             parsed = yaml.safe_load(self.edited_modules[key]) or {}
+    #         except Exception as e:
+    #             logger.error(f"[override] Invalid YAML for {key}: {e}")
+    #             continue
 
-            try:
-                parsed = yaml.safe_load(self.edited_modules[key]) or {}
-            except Exception as e:
-                logger.error(f"[override] Invalid YAML for {key}: {e}")
-                continue
+    #         # Core swap-in of the parsed YAML
+    #         try:
+    #             # Keep this generous: many BaseModule fields are pulled from YAML
+    #             instance.data            = parsed
+    #             instance.version         = parsed.get("version")
+    #             instance.author          = parsed.get("author")
+    #             instance.description     = parsed.get("description")
+    #             instance.type            = parsed.get("type")
+    #             instance.os              = parsed.get("os")
+    #             instance.requirements    = parsed.get("requirements", [])
+    #             instance.processor_type  = parsed.get("processor_type", [])
+    #             instance.processor_os    = parsed.get("processor_os", "Unknown processor os")
+    #             instance.disk_only       = parsed.get("disk_only", False)
+    #             instance.no_multithread  = parsed.get("no_multithread", False)
+    #             instance.input           = BaseInput(parsed.get("input", {}))
+    #             instance.output          = BaseOutput(parsed.get("output", {}))
+    #             instance.env             = parsed.get("env", "")
+    #             instance.optional        = parsed.get("optional", "")
+    #             instance.endpoint        = parsed.get("endpoint", "")
 
-            # Core swap-in of the parsed YAML
-            try:
-                # Keep this generous: many BaseModule fields are pulled from YAML
-                instance.data            = parsed
-                instance.version         = parsed.get("version")
-                instance.author          = parsed.get("author")
-                instance.description     = parsed.get("description")
-                instance.type            = parsed.get("type")
-                instance.os              = parsed.get("os")
-                instance.requirements    = parsed.get("requirements", [])
-                instance.processor_type  = parsed.get("processor_type", [])
-                instance.processor_os    = parsed.get("processor_os", "Unknown processor os")
-                instance.disk_only       = parsed.get("disk_only", False)
-                instance.no_multithread  = parsed.get("no_multithread", False)
-                instance.input           = BaseInput(parsed.get("input", {}))
-                instance.output          = BaseOutput(parsed.get("output", {}))
-                instance.env             = parsed.get("env", "")
-                instance.optional        = parsed.get("optional", "")
-                instance.endpoint        = parsed.get("endpoint", "")
+    #             # If the module needs to (re)build a tool/runner from YAML
+    #             if hasattr(instance, "init_tool"):
+    #                 instance.init_tool()
 
-                # If the module needs to (re)build a tool/runner from YAML
-                if hasattr(instance, "init_tool"):
-                    instance.init_tool()
-
-                logger.debug(f"[override] Applied in-memory config to {key}")
-            except Exception as e:
-                logger.error(f"[override] Failed applying in-memory config to {key}: {e}")
+    #             logger.debug(f"[override] Applied in-memory config to {key}")
+    #         except Exception as e:
+    #             logger.error(f"[override] Failed applying in-memory config to {key}: {e}")
 
     def process_submission_file(self, selected_module: list[str], selected_case: str, selected_file: str):
         """
@@ -483,9 +456,7 @@ class ConfigurationApp:
         self._apply_overrides_to_monitor_case(monitor_case)
 
         # Limit processing to the single selected file for the (unique) module
-        monitor_case.module_instances[0].input = BaseInput({})
-        monitor_case.module_instances[0].input.type = "file"
-        monitor_case.module_instances[0].input.name = '^' + os.path.basename(selected_file) + '$'
+        monitor_case.module_instances[0].input = OsirInput(type="file", name='^' + os.path.basename(selected_file) + '$')
         if monitor_case.module_instances[0].endpoint:
             monitor_case.module_instances[0].endpoint = ''
 
@@ -532,16 +503,19 @@ class ConfigurationApp:
         if not os.path.isdir(case_path):
             st.error(f"You selected a case that does not exist. Verify that {case_path} is the right path to process")
             return
+        
+        if selected_profile:
+            profile_instance = OsirProfile.from_yaml(FileManager.get_profile_path(selected_profile))
+            logger.debug(f"Processing job with profile: {selected_profile}")
+            profile_instance.remove_modules(modules_to_remove)
+            profile_instance.add_modules(modules_to_add)
+            logger.debug(f"Modules to add: {modules_to_add}")
+            logger.debug(f"Modules to remove: {modules_to_remove}")
+        else:
+            logger.debug(f"Selected modules: {selected_modules}")
+            profile_instance = OsirProfile(modules=selected_modules)
 
-        profile_instance = OsirProfile.from_yaml(FileManager.get_profile_path(selected_profile)) if selected_profile else None
-
-        # Debugging: Print or log the modules being processed
-        logger.debug(f"Processing job with profile: {selected_profile}")
-        logger.debug(f"Selected modules: {selected_modules}")
-        logger.debug(f"Modules to add: {modules_to_add}")
-        logger.debug(f"Modules to remove: {modules_to_remove}")
         logger.debug(f"Case path: {case_path}")
-
         try:
             job = profile_instance
         except FileNotFoundError as e:
@@ -558,9 +532,10 @@ class ConfigurationApp:
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
         monitor_case = MonitorCase(case_path, modules_selected, reprocess_case)
-
+        
+        # TODO : Fix in memory change
         # Apply in-memory YAML overrides to all module instances for this run
-        self._apply_overrides_to_monitor_case(monitor_case)
+        # self._apply_overrides_to_monitor_case(monitor_case)
 
         # Run the setup in a background thread
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)

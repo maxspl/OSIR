@@ -3,7 +3,7 @@ import re
 import csv
 from typing import List, Optional, Tuple
 
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -15,13 +15,13 @@ class ANSSI_Decode(PyModule):
     PyModule to apply DECODE tool on NTFS_info files with Listdlls when available.
     """
 
-    def __init__(self, case_path: str, module: BaseModule):
+    def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
 
         Args:
             case_path (str): The directory path where case files are stored and operations are performed.
-            module (BaseModule): Instance of BaseModule containing configuration details for the extraction process.
+            module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
         super().__init__(case_path, module)
 

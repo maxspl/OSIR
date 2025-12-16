@@ -3,10 +3,9 @@ import pkgutil
 import importlib
 import traceback
 
-from osir_lib.core import StaticVars
-from osir_lib.core.OsirModule import OsirModule
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.PyModule import PyModule
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
        
 logger = AppLogger(__name__).get_logger()
@@ -68,7 +67,7 @@ class InternalProcessor:
             PyModule: An instance of the PyModule if successfully loaded, None otherwise.
         """
 
-        modules_directory = StaticVars.PY_MODULES_DIR
+        modules_directory = OSIR_PATHS.PY_MODULES_DIR
         base_package = 'osir_lib.modules.'
         
         target_name = self._module_instance.alt_module or self._module_instance.module_name  # Try to load alt_module, fallback to module_name

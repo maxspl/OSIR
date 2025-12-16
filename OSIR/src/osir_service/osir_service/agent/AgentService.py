@@ -9,12 +9,9 @@ from celery import Celery
 from os import environ, cpu_count
 
 
-
-
-from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
-from osir_lib.core.BaseModule import BaseModule
-from osir_lib.core.AgentConfig import AgentConfig
+from osir_lib.core.OsirModule import OsirModule
+from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
@@ -32,7 +29,7 @@ class CeleryWorker:
         """
         Initializes the Celery worker by setting up the broker and backend configurations, queues, and registering task handlers.
         """
-        self.agent_config = AgentConfig()
+        self.agent_config = OsirAgentConfig()
         if self.agent_config.standalone:
             self.master_host = "host.docker.internal"  # Agent cannot use localhost to communicate with other docker
         else:
@@ -128,7 +125,6 @@ class CeleryWorker:
         def task_internal_processor(input_dir, case_path, module_bytes, case_uuid):
             """ celery task - internal_processor  """
             try:
-                logger.debug("RIGHT BEFORE BUG")
                 module_instance = OsirModule(**OsirModuleModel.model_validate_json(module_bytes).model_dump())
                 processor = InternalProcessor(case_path, module_instance)
 
@@ -161,7 +157,7 @@ class CeleryWorker:
             """ celery task - external_processor  """
             try:
                 module_instance = OsirModule(**OsirModuleModel.model_validate_json(module_bytes).model_dump())
-                processor = InternalProcessor(case_path, module_instance)
+                processor = ExternalProcessor(case_path, module_instance)
 
                 # Open db
                 self.DbOSIR = DbOSIR(self.master_host, module_name=module_instance.module_name)

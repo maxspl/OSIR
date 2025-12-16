@@ -3,6 +3,8 @@ from typing import Optional
 from pydantic import BaseModel, ValidationError
 import yaml
 
+from osir_lib.core.FileManager import FileManager
+
 class OsirProfileModel(BaseModel):
     version: Optional[float] = None
     author: Optional[str] = None
@@ -36,11 +38,28 @@ class OsirProfileModel(BaseModel):
             raise ValueError(f"Failed to parse YAML file {path}: {e}") from e
         except ValidationError as e:
             raise ValueError(f"Data validation error for module: {e}") from e
-        
-    def add_modules(self, modules: list[str]):
-        modules = [item + ".yml" if not item.endswith(".yml") else item for item in modules]
-        self.modules = list(set(self.modules) + set(modules))
     
-    def remove_modules(self, modules: list[str]):
+    @classmethod
+    def from_name(cls, name: str) -> "OsirProfileModel":
+        """
+        Load and validate an OSIR module from a YAML file.
+
+        Raises:
+            FileNotFoundError: if the YAML file does not exist
+            ValidationError: if the data does not conform to the schema
+        """
+        path = FileManager.get_profile_path(name)
+
+        return cls(**OsirProfileModel.from_yaml(path=path).model_dump())
+    
+    def add_modules(self, modules: list[str]) -> None:
         modules = [item + ".yml" if not item.endswith(".yml") else item for item in modules]
+        if self.modules is None:
+            self.modules = []
+        self.modules = list(set(self.modules).union(modules))
+
+    def remove_modules(self, modules: list[str]) -> None:
+        modules = [item + ".yml" if not item.endswith(".yml") else item for item in modules]
+        if self.modules is None:
+            self.modules = []
         self.modules = list(set(self.modules) - set(modules))

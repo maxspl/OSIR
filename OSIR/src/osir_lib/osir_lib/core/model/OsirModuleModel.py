@@ -21,6 +21,7 @@ class OsirModuleModel(BaseModel):
     no_multithread: bool
     processor_type: list[PROCESSOR_TYPE]
     processor_os: PROCESSOR_OS
+    optional: Optional[dict] = None
     alt_module: Optional[str] = None
     env: Optional[list[str]] = None
     tool: Optional[OsirToolModel] = None
@@ -66,24 +67,9 @@ class OsirModuleModel(BaseModel):
             ValidationError: if the data does not conform to the schema
         """
         path = FileManager.get_module_path(name)
-        
-        if not os.path.isfile(path):
-            raise FileNotFoundError(f"YAML file not found: {path}")
-        
-        try:
-            with open(path, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
 
-            # Ensure the YAML actually contains a dict
-            if not isinstance(data, dict):
-                raise ValueError(f"YAML content must be a dictionary, got {type(data)}")
+        return cls(**OsirModuleModel.from_yaml(path=path).model_dump())
 
-            return cls(**data)
-        except yaml.YAMLError as e:
-            raise ValueError(f"Failed to parse YAML file {path}: {e}") from e
-        except ValidationError as e:
-            raise ValueError(f"Data validation error for module {path}: {e}") from e
-        
     def get_module_name(self):
         """
         Retrieves the name of the module.

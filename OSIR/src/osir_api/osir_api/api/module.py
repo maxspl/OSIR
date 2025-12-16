@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from fastapi import APIRouter
 
 from osir_lib.core.FileManager import FileManager
-from osir_lib.core import StaticVars
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_api.api.version import API_VERSION
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 
@@ -23,7 +23,7 @@ router = APIRouter()
 
 def module_instance(module_path: str):
     # GLOB PATTERN ? 
-    yaml_files = FileManager.get_yaml_files(StaticVars.MODULES_DIR)
+    yaml_files = FileManager.get_yaml_files(OSIR_PATHS.MODULES_DIR)
     modules = FileManager.resolve_modules_parent_dir(yaml_files)
 
     sanitize_module = module_path.replace('.','/').replace('\\','/')
@@ -36,7 +36,7 @@ def module_instance(module_path: str):
     for module in modules:
         if module.endswith(sanitize_module):
             try:
-                return OsirModuleModel.from_yaml(FileManager.full_path_module(module))  # ou le vrai chemin
+                return OsirModuleModel.from_yaml(FileManager.get_module_path(module))  # ou le vrai chemin
             except FileNotFoundError:
                 raise ModuleNotFoundException(sanitize_module)
             except ValidationError as e:
@@ -55,7 +55,7 @@ def make_node():
 
 @router.get("/module")
 def get_modules():
-    yaml_files = FileManager.get_yaml_files(StaticVars.MODULES_DIR)
+    yaml_files = FileManager.get_yaml_files(OSIR_PATHS.MODULES_DIR)
     modules = FileManager.resolve_modules_parent_dir(yaml_files)
 
     structured_modules = make_node()

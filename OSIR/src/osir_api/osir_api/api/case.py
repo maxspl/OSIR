@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter
 
 from osir_lib.core.FileManager import FileManager
-from osir_lib.core import StaticVars
+from osir_lib.core.OsirConstants import OSIR_PATHS
 
 from osir_api.api.version import API_VERSION
 
@@ -19,7 +19,7 @@ def get_case():
         "version": API_VERSION,
         "status": 200,
         "response": {
-            "cases" : FileManager.get_cases(StaticVars.CASES_DIR)
+            "cases" : FileManager.get_cases(OSIR_PATHS.CASES_DIR)
         }
     }
 
@@ -28,7 +28,7 @@ def create_case(request: CaseCreateRequest):
 
     case_name = request.name
 
-    state, case_path = FileManager.create_case(StaticVars.CASES_DIR, case_name=case_name)
+    state, case_path = FileManager.create_case(OSIR_PATHS.CASES_DIR, case_name=case_name)
     return {
         "version": API_VERSION,
         "status": 200,

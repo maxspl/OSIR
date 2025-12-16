@@ -4,7 +4,7 @@ import datetime
 import os
 
 from osir_lib.logger import AppLogger
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 
 logger = AppLogger(__name__).get_logger()
 
@@ -85,13 +85,13 @@ class DbOSIR:
             logger.error(f"Error creating table: {e}")
             raise
 
-    def store_data(self, case_path, module: BaseModule, status, case_uuid):
+    def store_data(self, case_path, module: OsirModule, status, case_uuid):
         """
         Store data into the specified module's table.
 
         Args:
             case_path (str): The case path.
-            module (BaseModule): The module instance containing data to store.
+            module (OsirModule): The module instance containing data to store.
             status (str): The processing status.
             case_uuid (str): The case UUID.
         """
@@ -130,12 +130,12 @@ class DbOSIR:
         )
         self.conn.commit()
 
-    def update_record(self, module: BaseModule, status, case_uuid):
+    def update_record(self, module: OsirModule, status, case_uuid):
         """
         Update an existing record in the specified module's table.
 
         Args:
-            module (BaseModule): The module instance containing data to update.
+            module (OsirModule): The module instance containing data to update.
             status (str): The processing status.
             case_uuid (str): The case UUID.
         """

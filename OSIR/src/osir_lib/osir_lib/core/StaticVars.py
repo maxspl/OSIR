@@ -1,5 +1,0 @@
-PROFILES_DIR = "/OSIR/OSIR/configs/profiles/"
-MODULES_DIR = "/OSIR/OSIR/configs/modules/"
-CASES_DIR = "/OSIR/share/cases/"
-TOOL_DIR = "/OSIR/OSIR/bin/"
-PY_MODULES_DIR = "/OSIR/OSIR/src/osir_lib/osir_lib/modules"

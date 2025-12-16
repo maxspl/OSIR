@@ -7,8 +7,8 @@ import time
 from streamlit_extras.colored_header import colored_header
 from streamlit_js_eval import get_page_location
 
-from osir_lib.core.AgentConfig import AgentConfig
-from osir_lib.core import StaticVars
+from osir_lib.core.OsirAgentConfig import OsirAgentConfig
+from osir_lib.core.OsirConstants import OSIR_PATHS
 
 class SystemManager:
     def __init__(self, key=""):
@@ -70,7 +70,7 @@ def sidebar():
         host = getattr(system_manager, 'host', 'localhost')
 
         # Get splunk host
-        agent_config = AgentConfig()
+        agent_config = OsirAgentConfig()
         splunk_host = agent_config.splunk_host if agent_config.splunk_host not in ["host.docker.internal", "127.0.0.1"] else host
 
         # Set the URL for the iframe
@@ -109,6 +109,7 @@ def sidebar():
             color_name="green-70",
         )
         
-        cases_usage = SystemManager.get_directory_size(StaticVars.CASES_DIR)
+        cases_usage = SystemManager.get_directory_size(OSIR_PATHS.CASES_DIR)
         st.write(f"**Used:** {cases_usage}")
+        
         

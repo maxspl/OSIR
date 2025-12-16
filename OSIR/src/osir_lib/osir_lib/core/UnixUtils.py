@@ -8,8 +8,8 @@ import threading
 
 from typing import Callable
 
-from osir_lib.core.decorator import timeit
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
+from osir_lib.core.OsirDecorator import timeit
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
@@ -22,13 +22,13 @@ class UnixUtils:
 
     Attributes:
         case_path (str): Path to the directory where case-related files are stored.
-        module (BaseModule): Instance of the module being used for processing.
+        module (OsirModule): Instance of the module being used for processing.
         default_output_dir (str): Default directory path for storing output logs based on the module name.
 
     """
-    def __init__(self, case_path: str, module_instance: BaseModule):
+    def __init__(self, case_path: str, module_instance: OsirModule):
         self.case_path: str = case_path
-        self.module: BaseModule = module_instance
+        self.module: OsirModule = module_instance
         
         if self.module:
             self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())

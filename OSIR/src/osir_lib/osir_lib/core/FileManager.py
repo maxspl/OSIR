@@ -1,11 +1,56 @@
 import os
+from pathlib import Path
 import yaml
-from osir_lib.core import StaticVars
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
 class FileManager:
+
+    @staticmethod
+    def _get_file_path(name: str, base_dir: Path) -> Path:
+        """
+        Méthode privée générique pour la recherche de fichiers YAML.
+        Utilise pathlib.rglob pour une recherche récursive efficace.
+        
+        Args:
+            name (str): Le nom du fichier (avec ou sans .yml).
+            base_dir (Path): Le répertoire de base où effectuer la recherche.
+
+        Returns:
+            Path: Le chemin absolu du fichier trouvé.
+            
+        Raises:
+            FileNotFoundError: Si le fichier n'est pas trouvé.
+        """
+        base_path = base_dir 
+        candidate = base_path / name
+        if candidate.exists() and candidate.is_file():
+            return candidate
+        
+        for path in base_path.rglob(f'*/{name}'): 
+            if path.name == name:
+                return path
+            
+        logger.error(f"No {name} in directory {base_path}")
+        raise FileNotFoundError(f"No {name} in directory {base_path}")
+    
+    @staticmethod
+    def get_module_path(module: str) -> Path:
+        module = module if module.endswith('.yml') else module + '.yml'
+        return FileManager._get_file_path(module, OSIR_PATHS.MODULES_DIR)
+
+    @staticmethod
+    def get_profile_path(profile: str) -> Path:
+        profile = profile if profile.endswith('.yml') else profile + '.yml'
+        return FileManager._get_file_path(profile, OSIR_PATHS.PROFILES_DIR)
+    
+    @staticmethod
+    def get_config_path(config: str) -> Path:
+        config = config if config.endswith('.yml') else config + '.yml'
+        return FileManager._get_file_path(config, OSIR_PATHS.SETUP_DIR)
+    
     @staticmethod
     def resolve_modules_parent_dir(modules):
         """
@@ -19,54 +64,15 @@ class FileManager:
         """
 
         paths = []
-        for root, _, files in os.walk(StaticVars.MODULES_DIR):
+        for root, _, files in os.walk(OSIR_PATHS.MODULES_DIR):
             for file in files:
                 for module in modules:
                     if file == module:
                         # Get the relative path by removing the MODULES_DIR part from the full path
-                        relative_path = os.path.relpath(os.path.join(root, file), StaticVars.MODULES_DIR)
+                        relative_path = os.path.relpath(os.path.join(root, file), OSIR_PATHS.MODULES_DIR)
                         paths.append(relative_path)
         return paths
     
-    @staticmethod
-    def get_module_path(module: str):
-        module = module if module.endswith('.yml') else module + '.yml'
-
-        candidate = os.path.join(StaticVars.MODULES_DIR, module)
-        if os.path.exists(candidate):
-            return candidate
-
-        for root, dirs, files in os.walk(StaticVars.MODULES_DIR):
-            for file in files:
-                if file == module:
-                    return os.path.join(root, file)
-                
-        logger.error(f"No module found with name {module} in directory {StaticVars.MODULES_DIR}")
-        
-        raise FileNotFoundError(f"No module found with name {module} in directory {StaticVars.MODULES_DIR}")
-
-    @staticmethod
-    def get_profile_path(profile: str):
-        profile = profile if profile.endswith('.yml') else profile + '.yml'
-
-        candidate = os.path.join(StaticVars.PROFILES_DIR, profile)
-        if os.path.exists(candidate):
-            return candidate
-
-        for root, dirs, files in os.walk(StaticVars.PROFILES_DIR):
-            for file in files:
-                if file == profile:
-                    return os.path.join(root, file)
-                
-        logger.error(f"No profile found with name {profile} in directory {StaticVars.PROFILES_DIR}")
-        
-        raise FileNotFoundError(f"No profile found with name {profile} in directory {StaticVars.PROFILES_DIR}")
-
-
-    @staticmethod
-    def full_path_module(module_relative_path: str):
-        return os.path.join(StaticVars.MODULES_DIR, module_relative_path)
-
     @staticmethod
     def get_files_in_cases(directory):
         """

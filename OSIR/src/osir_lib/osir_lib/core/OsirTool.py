@@ -9,9 +9,9 @@ import winrm
 
 from pathlib import Path, PureWindowsPath
 
-from osir_lib.core import StaticVars
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.model.OsirToolModel import OsirToolModel
-from osir_lib.core.AgentConfig import AgentConfig
+from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 
 from osir_lib.logger import AppLogger
 
@@ -37,7 +37,7 @@ class OsirTool(OsirToolModel):
 
         """
         
-        bin_dir = StaticVars.TOOL_DIR
+        bin_dir = OSIR_PATHS.TOOL_DIR
 
         tool_path = None  # Default to None if no valid path is found
 
@@ -51,12 +51,17 @@ class OsirTool(OsirToolModel):
                 tool_path = self.path
 
         elif processor_os == "windows":
-            tool_path = os.path.join("{drive}\\OSIR\\bin", self.path)
-            tool_path = str(PureWindowsPath(Path(tool_path)))  # Convert path to windows
+            # TODO : Fix master to not init the tool
+            if not self.path.startswith("{drive}\\OSIR\\bin"):
+                tool_path = os.path.join("{drive}\\OSIR\\bin", self.path)
+                tool_path = str(PureWindowsPath(Path(tool_path)))  # Convert path to windows
+            else:
+                tool_path = str(PureWindowsPath(Path(self.path)))
 
         if tool_path is None:
-            logger.error(f"Tool binary not found in bin_dir, system PATH, or provided full path: {self.path}")
-
+            raise FileNotFoundError(f"Tool binary not found in bin_dir, system PATH, or provided full path: {self.path}")
+        
+        self.path = tool_path
 
     def run_remote(self):
         """
@@ -67,15 +72,15 @@ class OsirTool(OsirToolModel):
         """
         try:
             cmd = self.path + ' ' + self.cmd
-            agent_config = AgentConfig()
-            logger.debug(f"running WinRM cmd : {cmd}")
+            agent_config = OsirAgentConfig()
+            logger.debug(f"Executing WinRM command : {cmd}")
             session = winrm.Session(agent_config.windows_host, auth=(agent_config.windows_user, agent_config.windows_password))
             r = session.run_ps(cmd)
             std_out = str(r.std_out).replace('\\n', '\n')
             std_err = str(r.std_err).replace('\\n', '\n')
             if r.status_code == 0:
-                logger.debug(f"cmd stdout : {std_out}")
-                logger.debug(f"cmd stderr : {std_err}")
+                logger.debug(f"Result stdout : \n {std_out}")
+                logger.debug(f"Result stderr : \n {std_err}")
                 return True, r.std_out + r.std_err
             else:
                 logger.debug(f"cmd stderr : {std_err}")
@@ -104,9 +109,8 @@ class OsirTool(OsirToolModel):
             logger.debug(f"Executing command: {self.path} {self.cmd}")
             env = self.update_env()
             output = subprocess.run(self.path + " " + self.cmd, shell=True, capture_output=True, timeout=timeout, text=True, env=env)
-            logger.debug(f"cmd output : {output.stdout}")
-            if output.stderr != "":
-                logger.error(f"Something went wrong. output.stderr : {output.stderr}")
+            logger.debug(f"Result stdout : \n {output.stdout}")
+            logger.debug(f"Result stderr : \n {output.stderr}")
             return output.stdout, output.stderr
 
         except subprocess.TimeoutExpired:

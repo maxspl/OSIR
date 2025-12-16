@@ -50,9 +50,5 @@ COPY sources/requirements.txt /tmp/requirements.txt
 RUN set -eux; \
     python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
 
-RUN python -m pip install --upgrade pip 
-RUN python -m pip install -e OSIR/OSIR/packages/osirlib/
-RUN python -m pip install -e OSIR/OSIR/packages/osirweb/
-
 # - Default command ------------------------------
 CMD ["OSIR.py", "--web"]

@@ -1,8 +1,6 @@
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 from osir_lib.core.OsirModule import OsirModule
-
-from osir_lib.core.AgentConfig import AgentConfig
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -27,8 +25,8 @@ class OsirProfile(OsirProfileModel):
         """
         # Validate os
         os_values = set()
-        for module_instance in self.module_instances:
-            os_values.add(module_instance.get_os())
+        for module_instance in self.modules_instance:
+            os_values.add(module_instance.os)
 
         if len(os_values) == 1 or "all" in os_values:
             logger.debug("All module instances have the same OS.")

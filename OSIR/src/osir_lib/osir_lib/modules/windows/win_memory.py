@@ -4,7 +4,7 @@ import shutil
 import random
 import string
 
-from osir_lib.core.BaseModule import BaseModule 
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger 
 
@@ -15,13 +15,13 @@ class Memory_Processor(PyModule):
     """
     Extends PyModule to run parsing of Windows memory dump using memprocfs.
     """
-    def __init__(self, case_path: str, module: BaseModule):
+    def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Memory_Processor with a specific case path and module configuration.
 
         Args:
             case_path (str): The directory path where case files are stored and operations are performed.
-            module (BaseModule): Instance of BaseModule containing configuration details for the extraction process.
+            module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
         super().__init__(case_path, module)  # Init PyModule 
 

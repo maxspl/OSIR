@@ -4,7 +4,7 @@ import time
 import threading
 
 from osir_lib.logger import AppLogger
-from osir_lib.core.AgentConfig import AgentConfig
+from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 
 logger = AppLogger().get_logger()
 
@@ -33,7 +33,7 @@ class SMBMounter:
         self._stop_event = threading.Event()
         
         # Mount SMB share if remote master
-        self.agent_config = AgentConfig()
+        self.agent_config = OsirAgentConfig()
         if self.agent_config.standalone:
             logger.debug('Standalone mode. Files accessed on disk')
             self.standalone = True
@@ -163,6 +163,107 @@ class SMBMounter:
         self._monitor_thread.join()
         logger.info("Stopped monitoring the mount point.")
 
+    def upload_file(self, local_path: str, remote_relative_path: str) -> bool:
+        """
+        Copies a file from the local filesystem to the mounted SMB share (Upload).
+
+        Args:
+            local_path (str): The absolute or relative path of the file to upload locally.
+            remote_relative_path (str): The path relative to the mount point where the file should be placed.
+                                        Ex: 'results/report.json'
+        
+        Returns:
+            bool: True if the file was uploaded successfully, False otherwise.
+        """
+        if self.standalone:
+            logger.error("Cannot upload: Agent is in standalone mode (files are already local).")
+            return False
+
+        if not self._is_mounted():
+            logger.error("Cannot upload: SMB share is not mounted.")
+            return False
+
+        if not os.path.exists(local_path):
+            logger.error(f"Cannot upload: Local file not found at {local_path}.")
+            return False
+
+        # Le chemin de destination est le point de montage + le chemin relatif distant
+        remote_full_path = os.path.join(self.mount_point, remote_relative_path)
+        
+        # Assurez-vous que le répertoire distant existe avant de copier
+        remote_dir = os.path.dirname(remote_full_path)
+        if not os.path.isdir(remote_dir):
+            try:
+                os.makedirs(remote_dir, exist_ok=True)
+            except Exception as e:
+                logger.error(f"Failed to create remote directory {remote_dir} on SMB share: {e}")
+                return False
+
+        # Utilisation de la commande 'cp'
+        command = ['cp', local_path, remote_full_path]
+        
+        try:
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            logger.info(f"Successfully uploaded {local_path} to {remote_full_path}")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Upload failed (cp command error): {e.stderr.strip()}")
+            return False
+        except FileNotFoundError:
+            logger.error("Upload failed: 'cp' command not found (check environment PATH).")
+            return False
+
+
+    def download_file(self, remote_relative_path: str, local_path: str) -> bool:
+        """
+        Copies a file from the mounted SMB share to the local filesystem (Download).
+
+        Args:
+            remote_relative_path (str): The path relative to the mount point of the file to download.
+                                        Ex: 'files/input.txt'
+            local_path (str): The local destination path (can be a directory or a file path).
+
+        Returns:
+            bool: True if the file was downloaded successfully, False otherwise.
+        """
+        if self.standalone:
+            logger.error("Cannot download: Agent is in standalone mode (files are already local).")
+            return False
+
+        if not self._is_mounted():
+            logger.error("Cannot download: SMB share is not mounted.")
+            return False
+
+        # Le chemin source est le point de montage + le chemin relatif distant
+        remote_full_path = os.path.join(self.mount_point, remote_relative_path)
+        
+        if not os.path.exists(remote_full_path):
+            logger.error(f"Cannot download: Remote file not found at {remote_full_path} on the SMB share.")
+            return False
+
+        # Assurez-vous que le répertoire local de destination existe
+        local_dir = os.path.dirname(local_path)
+        if local_dir and not os.path.isdir(local_dir):
+            try:
+                os.makedirs(local_dir, exist_ok=True)
+            except Exception as e:
+                logger.error(f"Failed to create local destination directory {local_dir}: {e}")
+                return False
+
+        # Utilisation de la commande 'cp'
+        command = ['cp', remote_full_path, local_path]
+        
+        try:
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            logger.info(f"Successfully downloaded {remote_full_path} to {local_path}")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Download failed (cp command error): {e.stderr.strip()}")
+            return False
+        except FileNotFoundError:
+            logger.error("Download failed: 'cp' command not found (check environment PATH).")
+            return False
+        
 # Example usage:
 # mounter = SMBMounter("//192.168.1.77/share", "/OSIR/share/", "guest", "", check_interval=60, test_file="/OSIR/share/some_test_file_or_dir")
 # mounter.mount()

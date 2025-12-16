@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from osir_lib.core.BaseModule import BaseModule
+from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
@@ -11,12 +11,12 @@ class UAC_Extractor(PyModule):
     """
     PyModule to perform processing operations on UAC collect.
     """
-    def __init__(self, case_path: str, module: BaseModule):
+    def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
         Args:
             case_path (str): The directory path where case files are stored and operations are performed.
-            module (BaseModule): Instance of BaseModule containing configuration details for the extraction process.
+            module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
         super().__init__(case_path, module)  # Init PyModule
         self._case_path = case_path  # Base directory for operations
