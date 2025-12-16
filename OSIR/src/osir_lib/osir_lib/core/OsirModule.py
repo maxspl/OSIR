@@ -45,3 +45,4 @@ class OsirModule(OsirModuleModel):
         if isinstance(self.connector, OsirConnectorModel):
             self.connector = OsirConnector(**self.connector.model_dump())
     
+    

@@ -167,6 +167,81 @@ class ModuleHandler(FileSystemEventHandler):
             
             time.sleep(interval)
     
+    def check_match(self, src_path, pattern, module_name):
+        """
+        Détermine si le chemin correspond au motif (Regex ou Glob).
+        """
+        src_path_obj = Path(src_path)
+        src_path_str = str(src_path_obj)
+        
+        is_regex = False
+        clean_pattern = pattern
+        
+        if pattern.startswith(('r"', "r'")):
+            is_regex = True
+            clean_pattern = pattern[2:-1]
+        elif any(c in pattern for c in ['^', '$', '(', '|']):
+            is_regex = True
+
+        if is_regex:
+            if re.search(clean_pattern, src_path_str):
+                logger.info(f"MATCH [Regex] : {src_path_str} avec {pattern} (Module: {module_name})")
+                return True
+        else:
+            if src_path_obj.match(pattern):
+                logger.info(f"MATCH [Glob] : {src_path_str} avec {pattern} (Module: {module_name})")
+                return True
+                
+        return False
+
+    def on_created_new(self, event, module):
+        if not hasattr(event, 'src_path'):
+            logger.warning("Événement sans chemin source, ignoré.")
+            return
+
+        src_path = Path(event.src_path)
+
+        if event.is_directory and module.input.type != "dir":
+            return
+
+        if not event.is_directory and module.input.type != "file":
+            return
+        
+        output_dir = Path(self.case_path) / module.module_name
+        event_path = Path(event.src_path).resolve()
+
+        if output_dir in event_path.parents or event_path == output_dir:
+            return
+                    
+        file_module_pair = (event.src_path, module.module_name)
+
+        if file_module_pair in self.last_processed:
+            return
+
+        if not hasattr(module.input, 'paths') or not module.input.paths:
+            logger.debug(f"Aucun motif de chemin défini pour le module {module.__class__.__name__}, ignoré.")
+            return
+        
+
+        for pattern in module.input.paths:
+
+            if "{case_path}" in pattern:
+                pattern = pattern.replace("{case_path}", self.case_path)
+
+            if self.check_match(src_path, pattern, module.__class__.__name__):
+                self.last_processed.add(file_module_pair)
+                logger.warning(self.last_processed)
+                module_info = {
+                    "module_name": module.module_name,
+                    "input_type": module.input.type
+                }
+                if module.input.type == "dir":
+                    self.handle_directory_event(event, module_info)
+                elif module.input.type == "file":
+                    self.handle_file_event(event, module_info)
+                
+                break
+
     def on_created(self, event):  # triggered for files and dir but targets dirs only
         """
         Specific handler for 'created' events, which are triggered when a new file or directory is created.
@@ -174,76 +249,92 @@ class ModuleHandler(FileSystemEventHandler):
         Args:
             event: The event object representing the file or directory creation event.
         """
-        for module_info in self.modules_info:
-            if module_info["file_regex"]:
-                file_regex = re.compile(module_info["file_regex"])
-            path_pattern_suffix = module_info["path_pattern_suffix"]
-            if path_pattern_suffix:
-                wildcard_pattern = path_pattern_suffix.rstrip('/*')  # Wildcard can be used after suffix to match any directory (not recursive)
-            module_name = module_info["module_name"]
-            input_type = module_info["input_type"]
-            module_path = os.path.join(self.case_path, module_name)
-            # Create a tuple of (file_path, module_name)
-            file_module_pair = (event.src_path, module_name)
-
-            # Check if path_pattern_suffix is a regex
-            is_path_pattern_suffix_regex = path_pattern_suffix.startswith("r\"") and path_pattern_suffix.endswith("\"") if path_pattern_suffix else None
-            if is_path_pattern_suffix_regex:
-                # Strip r"" and compile the regex
-                path_regex = re.compile(path_pattern_suffix[2:-1])
+        for module_instance in self.module_instances:
+            # TODO: Test this with a full profile 
+            if hasattr(module_instance.input, 'paths') and module_instance.input.paths:
+                self.on_created_new(event, module_instance)
+            # TODO: Remove this LEGACY
             else:
-                wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None  # Wildcard can be used after suffix to match any directory (not recursive)
+                if module_instance.input.path:
+                    path_pattern = module_instance.input.path.rstrip('/')
+                else:
+                    path_pattern = None  # No path criteria given
 
-            # Handle dirs
-            if (module_path not in event.src_path and  # don't process input if it is in the same module directory
-                    input_type == "dir" and
-                    event.is_directory):  
-                
-                if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for directories
-                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed (regex match)")
-                    self.handle_directory_event(event, module_info)
-                # Handle case where input dir is case directory
-                elif (path_pattern_suffix == "{case_path}" and
-                        event.src_path == self.case_path):
-                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                    self.handle_directory_event(event, module_info)
-                elif ("{case_path}" in path_pattern_suffix and event.src_path == path_pattern_suffix.replace("{case_path}", self.case_path)):
-                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                    self.handle_directory_event(event, module_info)
-                elif path_pattern_suffix.endswith('/*') and os.path.dirname(event.src_path).lower().endswith(wildcard_pattern.lower()):
-                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                    self.handle_directory_event(event, module_info)
-                elif event.src_path.lower().endswith(path_pattern_suffix.lower()):
-                    logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                    self.handle_directory_event(event, module_info)
+                module_info = {
+                    "module_name": module_instance.module_name,
+                    "file_regex": module_instance.input.name,
+                    "path_pattern_suffix": path_pattern,
+                    "input_type": module_instance.input.type
+                }
+                if module_info["file_regex"]:
+                    file_regex = re.compile(module_info["file_regex"])
+                path_pattern_suffix = module_info["path_pattern_suffix"]
+                if path_pattern_suffix:
+                    wildcard_pattern = path_pattern_suffix.rstrip('/*')  # Wildcard can be used after suffix to match any directory (not recursive)
+                module_name = module_info["module_name"]
+                input_type = module_info["input_type"]
+                module_path = os.path.join(self.case_path, module_name)
+                # Create a tuple of (file_path, module_name)
+                file_module_pair = (event.src_path, module_name)
 
-            # Handle files
-            elif (module_path not in os.path.dirname(event.src_path) and  # don't process input if it is in the same module directory
-                    input_type == "file" and
-                    not event.is_directory and
-                    file_module_pair not in self.last_processed):
-                
-                if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for files
-                    if re.search(file_regex, os.path.basename(event.src_path)):
-                        self.last_processed.add(file_module_pair)
-                        self.handle_file_event(event, module_info)
-                elif path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
-                    if event.src_path.lower().endswith(path_pattern_suffix.lower()):
-                        self.last_processed.add(file_module_pair)
-                        self.handle_file_event(event, module_info)
-                # NEED A REVIEW OF THIS ADD !!!!!!!!
-                elif path_pattern_suffix and '/*' in path_pattern_suffix and path_pattern_suffix.replace('/*', '') in event.src_path.lower() and re.search(file_regex, os.path.basename(event.src_path)):
-                    self.last_processed.add(file_module_pair)
-                    self.handle_file_event(event, module_info)
+                # Check if path_pattern_suffix is a regex
+                is_path_pattern_suffix_regex = path_pattern_suffix.startswith("r\"") and path_pattern_suffix.endswith("\"") if path_pattern_suffix else None
+                if is_path_pattern_suffix_regex:
+                    # Strip r"" and compile the regex
+                    path_regex = re.compile(path_pattern_suffix[2:-1])
+                else:
+                    wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None  # Wildcard can be used after suffix to match any directory (not recursive)
 
-                elif path_pattern_suffix and file_regex.pattern:  # If path/file name both specified, the directory of the event file must end with the path in config
-                    if os.path.dirname(event.src_path).lower().endswith(path_pattern_suffix.lower()) and re.search(file_regex, os.path.basename(event.src_path)):
+                # Handle dirs
+                if (module_path not in event.src_path and  # don't process input if it is in the same module directory
+                        input_type == "dir" and
+                        event.is_directory):  
+                    
+                    if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for directories
+                        logger.debug(f"{module_name} Directory '{event.src_path}' will be processed (regex match)")
+                        self.handle_directory_event(event, module_info)
+                    # Handle case where input dir is case directory
+                    elif (path_pattern_suffix == "{case_path}" and
+                            event.src_path == self.case_path):
+                        logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
+                        self.handle_directory_event(event, module_info)
+                    elif ("{case_path}" in path_pattern_suffix and event.src_path == path_pattern_suffix.replace("{case_path}", self.case_path)):
+                        logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
+                        self.handle_directory_event(event, module_info)
+                    elif path_pattern_suffix.endswith('/*') and os.path.dirname(event.src_path).lower().endswith(wildcard_pattern.lower()):
+                        logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
+                        self.handle_directory_event(event, module_info)
+                    elif event.src_path.lower().endswith(path_pattern_suffix.lower()):
+                        logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
+                        self.handle_directory_event(event, module_info)
+
+                # Handle files
+                elif (module_path not in os.path.dirname(event.src_path) and  # don't process input if it is in the same module directory
+                        input_type == "file" and
+                        not event.is_directory and
+                        file_module_pair not in self.last_processed):
+                    
+                    if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for files
+                        if re.search(file_regex, os.path.basename(event.src_path)):
+                            self.last_processed.add(file_module_pair)
+                            self.handle_file_event(event, module_info)
+                    elif path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
+                        if event.src_path.lower().endswith(path_pattern_suffix.lower()):
+                            self.last_processed.add(file_module_pair)
+                            self.handle_file_event(event, module_info)
+                    # NEED A REVIEW OF THIS ADD !!!!!!!!
+                    elif path_pattern_suffix and '/*' in path_pattern_suffix and path_pattern_suffix.replace('/*', '') in event.src_path.lower() and re.search(file_regex, os.path.basename(event.src_path)):
                         self.last_processed.add(file_module_pair)
                         self.handle_file_event(event, module_info)
-                elif not path_pattern_suffix and file_regex.pattern:  # If on_close triggered, the filename regex already matched
-                    if re.search(file_regex, os.path.basename(event.src_path)):  
-                        self.last_processed.add(file_module_pair)
-                        self.handle_file_event(event, module_info)
+
+                    elif path_pattern_suffix and file_regex.pattern:  # If path/file name both specified, the directory of the event file must end with the path in config
+                        if os.path.dirname(event.src_path).lower().endswith(path_pattern_suffix.lower()) and re.search(file_regex, os.path.basename(event.src_path)):
+                            self.last_processed.add(file_module_pair)
+                            self.handle_file_event(event, module_info)
+                    elif not path_pattern_suffix and file_regex.pattern:  # If on_close triggered, the filename regex already matched
+                        if re.search(file_regex, os.path.basename(event.src_path)):  
+                            self.last_processed.add(file_module_pair)
+                            self.handle_file_event(event, module_info)
 
     def handle_file_event(self, event, module_info):
         """

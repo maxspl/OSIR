@@ -13,7 +13,9 @@ processor_os: unix
 input:
   type: file
   paths: 
-    - bodyfile/*.txt
+    - "bodyfile/*.txt"
+    - "**/bodyfile/*.txt"
+    - r"bodyfile.txt$"
 output:
   type: single_file
   format: json

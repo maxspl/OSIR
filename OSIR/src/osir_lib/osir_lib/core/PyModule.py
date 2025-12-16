@@ -41,7 +41,7 @@ class PyModule():
             self.smb_host = self.master_ip
 
         if self.is_wsl():
-            self.smb_host = AgentConfig().wsl_host  # Why not using self.agent_config ?
+            self.smb_host = self.agent_config.wsl_host
             
         # Default output dir is module dir
         self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())
