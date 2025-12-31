@@ -18,11 +18,13 @@ event_id_candidates = compact([
     .Event.System.EventID
 ])
 if length(event_id_candidates) > 0 {
-    .event.code = get!(event_id_candidates, [0])
+    event_id = get!(event_id_candidates, [0])
+    .event.id = event_id
+    .event.code = event_id
 }
 
 if exists(.Event.System.EventRecordID) {
-    .event.id = to_string!(.Event.System.EventRecordID)
+    .winlog.record_id = to_string!(.Event.System.EventRecordID)
 }
 
 # All of these are normal "events"
@@ -487,11 +489,11 @@ if .Event.System.EventID == 4624 {
         .user.id = .Event.EventData.TargetUserSid
     }
 
-    if exists(.Event.EventData.IpAddress) {
+    if exists(.Event.EventData.IpAddress) && .Event.EventData.IpAddress != "-" {
         .source.ip = .Event.EventData.IpAddress
     }
-    if exists(.Event.EventData.IpPort) {
-        .source.port = .Event.EventData.IpPort
+    if exists(.Event.EventData.IpPort) && .Event.EventData.IpPort != "-" {
+        .source.port = to_int(.Event.EventData.IpPort) ?? null
     }
 
     if exists(.Event.EventData.ProcessName) {
@@ -499,7 +501,33 @@ if .Event.System.EventID == 4624 {
         .process.name       = basename!(.Event.EventData.ProcessName)
     }
     if exists(.Event.EventData.ProcessId) {
-        .process.pid = parse_int!(.Event.EventData.ProcessId)
+        .process.pid = to_int(.Event.EventData.ProcessId) ?? parse_int!(.Event.EventData.ProcessId)
+    }
+
+    # ---- LogonType normalization (VRL-safe) ----
+    if exists(.Event.EventData.LogonType) {
+        logon_type_i = to_int(.Event.EventData.LogonType) ?? null
+        logon_type_s = to_string(.Event.EventData.LogonType) ?? null
+
+        if logon_type_i != null {
+            .winlog.logon.type = logon_type_i
+        }
+
+        logon_type_map = {
+            "2":  "Interactive (logon at keyboard and screen of system)",
+            "3":  "Network (i.e. connection to shared folder on this computer from elsewhere on network)",
+            "4":  "Batch (i.e. scheduled task)",
+            "5":  "Service (Service startup)",
+            "7":  "Unlock (i.e. unnattended workstation with password protected screen saver)",
+            "8":  "NetworkCleartext (Logon with credentials sent in the clear text. Most often indicates a logon to IIS with 'basic authentication') ",
+            "9":  "NewCredentials such as with RunAs or mapping a network drive with alternate credentials. ",
+            "10": "RemoteInteractive (Terminal Services, Remote Desktop or Remote Assistance)",
+            "11": "CachedInteractive (logon with cached domain credentials such as when logging on to a laptop when away from the network)"
+        }
+
+        if logon_type_s != null {
+            .winlog.logon.type_name = get(logon_type_map, [logon_type_s]) ?? "Unknown"
+        }
     }
 }
 
@@ -610,14 +638,11 @@ if .Event.System.EventID == 4688 {
     .event.code = to_string!(.Event.System.EventID)
 
     if exists(.Event.System.EventRecordID) {
-        .event.id = to_string!(.Event.System.EventRecordID)
+        .winlog.record_id = to_string!(.Event.System.EventRecordID)
     }
 
     .event.module  = "security"
     .event.dataset = "windows.security"
-
-    .winlog.event_id      = .Event.System.EventID
-    .winlog.record_id     = .Event.System.EventRecordID
 
     if exists(.Event.System.Provider."#attributes".Name) {
         .winlog.provider_name = .Event.System.Provider."#attributes".Name
@@ -755,6 +780,9 @@ if !exists(.event.category) {
 # CLEANUP: DELETE RAW FIELDS  #
 ###############################
 # Now only the fields we haven't already inlined with del()
+
+# EventID
+del(.Event.System.EventID)
 
 # UserData (LogFileCleared)
 del(.Event.UserData.LogFileCleared.SubjectUserName)
