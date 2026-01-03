@@ -1,0 +1,435 @@
+# =============================================================================
+# IIS parsed JSON -> ECS-ish normalizer (STRICT VRL compatible)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ensure .event exists and keep original event
+# -----------------------------------------------------------------------------
+if !exists(.event) {
+  .event = {}
+}
+
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Timestamp handling
+# -----------------------------------------------------------------------------
+ts_value = null
+ts_source = null
+
+if ts_value == null && exists(.ts) && .ts != null {
+  raw = to_string!(.ts)
+  if raw != "" {
+    v = parse_timestamp(raw, "%FT%T%:z") ??
+        parse_timestamp(raw, "%FT%TZ") ??
+        parse_timestamp(raw, "%FT%T%.f%:z") ??
+        parse_timestamp(raw, "%FT%T%.fZ") ??
+        null
+
+    if v != null {
+      ts_value = v
+      ts_source = "ts"
+    }
+
+    if v == null {
+      .event.Ext.iis.ts_raw = raw
+    }
+
+    del(.ts)
+  }
+}
+
+if ts_value == null && exists(.timestamp) && .timestamp != null {
+  raw2 = to_string!(.timestamp)
+  if raw2 != "" {
+    v2 = parse_timestamp(raw2, "%FT%T%:z") ??
+         parse_timestamp(raw2, "%FT%TZ") ??
+         null
+
+    if v2 != null {
+      ts_value = v2
+      ts_source = "timestamp"
+    }
+
+    if v2 == null {
+      .event.Ext.iis.timestamp_raw = raw2
+    }
+
+    del(.timestamp)
+  }
+}
+
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}
+
+# -----------------------------------------------------------------------------
+# Event metadata
+# -----------------------------------------------------------------------------
+.event.kind = "event"
+.event.category = ["web"]
+.event.type = ["access"]
+.event.dataset = "iis.access"
+.event.module = "iis"
+.event.outcome = "unknown"
+
+# -----------------------------------------------------------------------------
+# Host
+# -----------------------------------------------------------------------------
+if exists(.hostname) && .hostname != null {
+  hn = to_string!(.hostname)
+  if hn != "" {
+    .host.name = hn
+  }
+  del(.hostname)
+}
+
+if exists(.domain) && .domain != null {
+  dom = to_string!(.domain)
+  if dom != "" {
+    .host.domain = dom
+  }
+  del(.domain)
+}
+
+# -----------------------------------------------------------------------------
+# IIS site / server
+# -----------------------------------------------------------------------------
+if exists(.site_name) && .site_name != null {
+  sn = to_string!(.site_name)
+  if sn != "" {
+    .service.name = sn
+    .event.Ext.iis.site_name = sn
+  }
+  del(.site_name)
+}
+
+if exists(.server_name) && .server_name != null {
+  sname = to_string!(.server_name)
+  if sname != "" {
+    .server.name = sname
+  }
+  del(.server_name)
+}
+
+# -----------------------------------------------------------------------------
+# Log file
+# -----------------------------------------------------------------------------
+if exists(.source) && .source != null {
+  .log.file.path = to_string!(.source)
+  del(.source)
+}
+
+if exists(._source) && ._source != null {
+  .event.Ext.iis.collection_root = to_string!(._source)
+  del(._source)
+}
+
+# -----------------------------------------------------------------------------
+# Client / server IPs
+# -----------------------------------------------------------------------------
+if exists(.client_ip) && .client_ip != null {
+  cip = to_string!(.client_ip)
+  if cip != "" {
+    .client.ip = cip
+    .source.ip = cip
+  }
+  del(.client_ip)
+}
+
+if exists(.server_ip) && .server_ip != null {
+  sip = to_string!(.server_ip)
+  if sip != "" {
+    .server.ip = sip
+    .destination.ip = sip
+  }
+  del(.server_ip)
+}
+
+# Port
+if exists(.s_port) && .s_port != null {
+  p_raw = to_string!(.s_port)
+  p = to_int(p_raw) ?? null
+
+  if p != null {
+    .destination.port = p
+    .server.port = p
+  }
+
+  if p == null {
+    .event.Ext.iis.s_port_raw = p_raw
+  }
+
+  del(.s_port)
+}
+
+# -----------------------------------------------------------------------------
+# User
+# -----------------------------------------------------------------------------
+if exists(.username) && .username != null {
+  u = to_string!(.username)
+  if u != "" {
+    .user.name = u
+  }
+  del(.username)
+}
+
+# -----------------------------------------------------------------------------
+# HTTP request
+# -----------------------------------------------------------------------------
+if exists(.request_method) && .request_method != null {
+  m = upcase(to_string!(.request_method))
+  if m != "" {
+    .http.request.method = m
+  }
+  del(.request_method)
+}
+
+if exists(.request_path) && .request_path != null {
+  path = to_string!(.request_path)
+  if path == "" {
+    path = "/"
+  }
+  .url.path = path
+  del(.request_path)
+}
+
+if exists(.request_query) && .request_query != null {
+  q = to_string!(.request_query)
+  if q != "" {
+    .url.query = q
+  }
+  del(.request_query)
+}
+
+if exists(.url.path) {
+  if exists(.url.query) {
+    .url.original = to_string!(.url.path) + "?" + to_string!(.url.query)
+  }
+
+  if !exists(.url.query) {
+    .url.original = to_string!(.url.path)
+  }
+}
+
+if exists(.request_size_bytes) && .request_size_bytes != null {
+  rb_raw = to_string!(.request_size_bytes)
+  rb = to_int(rb_raw) ?? null
+
+  if rb != null {
+    .http.request.body.bytes = rb
+  }
+
+  if rb == null {
+    .event.Ext.iis.request_size_bytes_raw = rb_raw
+  }
+
+  del(.request_size_bytes)
+}
+
+# -----------------------------------------------------------------------------
+# HTTP response + outcome
+# -----------------------------------------------------------------------------
+if exists(.service_status_code) && .service_status_code != null {
+  sc_raw = to_string!(.service_status_code)
+  sc = to_int(sc_raw) ?? -1
+
+  if sc >= 0 {
+    .http.response.status_code = sc
+  }
+
+  if sc < 0 {
+    .http.response.Ext.iis.status_code_raw = sc_raw
+  }
+
+  if sc >= 400 {
+    .event.outcome = "failure"
+  }
+
+  if sc >= 0 && sc < 400 {
+    .event.outcome = "success"
+  }
+
+  del(.service_status_code)
+}
+
+if exists(.response_size_bytes) && .response_size_bytes != null {
+  sb_raw = to_string!(.response_size_bytes)
+  sb = to_int(sb_raw) ?? null
+
+  if sb != null {
+    .http.response.body.bytes = sb
+  }
+
+  if sb == null {
+    .event.Ext.iis.response_size_bytes_raw = sb_raw
+  }
+
+  del(.response_size_bytes)
+}
+
+# -----------------------------------------------------------------------------
+# IIS status extensions
+# -----------------------------------------------------------------------------
+if exists(.sc_substatus) && .sc_substatus != null {
+  sub_raw = to_string!(.sc_substatus)
+  sub = to_int(sub_raw) ?? null
+
+  if sub != null {
+    .event.Ext.iis.sc_substatus = sub
+  }
+
+  if sub == null {
+    .event.Ext.iis.sc_substatus_raw = sub_raw
+  }
+
+  del(.sc_substatus)
+}
+
+if exists(.win32_status_code) && .win32_status_code != null {
+  w_raw = to_string!(.win32_status_code)
+  w = to_int(w_raw) ?? null
+
+  if w != null {
+    .event.Ext.iis.win32_status_code = w
+  }
+
+  if w == null {
+    .event.Ext.iis.win32_status_code_raw = w_raw
+  }
+
+  del(.win32_status_code)
+}
+
+# -----------------------------------------------------------------------------
+# Duration
+# -----------------------------------------------------------------------------
+if exists(.process_time_ms) && .process_time_ms != null {
+  rt_raw = to_string!(.process_time_ms)
+  rt = to_int(rt_raw) ?? null
+
+  if rt != null {
+    .event.duration, _ = rt * 1000000
+  }
+
+  if rt == null {
+    .event.Ext.iis.process_time_ms_raw = rt_raw
+  }
+
+  del(.process_time_ms)
+}
+
+# -----------------------------------------------------------------------------
+# Referrer + User-Agent
+# -----------------------------------------------------------------------------
+if exists(.cs_referer) && .cs_referer != null {
+  ref = to_string!(.cs_referer)
+  if ref != "" && ref != "-" {
+    .http.request.referrer = ref
+    .url.referrer = ref
+  }
+  del(.cs_referer)
+}
+
+if exists(.cs_user_agent) && .cs_user_agent != null {
+  ua_raw = to_string!(.cs_user_agent)
+
+  if ua_raw != "" && ua_raw != "-" {
+    .user_agent.original = ua_raw
+
+    ua = parse_user_agent(ua_raw, mode: "fast")
+
+    if exists(ua.browser) && ua.browser.family != null {
+      .user_agent.name = ua.browser.family
+    }
+
+    if exists(ua.browser) && ua.browser.version != null {
+      .user_agent.version = ua.browser.version
+    }
+
+    if exists(ua.os) && ua.os.family != null {
+      .user_agent.os.name = ua.os.family
+    }
+
+    if exists(ua.os) && ua.os.version != null {
+      .user_agent.os.version = ua.os.version
+    }
+
+    if exists(ua.device) && ua.device.category != null {
+      .user_agent.device.name = ua.device.category
+    }
+
+    .event.Ext.iis.user_agent_parsed = ua
+  }
+
+  del(.cs_user_agent)
+}
+
+# -----------------------------------------------------------------------------
+# Misc IIS / ingestion metadata
+# -----------------------------------------------------------------------------
+if exists(.format) && .format != null {
+  .event.Ext.iis.format = to_string!(.format)
+  del(.format)
+}
+
+if exists(.date) && .date != null {
+  .event.Ext.iis.date = to_string!(.date)
+  del(.date)
+}
+
+if exists(.time) && .time != null {
+  .event.Ext.iis.time = to_string!(.time)
+  del(.time)
+}
+
+if exists(._generated) && ._generated != null {
+  .event.Ext.iis.generated = to_string!(._generated)
+  del(._generated)
+}
+
+if exists(._version) && ._version != null {
+  v_i = to_int(._version) ?? null
+
+  if v_i != null {
+    .event.Ext.iis.version = v_i
+  }
+
+  if v_i == null {
+    .event.Ext.iis.version_raw = to_string!(._version)
+  }
+
+  del(._version)
+}
+
+if exists(._type) && ._type != null {
+  .event.Ext.iis.record_type = to_string!(._type)
+  del(._type)
+}
+
+if exists(._recorddescriptor) {
+  .event.Ext.iis.recorddescriptor = del(._recorddescriptor)
+}
+
+if exists(._classification) && ._classification != null {
+  .event.Ext.iis.classification = del(._classification)
+}
+
+# -----------------------------------------------------------------------------
+# Loopback tagging
+# -----------------------------------------------------------------------------
+if exists(.client.ip) {
+  ip = to_string!(.client.ip)
+  if ip == "::1" || ip == "127.0.0.1" {
+    .network.direction = "internal"
+    .client.Ext.iis.loopback = true
+  }
+}
