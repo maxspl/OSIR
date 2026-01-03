@@ -2,7 +2,7 @@ version: 1.0
 author: maxspl
 module: activities_cache
 alt_module: dissect_dispatcher
-description: Parse ActivitiesCache.dn from DFIR ORC restore_fs using Dissect plugin
+description: Parse ActivitiesCache.db from DFIR ORC restore_fs using Dissect plugin
 os: windows
 type: process
 disk_only: False
@@ -12,7 +12,6 @@ processor_type:
 processor_os: unix
 input:
   type: dir
-  name: arp_cache.txt
   path: r"restore_fs\/[^\/]*$"
 output:
   type: single_file
