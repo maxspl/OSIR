@@ -1,10 +1,10 @@
 import os
 import pkgutil
 import importlib
+import sys
 import traceback
 
 from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_lib.core.PyModule import PyModule
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
        
@@ -14,7 +14,7 @@ class ExternalProcessor:
     """
     Handles the external processing of files based on the configuration of a specific module instance.
     """
-    def __init__(self, case_path: str, module_instance: OsirModule) -> None:
+    def __init__(self, case_path: str, module_instance: OsirModule, task_id = None) -> None:
         """
         Initializes an ExternalProcessor instance with specified case path and module.
 
@@ -24,20 +24,19 @@ class ExternalProcessor:
         """
    
         # Declare module class from config string
-        self._module_instance = module_instance
-        self._py_module = PyModule(case_path, module_instance)
+        self.module_instance = module_instance
 
     def run_module(self):
         """
         Executes the external tool associated with the module instance.
         """
-        self._py_module.run_ext_tool()
+        self.module_instance.tool.run()
 
 class InternalProcessor:
     """
     Manages the execution of internal processing tasks within a Python environment, using predefined module instances.
     """
-    def __init__(self, case_path: str, module_instance: OsirModule) -> None:
+    def __init__(self, case_path: str, module_instance: OsirModule, task_id = None) -> None:
         """
         Initializes the InternalProcessor with a specific case path and module instance.
 
@@ -45,12 +44,13 @@ class InternalProcessor:
             case_path (str): The base path where case files are stored and operations are performed.
             module_instance (BaseModule): The module instance defining the processing rules and configurations.
         """
+        self.task_id = task_id
         self._module_instance = module_instance
 
         self.case_path = case_path  # Base directory for operations
 
         self.current_module = self._module_instance.get_module_name()
-        self._py_module: PyModule = self.load_module()
+        self._py_module = self.load_module()
 
         if not self._py_module:
             self.available = False
@@ -59,7 +59,7 @@ class InternalProcessor:
             self.available = True
             logger.debug(f"{self.current_module} found among available modules")
 
-    def load_module(self) -> PyModule:
+    def load_module(self):
         """
         Dynamically loads a Python module for processing based on the module instance's specifications.
 
@@ -68,22 +68,32 @@ class InternalProcessor:
         """
 
         modules_directory = OSIR_PATHS.PY_MODULES_DIR
-        base_package = 'osir_lib.modules.'
-        
-        target_name = self._module_instance.alt_module or self._module_instance.module_name  # Try to load alt_module, fallback to module_name
-        
-        try:
-            for _, name, is_pkg in pkgutil.walk_packages([modules_directory], base_package):
-                if not is_pkg:
-                    module = importlib.import_module(name)
-                    for attr_name in dir(module):
-                        attr = getattr(module, attr_name)
-                        if isinstance(attr, type) and issubclass(attr, PyModule) and attr is not PyModule:
-                            if name.split('.')[-1] == target_name:
-                                return attr(self.case_path, self._module_instance)
-        except ImportError as e:
-            logger.debug(f"Failed to import {name}: {e}")
+        target_file = next(modules_directory.rglob(f"{self._module_instance.module_name}.py"), None)
+
+        if not target_file:
+            print(f"Fichier {self._module_instance.module_name}.py non trouvé dans {modules_directory}")
             return None
+
+        try:
+            # Chargement dynamique du module Python
+            spec = importlib.util.spec_from_file_location(self._module_instance.module_name, target_file)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                # Ajout au sys.modules pour éviter les problèmes d'imports relatifs
+                sys.modules[self._module_instance.module_name] = module
+                spec.loader.exec_module(module)
+
+                # Parcourir les attributs du module pour trouver celui décoré
+                for attr_name in dir(module):
+                    attr = getattr(module, attr_name)
+                    # On vérifie la présence de l'attribut injecté par le décorateur
+                    if getattr(attr, "__osir_internal__", False):
+                        return attr
+
+        except Exception as e:
+            print(f"Erreur lors du chargement du module {target_file}: {e}")
+        
+        return None
 
     def module_exists(self):
         """
@@ -94,12 +104,19 @@ class InternalProcessor:
         """
         return True if self._py_module else False
     
-    def run_module(self):
+    def run_module(self) -> bool:
         """
         Executes the loaded Python module's processing function if the module is available.
         """
         if self.module_exists():
             logger.debug(f"Module found running {self._module_instance.module_name}()")
-            self._py_module()
+            
+            # ADD PARAMETER TO SEND THEM TO THE INTERNAL FUNCTION
+            return self._py_module(
+                module=self._module_instance,
+                case_path=self.case_path,
+                task_id=self.task_id
+            )
         else:
-            logger.debug(f"Module not found {self._module_instance.module_name}")
+            logger.error(f"Module not found {self._module_instance.module_name}")
+            return False

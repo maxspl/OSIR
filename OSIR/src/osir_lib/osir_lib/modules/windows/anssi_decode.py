@@ -3,14 +3,14 @@ import re
 import csv
 from typing import List, Optional, Tuple
 
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
-
-class ANSSI_Decode(PyModule):
+@osir_internal_module
+class ANSSI_Decode():
     """
     PyModule to apply DECODE tool on NTFS_info files with Listdlls when available.
     """
@@ -23,10 +23,10 @@ class ANSSI_Decode(PyModule):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        super().__init__(case_path, module)
-
+        self.module = module
+        self.case_path = case_path
         # Input directory, should be extracted_files/General/NTFSInfoFull_detail/
-        self._ntfs_info_dir: str = module.input.dir
+        self._ntfs_info_dir: str = module.input.match
         self._endpoint: str = module.endpoint
 
         # Save cmd with place‑holders for further iterations
@@ -42,7 +42,7 @@ class ANSSI_Decode(PyModule):
         Returns:
             bool: True if the processing completes successfully, False otherwise.
         """
-        logger.debug("Processing dir %s", self.module.input.dir)
+        logger.debug("Processing dir %s", self.module.input.match)
         try:
             self._apply_decode()
         except Exception as exc:          # noqa: BLE001 (broad except is fine here)
@@ -73,7 +73,7 @@ class ANSSI_Decode(PyModule):
     # =========================================================================
     def _run_decode(self) -> None:
         """Launch the external decoding tool and restore the pristine command."""
-        self.run_ext_tool()
+        self.module.tool.run()
         # Restore cmd with place‑holders because they are erased by _prepare_input
         self.module.tool.cmd = self._cmd
 

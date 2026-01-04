@@ -1,18 +1,18 @@
 import re
-from osir_lib.core.UnixUtils import UnixUtils
+from osir_lib.core.OsirDecorator import osir_internal_module
+from osir_lib.core.LogUtils import LogUtils
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 from urllib.parse import unquote
 
 logger: CustomLogger = AppLogger().get_logger()
 
-
-class AuditModule(PyModule, UnixUtils):
+@osir_internal_module
+class AuditModule(LogUtils):
     """
     PyModule to perform processing operations on Audit logs.
     """
-    def __init__(self, case_path: str, module: OsirModule):
+    def __init__(self, module: OsirModule):
         """
         Initializes the Module.
 
@@ -20,11 +20,9 @@ class AuditModule(PyModule, UnixUtils):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        PyModule.__init__(self, case_path, module)
-        UnixUtils.__init__(self, case_path, module)
-
-        self._file_to_process = module.input.file
-        # self._format_output_file()
+        self.module = module
+        LogUtils.__init__(self, ctx=module)
+        self._file_to_process = module.input.match
 
     def __call__(self) -> bool:
         """

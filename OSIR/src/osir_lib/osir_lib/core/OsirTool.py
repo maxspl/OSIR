@@ -2,20 +2,22 @@ import os
 import shutil
 import subprocess
 import time
+from typing import TYPE_CHECKING, Optional
 import uuid
 
+from pydantic import PrivateAttr
 import requests
 import winrm 
 
 from pathlib import Path, PureWindowsPath
 
+from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.model.OsirToolModel import OsirToolModel
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
-
 from osir_lib.logger import AppLogger
 
-logger = AppLogger(__name__).get_logger()
+logger = AppLogger().get_logger()
 
 # TODO ENV FILE
 DIR_RESULT = "../../../share/fifos/result/"
@@ -24,10 +26,76 @@ DIR_EXECUTOR = "../../../share/fifos/execute/"
 MAX_RETRIES = 60
 RETRY_DELAY = 2  # in seconds
 
+if TYPE_CHECKING:
+    from osir_lib.core.OsirModule import OsirModule
 
-class OsirTool(OsirToolModel):
+class OsirTool(OsirToolModel, OsirPathTransformerMixin):
+    _context: Optional["OsirModule"] = PrivateAttr(default=None)
+    
     def __init__(self, **data):
         super().__init__(**data)
+
+    def run(self) -> bool:
+        """
+        Executes an external tool based on the module's configuration and the operating system.
+
+        Returns:
+            bool: True if the tool executes successfully, False otherwise.
+        """
+        if not self._context:
+            logger.error("Tool context is missing! Did the validator run?")
+            return False
+        
+        logger.debug(f"Running the tool of {self._context.module_name}")
+
+        match self._context.processor_os:
+            case 'unix':
+                self.run_local()
+            case 'windows':
+                if self._context.is_wsl:  # Change to adapt to remote master
+                    self.run_wsl()
+                else:
+                    self.run_remote()
+
+        if self._context.output.type == "multiple_files" and self._context.output.output_prefix:
+            self._context.output._rename_items_recursively()
+
+    def update(self) -> "OsirTool":
+        ctx = self._context
+        agent_config = OsirAgentConfig() 
+        
+        if self.path:
+            self.path = self.safe_format(
+                self.path, 
+                drive=agent_config.windows_mnt_point + ":"
+            )
+
+        if self.cmd:
+            replacements = {
+                "drive": agent_config.windows_mnt_point + ":",
+                "input_file": str(ctx.input.match),
+                "input_dir": str(ctx.input.match),
+                "output_dir": str(ctx.output.output_dir),
+                "output_file": str(ctx.output.output_file),
+                "case_name": ctx.case_name,
+                "master_host": agent_config.smb_host,
+                "endpoint_name": ctx.endpoint_name,
+            }
+            
+            self.cmd = self.safe_format(self.cmd, **replacements)
+
+            if "{optional_" in self.cmd:
+                if ctx.optional:
+                    for key, value in ctx.optional.items():
+                        placeholder = f"{{optional_{key}}}"
+                        self.cmd = self.cmd.replace(placeholder, str(value))
+                else:
+                    logger.warning(
+                        f"Optional args required in cmd '{self.cmd}' "
+                        f"but not found in configuration."
+                    )
+
+        return self
 
     def init_tool(self, processor_os):
         """
@@ -182,12 +250,6 @@ class OsirTool(OsirToolModel):
         except Exception as e:
             logger.error(f"Failed to run local command {self.path} {self.cmd}. Error: {str(e)}")
             return None, None
-    
-    def transform_cmd(self, is_agent):
-        """
-        Placeholder function for transforming the command based on agent context.
-        """
-        pass
 
     def update_env(self):
         """

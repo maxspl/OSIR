@@ -1,17 +1,17 @@
 import re
-from osir_lib.core.UnixUtils import UnixUtils
+from osir_lib.core.LogUtils import LogUtils
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
-
-class MailModule(PyModule, UnixUtils):
+@osir_internal_module
+class MailModule(LogUtils):
     """
     PyModule to perform processing operations on mail logs.
     """
-    def __init__(self, case_path: str, module: OsirModule):
+    def __init__(self, module: OsirModule):
         """
         Initializes the Module.
 
@@ -19,10 +19,9 @@ class MailModule(PyModule, UnixUtils):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        PyModule.__init__(self, case_path, module)  # Init PyModule
-        UnixUtils.__init__(self, case_path, module)
-        self._case_path = case_path  # Base directory for operations
-        self._file_to_process = module.input.file
+        self.module = module
+        LogUtils.__init__(self, ctx=module)
+        self._file_to_process = module.input.match
         self._name_rex = self.module.input.name
 
         self.structure = {
@@ -36,8 +35,6 @@ class MailModule(PyModule, UnixUtils):
             "message_id": lambda log: self.safe_search(r'^\S+\s+\d+\s\d+:\d+:\d+\s\S+\s\S+\s([A-Z0-9]+):', log)
         }
 
-        self._format_output_file()
-        
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module

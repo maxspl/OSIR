@@ -1,4 +1,4 @@
-version: 1.0
+version: 1.1
 author: Typ
 module: extract_uac
 description: Used to execute internal pre-processing for Unix Artefact Collector Capture 
@@ -16,7 +16,10 @@ tool:
   cmd: -xvf {input_file} -C {output_dir}
 input:
   type: file
-  name: ^uac-([\w-]+)-(?:\w+)-(?:\w+).tar.gz$
+  paths:
+    - uac-*.tar.gz
 output:
   type: multiples_files
   format: raw
+  output_dir: Endpoint_{endpoint_name}/extracted_files
+endpoint: (?:.*[\\/])?[^-]+-(.*)-[^-]+-[^-]+$

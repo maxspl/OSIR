@@ -1,17 +1,17 @@
 import re
-from osir_lib.core.UnixUtils import UnixUtils
+from osir_lib.core.OsirDecorator import osir_internal_module
+from osir_lib.core.LogUtils import LogUtils
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
-
-class BootModule(PyModule, UnixUtils):
+@osir_internal_module
+class BootModule(LogUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """
-    def __init__(self, case_path: str, module: OsirModule):
+    def __init__(self, module: OsirModule):
         """
         Initializes the Module.
 
@@ -19,10 +19,9 @@ class BootModule(PyModule, UnixUtils):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        PyModule.__init__(self, case_path, module)
-        UnixUtils.__init__(self, case_path, module)
-
-        self._file_to_process = module.input.file
+        self.module = module
+        LogUtils.__init__(self, ctx=module)
+        self._file_to_process = module.input.match
 
         # Structure using regex and lambdas with safe_search for parsing log entries
         self.structure = [
@@ -30,9 +29,6 @@ class BootModule(PyModule, UnixUtils):
             ("_type", lambda log: self.safe_search(r"(?<=\]\s)(.*)(?=\[)", log)),  # Example: system boot, etc.
             ("_raw", lambda log: log)  # Raw log entry
         ]
-
-        self._format_output_file()
-
 
     def __call__(self) -> bool:
         """

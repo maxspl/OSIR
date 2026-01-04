@@ -1,19 +1,37 @@
+from uuid import UUID
+from pydantic import BaseModel
 from fastapi import APIRouter
+
 from osir_api.api.version import API_VERSION
+from osir_api.api.response import handle_response
+from osir_api.api.exceptions import UnexpectedException, UnexpectedExceptionResponse
+
+from osir_lib.logger.logger import CustomLogger
+from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
+from osir_lib.logger import AppLogger
 
-from osir_api.api.exceptions import (
-    ModuleNotFoundException,
-    ModuleValidationException,
-    ModuleLoadException,
-    UnexpectedException
-)
+logger: CustomLogger = AppLogger(__name__).get_logger()
 
 router = APIRouter()
 
-@router.get("/profile")
+
+# ==========================================
+# API_CALL : Get Profile  
+# ==========================================
+
+class GetProfileResponseCore(BaseModel):
+    profiles: list[str]
+
+class GetProfileResponse(OsirIpcResponse):
+    response: GetProfileResponseCore
+
+@router.get("/profile",
+    response_model=GetProfileResponse,
+    responses={500: {"model": UnexpectedExceptionResponse}})
 def get_profiles():
     """Liste les profils OSIR disponibles"""
     try:
@@ -24,65 +42,84 @@ def get_profiles():
         profiles = []
         for profile_file in profiles_dir.glob("*.yml"):
             profiles.append(profile_file.name)
-        
-        response = {
-            "version": API_VERSION,
-            "status": 200,
-            "response": {
-                "profiles": profiles
-            }
-        }
-        
-        return response
+
+        response = OsirIpcResponse(
+            version=API_VERSION,
+            status=200,
+            response = { "profiles" : profiles}
+        )
+        return handle_response(response)
     except Exception as e:
         raise UnexpectedException(str(e))
 
-@router.get("/profile/exists/{profile_name}")
+# ==========================================
+# API_CALL : Profile Exists 
+# ==========================================
+
+class GetProfileExistsResponseCore(BaseModel):
+    exists: bool
+    profile: OsirProfileModel
+
+class GetProfileExistsResponse(OsirIpcResponse):
+    response: GetProfileExistsResponseCore
+
+@router.get("/profile/exists/{profile_name}",
+    response_model=GetProfileExistsResponse,
+    responses={500: {"model": UnexpectedExceptionResponse}})
 def profile_exists(profile_name: str):
     """Vérifie si un profil existe et retourne ses détails"""
     try:
-        profile_path = FileManager.get_profile_path(profile_name)
-        if not profile_path.exists():
-            raise ModuleNotFoundException(profile_name)
+        profile_path = FileManager.get_profile_path(profile_name, raise_error=False)
         
-        profile = OsirProfileModel.from_yaml(str(profile_path))
+        response = OsirIpcResponse(
+            version=API_VERSION,
+            status=200,
+        )
         
-        response = {
-            "version": API_VERSION,
-            "status": 200,
-            "response": profile.model_dump()
-        }
+        if profile_path:
+            profile_data = OsirProfileModel.from_yaml(str(profile_path))
+            response.response = {"exists": True, "profile": profile_data}
+        else:
+            response.response = {"exists": False, "profile": None}
         
-        return response
-    except FileNotFoundError:
-        raise ModuleNotFoundException(profile_name)
+        return handle_response(response)
     except Exception as e:
         raise UnexpectedException(str(e))
 
-@router.get("/profile/run/{profile_name}")
-def run_profile(profile_name: str):
+# ==========================================
+# API_CALL : Run Profile
+# ==========================================
+
+class RunProfileRequest(BaseModel):
+    profile_name: str
+    case_name: str
+
+class RunProfileResponseCore(BaseModel):
+    handler_id: UUID
+
+class RunProfileResponse(OsirIpcResponse):
+    response: RunProfileResponseCore
+
+
+@router.post("/profile/run",
+    response_model=OsirIpcResponse,
+    responses={500: {"model": UnexpectedExceptionResponse}})
+def run_profile(request: RunProfileRequest):
     """Exécute un profil OSIR"""
     try:
         from osir_service.ipc.OsirIpcModel import OsirIpcModel
         from osir_service.ipc.OsirIpcClient import OsirIpcClient
         
-        profile_path = FileManager.get_profile_path(profile_name)
+        profile_path = FileManager.get_profile_path(request.profile_name)
         if not profile_path.exists():
-            raise ModuleNotFoundException(profile_name)
-        
-        profile = OsirProfileModel.from_yaml(str(profile_path))
-        
+            raise UnexpectedException(request.profile_name)
+                
         client = OsirIpcClient()
-        action = OsirIpcModel(action="exec_profile", profile=profile_name, case_path="/OSIR/share/cases/test_1")
+        action = OsirIpcModel(action="exec_profile", profile=request.profile_name, case_name=request.case_name)
         
-        response = {
-            "version": API_VERSION,
-            "status": 200,
-            "response": client.send(action)
-        }
-        
-        return response
-    except FileNotFoundError:
-        raise ModuleNotFoundException(profile_name)
+        response = OsirIpcResponse.model_validate_json(client.send(action))
+        return handle_response(response)
+
     except Exception as e:
+        logger.error_handler(e)
         raise UnexpectedException(str(e))

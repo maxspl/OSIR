@@ -2,8 +2,8 @@ from __future__ import annotations
 import os
 from typing import Callable, Dict
 
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 # Import all parsers
@@ -36,15 +36,16 @@ PARSER_MAP: Dict[str, Callable[[str], list]] = {
     "arp_cache": ArpCacheParser().parse,
 }
 
-
-class WinLiveResponseDispatcher(PyModule):
+@osir_internal_module
+class WinLiveResponseDispatcher():
     """
     Minimal dispatcher: single-file input, JSONL output.
     Uses PyModule's _format_output_file/_format_output_dir when provided.
     """
 
     def __init__(self, case_path: str, module: OsirModule) -> None:
-        super().__init__(case_path, module)
+        self.module = module
+        self.case_path = case_path
 
     def __call__(self) -> bool:
         # parser key

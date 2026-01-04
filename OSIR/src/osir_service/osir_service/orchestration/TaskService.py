@@ -4,8 +4,9 @@ from os import environ
 from celery import Celery
 from celery import signature
 
-from osir_lib.core.OsirModule import OsirModule
+from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
+from osir_service.postgres.PostgresService import OSIR_DB
 
 logger = AppLogger(__name__).get_logger()
 
@@ -14,14 +15,14 @@ class TaskService:
         pass
     
     @staticmethod
-    def get_task_name(module: OsirModule):
+    def get_task_name(module: OsirModuleModel):
         if "internal" in module.processor_type:
             return "internal_processor_task"
         else:
             return "external_processor_task"        
     
     @staticmethod
-    def get_queue_name(module: OsirModule):
+    def get_queue_name(module: OsirModuleModel):
         if module.disk_only and module.no_multithread:
             return f"{module.processor_os}_no_multithread_disk_only"
         elif module.disk_only :
@@ -32,7 +33,7 @@ class TaskService:
             return f"{module.processor_os}_multithread"
 
     @staticmethod
-    def push_task(case_path, module_instance: OsirModule, case_uuid):
+    def push_task(case_path, module_instance: OsirModuleModel, case_uuid, handler_uuid):
         """
         Submits a task for asynchronous execution using Celery, specifying the task's parameters and execution queue.
 
@@ -47,18 +48,11 @@ class TaskService:
             CELERY_BROKER_URL (str): The URL of the Celery message broker.
             CELERY_RESULT_BACKEND (str): The URL of the backend used to store task results.
         """
-        if not module_instance.input._match:
+        if not module_instance.input.match:
             if module_instance.input.type == "file":
-                module_instance.input._match = module_instance.input.file
+                module_instance.input.match = module_instance.input.file
             else:
-                module_instance.input._match = module_instance.input.dir
-
-        logger.info(f"""Task Pushed : \n
-                    Task Name : {module_instance.module_name} \n
-                    Task Type : {module_instance.processor_type} \n
-                    Case Path : {case_path} \n
-                    Input : {module_instance.input._match} \n
-                    Case UUID : {case_uuid} \n""")
+                module_instance.input.match = module_instance.input.dir
         
         RABBITMQ_USER = os.getenv('RABBITMQ_DEFAULT_USER', 'missing RABBITMQ_DEFAULT_USER env var')
         RABBITMQ_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS', 'missing RABBITMQ_DEFAULT_PASS env var')
@@ -66,6 +60,33 @@ class TaskService:
         CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', 'redis://master-redis:6379/0')
 
         Celery(name='OSIR', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
-        task_signature = signature(TaskService.get_task_name(module_instance), args=(module_instance.input._match, case_path, module_instance.model_dump_json(), case_uuid), immutable=True, queue=TaskService.get_queue_name(module_instance))
+
+        task_signature = signature(
+            TaskService.get_task_name(module_instance), 
+            args=(module_instance.input.match, case_path, module_instance.model_dump_json(), case_uuid), 
+            immutable=True, 
+            queue=TaskService.get_queue_name(module_instance)
+        )
+
         result = task_signature.apply_async()
-        logger.debug(f"Task id : {result.id}")
+
+        logger.info(f"""Task Pushed : \n
+                    Task Name : {module_instance.module_name} \n
+                    Task ID : {result.id} \n
+                    Task Type : {module_instance.processor_type} \n
+                    Case Path : {case_path} \n
+                    Input : {module_instance.input.match} \n
+                    Case UUID : {case_uuid} \n""")
+
+        OSIR_DB.task.create(
+            task_id=result.id,
+            case_uuid=case_uuid,
+            agent="Null",
+            module=module_instance.module_name,
+            input=module_instance.input.match
+        )
+
+        OSIR_DB.handler.append_task_ids(
+            handler_id=handler_uuid,
+            new_task_ids=[result.id]
+        )

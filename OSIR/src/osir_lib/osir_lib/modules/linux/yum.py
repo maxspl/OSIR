@@ -1,13 +1,13 @@
 import re
-from osir_lib.core.UnixUtils import UnixUtils
+from osir_lib.core.OsirDecorator import osir_internal_module
+from osir_lib.core.LogUtils import LogUtils
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
-
-class YumModule(PyModule, UnixUtils):
+@osir_internal_module
+class YumModule(LogUtils):
     """
     PyModule to perform processing operations on Yum logs.
     """
@@ -19,8 +19,8 @@ class YumModule(PyModule, UnixUtils):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        PyModule.__init__(self, case_path, module)  # Init PyModule
-        UnixUtils.__init__(self, case_path, module)  # Init UnixUtils
+        self.module = module
+        LogUtils.__init__(self,ctx=module)
         self._file_to_process = module.input.file
         self._name_rex = self.module.input.name
 
@@ -33,8 +33,6 @@ class YumModule(PyModule, UnixUtils):
             "event_type": lambda log: "package_install" if "Installed" in log else "package_update" if "Updated" in log else None
         }
 
-        self._format_output_file()
-        
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.

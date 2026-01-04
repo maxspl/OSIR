@@ -8,10 +8,17 @@
 
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field, computed_field
 
 from osir_lib.core.OsirSingleton import singleton
+
+@singleton
+class Osir(BaseModel):
+    @property
+    def VERSION(self):
+        return 1.0
+
 
 @singleton
 class OsirPaths(BaseModel):
@@ -82,4 +89,12 @@ class OsirPaths(BaseModel):
             return self.base_dir.joinpath("OSIR/setup/conf")
         return Path("/OSIR/setup/conf")
 
+    @computed_field
+    @property
+    def LOG_DIR(self) -> Path:
+        if self.osir_home_env:
+            return self.base_dir.joinpath("OSIR/share/log")
+        return Path("/OSIR/share/log")
+    
 OSIR_PATHS = OsirPaths() 
+OSIR = Osir()

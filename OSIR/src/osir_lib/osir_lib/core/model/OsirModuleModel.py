@@ -1,14 +1,23 @@
+import importlib
+import inspect
+from pathlib import Path
+import pkgutil
+import sys
 import yaml
 import os
-from typing import Optional, Literal, Pattern
-from pydantic import BaseModel, ValidationError
+from typing import Callable, Optional, Literal, Pattern
+from pydantic import BaseModel, ValidationError, model_validator
 
 from osir_lib.core.FileManager import FileManager
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.model.LiteralModel import MODULE_TYPE, OS_TYPE, PROCESSOR_OS, PROCESSOR_TYPE
 from osir_lib.core.model.OsirInputModel import OsirInputModel
 from osir_lib.core.model.OsirOutputModel import OsirOutputModel
 from osir_lib.core.model.OsirToolModel import OsirToolModel
 from osir_lib.core.model.connector.OsirConnectorModel import OsirConnectorModel
+from osir_lib.logger import AppLogger
+
+logger = AppLogger().get_logger()
 
 class OsirModuleModel(BaseModel):
     version: float | str
@@ -30,6 +39,8 @@ class OsirModuleModel(BaseModel):
     endpoint: Optional[Pattern] = None
     connector: Optional[OsirConnectorModel] = None
 
+    # TODO: REMOVE LEGACY
+    splunk: Optional[dict] = None
     @classmethod
     def from_yaml(cls, path: str) -> "OsirModuleModel":
         """
@@ -77,4 +88,47 @@ class OsirModuleModel(BaseModel):
         Returns:
             str: The module name.
         """
+        return self.module_name
+    
+    @property
+    def module_name(self):
         return self.module
+    
+    def find_and_load_internal_module(self, alt_module=None) -> Optional[Callable]:
+        """
+        Recherche récursivement un fichier module_name.py et retourne la fonction/classe
+        décorée avec @osir_internal_module.
+        """
+        # Utilisation du glob pattern pour la recherche récursive
+        # On cherche précisément "nom_du_module.py"
+        module_name = alt_module if alt_module else self.module_name
+
+        root_path = Path(OSIR_PATHS.PY_MODULES_DIR)
+
+        target_file = next(root_path.rglob(f"{module_name}.py"), None)
+
+        if not target_file:
+            print(f"Fichier {module_name}.py non trouvé dans {root_path}")
+            return None
+
+        try:
+            # Chargement dynamique du module Python
+            spec = importlib.util.spec_from_file_location(module_name, target_file)
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                # Ajout au sys.modules pour éviter les problèmes d'imports relatifs
+                sys.modules[module_name] = module
+                spec.loader.exec_module(module)
+
+                # Parcourir les attributs du module pour trouver celui décoré
+                for attr_name in dir(module):
+                    attr = getattr(module, attr_name)
+                    # On vérifie la présence de l'attribut injecté par le décorateur
+                    if getattr(attr, "__osir_internal__", False):
+                        return attr
+
+        except Exception as e:
+            print(f"Erreur lors du chargement du module {target_file}: {e}")
+        
+        return None
+

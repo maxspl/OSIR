@@ -1,6 +1,7 @@
 version: 1.0
 author: Kelly Brazil
 module: arp
+alt_module: live_response_dispatcher
 description: Kelly Brazil - JsonConverter - Parsing the output of the command arp or arp -a
 os: unix
 type: process
@@ -21,6 +22,7 @@ output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{input_file}.jsonl"
+  output_dir: live_response
 endpoint: "extract_uac\/(.*?)\/"
 splunk:
   'linux:live_response:arp':

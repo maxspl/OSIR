@@ -9,7 +9,7 @@ logger = AppLogger(__name__).get_logger()
 class FileManager:
 
     @staticmethod
-    def _get_file_path(name: str, base_dir: Path) -> Path:
+    def _get_file_path(name: str, base_dir: Path, raise_error: bool = True) -> Path:
         """
         Méthode privée générique pour la recherche de fichiers YAML.
         Utilise pathlib.rglob pour une recherche récursive efficace.
@@ -29,12 +29,20 @@ class FileManager:
         if candidate.exists() and candidate.is_file():
             return candidate
         
-        for path in base_path.rglob(f'*/{name}'): 
-            if path.name == name:
+        def case_insensitive_pattern(filename: str) -> str:
+            return "".join(f"[{c.lower()}{c.upper()}]" if c.isalpha() else c for c in filename)
+
+        pattern = case_insensitive_pattern(name)
+
+        for path in base_dir.rglob(pattern):
+            if path.is_file():
                 return path
             
         logger.error(f"No {name} in directory {base_path}")
-        raise FileNotFoundError(f"No {name} in directory {base_path}")
+        if raise_error:
+            raise FileNotFoundError(f"No {name} in directory {base_path}")
+        
+        return None
     
     @staticmethod
     def get_module_path(module: str) -> Path:
@@ -42,9 +50,9 @@ class FileManager:
         return FileManager._get_file_path(module, OSIR_PATHS.MODULES_DIR)
 
     @staticmethod
-    def get_profile_path(profile: str) -> Path:
+    def get_profile_path(profile: str, raise_error: bool = True) -> Path:
         profile = profile if profile.endswith('.yml') else profile + '.yml'
-        return FileManager._get_file_path(profile, OSIR_PATHS.PROFILES_DIR)
+        return FileManager._get_file_path(profile, OSIR_PATHS.PROFILES_DIR, raise_error)
     
     @staticmethod
     def get_config_path(config: str) -> Path:
@@ -124,6 +132,11 @@ class FileManager:
         return [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
 
     @staticmethod
+    def get_cases_path(case_name: str) -> Path | None:
+        case_path = OSIR_PATHS.CASES_DIR / case_name
+        return case_path if case_path.exists() else None
+
+    @staticmethod
     def load_yaml_file(filepath):
         """
         Load and parse content from a YAML file.
@@ -152,9 +165,9 @@ class FileManager:
         case_path = os.path.join(directory, case_name)
 
         if os.path.exists(case_path):
-            return ('Exists', case_path)
+            return ('exists', case_path)
 
         os.makedirs(case_path)
 
-        return ('Created', case_path)
+        return ('created', case_path)
 

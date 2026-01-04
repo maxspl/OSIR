@@ -1,3 +1,4 @@
+from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 import streamlit as st
 import os
 import yaml
@@ -11,7 +12,6 @@ from osir_web.utils import MasterSideBar
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.FileManager import FileManager
 from osir_lib.logger.logger import AppLogger
-from osir_lib.core.OsirProfile import OsirProfile
 from osir_lib.core.OsirInput import OsirInput
 from osir_service.watchdog.MonitorCase import MonitorCase
 
@@ -436,7 +436,7 @@ class ConfigurationApp:
         """
         case_path = os.path.join(self.CASES_DIR, selected_case)
         try:
-            job = OsirProfile(modules=selected_module)
+            job = OsirProfileModel(modules=selected_module)
         except FileNotFoundError as e:
             st.error(f"Error creating ProcessorJob: {e}")
             logger.error(f"Error creating ProcessorJob: {e}")
@@ -505,7 +505,7 @@ class ConfigurationApp:
             return
         
         if selected_profile:
-            profile_instance = OsirProfile.from_yaml(FileManager.get_profile_path(selected_profile))
+            profile_instance = OsirProfileModel.from_yaml(FileManager.get_profile_path(selected_profile))
             logger.debug(f"Processing job with profile: {selected_profile}")
             profile_instance.remove_modules(modules_to_remove)
             profile_instance.add_modules(modules_to_add)
@@ -513,7 +513,7 @@ class ConfigurationApp:
             logger.debug(f"Modules to remove: {modules_to_remove}")
         else:
             logger.debug(f"Selected modules: {selected_modules}")
-            profile_instance = OsirProfile(modules=selected_modules)
+            profile_instance = OsirProfileModel(modules=selected_modules)
 
         logger.debug(f"Case path: {case_path}")
         try:

@@ -5,10 +5,12 @@ from typing import Optional, List, Dict, Any
 # Assurez-vous d'avoir Pydantic v2 ou v1
 from pydantic import BaseModel, Field
 from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_lib.logger import AppLogger
 from osir_lib.core.OsirSingleton import singleton
 from osir_lib.core.FileManager import FileManager
-logger = AppLogger(__name__).get_logger()
+
+from osir_lib.logger import AppLogger
+
+logger = AppLogger().get_logger()
 
 # --- MODÈLES PYDANTIC MIS À JOUR ---
 
@@ -84,6 +86,16 @@ class OsirAgentConfig:
         except Exception as e:
             logger.error("Échec du chargement ou de la validation de la configuration de l'agent. " + str(e))
             raise
+    @property
+    def smb_host(self):
+        # master and agent can be on same host but not windows box
+        if self.standalone and self.windows_location != "remote" and self.windows_location != "dockur":  
+            return "10.0.2.2"
+        else:
+            return self.master_host
+
+        if self.is_wsl():
+            return self.wsl_host
 
     @property
     def master_host(self) -> str:

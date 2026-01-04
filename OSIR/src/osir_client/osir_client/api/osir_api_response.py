@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 from typing import Dict, Any
-from osirlib.logger import AppLogger
+from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
-class OSIRAPIResponse(BaseModel):
+class OsirApiResponse(BaseModel):
     version: str
     status: int
     response: Dict[str, Any]
@@ -21,10 +21,6 @@ class OSIRAPIResponse(BaseModel):
         super().__init__(version=version, status=status, response=response_data)
 
     def info(self):
-        if self.status != 200:
-            logger.error(self.model_dump())
-
-        elif 'message' in self.response :
-            logger.info(self.response['message'])    
+        logger.info(self.model_dump())
                 
         

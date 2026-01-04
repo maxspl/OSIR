@@ -1,5 +1,12 @@
-from osir_client.api.osir_api_client import OSIRAPIClient
+from osir_client.api.osir_api_client import OsirApiClient
 
-client = OSIRAPIClient("http://127.0.0.1:8502")
+# L'instanciation valide l'URL
+osir_cli = OsirApiClient(api_url="http://127.0.0.1:8502")
 
-client.osir_case.create("test_2").apply_module('evtx')
+osir_cli.cases.list()
+# # L'accès aux cases reste identique
+# print(client.osir_case.list().info())
+# client.osir_case.get(name="test_1")
+# # client = OsirApiClient("")
+
+# client.osir_case.create("test_2").apply_module('evtx')

@@ -17,18 +17,28 @@ def recv_json(conn):
     payload = recv_exact(conn, size)
     return json.loads(payload.decode("utf-8"))
 
-def send_json(conn, obj):
-    data = json.dumps(obj).encode("utf-8")
+def send_json(conn, obj, pydantic=False):
+    if pydantic:
+        data = obj.model_dump_json().encode("utf-8")
+    else:
+        data = json.dumps(obj).encode("utf-8")
     size = len(data).to_bytes(4, "big")
     conn.sendall(size + data)
+
+# def send_and_receive(host, port, obj):
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#         s.connect((host, port))
+
+#         # 🔹 envoyer JSON
+#         send_json(s, obj)
+
+#         # 🔹 recevoir JSON
+#         reply = recv_json(s)
+#         print("Server replied:", reply)
 
 def send_and_receive(host, port, obj):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((host, port))
-
-        # 🔹 envoyer JSON
         send_json(s, obj)
-
-        # 🔹 recevoir JSON
         reply = recv_json(s)
-        print("Server replied:", reply)
+        return json.dumps(reply) + "\n" 

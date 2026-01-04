@@ -1,14 +1,16 @@
 import os
+from pathlib import Path
 import uuid
 
 from threading import Thread, Event
 
+from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
-from osir_lib.core.OsirModule import OsirModule
-from osir_service.postgres.PostgresService import DbOSIR
+from osir_lib.logger.logger import CustomLogger
+from osir_service.postgres.PostgresService import OSIR_DB, DbOSIR
 from osir_service.watchdog.WatchdogService import ModuleHandler
 
-logger = AppLogger(__name__).get_logger()
+logger: CustomLogger = AppLogger(__name__).get_logger()
 
 
 class MonitorCase:
@@ -24,67 +26,33 @@ class MonitorCase:
             modules (list): List of modules to apply to the monitoring events.
             reprocess_case (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
         """
+        self.handler_uuid = uuid.uuid4()
         self.case_path = case_path
         self.modules = modules
         self.reprocess_case = reprocess_case
         
-        self.module_instances = [OsirModule.from_name(module) for module in modules]  # Transform list of str to list of module
+        self.module_instances = [OsirModuleModel.from_name(module) for module in modules]  # Transform list of str to list of module
         self.cooldown_period = 20  # Cooldown period in seconds 
-        self.case_uuid = self._generate_unique_id(os.path.basename(self.case_path))
+        case_name = os.path.basename(self.case_path)
+        self.case_uuid = OSIR_DB.case.get(name=case_name)
+        if not self.case_uuid:
+            self.case_uuid = OSIR_DB.case.create(case_name)
         
         self.stop_event = Event()
         
-        self.db_OSIR = DbOSIR("master-postgres", module_name="master_status")  # Use docker service name
-        self.db_OSIR.store_master_status(case_path, "processing_case", self.case_uuid, self.modules)
+        # self.db_OSIR.store_master_status(case_path, "processing_case", self.case_uuid, self.modules)
 
     def on_inactivity(self):
         """Method to be called when inactivity is detected."""
-        self.db_OSIR.store_master_status(self.case_path, "processing_done", self.case_uuid, self.modules)
+        # self.db_OSIR.store_master_status(self.case_path, "processing_done", self.case_uuid, self.modules)
         logger.debug("Updated database status to processing_done due to inactivity.")
-        
-    def _generate_unique_id(self, prefix: str):
-        """
-        Generates a unique identifier prefixed with a specific string.
-
-        Args:
-            prefix (str): Prefix for the unique identifier.
-
-        Returns:
-            str: The prefixed unique identifier.
-        """
-        # Generate a random UUID
-        unique_id = uuid.uuid4()
-        # Prefix the UUID with the given string
-        prefixed_id = f"{prefix}-{unique_id}"
-        return prefixed_id
 
     def setup_handler(self):
         """
         Sets up file and directory event handlers for each module, configuring and starting an observer to monitor the filesystem.
         """
         try:
-            modules_info = []
-            for module_instance in self.module_instances:
-                module_name = module_instance.module_name
-                logger.info(module_instance.input.name)
-                file_regex = module_instance.input.name
-
-                if module_instance.input.path:
-                    path_pattern = module_instance.input.path.rstrip('/')
-                else:
-                    path_pattern = None  # No path criteria given
-
-                input_type = module_instance.input.type
-
-                module_info = {
-                    "module_name": module_name,
-                    "file_regex": file_regex,
-                    "path_pattern_suffix": path_pattern,
-                    "input_type": input_type
-                }
-                modules_info.append(module_info)
-                
-            handler = ModuleHandler(self.case_path, modules_info, self.cooldown_period, self.module_instances, self.case_uuid)
+            handler = ModuleHandler(Path(self.case_path), self.cooldown_period, self.module_instances, self.case_uuid, self.handler_uuid)
             monitor_case_thread = Thread(target=handler.monitor_directory, args=(self.case_path, 10, self.reprocess_case))
             monitor_case_thread.start()
             monitor_case_thread.join()

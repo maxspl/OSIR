@@ -1,17 +1,17 @@
 import re
-from osir_lib.core.UnixUtils import UnixUtils
+from osir_lib.core.OsirDecorator import osir_internal_module
+from osir_lib.core.LogUtils import LogUtils
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
-logger: CustomLogger = AppLogger().get_logger()
+logger: CustomLogger = AppLogger(__name__).get_logger()
 
-
-class BodyfileModule(PyModule, UnixUtils):
+@osir_internal_module(trace=True)
+class BodyfileModule(LogUtils):
     """
     PyModule to perform processing operations on Bodyfile.
     """
-    def __init__(self, case_path: str, module: OsirModule):
+    def __init__(self, module: OsirModule, task_id: str):
         """
         Initializes the Module.
 
@@ -19,19 +19,18 @@ class BodyfileModule(PyModule, UnixUtils):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        PyModule.__init__(self, case_path, module)
-        UnixUtils.__init__(self, case_path, module)
+        self.ctx = module
 
-        self._file_to_process = module.input.file
+        self.task_id = task_id
+        LogUtils.__init__(self,ctx=module)
 
-        # Structure using regex and lambdas for parsing log entries
+        self._file_to_process = module.input.match
+
         self.regex_pattern = (
             r'^(?P<na>\d+)\|(?P<filename>[^|]+)\|(?P<inode>\d+)\|(?P<mode_as_string>[^|]+)\|'
             r'(?P<uid>\d+)\|(?P<gid>\d+)\|(?P<size>\d+)\|(?P<atime>\d+)\|(?P<mtime>\d+)\|'
             r'(?P<ctime>\d+)\|(?P<btime>\d+)?$'
         )
-
-        self._format_output_file()
 
     def __call__(self) -> bool:
         """
@@ -41,8 +40,12 @@ class BodyfileModule(PyModule, UnixUtils):
             bool: True if the processing completes successfully, False otherwise.
         """
         try:
+            logger.info(f"""[AGENT][{self.task_id}] Processing started : \n
+                            - Module : {self.ctx.module_name} \n
+                            - Input  : {self._file_to_process} \n """)
+            
             writer_queue = self.start_writer_thread()
-            logger.debug(f"Processing file {self._file_to_process}")
+            logger.debug(f"TASK:{self.task_id} Processing file {self._file_to_process}")
 
             for log in self.get_log():
                 if log.strip():  # Ensure log is not empty
@@ -51,7 +54,7 @@ class BodyfileModule(PyModule, UnixUtils):
                         writer_queue.put(parsed_log)
 
             writer_queue.put(None)
-            logger.debug(f"{self.module.module_name} done")
+            logger.debug(f"{self.ctx.module_name} done")
             return True
         except Exception as exc:
             logger.error_handler(exc)

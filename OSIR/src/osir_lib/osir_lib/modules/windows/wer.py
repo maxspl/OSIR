@@ -6,8 +6,8 @@ import unicodedata
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
@@ -37,8 +37,8 @@ def _slug(s: str) -> str:
     s = re.sub(r"_+", "_", s).strip("_")
     return s or "key"
 
-
-class WerParser(PyModule):
+@osir_internal_module
+class WerParser():
     """Parse Windows WER files under an input path and export a single JSONL file.
 
     This module walks the provided input directory and parses each WER report.
@@ -51,7 +51,8 @@ class WerParser(PyModule):
             case_path (str): Base case path used by the framework.
             module (OsirModule): Module configuration with input/output descriptors.
         """
-        super().__init__(case_path, module)
+        self.module = module
+        self.case_path = case_path
 
     def __call__(self) -> bool:
         """Execute the parser workflow.
@@ -72,7 +73,7 @@ class WerParser(PyModule):
             logger.error(f"Unsupported input type {self.module.input.type}")
             return False
 
-        input_path = self.module.input.dir
+        input_path = self.module.input.match
         if not input_path:
             logger.error("input.dir is empty")
             return False
@@ -94,15 +95,7 @@ class WerParser(PyModule):
             logger.warning(f"No .wer files found under '{input_path}'")
             return False
 
-        # Prepare output path 
-        try:
-            self._format_output_file()
-            out_path = os.path.join(self.default_output_dir, self.module.output.output_file)
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        except Exception as e:
-            logger.error(f"Failed to prepare output path: {e}")
-            return False
-
+        out_path = self.module.output.output_file
         total = 0
         try:
             logger.debug(f"writing output to : {out_path}")

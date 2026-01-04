@@ -1,18 +1,19 @@
 import ipaddress
 import struct
 import time
-from osir_lib.core.UnixUtils import UnixUtils
+from osir_lib.core.LogUtils import LogUtils
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
-class UtmpModule(PyModule, UnixUtils):
+@osir_internal_module
+class UtmpModule(LogUtils):
     """
     PyModule to perform processing operations on binary UTMP files.
     """
-    def __init__(self, case_path: str, module: OsirModule):
+    def __init__(self, module: OsirModule):
         """
         Initializes the Module.
 
@@ -20,8 +21,8 @@ class UtmpModule(PyModule, UnixUtils):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        PyModule.__init__(self, case_path, module)
-        UnixUtils.__init__(self, case_path, module)
+        self.module = module
+        LogUtils.__init__(self,ctx=module)
 
         self._file_to_process = module.input.file
 
@@ -54,8 +55,6 @@ class UtmpModule(PyModule, UnixUtils):
             ("tv_usec", lambda log: struct.unpack("<L", log[344:348])[0]),
             ("IPv4", lambda log: ipaddress.IPv4Address(struct.unpack(">L", log[348:352])[0]).__str__())
         ]
-
-        self._format_output_file()
 
     def __call__(self) -> bool:
         """

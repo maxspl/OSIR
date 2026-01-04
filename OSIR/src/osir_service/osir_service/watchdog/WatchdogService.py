@@ -9,16 +9,17 @@ import copy
 
 from pathlib import Path
 from threading import Timer
+import uuid
 
 from osir_lib.core.OsirConstants import OSIR_PATHS
+from osir_lib.core.OsirUtils import normalize_osir_path
+from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
-from osir_lib.core.PyModule import PyModule
 from osir_service.orchestration.TaskService import TaskService
-from osir_service.postgres.PostgresService import DbOSIR
-from osir_lib.core.OsirModule import OsirModule
+from osir_service.postgres.PostgresService import OSIR_DB, DbOSIR
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -72,7 +73,7 @@ class ModuleHandler(FileSystemEventHandler):
     """
     Handles file system events to trigger processing modules based on file or directory changes that match specified patterns.
     """
-    def __init__(self, case_path, modules_info, cooldown_period, module_instances, case_uuid):
+    def __init__(self, case_path: Path, cooldown_period: int, module_instances: list[OsirModuleModel], case_uuid, handler_uuid = None):
         """
         Initializes the ModuleHandler with configurations to monitor file and directory events related to a specific case.
 
@@ -83,19 +84,19 @@ class ModuleHandler(FileSystemEventHandler):
             module_instances (list): List of module instances to execute.
             case_uuid (str): Unique identifier for the case.
         """
-
-        self.modules_info = modules_info
+        self.handler_uuid = handler_uuid if handler_uuid else uuid.uuid4()
         self.cooldown = cooldown_period
         self.watch_directory = case_path
         self.case_path = case_path
         self.last_modified_times = {}
-        self.module_instances: list[OsirModule] = module_instances
+        self.module_instances: list[OsirModuleModel] = module_instances
         self.case_uuid = case_uuid
         
         self.last_size = {}
         self.last_processed = set()
 
         self.agent_config = OsirAgentConfig()
+
         if self.agent_config.standalone:
             db_postgres = "master-postgres"
         else:
@@ -105,13 +106,18 @@ class ModuleHandler(FileSystemEventHandler):
         self.active_timers = set()
         self.timers_lock = threading.Lock()
         
-        # DB management
-        self.DbOSIR = DbOSIR(db_postgres)
 
         # Create tables for each
-        for module_info in self.modules_info:
-            module_name = module_info["module_name"]
-            self.DbOSIR.create_table_processing_status(module_name)
+        for module in module_instances:
+            OSIR_DB.create_table_processing_status(module.module_name)
+
+        OSIR_DB.handler.create(
+            handler_id=self.handler_uuid, 
+            case_uuid=self.case_uuid, 
+            modules=[module.module_name for module in module_instances], 
+            task_ids=[]
+        )
+
 
     def monitor_directory(self, case_path, interval=5, reprocess=False):
         """
@@ -127,7 +133,7 @@ class ModuleHandler(FileSystemEventHandler):
         if not reprocess:
             # Fetch previously stored entries
             logger.debug(f"Fetching previously stored entries for case_uuid={self.case_uuid}")
-            previous_entries = set(self.DbOSIR.get_stored_case_snapshot(case_path))
+            previous_entries = set(OSIR_DB.utils.get_stored_case_snapshot(case_path))
             if not previous_entries:
                 logger.debug("No previous entries found, starting with an empty set.")
         else:
@@ -157,11 +163,12 @@ class ModuleHandler(FileSystemEventHandler):
                 logger.debug(f"Time taken to process new items: {new_entries_duration:.4} seconds")
             else:
                 logger.debug("No new item detected. Checking if a task is still ongoing before exiting...")
-                if not self.DbOSIR.is_processing_active(self.case_uuid):
+                if not OSIR_DB.utils.is_processing_active(self.case_uuid):
                     with self.timers_lock:
                         if not self.active_timers:
                             logger.debug("Case snaphost is being saved before exiting...")
-                            self.DbOSIR.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
+                            OSIR_DB.utils.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
+                            OSIR_DB.handler.update(self.handler_uuid, "processing_done")
                             exit()
             previous_entries = current_entries
             
@@ -194,7 +201,7 @@ class ModuleHandler(FileSystemEventHandler):
                 
         return False
 
-    def on_created_new(self, event, module):
+    def on_created_new(self, event, module: OsirModuleModel):
         if not hasattr(event, 'src_path'):
             logger.warning("Événement sans chemin source, ignoré.")
             return
@@ -231,14 +238,10 @@ class ModuleHandler(FileSystemEventHandler):
             if self.check_match(src_path, pattern, module.__class__.__name__):
                 self.last_processed.add(file_module_pair)
                 logger.warning(self.last_processed)
-                module_info = {
-                    "module_name": module.module_name,
-                    "input_type": module.input.type
-                }
                 if module.input.type == "dir":
-                    self.handle_directory_event(event, module_info)
+                    self.handle_directory_event(event, module)
                 elif module.input.type == "file":
-                    self.handle_file_event(event, module_info)
+                    self.process(event.src_path, module)
                 
                 break
 
@@ -286,30 +289,30 @@ class ModuleHandler(FileSystemEventHandler):
                     wildcard_pattern = path_pattern_suffix.rstrip('/*') if path_pattern_suffix else None  # Wildcard can be used after suffix to match any directory (not recursive)
 
                 # Handle dirs
-                if (module_path not in event.src_path and  # don't process input if it is in the same module directory
+                if (str(module_path) not in str(event.src_path) and  # don't process input if it is in the same module directory
                         input_type == "dir" and
                         event.is_directory):  
                     
-                    if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for directories
+                    if is_path_pattern_suffix_regex and path_regex.search(str(event.src_path)):  # Regex match for directories
                         logger.debug(f"{module_name} Directory '{event.src_path}' will be processed (regex match)")
-                        self.handle_directory_event(event, module_info)
+                        self.handle_directory_event(event, module_instance)
                     # Handle case where input dir is case directory
                     elif (path_pattern_suffix == "{case_path}" and
-                            event.src_path == self.case_path):
+                            str(event.src_path) == str(self.case_path)):
                         logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                        self.handle_directory_event(event, module_info)
+                        self.handle_directory_event(event, module_instance)
                     elif ("{case_path}" in path_pattern_suffix and event.src_path == path_pattern_suffix.replace("{case_path}", self.case_path)):
                         logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                        self.handle_directory_event(event, module_info)
+                        self.handle_directory_event(event, module_instance)
                     elif path_pattern_suffix.endswith('/*') and os.path.dirname(event.src_path).lower().endswith(wildcard_pattern.lower()):
                         logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                        self.handle_directory_event(event, module_info)
-                    elif event.src_path.lower().endswith(path_pattern_suffix.lower()):
+                        self.handle_directory_event(event, module_instance)
+                    elif str(event.src_path).lower().endswith(path_pattern_suffix.lower()):
                         logger.debug(f"{module_name} Directory '{event.src_path}' will be processed")
-                        self.handle_directory_event(event, module_info)
+                        self.handle_directory_event(event, module_instance)
 
                 # Handle files
-                elif (module_path not in os.path.dirname(event.src_path) and  # don't process input if it is in the same module directory
+                elif (str(module_path) not in str(os.path.dirname(event.src_path)) and  # don't process input if it is in the same module directory
                         input_type == "file" and
                         not event.is_directory and
                         file_module_pair not in self.last_processed):
@@ -317,38 +320,26 @@ class ModuleHandler(FileSystemEventHandler):
                     if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for files
                         if re.search(file_regex, os.path.basename(event.src_path)):
                             self.last_processed.add(file_module_pair)
-                            self.handle_file_event(event, module_info)
+                            self.process(event.src_path, module_instance)
                     elif path_pattern_suffix and not file_regex.pattern:  # If only path specified, the event file must end with the path in config
                         if event.src_path.lower().endswith(path_pattern_suffix.lower()):
                             self.last_processed.add(file_module_pair)
-                            self.handle_file_event(event, module_info)
+                            self.process(event.src_path, module_instance)
                     # NEED A REVIEW OF THIS ADD !!!!!!!!
                     elif path_pattern_suffix and '/*' in path_pattern_suffix and path_pattern_suffix.replace('/*', '') in event.src_path.lower() and re.search(file_regex, os.path.basename(event.src_path)):
                         self.last_processed.add(file_module_pair)
-                        self.handle_file_event(event, module_info)
+                        self.process(event.src_path, module_instance)
 
                     elif path_pattern_suffix and file_regex.pattern:  # If path/file name both specified, the directory of the event file must end with the path in config
                         if os.path.dirname(event.src_path).lower().endswith(path_pattern_suffix.lower()) and re.search(file_regex, os.path.basename(event.src_path)):
                             self.last_processed.add(file_module_pair)
-                            self.handle_file_event(event, module_info)
+                            self.process(event.src_path, module_instance)
                     elif not path_pattern_suffix and file_regex.pattern:  # If on_close triggered, the filename regex already matched
                         if re.search(file_regex, os.path.basename(event.src_path)):  
                             self.last_processed.add(file_module_pair)
-                            self.handle_file_event(event, module_info)
+                            self.process(event.src_path, module_instance)
 
-    def handle_file_event(self, event, module_info):
-        """
-        Processes file events that match configured patterns.
-
-        Args:
-            event: The event object representing the file event.
-            module_info (dict): Dictionary containing module information.
-        """
-        module_name = module_info["module_name"]
-        logger.debug(f"{module_name}.yaml - File Matched : {event.src_path}")
-        self.process_file(event.src_path, module_info)
-
-    def handle_directory_event(self, event, module_info):
+    def handle_directory_event(self, event, module_instance: OsirModuleModel):
         """
         Processes directory events that match configured patterns and sets up checks for idleness.
 
@@ -356,7 +347,6 @@ class ModuleHandler(FileSystemEventHandler):
             event: The event object representing the directory event.
             module_info (dict): Dictionary containing module information.
         """
-        module_name = module_info["module_name"]
         current_time = time.time()
         self.last_modified_times[event.src_path] = current_time
         
@@ -365,54 +355,35 @@ class ModuleHandler(FileSystemEventHandler):
         self.last_size[event.src_path] = current_size
         
         # Start a new timer to check for idleness
-        timer = Timer(self.cooldown, self._check_for_idle, [event.src_path, module_info])
+        timer = Timer(self.cooldown, self._check_for_idle, [event.src_path, module_instance])
         try:
-            logger.debug(f"{module_name} Starting timer for IDLE check of '{event.src_path}'")
+            logger.debug(f"{module_instance.module_name} Starting timer for IDLE check of '{event.src_path}'")
             with self.timers_lock:
                 self.active_timers.add(event.src_path)
             timer.start()
-            logger.debug(f"{module_name} Timer started for IDLE check of '{event.src_path}'")
+            logger.debug(f"{module_instance.module_name} Timer started for IDLE check of '{event.src_path}'")
         except Exception as e:
-            logger.debug(f"{module_name} Timer error for {event.src_path}. {str(e)}")
-        logger.debug(f"{module_name} Directory '{event.src_path}' is busy")
+            logger.debug(f"{module_instance.module_name} Timer error for {event.src_path}. {str(e)}")
+        logger.debug(f"{module_instance.module_name} Directory '{event.src_path}' is busy")
     
-    def _get_directory_size(self, path):
-        """
-        Calculates the total size of files within a specified directory.
-
-        Args:
-            path (str): Path to the directory.
-
-        Returns:
-            int: Total size of all files within the directory.
-        """
-        total_size = 0
-        for dirpath, dirnames, filenames in os.walk(path):
-            for filename in filenames:
-                filepath = os.path.join(dirpath, filename)
-                if os.path.exists(filepath):
-                    total_size += os.path.getsize(filepath)
-        return total_size
+    def _get_directory_size(self, path: str) -> int:
+        """Calculates total size using pathlib."""
+        root = Path(path)
+        return sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
     
-    def _check_parent(self, path, module_info):
-        module_name = module_info["module_name"]
-
-        logger.debug(f"Checking if {module_name} idle is not parent of another idle")
-
+    def _check_parent(self, path, module_instance: OsirModuleModel):
+        logger.debug(f"Checking if {module_instance.module_name} idle is not parent of another idle")
         # Convert path to a Path object
         path = Path(path).resolve()
-
         for current_idle_path in list(self.active_timers):
             current_idle_path_resolved = Path(current_idle_path).resolve()
-
             # Check if the current path is a parent of the active timer path
             if current_idle_path_resolved.is_relative_to(path) and path != current_idle_path_resolved:
-                logger.debug(f"{module_name} is parent of {current_idle_path}, the module can't be executed")
+                logger.debug(f"{module_instance.module_name} is parent of {current_idle_path}, the module can't be executed")
                 return False
-
         return True
     
-    def _check_for_idle(self, path, module_info):
+    def _check_for_idle(self, path, module_instance: OsirModuleModel):
         """
         Checks if the directory has been idle based on size changes and triggers further processing if idle.
 
@@ -420,55 +391,24 @@ class ModuleHandler(FileSystemEventHandler):
             path (str): Path to the directory being monitored.
             module_info (dict): Dictionary containing module information.
         """
-        logger.debug(f"Starting _check_for_idle for {path} - {module_info['module_name']}")
-        module_name = module_info["module_name"]
+        logger.debug(f"Starting _check_for_idle for {path} - {module_instance.module_name}")
         current_size = self._get_directory_size(path)
         previous_size = self.last_size.get(path, 0)
         
-        if current_size == previous_size and self._check_parent(path, module_info):
-            logger.debug(f"{module_name} Directory '{path}' is now idle")
-            self.process_directory(path, module_info)
+        if current_size == previous_size and self._check_parent(path, module_instance):
+            logger.debug(f"{module_instance.module_name} Directory '{path}' is now idle")
+            self.process(path, module_instance)
             with self.timers_lock:
                 if path in self.active_timers:
                     self.active_timers.remove(path)
         else:
-            logger.debug(f"{module_name} Directory '{path}' is still busy, rescheduling check")
+            logger.debug(f"{module_instance.module_name} Directory '{path}' is still busy, rescheduling check")
             # Reschedule the check if the directory size has changed
             self.last_size[path] = current_size
-            timer = Timer(self.cooldown, self._check_for_idle, [path, module_info])
+            timer = Timer(self.cooldown, self._check_for_idle, [path, module_instance])
             timer.start()
 
-    def process_file(self, file_path, module_info):
-        """
-        Initiates processing of a file based on the module configuration.
-
-        Args:
-            file_path (str): Path to the file to be processed.
-            module_info (dict): Dictionary containing module information.
-        """
-        
-        module_name = module_info["module_name"]
-        logger.debug(f"Nom trouvé : {module_name}")
-
-        module_instance = self._get_module_instance(module_name)
-        self._set_input(file_path, "file", module_instance)
-        logger.debug(f"""{module_name}.yaml - Processing : \n
-                    Case Path : {self.case_path} \n
-                    File Input: {file_path.split(self.case_path)[-1]} \n""")
-        processor_type = module_instance.processor_type
-        self.DbOSIR.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
-        if "internal" in processor_type:
-            py_module_name = getattr(module_instance, 'alt_module', None) or module_instance.module_name  # try first alt_module, fallback to module_name
-            if self.module_exists(py_module_name):
-                # logger.debug(f"Executing internal module {module_instance.module_name}.py")
-                self._push_task(module_instance)
-            else:
-                logger.error(f"Module missing {py_module_name}")
-        else:
-            logger.debug(f"run external processor for {module_instance.module_name}")
-            self._push_task(module_instance)
-        
-    def process_directory(self, directory_path, module_info):
+    def process(self, file_math: Path, module_instance: OsirModuleModel):
         """
         Initiates processing of a directory based on the module configuration.
 
@@ -476,96 +416,25 @@ class ModuleHandler(FileSystemEventHandler):
             directory_path (str): Path to the directory to be processed.
             module_info (dict): Dictionary containing module information.
         """
-        module_name = module_info["module_name"]
-        module_instance = self._get_module_instance(module_name)
+
+        logger.debug(f"""{module_instance.module_name}.yaml - Processing : \n
+                    Case Path : {self.case_path} \n
+                    File Math : {Path(file_math).relative_to(self.case_path)} \n""")
         
-        # Create a deep copy for this thread/task
         module_instance = copy.deepcopy(module_instance)
 
-        self._set_input(directory_path, "dir", module_instance)
+        module_instance.input.match = file_math
 
-        logger.debug(f"\n{module_name} Processing the directory: {directory_path}")
-        
-        module_instance.input.dir = directory_path  # MSP maybe useless because of _set_input
-        
-        processor_type = module_instance.processor_type
-        self.DbOSIR.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
-        if "internal" in processor_type:
-            if self.module_exists(module_instance.module_name):
-                logger.debug(f"run internal processor for {module_instance.module_name}")
-                self._push_task(module_instance)
-            else:
-                logger.debug(f"Module missing {module_instance.module_name} to process input : {directory_path}")
-            # self._push_task(module_instance)
-        else:
-            logger.debug(f"Pushing task for {module_name} to process {directory_path} - {module_instance.input.dir}")
-            self._push_task(module_instance)
-                
-    def _set_input(self, input_path, input_type, module_instance):
-        """
-        Sets the input parameters for the module instance based on the type and path of the input.
+        OSIR_DB.utils.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
 
-        Args:
-            input_path (str): Path to the input (file or directory).
-            input_type (str): Type of the input ('file' or 'dir').
-            module_instance: The module instance to set the input for.
-        """
-        if input_type == "file":
-            module_instance.input.file = input_path
-        elif input_type == 'dir':
-            module_instance.input.dir = input_path
+        self._push_task(module_instance)
 
-    def _push_task(self, module_instance: OsirModule):
+    def _push_task(self, module_instance: OsirModuleModel):
         """
         Pushes a task to the task queue for processing based on the current module configuration.
 
         Args:
             module_instance: The module instance to be processed.
         """
-        task_params = (PyModule.remove_prefix(self.case_path), module_instance, self.case_uuid)
+        task_params = (normalize_osir_path(self.case_path), module_instance, self.case_uuid, self.handler_uuid)
         TaskService.push_task(*task_params)
-
-    @staticmethod
-    def module_exists(module_name):
-        """
-        Verifies if a specific module exists within the defined module directory.
-
-        Args:
-            module_name (str): Name of the module to check.
-
-        Returns:
-            bool: True if the module exists, False otherwise.
-        """ 
-        modules_directory = OSIR_PATHS.PY_MODULES_DIR
-        # Base import path for modules
-        base_path = 'osir_lib.modules.'
-        # Walk through each directory and sub-directory in the 'modules' directory
-        for _, name, is_pkg in pkgutil.walk_packages([modules_directory], base_path):
-            if not is_pkg:
-                try:
-                    module = importlib.import_module(name)
-                    for attr_name in dir(module):
-                        attr = getattr(module, attr_name)
-                        if isinstance(attr, type) and issubclass(attr, PyModule) and attr is not PyModule:
-                            if name.split('.')[-1] == module_name:
-                                logger.debug(f"PyModule Found : {module_name}.py")
-                                return True
-
-                except ImportError as e:
-                    logger.debug(f"Failed to import {name}: {e}")
-                    return False
-
-    def _get_module_instance(self, module_name) -> OsirModule | None:
-        """
-        Retrieves the module instance by name.
-
-        Args:
-            module_name (str): The name of the module.
-
-        Returns:
-            The module instance if found, None otherwise.
-        """
-        for instance in self.module_instances:
-            if instance.module_name == module_name:
-                return instance
-        return None

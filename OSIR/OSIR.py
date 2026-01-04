@@ -4,7 +4,7 @@ import sys
 import threading
 import os
 
-from osir_lib.core.OsirProfile import OsirProfile
+from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 from osir_lib.logger import AppLogger
 
 # TOREMOVE
@@ -113,7 +113,7 @@ def main():
     # Create an instance of the profile class
     # profile_instance = task_manager.profile(args.profile) if args.profile else None
 
-    profile_instance = OsirProfile.from_name(args.profile) if args.profile else None
+    profile_instance = OsirProfileModel.from_name(args.profile) if args.profile else None
     
     # Initialize module lists based on command-line arguments
     selected_modules = args.module if args.module else []
@@ -121,7 +121,7 @@ def main():
     modules_to_remove = args.module_remove if args.module_remove else []
     
     # Get the modules to process
-    profile = OsirProfile(modules=selected_modules)
+    profile = OsirProfileModel(modules=selected_modules)
     profile.remove_modules(modules_to_remove)
     profile.add_modules(modules_to_add)
     modules = profile.modules

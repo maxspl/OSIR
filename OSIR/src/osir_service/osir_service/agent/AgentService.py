@@ -1,3 +1,4 @@
+import json
 import multiprocessing
 import sys
 import signal
@@ -6,8 +7,8 @@ import copy
 import os
 import time
 from celery import Celery
+from celery import current_task
 from os import environ, cpu_count
-
 
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirModule import OsirModule
@@ -15,7 +16,9 @@ from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
+from osir_service.postgres.PostgresConstants import ProcessingStatus
 from osir_service.postgres.PostgresService import DbOSIR
+from osir_service.postgres.PostgresService import OSIR_DB
 
 logger = AppLogger().get_logger()
 
@@ -55,7 +58,7 @@ class CeleryWorker:
 
         self._register_tasks()
 
-    def _is_item_in_use(self, case_uuid, module_instance):
+    def _is_item_in_use(self, case_uuid, module_instance: OsirModule):
         """
         Wait until the input file or directory is free to use, i.e., not being used by another module.
 
@@ -66,19 +69,13 @@ class CeleryWorker:
         Returns:
             None
         """
-        if module_instance.input.type == "file":
+        if module_instance.input.match:
             # file_opened = self._is_file_opened(module_instance.input.file)
-            file_opened = self.DbOSIR.check_input_file(case_uuid, module_instance.input.file)
+            file_opened = OSIR_DB.task.check_input(case_uuid, module_instance.input.match)
             while file_opened:
-                logger.debug(f"{module_instance.module_name} - input file {module_instance.input.file} is opened by another module. Waiting...")
+                logger.debug(f"{module_instance.module_name} - input {module_instance.input.file} is opened by another module. Waiting...")
                 time.sleep(3)
-                file_opened = self.DbOSIR.check_input_file(case_uuid, module_instance.input.file)
-        elif module_instance.input.type == "dir":
-            file_opened = self.DbOSIR.check_input_dir(case_uuid, module_instance.input.dir)
-            while file_opened:
-                logger.debug(f"{module_instance.module_name} - input dir {module_instance.input.dir} is opened by another module. Waiting...")
-                time.sleep(3)
-                file_opened = self.DbOSIR.check_input_dir(case_uuid, module_instance.input.dir)
+                file_opened = OSIR_DB.task.check_input(case_uuid, module_instance.input.match)
 
     def _is_file_being_written(self, module_instance, check_interval=0.5):
         """
@@ -92,30 +89,24 @@ class CeleryWorker:
             bool: True if the file size or modification time has changed, indicating it is being written to. False otherwise.
     """
         if module_instance.input.type == "file":
-            file_path = module_instance.input.file
-            try:
-                # Get the initial size and modification time of the file
-                initial_size = os.path.getsize(file_path)
-                initial_mtime = os.path.getmtime(file_path)
+            file_path = module_instance.input.match
+            # Get the initial size and modification time of the file
+            initial_size = os.path.getsize(file_path)
+            initial_mtime = os.path.getmtime(file_path)
 
-                # Wait for the specified interval
-                time.sleep(check_interval)
+            # Wait for the specified interval
+            time.sleep(check_interval)
 
-                # Get the size and modification time of the file again
-                final_size = os.path.getsize(file_path)
-                final_mtime = os.path.getmtime(file_path)
+            # Get the size and modification time of the file again
+            final_size = os.path.getsize(file_path)
+            final_mtime = os.path.getmtime(file_path)
 
-                # Determine if the file size or modification time has changed
-                if initial_size != final_size or initial_mtime != final_mtime:
-                    return True
-                else:
-                    return False
-            except FileNotFoundError:
-                logger.debug(f"File not found: {file_path}")
+            # Determine if the file size or modification time has changed
+            if initial_size != final_size or initial_mtime != final_mtime:
+                return True
+            else:
                 return False
-            except Exception as e:
-                logger.debug(f"An error occurred: {e}")
-                return False
+
 
     def _register_tasks(self):
         """
@@ -125,13 +116,16 @@ class CeleryWorker:
         def task_internal_processor(input_dir, case_path, module_bytes, case_uuid):
             """ celery task - internal_processor  """
             try:
-                module_instance = OsirModule(**OsirModuleModel.model_validate_json(module_bytes).model_dump())
-                processor = InternalProcessor(case_path, module_instance)
+                task_id = current_task.request.id
+                logger.debug(f"Task ID inside the task: {task_id}")
+                module_dict = json.loads(module_bytes)
+                module_dict['case_path'] = case_path
+                module_instance = OsirModule.model_validate(module_dict)
 
-                # Open db
-                self.DbOSIR = DbOSIR(self.master_host, module_name=module_instance.module_name)
-                # Check if input_file is used by another module
+
+                processor = InternalProcessor(case_path, module_instance, task_id=task_id)
                 logger.debug("Check if input files/foles of module is in use...")
+
                 self._is_item_in_use(case_uuid, module_instance)
 
                 # Wait if file is currently beeing written
@@ -140,27 +134,30 @@ class CeleryWorker:
                     logger.debug(f"{module_instance.module_name} - file {module_instance.input.file} is opened. Waiting...")
                     time.sleep(0.1)
                     file_written = self._is_file_being_written(module_instance)
-                module_instance_cp = copy.deepcopy(module_instance)  # Must use a copy as internal processor can modify input_file
                 if processor.available:
                     logger.debug(f"Running internal module {module_instance.module_name}.py")
-                    self.DbOSIR.update_record(module_instance_cp, "processing_started", case_uuid)
-                processor.run_module()
-                self.DbOSIR.update_record(module_instance_cp, "processing_done", case_uuid)
-                self.DbOSIR.close()
-                return "internal_processor done"
+                    OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_STARTED)
+                status = processor.run_module()
             except Exception as exc:
                 logger.error_handler(exc)
-                # logger.erro(f"fail run the task. Error {str(e)}")
+                OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_FAILED)
+            else:
+                if status:
+                    OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_DONE)
+                else:
+                    OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_FAILED)
+                return "internal_processor done"
 
         @self.app.task(name="external_processor_task")
         def task_external_processor(input_dir, case_path, module_bytes, case_uuid):
             """ celery task - external_processor  """
             try:
-                module_instance = OsirModule(**OsirModuleModel.model_validate_json(module_bytes).model_dump())
-                processor = ExternalProcessor(case_path, module_instance)
+                task_id = current_task.request.id
+                module_dict = json.loads(module_bytes)
+                module_dict['case_path'] = case_path
+                module_instance = OsirModule.model_validate(module_dict)
 
-                # Open db
-                self.DbOSIR = DbOSIR(self.master_host, module_name=module_instance.module_name)
+                processor = ExternalProcessor(case_path, module_instance, task_id=task_id)
 
                 # Check if input_file is used by another module
                 logger.debug(f"check if input of {module_instance.module_name} is in use...")
@@ -173,13 +170,14 @@ class CeleryWorker:
                     time.sleep(0.1)
                     file_written = self._is_file_being_written(module_instance)
 
-                self.DbOSIR.update_record(module_instance, "processing_started", case_uuid)
+                OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_STARTED)
                 processor.run_module()
-                self.DbOSIR.update_record(module_instance, "processing_done", case_uuid)
-                self.DbOSIR.close()
+            except Exception as exc:
+                logger.error_handler(exc)
+                OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_FAILED)
+            else:
+                OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_DONE)
                 return "external_processor done"
-            except Exception as e:
-                logger.debug(f"fail run the task. Error {str(e)}")
 
     def _start_single_worker(self, argv):
         """

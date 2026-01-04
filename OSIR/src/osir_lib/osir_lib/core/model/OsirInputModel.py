@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from osir_lib.core.model.LiteralModel import INPUT_TYPE
 
@@ -15,4 +15,4 @@ class OsirInputModel(BaseModel):
 
     # NEW 
     paths: Optional[list[str]] = None
-    _match: Optional[Path] = None
+    match: Optional[Path] = None

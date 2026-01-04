@@ -21,7 +21,7 @@ output:
   type: single_file
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
-endpoint: "/Endpoint_(.*?)/"
+endpoint: "Endpoint_([^\\./]+)"
 splunk:
   'windows:lnk':
     name_rex: \.csv$

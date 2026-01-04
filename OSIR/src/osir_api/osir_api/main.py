@@ -2,32 +2,90 @@ import importlib
 import os
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from osir_api.api.exceptions import (
-    ModuleNotFoundException,
-    ModuleValidationException,
-    ModuleLoadException,
     UnexpectedException,
-    module_not_found_handler,
-    module_validation_handler,
-    module_load_handler,
     unexpected_error_handler
 )
-
-MODULES_DIR = "/OSIR/OSIR/configs/modules/network"
 
 app = FastAPI(
     title="OSIR API",
     description="API pour exécuter des modules OSIR",
-    version="1.0.0"
+    version="1.0"
 )
 
-# Register exception handlers
-app.add_exception_handler(ModuleNotFoundException, module_not_found_handler)
-app.add_exception_handler(ModuleValidationException, module_validation_handler)
-app.add_exception_handler(ModuleLoadException, module_load_handler)
 app.add_exception_handler(UnexpectedException, unexpected_error_handler)
 
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+async def root():
+    """
+    Default home page of the OSIR API.
+    """
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>OSIR API</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f4f4f9;
+                color: #333;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                text-align: center;
+            }
+            .container {
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 30px;
+                max-width: 600px;
+                width: 90%;
+            }
+            h1 {
+                color: #2c3e50;
+                margin-bottom: 20px;
+            }
+            p {
+                margin-bottom: 15px;
+                line-height: 1.6;
+            }
+            a {
+                color: #3498db;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .footer {
+                margin-top: 20px;
+                font-size: 0.9em;
+                color: #7f8c8d;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Welcome to the OSIR API</h1>
+            <p>This API allows you to execute and manage OSIR modules.</p>
+            <p>Check out the <a href="/docs">interactive documentation</a> to explore available endpoints.</p>
+            <p>Or access the endpoints directly under <a href="/api">/api</a>.</p>
+            <div class="footer">
+                <p>© 2025 OSIR API</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
 
 API_FOLDER = Path(__file__).parent / "api"
 ROUTE_PREFIX = "/api"
@@ -43,14 +101,3 @@ for file in API_FOLDER.glob("*.py"):
 
     if hasattr(mod, "router"):
         app.include_router(mod.router, prefix=ROUTE_PREFIX)
-
-
-# @app.get("/modules")
-# def get_modules():
-#     """Liste les modules OSIR disponibles"""
-#     try:
-#         if not os.path.isdir(MODULES_DIR):
-#             raise Exception(f"Modules directory not found: {MODULES_DIR}")
-#         return [f for f in os.listdir(MODULES_DIR) if f.endswith(".yml")]
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))

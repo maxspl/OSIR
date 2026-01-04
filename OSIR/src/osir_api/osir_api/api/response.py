@@ -1,17 +1,15 @@
-API_VERSION = "1.0"
+from fastapi import HTTPException
 
-def SUCCESS_RESPONSE(data: dict) -> dict:
-    return {
-        "version": API_VERSION,
-        "status": 200,
-        "response": data
-    }
+from osir_service.ipc.OsirIpcModel import OsirIpcResponse
 
-def ERROR_RESPONSE(status: int, message: str) -> dict:
-    return {
-        "version": API_VERSION,
-        "status": status,
-        "response": {
-            "error": message
-        }
-    }
+def handle_response(response: OsirIpcResponse):
+    if not response.message:
+        response.message = "Everything is working as it should!"
+
+    if response.status != 200:
+        response.message = "Oups... Something went wrong !"
+        raise HTTPException(
+            status_code=response.status,
+            detail=response.response["error"]
+        )
+    return response.model_dump()

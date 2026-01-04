@@ -4,14 +4,14 @@ import shutil
 import random
 import string
 
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
 from osir_lib.logger import AppLogger 
 
 logger = AppLogger(__name__).get_logger()
 
-
-class Memory_Processor(PyModule):
+@osir_internal_module
+class Memory_Processor():
     """
     Extends PyModule to run parsing of Windows memory dump using memprocfs.
     """
@@ -23,10 +23,9 @@ class Memory_Processor(PyModule):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        super().__init__(case_path, module)  # Init PyModule 
-
+        self.module = module
         self._case_path = case_path  # Base directory for operations
-        self._file_to_process = module.input.file
+        self._file_to_process = module.input.match
         self._name_rex = self.module.input.name
 
     def __call__(self) -> bool:
@@ -36,7 +35,7 @@ class Memory_Processor(PyModule):
         Returns:
             bool: True if the processing completes successfully, False otherwise.
         """
-        logger.debug(f"Processing file {self.module.input.file}")
+        logger.debug(f"Processing file {self.module.input.match}")
 
         # Run extraction
         self._move_memprocfs_script()
@@ -73,4 +72,4 @@ class Memory_Processor(PyModule):
         Run memprocfs as configured in the yml configuration file.
         """
         self.module.optional['pythonexec_path'] = self.pythonexec_path
-        self.run_ext_tool()
+        self.module.tool.run()

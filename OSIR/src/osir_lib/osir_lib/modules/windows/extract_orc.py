@@ -1,14 +1,16 @@
 import os
 import re
 import shutil
+from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.core.PyModule import PyModule
-from osir_lib.logger import AppLogger 
+from osir_lib.logger import AppLogger
+from osir_lib.logger.logger import CustomLogger 
+from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 
-logger = AppLogger(__name__).get_logger()
+logger: CustomLogger = AppLogger(__name__).get_logger()
 
-
-class ORC_Extractor(PyModule):
+@osir_internal_module
+class ORC_Extractor():
     """
     Extends PyModule to perform extraction operations for DFIR ORC archives, maintaining directory structures and handling nested archives.
     """
@@ -20,11 +22,10 @@ class ORC_Extractor(PyModule):
             case_path (str): The directory path where case files are stored and operations are performed.
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
-        super().__init__(case_path, module)  # Init PyModule 
-
+        self.module = module
         self._cmd = self.module.tool.cmd  # Save cmd with place holders for further interations
         self._case_path = case_path  # Base directory for operations
-        self._file_to_process = module.input.file
+        self._file_to_process = module.input.match
         self._name_rex = self.module.input.name
 
     def __call__(self) -> bool:
@@ -34,18 +35,29 @@ class ORC_Extractor(PyModule):
         Returns:
             bool: True if the processing completes successfully, False otherwise.
         """
-        logger.debug(f"Processing file {self.module.input.file}")
+        try:
+            logger.debug(f"Processing file {self.module.input.match}")
+            # Run extraction
+            self.move_and_extract_preserving_structure()
+            logger.debug(f"{self.module.module_name} done")
+            return True
+        except Exception as exc:
+            logger.error_handler(exc)
+            return False
 
-        # Run extraction
-        self.move_and_extract_preserving_structure()
-        logger.debug(f"{self.module.module_name} done")
 
     def extract_preserving_structure(self):
         """
         Extracts files and directories from the specified archive while preserving the original directory structure.
         """
-        self.module.tool.cmd = self._cmd  # Restore cmd with place holders
-        self.run_ext_tool()
+        replacements = {
+            "m_output_dir": self.module.output.output_dir,
+            "m_input_file": self.module.input.match,
+        }
+        self.module.tool.cmd = self.module.tool.safe_format(self._cmd, **replacements)
+        self.module.tool.run()
+        self.module.tool.cmd = self._cmd 
+        
 
     def move_and_extract_preserving_structure(self):
         """
@@ -65,7 +77,7 @@ class ORC_Extractor(PyModule):
         extraction_dir = os.path.join(endpoint_dir, "extracted_files", archive_name)
         os.makedirs(extraction_dir, exist_ok=True)
         try:
-            self.module.input.file = moved_archive_path
+            self.module.input.match = moved_archive_path
             self.module.output.output_dir = extraction_dir
             self.extract_preserving_structure()
         except Exception as e:
@@ -80,7 +92,7 @@ class ORC_Extractor(PyModule):
                     try:
                         nested_extraction_dir = os.path.join(root, nested_archive_name)
                         os.makedirs(nested_extraction_dir, exist_ok=True)
-                        self.module.input.file = input_path
+                        self.module.input.match = input_path
                         self.module.output.output_dir = nested_extraction_dir
                         self.extract_preserving_structure()
                         os.remove(input_path)  # Remove the archive after extraction

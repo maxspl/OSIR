@@ -18,9 +18,9 @@ input:
     - r"bodyfile.txt$"
 output:
   type: single_file
-  format: json
+  format: jsonl
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
-endpoint: "extract_uac\/(.*?)\/"
+endpoint: "extract_uac\/Endpoint_(.*?)\/"
 splunk:
   'linux:files:bodyfile':
     name_rex: bodyfile.*\.jsonl$

@@ -15,7 +15,7 @@ from osir_lib.logger import AppLogger, CustomLogger
 logger: CustomLogger = AppLogger().get_logger()
 
 
-class UnixUtils:
+class LogUtils:
     """
     
     A utility class for processing Unix-based log files, handling log writing, reading, and formatting.
@@ -26,20 +26,8 @@ class UnixUtils:
         default_output_dir (str): Default directory path for storing output logs based on the module name.
 
     """
-    def __init__(self, case_path: str, module_instance: OsirModule):
-        self.case_path: str = case_path
-        self.module: OsirModule = module_instance
-        
-        if self.module:
-            self.default_output_dir = os.path.join(self.case_path, self.module.get_module_name())
-            if self.module.type != "post_parsing":
-                if not os.path.exists(self.default_output_dir):
-                    os.makedirs(self.default_output_dir)
-        else:
-            # TODO : Handle in a proper way when the module associated with the UnixUtils is None
-            pass
-            #logger.warning("The module_instance passed to the UnixUtils is None.")
-
+    def __init__(self, ctx: OsirModule):
+        self.ctx: OsirModule = ctx
 
     @staticmethod
     def get_severity(line):
@@ -69,7 +57,7 @@ class UnixUtils:
             str: ISO formatted date string or "N/A" if no date found.
         """
         if not regex:
-            regex = UnixUtils.date_format(line)
+            regex = LogUtils.date_format(line)
 
         date = re.search(regex, line)
         if date:
@@ -90,10 +78,10 @@ class UnixUtils:
         """
         encodings = ['utf-8', 'latin1', 'iso-8859-1', 'windows-1252']
 
-        if self.module.input.file.endswith(".gz"):
+        if self.ctx.input.match.suffix == ".gz":
             for encoding in encodings:
                 try:
-                    with gzip.open(self.module.input.file, 'rt', encoding=encoding) as input_file:
+                    with gzip.open(self.ctx.input.match, 'rt', encoding=encoding) as input_file:
                         for line in input_file:
                             yield line
                     break  # Exit the loop if successful
@@ -102,7 +90,7 @@ class UnixUtils:
         else:
             for encoding in encodings:
                 try:
-                    with open(self.module.input.file, 'r', encoding=encoding) as input_file:
+                    with open(self.ctx.input.match, 'r', encoding=encoding) as input_file:
                         for line in input_file:
                             yield line
                     break  # Exit the loop if successful
@@ -177,43 +165,26 @@ class UnixUtils:
 
     @timeit
     def _thread_save_jsonl(self, queue, output_path=None):
-        """
-        Saves queued log data to a JSONL file in a threaded manner.
-
-        Args:
-            queue (Queue): Queue containing log data.
-            output_path (Optional[str]): Path to save the output JSONL file. If None, generated based on module endpoint.
-        """
         try:
             if not output_path:
-                if hasattr(self.module, 'endpoint') and self.module.endpoint:
-                    pattern = re.compile(self.module.endpoint)
-                    match = pattern.search(self.module.input.file)
-                    endpoint_name = match.groups()[0]
-                    output_path = os.path.join(self.default_output_dir, endpoint_name)
+                output_path = self.ctx.output.output_file
 
-                    if not os.path.exists(output_path):
-                        os.makedirs(output_path, exist_ok=True)
-
-                    output_path = os.path.join(output_path, os.path.basename(self.module.input.file)+'.jsonl')
-                else:
-                    # TODO : Maybe change this to something more reliable when the endpoint is not provided
-                    if self.module.output.output_file.startswith('--'):
-                        self.module.output.output_file = 'DEFAULT' + self.module.output.output_file
-
-                    output_path = os.path.join(self.default_output_dir,  self.module.output.output_file)
-
-            with open(output_path, "a") as file:
-                while True:
-                    data = queue.get()
-                    if data is None:
-                        break
-                    json.dump(data, file)
-                    file.write('\n')
+            while True:
+                data = queue.get()
+                if data is None:
+                    queue.task_done()
+                    break
+                
+                try:
+                    with open(output_path, "a", encoding='utf-8') as file:
+                        json.dump(data, file)
+                        file.write('\n')
+                        file.flush() # Force l'écriture sur le disque
+                finally:
                     queue.task_done()
 
         except Exception as exc:
-            logger.error_handler(exc, "Error setting up writter thread")
+            logger.error_handler(exc)
 
     def start_writer_thread(self, output_path=None):
         """
