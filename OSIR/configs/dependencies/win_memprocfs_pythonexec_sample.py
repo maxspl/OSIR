@@ -315,6 +315,76 @@ def copy_pe_modules_per_process(vmm, dst_path_base: str, pid_to_name: dict,
                 print(f"copy_pe_modules_per_process: error copying '{src_vfs_path}': {str(e)}")
 
 
+def copy_minidumps_per_process(vmm, dst_path_base: str, pid_to_name: dict,
+                               vfs_pid_root: str = "/pid",
+                               dst_subdir: str = "minidumps",
+                               minidump_filename: str = "minidump.dmp"):
+    """
+    For each process directory in /pid/<pid>/minidump, copy minidump.dmp into:
+      <dst_path_base>/<dst_subdir>/<process_name>-<pid>/minidump.dmp
+    """
+    import os
+
+    def _sanitize_for_dirname(name: str) -> str:
+        bad = '<>:"/\\|?*\n\r\t'
+        out = "".join("_" if c in bad else c for c in (name or "").strip())
+        out = out.strip(" .")
+        return out or "unknown"
+
+    out_root = os.path.join(dst_path_base, dst_subdir)
+    os.makedirs(out_root, exist_ok=True)
+
+    try:
+        pid_entries = vmm.vfs.list(vfs_pid_root)
+    except Exception as e:
+        print(f"copy_minidumps_per_process: cannot list '{vfs_pid_root}': {str(e)}")
+        return
+
+    for pid_str, entry in pid_entries.items():
+        if not entry.get("f_isdir"):
+            continue
+        if not str(pid_str).isdigit():
+            continue
+
+        proc_name = _sanitize_for_dirname(pid_to_name.get(str(pid_str), "unknown"))
+        dst_dir = os.path.join(out_root, f"{proc_name}-{pid_str}")
+
+        minidump_vfs_dir = f"{vfs_pid_root}/{pid_str}/minidump"
+        src_vfs_path = f"{minidump_vfs_dir}/{minidump_filename}"
+
+        # Ensure the minidump directory exists and contains the file
+        try:
+            md_entries = vmm.vfs.list(minidump_vfs_dir)
+        except Exception:
+            # No minidump dir for this PID
+            continue
+
+        finfo = md_entries.get(minidump_filename)
+        if not finfo or finfo.get("f_isdir"):
+            continue
+
+        try:
+            os.makedirs(dst_dir, exist_ok=True)
+        except Exception as e:
+            print(f"copy_minidumps_per_process: cannot create '{dst_dir}': {str(e)}")
+            continue
+
+        size = int(finfo.get("size", 0) or 0)
+        offset = 0
+        dst_path = os.path.join(dst_dir, minidump_filename)
+
+        try:
+            with open(dst_path, "wb") as out_f:
+                while offset < size:
+                    chunk = vmm.vfs.read(src_vfs_path, 0x00100000, offset)
+                    if not chunk:
+                        break
+                    offset += len(chunk)
+                    out_f.write(chunk)
+        except Exception as e:
+            print(f"copy_minidumps_per_process: error copying '{src_vfs_path}': {str(e)}")
+
+
 try:
     print("")
     print("Copy CSV files from forensic mode (if enabled)")
@@ -351,6 +421,9 @@ try:
 
     print(f"copying file from /pid/<pid>/files/modules to {dst_path_base}/pe_files_extracted")
     copy_pe_modules_per_process(vmm, dst_path_base, pid_to_name)
+    
+    print(f"copying minidumps from /pid/<pid>/minidump/minidump.dmp to {dst_path_base}/minidumps")
+    copy_minidumps_per_process(vmm, dst_path_base, pid_to_name)
 
 except Exception as e:
     print("memprocfs_pythonexec_example.py: exception: " + str(e))
