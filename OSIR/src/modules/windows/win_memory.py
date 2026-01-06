@@ -36,6 +36,18 @@ class Memory_Processor(PyModule):
             bool: True if the processing completes successfully, False otherwise.
         """
         logger.debug(f"Processing file {self.module.input.file}")
+        
+        # Prepare output dir
+        endpoint_regex = self.module.endpoint
+        match = re.search(endpoint_regex, self._file_to_process)
+        if match:
+            endpoint_name = match.group(1)
+        else:
+            logger.error("Endpoint regex matched nothing")
+            return False
+         
+        self.output_dir = os.path.join(self.case_path, self.module.module_name, endpoint_name)
+        os.makedirs(self.output_dir, exist_ok=True)
 
         # Run extraction
         self._move_memprocfs_script()
@@ -45,7 +57,6 @@ class Memory_Processor(PyModule):
         # Paths
         source_file = "/OSIR/OSIR/configs/dependencies/win_memprocfs_pythonexec_sample.py"
         destination_dir = "/tmp"
-        output_dir = os.path.join("/OSIR/cases", self._case_path, self.module.module_name)
 
         # Generate a random filename
         random_filename = ''.join(random.choices(string.ascii_letters + string.digits, k=10)) + ".py"
@@ -58,7 +69,7 @@ class Memory_Processor(PyModule):
         with open(self.pythonexec_path, 'r') as file:
             file_contents = file.read()
 
-        file_contents = file_contents.replace("{output_dir}", output_dir)
+        file_contents = file_contents.replace("{output_dir}", self.output_dir)
 
         with open(self.pythonexec_path, 'w') as file:
             file.write(file_contents)

@@ -1,8 +1,10 @@
 import os
 import json
 
+
 def process_csv_add_columns(csv_path):
     import csv
+
     def trace_ancestry(pid, ppid_map):
         visited = set()
         path = [pid]
@@ -62,11 +64,10 @@ def process_csv_add_columns(csv_path):
         print("process_csv_add_columns: exception: " + str(e))
 
 
-
 def process_sysinfo(path_sysinfo):
     import re
-    import json
     import os
+    import json
     with open(path_sysinfo, "r", encoding="utf-8") as file:
         input_text = file.read()
     write_path = os.path.join(os.path.dirname(path_sysinfo), "sysinfo.json")
@@ -156,12 +157,13 @@ def copy_vfs_files(vmm, output_dir, vfs_path):
             offset = 0
             dst_path = os.path.join(output_dir, vfs_file)
             full_vfs_path = os.path.join(vfs_path, vfs_file).replace('\\', '/')
-            print("copy file '%s' to '%s'" % (full_vfs_path, dst_path))
+            # print("copy file '%s' to '%s'" % (full_vfs_path, dst_path))
             with open(dst_path, "wb") as file:
                 while offset < vfs_files[vfs_file]['size']:
                     chunk = vmm.vfs.read(full_vfs_path, 0x00100000, offset)
                     offset += len(chunk)
                     file.write(chunk)
+
 
 def copy_vfs_all(vmm, dst_path_base, vfs_path):
     import os
@@ -170,8 +172,11 @@ def copy_vfs_all(vmm, dst_path_base, vfs_path):
     while stack:
         vfs_dir, local_dir = stack.pop()
         vfs_files = vmm.vfs.list(vfs_dir)
-
-        os.makedirs(local_dir, exist_ok=True)
+        try:
+            os.makedirs(local_dir, exist_ok=True)
+        except Exception as e:
+            print(f"Error while creating dir {local_dir}. Error : {str(e)}")
+            continue
 
         for vfs_file, entry in vfs_files.items():
             vfs_full_path = os.path.join(vfs_dir, vfs_file)
@@ -181,34 +186,171 @@ def copy_vfs_all(vmm, dst_path_base, vfs_path):
                 stack.append((vfs_full_path, dst_full_path))
             else:
                 offset = 0
-                print("copy file '%s' to '%s'" % (vfs_full_path, dst_full_path))
-                with open(dst_full_path, "wb") as file:
-                    while offset < entry['size']:
-                        chunk = vmm.vfs.read(vfs_full_path, 0x00100000, offset)
+                # print("copy file '%s' to '%s'" % (vfs_full_path, dst_full_path))
+                try:
+                    with open(dst_full_path, "wb") as file:
+                        while offset < entry['size']:
+                            chunk = vmm.vfs.read(vfs_full_path, 0x00100000, offset)
+                            offset += len(chunk)
+                            file.write(chunk)
+                except Exception as e:
+                    print(f"Error while copying file. Error : {str(e)}")
+
+
+def build_pid_to_name_map_from_csv(process_csv_path: str) -> dict:
+    """
+    Reads process.csv and returns { "1234": "explorer.exe", ... }.
+
+    This tries multiple likely column names so it works even if the CSV schema differs.
+    """
+    import os
+    import csv
+
+    if not os.path.isfile(process_csv_path):
+        print(f"build_pid_to_name_map_from_csv: '{process_csv_path}' not found")
+        return {}
+
+    # Common column candidates seen in process listings
+    name_keys = [
+        "ImageFileName", "ImageName", "ProcessName", "Name",
+        "process_name", "image", "comm", "Executable", "ExeFile", "Path"
+    ]
+
+    pid_to_name = {}
+    try:
+        with open(process_csv_path, "r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                pid = (row.get("PID") or "").strip()
+                if not pid:
+                    continue
+
+                proc_name = ""
+                for k in name_keys:
+                    v = row.get(k)
+                    if v and str(v).strip():
+                        proc_name = str(v).strip()
+                        break
+
+                # If we got a full path, keep only basename (nice dir names)
+                if proc_name and ("/" in proc_name or "\\" in proc_name):
+                    proc_name = os.path.basename(proc_name)
+
+                pid_to_name[pid] = proc_name or "unknown"
+
+    except Exception as e:
+        print(f"build_pid_to_name_map_from_csv: exception: {str(e)}")
+        return {}
+
+    return pid_to_name
+
+
+def copy_pe_modules_per_process(vmm, dst_path_base: str, pid_to_name: dict,
+                                vfs_pid_root: str = "/pid",
+                                dst_subdir: str = "pe_files_extracted"):
+    """
+    For each process directory in /pid/<pid>/files/modules, copy module files into:
+      <dst_path_base>/<dst_subdir>/<pid>-<process_name>/
+    """
+    import os 
+    
+    def _sanitize_for_dirname(name: str) -> str:
+        bad = '<>:"/\\|?*\n\r\t'
+        out = "".join("_" if c in bad else c for c in (name or "").strip())
+        out = out.strip(" .")
+        return out or "unknown"
+
+    out_root = os.path.join(dst_path_base, dst_subdir)
+    os.makedirs(out_root, exist_ok=True)
+
+    try:
+        pid_entries = vmm.vfs.list(vfs_pid_root)
+    except Exception as e:
+        print(f"copy_pe_modules_per_process: cannot list '{vfs_pid_root}': {str(e)}")
+        return
+
+    for pid_str, entry in pid_entries.items():
+        if not entry.get("f_isdir"):
+            continue
+        if not str(pid_str).isdigit():
+            continue
+
+        proc_name = _sanitize_for_dirname(pid_to_name.get(str(pid_str), "unknown"))
+        dst_dir = os.path.join(out_root, f"{proc_name}-{pid_str}")
+
+        modules_vfs_dir = f"{vfs_pid_root}/{pid_str}/files/modules"
+        try:
+            modules_entries = vmm.vfs.list(modules_vfs_dir)
+        except Exception as e:
+            # Not all PIDs will have modules or may be inaccessible; just skip
+            print(f"copy_pe_modules_per_process: cannot list '{modules_vfs_dir}': {str(e)}")
+            continue
+
+        try:
+            os.makedirs(dst_dir, exist_ok=True)
+        except Exception as e:
+            print(f"copy_pe_modules_per_process: cannot create '{dst_dir}': {str(e)}")
+            continue
+            
+        for filename, finfo in modules_entries.items():
+            if finfo.get("f_isdir"):
+                continue
+
+            src_vfs_path = f"{modules_vfs_dir}/{filename}"
+            dst_path = os.path.join(dst_dir, filename)
+
+            offset = 0
+            size = int(finfo.get("size", 0) or 0)
+            # print(f"copy module '{src_vfs_path}' -> '{dst_path}'")
+
+            try:
+                with open(dst_path, "wb") as out_f:
+                    while offset < size:
+                        chunk = vmm.vfs.read(src_vfs_path, 0x00100000, offset)
+                        if not chunk:
+                            break
                         offset += len(chunk)
-                        file.write(chunk)
+                        out_f.write(chunk)
+            except Exception as e:
+                print(f"copy_pe_modules_per_process: error copying '{src_vfs_path}': {str(e)}")
+
 
 try:
     print("")
-    print("3. Copy CSV files from forensic mode (if enabled)")
+    print("Copy CSV files from forensic mode (if enabled)")
     print("-------------------------------------------------")
     dst_path_base = '{output_dir}' 
 
+    print(f"copying file from /forensic/csv to {dst_path_base}")
     copy_vfs_files(vmm, dst_path_base, "/forensic/csv/")
-    copy_vfs_files(vmm, dst_path_base, "/forensic/json/")
-    copy_vfs_files(vmm, dst_path_base, "/sys/sysinfo/")
-    copy_vfs_all(vmm, os.path.join(dst_path_base, "restore_fs-ram"), "/forensic/files/")
-    
 
+    print(f"copying file from /forensic/json to {dst_path_base}")
+    copy_vfs_files(vmm, dst_path_base, "/forensic/json/")
+
+    print(f"copying file from /sys/sysinfo to {dst_path_base}")
+    copy_vfs_files(vmm, dst_path_base, "/sys/sysinfo/")
+
+    print(f"copying file from /forensic/files to {dst_path_base}/restore_fs-ram")
+    copy_vfs_all(vmm, os.path.join(dst_path_base, "restore_fs-ram"), "/forensic/files/")
+
+    process_csv_path = None
     for file in os.listdir(dst_path_base):
         if file == 'process.csv':
+            process_csv_path = os.path.join(dst_path_base, file)
             print("process file '%s'" % file)
-            process_csv_add_columns(os.path.join(dst_path_base, file))
+            process_csv_add_columns(process_csv_path)
         elif file == 'sysinfo.txt':
             print("systeminfo file '%s'" % file)
             process_sysinfo(os.path.join(dst_path_base, file))
             os.remove(os.path.join(dst_path_base, file))
 
+    if process_csv_path:
+        pid_to_name = build_pid_to_name_map_from_csv(process_csv_path)
+    else:
+        pid_to_name = {}
+
+    print(f"copying file from /pid/<pid>/files/modules to {dst_path_base}/pe_files_extracted")
+    copy_pe_modules_per_process(vmm, dst_path_base, pid_to_name)
 
 except Exception as e:
     print("memprocfs_pythonexec_example.py: exception: " + str(e))
