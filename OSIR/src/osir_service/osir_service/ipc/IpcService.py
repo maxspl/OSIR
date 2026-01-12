@@ -117,11 +117,15 @@ class IpcService(BaseModel):
                         return OsirException.MISSING_PARAMETER(parameter_name="task_id")
 
                     osir_ipc_response.message = "Task log retrieved"
+<<<<<<< HEAD
                     result = self.action_get_task_log(osir_ipc_request)
                     if result:
                         osir_ipc_response.response =  self.action_get_task_log(osir_ipc_request)
                     else:
                         osir_ipc_response.response = {"task_id":osir_ipc_request.task_id}
+=======
+                    osir_ipc_response.response =  self.action_get_task_log(osir_ipc_request)
+>>>>>>> f9f01e99634329d85149028840be42e94cd75666
 
                 case 'get_handler_status':
                     if not hasattr(osir_ipc_request, "handler_id") or not osir_ipc_request.handler_id:
@@ -135,7 +139,11 @@ class IpcService(BaseModel):
                         return OsirException.MISSING_PARAMETER(parameter_name="case_name")
                     
                     osir_ipc_response.message = "Handler retrieved"
+<<<<<<< HEAD
                     osir_ipc_response.response["handlers"] = self.action_get_case_handler(osir_ipc_request)
+=======
+                    osir_ipc_response.response = self.action_get_case_handler(osir_ipc_request)
+>>>>>>> f9f01e99634329d85149028840be42e94cd75666
 
         except Exception as e:
             logger.error(
