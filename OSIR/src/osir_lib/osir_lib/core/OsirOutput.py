@@ -21,42 +21,51 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
 
     # TODO: Remove this and refactor _rename_items_recursively
     output_prefix_no_endpoint: Optional[str] = None
+    updated: Optional[bool] = False
+
     def _hash_path(self, path: str) -> str:
         if not path: return ""
         return hashlib.md5(str(path).encode()).hexdigest()
 
     def update(self) -> "OsirOutput":
-        ctx = self._context
+        if not self.updated:
+            ctx = self._context
         
-        replacements = {
-            "endpoint_name": ctx.endpoint_name,
-            "module": ctx.module,
-            "input_file": ctx.input.get_input_name_safe(),
-            "input_path_hash": self._hash_path(str(ctx.input.match)),
-        }
-        
-        base_output_path = Path(ctx.case_path) / ctx.module
-        
-        if self.output_dir:
-            full_template = str(base_output_path / self.output_dir)
-            self.output_dir  = self.safe_format(full_template, **replacements)
-        else:
-            self.output_dir = base_output_path
+            replacements = {
+                "endpoint_name": ctx.endpoint_name,
+                "module": ctx.module,
+                "input_file": ctx.input.get_input_name_safe(),
+                "input_path_hash": self._hash_path(str(ctx.input.match)),
+            }
+            logger.debug(ctx.model_dump_json(indent=4))
+            base_output_path = Path(ctx.case_path) / ctx.module
+            
+            if self.output_dir:
+                full_template = str(base_output_path / self.output_dir)
+                self.output_dir  = self.safe_format(full_template, **replacements)
+            else:
+                self.output_dir = base_output_path
 
-        if self.output_file:
-            formatted_filename = self.safe_format(self.output_file, **replacements)
-            self.output_file = str(Path(self.output_dir) / formatted_filename)
+            if self.output_file:
+                logger.error(self.output_file)
+                formatted_filename = self.safe_format(self.output_file, **replacements)
+                logger.error(self.output_dir)
+                logger.error(formatted_filename)
+                self.output_file = str(Path(self.output_dir) / formatted_filename)
 
-        self.apply_suffix("output_dir")
-        self._ensure_output_dir_exists()
-        self.apply_suffix("output_file")
+            self.apply_suffix("output_dir")
+            self._ensure_output_dir_exists()
+            self.apply_suffix("output_file")
 
-        if self.output_prefix:
-            self.output_prefix_no_endpoint = self.safe_format(self.output_prefix,
-                **{k: v for k, v in replacements.items() if k != 'endpoint_name'})
-            self.output_prefix = self.safe_format(self.output_prefix, **replacements)
+            if self.output_prefix:
+                self.output_prefix_no_endpoint = self.safe_format(self.output_prefix,
+                    **{k: v for k, v in replacements.items() if k != 'endpoint_name'})
+                self.output_prefix = self.safe_format(self.output_prefix, **replacements)
+
+            self.updated = True
+
+            return self
         return self
-
     def _ensure_output_dir_exists(self):
         if self._context.processor_os == 'unix':
             Path(self.output_dir).mkdir(parents=True, exist_ok=True)

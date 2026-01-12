@@ -76,8 +76,8 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
         if self.cmd:
             replacements = {
                 "drive": agent_config.windows_mnt_point + ":",
-                "input_file": str(ctx.input.match),
-                "input_dir": str(ctx.input.match),
+                "input_file": str(ctx.input.match_updated),
+                "input_dir": str(ctx.input.match_updated),
                 "output_dir": str(ctx.output.output_dir),
                 "output_file": str(ctx.output.output_file),
                 "case_name": ctx.case_name,

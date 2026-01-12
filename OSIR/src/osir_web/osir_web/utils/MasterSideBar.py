@@ -82,8 +82,8 @@ def sidebar():
             color_name="red-70",
         )
         with st.expander(":round_pushpin: External"):
-            st.page_link(url, label="Open Database", help="open a new tab to pgadmin", use_container_width=True, icon="💾")
-            st.page_link(splunk_url, label="Splunk", help="open a new tab to local Splunk server", use_container_width=True, icon="💹")
+            st.page_link(url, label="Open Database", help="open a new tab to pgadmin", width='stretch', icon="💾")
+            st.page_link(splunk_url, label="Splunk", help="open a new tab to local Splunk server", width='stretch', icon="💹")
         
         # Master specs
         colored_header(

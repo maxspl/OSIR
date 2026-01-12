@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import PrivateAttr
 from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
@@ -11,6 +11,10 @@ if TYPE_CHECKING:
 class OsirInput(OsirInputModel, OsirPathTransformerMixin):
     _context: "OsirModule" = PrivateAttr() 
     match: Path
+    match_updated: Optional[Path] = None
+
+    # TODO: Remove this
+    updated: Optional[bool] = False
 
     def get_input_name_safe(self) -> str:
         """Retourne un nom de fichier tronqué et sûr."""
@@ -20,6 +24,9 @@ class OsirInput(OsirInputModel, OsirPathTransformerMixin):
         return ''
 
     def update(self) -> "OsirInput":
-        self.apply_suffix("match")
+        if not self.updated:
+            updated_value = self.apply_suffix("match", return_value=True)
+            self.match_updated = updated_value if updated_value else self.match
+            self.updated = True
         return self
         

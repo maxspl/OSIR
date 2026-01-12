@@ -157,7 +157,7 @@ class CeleryWorker:
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
-
+                logger.debug(module_instance.model_dump_json(indent=4))
                 processor = ExternalProcessor(case_path, module_instance, task_id=task_id)
 
                 # Check if input_file is used by another module

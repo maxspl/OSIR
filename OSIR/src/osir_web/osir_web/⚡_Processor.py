@@ -302,7 +302,7 @@ class ConfigurationApp:
                 # Render the table and read selection from session_state
                 st.dataframe(
                     df[["module_path", "module", "description", "processor_type"]],
-                    use_container_width=True,
+                    width='stretch',
                     hide_index=True,
                     selection_mode="multi-row",    # select many modules to run
                     on_select="rerun",

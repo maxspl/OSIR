@@ -26,6 +26,8 @@ class OsirPathTransformerMixin:
         return "Error"
 
     def _windows_suffix(self, in_path: str) -> Optional[str]:
+        if "{master_host}" in in_path:
+            return in_path
         if in_path:  # None in some cases (output file for example)
             # The keyword to search for in the path
             search_keyword = '/share'
@@ -61,7 +63,7 @@ class OsirPathTransformerMixin:
             return self._wsl_suffix if self._context.is_wsl else self._windows_suffix
         return None
 
-    def apply_suffix(self, field_name: str):
+    def apply_suffix(self, field_name: str, return_value: bool = False):
         """Récupère la valeur du champ, la transforme et la réassigne."""
         suffix_fn = self._get_suffix_fn()
         value = getattr(self, field_name, None)
@@ -69,6 +71,8 @@ class OsirPathTransformerMixin:
         if suffix_fn and value:
             new_path = suffix_fn(str(value))
             if new_path and new_path != "Error":
+                if return_value:
+                    return Path(new_path)
                 setattr(self, field_name, Path(new_path))
     
     def _hash_path(self, path: str) -> str:
