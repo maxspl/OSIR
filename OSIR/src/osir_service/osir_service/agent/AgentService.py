@@ -10,10 +10,7 @@ from celery import Celery
 from celery import current_task
 from os import environ, cpu_count
 
-<<<<<<< HEAD
 from osir_lib.core.OsirDecorator import osir_internal_module
-=======
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
@@ -77,11 +74,7 @@ class CeleryWorker:
             # file_opened = self._is_file_opened(module_instance.input.file)
             file_opened = OSIR_DB.task.check_input(case_uuid, module_instance.input.match)
             while file_opened:
-<<<<<<< HEAD
                 logger.debug(f"{module_instance.module_name} - input {module_instance.input.match} is opened by another module. Waiting...")
-=======
-                logger.debug(f"{module_instance.module_name} - input {module_instance.input.file} is opened by another module. Waiting...")
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
                 time.sleep(3)
                 file_opened = OSIR_DB.task.check_input(case_uuid, module_instance.input.match)
 
@@ -115,11 +108,7 @@ class CeleryWorker:
             else:
                 return False
 
-<<<<<<< HEAD
     
-=======
-
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
     def _register_tasks(self):
         """
         Registers internal and external processing tasks with Celery, defining their behavior and exception handling.

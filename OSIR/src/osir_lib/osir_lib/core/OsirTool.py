@@ -15,11 +15,8 @@ from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.model.OsirToolModel import OsirToolModel
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
-<<<<<<< HEAD
 from osir_lib.core.OsirDecorator import trace_func
 
-=======
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -35,21 +32,13 @@ if TYPE_CHECKING:
     from osir_lib.core.OsirModule import OsirModule
 
 class OsirTool(OsirToolModel, OsirPathTransformerMixin):
-<<<<<<< HEAD
-
-=======
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
     _context: Optional["OsirModule"] = PrivateAttr(default=None)
     
     def __init__(self, **data):
         super().__init__(**data)
 
-<<<<<<< HEAD
     @trace_func()
     def run(self, **kwargs) -> bool:
-=======
-    def run(self) -> bool:
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
         """
         Executes an external tool based on the module's configuration and the operating system.
 

@@ -47,7 +47,6 @@ class HandlerManager:
             self.db.conn.rollback()
             logger.error(f"Erreur lors de la création du handler: {e}")
             raise
-<<<<<<< HEAD
     
     def list(
         self,
@@ -110,8 +109,6 @@ class HandlerManager:
         except Exception as e:
             logger.error(f"Erreur lors de la récupération de la liste des handlers: {e}")
             raise
-=======
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
 
     def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[Dict, List[Dict], None]:
         try:
@@ -209,7 +206,6 @@ class HandlerManager:
             self.db.conn.rollback()
             logger.error(f"Erreur lors de la mise à jour des task_ids pour le handler {handler_id}: {e}")
             raise
-<<<<<<< HEAD
     
     def delete(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> bool:
         """
@@ -252,5 +248,3 @@ class HandlerManager:
             self.db.conn.rollback()
             logger.error(f"Erreur lors de la suppression du handler: {e}")
             raise
-=======
->>>>>>> f9f01e99634329d85149028840be42e94cd75666

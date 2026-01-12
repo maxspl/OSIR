@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-import pprint
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
 import requests
 from typing import Optional, List, Dict, Any
 
@@ -9,18 +5,10 @@ class BaseSubClient:
     def __init__(self, base_url: str):
         self.base_url = base_url
 
-<<<<<<< HEAD
     def _handle_api_response(self, response: requests.Response) -> Any:
         """Extrait la donnée utile de l'enveloppe OsirIpcResponse."""
         response.raise_for_status()
         data = response.json()
-=======
-    def _handle_api_response(self, response: requests.Response) -> Dict:
-        """Extrait la donnée utile de l'enveloppe OsirIpcResponse (clé 'response')."""
-        response.raise_for_status()
-        data = response.json()
-        # Si l'API renvoie l'enveloppe standard {status, response, version}
->>>>>>> f9f01e99634329d85149028840be42e94cd75666
         if isinstance(data, dict) and "response" in data:
             return data["response"]
         return data
