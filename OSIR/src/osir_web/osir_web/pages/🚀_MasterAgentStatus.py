@@ -58,7 +58,7 @@ class MasterStatus:
             elif 'processing_done' in row['status']:
                 return ['background-color: lightgreen; color: gray;'] * len(row)
             elif 'processing_case' in row['status']:
-                return ['background-color: orange; color: gray;'] * len(row)
+                return ['background-color: #FFEBEE; color: gray;'] * len(row)
             else:
                 return [''] * len(row)
 

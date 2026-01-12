@@ -49,13 +49,16 @@ def status_handler(handler: GetHandlerStatusRequest):
 class GetCaseHandlerRequest(BaseModel):
     case_name: str
 
-class GetHandlerStatusResponseCore(BaseModel):
+class GetHandlerStatusResponseInfo(BaseModel):
     handler_id: Optional[UUID]
     # TODO: Replace with UUID after rework
     case_uuid: Optional[str]
     modules: Optional[list[str]]
     task_ids: Optional[list[UUID]]
     processing_status: Optional[str]
+
+class GetHandlerStatusResponseCore(BaseModel):
+    handlers: list[GetHandlerStatusResponseInfo]
 
 class GetHandlerStatusResponse(OsirIpcResponse):
     response: GetHandlerStatusResponseCore

@@ -25,12 +25,13 @@ class ExternalProcessor:
    
         # Declare module class from config string
         self.module_instance = module_instance
+        self.task_id = task_id
 
     def run_module(self):
         """
         Executes the external tool associated with the module instance.
         """
-        self.module_instance.tool.run()
+        self.module_instance.tool.run(task_id=self.task_id)
 
 class InternalProcessor:
     """

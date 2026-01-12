@@ -11,6 +11,7 @@ from typing import Any, Callable, Optional
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.logger import AppLogger
 from osir_lib.logger import AppLogger
+from osir_service.postgres.PostgresConstants import ProcessingStatus
 
 logger = AppLogger().get_logger()
 
@@ -103,7 +104,7 @@ def osir_internal_module(cls_or_func=None, *, trace: Optional[bool] = True):
                     logs_text = log_capture.getvalue()
                     
                     threading.Thread(
-                        target=save_to_jsonl,
+                        target=finalize_task,
                         args=(task_id, cls_or_func.__name__, start_time, end_time, logs_text),
                         daemon=True
                     ).start()
@@ -121,77 +122,96 @@ def trace_func():
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            # Récupération du task_id dans les arguments
-            task_id = kwargs.get('task_id', args[0] if args else 'UNKNOWN')
+            # 1. Intercept and Remove task_id from kwargs
+            # We "pop" it so it doesn't exist when we call func(**kwargs)
+            task_id = kwargs.pop('task_id', None)
             
-            # --- SETUP CAPTURE ---
+            # Setup logging capture
             log_capture = StringIO()
             capture_handler = logging.StreamHandler(log_capture)
-            # On définit le format pour la DB (sans couleurs)
             db_fmt = logging.Formatter('[%(levelname)s][%(asctime)s] - %(filename)s:%(lineno)d - %(funcName)s - %(message)s')
             capture_handler.setFormatter(db_fmt)
             
-            logger = AppLogger().get_logger()
-            logger.addHandler(capture_handler)
+            # Use the existing AppLogger
+            main_logger = AppLogger(__name__).get_logger()
+            main_logger.addHandler(capture_handler)
             
             start_time = datetime.now()
-            
-            try:
-                # Injection automatique de l'extra pour les logs internes
-                # On utilise un adapter pour simplifier les appels logger.info()
-                adapter = logging.LoggerAdapter(logger, {'origin': 'Agent', 'task_id': task_id})
-                
-                # Exécution de la fonction décorée
-                # On passe l'adapter à la fonction si elle accepte un argument 'logger'
-                if 'logger' in func.__code__.co_varnames:
-                    kwargs['logger'] = adapter
-                
-                result = func(*args, **kwargs)
-                return result
-                
-            except Exception as e:
-                raise e
-            finally:
-                # --- CLEANUP & SAVE ---
-                end_time = datetime.now()
-                logger.removeHandler(capture_handler)
-                logs_text = log_capture.getvalue()
-                
-                # Lancement de la sauvegarde en arrière-plan (Thread)
-                threading.Thread(
-                    target=save_to_jsonl,
-                    args=(task_id, func.__name__, start_time, end_time, logs_text),
-                    daemon=True
-                ).start()
+            status = "processing_done"
 
+            try:
+                # 2. Execute the function with the cleaned kwargs
+                # task_id is no longer in kwargs, so run(self) won't crash
+                result = func(*args, **kwargs)
+                
+                if result is False:
+                    status = "processing_failed"
+                return result
+
+            except Exception as e:
+                status = "processing_failed"
+                main_logger.error(f"Execution Error: {str(e)}")
+                raise e
+
+            finally:
+                if logger and capture_handler and task_id:
+                    end_time = datetime.now()
+                    logger.removeHandler(capture_handler)
+                    logs_text = log_capture.getvalue()
+                    
+                    threading.Thread(
+                        target=finalize_task,
+                        args=(task_id, func.__name__, start_time, end_time, logs_text),
+                        daemon=True
+                    ).start()
         return wrapper
     return decorator
 
-def save_to_jsonl(task_id, func_name, start, end, logs):
-    """Enregistre les détails de l'exécution dans un fichier JSONL."""
-    
-    # 1. Préparation du dictionnaire de données
-    log_data = {
-        "timestamp": datetime.now().isoformat(),
-        "task_id": task_id,
+def finalize_task(task_id, func_name, start, end, logs):
+    from osir_service.postgres.PostgresService import OSIR_DB
+
+    # 1. On prépare le dictionnaire (le "blob")
+    log_blob = {
         "function": func_name,
         "duration_seconds": (end - start).total_seconds(),
         "start_time": start.isoformat(),
         "end_time": end.isoformat(),
-        "logs": logs.strip().split('\n'), # On transforme les logs en liste pour un JSON propre
+        "logs": logs.strip().split('\n')
     }
 
-    # 2. Définition du chemin du fichier
-    # On le place dans ton répertoire log habituel
-    log_dir = OSIR_PATHS.LOG_DIR
-    
-    jsonl_path = os.path.join(log_dir, "task_traces.jsonl")
+    # 2. On met à jour la base de données
+    OSIR_DB.task.update(
+        task_id=task_id,
+        processing_status=ProcessingStatus.PROCESSING_DONE,
+        trace_data=log_blob
+    )
 
-    try:
-        # 3. Écriture en mode 'append' (a)
-        with open(jsonl_path, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(log_data, ensure_ascii=False) + '\n')
+# def save_to_jsonl(task_id, func_name, start, end, logs):
+    
+    # """Enregistre les détails de l'exécution dans un fichier JSONL."""
+    
+    # # 1. Préparation du dictionnaire de données
+    # log_data = {
+    #     "timestamp": datetime.now().isoformat(),
+    #     "task_id": task_id,
+    #     "function": func_name,
+    #     "duration_seconds": (end - start).total_seconds(),
+    #     "start_time": start.isoformat(),
+    #     "end_time": end.isoformat(),
+    #     "logs": logs.strip().split('\n'), # On transforme les logs en liste pour un JSON propre
+    # }
+
+    # # 2. Définition du chemin du fichier
+    # # On le place dans ton répertoire log habituel
+    # log_dir = OSIR_PATHS.LOG_DIR
+    
+    # jsonl_path = os.path.join(log_dir, "task_traces.jsonl")
+
+    # try:
+    #     # 3. Écriture en mode 'append' (a)
+    #     with open(jsonl_path, 'a', encoding='utf-8') as f:
+    #         f.write(json.dumps(log_data, ensure_ascii=False) + '\n')
             
-        # On garde un petit debug console pour savoir que c'est fait        
-    except Exception as e:
-        logger.error(f"Failed to write JSONL: {e}")
+    #     # On garde un petit debug console pour savoir que c'est fait        
+    # except Exception as e:
+    #     logger.error(f"Failed to write JSONL: {e}")

@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import PrivateAttr
 from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
@@ -19,6 +19,8 @@ logger = AppLogger().get_logger()
 class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
     _context: "OsirModule" = PrivateAttr() 
 
+    # TODO: Remove this and refactor _rename_items_recursively
+    output_prefix_no_endpoint: Optional[str] = None
     def _hash_path(self, path: str) -> str:
         if not path: return ""
         return hashlib.md5(str(path).encode()).hexdigest()
@@ -50,8 +52,9 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
         self.apply_suffix("output_file")
 
         if self.output_prefix:
+            self.output_prefix_no_endpoint = self.safe_format(self.output_prefix,
+                **{k: v for k, v in replacements.items() if k != 'endpoint_name'})
             self.output_prefix = self.safe_format(self.output_prefix, **replacements)
-
         return self
 
     def _ensure_output_dir_exists(self):

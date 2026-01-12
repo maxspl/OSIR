@@ -6,7 +6,7 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
-@osir_internal_module(trace=True)
+@osir_internal_module(trace=False)
 class BodyfileModule(LogUtils):
     """
     PyModule to perform processing operations on Bodyfile.

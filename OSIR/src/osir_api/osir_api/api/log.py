@@ -37,19 +37,19 @@ async def stream_logs():
 # ==========================================
 
 class TaskLogResponseCore(BaseModel):
-    timestamp: str 
-    task_id: str 
-    function: str 
-    duration_seconds: float 
-    start_time: str
-    end_time: str
-    logs: List[str]
+    task_id: str
+    timestamp: Optional[str] = None
+    function: Optional[str] = None
+    duration_seconds: Optional[float] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    logs: Optional[List[str]] = None
 
 class TaskLogResponse(OsirIpcResponse):
     response: TaskLogResponseCore
 
 @router.get("/logs/task", 
-    response_model=TaskLogResponse,
+    response_model=OsirIpcResponse,
     responses={500: {"model": UnexpectedExceptionResponse}})
 def logs_task(task_id: str):
     try:

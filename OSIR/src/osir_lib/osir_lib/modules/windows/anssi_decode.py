@@ -218,10 +218,10 @@ class ANSSI_Decode():
         output_file_base = os.path.join(output_dir, f"decode_result_{mount_point}")
 
         # Update command with actual paths
-        self.module.tool.cmd = self.module.tool.cmd.replace("{input_file}", ntfs_info_file)
-        self.module.tool.cmd = self.module.tool.cmd.replace("{output_log}", f"{output_file_base}.log")
-        self.module.tool.cmd = self.module.tool.cmd.replace("{output_csv}", f"{output_file_base}.csv")
-        self.module.tool.cmd = self.module.tool.cmd.replace("{output_pdf}", f"{output_file_base}.pdf")
+        self.module.tool.cmd = self.module.tool.cmd.replace("{m_input_file}", ntfs_info_file)
+        self.module.tool.cmd = self.module.tool.cmd.replace("{m_output_log}", f"{output_file_base}.log")
+        self.module.tool.cmd = self.module.tool.cmd.replace("{m_output_csv}", f"{output_file_base}.csv")
+        self.module.tool.cmd = self.module.tool.cmd.replace("{m_output_pdf}", f"{output_file_base}.pdf")
 
         # Add optional --dlls_file if found:
         if listdlls_path:

@@ -47,6 +47,68 @@ class HandlerManager:
             self.db.conn.rollback()
             logger.error(f"Erreur lors de la création du handler: {e}")
             raise
+    
+    def list(
+        self,
+        case_uuid: Optional[str] = None,
+        processing_status: Optional[Union[str, List[str]]] = None,
+        exclude_status: Optional[Union[str, List[str]]] = None
+    ) -> List[Dict]:
+        try:
+            # Jointure avec osir_case pour récupérer le nom du cas
+            query = """
+                SELECT h.*, c.name AS case_name
+                FROM osir_handlers h
+                LEFT JOIN osir_case c ON h.case_uuid = c.case_uuid
+            """
+            conditions = []
+            params = []
+
+            if case_uuid:
+                # Vérifiez si case_uuid est déjà un objet UUID
+                if isinstance(case_uuid, uuid.UUID):
+                    uuid_value = case_uuid
+                else:
+                    uuid_value = uuid.UUID(case_uuid)
+                conditions.append("h.case_uuid = %s")
+                params.append(uuid_value)
+
+            if processing_status:
+                if isinstance(processing_status, str):
+                    conditions.append("h.processing_status = %s")
+                    params.append(processing_status)
+                else:
+                    placeholders = ", ".join(["%s"] * len(processing_status))
+                    conditions.append(f"h.processing_status IN ({placeholders})")
+                    params.extend(processing_status)
+
+            if exclude_status:
+                if isinstance(exclude_status, str):
+                    conditions.append("h.processing_status != %s")
+                    params.append(exclude_status)
+                else:
+                    placeholders = ", ".join(["%s"] * len(exclude_status))
+                    conditions.append(f"h.processing_status NOT IN ({placeholders})")
+                    params.extend(exclude_status)
+
+            if conditions:
+                query += " WHERE " + " AND ".join(conditions)
+
+            self.db.cur.execute(query, params)
+            rows = self.db.cur.fetchall()
+
+            # Mise à jour de _row_to_dict pour inclure le nom du cas
+            results = []
+            for row in rows:
+                row_dict = self._row_to_dict(row)
+                # Ajouter le nom du cas (peut être None si non trouvé)
+                row_dict["case_name"] = row[-1]  # Le dernier champ est case_name
+                results.append(row_dict)
+
+            return results
+        except Exception as e:
+            logger.error(f"Erreur lors de la récupération de la liste des handlers: {e}")
+            raise
 
     def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[Dict, List[Dict], None]:
         try:
@@ -143,4 +205,46 @@ class HandlerManager:
         except Exception as e:
             self.db.conn.rollback()
             logger.error(f"Erreur lors de la mise à jour des task_ids pour le handler {handler_id}: {e}")
+            raise
+    
+    def delete(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> bool:
+        """
+        Supprime un ou plusieurs enregistrements de la table osir_handlers en utilisant soit le handler_id, soit le case_uuid.
+
+        Args:
+            handler_id (Optional[str]): L'ID du handler à supprimer.
+            case_uuid (Optional[str]): L'UUID du cas dont les handlers doivent être supprimés.
+
+        Returns:
+            bool: True si la suppression a réussi, False sinon.
+        """
+        try:
+            if not handler_id and not case_uuid:
+                raise ValueError("Soit un `handler_id`, soit un `case_uuid` doit être fourni.")
+
+            if handler_id:
+                # Supprimer un handler spécifique
+                self.db.cur.execute("""
+                    DELETE FROM osir_handlers
+                    WHERE handler_id = %s
+                """, (handler_id,))
+                logger.debug(f"Handler avec l'ID {handler_id} supprimé avec succès.")
+            elif case_uuid:
+                # Supprimer tous les handlers associés à un cas
+                if isinstance(case_uuid, str):
+                    case_uuid = uuid.UUID(case_uuid)
+                self.db.cur.execute("""
+                    DELETE FROM osir_handlers
+                    WHERE case_uuid = %s
+                """, (case_uuid,))
+                logger.debug(f"Tous les handlers associés au cas {case_uuid} ont été supprimés avec succès.")
+
+            self.db.conn.commit()
+            return True
+        except ValueError as ve:
+            logger.error(f"Erreur de validation: {ve}")
+            raise
+        except Exception as e:
+            self.db.conn.rollback()
+            logger.error(f"Erreur lors de la suppression du handler: {e}")
             raise
