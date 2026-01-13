@@ -25,6 +25,7 @@ services:
       - "default"
       - "all"
     restart: always
+    init: true
     command: > 
       bash -c "pip install -e /OSIR/OSIR/src/osir_service/ --break-system-packages --ignore-installed && \
       pip install -e /OSIR/OSIR/src/osir_lib/ --break-system-packages --ignore-installed && \

@@ -4,7 +4,7 @@ from typing import List, Union, Optional
 from osir_service.postgres.PostgresConstants import ProcessingStatus
 from osir_lib.logger import AppLogger
 
-logger = AppLogger(__name__).get_logger()
+logger = AppLogger().get_logger()
 
 class TaskManager:
     def __init__(self, db_osir):
@@ -12,13 +12,13 @@ class TaskManager:
 
     def create_table(self):
         try:
-            self.db.cur.execute("""
+            type_exists = self.db.execute_query("""
                 SELECT 1 FROM pg_type WHERE typname = 'processing_status_enum'
-            """)
-            type_exists = self.db.cur.fetchone() is not None
+            """, fetch="fetchone")
+            
 
             if not type_exists:
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     CREATE TYPE processing_status_enum AS ENUM (
                         'task_created',
                         'processing_started',
@@ -27,7 +27,7 @@ class TaskManager:
                     );
                 """)
 
-            self.db.cur.execute("""
+            self.db.execute_query("""
                 CREATE TABLE IF NOT EXISTS osir_tasks (
                     task_id UUID PRIMARY KEY,
                     case_uuid UUID,
@@ -39,7 +39,6 @@ class TaskManager:
                     trace JSONB DEFAULT '{}'::jsonb
                 )
             """)
-            self.db.conn.commit()
         except Exception as e:
             logger.error(f"Error creating table: {e}")
             raise
@@ -49,7 +48,7 @@ class TaskManager:
             if task_id is None:
                 task_id = str(uuid.uuid4())
 
-            self.db.cur.execute("""
+            self.db.execute_query("""
                 INSERT INTO osir_tasks (
                     task_id,
                     case_uuid,
@@ -60,11 +59,11 @@ class TaskManager:
                 )
                 VALUES (%s, %s, %s, %s, %s, 'task_created')
             """, (task_id, case_uuid, agent, module, input))
-            self.db.conn.commit()
+
             logger.debug(f"Task created successfully with task_id: {task_id}")
             return task_id
         except Exception as e:
-            self.db.conn.rollback()
+            
             logger.error(f"Error creating task: {e}")
             raise
 
@@ -74,13 +73,12 @@ class TaskManager:
             return None
 
         try:
-            self.db.cur.execute("""
+            row = self.db.execute_query("""
                 SELECT task_id, case_uuid, agent, module, input, processing_status, timestamp, trace 
                 FROM osir_tasks
                 WHERE task_id = %s
-            """, (task_id,))
+            """, (task_id,), fetch="fetchone")
             
-            row = self.db.cur.fetchone()
             if row:
                 return self._row_to_dict(row)
             return None
@@ -128,8 +126,7 @@ class TaskManager:
             if conditions:
                 query += " WHERE " + " AND ".join(conditions)
 
-            self.db.cur.execute(query, params)
-            rows = self.db.cur.fetchall()
+            rows = self.db.execute_query(query, params, fetch="fetchall")
             
             # On passe les lignes à _row_to_dict
             return [self._row_to_dict(row) for row in rows]
@@ -154,22 +151,47 @@ class TaskManager:
             
         return d
 
-    def update(self, task_id: str, processing_status: ProcessingStatus, trace_data: Optional[dict] = None) -> bool:
+    def update(
+        self,
+        task_id: str,
+        processing_status: ProcessingStatus,
+        trace_data: Optional[dict] = None,
+        agent: Optional[str] = None
+    ) -> Optional[dict]: # Changed return type hint as you return the row
         try:
-            # Si on passe un dictionnaire de trace, on le convertit en JSON string
-            trace_json = json.dumps(trace_data) if trace_data else None
+            # 1. Prepare fields and parameters dynamically
+            updates = ["processing_status = %s"]
+            params = [processing_status.value]
 
-            self.db.cur.execute("""
-                UPDATE osir_tasks
-                SET processing_status = %s,
-                    trace = COALESCE(%s, trace)
-                WHERE task_id = %s
-            """, (processing_status.value, trace_json, task_id))
-            self.db.conn.commit()
-            return True
+            if agent is not None:
+                updates.append("agent = %s")
+                params.append(agent)
+
+            # Handle trace: Use COALESCE to keep old trace if new trace is None
+            trace_json = json.dumps(trace_data) if trace_data else None
+            updates.append("trace = COALESCE(%s, trace)")
+            params.append(trace_json)
+
+            # 2. Build the final query
+            query = f"""
+                UPDATE osir_tasks 
+                SET {', '.join(updates)} 
+                WHERE task_id = %s 
+                RETURNING *
+            """
+            params.append(task_id)
+
+            # 3. Execute
+            updated_row = self.db.execute_query(query, tuple(params), fetch="fetchone")
+
+            if updated_row:
+                return updated_row
+            
+            logger.warning(f"No task found with task_id {task_id}. Nothing updated.")
+            return None
+
         except Exception as e:
-            self.db.conn.rollback()
-            logger.error(f"Error updating task: {e}")
+            logger.error(f"Error during update for task {task_id}: {e}")
             raise
     
     def check_input(self, case_uuid: str, input: str) -> bool:
@@ -186,22 +208,22 @@ class TaskManager:
         """
         input = str(input)
         try:
-            self.db.cur.execute("""
+            result = self.db.execute_query("""
                 SELECT COUNT(*)
                 FROM osir_tasks
                 WHERE case_uuid = %s
                 AND input = %s
                 AND processing_status = 'processing_started'
-            """, (case_uuid, input))
-
-            result = self.db.cur.fetchone()
+            """, (case_uuid, input), fetch="fetchone")
             if result is None:
+                return False
+            if result is True or result is False:
                 return False
             count = result[0]
             return count > 0
 
         except Exception as e:
-            logger.error(f"Erreur lors de la vérification de l'input: {e}")
+            logger.error_handler(e)
             return False
     
     def delete(self, task_id: Optional[str] = None, case_uuid: Optional[str] = None) -> bool:
@@ -221,7 +243,7 @@ class TaskManager:
 
             if task_id:
                 # Supprimer une tâche spécifique
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     DELETE FROM osir_tasks
                     WHERE task_id = %s
                 """, (task_id,))
@@ -229,18 +251,17 @@ class TaskManager:
 
             elif case_uuid:
                 # Supprimer toutes les tâches associées à un cas
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     DELETE FROM osir_tasks
                     WHERE case_uuid = %s
                 """, (case_uuid,))
                 logger.debug(f"Toutes les tâches associées au cas {case_uuid} ont été supprimées avec succès.")
 
-            self.db.conn.commit()
             return True
         except ValueError as ve:
             logger.error(f"Erreur de validation: {ve}")
             raise
         except Exception as e:
-            self.db.conn.rollback()
+            
             logger.error(f"Erreur lors de la suppression de la tâche: {e}")
             raise

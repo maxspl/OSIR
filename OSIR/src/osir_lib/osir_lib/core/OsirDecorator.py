@@ -102,13 +102,7 @@ def osir_internal_module(cls_or_func=None, *, trace: Optional[bool] = True):
                     end_time = datetime.now()
                     logger.removeHandler(capture_handler)
                     logs_text = log_capture.getvalue()
-                    
-                    threading.Thread(
-                        target=finalize_task,
-                        args=(task_id, cls_or_func.__name__, start_time, end_time, logs_text),
-                        daemon=True
-                    ).start()
-
+                    finalize_task(task_id, cls_or_func.__name__, start_time, end_time, logs_text)
         # Marqueur interne Osir
         wrapper.__osir_internal__ = True
         return wrapper
@@ -158,12 +152,7 @@ def trace_func():
                     end_time = datetime.now()
                     logger.removeHandler(capture_handler)
                     logs_text = log_capture.getvalue()
-                    
-                    threading.Thread(
-                        target=finalize_task,
-                        args=(task_id, func.__name__, start_time, end_time, logs_text),
-                        daemon=True
-                    ).start()
+                    finalize_task(task_id, func.__name__, start_time, end_time, logs_text)
         return wrapper
     return decorator
 
@@ -185,33 +174,3 @@ def finalize_task(task_id, func_name, start, end, logs):
         processing_status=ProcessingStatus.PROCESSING_DONE,
         trace_data=log_blob
     )
-
-# def save_to_jsonl(task_id, func_name, start, end, logs):
-    
-    # """Enregistre les détails de l'exécution dans un fichier JSONL."""
-    
-    # # 1. Préparation du dictionnaire de données
-    # log_data = {
-    #     "timestamp": datetime.now().isoformat(),
-    #     "task_id": task_id,
-    #     "function": func_name,
-    #     "duration_seconds": (end - start).total_seconds(),
-    #     "start_time": start.isoformat(),
-    #     "end_time": end.isoformat(),
-    #     "logs": logs.strip().split('\n'), # On transforme les logs en liste pour un JSON propre
-    # }
-
-    # # 2. Définition du chemin du fichier
-    # # On le place dans ton répertoire log habituel
-    # log_dir = OSIR_PATHS.LOG_DIR
-    
-    # jsonl_path = os.path.join(log_dir, "task_traces.jsonl")
-
-    # try:
-    #     # 3. Écriture en mode 'append' (a)
-    #     with open(jsonl_path, 'a', encoding='utf-8') as f:
-    #         f.write(json.dumps(log_data, ensure_ascii=False) + '\n')
-            
-    #     # On garde un petit debug console pour savoir que c'est fait        
-    # except Exception as e:
-    #     logger.error(f"Failed to write JSONL: {e}")

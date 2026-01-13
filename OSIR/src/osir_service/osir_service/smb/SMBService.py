@@ -40,7 +40,7 @@ class SMBMounter:
         else:
             logger.info('Agent is not on the same host as master. Files accessed via SMB mounting')
             self.standalone = False
-            self.master_host = self.agent_config.get_master_details()['host']
+            self.master_host = self.agent_config.master_host
             self.share = f"//{self.master_host}/share"
             self.test_file = os.path.join(mount_point, "smb_test_file")  # File created by master_setup.sh
             

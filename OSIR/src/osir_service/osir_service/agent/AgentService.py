@@ -10,6 +10,7 @@ from celery import Celery
 from celery import current_task
 from os import environ, cpu_count
 
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirModule import OsirModule
@@ -118,7 +119,8 @@ class CeleryWorker:
             """ celery task - internal_processor  """
             try:
                 task_id = current_task.request.id
-                logger.debug(f"Task ID inside the task: {task_id}")
+                worker_name = current_task.request.hostname
+                # logger.debug(f"Task ID inside the task: {task_id}")
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
@@ -137,7 +139,7 @@ class CeleryWorker:
                     file_written = self._is_file_being_written(module_instance)
                 if processor.available:
                     logger.debug(f"Running internal module {module_instance.module_name}.py")
-                    OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_STARTED)
+                    OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name)
                 status = processor.run_module()
             except Exception as exc:
                 logger.error_handler(exc)
@@ -154,14 +156,15 @@ class CeleryWorker:
             """ celery task - external_processor  """
             try:
                 task_id = current_task.request.id
+                worker_name = current_task.request.hostname
+                # logger.debug(f"This task is running on worker: {worker_name}")
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
-                logger.debug(module_instance.model_dump_json(indent=4))
                 processor = ExternalProcessor(case_path, module_instance, task_id=task_id)
 
                 # Check if input_file is used by another module
-                logger.debug(f"check if input of {module_instance.module_name} is in use...")
+                logger.debug(f"Check if input of {module_instance.module_name} is in use...")
                 self._is_item_in_use(case_uuid, module_instance)
 
                 # Wait if file is currently beeing written
@@ -170,11 +173,12 @@ class CeleryWorker:
                     logger.debug(f"{module_instance.module_name} - file {module_instance.input.file} is opened. Waiting...")
                     time.sleep(0.1)
                     file_written = self._is_file_being_written(module_instance)
-
-                OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_STARTED)
+                # logger.debug(f"Task ID : {task_id}")
+                OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name)
+                # logger.debug(f"{test}")
                 processor.run_module()
             except Exception as exc:
-                logger.error_handler(exc)
+                # logger.error_handler(exc)
                 OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_FAILED)
             else:
                 OSIR_DB.task.update(task_id, ProcessingStatus.PROCESSING_DONE)
@@ -251,6 +255,11 @@ class CeleryWorker:
 
         processes = []
 
+        log_dir = OSIR_PATHS.LOG_DIR 
+        log_file = log_dir / "celery.log"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file.touch(exist_ok=True)
+
         for config in worker_configs:
             argv = [
                 'worker',
@@ -260,7 +269,7 @@ class CeleryWorker:
                 '--time-limit=36000',
                 '-E',
                 f'--autoscale={config["autoscale"]}',
-                '--logfile=/OSIR/OSIR/log/celery.log'
+                f'--logfile={log_file}'
             ]
             process = multiprocessing.Process(target=self._start_single_worker, args=(argv,))
             processes.append(process)

@@ -1,6 +1,7 @@
 import os
 
 from os import environ
+import uuid
 from celery import Celery
 from celery import signature
 
@@ -67,8 +68,21 @@ class TaskService:
             immutable=True, 
             queue=TaskService.get_queue_name(module_instance)
         )
+        custom_task_id = str(uuid.uuid4())
 
-        result = task_signature.apply_async()
+        OSIR_DB.task.create(
+            task_id=custom_task_id,
+            case_uuid=case_uuid,
+            agent="Null",
+            module=module_instance.module_name,
+            input=module_instance.input.match
+        )
+
+        OSIR_DB.handler.append_task_ids(
+            handler_id=handler_uuid,
+            new_task_ids=[custom_task_id]
+        )
+        result = task_signature.apply_async(task_id=custom_task_id)
 
         logger.info(f"""Task Pushed : \n
                     Task Name : {module_instance.module_name} \n
@@ -78,15 +92,4 @@ class TaskService:
                     Input : {module_instance.input.match} \n
                     Case UUID : {case_uuid} \n""")
 
-        OSIR_DB.task.create(
-            task_id=result.id,
-            case_uuid=case_uuid,
-            agent="Null",
-            module=module_instance.module_name,
-            input=module_instance.input.match
-        )
-
-        OSIR_DB.handler.append_task_ids(
-            handler_id=handler_uuid,
-            new_task_ids=[result.id]
-        )
+        

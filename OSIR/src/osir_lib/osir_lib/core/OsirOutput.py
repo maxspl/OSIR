@@ -37,7 +37,7 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
                 "input_file": ctx.input.get_input_name_safe(),
                 "input_path_hash": self._hash_path(str(ctx.input.match)),
             }
-            logger.debug(ctx.model_dump_json(indent=4))
+            # logger.debug(ctx.model_dump_json(indent=4))
             base_output_path = Path(ctx.case_path) / ctx.module
             
             if self.output_dir:
@@ -47,10 +47,7 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
                 self.output_dir = base_output_path
 
             if self.output_file:
-                logger.error(self.output_file)
                 formatted_filename = self.safe_format(self.output_file, **replacements)
-                logger.error(self.output_dir)
-                logger.error(formatted_filename)
                 self.output_file = str(Path(self.output_dir) / formatted_filename)
 
             self.apply_suffix("output_dir")

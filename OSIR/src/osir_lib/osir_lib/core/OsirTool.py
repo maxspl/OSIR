@@ -159,11 +159,11 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
         except requests.exceptions.ConnectionError:
             logger.error("Connection refused error occurred. Please check the connection settings.")
-            return False, "Connection refused error occurred. Please check the connection settings."
+            raise
 
         except Exception as e:
             logger.error(f"Unidentified error: Error : {str(e)}")
-            return False, f"Unidentified error: Error : {str(e)}"
+            raise
 
     def run_local(self, is_agent=False, timeout=3600) -> bool:
         """
@@ -186,11 +186,11 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
         except subprocess.TimeoutExpired:
             logger.error(f"Command {self.path} {self.cmd} timed out after {timeout} seconds.")
-            return None, None
+            raise
 
         except Exception as e:
             logger.error(f"Failed to run local command {self.path} {self.cmd}. Error: {str(e)}")
-            return None, None
+            raise
 
     def run_wsl_bak(self):
         """

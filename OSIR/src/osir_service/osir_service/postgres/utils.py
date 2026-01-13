@@ -5,7 +5,7 @@ from psycopg2 import sql
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
 
-logger = AppLogger(__name__).get_logger()
+logger = AppLogger().get_logger()
 
 class UtilsManager:
     def __init__(self, db_osir):
@@ -19,7 +19,7 @@ class UtilsManager:
         output_dir = module.output.output_dir
         output_prefix = module.output.output_prefix
 
-        self.db.cur.execute(f"""
+        self.db.execute_query(f"""
             INSERT INTO {module.module_name} (
                 case_uuid,
                 case_path,
@@ -43,7 +43,6 @@ class UtilsManager:
             output_prefix,
             status
         ))
-        self.db.conn.commit()
 
     def update_record(self, module: OsirModule, status: str, case_uuid: str):
         try:
@@ -74,9 +73,8 @@ class UtilsManager:
                     OR (input_dir != '' AND input_dir = %s))
             """
 
-            self.db.cur.execute(update_query, values + [case_uuid, input_file, input_dir])
-            self.db.conn.commit()
-            logger.debug(f"Database updated {self.db.cur.rowcount} record(s).")
+            self.db.execute_query(update_query, values + [case_uuid, input_file, input_dir])
+            logger.debug(f"Database updated record(s).")
         except Exception as error:
             logger.error(f"Error updating record: {error}")
 
@@ -84,28 +82,26 @@ class UtilsManager:
         case_path = str(case_path)
         current_timestamp = datetime.datetime.now()
         try:
-            self.db.cur.execute("""
+            exists = self.db.execute_query("""
                 SELECT 1 FROM master_status WHERE case_path = %s
-            """, (case_path,))
-            exists = self.db.cur.fetchone()
+            """, (case_path,), fetch="fetchone")
 
             if exists:
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     UPDATE master_status
                     SET status = %s, case_uuid = %s, timestamp = %s, modules_selected = %s
                     WHERE case_path = %s
                 """, (status, case_uuid, current_timestamp, modules_selected, case_path))
             else:
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     INSERT INTO master_status (case_path, status, case_uuid, modules_selected)
                     VALUES (%s, %s, %s, %s)
                 """, (case_path, status, case_uuid, modules_selected))
-            self.db.conn.commit()
             action = "Updated" if exists else "Inserted"
             logger.debug(f"{action} master_status record for case_path: {case_path}")
         except Exception as error:
             logger.error(f"Error in store_master_status: {error}")
-            self.db.conn.rollback()
+            
 
     
     def check_input_file(self, case_uuid: str, input_file: str) -> bool:
@@ -115,8 +111,7 @@ class UtilsManager:
                 FROM information_schema.tables
                 WHERE table_schema='public' AND table_name != 'master_status' AND table_name != 'case_snapshot' AND table_name not like 'osir_%'
             """)
-            self.db.cur.execute(query)
-            tables = self.db.cur.fetchall()
+            tables = self.db.execute_query(query, fetch="fetchall")
 
             for table in tables:
                 query = sql.SQL("""
@@ -125,8 +120,8 @@ class UtilsManager:
                     WHERE case_uuid = %s AND input_file = %s AND processing_status = 'processing_started'
                     LIMIT 1
                 """).format(sql.Identifier(table[0]))
-                self.db.cur.execute(query, (case_uuid, input_file))
-                if self.db.cur.fetchone():
+                row = self.db.execute_query(query, (case_uuid, input_file), fetch="fetchone")
+                if row:
                     logger.debug(f"Query: {self.db.cur.mogrify(query, (case_uuid, input_file))}")
                     return True
             return False
@@ -141,8 +136,7 @@ class UtilsManager:
                 FROM information_schema.tables
                 WHERE table_schema='public' AND table_name != 'master_status' AND table_name != 'case_snapshot'
             """)
-            self.db.cur.execute(query)
-            tables = self.db.cur.fetchall()
+            tables = self.db.execute_query(query, fetch="fetchall")
 
             for table in tables:
                 query = sql.SQL("""
@@ -153,23 +147,28 @@ class UtilsManager:
                     ) AND processing_status = 'processing_started'
                     LIMIT 1
                 """).format(sql.Identifier(table[0]))
-                self.db.cur.execute(query, (case_uuid, input_dir, f'{input_dir}%', f'{input_dir}%'))
-                if self.db.cur.fetchone():
+                row = self.db.execute_query(query, (case_uuid, input_dir, f'{input_dir}%', f'{input_dir}%'), fetch="fetchone")
+                if row:
                     return True
             return False
         except Exception as e:
             logger.error(f"Error: {str(e)}")
             return False
 
-    def is_processing_active(self, case_uuid: str) -> bool:
+    def is_processing_active(self, handler_uuid: str) -> bool:
         try:
-            self.db.cur.execute("""
-                SELECT COUNT(*)
-                FROM osir_tasks
-                WHERE case_uuid = %s
-                AND processing_status = 'processing_started'
-            """, (str(case_uuid),))
-            count = self.db.cur.fetchone()[0]
+            count = self.db.execute_query("""
+                SELECT
+                    COUNT(t.task_id)
+                FROM
+                    osir_handlers h
+                JOIN
+                    unnest(h.task_id) AS task_id_unpacked ON TRUE
+                JOIN
+                    osir_tasks t ON t.task_id = task_id_unpacked
+                WHERE handler_id = %s AND t.processing_status IN ('processing_started', 'task_created');
+            """, (str(handler_uuid),), fetch="fetchone")[0]
+
             return count > 0
         except Exception as e:
             logger.error(f"Erreur lors de la vérification de l'input: {e}")
@@ -183,8 +182,7 @@ class UtilsManager:
         WHERE case_path = %s
         """
         try:
-            self.db.cur.execute(query, (case_path,))
-            rows = self.db.cur.fetchall()
+            rows = self.db.execute_query(query, (case_path,), fetch="fetchall")
             logger.debug(f"Retrieved {len(rows)} entries for case_path: {case_path}")
             return [(row[0], row[1]) for row in rows]
         except Exception as e:
@@ -195,25 +193,41 @@ class UtilsManager:
         try:
             case_path = str(case_path)
             case_uuid = str(case_uuid)
-            delete_query = "DELETE FROM case_snapshot WHERE case_uuid = %s"
-            self.db.cur.execute(delete_query, (case_uuid,))
+            
+            # Nettoyage initial
+            self.db.execute_query("DELETE FROM case_snapshot WHERE case_uuid = %s", (case_uuid,))
 
-            output = io.StringIO()
+            # --- DÉDOUBLONNAGE ---
+            # Utiliser un set pour garder trace des chemins déjà vus
+            seen_paths = set()
+            unique_entries = []
+            
             for path, entry_type in entries_list:
                 path = str(path)
+                # On ignore les backslashes et les doublons exacts (case_uuid + path)
                 if '\\' in path:
-                    logger.warning(f"Skipping entry due to invalid backslash: path={path}, entry_type={entry_type}")
                     continue
+                if path not in seen_paths:
+                    seen_paths.add(path)
+                    unique_entries.append((path, entry_type))
+
+            # Génération du buffer avec les entrées uniques
+            output = io.StringIO()
+            for path, entry_type in unique_entries:
                 output.write(f"{case_uuid}\t{case_path}\t{path}\t{entry_type}\n")
             output.seek(0)
 
-            self.db.cur.copy_from(
-                file=output,
-                table='case_snapshot',
-                columns=('case_uuid', 'case_path', 'path', 'entry_type'),
-                null=''
-            )
-            self.db.conn.commit()
+            # Insertion via le pool (Gestion robuste)
+            conn = None
+            try:
+                conn = self.db.connection_pool.getconn()
+                with conn.cursor() as cur:
+                    cur.copy_from(output, 'case_snapshot', 
+                                columns=('case_uuid', 'case_path', 'path', 'entry_type'))
+                conn.commit()
+            finally:
+                if conn:
+                    self.db.connection_pool.putconn(conn)
+
         except Exception as e:
-            self.db.conn.rollback()
             logger.error(f"Bulk insert error for case_uuid {case_uuid}: {str(e)}")

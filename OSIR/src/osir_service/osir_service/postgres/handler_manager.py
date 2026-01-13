@@ -2,7 +2,7 @@ import uuid
 from typing import Union, Optional, List, Dict
 from osir_lib.logger import AppLogger
 
-logger = AppLogger(__name__).get_logger()
+logger = AppLogger().get_logger()
 
 class HandlerManager:
     def __init__(self, db_osir):
@@ -10,7 +10,7 @@ class HandlerManager:
 
     def create_table(self):
         try:
-            self.db.cur.execute("""
+            self.db.execute_query("""
                 CREATE TABLE IF NOT EXISTS osir_handlers (
                     handler_id UUID PRIMARY KEY,
                     case_uuid UUID NOT NULL,
@@ -19,10 +19,9 @@ class HandlerManager:
                     processing_status VARCHAR(50) NOT NULL
                 );
             """)
-            self.db.conn.commit()
+            
             logger.info("Table `osir_handlers` créée avec succès.")
         except Exception as e:
-            self.db.conn.rollback()
             logger.error(f"Erreur lors de la création de la table `osir_handlers`: {e}")
             raise
 
@@ -30,7 +29,7 @@ class HandlerManager:
         try:
             if not handler_id:
                 handler_id = uuid.uuid4()
-            self.db.cur.execute("""
+            self.db.execute_query("""
                 INSERT INTO osir_handlers (
                     handler_id,
                     case_uuid,
@@ -40,11 +39,11 @@ class HandlerManager:
                 )
                 VALUES (%s, %s, %s, %s, 'processing_started')
             """, (handler_id, case_uuid, modules, task_ids))
-            self.db.conn.commit()
+            
             logger.debug(f"Handler créé avec succès avec handler_id: {handler_id}")
             return handler_id
         except Exception as e:
-            self.db.conn.rollback()
+            
             logger.error(f"Erreur lors de la création du handler: {e}")
             raise
     
@@ -94,8 +93,8 @@ class HandlerManager:
             if conditions:
                 query += " WHERE " + " AND ".join(conditions)
 
-            self.db.cur.execute(query, params)
-            rows = self.db.cur.fetchall()
+            
+            rows = self.db.execute_query(query, params, fetch="fetchall")
 
             # Mise à jour de _row_to_dict pour inclure le nom du cas
             results = []
@@ -112,22 +111,23 @@ class HandlerManager:
 
     def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[Dict, List[Dict], None]:
         try:
+            rows = None
+
             if isinstance(case_uuid, str):
                 case_uuid = uuid.UUID(case_uuid)
             if handler_id:
-                self.db.cur.execute("""
+                rows = self.db.execute_query("""
                     SELECT * FROM osir_handlers
                     WHERE handler_id = %s::uuid
-                """, (handler_id,))
+                """, (handler_id,), fetch="fetchall")
             elif case_uuid:
-                self.db.cur.execute("""
+                rows = self.db.execute_query("""
                     SELECT * FROM osir_handlers
                     WHERE case_uuid = %s
-                """, (case_uuid,))
+                """, (case_uuid,), fetch="fetchall")
             else:
                 raise ValueError("Soit un `handler_id`, soit un `case_uuid` doit être fourni.")
 
-            rows = self.db.cur.fetchall()
             if not rows:
                 # TODO : Change with class
                 return {
@@ -157,25 +157,24 @@ class HandlerManager:
 
     def update(self, handler_id: str, processing_status: str) -> bool:
         try:
-            self.db.cur.execute("""
+            self.db.execute_query("""
                 UPDATE osir_handlers
                 SET processing_status = %s
                 WHERE handler_id = %s
             """, (processing_status, handler_id))
-            self.db.conn.commit()
+            
             logger.debug(f"Statut du handler {handler_id} mis à jour avec succès.")
             return True
         except Exception as e:
-            self.db.conn.rollback()
+            
             logger.error(f"Erreur lors de la mise à jour du statut du handler {handler_id}: {e}")
             raise
 
     def append_task_ids(self, handler_id: str, new_task_ids: List[str]) -> bool:
         try:
-            self.db.cur.execute("""
+            result = self.db.execute_query("""
                 SELECT task_id FROM osir_handlers WHERE handler_id = %s
-            """, (handler_id,))
-            result = self.db.cur.fetchone()
+            """, (handler_id,), fetch="fetchone")
             if result is None:
                 logger.error(f"Aucun handler trouvé avec l'ID {handler_id}.")
                 return False
@@ -194,16 +193,15 @@ class HandlerManager:
 
             updated_task_ids = list(set(updated_task_ids))
 
-            self.db.cur.execute("""
+            self.db.execute_query("""
                 UPDATE osir_handlers
                 SET task_id = %s
                 WHERE handler_id = %s
             """, (updated_task_ids, handler_id))
-            self.db.conn.commit()
+            
             logger.debug(f"Liste des task_ids pour le handler {handler_id} mise à jour avec succès.")
             return True
         except Exception as e:
-            self.db.conn.rollback()
             logger.error(f"Erreur lors de la mise à jour des task_ids pour le handler {handler_id}: {e}")
             raise
     
@@ -224,7 +222,7 @@ class HandlerManager:
 
             if handler_id:
                 # Supprimer un handler spécifique
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     DELETE FROM osir_handlers
                     WHERE handler_id = %s
                 """, (handler_id,))
@@ -233,18 +231,16 @@ class HandlerManager:
                 # Supprimer tous les handlers associés à un cas
                 if isinstance(case_uuid, str):
                     case_uuid = uuid.UUID(case_uuid)
-                self.db.cur.execute("""
+                self.db.execute_query("""
                     DELETE FROM osir_handlers
                     WHERE case_uuid = %s
                 """, (case_uuid,))
                 logger.debug(f"Tous les handlers associés au cas {case_uuid} ont été supprimés avec succès.")
-
-            self.db.conn.commit()
+            
             return True
         except ValueError as ve:
             logger.error(f"Erreur de validation: {ve}")
             raise
         except Exception as e:
-            self.db.conn.rollback()
             logger.error(f"Erreur lors de la suppression du handler: {e}")
             raise

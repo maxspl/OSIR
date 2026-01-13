@@ -166,7 +166,7 @@ class ProcessingStatus:
         with col1:
             st.metric("Module", task_info['module'])
         with col2:
-            st.metric("Duration", f"{trace.get('duration_seconds', 0):.2f}s")
+            st.metric("Duration", f"{trace.get('duration_seconds', 0):.3f}s")
         with col3:
             st.metric("Function", trace.get('function', 'N/A'))
         with col4:

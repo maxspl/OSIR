@@ -163,7 +163,7 @@ class ModuleHandler(FileSystemEventHandler):
                 logger.debug(f"Time taken to process new items: {new_entries_duration:.4} seconds")
             else:
                 logger.debug("No new item detected. Checking if a task is still ongoing before exiting...")
-                if not OSIR_DB.utils.is_processing_active(self.case_uuid):
+                if not OSIR_DB.utils.is_processing_active(self.handler_uuid):
                     with self.timers_lock:
                         if not self.active_timers:
                             logger.debug("Case snaphost is being saved before exiting...")
