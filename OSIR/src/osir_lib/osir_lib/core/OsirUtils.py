@@ -4,7 +4,26 @@ from pathlib import Path, PureWindowsPath
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
-    
+
+import io
+import logging
+from contextlib import contextmanager
+
+@contextmanager
+def capture_log_output(target_logger):
+    """
+    Capture temporairement les logs envoyés à un logger spécifique.
+    """
+    log_capture_string = io.StringIO()
+    temp_handler = logging.StreamHandler(log_capture_string)
+    db_fmt = logging.Formatter('[%(levelname)s][%(asctime)s] - %(filename)s:%(lineno)d - %(funcName)s - %(message)s')
+    temp_handler.setFormatter(db_fmt)
+    target_logger.addHandler(temp_handler)
+    try:
+        yield log_capture_string
+    finally:
+        target_logger.removeHandler(temp_handler)
+
 def normalize_osir_path(input_path: str) -> str:
     """
     Ensures the path is relative to the standard /OSIR/share mount point.

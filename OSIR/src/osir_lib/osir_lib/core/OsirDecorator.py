@@ -2,6 +2,7 @@ from datetime import datetime
 import functools
 import inspect
 from io import StringIO
+import io
 import json
 import logging
 import os
@@ -58,60 +59,65 @@ def osir_internal_module(cls_or_func=None, *, trace: Optional[bool] = True):
     def decorator(cls_or_func: Any):
         @functools.wraps(cls_or_func)
         def wrapper(**available_vars):
-            task_id = available_vars.get('task_id', 'UNKNOWN')
-            log_capture = None
-            capture_handler = None
-            logger = None
+            # 1. Extraction et nettoyage du task_id pour éviter les erreurs de signature
+            task_id = available_vars.get('task_id')
+            
+            # 2. Configuration de la capture de logs
+            log_capture = io.StringIO()
+            capture_handler = logging.StreamHandler(log_capture)
+            db_fmt = logging.Formatter('[%(levelname)s][%(asctime)s] - %(filename)s:%(lineno)d - %(funcName)s - %(message)s')
+            capture_handler.setFormatter(db_fmt)
+            
+            # Récupération du logger (on l'attache au logger racine ou spécifique via AppLogger)
+            main_logger = AppLogger().get_logger()
+            main_logger.addHandler(capture_handler)
+            
             start_time = datetime.now()
-
-            if trace:
-                log_capture = StringIO()
-                capture_handler = logging.StreamHandler(log_capture)
-                db_fmt = logging.Formatter('[%(levelname)s][%(asctime)s] - %(filename)s:%(lineno)d - %(funcName)s - %(message)s')
-                capture_handler.setFormatter(db_fmt)
-                
-                logger = AppLogger().get_logger()
-                logger.addHandler(capture_handler)
-                
-                # Création de l'adapter pour injecter le contexte
-                adapter = logging.LoggerAdapter(logger, {'origin': "Agent", 'task_id': task_id})
-                if 'logger' in (cls_or_func.__init__.__code__.co_varnames if isinstance(cls_or_func, type) else cls_or_func.__code__.co_varnames):
-                    available_vars['logger'] = adapter
-
+            status = ProcessingStatus.PROCESSING_DONE
+            
+            # 3. Préparation des paramètres pour la fonction/classe cible
             target = cls_or_func if inspect.isfunction(cls_or_func) else cls_or_func.__init__
             sig = inspect.signature(target)
             
+            # On ne passe que ce que la fonction accepte (exclut task_id si non spécifié)
             kwargs_to_pass = {
                 k: v for k, v in available_vars.items() 
                 if k in sig.parameters
             }
 
             try:
+                # 4. Exécution
                 if isinstance(cls_or_func, type):
                     instance = cls_or_func(**kwargs_to_pass)
                     result = instance() if hasattr(instance, '__call__') else instance
                 else:
                     result = cls_or_func(**kwargs_to_pass)
+                
+                if result is False:
+                    status = ProcessingStatus.PROCESSING_FAILED
                 return result
 
             except Exception as e:
+                status = ProcessingStatus.PROCESSING_FAILED
+                main_logger.error(f"Execution Error: {str(e)}")
                 raise e
 
             finally:
-                if trace and logger and capture_handler:
-                    end_time = datetime.now()
-                    logger.removeHandler(capture_handler)
+                # 5. Finalisation et nettoyage des handlers
+                end_time = datetime.now()
+                main_logger.removeHandler(capture_handler)
+
+                if trace and task_id:
                     logs_text = log_capture.getvalue()
-                    finalize_task(task_id, cls_or_func.__name__, start_time, end_time, logs_text)
-        # Marqueur interne Osir
+                    finalize_task(status, task_id, cls_or_func.__name__, start_time, end_time, logs_text)
+                elif task_id:
+                    finalize_task(status, task_id, cls_or_func.__name__, start_time, end_time, "Function not traced")
         wrapper.__osir_internal__ = True
         return wrapper
 
     if cls_or_func is None:
         return decorator
-    else:
-        return decorator(cls_or_func)
-
+    return decorator(cls_or_func)
 def trace_func():
     def decorator(func):
         @functools.wraps(func)
@@ -131,7 +137,7 @@ def trace_func():
             main_logger.addHandler(capture_handler)
             
             start_time = datetime.now()
-            status = "processing_done"
+            status = ProcessingStatus.PROCESSING_DONE
 
             try:
                 # 2. Execute the function with the cleaned kwargs
@@ -139,11 +145,11 @@ def trace_func():
                 result = func(*args, **kwargs)
                 
                 if result is False:
-                    status = "processing_failed"
+                    status = ProcessingStatus.PROCESSING_FAILED
                 return result
 
             except Exception as e:
-                status = "processing_failed"
+                status = status = ProcessingStatus.PROCESSING_FAILED
                 main_logger.error(f"Execution Error: {str(e)}")
                 raise e
 
@@ -152,14 +158,15 @@ def trace_func():
                     end_time = datetime.now()
                     logger.removeHandler(capture_handler)
                     logs_text = log_capture.getvalue()
-                    finalize_task(task_id, func.__name__, start_time, end_time, logs_text)
+                    finalize_task(status, task_id, func.__name__, start_time, end_time, logs_text)
         return wrapper
     return decorator
 
-def finalize_task(task_id, func_name, start, end, logs):
-    from osir_service.postgres.PostgresService import OSIR_DB
+def finalize_task(status, task_id, func_name, start, end, logs):
+    from osir_service.postgres.PostgresService import DbOSIR
 
-    # 1. On prépare le dictionnaire (le "blob")
+    db = DbOSIR()
+
     log_blob = {
         "function": func_name,
         "duration_seconds": (end - start).total_seconds(),
@@ -168,9 +175,10 @@ def finalize_task(task_id, func_name, start, end, logs):
         "logs": logs.strip().split('\n')
     }
 
-    # 2. On met à jour la base de données
-    OSIR_DB.task.update(
+    db.task.update(
         task_id=task_id,
-        processing_status=ProcessingStatus.PROCESSING_DONE,
+        processing_status=status,
         trace_data=log_blob
     )
+
+    db.close()

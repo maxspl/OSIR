@@ -168,7 +168,10 @@ class ModuleHandler(FileSystemEventHandler):
                         if not self.active_timers:
                             logger.debug("Case snaphost is being saved before exiting...")
                             OSIR_DB.utils.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
-                            OSIR_DB.handler.update(self.handler_uuid, "processing_done")
+                            if OSIR_DB.handler.check_handler_failure(self.handler_uuid):
+                                OSIR_DB.handler.update(self.handler_uuid, "processing_failed")
+                            else:
+                                OSIR_DB.handler.update(self.handler_uuid, "processing_done")
                             exit()
             previous_entries = current_entries
             

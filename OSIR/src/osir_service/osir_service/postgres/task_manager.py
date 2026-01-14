@@ -172,74 +172,70 @@ class TaskManager:
             updates.append("trace = COALESCE(%s, trace)")
             params.append(trace_json)
 
+            # Issue with threaded request
+            fix_thread = "" 
+            if processing_status.value == "processing_started":
+                fix_thread = "AND processing_status != 'processing_done' AND processing_status != 'processing_failed'"
             # 2. Build the final query
             query = f"""
                 UPDATE osir_tasks 
                 SET {', '.join(updates)} 
-                WHERE task_id = %s 
-                RETURNING *
+                WHERE task_id = %s {fix_thread}
             """
             params.append(task_id)
 
             # 3. Execute
-            updated_row = self.db.execute_query(query, tuple(params), fetch="fetchone")
+            updated_row = self.db.execute_query(query, tuple(params))
 
-            if updated_row:
-                return updated_row
-            
-            logger.warning(f"No task found with task_id {task_id}. Nothing updated.")
-            return None
+            return updated_row
 
         except Exception as e:
             logger.error(f"Error during update for task {task_id}: {e}")
             raise
     
     def check_input(self, case_uuid: str, input: str) -> bool:
-        """
-        Vérifie si une tâche avec le même `input` et `case_uuid` est déjà en statut `processing_started`.
+        input_str = str(input)
+        
+        result = self.db.execute_query("""
+            SELECT COUNT(*)
+            FROM osir_tasks
+            WHERE case_uuid = %s
+            AND input = %s
+            AND processing_status = 'processing_started'
+        """, (case_uuid, input_str), fetch="fetchone")
 
-        Args:
-            case_uuid (str): L'UUID du cas.
-            input (str): L'input de la tâche.
-
-        Returns:
-            bool: True si une tâche est en cours pour cet input, False sinon.
-                En cas d'erreur, retourne False et log l'erreur.
-        """
-        input = str(input)
-        try:
-            result = self.db.execute_query("""
-                SELECT COUNT(*)
-                FROM osir_tasks
-                WHERE case_uuid = %s
-                AND input = %s
-                AND processing_status = 'processing_started'
-            """, (case_uuid, input), fetch="fetchone")
-            if result is None:
-                return False
-            if result is True or result is False:
-                return False
-            count = result[0]
-            return count > 0
-
-        except Exception as e:
-            logger.error_handler(e)
+        # VALIDATION: Result must be a tuple with exactly 1 item
+        if result is None or not isinstance(result, (tuple, list)):
             return False
+            
+        if len(result) != 1:
+            logger.error(f"Integrity Error: Expected 1 column (count), got {len(result)}. Value: {result}")
+            return False
+
+        count = result[0]
+        
+        # If count is a UUID (string) instead of an int, the reset logic failed
+        if not isinstance(count, int):
+            logger.error(f"Type Error: Count is {type(count)} (Value: {count}). Resetting connection state recommended.")
+            return False
+
+        return count > 0
     
-    def delete(self, task_id: Optional[str] = None, case_uuid: Optional[str] = None) -> bool:
+    def delete(self, task_id: Optional[str] = None, case_uuid: Optional[str] = None, handler_id: Optional[str] = None) -> bool:
         """
-        Supprime une ou plusieurs tâches de la table osir_tasks en utilisant soit le task_id, soit le case_uuid.
+        Supprime des tâches de la table osir_tasks en utilisant task_id, case_uuid ou handler_id.
 
         Args:
             task_id (Optional[str]): L'ID de la tâche à supprimer.
-            case_uuid (Optional[str]): L'UUID du cas dont les tâches doivent être supprimées.
+            case_uuid (Optional[str]): L'UUID du cas.
+            handler_id (Optional[str]): L'ID du handler dont on veut supprimer les tâches liées.
 
         Returns:
-            bool: True si la suppression a réussi, False sinon.
+            bool: True si la suppression a réussi.
         """
         try:
-            if not task_id and not case_uuid:
-                raise ValueError("Soit un `task_id`, soit un `case_uuid` doit être fourni.")
+            if not any([task_id, case_uuid, handler_id]):
+                raise ValueError("Au moins un paramètre (task_id, case_uuid ou handler_id) doit être fourni.")
 
             if task_id:
                 # Supprimer une tâche spécifique
@@ -247,7 +243,7 @@ class TaskManager:
                     DELETE FROM osir_tasks
                     WHERE task_id = %s
                 """, (task_id,))
-                logger.debug(f"Tâche avec l'ID {task_id} supprimée avec succès.")
+                logger.debug(f"Tâche avec l'ID {task_id} supprimée.")
 
             elif case_uuid:
                 # Supprimer toutes les tâches associées à un cas
@@ -255,13 +251,25 @@ class TaskManager:
                     DELETE FROM osir_tasks
                     WHERE case_uuid = %s
                 """, (case_uuid,))
-                logger.debug(f"Toutes les tâches associées au cas {case_uuid} ont été supprimées avec succès.")
+                logger.debug(f"Tâches associées au cas {case_uuid} supprimées.")
+
+            elif handler_id:
+                # Supprimer les tâches dont l'ID est présent dans la liste task_id du handler
+                self.db.execute_query("""
+                    DELETE FROM osir_tasks
+                    WHERE task_id = ANY(
+                        SELECT unnest(task_id)
+                        FROM osir_handlers
+                        WHERE handler_id = %s
+                    )
+                """, (handler_id,))
+                logger.debug(f"Tâches associées au handler {handler_id} supprimées.")
 
             return True
+
         except ValueError as ve:
             logger.error(f"Erreur de validation: {ve}")
             raise
         except Exception as e:
-            
-            logger.error(f"Erreur lors de la suppression de la tâche: {e}")
+            logger.error(f"Erreur lors de la suppression : {e}")
             raise

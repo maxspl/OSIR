@@ -43,7 +43,6 @@ class BodyfileModule(LogUtils):
             logger.info(f"""[AGENT][{self.task_id}] Processing started : \n
                             - Module : {self.ctx.module_name} \n
                             - Input  : {self._file_to_process} \n """)
-            
             writer_queue = self.start_writer_thread()
             logger.debug(f"TASK:{self.task_id} Processing file {self._file_to_process}")
 

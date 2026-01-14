@@ -1,4 +1,5 @@
 from sqlite3 import InterfaceError, OperationalError
+import threading
 import time
 from typing import Union
 import uuid
@@ -21,10 +22,12 @@ from osir_service.postgres.case_manager import CaseManager
 from osir_service.postgres.handler_manager import HandlerManager
 from osir_service.postgres.task_manager import TaskManager
 from osir_service.postgres.utils import UtilsManager
+from psycopg2 import pool, OperationalError, InterfaceError
+import time
 
 logger = AppLogger().get_logger()
 
-@singleton
+
 class DbOSIR:
     def __init__(self, host=None, module_name=None, dbname='OSIR_db', port=5432):
         """
@@ -49,7 +52,8 @@ class DbOSIR:
         self.user = os.getenv('POSTGRES_USER', 'missing POSTGRES_USER env var')
         self.password = os.getenv('POSTGRES_PASSWORD', 'missing POSTGRES_PASSWORD env var')
 
-        self._init_pool()
+        self.conn = None
+        self._ensure_connection()
         self.module = module_name
         self.host_hostname = os.getenv('HOST_HOSTNAME', 'missing HOST_HOSTNAME env var')  # Default to '%h' if the env var is not set
 
@@ -69,90 +73,79 @@ class DbOSIR:
         self.handler.create_table()
         self.case.create_table()
 
-    def _init_pool(self):
-        """Initialise le pool de connexions."""
+    def _ensure_connection(self):
+        """Checks if connection is alive; if not, creates a new one."""
         try:
-            self.connection_pool = pool.ThreadedConnectionPool(
-                minconn=1,
-                maxconn=20,
-                dbname=self.dbname,
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port
-            )
-            logger.info("Connection pool created successfully.")
+            # Check if conn exists and is healthy
+            if self.conn is None or self.conn.closed != 0:
+                logger.info("Connecting to PostgreSQL...")
+                self.conn = psycopg2.connect(
+                    dbname=self.dbname,
+                    user=self.user,
+                    password=self.password,
+                    host=self.host,
+                    port=self.port
+                )
+                self.conn.autocommit = True
+                logger.info("Database connection established.")
+            return self.conn
         except Exception as e:
-            logger.error(f"Failed to create connection pool: {e}")
-            raise
-
-    def close(self):
-        self.cur.close()
-        self.conn.close()
-
-    def _connect(self):
-        try:
-            self.conn = psycopg2.connect(
-                dbname=self.dbname,
-                user=self.user,
-                password=self.password,
-                host=self.host,
-                port=self.port
-            )
-            self.conn.autocommit = True
-            self.cur = self.conn.cursor()
-            logger.info("Connected to the database successfully.")
-        except Exception as e:
-            logger.error(f"Failed to connect to the database: {e}")
-            raise
+            logger.error(f"Failed to connect to database: {e}")
+            self.conn = None
+            return None
     
-    def execute_query(self, query, params=None, fetch=None, max_retries=3):
+    def execute_query(self, query, params=None, fetch=None, max_retries=5):
+        """Executes a query with automatic reconnection and retry logic."""
         last_exception = None
         
         for attempt in range(max_retries):
-            conn = None
             try:
-                conn = self.connection_pool.getconn()
-                
-                # Vérification de santé de la connexion
-                if conn.closed != 0:
-                    self.connection_pool.putconn(conn, close=True)
-                    conn = self.connection_pool.getconn()
+                # 1. Ensure we have a working connection
+                conn = self._ensure_connection()
+                if not conn:
+                    raise OperationalError("Could not establish a database connection.")
 
-                conn.autocommit = True 
-                
+                # 2. Execute the query
                 with conn.cursor() as cur:
                     cur.execute(query, params)
                     
-                    # Si la requête ne retourne pas de données (INSERT, UPDATE, etc.)
                     if cur.description is None:
                         return True
                     
-                    # Si on a demandé des données, on respecte le format attendu
-                    if fetch == "fetchone":
-                        return cur.fetchone()  # Retourne un tuple ou None
-                    if fetch == "fetchall":
-                        return cur.fetchall()  # Retourne une liste de tuples
+                    if fetch == "fetchone": return cur.fetchone()
+                    if fetch == "fetchall": return cur.fetchall()
+                    return True
 
-                    # Par défaut, si fetch n'est pas précisé mais qu'il y a des données
-                    return cur
-                    
-            except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+            except (OperationalError, InterfaceError) as e:
                 last_exception = e
-                logger.warning(f"DB Issue (attempt {attempt + 1}): {e}")
-                if conn:
-                    self.connection_pool.putconn(conn, close=True)
-                    conn = None
+                logger.warning(f"Connection lost (Attempt {attempt+1}/{max_retries}): {e}")
+                
+                # Force a reset of the connection object so the next loop reconnects
+                if self.conn:
+                    try:
+                        self.conn.close()
+                    except:
+                        pass
+                self.conn = None
+                
+                # Exponential backoff (2s, 4s, 8s...)
                 time.sleep(2 ** attempt)
                 continue
+
             except Exception as e:
-                logger.error(f"SQL Error: {e}")
-                raise
-            finally:
-                if conn:
-                    self.connection_pool.putconn(conn)
-        
+                # Permanent SQL errors (syntax, etc.) should not retry
+                logger.error(f"SQL Execution Error: {e}")
+                raise e
+
+        # If we get here, all retries failed
+        logger.error(f"Query permanently failed after {max_retries} attempts.")
         raise last_exception
+
+    def close(self):
+        """Cleanly close the connection."""
+        if self.conn:
+            self.conn.close()
+            logger.info("Database connection closed.")
 
     def _create_table_master_status(self, table_name):
         try:
@@ -212,6 +205,5 @@ class DbOSIR:
             logger.debug("Table `case_snapshot` ensured.")
         except Exception as e:
             logger.error(f"Error creating `case_snapshot` table: {str(e)}")
-            self.conn.rollback()
 
 OSIR_DB = DbOSIR()

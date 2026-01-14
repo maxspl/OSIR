@@ -14,7 +14,7 @@ class ExternalProcessor:
     """
     Handles the external processing of files based on the configuration of a specific module instance.
     """
-    def __init__(self, case_path: str, module_instance: OsirModule, task_id = None) -> None:
+    def __init__(self, case_path: str, module_instance: OsirModule, task_id = None, agent_name = None) -> None:
         """
         Initializes an ExternalProcessor instance with specified case path and module.
 
@@ -22,7 +22,7 @@ class ExternalProcessor:
             case_path (str): Path where case files are stored and operations are performed.
             module_instance (OsirModule): The module instance defining the processing rules.
         """
-   
+        self.agent_name = agent_name
         # Declare module class from config string
         self.module_instance = module_instance
         self.task_id = task_id
@@ -31,13 +31,13 @@ class ExternalProcessor:
         """
         Executes the external tool associated with the module instance.
         """
-        self.module_instance.tool.run(task_id=self.task_id)
+        self.module_instance.tool.run(task_id=self.task_id, agent_id=self.agent_name)
 
 class InternalProcessor:
     """
     Manages the execution of internal processing tasks within a Python environment, using predefined module instances.
     """
-    def __init__(self, case_path: str, module_instance: OsirModule, task_id = None) -> None:
+    def __init__(self, case_path: str, module_instance: OsirModule, task_id = None, agent_name = None) -> None:
         """
         Initializes the InternalProcessor with a specific case path and module instance.
 
@@ -46,6 +46,7 @@ class InternalProcessor:
             module_instance (BaseModule): The module instance defining the processing rules and configurations.
         """
         self.task_id = task_id
+        self.agent_name = agent_name
         self._module_instance = module_instance
 
         self.case_path = case_path  # Base directory for operations
@@ -116,7 +117,8 @@ class InternalProcessor:
             return self._py_module(
                 module=self._module_instance,
                 case_path=self.case_path,
-                task_id=self.task_id
+                task_id=self.task_id,
+                agent_id= self.agent_name
             )
         else:
             logger.error(f"Module not found {self._module_instance.module_name}")

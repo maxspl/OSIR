@@ -349,11 +349,19 @@ with tab1:
                 st.success(f"✅ All data related to case '{selected_case_name}' was deleted from the database.")
 
 with tab2:
-    colored_header(
-        label="Tasks By Case",
-        description="",
-        color_name="violet-70",
-    )
+    # Utiliser des colonnes pour organiser le header et le bouton Refresh
+    header_col1, header_col2 = st.columns([10, 1])
+
+    with header_col1:
+        colored_header(
+            label="Tasks By Case",
+            description="",
+            color_name="violet-70",
+        )
+
+    
+
+    
     
     processing_status = ProcessingStatus()
 
@@ -362,6 +370,8 @@ with tab2:
     passed_case_name = st.session_state.get('selected_case_name', "")
     passed_handler_id = st.session_state.get('selected_handler_id', "")
 
+    
+        
     # Filtres
     col1, col2, col3, col4 = st.columns(4)        
 
@@ -417,14 +427,29 @@ with tab2:
         selected_module=selected_module
     )  
 
-    # Bouton Refresh
-    if st.button("Refresh", width='stretch'):
-        if selected_case_name:
-            processing_status.task_by_case(
-                selected_case_name=selected_case_name,
-                selected_task_status=selected_task_status
-            )
+    with header_col2:
+        # Ajouter le bouton Refresh dans la colonne à droite du header
+        st.markdown("<br>", unsafe_allow_html=True)  # Ajouter un espace vertical
+        if st.button("↻ Refresh", help="Refresh data", width='stretch', key="a"):
+            if selected_case_name:
+                processing_status.task_by_case(
+                    selected_case_name=selected_case_name,
+                    selected_task_status=selected_task_status
+                )
 
+    if selected_handler_id:
+        with st.expander("⚠️ Dangerous action: Delete this Handler"):
+            st.warning(f"This will permanently delete handler '{selected_handler_id}' and all its associated tasks.")
+            confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion.")
+
+            if st.button("❌ Delete Handler and Associated Tasks", type="primary", disabled=not confirm_delete):
+                with st.spinner(f"Deleting : {selected_handler_id}..."):
+                    OSIR_DB.task.delete(handler_id=selected_handler_id)
+                    OSIR_DB.handler.delete(handler_id=selected_handler_id)
+                    selected_handler_id = ""
+                    st.session_state.selected_handler_id = ""
+                    st.rerun()
+                st.success(f"✅ All data related to '{selected_handler_id}' was deleted from the database.")
 with tab3:
     colored_header(
         label="All Tasks",
@@ -459,6 +484,19 @@ with tab4:
     if info:
         ProcessingStatus.display_task_details(info)
 
+    if passed_task_id:
+        with st.expander("⚠️ Dangerous action: Delete this Task"):
+            st.warning(f"This will permanently delete task '{passed_task_id}'.")
+            confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion of the tasks.")
+
+            if st.button("❌ Delete this Task", type="primary", disabled=not confirm_delete):
+                with st.spinner(f"Deleting : {passed_task_id}..."):
+                    OSIR_DB.task.delete(task_id=passed_task_id)
+                    OSIR_DB.handler.delete(task_id=passed_task_id)
+                    passed_task_id = ""
+                    st.session_state.selected_task_id = ""
+                    st.rerun()
+                st.success(f"✅ All data related to '{passed_task_id}' was deleted from the database.")
 
 # Sidebar
 MasterSideBar.sidebar()

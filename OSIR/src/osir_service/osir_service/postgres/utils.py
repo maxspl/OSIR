@@ -1,5 +1,6 @@
 import datetime
 import io
+from sqlite3 import OperationalError
 from typing import List, Tuple
 from psycopg2 import sql
 from osir_lib.core.OsirModule import OsirModule
@@ -217,17 +218,19 @@ class UtilsManager:
                 output.write(f"{case_uuid}\t{case_path}\t{path}\t{entry_type}\n")
             output.seek(0)
 
-            # Insertion via le pool (Gestion robuste)
-            conn = None
-            try:
-                conn = self.db.connection_pool.getconn()
-                with conn.cursor() as cur:
-                    cur.copy_from(output, 'case_snapshot', 
-                                columns=('case_uuid', 'case_path', 'path', 'entry_type'))
-                conn.commit()
-            finally:
-                if conn:
-                    self.db.connection_pool.putconn(conn)
+            conn = self.db._ensure_connection()
+            if not conn:
+                raise OperationalError("Could not establish a database connection.")
+
+            # 2. Execute the query
+            with conn.cursor() as cur:
+                cur.copy_from(
+                    file=output,
+                    table='case_snapshot',
+                    columns=('case_uuid', 'case_path', 'path', 'entry_type'),
+                    null=''
+                )
+            conn.commit()
 
         except Exception as e:
             logger.error(f"Bulk insert error for case_uuid {case_uuid}: {str(e)}")

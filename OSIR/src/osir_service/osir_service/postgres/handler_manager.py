@@ -205,7 +205,7 @@ class HandlerManager:
             logger.error(f"Erreur lors de la mise à jour des task_ids pour le handler {handler_id}: {e}")
             raise
     
-    def delete(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> bool:
+    def delete(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None, task_id: Optional[str] = None) -> bool:
         """
         Supprime un ou plusieurs enregistrements de la table osir_handlers en utilisant soit le handler_id, soit le case_uuid.
 
@@ -217,8 +217,8 @@ class HandlerManager:
             bool: True si la suppression a réussi, False sinon.
         """
         try:
-            if not handler_id and not case_uuid:
-                raise ValueError("Soit un `handler_id`, soit un `case_uuid` doit être fourni.")
+            if not handler_id and not case_uuid and not task_id:
+                raise ValueError("Soit un `handler_id`, soit un `case_uuid`, soit `task_id` doit être fourni.")
 
             if handler_id:
                 # Supprimer un handler spécifique
@@ -236,7 +236,15 @@ class HandlerManager:
                     WHERE case_uuid = %s
                 """, (case_uuid,))
                 logger.debug(f"Tous les handlers associés au cas {case_uuid} ont été supprimés avec succès.")
-            
+            elif task_id:
+                # IMPORTANT : Ici on ne fait pas un DELETE, mais un UPDATE
+                # pour nettoyer le tableau sans supprimer le handler
+                self.db.execute_query("""
+                    UPDATE osir_handlers
+                    SET task_id = array_remove(task_id, %s)
+                    WHERE %s = ANY(task_id)
+                """, (task_id, task_id))
+                logger.debug(f"ID de tâche {task_id} retiré des handlers avec succès.")
             return True
         except ValueError as ve:
             logger.error(f"Erreur de validation: {ve}")
@@ -244,3 +252,22 @@ class HandlerManager:
         except Exception as e:
             logger.error(f"Erreur lors de la suppression du handler: {e}")
             raise
+    
+    def check_handler_failure(self, handler_id: str) -> bool:
+        """
+        Retourne True si au moins une tâche associée au handler a échoué.
+        """
+        query = """
+            SELECT EXISTS (
+                SELECT 1 
+                FROM osir_tasks 
+                WHERE task_id = ANY(
+                    SELECT unnest(task_id)
+                    FROM osir_handlers 
+                    WHERE handler_id = %s
+                )
+                AND processing_status = 'processing_failed'
+            );
+        """
+        result = self.db.execute_query(query, (handler_id,), fetch="fetchone")
+        return result[0] if result else False
