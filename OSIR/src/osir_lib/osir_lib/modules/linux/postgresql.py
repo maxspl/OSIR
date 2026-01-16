@@ -5,11 +5,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class PostgresqlModule(LogUtils):
     """
     PyModule to perform processing operations on postgresql logs.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.
@@ -41,7 +43,7 @@ class PostgresqlModule(LogUtils):
         try:
             logger.debug(f"""Processing Started: \n
                     File Input: {self.module.input.file} \n""")
-            
+
             writer_queue = self.start_writer_thread()
 
             for line in self.get_log():
@@ -58,10 +60,10 @@ class PostgresqlModule(LogUtils):
     def parse(self, log: str) -> dict:
         """
         Parse a single log line using the structure defined in the init.
-        
+
         Args:
             log (str): The log line to parse.
-        
+
         Returns:
             dict: Parsed log data.
         """

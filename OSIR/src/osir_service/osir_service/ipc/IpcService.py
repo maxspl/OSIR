@@ -18,20 +18,31 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
+
 class IpcService(BaseModel):
+    """
+        Core IPC (Inter-Process Communication) service for the OSIR framework.
+    """
     host: str
     port: int
 
     def listen(self):
-        while True:  
-            try: 
+        """
+            Main server loop that maintains the TCP socket.
+
+            Handles incoming connections and ensures the server automatically 
+            restarts in case of a critical failure.
+        """
+        while True:
+            try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # Évite les erreurs "Address already in use"
+                    # Prevents "Address already in use" errors during quick restarts
+                    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     s.bind((self.host, self.port))
                     s.listen()
                     logger.info(f"Listening on {self.host}:{self.port}")
                     while True:
-                        try: 
+                        try:
                             conn, addr = s.accept()
                             logger.info(f"Connected by {addr}")
                             with conn:
@@ -42,7 +53,7 @@ class IpcService(BaseModel):
                                         response = self.action(request)
                                         if response is not None:
                                             send_json(conn, response, pydantic=True)
-                                            logger.info("The IPC Server answer the client {response}")
+                                            logger.info(f"Sent IPC response to client: {response}")
                                     except ConnectionError:
                                         logger.debug("Client disconnected.")
                                         break
@@ -50,29 +61,43 @@ class IpcService(BaseModel):
                                         logger.error(f"Error handling request: {e}")
                                         break
                         except Exception as e:
-                                    logger.error(f"Error accepting connection: {e}")
-                                    continue          
+                            logger.error(f"Error accepting connection: {e}")
+                            continue
             except Exception as e:
                 logger.error(f"Server crashed: {e}. Restarting in 5 seconds...")
-                time.sleep(5)                    
+                time.sleep(5)
 
     def start(self):
+        """Launches the IPC listener in a dedicated background thread."""
         threading.Thread(target=self.listen, daemon=True).start()
 
     @staticmethod
     def consume_generator(g):
+        """
+            Utility to consume a generator in a background thread.
+            Used to execute module setup logic after returning the initial handler UUID.
+        """
         try:
-            for _ in g: pass # Exécute tout ce qui reste après le yield
+            for _ in g:
+                pass
         except Exception as e:
             logger.error(f"Error in background handler: {e}")
 
     def action(self, request: dict):
-        """Traite la requête JSON et renvoie un JSON"""
-        try: 
+        """
+            Dispatches incoming JSON requests to the appropriate action.
+
+            Args:
+                request (dict): The raw JSON request from the IPC client.
+
+            Returns:
+                OsirIpcResponse: A standardized response object or an OsirException.
+        """
+        try:
             osir_ipc_model = OsirIpcModel(**request)
             osir_ipc_request = OsirIpc(**osir_ipc_model.model_dump())
-            
-            # Initialisation de la réponse de base
+
+            # Initialize base response object
             osir_ipc_response = OsirIpcResponse(
                 version=OSIR.VERSION,
                 status=200,
@@ -88,9 +113,10 @@ class IpcService(BaseModel):
                         return OsirException.MISSING_PARAMETER(parameter_name="modules")
                     if not hasattr(osir_ipc_request, "case_path") or not osir_ipc_request.case_path:
                         return OsirException.CASE_NOT_FOUND(case=osir_ipc_model.case_name)
-                    
+
+                    # Trigger background module execution
                     gen = self.action_exec_module(osir_ipc_request)
-                    handler_uuid = next(gen) 
+                    handler_uuid = next(gen)
                     threading.Thread(target=self.consume_generator, args=(gen,), daemon=True).start()
 
                     osir_ipc_response.message = "Module execution started"
@@ -103,8 +129,8 @@ class IpcService(BaseModel):
                     gen = self.action_exec_profile(osir_ipc_request)
                     handler_uuid = next(gen)
                     threading.Thread(target=self.consume_generator, args=(gen,), daemon=True).start()
-                    
-                    osir_ipc_response.response["message"] = "Module execution started"
+
+                    osir_ipc_response.response["message"] = "Profile execution started"
                     osir_ipc_response.response["handler_id"] = handler_uuid
 
                 case 'create_case':
@@ -119,27 +145,27 @@ class IpcService(BaseModel):
                     osir_ipc_response.message = "Task log retrieved"
                     result = self.action_get_task_log(osir_ipc_request)
                     if result:
-                        osir_ipc_response.response =  self.action_get_task_log(osir_ipc_request)
+                        osir_ipc_response.response = result
                     else:
-                        osir_ipc_response.response = {"task_id":osir_ipc_request.task_id}
+                        osir_ipc_response.response = {"task_id": osir_ipc_request.task_id}
 
                 case 'get_handler_status':
                     if not hasattr(osir_ipc_request, "handler_id") or not osir_ipc_request.handler_id:
                         return OsirException.MISSING_PARAMETER(parameter_name="handler_id")
-                    
+
                     osir_ipc_response.message = "Handler Status retrieved"
                     osir_ipc_response.response = self.action_get_handler_status(osir_ipc_request)
 
                 case 'get_case_handler':
                     if not hasattr(osir_ipc_request, "case_name") or not osir_ipc_request.case_name:
                         return OsirException.MISSING_PARAMETER(parameter_name="case_name")
-                    
+
                     osir_ipc_response.message = "Handler retrieved"
                     osir_ipc_response.response["handlers"] = self.action_get_case_handler(osir_ipc_request)
 
         except Exception as e:
             logger.error(
-                f"Error while processing: \n"
+                f"Error while processing IPC request: \n"
                 f"{json.dumps(request, indent=4, ensure_ascii=False)}\n"
             )
             logger.error_handler(e)
@@ -148,38 +174,41 @@ class IpcService(BaseModel):
         return osir_ipc_response
 
     def action_exec_module(self, osir_ipc: OsirIpc):
+        """Initializes a case monitor for specific module execution."""
         handler_module = MonitorCase(case_path=osir_ipc.case_path, modules=osir_ipc.modules, reprocess_case=True)
         yield handler_module.handler_uuid
         handler_module.setup_handler()
-    
+
     def action_exec_profile(self, osir_ipc: OsirIpc):
+        """Initializes a case monitor for profile-based execution."""
         handler_profile = MonitorCase(case_path=osir_ipc.case_path, modules=osir_ipc.profile.modules, reprocess_case=True)
         yield handler_profile.handler_uuid
-        logger.info("test")
-
         handler_profile.setup_handler()
 
     def action_create_case(self, osir_ipc: OsirIpc):
+        """Handles database and filesystem creation for a new forensic case."""
         case_uuid = OSIR_DB.case.create(name=osir_ipc.case_name)
         if case_uuid:
             state, case_path = FileManager.create_case(OSIR_PATHS.CASES_DIR, case_name=osir_ipc.case_name)
-        
-        # TODO : Replace with class from OSIR_LIB
+
         return {
             "case_name": osir_ipc.case_name,
             "case_uuid": case_uuid,
             "case_path": case_path,
             "state": state
         }
-    
+
     def action_get_task_log(self, osir_ipc: OsirIpc):
+        """Queries the JSONL log files for specific task traces."""
         log_file = OSIR_PATHS.LOG_DIR / "task_traces.jsonl"
         return get_latest_log_by_task_id(osir_ipc.task_id, log_file)
 
     def action_get_handler_status(self, osir_ipc: OsirIpc):
+        """Retrieves execution status from the PostgreSQL database."""
         return OSIR_DB.handler.get(handler_id=osir_ipc.handler_id)
-    
+
     def action_get_case_handler(self, osir_ipc: OsirIpc):
+        """Returns all handlers associated with a specific case."""
         if not osir_ipc.case_uuid:
             osir_ipc.case_uuid = OSIR_DB.case.get(name=osir_ipc.case_name)
 

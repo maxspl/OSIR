@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from osir_client.api.osir_api_profile import OsirApiProfile
     from osir_client.api.osir_api_handlers import OsirApiHandlers
 
+
 class OsirApiCase(BaseModel):
     _api: OsirApiClient = PrivateAttr(default=None)
 
@@ -33,7 +34,7 @@ class OsirApiCase(BaseModel):
     def model_post_init(self, __context) -> None:
         from osir_client.api.osir_api_module import OsirApiModule
         from osir_client.api.osir_api_profile import OsirApiProfile
-        
+
         self._modules = OsirApiModule(_context=self, _api=self._api)
         self._profiles = OsirApiProfile(context=self, _api=self._api)
 
@@ -46,7 +47,7 @@ class OsirApiCase(BaseModel):
     def profiles(self) -> "OsirApiProfile":
         return self._profiles
 
-    def get(self, case_name:str):
+    def get(self, case_name: str):
         try:
             _response = OsirApiResponse(self._api.get("/api/case"))
             if _response and case_name in _response.response['cases']:
@@ -63,7 +64,7 @@ class OsirApiCase(BaseModel):
             return OsirApiResponse(self._api.get("/api/case"))
         except Exception as e:
             logger.error_handler(e)
- 
+
     def create(self, case_name: str = None):
         if self.case_name is None and case_name is None:
             raise ValueError("The 'name' parameter is required and cannot be None.")
@@ -74,4 +75,3 @@ class OsirApiCase(BaseModel):
             return self
         except Exception as e:
             logger.error_handler(e)
-        

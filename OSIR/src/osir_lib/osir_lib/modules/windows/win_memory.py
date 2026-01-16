@@ -6,15 +6,17 @@ import string
 
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
-from osir_lib.logger import AppLogger 
+from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
+
 
 @osir_internal_module
 class Memory_Processor():
     """
     Extends PyModule to run parsing of Windows memory dump using memprocfs.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Memory_Processor with a specific case path and module configuration.
@@ -66,7 +68,7 @@ class Memory_Processor():
         logger.debug(f"Memprocfs pythonexec file copied and modified: {self.pythonexec_path}")
 
         self._run_memprocfs_external_tool()
-        
+
     def _run_memprocfs_external_tool(self):
         """
         Run memprocfs as configured in the yml configuration file.

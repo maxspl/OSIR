@@ -6,11 +6,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class SyslogModule(LogUtils):
     """
     PyModule to perform processing operations on syslog.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
@@ -76,10 +78,10 @@ class SyslogModule(LogUtils):
     def parse_tags(self, log: str) -> list:
         """
         Parse and generate tags based on the log content.
-        
+
         Args:
             log (str): The log line to parse.
-        
+
         Returns:
             list: Tags for the log entry.
         """
@@ -108,10 +110,10 @@ class SyslogModule(LogUtils):
     def parse(self, log: str) -> dict:
         """
         Parse a single log line using the structure defined in the init.
-        
+
         Args:
             log (str): The log line to parse.
-        
+
         Returns:
             dict: Parsed log data.
         """

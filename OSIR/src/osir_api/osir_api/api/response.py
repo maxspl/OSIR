@@ -2,6 +2,7 @@ from fastapi import HTTPException
 
 from osir_service.ipc.OsirIpcModel import OsirIpcResponse
 
+
 def handle_response(response: OsirIpcResponse):
     if not response.message:
         response.message = "Everything is working as it should!"

@@ -6,9 +6,10 @@ from osir_api.api.exceptions import UnexpectedExceptionResponse
 
 router = APIRouter()
 
+
 @router.get("/version",
-    response_model=OsirIpcResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+            response_model=OsirIpcResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
 def get_version():
     return {
         "version": API_VERSION,

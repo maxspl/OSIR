@@ -6,11 +6,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class AuthModule(LogUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
@@ -38,7 +40,7 @@ class AuthModule(LogUtils):
                 to_return = {'_raw': log}
 
                 match = re.match('^(?P<date>\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<process>[-_\w]+)\[?(?P<pid>\d+)?\]?:\s(?P<message>.+)$', log)
-                
+
                 if match:
                     to_return.update(match.groupdict())
 

@@ -7,11 +7,13 @@ from urllib.parse import unquote
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class AuditModule(LogUtils):
     """
     PyModule to perform processing operations on Audit logs.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.

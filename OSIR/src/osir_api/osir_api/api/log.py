@@ -13,6 +13,7 @@ from osir_api.api.response import handle_response
 
 router = APIRouter()
 
+
 def log_generator(log_file_path: str):
     with open(log_file_path, "r") as f:
         # Go to the end of the file first
@@ -20,13 +21,14 @@ def log_generator(log_file_path: str):
         while True:
             line = f.readline()
             if not line:
-                time.sleep(0.1) # Wait for new logs
+                time.sleep(0.1)  # Wait for new logs
                 continue
             yield f"data: {line}\n\n"
 
-@router.get("/logs/stream", 
-    response_model=OsirIpcResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+
+@router.get("/logs/stream",
+            response_model=OsirIpcResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
 async def stream_logs():
     log_path = "/OSIR/OSIR/src/osir_lib/log/OSIR.log"
     return StreamingResponse(log_generator(log_path), media_type="text/event-stream")
@@ -45,12 +47,14 @@ class TaskLogResponseCore(BaseModel):
     end_time: Optional[str] = None
     logs: Optional[List[str]] = None
 
+
 class TaskLogResponse(OsirIpcResponse):
     response: TaskLogResponseCore
 
-@router.get("/logs/task", 
-    response_model=OsirIpcResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+
+@router.get("/logs/task",
+            response_model=OsirIpcResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
 def logs_task(task_id: str):
     try:
         client = OsirIpcClient()

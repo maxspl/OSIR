@@ -9,6 +9,7 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class ANSSI_Decode():
     """
@@ -169,7 +170,7 @@ class ANSSI_Decode():
                         vol_id = row.get("VolumeID")
                         location = row.get("Location") or ""
                         mount_point = (row.get("MountPoint") or "").strip()
-                        
+
                         # 1) If we have a VolumeID from the filename, try to match it
                         if fallback_volume_id and vol_id:
                             if vol_id.lower() == fallback_volume_id.lower():
@@ -211,7 +212,7 @@ class ANSSI_Decode():
         else:
             logger.error("Endpoint regex matched nothing")
             return False
-        
+
         output_dir = os.path.join(self.case_path, self.module.module_name, endpoint_name)
         os.makedirs(output_dir, exist_ok=True)
 

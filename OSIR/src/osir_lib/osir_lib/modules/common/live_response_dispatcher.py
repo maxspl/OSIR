@@ -36,6 +36,7 @@ PARSER_MAP: Dict[str, Callable[[str], list]] = {
     "arp_cache": ArpCacheParser().parse,
 }
 
+
 @osir_internal_module
 class WinLiveResponseDispatcher():
     """
@@ -84,7 +85,7 @@ class WinLiveResponseDispatcher():
 
         # Parse
         try:
-            records = parser(text) 
+            records = parser(text)
         except Exception as e:
             logger.error(f"Parser '{parser_key}' failed: {e}")
             return False

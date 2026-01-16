@@ -17,6 +17,7 @@ app = FastAPI(
 
 app.add_exception_handler(UnexpectedException, unexpected_error_handler)
 
+
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def root():
     """
@@ -94,7 +95,7 @@ for file in API_FOLDER.glob("*.py"):
     if file.name == "__init__.py":
         continue
     module_name = f"api.{file.stem}"
-    
+
     spec = importlib.util.spec_from_file_location(module_name, file)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

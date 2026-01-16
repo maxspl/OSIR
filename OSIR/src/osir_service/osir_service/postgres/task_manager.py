@@ -6,16 +6,28 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class TaskManager:
+    """
+        Manages the lifecycle of tasks stored in the PostgreSQL 'osir_tasks' table,
+        including table creation, task creation, retrieval, updates, and deletion.
+    """
+
     def __init__(self, db_osir):
         self.db = db_osir
 
     def create_table(self):
+        """
+            Creates the 'osir_tasks' table and the custom ENUM type 'processing_status_enum' 
+            if they do not already exist.
+
+            Raises:
+                Exception: If the database query fails.
+        """
         try:
             type_exists = self.db.execute_query("""
                 SELECT 1 FROM pg_type WHERE typname = 'processing_status_enum'
             """, fetch="fetchone")
-            
 
             if not type_exists:
                 self.db.execute_query("""
@@ -44,6 +56,22 @@ class TaskManager:
             raise
 
     def create(self, case_uuid: str, agent: str, module: str, input: str, task_id: Optional[str] = None) -> str:
+        """
+            Inserts a new task into the database.
+
+            Args:
+                case_uuid (str): The UUID of the case associated with the task.
+                agent (str): The name or identifier of the agent performing the task.
+                module (str): The specific module responsible for the execution.
+                input (str): The input data or configuration for the task.
+                task_id (str, optional): A specific UUID for the task. If None, a new UUID is generated.
+
+            Returns:
+                str: The UUID of the created task.
+
+            Raises:
+                Exception: If the database insertion fails.
+        """
         try:
             if task_id is None:
                 task_id = str(uuid.uuid4())
@@ -63,11 +91,23 @@ class TaskManager:
             logger.debug(f"Task created successfully with task_id: {task_id}")
             return task_id
         except Exception as e:
-            
+
             logger.error(f"Error creating task: {e}")
             raise
 
     def get(self, task_id: str) -> dict:
+        """
+            Retrieves a single task's details by its UUID.
+
+            Args:
+                task_id (str): The UUID of the task to retrieve.
+
+            Returns:
+                Union[dict, None]: A dictionary containing task details, or None if no task is found or task_id is empty.
+
+            Raises:
+                Exception: If the database query fails.
+        """
         if not task_id or task_id.strip() == "":
             logger.debug("Get called with empty task_id, skipping query.")
             return None
@@ -78,7 +118,7 @@ class TaskManager:
                 FROM osir_tasks
                 WHERE task_id = %s
             """, (task_id,), fetch="fetchone")
-            
+
             if row:
                 return self._row_to_dict(row)
             return None
@@ -92,6 +132,20 @@ class TaskManager:
         processing_status: Optional[Union[str, List[str]]] = None,
         exclude_status: Optional[Union[str, List[str]]] = None
     ) -> list:
+        """
+        Lists tasks based on filtering criteria such as case UUID or status.
+
+            Args:
+                case_uuid (str, optional): Filter tasks by a specific case UUID.
+                processing_status (Union[str, List[str]], optional): Include only tasks with these statuses.
+                exclude_status (Union[str, List[str]], optional): Exclude tasks with these statuses.
+
+            Returns:
+                list: A list of dictionaries, each representing a task.
+
+            Raises:
+                Exception: If the database query fails.
+        """
         try:
             def to_list(value):
                 return [value] if isinstance(value, str) else value
@@ -127,7 +181,7 @@ class TaskManager:
                 query += " WHERE " + " AND ".join(conditions)
 
             rows = self.db.execute_query(query, params, fetch="fetchall")
-            
+
             # On passe les lignes à _row_to_dict
             return [self._row_to_dict(row) for row in rows]
         except Exception as e:
@@ -135,6 +189,15 @@ class TaskManager:
             raise
 
     def _row_to_dict(self, row) -> dict:
+        """
+            Helper method to convert a database row tuple into a structured dictionary.
+
+            Args:
+                row (tuple): The data row returned from the SQL query.
+
+            Returns:
+                dict: The mapped task data including task_id, status, and optional trace.
+        """
         d = {
             "task_id": str(row[0]),
             "case_uuid": str(row[1]) if row[1] else None,
@@ -144,11 +207,11 @@ class TaskManager:
             "processing_status": row[5],
             "timestamp": row[6]
         }
-        
+
         # Si la requête contenait la colonne trace (index 7), on l'ajoute
         if len(row) > 7:
             d["trace"] = row[7]
-            
+
         return d
 
     def update(
@@ -157,7 +220,22 @@ class TaskManager:
         processing_status: ProcessingStatus,
         trace_data: Optional[dict] = None,
         agent: Optional[str] = None
-    ) -> Optional[dict]: # Changed return type hint as you return the row
+    ) -> Optional[dict]:  # Changed return type hint as you return the row
+        """
+            Updates the status, trace data, or agent of an existing task.
+
+            Args:
+                task_id (str): The UUID of the task to update.
+                processing_status (ProcessingStatus): The new status from the ProcessingStatus enum.
+                trace_data (dict, optional): JSON-compatible dictionary to merge into the trace column.
+                agent (str, optional): New agent name to update.
+
+            Returns:
+                Optional[dict]: The updated row data (depends on the database driver's return behavior).
+
+            Raises:
+                Exception: If the update query fails.
+        """
         try:
             # 1. Prepare fields and parameters dynamically
             updates = ["processing_status = %s"]
@@ -173,7 +251,7 @@ class TaskManager:
             params.append(trace_json)
 
             # Issue with threaded request
-            fix_thread = "" 
+            fix_thread = ""
             if processing_status.value == "processing_started":
                 fix_thread = "AND processing_status != 'processing_done' AND processing_status != 'processing_failed'"
             # 2. Build the final query
@@ -192,10 +270,21 @@ class TaskManager:
         except Exception as e:
             logger.error(f"Error during update for task {task_id}: {e}")
             raise
-    
+
     def check_input(self, case_uuid: str, input: str) -> bool:
+        """
+            Checks if there is currently an active task (status 'processing_started') 
+            with the same input for a specific case.
+
+            Args:
+                case_uuid (str): The UUID of the case.
+                input (str): The input string to check for duplicates.
+
+            Returns:
+                bool: True if a matching active task is found, False otherwise.
+        """
         input_str = str(input)
-        
+
         result = self.db.execute_query("""
             SELECT COUNT(*)
             FROM osir_tasks
@@ -207,38 +296,41 @@ class TaskManager:
         # VALIDATION: Result must be a tuple with exactly 1 item
         if result is None or not isinstance(result, (tuple, list)):
             return False
-            
+
         if len(result) != 1:
             logger.error(f"Integrity Error: Expected 1 column (count), got {len(result)}. Value: {result}")
             return False
 
         count = result[0]
-        
+
         # If count is a UUID (string) instead of an int, the reset logic failed
         if not isinstance(count, int):
             logger.error(f"Type Error: Count is {type(count)} (Value: {count}). Resetting connection state recommended.")
             return False
 
         return count > 0
-    
+
     def delete(self, task_id: Optional[str] = None, case_uuid: Optional[str] = None, handler_id: Optional[str] = None) -> bool:
         """
-        Supprime des tâches de la table osir_tasks en utilisant task_id, case_uuid ou handler_id.
+            Deletes tasks from the table based on either task_id, case_uuid, or handler_id.
 
-        Args:
-            task_id (Optional[str]): L'ID de la tâche à supprimer.
-            case_uuid (Optional[str]): L'UUID du cas.
-            handler_id (Optional[str]): L'ID du handler dont on veut supprimer les tâches liées.
+            Args:
+                task_id (str, optional): The ID of the specific task to delete.
+                case_uuid (str, optional): The UUID of the case to delete all related tasks for.
+                handler_id (str, optional): The ID of the handler whose tasks should be deleted.
 
-        Returns:
-            bool: True si la suppression a réussi.
+            Returns:
+                bool: True if the deletion was successful.
+
+            Raises:
+                ValueError: If none of the optional parameters are provided.
+                Exception: If the deletion query fails.
         """
         try:
             if not any([task_id, case_uuid, handler_id]):
                 raise ValueError("Au moins un paramètre (task_id, case_uuid ou handler_id) doit être fourni.")
 
             if task_id:
-                # Supprimer une tâche spécifique
                 self.db.execute_query("""
                     DELETE FROM osir_tasks
                     WHERE task_id = %s
@@ -246,7 +338,6 @@ class TaskManager:
                 logger.debug(f"Tâche avec l'ID {task_id} supprimée.")
 
             elif case_uuid:
-                # Supprimer toutes les tâches associées à un cas
                 self.db.execute_query("""
                     DELETE FROM osir_tasks
                     WHERE case_uuid = %s
@@ -254,7 +345,6 @@ class TaskManager:
                 logger.debug(f"Tâches associées au cas {case_uuid} supprimées.")
 
             elif handler_id:
-                # Supprimer les tâches dont l'ID est présent dans la liste task_id du handler
                 self.db.execute_query("""
                     DELETE FROM osir_tasks
                     WHERE task_id = ANY(

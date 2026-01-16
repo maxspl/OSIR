@@ -6,11 +6,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
+
 @osir_internal_module(trace=False)
 class BodyfileModule(LogUtils):
     """
     PyModule to perform processing operations on Bodyfile.
     """
+
     def __init__(self, module: OsirModule, task_id: str):
         """
         Initializes the Module.
@@ -22,7 +24,7 @@ class BodyfileModule(LogUtils):
         self.ctx = module
 
         self.task_id = task_id
-        LogUtils.__init__(self,ctx=module)
+        LogUtils.__init__(self, ctx=module)
 
         self._file_to_process = module.input.match
 

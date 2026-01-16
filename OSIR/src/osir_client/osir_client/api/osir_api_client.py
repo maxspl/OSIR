@@ -13,14 +13,15 @@ CLIENT_VERSION = "1.0"
 if TYPE_CHECKING:
     from osir_client.api.osir_api_case import OsirApiCase
 
+
 class OsirApiClient(BaseModel):
     # Données publiques validées
-    api_url: str 
-    
+    api_url: str
+
     # Attributs privés (non inclus dans model_dump)
     _cases: Optional["OsirApiCase"] = PrivateAttr(default=None)
     _session: requests.Session = PrivateAttr()
-    
+
     def model_post_init(self, __context: Any) -> None:
         """S'exécute après la validation Pydantic"""
         # Nettoyage de l'URL
@@ -28,7 +29,7 @@ class OsirApiClient(BaseModel):
         from osir_client.api.osir_api_case import OsirApiCase
         self._cases = OsirApiCase(api_client=self)
         # Initialisation des composants internes
-        self._session = requests.Session()        
+        self._session = requests.Session()
         # Optionnel: Check de version automatique
         self._check_version()
 
@@ -36,7 +37,7 @@ class OsirApiClient(BaseModel):
     def cases(self) -> "OsirApiCase":
         """Access the cases API helper: client.cases"""
         return self._cases
-    
+
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         url = f"{self.api_url}/{endpoint.lstrip('/')}"
         try:
@@ -64,11 +65,11 @@ class OsirApiClient(BaseModel):
         try:
             raw_response = self.get('api/version')
             api_call = OsirApiResponse(raw_response)
-            
+
             # Extraction propre des versions
             v_client = CLIENT_VERSION.split('.')
             v_server = [
-                str(api_call.response.get('api_major')), 
+                str(api_call.response.get('api_major')),
                 str(api_call.response.get('api_minor'))
             ]
 

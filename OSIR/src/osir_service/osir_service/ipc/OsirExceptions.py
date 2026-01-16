@@ -1,6 +1,7 @@
 from osir_service.ipc.OsirIpcModel import OsirIpcResponse
 from osir_lib.core.OsirConstants import OSIR
 
+
 class OsirException:
     @staticmethod
     def MODULE_NOT_FOUND(module: str) -> OsirIpcResponse:
@@ -64,7 +65,7 @@ class OsirException:
             status=400,
             response={
                 "error": f"MISSING_PARAMETER: '{parameter_name}' is required but was not provided.",
-                "type": "MISSING_PARAMETER",  # Type d'erreur plus précis
+                "type": "MISSING_PARAMETER",
                 "details": {
                     "parameter": parameter_name,
                     "hint": "Please ensure all required parameters are included in your request."

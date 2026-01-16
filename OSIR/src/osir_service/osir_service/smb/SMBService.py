@@ -13,6 +13,7 @@ class SMBMounter:
     """
     Manages the mounting, monitoring, and unmounting of an SMB share, ensuring continuous accessibility.
     """
+
     def __init__(self, mount_point, username=None, password=None, version='3.0', check_interval=15):
         """
         Initializes the SMBMounter with the necessary parameters for mounting an SMB share.
@@ -31,7 +32,7 @@ class SMBMounter:
         self.check_interval = check_interval
         self.test_file = os.path.join(mount_point, )
         self._stop_event = threading.Event()
-        
+
         # Mount SMB share if remote master
         self.agent_config = OsirAgentConfig()
         if self.agent_config.standalone:
@@ -43,7 +44,7 @@ class SMBMounter:
             self.master_host = self.agent_config.master_host
             self.share = f"//{self.master_host}/share"
             self.test_file = os.path.join(mount_point, "smb_test_file")  # File created by master_setup.sh
-            
+
     def _is_mounted(self):
         """
         Checks if the SMB share is currently mounted.
@@ -99,7 +100,7 @@ class SMBMounter:
             self.share, self.mount_point,
             '-o', f'username={self.username},password={self.password},vers={self.version}'
         ]
-        
+
         # Execute the mount command
         try:
             subprocess.run(command, check=True)
@@ -119,7 +120,7 @@ class SMBMounter:
         if not self._is_mounted():
             logger.debug(f"{self.mount_point} is not mounted.")
             return True
-        
+
         command = ['umount', self.mount_point]
         try:
             subprocess.run(command, check=True)
@@ -171,7 +172,7 @@ class SMBMounter:
             local_path (str): The absolute or relative path of the file to upload locally.
             remote_relative_path (str): The path relative to the mount point where the file should be placed.
                                         Ex: 'results/report.json'
-        
+
         Returns:
             bool: True if the file was uploaded successfully, False otherwise.
         """
@@ -187,10 +188,8 @@ class SMBMounter:
             logger.error(f"Cannot upload: Local file not found at {local_path}.")
             return False
 
-        # Le chemin de destination est le point de montage + le chemin relatif distant
         remote_full_path = os.path.join(self.mount_point, remote_relative_path)
-        
-        # Assurez-vous que le répertoire distant existe avant de copier
+
         remote_dir = os.path.dirname(remote_full_path)
         if not os.path.isdir(remote_dir):
             try:
@@ -199,9 +198,8 @@ class SMBMounter:
                 logger.error(f"Failed to create remote directory {remote_dir} on SMB share: {e}")
                 return False
 
-        # Utilisation de la commande 'cp'
         command = ['cp', local_path, remote_full_path]
-        
+
         try:
             subprocess.run(command, check=True, capture_output=True, text=True)
             logger.info(f"Successfully uploaded {local_path} to {remote_full_path}")
@@ -212,7 +210,6 @@ class SMBMounter:
         except FileNotFoundError:
             logger.error("Upload failed: 'cp' command not found (check environment PATH).")
             return False
-
 
     def download_file(self, remote_relative_path: str, local_path: str) -> bool:
         """
@@ -234,14 +231,12 @@ class SMBMounter:
             logger.error("Cannot download: SMB share is not mounted.")
             return False
 
-        # Le chemin source est le point de montage + le chemin relatif distant
         remote_full_path = os.path.join(self.mount_point, remote_relative_path)
-        
+
         if not os.path.exists(remote_full_path):
             logger.error(f"Cannot download: Remote file not found at {remote_full_path} on the SMB share.")
             return False
 
-        # Assurez-vous que le répertoire local de destination existe
         local_dir = os.path.dirname(local_path)
         if local_dir and not os.path.isdir(local_dir):
             try:
@@ -250,9 +245,8 @@ class SMBMounter:
                 logger.error(f"Failed to create local destination directory {local_dir}: {e}")
                 return False
 
-        # Utilisation de la commande 'cp'
         command = ['cp', remote_full_path, local_path]
-        
+
         try:
             subprocess.run(command, check=True, capture_output=True, text=True)
             logger.info(f"Successfully downloaded {remote_full_path} to {local_path}")
@@ -263,7 +257,7 @@ class SMBMounter:
         except FileNotFoundError:
             logger.error("Download failed: 'cp' command not found (check environment PATH).")
             return False
-        
+
 # Example usage:
 # mounter = SMBMounter("//192.168.1.77/share", "/OSIR/share/", "guest", "", check_interval=60, test_file="/OSIR/share/some_test_file_or_dir")
 # mounter.mount()

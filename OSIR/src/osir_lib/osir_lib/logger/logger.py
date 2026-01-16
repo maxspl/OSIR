@@ -12,7 +12,13 @@ class CustomLogger(logging.getLoggerClass()):
         super().__init__(name, level)
 
     def error_handler(self, ex: Exception, message="", *args, **kwargs):
-        # Capture the traceback and extract file name and line number
+        """
+            Captures detailed exception information, including the exact file and line number of the failure.
+
+            Args:
+                ex (Exception): The exception object caught during execution.
+                message (str, optional): An additional descriptive message explaining the context of the error.
+        """
         tb_str = traceback.extract_tb(ex.__traceback__)
         fn, lno, func, sinfo = self.findCaller(stack_info=False, stacklevel=2)
         if tb_str:
@@ -45,6 +51,12 @@ class LevelBasedHandler(logging.StreamHandler):
         self.level_formatter_map = level_formatter_map
 
     def emit(self, record):
+        """
+            Intercepts log records to apply specific formatters based on their severity level.
+
+            Args:
+                record (logging.LogRecord): The log record containing the message and metadata.
+        """
         default_formatter = logging.Formatter(
             '[%(levelname)s] %(filename)s:%(lineno)d - %(funcName)s() - %(message)s'
         )
@@ -57,10 +69,10 @@ class LogFormatter(logging.Formatter):
 
     COLOR_CODES = {
         logging.CRITICAL: "\033[0;95m",  # bright/bold magenta
-        logging.ERROR:    "\033[0;91m",  # bright/bold red
-        logging.WARNING:  "\033[0;93m",  # bright/bold yellow
-        logging.INFO:     "\033[0;94m",  # white / light gray
-        logging.DEBUG:    "\033[0;96m"   # bright/bold black / dark gray
+        logging.ERROR: "\033[0;91m",  # bright/bold red
+        logging.WARNING: "\033[0;93m",  # bright/bold yellow
+        logging.INFO: "\033[0;94m",  # white / light gray
+        logging.DEBUG: "\033[0;96m"   # bright/bold black / dark gray
     }
 
     RESET_CODE = "\033[0m"
@@ -71,14 +83,22 @@ class LogFormatter(logging.Formatter):
         self.color = color
 
     def format(self, record, *args, **kwargs):
-        # Ajout des informations du lieu d'appel dans le message de log
+        """
+            Formats the log record by injecting OSIR-specific metadata like task IDs and component origins.
+
+            Args:
+                record (logging.LogRecord): The record to be formatted.
+
+            Returns:
+                str: The fully formatted string ready for output to console or file.
+        """
         task_id = getattr(record, 'task_id', None)
         record.task_id_str = f"[TASK:{task_id}]" if task_id else ""
         origin = getattr(record, 'origin', 'UNKNOWN')
         record.origin_str = f"{self.ORIGIN_COLOR}[{origin:^8s}]{self.RESET_CODE}"
         filename_lineno = f"{record.filename}:{record.lineno}"
         record.filename_lineno = f"{filename_lineno:^25.25}"
-        record.funcName = record.funcName+'()'
+        record.funcName = record.funcName + '()'
         record.funcName = f"{record.funcName:^25.25}"
 
         if hasattr(record, 'caller'):
@@ -99,21 +119,24 @@ class LogFormatter(logging.Formatter):
 @singleton
 class AppLogger:
     def __init__(self, name=__name__, log_file='OSIR.log') -> None:
+        """
+            Initializes the global logging system as a singleton, setting up both console and file handlers.
+
+            Args:
+                name (str): The name of the logger instance.
+                log_file (str): The filename where logs will be persisted on the Master's disk.
+        """
         logging.setLoggerClass(CustomLogger)
         sys.excepthook = self.handle_uncaught_exception
         threading.excepthook = self.handle_thread_exception
-        
-        # Define formatters for DEBUG and INFO levels
+
+        # Define formatters for all levels
         debug_formatter = LogFormatter(fmt='%(color_on)s[DEBUG] %(filename_lineno)s %(color_off)s - %(funcName)-25s - %(message)s ', color=True)
         warning_formatter = LogFormatter(fmt='%(color_on)s[WARNING] %(filename_lineno)s %(color_off)s - %(funcName)-25s - %(message)s ', color=True)
 
         info_formatter = LogFormatter(fmt='%(color_on)s[INFO] %(filename_lineno)s %(color_off)s - %(funcName)-25s - %(message)s ', color=True)
         critical_formatter = LogFormatter(fmt='%(color_on)s[CRITICAL] %(filename_lineno)s - %(funcName)-25s - %(message)s %(color_off)s', color=True)
         error_formatter = LogFormatter(fmt='%(color_on)s[ERROR] %(filename_lineno)s %(color_off)s - %(funcName)-25s - %(message)s ', color=True)
-
-        # default_formatter = logging.Formatter(
-        #     '[%(levelname)s] [%(asctime)s] - %(filename)s:%(lineno)d - %(message)s'
-        # )
 
         # Create and configure the logger
         self.logger = logging.getLogger('customLogger')
@@ -141,7 +164,7 @@ class AppLogger:
         if not os.path.exists(log_directory):
             os.makedirs(log_directory)
 
-        log_file = os.path.join(OSIR_PATHS.LOG_DIR, log_file)        
+        log_file = os.path.join(OSIR_PATHS.LOG_DIR, log_file)
 
         # Create custom handlers for file logging
         file_handler = logging.FileHandler(log_file)
@@ -156,7 +179,14 @@ class AppLogger:
         return self.logger
 
     def handle_uncaught_exception(self, exc_type, exc_value, exc_traceback):
-        """Gère les exceptions non capturées dans le thread principal."""
+        """
+            Intercepts any exception that reaches the top-level of the main execution thread.
+
+            Args:
+                exc_type: The type of the exception.
+                exc_value: The exception instance.
+                exc_traceback: The traceback object.
+        """
         if issubclass(exc_type, KeyboardInterrupt):
             sys.__excepthook__(exc_type, exc_value, exc_traceback)
             return
@@ -167,7 +197,12 @@ class AppLogger:
         )
 
     def handle_thread_exception(self, args):
-        """Gère les exceptions non capturées dans les threads."""
+        """
+            Captures unhandled exceptions occurring within background threads.
+
+            Args:
+                args: A thread exception object containing type, value, traceback, and thread info.
+        """
         exc_type, exc_value, exc_traceback, thread = (
             args.exc_type, args.exc_value, args.exc_traceback, args.thread
         )

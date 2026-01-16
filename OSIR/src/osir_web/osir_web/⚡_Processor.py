@@ -16,45 +16,7 @@ from osir_lib.core.OsirInput import OsirInput
 from osir_service.watchdog.MonitorCase import MonitorCase
 
 
-logger = AppLogger(__name__).get_logger()
-
-# class SystemManager:
-#     @staticmethod
-#     def get_host_specs():
-#         """
-#         Retrieve host specifications such as CPU count, RAM, and disk usage.
-#
-#         Returns:
-#             dict: A dictionary containing the host's CPU count, RAM, and disk usage details.
-#         """
-#         specs = {
-#             "CPU Count": psutil.cpu_count(logical=True),
-#             "RAM": psutil.virtual_memory().total / (1024 ** 3),  # Convert bytes to GB
-#             "Disk Total": psutil.disk_usage('/').total / (1024 ** 3),  # Convert bytes to GB
-#             "Disk Used": psutil.disk_usage('/').used / (1024 ** 3),  # Convert bytes to GB
-#             "Disk Free": psutil.disk_usage('/').free / (1024 ** 3),  # Convert bytes to GB
-#         }
-#         return specs
-#
-#     @staticmethod
-#     def get_directory_size(directory):
-#         """
-#         Get total size of files in a specific directory.
-#
-#         Args:
-#             directory (str): The directory to calculate the total size.
-#
-#         Returns:
-#             float: The total size of the directory in gigabytes.
-#         """
-#         total_size = 0
-#         for dirpath, dirnames, filenames in os.walk(directory):
-#             for f in filenames:
-#                 fp = os.path.join(dirpath, f)
-#                 # Skip if it is symbolic link
-#                 if not os.path.islink(fp):
-#                     total_size += os.path.getsize(fp)
-#         return total_size / (1024 ** 3)
+logger = AppLogger().get_logger()
 
 
 class ConfigurationApp:
@@ -286,8 +248,8 @@ class ConfigurationApp:
                             "module": os.path.basename(mod),
                             "description": content.get("description", ""),
                             "processor_type": ", ".join(content.get("processor_type", []))
-                                if isinstance(content.get("processor_type"), list)
-                                else str(content.get("processor_type")),
+                            if isinstance(content.get("processor_type"), list)
+                            else str(content.get("processor_type")),
                         })
                     except Exception as e:
                         module_rows.append({
@@ -503,7 +465,7 @@ class ConfigurationApp:
         if not os.path.isdir(case_path):
             st.error(f"You selected a case that does not exist. Verify that {case_path} is the right path to process")
             return
-        
+
         if selected_profile:
             profile_instance = OsirProfileModel.from_yaml(FileManager.get_profile_path(selected_profile))
             logger.debug(f"Processing job with profile: {selected_profile}")
@@ -532,7 +494,7 @@ class ConfigurationApp:
         st.info(f"Modules selected:\n\n{modules_selected_str}")
 
         monitor_case = MonitorCase(case_path, modules_selected, reprocess_case)
-        
+
         # TODO : Fix in memory change
         # Apply in-memory YAML overrides to all module instances for this run
         # self._apply_overrides_to_monitor_case(monitor_case)

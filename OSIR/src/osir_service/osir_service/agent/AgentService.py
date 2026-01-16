@@ -31,9 +31,12 @@ logger = AppLogger().get_logger()
 
 class CeleryWorker:
     """
-    Manages a Celery worker that handles task execution in a distributed environment, supporting different processing
-    modes based on the configuration and environment.
+        Orchestrates distributed forensic task execution using Celery.
+
+        This class manages the lifecycle of OSIR workers, handling communication 
+        with RabbitMQ (broker) and Redis (backend).
     """
+
     def __init__(self):
         """
         Initializes the Celery worker by setting up the broker and backend configurations, queues, and registering task handlers.
@@ -64,16 +67,17 @@ class CeleryWorker:
 
         self._register_tasks()
         self._local_count = 0
+
     def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: DbOSIR):
         """
-        Wait until the input file or directory is free to use, i.e., not being used by another module.
+            Wait until the input file or directory is free to use, i.e., not being used by another module.
 
-        Args:
-            case_uuid (str): The UUID of the case.
-            module_instance: The module instance containing the input to be checked.
+            Args:
+                case_uuid (str): The UUID of the case.
+                module_instance: The module instance containing the input to be checked.
 
-        Returns:
-            None
+            Returns:
+                None
         """
         if module_instance.input.match:
             # file_opened = self._is_file_opened(module_instance.input.file)
@@ -85,15 +89,15 @@ class CeleryWorker:
 
     def _is_file_being_written(self, module_instance, check_interval=0.5):
         """
-        Check if a file is being written to by monitoring its size and modification time.
+            Check if a file is being written to by monitoring its size and modification time.
 
-        Args:
-            module_instance: The module instance containing the file to be checked.
-            check_interval (float, optional): The interval in seconds to wait between checks. Default is 0.5 seconds.
+            Args:
+                module_instance: The module instance containing the file to be checked.
+                check_interval (float, optional): The interval in seconds to wait between checks. Default is 0.5 seconds.
 
-        Returns:
-            bool: True if the file size or modification time has changed, indicating it is being written to. False otherwise.
-    """
+            Returns:
+                bool: True if the file size or modification time has changed, indicating it is being written to. False otherwise.
+        """
         if module_instance.input.type == "file":
             file_path = module_instance.input.match
             # Get the initial size and modification time of the file
@@ -113,7 +117,6 @@ class CeleryWorker:
             else:
                 return False
 
-
     def _register_tasks(self):
         """
         Registers internal and external processing tasks with Celery, defining their behavior and exception handling.
@@ -129,7 +132,6 @@ class CeleryWorker:
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
-
 
                 processor = InternalProcessor(case_path, module_instance, task_id=task_id, agent_name=worker_name)
                 logger.debug("Check if input files/foles of module is in use...")
@@ -195,9 +197,7 @@ class CeleryWorker:
                 db.close()
             else:
                 return "external_processor done"
-            
 
-    
     def _start_single_worker(self, argv):
         """
         Starts a single Celery worker with the given command-line arguments.
@@ -269,7 +269,7 @@ class CeleryWorker:
 
         processes = []
 
-        log_dir = OSIR_PATHS.LOG_DIR 
+        log_dir = OSIR_PATHS.LOG_DIR
         log_file = log_dir / "celery.log"
         log_dir.mkdir(parents=True, exist_ok=True)
         log_file.touch(exist_ok=True)

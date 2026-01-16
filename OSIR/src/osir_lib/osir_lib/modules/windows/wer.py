@@ -37,6 +37,7 @@ def _slug(s: str) -> str:
     s = re.sub(r"_+", "_", s).strip("_")
     return s or "key"
 
+
 @osir_internal_module
 class WerParser():
     """Parse Windows WER files under an input path and export a single JSONL file.

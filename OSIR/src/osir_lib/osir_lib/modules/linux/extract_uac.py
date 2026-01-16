@@ -7,11 +7,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class UAC_Extractor():
     """
     PyModule to perform processing operations on UAC collect.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
@@ -34,7 +36,7 @@ class UAC_Extractor():
         archive_path = self._file_to_process
         endpoint_dir = os.path.join(self._case_path, self.module.get_module_name(), "Endpoint_" + self.module.endpoint_name)
         os.makedirs(endpoint_dir, exist_ok=True)
-        
+
         self.module.tool.run()
 
         moved_archive_path = os.path.join(endpoint_dir, os.path.basename(self._file_to_process))
@@ -47,6 +49,5 @@ class UAC_Extractor():
         except Exception as e:
             logger.error(f"Failed to extract {moved_archive_path}: {e}")
 
-        
         # Process
         logger.debug(f"{self.module.module_name} done")

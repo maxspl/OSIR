@@ -16,34 +16,40 @@ router = APIRouter()
 # API CALL : Get Case
 # ==========================================
 
+
 class GetCaseResponseCore(BaseModel):
     cases: list[str]
+
 
 class GetCaseResponse(OsirIpcResponse):
     response: GetCaseResponseCore
 
-@router.get("/case", 
-    response_model=GetCaseResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+
+@router.get("/case",
+            response_model=GetCaseResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
 def get_case():
     try:
         response = OsirIpcResponse(
             version=API_VERSION,
             response={
-                "cases" : FileManager.get_cases(OSIR_PATHS.CASES_DIR)
+                "cases": FileManager.get_cases(OSIR_PATHS.CASES_DIR)
             }
         )
         return handle_response(response)
-    
+
     except Exception as e:
         raise UnexpectedException(str(e))
+
 
 # ==========================================
 # API_CALL : Create Case
 # ==========================================
 
+
 class CaseCreateRequest(BaseModel):
     case_name: str
+
 
 class CreateCaseResponseCore(BaseModel):
     case_name: str
@@ -51,12 +57,14 @@ class CreateCaseResponseCore(BaseModel):
     case_path: str
     state: str
 
+
 class CreateCaseResponse(OsirIpcResponse):
     response: CreateCaseResponseCore
 
-@router.post("/case", 
-    response_model=CreateCaseResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+
+@router.post("/case",
+             response_model=CreateCaseResponse,
+             responses={500: {"model": UnexpectedExceptionResponse}})
 def create_case(request: CaseCreateRequest):
     try:
         client = OsirIpcClient()
@@ -65,5 +73,3 @@ def create_case(request: CaseCreateRequest):
         return handle_response(response)
     except Exception as e:
         raise UnexpectedException(str(e))
-
-    

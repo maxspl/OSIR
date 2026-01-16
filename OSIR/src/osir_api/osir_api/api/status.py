@@ -9,9 +9,10 @@ router = APIRouter()
 
 API_VERSION = "1.0"
 
+
 @router.get("/active",
-    response_model=OsirIpcResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+            response_model=OsirIpcResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
 def osir_is_active():
     try:
         client = OsirIpcClient()

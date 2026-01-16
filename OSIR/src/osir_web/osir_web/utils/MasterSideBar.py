@@ -10,13 +10,14 @@ from streamlit_js_eval import get_page_location
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_lib.core.OsirConstants import OSIR_PATHS
 
+
 class SystemManager:
     def __init__(self, key=""):
         self.location_details = get_page_location(component_key=key)
         time.sleep(2)
         if self.location_details and "hostname" in self.location_details:
             self.host = self.location_details["hostname"]
-        
+
     @staticmethod
     def get_host_specs():
         """
@@ -54,13 +55,13 @@ class SystemManager:
         # Extract stdout and remove directory (result of du is 'size\t<directory> )
         size = result.stdout.split("\t")[0]
         return size
-            
+
 
 def sidebar():
     """Set up and display the sidebar with host specifications and cases usage."""
-    
+
     with st.sidebar:
-        
+
         # External links to DB and Splunk
 
         # location_details = get_page_location()
@@ -84,14 +85,14 @@ def sidebar():
         with st.expander(":round_pushpin: External"):
             st.page_link(url, label="Open Database", help="open a new tab to pgadmin", width='stretch', icon="💾")
             st.page_link(splunk_url, label="Splunk", help="open a new tab to local Splunk server", width='stretch', icon="💹")
-        
+
         # Master specs
         colored_header(
             label="Master Specifications",
             description=" ",
             color_name="green-70",
         )
-        
+
         specs = SystemManager.get_host_specs()
         st.write(f"**Master host:** {os.getenv('HOST_HOSTNAME', '')}")
         st.write(f"**CPU Count:** {specs['CPU Count']}")
@@ -99,7 +100,7 @@ def sidebar():
         st.write(f"**Disk Total:** {specs['Disk Total']:.2f} GB")
         st.write(f"**Disk Used:** {specs['Disk Used']:.2f} GB")
         st.write(f"**Disk Free:** {specs['Disk Free']:.2f} GB")
-        
+
         if (specs['Disk Free'] / specs['Disk Total']) < 0.1:
             st.error("Warning: Disk free space is less than 10% of the total disk space!")
 
@@ -108,8 +109,6 @@ def sidebar():
             description=" ",
             color_name="green-70",
         )
-        
+
         cases_usage = SystemManager.get_directory_size(OSIR_PATHS.CASES_DIR)
         st.write(f"**Used:** {cases_usage}")
-        
-        

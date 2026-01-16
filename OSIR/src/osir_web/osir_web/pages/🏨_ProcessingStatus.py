@@ -2,11 +2,11 @@ import time
 import streamlit as st
 import pandas as pd
 from sqlalchemy import text
-from utils.Db import Db_accessor
-from streamlit_extras.colored_header import colored_header 
+from streamlit_extras.colored_header import colored_header
 from osir_web.utils import MasterSideBar
 from osir_service.postgres.PostgresService import OSIR_DB
 from streamlit.components.v1 import html
+
 
 def color_rows(row):
     if row["processing_status"] == "processing_done":
@@ -18,6 +18,7 @@ def color_rows(row):
     else:
         return [""] * len(row)
 
+
 class ProcessingStatus:
     def __init__(self):
         """
@@ -27,8 +28,7 @@ class ProcessingStatus:
 
     def _get_cases(self):
         return {case[1]: case[0] for case in OSIR_DB.case.list()}
-    
-    
+
     def display_ongoing_tasks(self, selected_case_name):
         """
         Display a single table containing data from all DB tables except 'master_status' and 'case_snapshot',
@@ -55,8 +55,7 @@ class ProcessingStatus:
             df.drop(columns=['case_uuid'], inplace=True)
             df.drop(columns=['agent'], inplace=True)
 
-            
-            st.dataframe(df,  width='stretch')
+            st.dataframe(df, width='stretch')
         else:
             st.info("No task ongoing")
 
@@ -66,60 +65,51 @@ class ProcessingStatus:
                 case_uuid=self.cases[selected_case_name],
                 processing_status=selected_task_status if selected_task_status else None
             )
-            
+
             if tasks_by_case:
                 df = pd.DataFrame(tasks_by_case)
-                
-                # 1. FIX ARROW SERIALIZATION: Convertir TOUTES les colonnes UUID/Objets en string
-                # On boucle sur toutes les colonnes pour éviter l'erreur ArrowInvalid
+
                 for col in df.columns:
-                    # Si la colonne contient des objets (comme UUID), on transforme tout en str
                     if df[col].dtype == 'object':
                         df[col] = df[col].apply(lambda x: str(x) if x is not None else "")
 
-                # --- Logique de Filtrage par Handler ---
                 if selected_handler_id:
                     handler_info = OSIR_DB.handler.get(handler_id=selected_handler_id)
-                    
+
                     if handler_info and 'task_ids' in handler_info:
-                        # Conversion en liste de strings pour matcher avec df["task_id"]
                         target_task_ids = [str(tid) for tid in handler_info['task_ids']]
-                        
+
                         if "task_id" in df.columns:
                             df = df[df["task_id"].isin(target_task_ids)]
                     else:
-                        df = pd.DataFrame() 
+                        df = pd.DataFrame()
 
-                # --- Autres Filtres ---
                 if selected_module and not df.empty and "module" in df.columns:
                     df = df[df["module"].apply(lambda x: selected_module in x if isinstance(x, list) else x == selected_module)]
 
-                # Nettoyage
                 if not df.empty:
                     if 'agent' in df.columns:
                         df.drop(columns=['agent'], inplace=True)
-                    
-                    # Appliquer le style
+
                     styled_df = df.style.apply(color_rows, axis=1)
-                    
+
                     event = st.dataframe(
                         styled_df,
                         on_select="rerun",
-                        selection_mode="single-cell", # Allows clicking a line
+                        selection_mode="single-cell",
                         hide_index=True,
                         width='stretch'
                     )
 
-
                     # Check if a cell was clicked
                     if event.selection.cells:
                         # event.selection.cells[0] is a tuple: (row_index, col_index)
-                        selected_cell = event.selection.cells[0] 
+                        selected_cell = event.selection.cells[0]
                         selected_row_index = selected_cell[0]  # Access the row (first part of tuple)
-                        
+
                         # Retrieve data from the original DataFrame using .iloc
                         selected_row = df.iloc[selected_row_index]
-                        
+
                         previous_task_id = st.session_state.selected_task_id
                         # Save values to session state for Tab 2
                         st.session_state.selected_task_id = str(selected_row["task_id"])
@@ -129,19 +119,19 @@ class ProcessingStatus:
                                 html(switch(3), height=0, width=0)
 
                 else:
-                    st.info("Aucune tâche ne correspond aux critères sélectionnés.")
+                    st.info("No tasks match the selected criteria.")
             else:
-                st.info("Aucune tâche trouvée pour ce cas.")
+                st.info("No tasks found for this case.")
         else:
-            st.info("Veuillez sélectionner un nom de cas.")     
-    
+            st.info("Please select a case name.")
+
     @staticmethod
     def display_task_details(task_info):
         trace = task_info.get('trace', {})
-        
+
         # 1. Top Metadata Header
         st.markdown(f"### 🛠️ Task: `{task_info['task_id']}`")
-        
+
         # Metadata Row 1: Case and IDs
         m1, m2 = st.columns([2, 1])
         with m1:
@@ -179,11 +169,11 @@ class ProcessingStatus:
         # 4. Execution Traces (Now always visible)
         st.write("#### 📜 Execution Traces")
         logs = trace.get('logs', [])
-        
+
         if logs:
             # We join the logs with newlines
             log_content = "\n".join(logs)
-            
+
             # Display logs in a scrollable code block for terminal feel
             st.code(log_content, language="log", line_numbers=True)
         else:
@@ -191,12 +181,13 @@ class ProcessingStatus:
 
         # Optional: Display raw timestamps at the very bottom
         st.caption(f"Task created: {task_info.get('timestamp')} | Finished: {trace.get('end_time', 'N/A')}")
-    
+
     @staticmethod
     def delete_handler_task(case_uuid):
         if case_uuid:
             OSIR_DB.handler.delete(case_uuid=case_uuid)
             OSIR_DB.task.delete(case_uuid=case_uuid)
+
 
 st.set_page_config(
     page_title="OSIR",
@@ -217,9 +208,11 @@ if "selected_handler_id" not in st.session_state:
     st.session_state.selected_handler_id = ""
 if "selected_case_name" not in st.session_state:
     st.session_state.selected_case_name = ""
-tab1, tab2, tab3, tab4 = st.tabs(["Handler By Case", "Tasks By Case", "Tasks Ongoing" , "Task Logs"])
+tab1, tab2, tab3, tab4 = st.tabs(["Handler By Case", "Tasks By Case", "Tasks Ongoing", "Task Logs"])
 
 # 1. Update the function to include a unique timestamp inside the string
+
+
 def switch(tab_index):
     return f"""
     <script>
@@ -233,8 +226,8 @@ def switch(tab_index):
     </script>
     """
 
+
 with tab1:
-    # Utiliser des colonnes pour organiser le header et le bouton Refresh
     header_col1, header_col2 = st.columns([10, 1])
 
     with header_col1:
@@ -245,27 +238,23 @@ with tab1:
         )
 
     with header_col2:
-        # Ajouter le bouton Refresh dans la colonne à droite du header
-        st.markdown("<br>", unsafe_allow_html=True)  # Ajouter un espace vertical
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("↻ Refresh", help="Refresh data", width='stretch'):
             st.rerun()
 
-    
-    
     processing_status = ProcessingStatus()
 
     selected_case_name = st.selectbox("Select a case name", [""] + list(processing_status.cases.keys()))
 
     processing_status_ = st.selectbox(
-        "Filtrer par Processing Status (optionnel) :",
+        "Filter by Processing Status (optional):",
         options=["", "processing_started", "processing_done", "processing_failed"]
     )
     exclude_status = st.selectbox(
-        "Exclure Processing Status (optionnel) :",
+        "Exclude Processing Status (optional):",
         options=["", "processing_started", "processing_done", "processing_failed"]
-    )    
+    )
 
-    
     handlers = OSIR_DB.handler.list(
         case_uuid=processing_status.cases[selected_case_name] if selected_case_name else None,
         processing_status=processing_status_ if processing_status_ else None,
@@ -276,53 +265,44 @@ with tab1:
     if handlers:
         df = pd.DataFrame(handlers)
 
-        # Convertir les UUID en chaînes pour l'affichage
-        uuid_columns = ["handler_id", "case_uuid"]
+        uuid_columns = ["handler_id", "case_uuid", "created_at"]
         for col in uuid_columns:
             if col in df.columns:
                 df[col] = df[col].astype(str)
 
-         # Convertir la colonne task_ids (liste d'UUID) en chaînes
+        df["created_at"] = df["created_at"].str[:19]
         if "task_ids" in df.columns:
             df["task_ids"] = df["task_ids"].apply(
                 lambda task_list: [str(task) for task in task_list] if isinstance(task_list, list) else str(task_list)
             )
-        
-         # Réorganiser les colonnes
-        columns_order = ["case_name", "modules", "processing_status"]
-        # Ajouter les autres colonnes qui ne sont pas déjà dans columns_order
+
+        columns_order = ["created_at", "case_name", "modules", "processing_status"]
         other_columns = [col for col in df.columns if col not in columns_order]
         columns_order.extend(other_columns)
 
-        # Réorganiser le DataFrame
         df = df[columns_order]
-        # Fonction pour colorer les lignes en fonction du processing_status
 
-        # Appliquer le style
+        df.drop(columns=['case_uuid'], inplace=True)
+
         styled_df = df.style.apply(color_rows, axis=1)
 
-        
-        # Afficher le DataFrame
-        # st.dataframe(styled_df, width='stretch')
-        # 2. Add Row Selection capability
         event = st.dataframe(
             styled_df,
             on_select="rerun",
-            selection_mode="single-cell", # Allows clicking a line
+            selection_mode="single-cell",  # Allows clicking a line
             hide_index=True,
             width='stretch'
         )
 
-
         # Check if a cell was clicked
         if event.selection.cells:
             # event.selection.cells[0] is a tuple: (row_index, col_index)
-            selected_cell = event.selection.cells[0] 
+            selected_cell = event.selection.cells[0]
             selected_row_index = selected_cell[0]  # Access the row (first part of tuple)
-            
+
             # Retrieve data from the original DataFrame using .iloc
             selected_row = df.iloc[selected_row_index]
-            
+
             previous_handler_id = st.session_state.selected_handler_id
 
             # Save values to session state for Tab 2
@@ -333,10 +313,9 @@ with tab1:
             if previous_handler_id != selected_row["handler_id"]:
                 with js_trigger:
                     html(switch(1), height=0, width=0)
-                
-            
+
     else:
-        st.info("Aucun handler trouvé.")
+        st.info("No handler found.")
 
     if selected_case_name:
         with st.expander("⚠️ Dangerous action: Clear all tables for this case"):
@@ -349,7 +328,6 @@ with tab1:
                 st.success(f"✅ All data related to case '{selected_case_name}' was deleted from the database.")
 
 with tab2:
-    # Utiliser des colonnes pour organiser le header et le bouton Refresh
     header_col1, header_col2 = st.columns([10, 1])
 
     with header_col1:
@@ -359,60 +337,47 @@ with tab2:
             color_name="violet-70",
         )
 
-    
-
-    
-    
     processing_status = ProcessingStatus()
 
-    # --- Sync Logic ---
-    # Retrieve passed values from session state (with fallbacks)
     passed_case_name = st.session_state.get('selected_case_name', "")
     passed_handler_id = st.session_state.get('selected_handler_id', "")
 
-    
-        
-    # Filtres
-    col1, col2, col3, col4 = st.columns(4)        
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         case_options = list(processing_status.cases.keys())
-        # Find the index of the passed case_name
         try:
             case_index = case_options.index(passed_case_name)
         except ValueError:
             case_index = 0
 
         selected_case_name = st.selectbox(
-            "Case name", 
-            case_options, 
+            "Case name",
+            case_options,
             index=case_index
         )
 
     with col2:
-        # Récupérer la liste des handler_id pour le cas sélectionné
         handlers = OSIR_DB.handler.list(case_uuid=processing_status.cases[selected_case_name])
         handler_ids = [str(handler["handler_id"]) for handler in handlers]
-        
-        # Options include an empty string at the beginning
+
         all_handler_options = [""] + handler_ids
-        
-        # Find the index of the passed handler_id
+
         try:
             handler_index = all_handler_options.index(passed_handler_id)
         except ValueError:
             handler_index = 0
 
         selected_handler_id = st.selectbox(
-            "Handler ID", 
-            all_handler_options, 
+            "Handler ID",
+            all_handler_options,
             index=handler_index
         )
 
     with col3:
         task_status_options = ["", "processing_started", "processing_done", "processing_failed"]
         selected_task_status = st.selectbox("Task status", task_status_options)
-        
+
     with col4:
         # Fetch modules for the selected case
         task_list = OSIR_DB.task.list(case_uuid=processing_status.cases[selected_case_name])
@@ -425,11 +390,10 @@ with tab2:
         selected_task_status=selected_task_status,
         selected_handler_id=selected_handler_id,
         selected_module=selected_module
-    )  
+    )
 
     with header_col2:
-        # Ajouter le bouton Refresh dans la colonne à droite du header
-        st.markdown("<br>", unsafe_allow_html=True)  # Ajouter un espace vertical
+        st.markdown("<br>", unsafe_allow_html=True)
         if st.button("↻ Refresh", help="Refresh data", width='stretch', key="a"):
             if selected_case_name:
                 processing_status.task_by_case(
@@ -467,18 +431,18 @@ with tab3:
             if col in df.columns:
                 df[col] = df[col].astype(str)
 
-        df.drop(columns=['agent'], inplace=True)       
-        st.dataframe(df,  width='stretch')
+        df.drop(columns=['agent'], inplace=True)
+        st.dataframe(df, width='stretch')
     else:
         st.info("No task Found")
 
 with tab4:
     colored_header(
-        label="Taks Logs",
+        label="Tasks Logs",
         description="",
         color_name="violet-70",
     )
-    
+
     passed_task_id = st.session_state.get('selected_task_id', "")
     info = OSIR_DB.task.get(task_id=passed_task_id)
     if info:
@@ -500,5 +464,3 @@ with tab4:
 
 # Sidebar
 MasterSideBar.sidebar()
-
-

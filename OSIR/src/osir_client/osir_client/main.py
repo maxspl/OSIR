@@ -10,4 +10,3 @@ osir_cli.cases.list()
 # # client = OsirApiClient("")
 
 # client.osir_case.create("test_2").apply_module('evtx')
-

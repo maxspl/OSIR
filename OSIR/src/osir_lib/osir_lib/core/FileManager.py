@@ -6,29 +6,35 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
+
 class FileManager:
 
     @staticmethod
     def _get_file_path(name: str, base_dir: Path, raise_error: bool = True) -> Path:
         """
-        Méthode privée générique pour la recherche de fichiers YAML.
-        Utilise pathlib.rglob pour une recherche récursive efficace.
-        
-        Args:
-            name (str): Le nom du fichier (avec ou sans .yml).
-            base_dir (Path): Le répertoire de base où effectuer la recherche.
+            Generic private method for locating YAML configuration files within the project structure.
 
-        Returns:
-            Path: Le chemin absolu du fichier trouvé.
-            
-        Raises:
-            FileNotFoundError: Si le fichier n'est pas trouvé.
+            This method uses a recursive, case-insensitive search (via pathlib.rglob) to find 
+            module or task definitions. Within the OSIR ecosystem, this ensures that the 
+            orchestrator can dynamically locate tool configurations regardless of their 
+            nesting level in the modules directory.
+
+            Args:
+                name (str): The filename to search for (e.g., 'mft.yml' or 'evtx').
+                base_dir (Path): The root directory where the recursive search should begin.
+                raise_error (bool): If True, triggers a FileNotFoundError when no match is found.
+
+            Returns:
+                Path: The absolute path to the discovered file, or None if not found and raise_error is False.
+
+            Raises:
+                FileNotFoundError: If the specified file cannot be located within the base_dir hierarchy.
         """
-        base_path = base_dir 
+        base_path = base_dir
         candidate = base_path / name
         if candidate.exists() and candidate.is_file():
             return candidate
-        
+
         def case_insensitive_pattern(filename: str) -> str:
             return "".join(f"[{c.lower()}{c.upper()}]" if c.isalpha() else c for c in filename)
 
@@ -37,13 +43,13 @@ class FileManager:
         for path in base_dir.rglob(pattern):
             if path.is_file():
                 return path
-            
+
         logger.error(f"No {name} in directory {base_path}")
         if raise_error:
             raise FileNotFoundError(f"No {name} in directory {base_path}")
-        
+
         return None
-    
+
     @staticmethod
     def get_module_path(module: str) -> Path:
         module = module if module.endswith('.yml') else module + '.yml'
@@ -53,12 +59,12 @@ class FileManager:
     def get_profile_path(profile: str, raise_error: bool = True) -> Path:
         profile = profile if profile.endswith('.yml') else profile + '.yml'
         return FileManager._get_file_path(profile, OSIR_PATHS.PROFILES_DIR, raise_error)
-    
+
     @staticmethod
     def get_config_path(config: str) -> Path:
         config = config if config.endswith('.yml') else config + '.yml'
         return FileManager._get_file_path(config, OSIR_PATHS.SETUP_DIR)
-    
+
     @staticmethod
     def resolve_modules_parent_dir(modules):
         """
@@ -80,7 +86,7 @@ class FileManager:
                         relative_path = os.path.relpath(os.path.join(root, file), OSIR_PATHS.MODULES_DIR)
                         paths.append(relative_path)
         return paths
-    
+
     @staticmethod
     def get_files_in_cases(directory):
         """
@@ -149,11 +155,12 @@ class FileManager:
         """
         with open(filepath, 'r') as file:
             return yaml.safe_load(file)
-    
+
     @staticmethod
     def create_case(directory: str, case_name: str):
         """
-        Create a new case directory and.
+        Create a new case directory
+
         Args:
             directory (str): The directory where the case will be created.
             case_name (str): The name of the case (will be the directory name).
@@ -170,4 +177,3 @@ class FileManager:
         os.makedirs(case_path)
 
         return ('created', case_path)
-

@@ -6,11 +6,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class MailModule(LogUtils):
     """
     PyModule to perform processing operations on mail logs.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.
@@ -45,7 +47,7 @@ class MailModule(LogUtils):
         try:
             logger.debug(f"""Processing Started: \n
                     File Input: {self.module.input.file} \n""")
-            
+
             writer_queue = self.start_writer_thread()
 
             for line in self.get_log():
@@ -62,10 +64,10 @@ class MailModule(LogUtils):
     def parse(self, log: str) -> dict:
         """
         Parse a single log line using the structure defined in the init.
-        
+
         Args:
             log (str): The log line to parse.
-        
+
         Returns:
             dict: Parsed log data.
         """

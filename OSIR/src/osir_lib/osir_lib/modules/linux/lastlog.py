@@ -7,11 +7,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class LastlogModule(LogUtils):
     """
     PyModule to perform processing operations on Lastlog files.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.
@@ -70,7 +72,7 @@ class LastlogModule(LogUtils):
                         log_entry = lastlog_file.read(self.struct_size["legacy"])
                         parsed_log = self.parse(log_entry, "legacy")
 
-                    if parsed_log["_time"] != "1970/01/01 01:00:00": 
+                    if parsed_log["_time"] != "1970/01/01 01:00:00":
                         parsed_log["uid"] = uid
                         writer_queue.put(parsed_log)
 

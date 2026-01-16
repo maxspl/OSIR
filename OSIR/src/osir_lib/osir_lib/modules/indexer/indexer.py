@@ -9,11 +9,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class InjectionModule(LogUtils):
     """
     PyModule to inject log into Splunk.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.
@@ -45,11 +47,11 @@ class InjectionModule(LogUtils):
                     if module_to_process:
                         logger.debug(f"Module found {dir_name}")
                         indexer_data = module_to_process.splunk
-                        if indexer_data: 
+                        if indexer_data:
                             tool_ = copy.deepcopy(self.module.tool)
-                            tool_.cmd = tool_.cmd.replace('{indexer_path}',os.path.join(self._dir_to_process, module_to_process._module_filepath))
+                            tool_.cmd = tool_.cmd.replace('{indexer_path}', os.path.join(self._dir_to_process, module_to_process._module_filepath))
                             tool_.cmd = tool_.cmd.replace('{input_dir}', os.path.join(self._dir_to_process, dir_name))
-                            tool_.cmd = tool_.cmd.replace('{case_name}',os.path.basename(self._dir_to_process))
+                            tool_.cmd = tool_.cmd.replace('{case_name}', os.path.basename(self._dir_to_process))
                             tool_.run_local()
                     else:
                         logger.warning(f"Module not found {dir_name}")

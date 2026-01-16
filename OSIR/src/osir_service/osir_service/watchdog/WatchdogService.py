@@ -29,6 +29,7 @@ class CaseSnapshot:
     """
     Class to snapshot the directory entries.
     """
+
     def __init__(self, case_path):
         """
         Initialize the CaseSnapshot with the given case path.
@@ -44,7 +45,7 @@ class CaseSnapshot:
         Scan the directory and subdirectories to record entries.
         """
         self.entries = []  # Reset entries before scanning
-        
+
         def scan(current_path):
             with os.scandir(current_path) as it:
                 for entry in it:
@@ -53,11 +54,11 @@ class CaseSnapshot:
                         scan(entry.path)  # Recursively scan subdirectory
                     elif entry.is_file():
                         self.entries.append((entry.path, 'file'))
-        
+
         scan(self.case_path)
         # Add case_path
         self.entries.append((self.case_path, 'directory'))
-    
+
     def get_entries_set(self):
         """
         Get a set of the directory entries for easy comparison.
@@ -67,13 +68,14 @@ class CaseSnapshot:
         """
         # Return a set of entries for easy comparison
         return set(self.entries)
-    
+
 
 class ModuleHandler(FileSystemEventHandler):
     """
     Handles file system events to trigger processing modules based on file or directory changes that match specified patterns.
     """
-    def __init__(self, case_path: Path, cooldown_period: int, module_instances: list[OsirModuleModel], case_uuid, handler_uuid = None):
+
+    def __init__(self, case_path: Path, cooldown_period: int, module_instances: list[OsirModuleModel], case_uuid, handler_uuid=None):
         """
         Initializes the ModuleHandler with configurations to monitor file and directory events related to a specific case.
 
@@ -91,7 +93,7 @@ class ModuleHandler(FileSystemEventHandler):
         self.last_modified_times = {}
         self.module_instances: list[OsirModuleModel] = module_instances
         self.case_uuid = case_uuid
-        
+
         self.last_size = {}
         self.last_processed = set()
 
@@ -101,23 +103,17 @@ class ModuleHandler(FileSystemEventHandler):
             db_postgres = "master-postgres"
         else:
             db_postgres = self.agent_config.master_host
-        
+
         # Initialize a set and a lock to keep track of active timers
         self.active_timers = set()
         self.timers_lock = threading.Lock()
-        
-
-        # Create tables for each
-        for module in module_instances:
-            OSIR_DB.create_table_processing_status(module.module_name)
 
         OSIR_DB.handler.create(
-            handler_id=self.handler_uuid, 
-            case_uuid=self.case_uuid, 
-            modules=[module.module_name for module in module_instances], 
+            handler_id=self.handler_uuid,
+            case_uuid=self.case_uuid,
+            modules=[module.module_name for module in module_instances],
             task_ids=[]
         )
-
 
     def monitor_directory(self, case_path, interval=5, reprocess=False):
         """
@@ -129,11 +125,11 @@ class ModuleHandler(FileSystemEventHandler):
             reprocess (bool): If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.
         """
         casesnapshot = CaseSnapshot(case_path)
-        
+
         if not reprocess:
             # Fetch previously stored entries
             logger.debug(f"Fetching previously stored entries for case_uuid={self.case_uuid}")
-            previous_entries = set(OSIR_DB.utils.get_stored_case_snapshot(case_path))
+            previous_entries = set(OSIR_DB.snapshot.get_stored_case_snapshot(case_path))
             if not previous_entries:
                 logger.debug("No previous entries found, starting with an empty set.")
         else:
@@ -163,30 +159,27 @@ class ModuleHandler(FileSystemEventHandler):
                 logger.debug(f"Time taken to process new items: {new_entries_duration:.4} seconds")
             else:
                 logger.debug("No new item detected. Checking if a task is still ongoing before exiting...")
-                if not OSIR_DB.utils.is_processing_active(self.handler_uuid):
+                if not OSIR_DB.handler.is_processing_active(self.handler_uuid):
                     with self.timers_lock:
                         if not self.active_timers:
                             logger.debug("Case snaphost is being saved before exiting...")
-                            OSIR_DB.utils.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
+                            OSIR_DB.snapshot.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
                             if OSIR_DB.handler.check_handler_failure(self.handler_uuid):
                                 OSIR_DB.handler.update(self.handler_uuid, "processing_failed")
                             else:
                                 OSIR_DB.handler.update(self.handler_uuid, "processing_done")
                             exit()
             previous_entries = current_entries
-            
+
             time.sleep(interval)
-    
+
     def check_match(self, src_path, pattern, module_name):
-        """
-        Détermine si le chemin correspond au motif (Regex ou Glob).
-        """
         src_path_obj = Path(src_path)
         src_path_str = str(src_path_obj)
-        
+
         is_regex = False
         clean_pattern = pattern
-        
+
         if pattern.startswith(('r"', "r'")):
             is_regex = True
             clean_pattern = pattern[2:-1]
@@ -201,10 +194,24 @@ class ModuleHandler(FileSystemEventHandler):
             if src_path_obj.match(pattern):
                 logger.info(f"MATCH [Glob] : {src_path_str} avec {pattern} (Module: {module_name})")
                 return True
-                
+
         return False
 
     def on_created_new(self, event, module: OsirModuleModel):
+        """
+            Handles the creation of new files or directories by checking them against 
+            module-specific filtering rules before triggering processing.
+
+            Args:
+                event (watchdog.events.FileSystemEvent): The event object representing 
+                    the file system change.
+                module (OsirModuleModel): The module configuration containing input 
+                    types, patterns, and processing logic.
+
+            Returns:
+                None: This method performs actions (logging, triggering processing) 
+                    but does not return a value.
+        """
         if not hasattr(event, 'src_path'):
             logger.warning("Événement sans chemin source, ignoré.")
             return
@@ -216,13 +223,13 @@ class ModuleHandler(FileSystemEventHandler):
 
         if not event.is_directory and module.input.type != "file":
             return
-        
+
         output_dir = Path(self.case_path) / module.module_name
         event_path = Path(event.src_path).resolve()
 
         if output_dir in event_path.parents or event_path == output_dir:
             return
-                    
+
         file_module_pair = (event.src_path, module.module_name)
 
         if file_module_pair in self.last_processed:
@@ -231,7 +238,6 @@ class ModuleHandler(FileSystemEventHandler):
         if not hasattr(module.input, 'paths') or not module.input.paths:
             logger.debug(f"Aucun motif de chemin défini pour le module {module.__class__.__name__}, ignoré.")
             return
-        
 
         for pattern in module.input.paths:
 
@@ -245,7 +251,7 @@ class ModuleHandler(FileSystemEventHandler):
                     self.handle_directory_event(event, module)
                 elif module.input.type == "file":
                     self.process(event.src_path, module)
-                
+
                 break
 
     def on_created(self, event):  # triggered for files and dir but targets dirs only
@@ -256,7 +262,7 @@ class ModuleHandler(FileSystemEventHandler):
             event: The event object representing the file or directory creation event.
         """
         for module_instance in self.module_instances:
-            # TODO: Test this with a full profile 
+            # TODO: Test this with a full profile
             if hasattr(module_instance.input, 'paths') and module_instance.input.paths:
                 self.on_created_new(event, module_instance)
             # TODO: Remove this LEGACY
@@ -294,8 +300,8 @@ class ModuleHandler(FileSystemEventHandler):
                 # Handle dirs
                 if (str(module_path) not in str(event.src_path) and  # don't process input if it is in the same module directory
                         input_type == "dir" and
-                        event.is_directory):  
-                    
+                        event.is_directory):
+
                     if is_path_pattern_suffix_regex and path_regex.search(str(event.src_path)):  # Regex match for directories
                         logger.debug(f"{module_name} Directory '{event.src_path}' will be processed (regex match)")
                         self.handle_directory_event(event, module_instance)
@@ -319,7 +325,7 @@ class ModuleHandler(FileSystemEventHandler):
                         input_type == "file" and
                         not event.is_directory and
                         file_module_pair not in self.last_processed):
-                    
+
                     if is_path_pattern_suffix_regex and path_regex.search(event.src_path):  # Regex match for files
                         if re.search(file_regex, os.path.basename(event.src_path)):
                             self.last_processed.add(file_module_pair)
@@ -338,7 +344,7 @@ class ModuleHandler(FileSystemEventHandler):
                             self.last_processed.add(file_module_pair)
                             self.process(event.src_path, module_instance)
                     elif not path_pattern_suffix and file_regex.pattern:  # If on_close triggered, the filename regex already matched
-                        if re.search(file_regex, os.path.basename(event.src_path)):  
+                        if re.search(file_regex, os.path.basename(event.src_path)):
                             self.last_processed.add(file_module_pair)
                             self.process(event.src_path, module_instance)
 
@@ -352,11 +358,11 @@ class ModuleHandler(FileSystemEventHandler):
         """
         current_time = time.time()
         self.last_modified_times[event.src_path] = current_time
-        
+
         # Check directory size immediately and store it
         current_size = self._get_directory_size(event.src_path)
         self.last_size[event.src_path] = current_size
-        
+
         # Start a new timer to check for idleness
         timer = Timer(self.cooldown, self._check_for_idle, [event.src_path, module_instance])
         try:
@@ -368,12 +374,12 @@ class ModuleHandler(FileSystemEventHandler):
         except Exception as e:
             logger.debug(f"{module_instance.module_name} Timer error for {event.src_path}. {str(e)}")
         logger.debug(f"{module_instance.module_name} Directory '{event.src_path}' is busy")
-    
+
     def _get_directory_size(self, path: str) -> int:
         """Calculates total size using pathlib."""
         root = Path(path)
         return sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
-    
+
     def _check_parent(self, path, module_instance: OsirModuleModel):
         logger.debug(f"Checking if {module_instance.module_name} idle is not parent of another idle")
         # Convert path to a Path object
@@ -385,7 +391,7 @@ class ModuleHandler(FileSystemEventHandler):
                 logger.debug(f"{module_instance.module_name} is parent of {current_idle_path}, the module can't be executed")
                 return False
         return True
-    
+
     def _check_for_idle(self, path, module_instance: OsirModuleModel):
         """
         Checks if the directory has been idle based on size changes and triggers further processing if idle.
@@ -397,7 +403,7 @@ class ModuleHandler(FileSystemEventHandler):
         logger.debug(f"Starting _check_for_idle for {path} - {module_instance.module_name}")
         current_size = self._get_directory_size(path)
         previous_size = self.last_size.get(path, 0)
-        
+
         if current_size == previous_size and self._check_parent(path, module_instance):
             logger.debug(f"{module_instance.module_name} Directory '{path}' is now idle")
             self.process(path, module_instance)
@@ -413,31 +419,29 @@ class ModuleHandler(FileSystemEventHandler):
 
     def process(self, file_math: Path, module_instance: OsirModuleModel):
         """
-        Initiates processing of a directory based on the module configuration.
+            Initiates processing of a directory based on the module configuration.
 
-        Args:
-            directory_path (str): Path to the directory to be processed.
-            module_info (dict): Dictionary containing module information.
+            Args:
+                directory_path (str): Path to the directory to be processed.
+                module_info (dict): Dictionary containing module information.
         """
 
         logger.debug(f"""{module_instance.module_name}.yaml - Processing : \n
                     Case Path : {self.case_path} \n
                     File Math : {Path(file_math).relative_to(self.case_path)} \n""")
-        
+
         module_instance = copy.deepcopy(module_instance)
 
         module_instance.input.match = file_math
-
-        OSIR_DB.utils.store_data(self.case_path, module_instance, "task_created", self.case_uuid)
 
         self._push_task(module_instance)
 
     def _push_task(self, module_instance: OsirModuleModel):
         """
-        Pushes a task to the task queue for processing based on the current module configuration.
+            Pushes a task to the task queue for processing based on the current module configuration.
 
-        Args:
-            module_instance: The module instance to be processed.
+            Args:
+                module_instance: The module instance to be processed.
         """
         task_params = (normalize_osir_path(self.case_path), module_instance, self.case_uuid, self.handler_uuid)
         TaskService.push_task(*task_params)

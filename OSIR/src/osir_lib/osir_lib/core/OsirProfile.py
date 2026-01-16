@@ -5,31 +5,46 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
+
 class OsirProfile(OsirProfileModel):
+    """
+        Represents a forensic execution profile within the OSIR framework.
+
+        Attributes:
+            modules_instance (list[OsirModule]): A list of fully initialized 
+                OsirModule objects derived from the profile configuration.
+    """
     modules_instance: list[OsirModule] = None
 
     def __init__(self, **data):
+        """
+            Initializes the OsirProfile and automatically loads nested modules.
+        """
         super().__init__(**data)
 
         # -------- AUTO-CONVERSIONS OF NESTED MODELS -------- #
-        
-        if self.modules : 
-            self.modules_instance: list[OsirModule] = [OsirModule.from_yaml(FileManager.get_module_path(module)) for module in self.modules]
+
+        if self.modules:
+            self.modules_instance: list[OsirModule] = [
+                OsirModule.from_yaml(FileManager.get_module_path(module))
+                for module in self.modules
+            ]
 
     def _validate_modules_configs(self):
         """
-        Validates the configurations of all selected modules, checking their existence, operating system compatibility, and requirements.
-        
-        Raises:
-            SystemExit: If any validation checks fail, indicating critical errors in module configuration.
+            Validates the compatibility and requirements of all modules in the profile.
+
+            Raises:
+                SystemExit: If modules target conflicting operating systems.
         """
-        # Validate os
+        # Validate operating system compatibility across the module set
         os_values = set()
         for module_instance in self.modules_instance:
             os_values.add(module_instance.os)
 
+        # A profile is valid if all modules share an OS or are OS-agnostic ("all")
         if len(os_values) == 1 or "all" in os_values:
             logger.debug("All module instances have the same OS.")
         else:
-            logger.error("Modules instances have different OS. Please check configuration.")       
+            logger.error("Modules instances have different OS. Please check configuration.")
             exit()

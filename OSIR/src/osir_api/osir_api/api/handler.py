@@ -16,8 +16,10 @@ router = APIRouter()
 # API_CALL : Get Handler Status
 # ==========================================
 
+
 class GetHandlerStatusRequest(BaseModel):
     handler_id: UUID
+
 
 class GetHandlerStatusResponseCore(BaseModel):
     handler_id: UUID
@@ -27,12 +29,14 @@ class GetHandlerStatusResponseCore(BaseModel):
     task_ids: list[UUID]
     processing_status: str
 
+
 class GetHandlerStatusResponse(OsirIpcResponse):
     response: GetHandlerStatusResponseCore
-    
-@router.post("/handler/status", 
-    response_model=GetHandlerStatusResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+
+
+@router.post("/handler/status",
+             response_model=GetHandlerStatusResponse,
+             responses={500: {"model": UnexpectedExceptionResponse}})
 def status_handler(handler: GetHandlerStatusRequest):
     try:
         client = OsirIpcClient()
@@ -46,8 +50,10 @@ def status_handler(handler: GetHandlerStatusRequest):
 # API_CALL : Get Case Handler
 # ==========================================
 
+
 class GetCaseHandlerRequest(BaseModel):
     case_name: str
+
 
 class GetHandlerStatusResponseInfo(BaseModel):
     handler_id: Optional[UUID]
@@ -57,15 +63,18 @@ class GetHandlerStatusResponseInfo(BaseModel):
     task_ids: Optional[list[UUID]]
     processing_status: Optional[str]
 
+
 class GetHandlerStatusResponseCore(BaseModel):
     handlers: list[GetHandlerStatusResponseInfo]
+
 
 class GetHandlerStatusResponse(OsirIpcResponse):
     response: GetHandlerStatusResponseCore
 
-@router.post("/handler", 
-    response_model=GetHandlerStatusResponse,
-    responses={500: {"model": UnexpectedExceptionResponse}})
+
+@router.post("/handler",
+             response_model=GetHandlerStatusResponse,
+             responses={500: {"model": UnexpectedExceptionResponse}})
 def retrieved_case_handler(request: GetCaseHandlerRequest):
     try:
         client = OsirIpcClient()

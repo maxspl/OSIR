@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ProcessingStatus(str, Enum):
     TASK_CREATED = "task_created"
     PROCESSING_PENDING = "processing_pending"

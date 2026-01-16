@@ -9,6 +9,7 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class PowerShellHistoryParser():
     """
@@ -23,13 +24,13 @@ class PowerShellHistoryParser():
         if self.module.input.type != "file":
             logger.error(f"Unsupported input type {self.module.input.type}")
             return False
-        
+
         # Handle input file
         input_path = self.module.input.match
         if not input_path:
             logger.error("input.file is empty")
             return False
-        
+
         # Read input (utf-8 with latin-1 fallback)
         try:
             with open(input_path, "r", encoding="utf-8") as fh:
@@ -39,7 +40,7 @@ class PowerShellHistoryParser():
                 input_content = fh.read()
 
         # Parse
-        records = self._parse_history(input_content) 
+        records = self._parse_history(input_content)
 
         # Construct output file
         out_path = None

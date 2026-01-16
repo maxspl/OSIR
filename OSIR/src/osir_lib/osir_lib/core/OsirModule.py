@@ -21,20 +21,30 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class OsirModule(OsirModuleModel):
     """
-        Domain class extending OsirModuleModel.
-        Automatically replaces nested models by their domain equivalents.
+        Main domain class representing a forensic processing module within OSIR.
+
+        Attributes:
+            case_path (Path): The filesystem path to the current forensic case.
+            tool (OsirTool): The forensic tool/binary logic associated with this module.
+            input (OsirInput): The source file or data to be processed.
+            output (OsirOutput): The destination and formatting logic for results.
+            endpoint_name (str): The name of the workstation or source of the artifact.
     """
     case_path: Path = None
     _module_filepath: Optional[str] = None
-    tool: Optional[OsirTool] = None        
-    input: Optional[OsirInput] = None     
-    output: Optional[OsirOutput] = None   
+    tool: Optional[OsirTool] = None
+    input: Optional[OsirInput] = None
+    output: Optional[OsirOutput] = None
     connector: Optional[OsirConnector] = None
     endpoint_name: Optional[str] = None
 
     def __init__(self, **data):
+        """
+            Initializes the OsirModule by converting base models module into OsirModule.
+        """
         super().__init__(**data)
         self._module_filepath = FileManager.get_module_path(self.module_name)
 
@@ -52,18 +62,24 @@ class OsirModule(OsirModuleModel):
 
     @model_validator(mode='after')
     def link_and_update(self) -> 'OsirModule':
-        
+        """
+            Post-initialization validator that establishes component relationships.
+
+            Returns:
+                OsirModule: The fully linked and updated module instance.
+        """
         self.endpoint_name = self._calculate_endpoint_name()
 
         for child in [self.input, self.output]:
-            child._context = self
+            if child:
+                child._context = self
 
         if self.input and hasattr(self.input, 'update'):
             self.input.update()
-            
+
         if self.output and hasattr(self.output, 'update'):
             self.output.update()
-            
+
         if self.tool and hasattr(self.tool, 'update'):
             self.tool._context = self
             self.tool.update()
@@ -73,54 +89,57 @@ class OsirModule(OsirModuleModel):
     @model_validator(mode='after')
     def validate_module_if_internal(self) -> 'OsirModuleModel':
         """
-        Pydantic validator to ensure the 'module' exists and is valid 
-        when the processor_type includes 'internal'.
+            Ensures internal Python-based modules are discoverable and valid.
+
+            Raises:
+                ValueError: If the internal module logic cannot be loaded.
         """
-        
         if "internal" in self.processor_type:
             if self.alt_module:
                 if self.find_and_load_internal_module(self.alt_module):
                     return self
-                
+
             if not self.find_and_load_internal_module():
                 raise ValueError(
                     f"The module '{self.module}' could not be found or does not "
                     f"contain a valid PyModule class within {OSIR_PATHS.PY_MODULES_DIR}."
                 )
         return self
-        
+
     @property
     def output_dir(self) -> str:
         """
-        Calculates the output directory: case_path / module_name.
-        Returns an empty string if case_path is not set.
+            Constructs the absolute path where the module results will be stored.
+
+            Returns:
+                str: The joined path as a string, or empty if no case_path is set.
         """
         if not self.case_path:
             return ""
-        
-        # Le slash '/' est l'opérateur de jonction de pathlib
+
         return str(Path(self.case_path) / self.module)
 
     @property
     def case_name(self) -> str:
         """
-        Returns the name of the directory (basename) in lowercase.
+            Extracts the identifier of the current case from the filesystem path.
+
+            Returns:
+                str: The lowercase name of the case directory.
         """
         if not self.case_path:
             return ""
-            
-        # .name récupère le dernier composant du chemin (équivalent basename)
+
         return Path(self.case_path).name.lower()
 
     @property
     def is_wsl(self):
         """
-        Checks if the script is running inside Windows Subsystem for Linux (WSL).
+            Runtime detection for the Windows Subsystem for Linux environment.
 
-        Returns:
-            bool: True if running inside WSL, False otherwise.
+            Returns:
+                bool: True if executing inside WSL, False otherwise.
         """
-        """Check if running inside WSL."""
         try:
             with open('/proc/sys/kernel/osrelease', 'rt') as f:
                 return 'microsoft' in f.read().lower() or 'wsl' in f.read().lower()
@@ -134,16 +153,19 @@ class OsirModule(OsirModuleModel):
             return False
 
     def _calculate_endpoint_name(self) -> str:
-        """La vraie logique de calcul, sans décorateur Pydantic gênant pour l'interne."""
-        if not self.endpoint or not self.input or not self.input.match: 
+        """
+            Parses the input file path to extract the originating computer name.
+
+            Returns:
+                str: The extracted hostname/endpoint, or 'UNKNOWN' if extraction fails.
+        """
+        if not self.endpoint or not self.input or not self.input.match:
             return 'UNKNOWN'
         try:
             input_match_str = str(self.input.match)
-            # Utilisation de re.search avec le pattern
             endpoint_match = re.search(self.endpoint, input_match_str)
             if endpoint_match and endpoint_match.groups():
                 return endpoint_match.group(1)
         except Exception as e:
             logger.error(f"Error extracting endpoint: {e}")
         return 'UNKNOWN'
-    

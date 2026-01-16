@@ -6,11 +6,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class BootModule(LogUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.
@@ -33,8 +35,8 @@ class BootModule(LogUtils):
             ("start_time", lambda log: self.safe_search(r"Start-Date:\s(.*?)\n", log)),
             ("_time", lambda log: self.safe_search(r"Start-Date:\s(.*?)\n", log)),
             ("_raw", lambda log: log)  # Raw log entry
-        ] 
-        
+        ]
+
     def __call__(self) -> bool:
         """
         Execute the internal processor of the module.

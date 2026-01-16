@@ -8,11 +8,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module(trace=True)
 class DpkgModule(LogUtils):
     """
     PyModule to perform processing operations on Dpkg logs.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.

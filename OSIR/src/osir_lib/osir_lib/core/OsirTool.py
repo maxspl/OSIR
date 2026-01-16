@@ -7,7 +7,7 @@ import uuid
 
 from pydantic import PrivateAttr
 import requests
-import winrm 
+import winrm
 
 from pathlib import Path, PureWindowsPath
 
@@ -31,24 +31,38 @@ RETRY_DELAY = 2  # in seconds
 if TYPE_CHECKING:
     from osir_lib.core.OsirModule import OsirModule
 
+
 class OsirTool(OsirToolModel, OsirPathTransformerMixin):
+    """
+        Orchestrates the execution of forensic binaries across varied environments.
+
+        This class acts as the final translation layer in the OSIR pipeline. It 
+        takes the high-level tool definitions and adapts them—via path transformations 
+        and command formatting—to run correctly on Linux (Local), Windows (Remote WinRM), 
+        or Windows Subsystem for Linux (WSL).
+
+        Attributes:
+            _context (OsirModule): Private link to the parent module providing metadata.
+            path (str): The resolved filesystem path to the tool binary.
+            cmd (str): The fully formatted command-line string with all arguments.
+    """
     _context: Optional["OsirModule"] = PrivateAttr(default=None)
-    
+
     def __init__(self, **data):
         super().__init__(**data)
 
     @trace_func()
     def run(self, **kwargs) -> bool:
         """
-        Executes an external tool based on the module's configuration and the operating system.
+            Primary entry point to start the tool execution.
 
-        Returns:
-            bool: True if the tool executes successfully, False otherwise.
+            Returns:
+                bool: True if the execution completed without unhandled exceptions.
         """
         if not self._context:
             logger.error("Tool context is missing! Did the validator run?")
             return False
-        
+
         logger.debug(f"Running the tool of {self._context.module_name}")
 
         match self._context.processor_os:
@@ -64,12 +78,18 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
             self._context.output._rename_items_recursively()
 
     def update(self) -> "OsirTool":
+        """
+            Injects runtime variables into the tool path and command string.
+
+            Returns:
+                OsirTool: The instance with fully resolved and formatted commands.
+        """
         ctx = self._context
-        agent_config = OsirAgentConfig() 
-        
+        agent_config = OsirAgentConfig()
+
         if self.path:
             self.path = self.safe_format(
-                self.path, 
+                self.path,
                 drive=agent_config.windows_mnt_point + ":"
             )
 
@@ -84,7 +104,7 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
                 "master_host": agent_config.smb_host,
                 "endpoint_name": ctx.endpoint_name,
             }
-            
+
             self.cmd = self.safe_format(self.cmd, **replacements)
 
             if "{optional_" in self.cmd:
@@ -102,12 +122,12 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
     def init_tool(self, processor_os):
         """
-        
-        Retrieves detailed information about the tool used by the module, if configured, including path, command,
-        source, and version. Paths are resolved based on operating system compatibility.
+            Validates the existence of the tool binary on the local or remote filesystem.
 
+            Raises:
+                FileNotFoundError: If the binary cannot be located in any known path.
         """
-        
+
         bin_dir = OSIR_PATHS.TOOL_DIR
 
         tool_path = None  # Default to None if no valid path is found
@@ -131,15 +151,15 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
         if tool_path is None:
             raise FileNotFoundError(f"Tool binary not found in bin_dir, system PATH, or provided full path: {self.path}")
-        
+
         self.path = tool_path
 
     def run_remote(self):
         """
-        Executes the tool command remotely via WinRM.
+            Executes the command on a remote Windows host using the WinRM protocol.
 
-        Returns:
-            Tuple[bool, str]: A tuple containing a boolean indicating success, and output or error message.
+            Returns:
+                Tuple[bool, str]: Success status and the combined output logs.
         """
         try:
             cmd = self.path + ' ' + self.cmd
@@ -167,14 +187,10 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
     def run_local(self, is_agent=False, timeout=3600) -> bool:
         """
-        Executes the tool command locally.
+            Spawns a local subprocess to run the tool directly on the current host.
 
-        Args:
-            is_agent (bool): Specifies whether the command is run in an agent context.
-            timeout (int): Maximum time in seconds before the command times out.
-
-        Returns:
-            Tuple[Optional[str], Optional[str]]: A tuple containing the command's stdout and stderr.
+            Returns:
+                Tuple[str, str]: The captured stdout and stderr of the process.
         """
         try:
             logger.debug(f"Executing command: {self.path} {self.cmd}")
@@ -194,7 +210,10 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
     def run_wsl_bak(self):
         """
-        Placeholder function for future WSL command execution implementation.
+            Executes a Windows binary from within a Linux WSL environment.
+
+            Returns:
+                Tuple[str, str]: The command output logs.
         """
         directory = os.path.dirname(__file__)  # Gets the directory of the current script
         absolute_path_execute = os.path.abspath(os.path.join(directory, '..', '..', '..', 'share', 'fifos', 'execute'))  # Converts to absolute path
@@ -232,9 +251,12 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
     def run_wsl(self, timeout=3600):
         """
-        Placeholder function for future WSL command execution implementation.
+            Executes a Windows binary from within a Linux WSL environment.
+
+            Returns:
+                Tuple[str, str]: The command output logs.
         """
-        
+
         try:
             command = self.path + ' ' + self.cmd
             command = f"/mnt/c/Windows/System32/WindowsPowerShell/v1.0//powershell.exe -c '{command}'"
@@ -256,10 +278,10 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
     def update_env(self):
         """
-        Updates the environment variables for the tool command execution.
+            Prepares a clean environment variable dictionary for the subprocess.
 
-        Returns:
-            dict: A dictionary containing the updated environment variables.
+            Returns:
+                dict: A copy of the environment variables with OSIR-specific additions.
         """
         if self.env:
             my_env = os.environ.copy()

@@ -1,3 +1,6 @@
+from contextlib import contextmanager
+import logging
+import io
 import json
 import os
 from pathlib import Path, PureWindowsPath
@@ -5,14 +8,22 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
-import io
-import logging
-from contextlib import contextmanager
 
 @contextmanager
 def capture_log_output(target_logger):
     """
-    Capture temporairement les logs envoyés à un logger spécifique.
+        Temporarily captures log emissions from a specific logger into an in-memory buffer.
+
+        In the OSIR orchestration flow, this context manager is used to intercept 
+        module-specific logs (DEBUG, INFO, ERROR) so they can be saved into 
+        the task trace database. This provides a granular view of what happened 
+        during a specific forensic execution without cluttering the main system log.
+
+        Args:
+            target_logger (logging.Logger): The logger instance to intercept.
+
+        Yields:
+            io.StringIO: A string buffer containing the captured log data.
     """
     log_capture_string = io.StringIO()
     temp_handler = logging.StreamHandler(log_capture_string)
@@ -24,54 +35,71 @@ def capture_log_output(target_logger):
     finally:
         target_logger.removeHandler(temp_handler)
 
+
 def normalize_osir_path(input_path: str) -> str:
     """
-    Ensures the path is relative to the standard /OSIR/share mount point.
-    Useful for cleaning absolute paths that include local environment prefixes.
+        Standardizes paths to be relative to the framework's internal share mount point.
+
+        Args:
+            input_path (str): The absolute or prefixed path to normalize.
+
+        Returns:
+            str: The normalized path starting from /OSIR/share.
     """
     anchor = "/OSIR/share"
-    
+
     if anchor in str(input_path):
         s_path = str(input_path)
         return s_path[s_path.find(anchor):]
-    
+
     return input_path
 
+
 def get_latest_log_by_task_id(target_task_id: str, file_path: str = "/OSIR/share/log/task_traces.jsonl"):
+    """
+        Retrieves the most recent log trace for a specific Task ID by reading the log file in reverse.
+
+        Args:
+            target_task_id (str): The unique identifier of the forensic task.
+            file_path (str): The path to the JSONL trace file.
+
+        Returns:
+            dict: The parsed JSON trace object if found, None otherwise.
+    """
     if not os.path.exists(file_path):
         return None
 
     with open(file_path, 'rb') as f:
         try:
-            # On se place à la toute fin du fichier
+            # Move the pointer to the very end of the file
             f.seek(0, os.SEEK_END)
             pointer = f.tell()
             buffer = bytearray()
-            
+
             while pointer > 0:
                 pointer -= 1
                 f.seek(pointer)
                 char = f.read(1)
-                
-                # Si on trouve un saut de ligne ou qu'on est au début du fichier
+
+                # Check if we hit a newline or the start of the file
                 if char == b'\n' and buffer:
-                    # On décode et on vérifie le JSON
+                    # Decode and validate the JSON line
                     line = buffer[::-1].decode('utf-8')
                     trace = json.loads(line)
                     if trace.get("task_id") == target_task_id:
-                        return trace # On a trouvé le plus récent, on s'arrête
+                        return trace  # Found the most recent entry, stop search
                     buffer = bytearray()
                 elif char != b'\n':
                     buffer.extend(char)
-            
-            # Vérification de la première ligne du fichier (car pas de \n avant)
+
+            # Verification for the first line of the file (no leading newline)
             if buffer:
                 line = buffer[::-1].decode('utf-8')
                 trace = json.loads(line)
                 if trace.get("task_id") == target_task_id:
                     return trace
-                    
+
         except Exception as e:
-            print(f"Erreur de lecture inversée : {e}")
-            
+            logger.error(f"Reverse log read error: {e}")
+
     return None

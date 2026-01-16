@@ -17,7 +17,7 @@ logger: CustomLogger = AppLogger().get_logger()
 
 class LogUtils:
     """
-    
+
     A utility class for processing Unix-based log files, handling log writing, reading, and formatting.
 
     Attributes:
@@ -26,6 +26,7 @@ class LogUtils:
         default_output_dir (str): Default directory path for storing output logs based on the module name.
 
     """
+
     def __init__(self, ctx: OsirModule):
         self.ctx: OsirModule = ctx
 
@@ -36,13 +37,13 @@ class LogUtils:
 
         Args:
             line (str): The log line from which to extract the severity.
-        
+
         Returns:
             str: The extracted severity level in lowercase, or "N/A" if not found.
         """
         severity = re.search(r"debug|warning|info|notice|error|fatal|panic|statement|detail|log", line, re.IGNORECASE)
         return severity.group(0).lower() if severity else "N/A"
-    
+
     @staticmethod
     def get_date(line, regex=None, strtime=None):
         """
@@ -52,7 +53,7 @@ class LogUtils:
             line (str): The log line to parse for date information.
             regex (Optional[str]): Regular expression pattern for date extraction.
             strtime (Optional[str]): Date format string for parsing.
-        
+
         Returns:
             str: ISO formatted date string or "N/A" if no date found.
         """
@@ -63,13 +64,13 @@ class LogUtils:
         if date:
             datetime_object = datetime.datetime.strptime(date.group(0), strtime)
             return datetime_object.isoformat()
-        
+
         return "N/A"
-    
+
     def get_log(self):
         """
         Generates each line from a log file, handling .gz compressed files if needed.
-        
+
         Test multiple encodings :
             'utf-8', 'latin1', 'iso-8859-1', 'windows-1252'
 
@@ -97,7 +98,6 @@ class LogUtils:
                 except (UnicodeDecodeError, OSError) as e:
                     print(f"Error reading file with encoding {encoding}: {e}")
 
-
     @staticmethod
     def date_format(log_line):
         """
@@ -105,7 +105,7 @@ class LogUtils:
 
         Args:
             log_line (str): The log line to analyze for date format.
-        
+
         Returns:
             str: The matching date regex pattern or logs a warning if no format is found.
         """
@@ -174,12 +174,12 @@ class LogUtils:
                 if data is None:
                     queue.task_done()
                     break
-                
+
                 try:
                     with open(output_path, "a", encoding='utf-8') as file:
                         json.dump(data, file)
                         file.write('\n')
-                        file.flush() # Force l'écriture sur le disque
+                        file.flush()  # Force l'écriture sur le disque
                 finally:
                     queue.task_done()
 
@@ -199,7 +199,7 @@ class LogUtils:
         writer_thread = threading.Thread(target=self._thread_save_jsonl, args=(q, output_path))
         writer_thread.start()
         return q
-    
+
     def safe_search(self, pattern: str, log: str) -> str:
         """
         Searches for a regex pattern in a log line and returns the first group if found.
@@ -207,7 +207,7 @@ class LogUtils:
         Args:
             pattern (str): Regex pattern to search for.
             log (str): The log line to search within.
-        
+
         Returns:
             str: First matching group, or None if no match is found.
         """

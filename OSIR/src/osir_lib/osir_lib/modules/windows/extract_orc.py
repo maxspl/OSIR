@@ -4,16 +4,18 @@ import shutil
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
-from osir_lib.logger.logger import CustomLogger 
+from osir_lib.logger.logger import CustomLogger
 from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
+
 
 @osir_internal_module
 class ORC_Extractor():
     """
     Extends PyModule to perform extraction operations for DFIR ORC archives, maintaining directory structures and handling nested archives.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the ORC_Extractor with a specific case path and module configuration.
@@ -45,7 +47,6 @@ class ORC_Extractor():
             logger.error_handler(exc)
             return False
 
-
     def extract_preserving_structure(self):
         """
         Extracts files and directories from the specified archive while preserving the original directory structure.
@@ -56,15 +57,14 @@ class ORC_Extractor():
         }
         self.module.tool.cmd = self.module.tool.safe_format(self._cmd, **replacements)
         self.module.tool.run()
-        self.module.tool.cmd = self._cmd 
-        
+        self.module.tool.cmd = self._cmd
 
     def move_and_extract_preserving_structure(self):
         """
         Moves the specified archive to a new location and extracts its contents, preserving the original directory structure.
         This method handles file matching, directory creation, and manages extraction for both top-level and nested archives.
         """
-        pattern = re.compile(self._name_rex)  
+        pattern = re.compile(self._name_rex)
 
         match = pattern.match(os.path.basename(self._file_to_process))
         endpoint_name, archive_name = match.groups()

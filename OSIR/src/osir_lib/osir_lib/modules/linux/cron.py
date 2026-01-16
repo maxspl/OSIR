@@ -7,11 +7,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class CronModule(LogUtils):
     """
     PyModule to perform processing operations on Cron logs.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.

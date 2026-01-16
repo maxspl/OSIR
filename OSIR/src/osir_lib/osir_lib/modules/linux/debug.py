@@ -6,11 +6,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class DebugModule(LogUtils):
     """
     PyModule to perform processing operations on Boot logs.
     """
+
     def __init__(self, case_path: str, module: OsirModule):
         """
         Initializes the Module.

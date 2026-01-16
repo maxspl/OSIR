@@ -17,6 +17,7 @@ class MonitorCase:
     """
     Monitors a specified case path for changes that trigger module actions based on the defined module configurations.
     """
+
     def __init__(self, case_path, modules, reprocess_case):
         """
         Initializes the monitoring setup with the specified case path and modules.
@@ -30,22 +31,19 @@ class MonitorCase:
         self.case_path = case_path
         self.modules = modules
         self.reprocess_case = reprocess_case
-        
+
         self.module_instances = [OsirModuleModel.from_name(module) for module in modules]  # Transform list of str to list of module
-        self.cooldown_period = 20  # Cooldown period in seconds 
+        self.cooldown_period = 20  # Cooldown period in seconds
         case_name = os.path.basename(self.case_path)
         self.case_uuid = OSIR_DB.case.get(name=case_name)
         if not self.case_uuid:
             self.case_uuid = OSIR_DB.case.create(case_name)
-        
+
         self.stop_event = Event()
-        
-        # self.db_OSIR.store_master_status(case_path, "processing_case", self.case_uuid, self.modules)
 
     def on_inactivity(self):
         """Method to be called when inactivity is detected."""
-        # self.db_OSIR.store_master_status(self.case_path, "processing_done", self.case_uuid, self.modules)
-        logger.debug("Updated database status to processing_done due to inactivity.")
+        logger.debug("Updated Handler status to processing_done due to inactivity.")
 
     def setup_handler(self):
         """
@@ -59,5 +57,3 @@ class MonitorCase:
             self.on_inactivity()
         except Exception as e:
             logger.error_handler(e)
-        
-

@@ -19,7 +19,16 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class OsirModuleModel(BaseModel):
+    """
+        Data model defining the structure and validation for OSIR forensic modules.
+
+        This model serves as the blueprint for all modules within the framework. 
+        It validates metadata (author, version), execution requirements (OS, 
+        processor type), and the core components of the forensic task (tool, 
+        input, output, and connectors).
+    """
     version: float | str
     author: str
     module: str
@@ -35,30 +44,38 @@ class OsirModuleModel(BaseModel):
     env: Optional[list[str]] = None
     tool: Optional[OsirToolModel] = None
     input: OsirInputModel
-    output: OsirOutputModel 
+    output: OsirOutputModel
     endpoint: Optional[Pattern] = None
     connector: Optional[OsirConnectorModel] = None
 
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None
+
     @classmethod
     def from_yaml(cls, path: str) -> "OsirModuleModel":
         """
-        Load and validate an OSIR module from a YAML file.
+            Loads and validates an OSIR module from a physical YAML file.
 
-        Raises:
-            FileNotFoundError: if the YAML file does not exist
-            ValidationError: if the data does not conform to the schema
+            This method reads the module definition and ensures it conforms to 
+            the Pydantic schema before instantiation.
+
+            Args:
+                path (str): The filesystem path to the .yml module file.
+
+            Returns:
+                OsirModuleModel: A validated model instance.
+
+            Raises:
+                FileNotFoundError: If the YAML file is missing.
+                ValueError: If the YAML content is malformed or invalid.
         """
-        
         if not os.path.isfile(path):
             raise FileNotFoundError(f"YAML file not found: {path}")
-        
+
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
 
-            # Ensure the YAML actually contains a dict
             if not isinstance(data, dict):
                 raise ValueError(f"YAML content must be a dictionary, got {type(data)}")
 
@@ -71,64 +88,69 @@ class OsirModuleModel(BaseModel):
     @classmethod
     def from_name(cls, name: str) -> "OsirModuleModel":
         """
-        Load and validate an OSIR module from a YAML file.
+            Loads a module by its identifier name.
 
-        Raises:
-            FileNotFoundError: if the YAML file does not exist
-            ValidationError: if the data does not conform to the schema
+            Uses the FileManager to resolve the module's name into a physical 
+            filesystem path before loading.
+
+            Args:
+                name (str): The name of the module (e.g., 'mft', 'prefetch').
         """
         path = FileManager.get_module_path(name)
-
         return cls(**OsirModuleModel.from_yaml(path=path).model_dump())
 
     def get_module_name(self):
         """
-        Retrieves the name of the module.
-
-        Returns:
-            str: The module name.
+            Returns the unique identifier of the module.
         """
         return self.module_name
-    
+
     @property
     def module_name(self):
         return self.module
-    
+
     def find_and_load_internal_module(self, alt_module=None) -> Optional[Callable]:
         """
-        Recherche récursivement un fichier module_name.py et retourne la fonction/classe
-        décorée avec @osir_internal_module.
-        """
-        # Utilisation du glob pattern pour la recherche récursive
-        # On cherche précisément "nom_du_module.py"
-        module_name = alt_module if alt_module else self.module_name
+            Recursively locates and dynamically loads internal Python module logic.
 
+            If a module is marked as 'internal', this method searches for a 
+            corresponding .py file in the PY_MODULES_DIR. It specifically looks 
+            for a class or function decorated with @osir_internal_module (identified 
+            by the __osir_internal__ attribute).
+
+            Args:
+                alt_module (str, optional): An alternative module name to search for.
+
+            Returns:
+                Optional[Callable]: The decorated executable logic, or None if not found.
+        """
+        # Define the module name to search for
+        module_name = alt_module if alt_module else self.module_name
         root_path = Path(OSIR_PATHS.PY_MODULES_DIR)
 
+        # Recursive search for the Python source file
         target_file = next(root_path.rglob(f"{module_name}.py"), None)
 
         if not target_file:
-            print(f"Fichier {module_name}.py non trouvé dans {root_path}")
+            logger.error(f"File {module_name}.py not found in {root_path}")
             return None
 
         try:
-            # Chargement dynamique du module Python
+            # Dynamic import logic
             spec = importlib.util.spec_from_file_location(module_name, target_file)
             if spec and spec.loader:
                 module = importlib.util.module_from_spec(spec)
-                # Ajout au sys.modules pour éviter les problèmes d'imports relatifs
+                # Inject into sys.modules to handle relative imports within the library
                 sys.modules[module_name] = module
                 spec.loader.exec_module(module)
 
-                # Parcourir les attributs du module pour trouver celui décoré
+                # Scan module attributes for the OSIR internal decorator marker
                 for attr_name in dir(module):
                     attr = getattr(module, attr_name)
-                    # On vérifie la présence de l'attribut injecté par le décorateur
                     if getattr(attr, "__osir_internal__", False):
                         return attr
 
         except Exception as e:
-            print(f"Erreur lors du chargement du module {target_file}: {e}")
-        
-        return None
+            logger.error(f"Error while loading internal module {target_file}: {e}")
 
+        return None

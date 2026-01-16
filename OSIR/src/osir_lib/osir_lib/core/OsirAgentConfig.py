@@ -2,7 +2,6 @@ import os
 import yaml
 from typing import Optional, List, Dict, Any
 
-# Assurez-vous d'avoir Pydantic v2 ou v1
 from pydantic import BaseModel, Field
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.OsirSingleton import singleton
@@ -12,45 +11,90 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
-# --- MODÈLES PYDANTIC MIS À JOUR ---
 
 class BoxDetails(BaseModel):
-    """Modèle pour les détails de connexion d'une boîte distante (Remote Box)."""
+    """
+        Defines the connection parameters for a remote Windows forensic environment.
+
+        This model stores the credentials and host information required for the agent
+        to mount and interact with a remote Windows machine where forensic tools
+        might be executed.
+
+        Args:
+            host (str): IP address or hostname of the remote Windows box.
+            user (str): Username for authentication.
+            password (str): Password for authentication.
+            custom_mountpoint (str): The drive letter or path (default 'C') to be used during tasks.
+    """
     host: str
     user: str
     password: str
     custom_mountpoint: str = Field(default='C')
 
+
 class WindowsBoxConfig(BaseModel):
-    """Modèle pour la configuration de la Windows Box (inclut 'cores' si présent)."""
+    """
+        Defines the execution environment for Windows-based forensic modules.
+
+        In the OSIR workflow, 'location' determines if the tools run locally, in a 
+        Docker container (dockur), or on a remote machine. This model also allows 
+        for resource allocation by specifying CPU cores, ensuring that heavy forensic 
+        parsing doesn't overwhelm the host system.
+
+        Args:
+            location (str): The deployment type (e.g., 'local', 'remote', 'dockur').
+            cores (int, optional): The number of CPU cores allocated to the forensic tasks.
+            remote_box (BoxDetails): Nested connection details for remote execution.
+    """
     location: str
     cores: Optional[int] = None  # Ajout de cores, rendu optionnel
     remote_box: BoxDetails
 
+
 class MasterConfig(BaseModel):
-    """Modèle pour la configuration du Master."""
+    """
+        Specifies the network coordinates of the OSIR Master node.y
+
+        Args:
+            host (str): The IP address or DNS name of the OSIR Master.
+    """
     host: str
 
+
 class SplunkConfig(BaseModel):
-    """Modèle pour la configuration Splunk détaillée."""
+    """
+        Contains the authentication and connection parameters for Splunk integration.
+
+        Args:
+            host (str): The address of the Splunk server.
+            user (str): Username for the Splunk.
+            password (str): Password for the Splunk.
+            port (int): The destination port for data ingestion (usually HEC or forwarder).
+            mport (int): The Splunk Management Port (default 8089).
+            ssl (bool): Whether to use encrypted HTTPS for the connection.
+    """
     host: str
     user: str
     password: str
     port: int
     mport: int
-    ssl: bool # booléen pour True/False
+    ssl: bool  # booléen pour True/False
+
 
 class FullAgentConfig(BaseModel):
-    """Modèle racine qui valide l'intégralité du fichier agent.yml."""
+    """
+        The root validation model for the 'agent.yml' configuration file.
+
+        It acts as a single point of truth, validating that the Master, Windows Box,
+        and Splunk sections are correctly formatted and present before the agent starts.
+    """
     master: MasterConfig
     windows_box: WindowsBoxConfig
-    splunk: SplunkConfig 
+    splunk: SplunkConfig
+
 
 @singleton
 class OsirAgentConfig:
-    """
-    Classe Singleton qui charge et valide la configuration à partir du YAML en utilisant Pydantic.
-    """
     config_data: FullAgentConfig
     host_hostname: str
     host_ip_list: List[str]
@@ -60,8 +104,7 @@ class OsirAgentConfig:
 
     def __init__(self):
         """
-        Initialise l'objet AgentConfig en lisant le YAML, en le validant avec Pydantic,
-        et en initialisant les propriétés dérivées.
+            Initializes the Agent configuration by loading YAML data and environment variables.
         """
         self._load_config()
         self.host_hostname = os.getenv('HOST_HOSTNAME', '')
@@ -69,15 +112,19 @@ class OsirAgentConfig:
         self.wsl_host = os.getenv('OSIR_PATH', '')
         self.is_wsl_mode = self._is_wsl()
         self.standalone = self._is_standalone()
-        
+
     def _load_config(self):
         """
-        Charge le fichier YAML et le valide en utilisant le modèle FullAgentConfig de Pydantic.
+            Reads and validates the 'agent.yml' file using the FullAgentConfig model.
+
+            Raises:
+                YAMLError: If the file format is invalid.
+                Exception: If validation fails against the Pydantic models.
         """
         try:
             with open(FileManager.get_config_path('agent'), 'r') as file:
                 data = yaml.safe_load(file)
-            
+
             # Pydantic valide et désérialise les données
             self.config_data = FullAgentConfig.model_validate(data)
         except yaml.YAMLError as e:
@@ -86,10 +133,16 @@ class OsirAgentConfig:
         except Exception as e:
             logger.error("Échec du chargement ou de la validation de la configuration de l'agent. " + str(e))
             raise
+
     @property
     def smb_host(self):
-        # master and agent can be on same host but not windows box
-        if self.standalone and self.windows_location != "remote" and self.windows_location != "dockur":  
+        """
+            Resolves the correct IP address or hostname for SMB communication.
+
+            Returns:
+                str: The resolved hostname or IP for file sharing services.
+        """
+        if self.standalone and self.windows_location != "remote" and self.windows_location != "dockur":
             return "10.0.2.2"
         else:
             return self.master_host
@@ -100,7 +153,7 @@ class OsirAgentConfig:
     @property
     def master_host(self) -> str:
         return self.config_data.master.host
-        
+
     @property
     def windows_location(self) -> str:
         return self.config_data.windows_box.location
@@ -116,37 +169,42 @@ class OsirAgentConfig:
     @property
     def windows_mnt_point(self) -> str:
         return self.config_data.windows_box.remote_box.custom_mountpoint
-        
+
     @property
     def windows_host(self) -> str:
         return self.config_data.windows_box.remote_box.host
-        
+
     @property
     def splunk_host(self) -> str:
         return self.config_data.splunk.host
-        
+
     @property
     def splunk_user(self) -> str:
         return self.config_data.splunk.user
-        
+
     @property
     def splunk_password(self) -> str:
         return self.config_data.splunk.password
-        
+
     @property
     def splunk_port(self) -> int:
         return self.config_data.splunk.port
-        
+
     @property
     def splunk_mport(self) -> int:
         return self.config_data.splunk.mport
-        
+
     @property
     def splunk_ssl(self) -> bool:
         return self.config_data.splunk.ssl
 
     def _is_standalone(self) -> bool:
-        """Détermine si l'agent est en mode autonome."""
+        """
+            Determines if the Agent is running on the same physical or virtual host as the Master.
+
+            Returns:
+                bool: True if the Agent and Master share the same host, False otherwise.
+        """
         master_host = self.master_host
 
         if master_host in ["127.0.0.1", "localhost", "host.docker.internal"]:
@@ -160,7 +218,12 @@ class OsirAgentConfig:
         return False
 
     def _is_wsl(self) -> bool:
-        """Vérifie si le script s'exécute dans WSL."""
+        """
+            Detects if the Agent is executing within a Windows Subsystem for Linux environment.
+
+            Returns:
+                bool: True if the kernel signature matches Microsoft/WSL, False otherwise.
+        """
         try:
             with open('/proc/sys/kernel/osrelease', 'rt') as f:
                 return 'microsoft' in f.read().lower() or 'wsl' in f.read().lower()

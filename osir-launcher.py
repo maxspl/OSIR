@@ -134,6 +134,7 @@ def _dump_yaml_or_die(obj: Dict) -> str:
     except Exception as e:
         sys.exit(f"Failed to serialize YAML: {e}")
 
+
 def _matching_service_names(component: str, container_name: str) -> List[str]:
     """Service names we will try to patch.
 
@@ -716,9 +717,9 @@ def fmt_container_block(cinfo: Optional[Dict]) -> str:
     health = cinfo.get("health", "n/a")
     ports = format_ports(cinfo.get("ports_raw", ""))
     return (
-        f"Name:    {cinfo.get('name','')}\n"
-        f"ID:      {cinfo.get('id','')[:12]}\n"
-        f"Status:  {cinfo.get('status','unknown')}  (health: {health})\n"
+        f"Name:    {cinfo.get('name', '')}\n"
+        f"ID:      {cinfo.get('id', '')[:12]}\n"
+        f"Status:  {cinfo.get('status', 'unknown')}  (health: {health})\n"
         f"Running: {cinfo.get('running', False)}\n"
         f"Ports:   {ports}"
     )

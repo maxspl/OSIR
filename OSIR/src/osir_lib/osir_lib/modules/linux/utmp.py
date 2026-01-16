@@ -8,11 +8,13 @@ from osir_lib.logger import AppLogger, CustomLogger
 
 logger: CustomLogger = AppLogger().get_logger()
 
+
 @osir_internal_module
 class UtmpModule(LogUtils):
     """
     PyModule to perform processing operations on binary UTMP files.
     """
+
     def __init__(self, module: OsirModule):
         """
         Initializes the Module.
@@ -22,7 +24,7 @@ class UtmpModule(LogUtils):
             module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.
         """
         self.module = module
-        LogUtils.__init__(self,ctx=module)
+        LogUtils.__init__(self, ctx=module)
 
         self._file_to_process = module.input.file
 
@@ -79,10 +81,10 @@ class UtmpModule(LogUtils):
     def parse(self, log_chunk):
         """
         Parse a single log chunk according to the structure defined in the init.
-        
+
         Args:
             log_chunk (bytes): The binary data chunk to parse.
-        
+
         Returns:
             dict: Parsed log data.
         """

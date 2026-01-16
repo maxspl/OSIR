@@ -4,6 +4,7 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
+
 class OsirApiResponse(BaseModel):
     version: str
     status: int
@@ -22,5 +23,3 @@ class OsirApiResponse(BaseModel):
 
     def info(self):
         logger.info(self.model_dump())
-                
-        
