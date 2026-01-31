@@ -4,9 +4,15 @@ import pandas as pd
 from sqlalchemy import text
 from streamlit_extras.colored_header import colored_header
 from osir_web.utils import MasterSideBar
-from osir_service.postgres.PostgresService import OSIR_DB
+# from osir_service.postgres.PostgresService import OSIR_DB
+from osir_service.postgres.PostgresService import DbOSIR
+
 from streamlit.components.v1 import html
 
+@st.cache_resource
+def get_db():
+    return DbOSIR()
+db_instance = get_db()
 
 def color_rows(row):
     if row["processing_status"] == "processing_done":
@@ -15,19 +21,22 @@ def color_rows(row):
         return ["background-color:  lightcoral; color: lightgray;"] * len(row)
     elif row["processing_status"] == "processing_started":
         return ["background-color:  orange; color: lightgray;"] * len(row)
+    elif row["processing_status"] == "task_created":
+        return ["background-color: lightblue; color: gray;"] * len(row)
     else:
         return [""] * len(row)
 
 
 class ProcessingStatus:
-    def __init__(self):
+    def __init__(self, db_internal):
         """
         Initialize the ProcessingStatus class, setting up the database accessor and retrieving cases.
         """
+        self.db = db_internal
         self.cases: dict = self._get_cases()
 
     def _get_cases(self):
-        return {case[1]: case[0] for case in OSIR_DB.case.list()}
+        return {case[1]: case[0] for case in self.db.case.list()}
 
     def display_ongoing_tasks(self, selected_case_name):
         """
@@ -43,7 +52,7 @@ class ProcessingStatus:
         """
         # Collect data from non-empty tables
         st.echo("df")
-        tasks = OSIR_DB.task.list(self.cases[selected_case_name])
+        tasks = self.db.task.list(self.cases[selected_case_name])
 
         if tasks:
             df = pd.DataFrame(tasks)
@@ -59,9 +68,9 @@ class ProcessingStatus:
         else:
             st.info("No task ongoing")
 
-    def task_by_case(self, selected_case_name, selected_task_status, selected_handler_id, selected_module):
+    def task_by_case(self, selected_case_name, selected_task_status=None, selected_handler_id=None, selected_module=None):
         if selected_case_name:
-            tasks_by_case = OSIR_DB.task.list(
+            tasks_by_case = self.db.task.list(
                 case_uuid=self.cases[selected_case_name],
                 processing_status=selected_task_status if selected_task_status else None
             )
@@ -74,7 +83,7 @@ class ProcessingStatus:
                         df[col] = df[col].apply(lambda x: str(x) if x is not None else "")
 
                 if selected_handler_id:
-                    handler_info = OSIR_DB.handler.get(handler_id=selected_handler_id)
+                    handler_info = self.db.handler.get(handler_id=selected_handler_id)
 
                     if handler_info and 'task_ids' in handler_info:
                         target_task_ids = [str(tid) for tid in handler_info['task_ids']]
@@ -98,7 +107,8 @@ class ProcessingStatus:
                         on_select="rerun",
                         selection_mode="single-cell",
                         hide_index=True,
-                        width='stretch'
+                        width='stretch',
+                        key=f"tasks_by_case_df_{selected_case_name}_{selected_task_status}_{selected_handler_id}_{selected_module}"
                     )
 
                     # Check if a cell was clicked
@@ -185,8 +195,8 @@ class ProcessingStatus:
     @staticmethod
     def delete_handler_task(case_uuid):
         if case_uuid:
-            OSIR_DB.handler.delete(case_uuid=case_uuid)
-            OSIR_DB.task.delete(case_uuid=case_uuid)
+            self.db.handler.delete(case_uuid=case_uuid)
+            self.db.task.delete(case_uuid=case_uuid)
 
 
 st.set_page_config(
@@ -242,7 +252,7 @@ with tab1:
         if st.button("↻ Refresh", help="Refresh data", width='stretch'):
             st.rerun()
 
-    processing_status = ProcessingStatus()
+    processing_status = ProcessingStatus(db_instance)
 
     selected_case_name = st.selectbox("Select a case name", [""] + list(processing_status.cases.keys()))
 
@@ -255,7 +265,7 @@ with tab1:
         options=["", "processing_started", "processing_done", "processing_failed"]
     )
 
-    handlers = OSIR_DB.handler.list(
+    handlers = db_instance.handler.list(
         case_uuid=processing_status.cases[selected_case_name] if selected_case_name else None,
         processing_status=processing_status_ if processing_status_ else None,
         exclude_status=exclude_status if exclude_status else None
@@ -337,7 +347,7 @@ with tab2:
             color_name="violet-70",
         )
 
-    processing_status = ProcessingStatus()
+    processing_status = ProcessingStatus(db_instance)
 
     passed_case_name = st.session_state.get('selected_case_name', "")
     passed_handler_id = st.session_state.get('selected_handler_id', "")
@@ -358,7 +368,7 @@ with tab2:
         )
 
     with col2:
-        handlers = OSIR_DB.handler.list(case_uuid=processing_status.cases[selected_case_name])
+        handlers = db_instance.handler.list(case_uuid=processing_status.cases[selected_case_name])
         handler_ids = [str(handler["handler_id"]) for handler in handlers]
 
         all_handler_options = [""] + handler_ids
@@ -375,12 +385,12 @@ with tab2:
         )
 
     with col3:
-        task_status_options = ["", "processing_started", "processing_done", "processing_failed"]
+        task_status_options = ["", "task_created", "processing_started", "processing_done", "processing_failed"]
         selected_task_status = st.selectbox("Task status", task_status_options)
 
     with col4:
         # Fetch modules for the selected case
-        task_list = OSIR_DB.task.list(case_uuid=processing_status.cases[selected_case_name])
+        task_list = db_instance.task.list(case_uuid=processing_status.cases[selected_case_name])
         modules = list(set([str(t['module']) for t in task_list]))
         selected_module = st.selectbox("Module", [""] + modules)
 
@@ -394,13 +404,9 @@ with tab2:
 
     with header_col2:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("↻ Refresh", help="Refresh data", width='stretch', key="a"):
-            if selected_case_name:
-                processing_status.task_by_case(
-                    selected_case_name=selected_case_name,
-                    selected_task_status=selected_task_status
-                )
-
+        if st.button("↻ Refresh", help="Refresh data", width='stretch', key="refresh_tab2"):
+            st.rerun()
+            
     if selected_handler_id:
         with st.expander("⚠️ Dangerous action: Delete this Handler"):
             st.warning(f"This will permanently delete handler '{selected_handler_id}' and all its associated tasks.")
@@ -408,21 +414,30 @@ with tab2:
 
             if st.button("❌ Delete Handler and Associated Tasks", type="primary", disabled=not confirm_delete):
                 with st.spinner(f"Deleting : {selected_handler_id}..."):
-                    OSIR_DB.task.delete(handler_id=selected_handler_id)
-                    OSIR_DB.handler.delete(handler_id=selected_handler_id)
+                    db_instance.task.delete(handler_id=selected_handler_id)
+                    db_instance.handler.delete(handler_id=selected_handler_id)
                     selected_handler_id = ""
                     st.session_state.selected_handler_id = ""
                     st.rerun()
                 st.success(f"✅ All data related to '{selected_handler_id}' was deleted from the database.")
+
 with tab3:
-    colored_header(
-        label="All Tasks",
-        description="",
-        color_name="violet-70",
-    )
+    header_col1, header_col2 = st.columns([10, 1])
+
+    with header_col1:
+        colored_header(
+            label="All Tasks",
+            description="",
+            color_name="violet-70",
+        )
+
+    with header_col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("↻ Refresh", help="Refresh data", width='stretch', key="refresh_tab3"):
+            st.rerun()
 
     st.echo("df")
-    tasks = OSIR_DB.task.list(processing_status=["task_created", "processing_pending", "processing_started"])
+    tasks = db_instance.task.list(processing_status=["task_created", "processing_failed", "processing_started"])
 
     if tasks:
         df = pd.DataFrame(tasks)
@@ -444,7 +459,7 @@ with tab4:
     )
 
     passed_task_id = st.session_state.get('selected_task_id', "")
-    info = OSIR_DB.task.get(task_id=passed_task_id)
+    info = db_instance.task.get(task_id=passed_task_id)
     if info:
         ProcessingStatus.display_task_details(info)
 
@@ -455,8 +470,8 @@ with tab4:
 
             if st.button("❌ Delete this Task", type="primary", disabled=not confirm_delete):
                 with st.spinner(f"Deleting : {passed_task_id}..."):
-                    OSIR_DB.task.delete(task_id=passed_task_id)
-                    OSIR_DB.handler.delete(task_id=passed_task_id)
+                    db_instance.task.delete(task_id=passed_task_id)
+                    db_instance.handler.delete(task_id=passed_task_id)
                     passed_task_id = ""
                     st.session_state.selected_task_id = ""
                     st.rerun()
