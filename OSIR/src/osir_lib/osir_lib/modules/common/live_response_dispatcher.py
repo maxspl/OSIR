@@ -66,7 +66,7 @@ class WinLiveResponseDispatcher():
         if self.module.input.type != "file":
             logger.error(f"Unsupported input type {self.module.input.type}")
             return False
-        input_path = self.module.input.file
+        input_path = self.module.input.match
         if not input_path:
             logger.error("input.file is empty")
             return False
@@ -91,21 +91,7 @@ class WinLiveResponseDispatcher():
             return False
 
         # Construct output file
-        out_path = None
-        stem = os.path.splitext(os.path.basename(input_path))[0]
-
-        try:
-            if self.module.output.output_file:
-                self._format_output_file()
-                out_path = os.path.join(self.default_output_dir, self.module.output.output_file)
-                os.makedirs(os.path.dirname(out_path), exist_ok=True)
-            else:
-                # Default: write in module dir
-                os.makedirs(self.default_output_dir, exist_ok=True)
-                out_path = os.path.join(self.default_output_dir, f"{stem}.jsonl")
-        except Exception as e:
-            logger.error(f"Failed to prepare output path: {e}")
-            return False
+        out_path = self.module.output.output_file
 
         # Write JSONL
         try:
