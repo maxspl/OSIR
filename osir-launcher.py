@@ -207,8 +207,7 @@ def temporarily_patch_compose_in_place(compose_path: Path, component: str, conta
     services = compose_obj.get("services") or {}
     for name in targets:
         svc = services.get(name) or {}
-        svc["entrypoint"] = ["bash"]
-        svc["command"] = []
+        svc["command"] = ["bash"]
         svc["tty"] = True
         svc["stdin_open"] = True
         services[name] = svc

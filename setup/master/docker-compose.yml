@@ -24,11 +24,6 @@ services:
     profiles:
       - "master-online"
       - "all"
-    command: > 
-      bash -c "pip install -e /OSIR/OSIR/src/osir_service/ --break-system-packages --ignore-installed && \
-      pip install -e /OSIR/OSIR/src/osir_lib/ --break-system-packages --ignore-installed && \
-      pip install -e /OSIR/OSIR/src/osir_web/ --break-system-packages --ignore-installed && \
-      tail -f /dev/null"
     restart: always
   master-offline:
     image: master-master
@@ -331,5 +326,4 @@ services:
     profiles:
       - "default"
       - "all"
-    command: ["bash", "-c", "while true; do sleep 1000; done"]
     restart: always

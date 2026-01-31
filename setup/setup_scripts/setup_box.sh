@@ -56,7 +56,7 @@ check_smb(){
         python -c 'import remote_box_setup; \
         remote_box_setup.check_smb(\"$host\", \"$user\", \"$password\", \"/OSIR/setup/windows_setup/src/ps1/setup_unsecure_smb.ps1\", \"$MASTER_IP\")'") #$MASTER_IP from env
     if echo "$output" | grep -q "Failed winrm"; then 
-        (echo >&2 "${ERROR} SMB share cannot be accessed from Windows box.")
+        (echo >&2 "${ERROR} SMB share cannot be accessed from Windows box. Are you sure the master is running and SMB accessible from agent ?")
         (echo "${DEBUG} $output") # Print to sdtout for debug only
     else 
         (echo >&2 "${GOODTOGO} SMB share can be accessed from Windows box..")

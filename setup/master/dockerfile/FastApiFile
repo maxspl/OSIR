@@ -13,10 +13,11 @@ RUN set -eux; \
 
 
 RUN python -m pip install celery redis
-RUN python -m pip install -e /OSIR/OSIR/src/osir_api
-RUN python -m pip install -e /OSIR/OSIR/src/osir_lib
-RUN python -m pip install -e /OSIR/OSIR/src/osir_service
 
 EXPOSE 8502
-# redis / celery
-#uvicorn osir_api.main:app --host "0.0.0.0" --port 8502
+
+COPY sources/api_entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["uvicorn", "osir_api.main:app", "--host", "0.0.0.0", "--port", "8502"]
