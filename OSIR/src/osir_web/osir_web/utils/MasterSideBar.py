@@ -71,8 +71,12 @@ def sidebar():
         host = getattr(system_manager, 'host', 'localhost')
 
         # Get splunk host
-        agent_config = OsirAgentConfig()
-        splunk_host = agent_config.splunk_host if agent_config.splunk_host not in ["host.docker.internal", "127.0.0.1"] else host
+        try:
+            agent_config = OsirAgentConfig()
+            splunk_host = agent_config.splunk_host if agent_config.splunk_host not in ["host.docker.internal", "127.0.0.1"] else host
+        except FileNotFoundError:
+            # agent.yml missing -> happens if master launched before agent is installed
+            splunk_host = host
 
         # Set the URL for the iframe
         url = f"http://{host}:80/"
