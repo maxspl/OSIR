@@ -2,6 +2,7 @@ from psycopg2 import pool, OperationalError, InterfaceError
 from osir_service.postgres.task_manager import TaskManager
 from osir_service.postgres.handler_manager import HandlerManager
 from osir_service.postgres.case_manager import CaseManager
+from osir_lib.core.FileManager import FileManager
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 import os
@@ -24,12 +25,12 @@ class DbOSIR:
             Central PostgreSQL service for the OSIR framework.
         """
         if host is None:
-            agent_config = OsirAgentConfig()
-            if agent_config.standalone:
-                # host = "master-postgres"
-                host = "host.docker.internal"
-            else:
-                host = agent_config.master_host
+            try:
+                agent_config = OsirAgentConfig()
+                host = "host.docker.internal" if agent_config.standalone else agent_config.master_host
+            except FileNotFoundError:
+                # agent.yml missing -> happens if master launched before agent is installed
+                host = "master-postgres"
         self.host = host
         self.dbname = dbname
         self.port = port

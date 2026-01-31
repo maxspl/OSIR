@@ -118,6 +118,7 @@ class OsirAgentConfig:
             Reads and validates the 'agent.yml' file using the FullAgentConfig model.
 
             Raises:
+                FileNotFoundError: If the config file is missing.
                 YAMLError: If the file format is invalid.
                 Exception: If validation fails against the Pydantic models.
         """
@@ -127,6 +128,9 @@ class OsirAgentConfig:
 
             # Pydantic valide et désérialise les données
             self.config_data = FullAgentConfig.model_validate(data)
+        except FileNotFoundError as e:
+            logger.warning(f"Missing agent.yml: {e}")
+            raise
         except yaml.YAMLError as e:
             logger.error(f"Erreur de parsing YAML : {e}")
             raise
