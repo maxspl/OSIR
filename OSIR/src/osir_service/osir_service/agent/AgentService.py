@@ -23,7 +23,6 @@ from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
 from osir_service.postgres.PostgresConstants import ProcessingStatus
 from osir_service.postgres.PostgresService import DbOSIR
-from osir_service.postgres.PostgresService import OSIR_DB
 from celery.signals import task_success
 
 logger = AppLogger().get_logger()
