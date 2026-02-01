@@ -399,10 +399,10 @@ install_from_conf(){
     if [ "$windows_location" = "local" ] ; then 
         local_installation
     elif [ "$windows_location" = "dockur" ] ; then 
-        local_agent_host_ip=$(hostname -I | awk '{print $1}')
+        local_agent_host_ip='agent-windows'
         # If the master is localhost, use its local IP to avoid Windows using 10.0.2.2 that is only working for Vagrant
         if [[ "$master_host" == "localhost" || "$master_host" == "127.0.0.1" || "$master_host" == "host.docker.internal" ]]; then
-            master_host=$local_agent_host_ip
+            master_host=$(hostname -I | awk '{print $1}')
             export MASTER_IP=$master_host
         fi
         dockur_win_installation $local_agent_host_ip
