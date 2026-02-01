@@ -1,71 +1,115 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, List, Optional
 from pydantic import BaseModel, PrivateAttr
-
-from osir_lib.logger import AppLogger
+from tabulate import tabulate
+from osir_client.api.osir_api_models import GetCaseResponse
 from osir_client.api.osir_api_response import OsirApiResponse
-from osir_client.api.osir_api_client import OsirApiClient
+from osir_client.api.osir_api_module import OsirApiModule
+from osir_client.api.osir_api_profile import OsirApiProfile
+from osir_client.api.osir_api_handlers import OsirApiHandlers
+from OSIR.src.osir_client.osir_client.api.osir_api_task import OsirApiTask
 from osir_lib.logger.logger import CustomLogger
+from osir_lib.logger import AppLogger
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
 if TYPE_CHECKING:
     from osir_client.api.osir_api_client import OsirApiClient
-    from osir_client.api.osir_api_module import OsirApiModule
-    from osir_client.api.osir_api_profile import OsirApiProfile
-    from osir_client.api.osir_api_handlers import OsirApiHandlers
 
 
 class OsirApiCase(BaseModel):
-    _api: OsirApiClient = PrivateAttr(default=None)
+    _api: "OsirApiClient" = PrivateAttr()
 
     case_name: Optional[str] = None
-    case_id: Optional[str] = None
-    # Move complex/circular objects to PrivateAttrs
-    _api: "OsirApiClient" = PrivateAttr()
-    _modules: Optional["OsirApiModule"] = PrivateAttr(default=None)
-    _profiles: Optional["OsirApiProfile"] = PrivateAttr(default=None)
-    _handlers_id: List["OsirApiHandlers"] = PrivateAttr(default_factory=list)
+    case_uuid: Optional[str] = None
 
-    def __init__(self, api_client, case_name: Optional[str] = None):
-        super().__init__(case_name=case_name)
-        self._api = api_client
+    _modules: Optional["OsirApiModule"] = None
+    _profiles: Optional["OsirApiProfile"] = None
+    _handlers: Optional["OsirApiHandlers"] = None
 
-    def model_post_init(self, __context) -> None:
-        from osir_client.api.osir_api_module import OsirApiModule
-        from osir_client.api.osir_api_profile import OsirApiProfile
-
-        self._modules = OsirApiModule(_context=self, _api=self._api)
-        self._profiles = OsirApiProfile(context=self, _api=self._api)
-
-    # Use properties so you can still call 'case.modules'
     @property
-    def modules(self) -> "OsirApiModule":
+    def modules(self) -> 'OsirApiModule':
+        if self._modules is None and self.case_name is None and self.case_uuid is None:
+            logger.error("You can't execute module on not setup case")
+        elif self._modules is None and self.case_uuid:
+            self._modules = OsirApiModule()
+            self._modules._context = self
+            self._modules._api = self._api
         return self._modules
 
     @property
-    def profiles(self) -> "OsirApiProfile":
+    def profiles(self) -> 'OsirApiProfile':
+        if self._profiles is None and self.case_name is None and self.case_uuid is None:
+            logger.error("You can't access profiles on a not setup case")
+        elif self._profiles is None and (self.case_name or self.case_uuid):
+            self._profiles = OsirApiProfile()
+            self._profiles._context = self
+            self._profiles._api = self._api
         return self._profiles
 
-    def get(self, case_name: str):
+    @property
+    def handlers(self) -> 'OsirApiHandlers':
+        if self._handlers is None and self.case_name is None and self.case_uuid is None:
+            logger.error("You can't access handlers on a not setup case")
+        elif self._handlers is None and (self.case_name or self.case_uuid):
+            self._handlers = OsirApiHandlers()
+            self._handlers._context = self
+            self._handlers._api = self._api
+        return self._handlers
+
+    @property
+    def log(self) -> 'OsirApiTask':
+        if self._log is None and self.case_name is None and self.case_uuid is None:
+            logger.error("You can't access logs on a not setup case")
+        elif self._log is None and (self.case_name or self.case_uuid):
+            self._log = OsirApiTask()
+            self._log._api = self._api
+        return self._log
+
+    def get(self, case_name: str, case_uuid: Optional[str] = None) -> 'OsirApiCase':
         try:
-            _response = OsirApiResponse(self._api.get("/api/case"))
-            if _response and case_name in _response.response['cases']:
-                self.name = case_name
+            _response = GetCaseResponse(**self._api.get("/api/case"))
+            if _response and hasattr(_response.response, 'cases'):
+                for uuid, name in _response.response.cases:
+                    if name == case_name:
+                        self.case_name = case_name
+                        self.case_uuid = uuid
+                        # logger.info(f"Case {self.case_name}-{self.case_uuid} found and setup ! ")
+                        return self
+                    if case_uuid and case_uuid == uuid:
+                        self.case_name = case_name
+                        self.case_uuid = uuid
+                        # logger.info(f"Case {self.case_name}-{self.case_uuid} found and setup ! ")
+                        return self
+                logger.error(f"Case '{case_name}' not found. You can create it with create().")
                 return self
             else:
-                logger.error(f"Case {case_name} not found, you can create it with create()")
+                logger.error("No cases found in the response.")
+                return self
 
         except Exception as e:
             logger.error_handler(e)
+            return self
 
-    def list(self):
+    def list(self) -> None:
         try:
-            return OsirApiResponse(self._api.get("/api/case"))
-        except Exception as e:
-            logger.error_handler(e)
+            response = GetCaseResponse(**self._api.get("/api/case"))
+            cases = response.response.cases
 
-    def create(self, case_name: str = None):
+            if cases:
+                table = tabulate(cases, headers=["UUID", "NAME"], tablefmt="grid")
+                indented_table = "\n".join(" " + line for line in table.splitlines())
+                title = f"List of Case Overview"
+
+                print(f"\n{title}\n{'=' * len(title)}\n")
+                print(indented_table)
+            else:
+                logger.warning("No case found")
+
+        except Exception as e:
+            logger.error_handler(f"Error while getting cases {e}")
+
+    def create(self, case_name: str = None) -> 'OsirApiCase':
         if self.case_name is None and case_name is None:
             raise ValueError("The 'name' parameter is required and cannot be None.")
         try:

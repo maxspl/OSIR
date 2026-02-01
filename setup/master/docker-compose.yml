@@ -104,6 +104,7 @@ services:
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
       - ../splunk/apps/DECODE/:/opt/splunk/etc/apps/DECODE/ # DECODE app
+      - ../splunk/apps/Timeline-Explorer/:/opt/splunk/etc/apps/Timeline-Explorer/
     profiles:
       - "splunk-online"
       - "all"
@@ -130,6 +131,8 @@ services:
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
       - ../splunk/apps/DECODE/:/opt/splunk/etc/apps/DECODE/ # DECODE app
+      - ../splunk/apps/Timeline-Explorer/:/opt/splunk/etc/apps/Timeline-Explorer/
+
     profiles:
       - "splunk-offline"
       - "all"

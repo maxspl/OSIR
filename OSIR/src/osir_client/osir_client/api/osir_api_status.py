@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 
 class OsirApiStatus(BaseModel):
-    _api: OsirApiClient = PrivateAttr()
+    _api: "OsirApiClient" = PrivateAttr()
 
     def get_hanlder_status(self, handler_id):
-        return self._api.get("/api/status/handler", params={"handler_id": handler_id})
+        return self._api.get("/api/handler/status", params={"handler_id": handler_id})

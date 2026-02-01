@@ -2,11 +2,13 @@
 #   filename:  openapi.json
 #   timestamp: 2026-01-15T15:57:51+00:00
 
+# TODO: Refactor API to group the class between client / API
+
 from __future__ import annotations
 
 from enum import Enum
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -28,7 +30,7 @@ class GetCaseHandlerRequest(BaseModel):
 
 
 class GetCaseResponseCore(BaseModel):
-    cases: list[str] = Field(..., title='Cases')
+    cases: list[tuple[str, str]] = Field(..., title='Cases')
 
 
 class GetHandlerStatusRequest(BaseModel):
@@ -285,3 +287,33 @@ class GetModuleExistsResponse(BaseModel):
     status: int | None = Field(200, title='Status')
     message: str | None = Field(None, title='Message')
     response: GetModuleExistsResponseCore
+
+
+class GetHandlerStatusResponseInfo(BaseModel):
+    handler_id: Optional[UUID]
+    # TODO: Replace with UUID after rework
+    case_uuid: Optional[str]
+    modules: Optional[list[str]]
+    task_ids: Optional[list[UUID]]
+    processing_status: Optional[str]
+
+
+class GetHandlerListResponseCore(BaseModel):
+    handlers: list[GetHandlerStatusResponseInfo]
+
+
+class GetHandlerListResponse(OsirIpcResponse):
+    response: GetHandlerListResponseCore
+
+
+class GetHandlerStatusResponseCore(BaseModel):
+    handler_id: UUID
+    # TODO: Replace with UUID after rework
+    case_uuid: str
+    modules: list[str]
+    task_ids: list[UUID]
+    processing_status: str
+
+
+class GetHandlerStatusResponse(OsirIpcResponse):
+    response: GetHandlerStatusResponseCore

@@ -2,6 +2,7 @@ import requests
 from typing import TYPE_CHECKING, Optional, Dict, Any
 from pydantic import BaseModel, HttpUrl, PrivateAttr, field_validator
 
+from osir_client.api.osir_api_case import OsirApiCase
 from osir_lib.logger import AppLogger
 from osir_client.api.osir_api_response import OsirApiResponse
 from osir_lib.logger.logger import CustomLogger
@@ -10,39 +11,22 @@ logger: CustomLogger = AppLogger(__name__).get_logger()
 
 CLIENT_VERSION = "1.0"
 
-if TYPE_CHECKING:
-    from osir_client.api.osir_api_case import OsirApiCase
-
 
 class OsirApiClient(BaseModel):
-    # Données publiques validées
     api_url: str
-
-    # Attributs privés (non inclus dans model_dump)
-    _cases: Optional["OsirApiCase"] = PrivateAttr(default=None)
-    _session: requests.Session = PrivateAttr()
-
-    def model_post_init(self, __context: Any) -> None:
-        """S'exécute après la validation Pydantic"""
-        # Nettoyage de l'URL
-        self.api_url = self.api_url.rstrip("/")
-        from osir_client.api.osir_api_case import OsirApiCase
-        self._cases = OsirApiCase(api_client=self)
-        # Initialisation des composants internes
-        self._session = requests.Session()
-        # Optionnel: Check de version automatique
-        self._check_version()
+    _cases: Optional[OsirApiCase] = PrivateAttr(default=None)
 
     @property
-    def cases(self) -> "OsirApiCase":
-        """Access the cases API helper: client.cases"""
+    def cases(self) -> OsirApiCase:
+        if self._cases is None:
+            self._cases = OsirApiCase()
+            self._cases._api = self
         return self._cases
 
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
         url = f"{self.api_url}/{endpoint.lstrip('/')}"
         try:
-            # Utilisation de la session pour de meilleures performances
-            resp = self._session.request(method, url, **kwargs)
+            resp = requests.request(method, url, **kwargs)
             resp.raise_for_status()
             return resp.json()
         except Exception as e:

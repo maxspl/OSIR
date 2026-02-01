@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 
 class OsirApiProfile(BaseModel):
-    _api: OsirApiClient = PrivateAttr()
+    _api: "OsirApiClient" = PrivateAttr()
     _context: "OsirApiCase" = PrivateAttr()
 
     @property
