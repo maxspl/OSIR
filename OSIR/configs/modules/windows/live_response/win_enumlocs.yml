@@ -21,11 +21,3 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: enumlocs
-splunk:
-  'windows:live_response:dns_records':
-    name_rex: --dns_records\.jsonl$
-    path_suffix: dns_records
-    host_rex: ([\w\.-]+)--
-    artifact: "DNS_RECORDS"
-    normalize:
-      - ecs_normalize/windows/live_response/dns_records.vrl   
