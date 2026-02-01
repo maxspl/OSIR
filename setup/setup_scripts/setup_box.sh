@@ -130,7 +130,8 @@ main() {
     if [ -n "$winrm_status" ] && [ "$winrm_status" -ne 0 ]; then
         if [[ -n "$DOCKUR_SETUP" ]]; then
             (echo >&2 "${INFO} Waiting for WinRM to be available. Normal behavior if first setup of Windows in docker...")
-            (echo >&2 "${INFO} You can follow Windows setup here : http://$host:8006")
+            local_host=$(hostname -I | awk '{print $1}')
+            (echo >&2 "${INFO} You can follow Windows setup here : http://$local_host:8006")
             start_time=$(date +%s)
             timeout=600 # 10 minutes in seconds
 
