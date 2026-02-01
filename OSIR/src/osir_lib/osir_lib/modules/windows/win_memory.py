@@ -47,7 +47,8 @@ class Memory_Processor():
         # Paths
         source_file = "/OSIR/OSIR/configs/dependencies/win_memprocfs_pythonexec_sample.py"
         destination_dir = "/tmp"
-        output_dir = os.path.join("/OSIR/cases", self._case_path, self.module.module_name)
+        output_dir = os.path.join("/OSIR/cases", self._case_path, self.module.module_name, self.module.endpoint_name)
+        os.makedirs(output_dir, exist_ok=True)
 
         # Generate a random filename
         random_filename = ''.join(random.choices(string.ascii_letters + string.digits, k=10)) + ".py"
