@@ -360,7 +360,7 @@ install_from_conf(){
     # Get master host
     master_host=$(get_yml_value "" master_host)
     # Validate IP or FQDN
-    if [[ $master_host =~ $ip_regex || $master_host =~ $fqdn_regex ]]; then
+    if [[ $master_host =~ $ip_regex || $master_host =~ $fqdn_regex || $master_host =~ agent-windows ]]; then
         (echo >&2 "${INFO} Valid host string.")
     else
         (echo >&2 "${ERROR} Please enter valid IP or FQDN.")
@@ -428,7 +428,8 @@ manual_install(){
     #local_installation
 
     # Ask user : master host
-    default_master_host="127.0.0.1"
+    # default_master_host="127.0.0.1"
+    default_master_host=$(hostname -I | awk '{print $1}')
     read -p "$(echo -n >&2 "${USERINPUT} Enter the remote master host. [Default is: $default_master_host] [options: IP/FQDN]: ")" master_host
     if [[ -z "$master_host" ]]; then
         master_host="$default_master_host"
@@ -466,7 +467,8 @@ manual_install(){
         location_type="dockur"
 
         # Get the default local IP address using `hostname -I` and take the first result
-        default_ip=$(hostname -I | awk '{print $1}')
+        # default_ip=$(hostname -I | awk '{print $1}')
+        default_ip="agent-windows"
 
         # Prompt for the IP address, showing the default
         read -p "$(echo -n >&2 "${USERINPUT} Enter the IP address of your agent host (required for host <-> docker communication) [default: $default_ip]: ")" windows_host_ip
@@ -480,7 +482,7 @@ manual_install(){
             exit 0
         fi
 
-        if [[ $windows_host_ip =~ $ip_regex ]]; then
+        if [[ $windows_host_ip =~ $ip_regex || $windows_host_ip =~ agent-windows ]]; then
            (echo >&2 "${INFO} Valid IP.")
         else
             (echo >&2 "${ERROR} Please enter valid IP.")
@@ -489,7 +491,7 @@ manual_install(){
 
         # If the master is localhost, use its local IP to avoid Windows using 10.0.2.2 that is only working for Vagrant
         if [[ "$master_host" == "localhost" || "$master_host" == "127.0.0.1" || "$master_host" == "host.docker.internal" ]]; then
-            master_host=$windows_host_ip
+            master_host=$default_master_host
             export MASTER_IP=$master_host
         fi
 
