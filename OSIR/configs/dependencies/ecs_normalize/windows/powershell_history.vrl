@@ -1,0 +1,66 @@
+# -----------------------------------------------------------------------------
+# PowerShell History → ECS
+#   Input fields:
+#     type, line_number, command
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event (ECS best practice) - do this FIRST
+# -----------------------------------------------------------------------------
+if !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Basic ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.powershell_history"
+.event.module   = "windows"
+
+.event.kind     = "event"
+.event.category = ["process"]
+.event.type     = ["info"]
+.event.outcome  = "success"
+
+.event.provider = "PowerShell History"
+
+# -----------------------------------------------------------------------------
+# Basic event classification from "type"
+# -----------------------------------------------------------------------------
+
+if exists(.type) {
+    type_raw = to_string!(del(.type))
+    type_l   = downcase(type_raw)
+
+    .event.code   = type_raw
+    .event.action = type_l
+}
+
+# -----------------------------------------------------------------------------
+# Line number → event.sequence + extension
+# -----------------------------------------------------------------------------
+
+if exists(.line_number) {
+    ln_raw = to_string!(del(.line_number))
+    ln_int = parse_int(ln_raw) ?? null
+
+    if ln_int != null {
+        .event.sequence                 = ln_int
+        .powershell.history.line_number = ln_int
+    } else {
+        .powershell.history.line_number = ln_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Command line
+# -----------------------------------------------------------------------------
+
+if exists(.command) {
+    cmd = to_string!(del(.command))
+
+    # ECS process command line
+    .process.command_line         = cmd
+    .powershell.history.command   = cmd
+}

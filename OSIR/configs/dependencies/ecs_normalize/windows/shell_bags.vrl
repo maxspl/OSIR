@@ -1,0 +1,292 @@
+# -----------------------------------------------------------------------------
+# Windows ShellBags CSV 
+#   Columns / fields:
+#   BagPath, Slot, NodeSlot, MRUPosition, AbsolutePath, ShellType, Value,
+#   ChildBags, CreatedOn, ModifiedOn, AccessedOn, LastWriteTime,
+#   MFTEntry, MFTSequenceNumber, ExtensionBlockCount, FirstInteracted,
+#   LastInteracted, HasExplored, Miscellaneous
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event first 
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.shellbags"
+.event.module   = "windows"
+
+# Shellbags = user folder interaction / state
+.event.kind     = "state"
+.event.category = ["file"]
+.event.type     = ["info"]
+
+.event.outcome  = "success"
+.event.provider = "Windows ShellBags (registry)"
+
+# Generic action/code for this pipeline
+.event.code   = "shell_bag"
+.event.action = "shell_bag"
+
+# -----------------------------------------------------------------------------
+# Bag logical path / absolute path in Explorer
+# -----------------------------------------------------------------------------
+
+if exists(.BagPath) {
+    bag_path = to_string!(del(.BagPath))
+    .file.Ext.shellbags.bag_path = bag_path
+}
+
+if exists(.AbsolutePath) {
+    abs_path = to_string!(del(.AbsolutePath))
+    .file.Ext.shellbags.absolute_path = abs_path
+}
+
+# -----------------------------------------------------------------------------
+# MRU & slot info
+# -----------------------------------------------------------------------------
+
+if exists(.Slot) {
+    slot_raw = to_string!(del(.Slot))
+    slot_int = parse_int(slot_raw) ?? null
+    if slot_int != null {
+        .file.Ext.shellbags.slot = slot_int
+    } else {
+        .file.Ext.shellbags.slot_raw = slot_raw
+    }
+}
+
+if exists(.NodeSlot) {
+    nslot_raw = to_string!(del(.NodeSlot))
+    nslot_int = parse_int(nslot_raw) ?? null
+    if nslot_int != null {
+        .file.Ext.shellbags.node_slot = nslot_int
+    } else {
+        .file.Ext.shellbags.node_slot_raw = nslot_raw
+    }
+}
+
+if exists(.MRUPosition) {
+    mru_raw = to_string!(del(.MRUPosition))
+    mru_int = parse_int(mru_raw) ?? null
+    if mru_int != null {
+        .file.Ext.shellbags.mru_position = mru_int
+    } else {
+        .file.Ext.shellbags.mru_position_raw = mru_raw
+    }
+}
+
+if exists(.ChildBags) {
+    cb_raw = to_string!(del(.ChildBags))
+    cb_int = parse_int(cb_raw) ?? null
+    if cb_int != null {
+        .file.Ext.shellbags.child_bags = cb_int
+    } else {
+        .file.Ext.shellbags.child_bags_raw = cb_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Shell type & value (what Explorer showed)
+# -----------------------------------------------------------------------------
+
+if exists(.ShellType) {
+    shell_type = to_string!(del(.ShellType))
+    .file.Ext.shellbags.shell_type = shell_type
+}
+
+if exists(.Value) {
+    val = to_string!(del(.Value))
+    .file.Ext.shellbags.value = val
+
+    # If it looks like a real path/UNC and file.path isn't set yet, use it
+    if !exists(.file.path) {
+        if starts_with(val, "\\\\") || contains(val, ":\\") {
+            .file.path = val
+        }
+    }
+
+    # If we still don't have file.name, at least use Value as a name
+    if !exists(.file.name) && val != "" {
+        .file.name = val
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Timestamps (Explorer / filesystem times)
+#   Format in sample: "2022-05-02 20:30:58"
+# -----------------------------------------------------------------------------
+
+# CreatedOn → file.created
+if exists(.CreatedOn) {
+    c_raw = to_string!(del(.CreatedOn))
+    if c_raw != "" {
+        c_ts = parse_timestamp(c_raw, "%F %T") ?? null
+        if c_ts != null {
+            .file.created = c_ts
+        } else {
+            .file.Ext.shellbags.created_on_raw = c_raw
+        }
+    }
+}
+
+# ModifiedOn → file.mtime
+if exists(.ModifiedOn) {
+    m_raw = to_string!(del(.ModifiedOn))
+    if m_raw != "" {
+        m_ts = parse_timestamp(m_raw, "%F %T") ?? null
+        if m_ts != null {
+            .file.mtime = m_ts
+        } else {
+            .file.Ext.shellbags.modified_on_raw = m_raw
+        }
+    }
+}
+
+# AccessedOn → file.accessed
+if exists(.AccessedOn) {
+    a_raw = to_string!(del(.AccessedOn))
+    if a_raw != "" {
+        a_ts = parse_timestamp(a_raw, "%F %T") ?? null
+        if a_ts != null {
+            .file.accessed = a_ts
+        } else {
+            .file.Ext.shellbags.accessed_on_raw = a_raw
+        }
+    }
+}
+
+# LastWriteTime → store as NTFS metadata-ish
+if exists(.LastWriteTime) {
+    lw_raw = to_string!(del(.LastWriteTime))
+    if lw_raw != "" {
+        lw_ts = parse_timestamp(lw_raw, "%F %T") ?? null
+        if lw_ts != null {
+            .file.Ext.shellbags.last_write_time = lw_ts
+        } else {
+            .file.Ext.shellbags.last_write_time_raw = lw_raw
+        }
+    }
+}
+
+# FirstInteracted / LastInteracted → user interaction window
+if exists(.FirstInteracted) {
+    fi_raw = to_string!(del(.FirstInteracted))
+    if fi_raw != "" {
+        fi_ts = parse_timestamp(fi_raw, "%F %T") ?? null
+        if fi_ts != null {
+            .file.Ext.shellbags.first_interacted = fi_ts
+        } else {
+            .file.Ext.shellbags.first_interacted_raw = fi_raw
+        }
+    }
+}
+
+if exists(.LastInteracted) {
+    li_raw = to_string!(del(.LastInteracted))
+    if li_raw != "" {
+        li_ts = parse_timestamp(li_raw, "%F %T") ?? null
+        if li_ts != null {
+            .file.Ext.shellbags.last_interacted = li_ts
+        } else {
+            .file.Ext.shellbags.last_interacted_raw = li_raw
+        }
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Promote a best-effort event timestamp
+# -----------------------------------------------------------------------------
+
+# Priority:
+#   1. last_interacted
+#   2. last_write_time
+#   3. file.mtime
+#   4. file.created
+
+timestamp_value = null
+timestamp_source = null
+
+if exists(.file.Ext.shellbags.last_interacted) {
+    timestamp_value = .file.Ext.shellbags.last_interacted
+    timestamp_source = "last_interacted"
+} else if exists(.file.Ext.shellbags.last_write_time) {
+    timestamp_value = .file.Ext.shellbags.last_write_time
+    timestamp_source = "registry_last_write_time"
+} else if exists(.file.mtime) {
+    timestamp_value = .file.mtime
+    timestamp_source = "file_mtime"
+} else if exists(.file.created) {
+    timestamp_value = .file.created
+    timestamp_source = "file_created"
+}
+
+# Apply the timestamp if found
+if timestamp_value != null {
+    .timestamp = timestamp_value
+
+    # Track the origin
+    .event.Ext.timestamp_source = timestamp_source
+}
+
+# -----------------------------------------------------------------------------
+# NTFS MFT info
+# -----------------------------------------------------------------------------
+
+if exists(.MFTEntry) {
+    mfte_raw = to_string!(del(.MFTEntry))
+    mfte_int = parse_int(mfte_raw) ?? null
+    if mfte_int != null {
+        .file.inode = mfte_int
+    } else {
+        .file.Ext.shellbags.mft_entry_raw = mfte_raw
+    }
+}
+
+if exists(.MFTSequenceNumber) {
+    mfts_raw = to_string!(del(.MFTSequenceNumber))
+    mfts_int = parse_int(mfts_raw) ?? null
+    if mfts_int != null {
+        .file.Ext.shellbags.mft_sequence = mfts_int
+    } else {
+        .file.Ext.shellbags.mft_sequence_raw = mfts_raw
+    }
+}
+
+if exists(.ExtensionBlockCount) {
+    ebc_raw = to_string!(del(.ExtensionBlockCount))
+    ebc_int = parse_int(ebc_raw) ?? null
+    if ebc_int != null {
+        .file.Ext.shellbags.extension_block_count = ebc_int
+    } else {
+        .file.Ext.shellbags.extension_block_count_raw = ebc_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Flags / miscellaneous
+# -----------------------------------------------------------------------------
+
+if exists(.HasExplored) {
+    he_raw = to_string!(del(.HasExplored))
+    he_l   = downcase(he_raw)
+    .file.Ext.shellbags.has_explored_raw = he_raw
+
+    if he_l == "true" {
+        .file.Ext.shellbags.has_explored = true
+    } else if he_l == "false" {
+        .file.Ext.shellbags.has_explored = false
+    }
+}
+
+if exists(.Miscellaneous) {
+    misc = to_string!(del(.Miscellaneous))
+    if misc != "" {
+        .file.Ext.shellbags.misc = misc
+    }
+}

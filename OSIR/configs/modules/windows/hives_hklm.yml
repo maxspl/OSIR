@@ -28,8 +28,9 @@ splunk:
     path_rex: '.*\/hives_hklm.*'
     sourcetype: 'windows:registry:hklm'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "LastWriteTimestamp"
-        - "Timestamp"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
     artifact: "Hives"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/hives.vrl

@@ -21,3 +21,14 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: netstat
+splunk:
+  'windows:live_response:netstat':
+    name_rex: --win_netstat\.jsonl$
+    path_suffix: win_netstat 
+    host_rex: ([\w\.-]+)--
+    artifact: "NETSTAT"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - normalize/windows/live_response/netstat.vrl   

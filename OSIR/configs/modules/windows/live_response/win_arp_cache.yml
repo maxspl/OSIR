@@ -21,3 +21,11 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: arp_cache
+splunk:
+  'windows:live_response:arp_cache':
+    name_rex: --win_arp_cache\.jsonl$
+    path_suffix: 'win_arp_cache'
+    host_rex: ([\w\.-]+)--
+    artifact: "ARP"
+    normalize:
+      - ecs_normalize/windows/live_response/arp_cache.vrl

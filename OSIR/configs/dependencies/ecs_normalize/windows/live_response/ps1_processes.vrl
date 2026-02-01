@@ -1,0 +1,554 @@
+# =============================================================================
+# Windows Process CSV (WMI + .NET Process) → ECS-ish normalization
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ensure .event exists and keep original event
+# -----------------------------------------------------------------------------
+if !exists(.event) {
+  .event = {}
+}
+
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# =============================================================================
+# Basic ECS scaffolding defaults
+# =============================================================================
+
+if !exists(.event.dataset) {
+  .event.dataset = "windows.process"
+}
+
+if !exists(.event.module) {
+  .event.module = "windows"
+}
+
+if !exists(.event.provider) {
+  .event.provider = "Windows Process (generic)"
+}
+
+if !exists(.event.kind) {
+  .event.kind = "state"
+}
+
+if !exists(.event.category) {
+  .event.category = ["process"]
+}
+
+if !exists(.event.type) {
+  .event.type = ["info"]
+}
+
+if !exists(.event.action) {
+  .event.action = "process_snapshot"
+}
+
+if !exists(.event.code) {
+  .event.code = "process_snapshot"
+}
+
+if !exists(.event.outcome) {
+  .event.outcome = "success"
+}
+
+# =============================================================================
+# Host / machine info
+# =============================================================================
+
+# From WMI: PSComputerName, CSName
+if exists(.PSComputerName) {
+  pc = to_string!(del(.PSComputerName))
+  if pc != "" && !exists(.host.name) {
+    .host.name = pc
+  }
+}
+
+if exists(.CSName) {
+  csn = to_string!(del(.CSName))
+  if csn != "" && !exists(.host.name) {
+    .host.name = csn
+  }
+}
+
+# .NET: MachineName
+if exists(.MachineName) {
+  mn = to_string!(del(.MachineName))
+  if mn != "" && !exists(.host.name) {
+    .host.name = mn
+  }
+}
+
+# Optional WindowsVersion
+if exists(.WindowsVersion) {
+  .host.os.version = to_string!(del(.WindowsVersion))
+}
+
+# OSName from WMI
+if exists(.OSName) {
+  .host.os.full = to_string!(del(.OSName))
+}
+
+# =============================================================================
+# Process identity (name, pid, ppid, exec, cmdline)
+# =============================================================================
+
+# Name / ProcessName
+if exists(.ProcessName) {
+  pn = to_string!(del(.ProcessName))
+  if pn != "" {
+    .process.name = pn
+  }
+}
+
+if exists(.Name) && !exists(.process.name) {
+  n = to_string!(del(.Name))
+  if n != "" {
+    .process.name = n
+  }
+}
+
+# PID: ProcessId (WMI) / Id (.NET)
+if exists(.ProcessId) {
+  pid_raw = to_string!(del(.ProcessId))
+  pid_val = parse_int(pid_raw) ?? null
+  if pid_val != null {
+    .process.pid = pid_val
+  } else {
+    .process.Ext.snapshot.pid_raw = pid_raw
+  }
+}
+
+if exists(.Id) && !exists(.process.pid) {
+  pid_raw2 = to_string!(del(.Id))
+  pid_val2 = parse_int(pid_raw2) ?? null
+  if pid_val2 != null {
+    .process.pid = pid_val2
+  } else {
+    .process.Ext.snapshot.id_raw = pid_raw2
+  }
+}
+
+# Parent PID (WMI)
+if exists(.ParentProcessId) {
+  ppid_raw = to_string!(del(.ParentProcessId))
+  ppid_val = parse_int(ppid_raw) ?? null
+  if ppid_val != null {
+    .process.parent = { "pid": ppid_val }
+  } else {
+    .process.Ext.snapshot.ppid_raw = ppid_raw
+  }
+}
+
+# Command line
+if exists(.CommandLine) {
+  cmd = to_string!(del(.CommandLine))
+  if cmd != "" {
+    .process.command_line = cmd
+  }
+}
+
+# Executable / path
+if exists(.ExecutablePath) {
+  ep = to_string!(del(.ExecutablePath))
+  if ep != "" {
+    .process.executable = ep
+  }
+}
+
+if exists(.Path) {
+  p_raw = to_string!(del(.Path))
+  if p_raw != "" && !exists(.process.executable) {
+    .process.executable = p_raw
+  }
+  .process.Ext.snapshot.path_raw = p_raw
+}
+
+# Derive process.name from executable if still missing
+if !exists(.process.name) && exists(.process.executable) {
+  px = to_string!(.process.executable)
+  parts = split!(px, "\\\\")
+  plen = length(parts)
+  if plen > 0 {
+    idx_last = plen - 1
+    last = get!(parts, [idx_last])
+    .process.name = last
+  }
+}
+
+# =============================================================================
+# Description / company / product / version
+# =============================================================================
+
+# Description (WMI)
+if exists(.Description) {
+  desc = to_string!(del(.Description))
+  if desc != "" {
+    .process.title = desc
+  }
+}
+
+# Company (from .NET CSV)
+if exists(.Company) {
+  comp = to_string!(del(.Company))
+  if comp != "" {
+    .process.Ext.snapshot.company = comp
+  }
+}
+
+# Product / ProductVersion / FileVersion (from .NET)
+if exists(.Product) {
+  .process.Ext.snapshot.product = to_string!(del(.Product))
+}
+
+if exists(.FileVersion) {
+  .process.Ext.snapshot.file_version = to_string!(del(.FileVersion))
+}
+
+if exists(.ProductVersion) {
+  .process.Ext.snapshot.product_version = to_string!(del(.ProductVersion))
+}
+
+# CreationClassName, OSCreationClassName (WMI) – keep as extra metadata
+if exists(.CreationClassName) {
+  .process.Ext.snapshot.creation_class_name = to_string!(del(.CreationClassName))
+}
+
+if exists(.OSCreationClassName) {
+  .process.Ext.snapshot.os_creation_class_name = to_string!(del(.OSCreationClassName))
+}
+
+# =============================================================================
+# Handles / threads / session
+# =============================================================================
+
+# Handles / HandleCount (WMI)
+if exists(.Handles) {
+  h_raw = to_string!(del(.Handles))
+  h_val = parse_int(h_raw) ?? null
+  if h_val != null {
+    .process.Ext.snapshot.handles = h_val
+  } else {
+    .process.Ext.snapshot.handles_raw = h_raw
+  }
+}
+
+if exists(.HandleCount) {
+  hc_raw = to_string!(del(.HandleCount))
+  hc_val = parse_int(hc_raw) ?? null
+  if hc_val != null {
+    .process.handle_count = hc_val
+  } else {
+    .process.Ext.snapshot.handle_count_raw = hc_raw
+  }
+}
+
+# ThreadCount (WMI)
+if exists(.ThreadCount) {
+  tc_raw = to_string!(del(.ThreadCount))
+  tc_val = parse_int(tc_raw) ?? null
+  if tc_val != null {
+    .process.thread = { "count": tc_val }
+  } else {
+    .process.Ext.snapshot.thread_count_raw = tc_raw
+  }
+}
+
+# SessionId
+if exists(.SessionId) {
+  sid_raw = to_string!(del(.SessionId))
+  sid_val = parse_int(sid_raw) ?? null
+  if sid_val != null {
+    .process.Ext.snapshot.session_id = sid_val
+  } else {
+    .process.Ext.snapshot.session_id_raw = sid_raw
+  }
+}
+
+# =============================================================================
+# Memory-ish metrics (stored under process.Ext.snapshot)
+# =============================================================================
+
+# From WMI CSV: VM, WS, WorkingSetSize, VirtualSize
+if exists(.VM) {
+  vm_raw = to_string!(del(.VM))
+  vm_val = parse_int(vm_raw) ?? null
+  if vm_val != null {
+    .process.Ext.snapshot.vm = vm_val
+  } else {
+    .process.Ext.snapshot.vm_raw = vm_raw
+  }
+}
+
+if exists(.WS) {
+  ws_raw = to_string!(del(.WS))
+  ws_val = parse_int(ws_raw) ?? null
+  if ws_val != null {
+    .process.Ext.snapshot.ws = ws_val
+  } else {
+    .process.Ext.snapshot.ws_raw = ws_raw
+  }
+}
+
+if exists(.WorkingSetSize) {
+  wss_raw = to_string!(del(.WorkingSetSize))
+  wss_val = parse_int(wss_raw) ?? null
+  if wss_val != null {
+    .process.Ext.snapshot.working_set_size = wss_val
+  } else {
+    .process.Ext.snapshot.working_set_size_raw = wss_raw
+  }
+}
+
+if exists(.VirtualSize) {
+  vs_raw = to_string!(del(.VirtualSize))
+  vs_val = parse_int(vs_raw) ?? null
+  if vs_val != null {
+    .process.Ext.snapshot.virtual_size = vs_val
+  } else {
+    .process.Ext.snapshot.virtual_size_raw = vs_raw
+  }
+}
+
+# From .NET CSV: WorkingSet / WorkingSet64 / VirtualMemorySize / VirtualMemorySize64
+if exists(.WorkingSet) {
+  ws2_raw = to_string!(del(.WorkingSet))
+  ws2_val = parse_int(ws2_raw) ?? null
+  if ws2_val != null {
+    .process.Ext.snapshot.working_set = ws2_val
+  } else {
+    .process.Ext.snapshot.working_set_raw = ws2_raw
+  }
+}
+
+if exists(.WorkingSet64) {
+  ws64_raw = to_string!(del(.WorkingSet64))
+  ws64_val = parse_int(ws64_raw) ?? null
+  if ws64_val != null {
+    .process.Ext.snapshot.working_set64 = ws64_val
+  } else {
+    .process.Ext.snapshot.working_set64_raw = ws64_raw
+  }
+}
+
+if exists(.VirtualMemorySize) {
+  vms_raw = to_string!(del(.VirtualMemorySize))
+  vms_val = parse_int(vms_raw) ?? null
+  if vms_val != null {
+    .process.Ext.snapshot.virtual_memory_size = vms_val
+  } else {
+    .process.Ext.snapshot.virtual_memory_size_raw = vms_raw
+  }
+}
+
+if exists(.VirtualMemorySize64) {
+  vms64_raw = to_string!(del(.VirtualMemorySize64))
+  vms64_val = parse_int(vms64_raw) ?? null
+  if vms64_val != null {
+    .process.Ext.snapshot.virtual_memory_size64 = vms64_val
+  } else {
+    .process.Ext.snapshot.virtual_memory_size64_raw = vms64_raw
+  }
+}
+
+# =============================================================================
+# CPU time / priority (stored in Ext)
+# =============================================================================
+
+# WMI: KernelModeTime, UserModeTime
+if exists(.KernelModeTime) {
+  kmt_raw = to_string!(del(.KernelModeTime))
+  .process.Ext.snapshot.kernel_mode_time_raw = kmt_raw
+}
+
+if exists(.UserModeTime) {
+  umt_raw = to_string!(del(.UserModeTime))
+  .process.Ext.snapshot.user_mode_time_raw = umt_raw
+}
+
+# .NET: TotalProcessorTime, UserProcessorTime, PrivilegedProcessorTime
+if exists(.TotalProcessorTime) {
+  .process.Ext.snapshot.total_processor_time = to_string!(del(.TotalProcessorTime))
+}
+
+if exists(.UserProcessorTime) {
+  .process.Ext.snapshot.user_processor_time = to_string!(del(.UserProcessorTime))
+}
+
+if exists(.PrivilegedProcessorTime) {
+  .process.Ext.snapshot.privileged_processor_time = to_string!(del(.PrivilegedProcessorTime))
+}
+
+# BasePriority / Priority
+if exists(.BasePriority) {
+  bp_raw = to_string!(del(.BasePriority))
+  bp_val = parse_int(bp_raw) ?? null
+  if bp_val != null {
+    .process.Ext.snapshot.base_priority = bp_val
+  } else {
+    .process.Ext.snapshot.base_priority_raw = bp_raw
+  }
+}
+
+if exists(.Priority) {
+  pri_raw = to_string!(del(.Priority))
+  pri_val = parse_int(pri_raw) ?? null
+  if pri_val != null {
+    .process.Ext.snapshot.priority = pri_val
+  } else {
+    .process.Ext.snapshot.priority_raw = pri_raw
+  }
+}
+
+if exists(.PriorityClass) {
+  .process.Ext.snapshot.priority_class = to_string!(del(.PriorityClass))
+}
+
+# =============================================================================
+# Status / exit codes (.NET)
+# =============================================================================
+
+if exists(.HasExited) {
+  he_raw = to_string!(del(.HasExited))
+  .process.Ext.snapshot.has_exited_raw = he_raw
+}
+
+if exists(.ExitCode) {
+  ec_raw = to_string!(del(.ExitCode))
+  ec_val = parse_int(ec_raw) ?? null
+  if ec_val != null {
+    .process.Ext.snapshot.exit_code = ec_val
+  } else {
+    .process.Ext.snapshot.exit_code_raw = ec_raw
+  }
+}
+
+# =============================================================================
+# Timestamps – "proper" process time
+#
+# Primary:
+#   • WMI: CreationDate  → .process.start
+#   • .NET: StartTime    → .process.start
+#
+# Then we use .process.start → .timestamp / .event.created
+# =============================================================================
+
+# --- WMI CreationDate (CIM datetime like 20240426180618.356420+120) ---
+if exists(.CreationDate) {
+  cd_raw = to_string!(del(.CreationDate))
+  if cd_raw != "" {
+    base = cd_raw
+
+    if contains(cd_raw, "+") {
+      parts = split!(cd_raw, "+")
+      if length(parts) > 0 {
+        base = get!(parts, [0])
+      }
+    } else if contains(cd_raw, "-") {
+      parts = split!(cd_raw, "-")
+      if length(parts) > 0 {
+        base = get!(parts, [0])
+      }
+    }
+
+    cd_ts = parse_timestamp(base, "%Y%m%d%H%M%S%.f") ??
+            parse_timestamp(base, "%Y%m%d%H%M%S") ??
+            null
+
+    if cd_ts != null {
+      .process.start = cd_ts
+      .process.Ext.snapshot.creation_date = cd_ts
+    } else {
+      .process.Ext.snapshot.creation_date_raw = cd_raw
+    }
+  }
+}
+
+# --- WMI TerminationDate (same CIM format) ---
+if exists(.TerminationDate) {
+  td_raw = to_string!(del(.TerminationDate))
+  if td_raw != "" {
+    tbase = td_raw
+
+    if contains(td_raw, "+") {
+      parts2 = split!(td_raw, "+")
+      if length(parts2) > 0 {
+        tbase = get!(parts2, [0])
+      }
+    } else if contains(td_raw, "-") {
+      parts2 = split!(td_raw, "-")
+      if length(parts2) > 0 {
+        tbase = get!(parts2, [0])
+      }
+    }
+
+    td_ts = parse_timestamp(tbase, "%Y%m%d%H%M%S%.f") ??
+            parse_timestamp(tbase, "%Y%m%d%H%M%S") ??
+            null
+
+    if td_ts != null {
+      .process.Ext.snapshot.termination_date = td_ts
+    } else {
+      .process.Ext.snapshot.termination_date_raw = td_raw
+    }
+  }
+}
+
+# InstallDate (WMI) – keep raw
+if exists(.InstallDate) {
+  id_raw = to_string!(del(.InstallDate))
+  if id_raw != "" {
+    .process.Ext.snapshot.install_date_raw = id_raw
+  }
+}
+
+# --- .NET StartTime ---
+if exists(.StartTime) {
+  st_raw = to_string!(del(.StartTime))
+  if st_raw != "" {
+    st_ts = parse_timestamp(st_raw, "%d/%m/%Y %T") ?? null
+    if st_ts != null {
+      .process.start = st_ts
+      .process.Ext.snapshot.start_time = st_ts
+    } else {
+      .process.Ext.snapshot.start_time_raw = st_raw
+    }
+  }
+}
+
+# --- .NET ExitTime ---
+if exists(.ExitTime) {
+  et_raw = to_string!(del(.ExitTime))
+  if et_raw != "" {
+    et_ts = parse_timestamp(et_raw, "%d/%m/%Y %T") ?? null
+    if et_ts != null {
+      .process.Ext.snapshot.exit_time = et_ts
+    } else {
+      .process.Ext.snapshot.exit_time_raw = et_raw
+    }
+  }
+}
+
+# =============================================================================
+# Timestamp resolution for event
+#   • Primary: .process.start (if present)
+# =============================================================================
+
+ts_value = null
+ts_source = ""
+
+if exists(.process.start) {
+  ts_value = .process.start
+  ts_source = "process.start"
+}
+
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}

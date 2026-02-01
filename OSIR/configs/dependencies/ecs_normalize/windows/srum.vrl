@@ -1,0 +1,689 @@
+# -----------------------------------------------------------------------------
+# Windows SRUM (System Resource Usage Monitor) - Artemis JSONL exports
+# Normalization to ECS-style fields + vendor data under .srum.*
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event (ECS best practice)
+# -----------------------------------------------------------------------------
+# Save the original event as JSON before we start mutating / deleting
+if !exists(.event.original) {
+    raw = encode_json(.)
+    .event.original = raw
+}
+
+.event.module = "windows"
+.event.kind   = "event"
+
+# -----------------------------------------------------------------------------
+# Detect the SRUM artifact type from metadata.artifact_name
+# -----------------------------------------------------------------------------
+
+artifact = "srum_unknown"
+if exists(.metadata.artifact_name) {
+    artifact = to_string!(del(.metadata.artifact_name))
+}
+
+.srum.artifact = artifact
+.event.dataset = "windows." + artifact
+
+# -----------------------------------------------------------------------------
+# Timestamps (data.timestamp / start_time / end_time / connect_start_time)
+# -----------------------------------------------------------------------------
+
+# Main event time from data.timestamp (RFC3339)
+if exists(.data.timestamp) {
+    raw_ts = to_string!(del(.data.timestamp))
+    ts, err = parse_timestamp(raw_ts, "%+")
+    if err == null {
+        .timestamp     = ts
+        .event.created = ts
+    }
+}
+
+# Ingestion-ish time from metadata.complete_time
+if exists(.metadata.complete_time) {
+    raw_ing = to_string!(del(.metadata.complete_time))
+    ing, err = parse_timestamp(raw_ing, "%+")
+    if err == null {
+        .event.ingested = ing
+    }
+}
+
+# Optional start/end timestamps present on some artifacts
+if exists(.data.start_time) {
+    raw_st = to_string!(del(.data.start_time))
+    st, err = parse_timestamp(raw_st, "%+")
+    if err == null {
+        .event.start = st
+    }
+}
+
+if exists(.data.end_time) {
+    raw_et = to_string!(del(.data.end_time))
+    et, err = parse_timestamp(raw_et, "%+")
+    if err == null {
+        .event.end = et
+    }
+}
+
+# Connectivity-specific connect_start_time
+if exists(.data.connect_start_time) {
+    raw_cst = to_string!(del(.data.connect_start_time))
+    cst, err = parse_timestamp(raw_cst, "%+")
+    if err == null {
+        .event.start = cst
+    }
+}
+
+# Duration from duration_ms or connected_time
+if exists(.data.duration_ms) {
+    raw_dur_ms = del(.data.duration_ms)
+    dur_ms, err = to_int(raw_dur_ms)
+    if err == null {
+        # ECS event.duration in nanoseconds
+        dur_ns = dur_ms * 1000000
+        .event.duration = dur_ns
+    }
+} else if exists(.data.connected_time) {
+    raw_dur_s = del(.data.connected_time)
+    dur_s, err = to_int(raw_dur_s)
+    if err == null {
+        dur_ns = dur_s * 1000000000
+        .event.duration = dur_ns
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Common SRUM "data" fields → ECS-ish (app_id, user_id, auto_inc_id)
+# -----------------------------------------------------------------------------
+
+# Application / process id
+if exists(.data.app_id) {
+    app_id = to_string!(del(.data.app_id))
+    .srum.app.id = app_id
+
+    app_id_l = downcase(app_id)
+
+    # Heuristic: if looks like a path or .exe, treat as executable
+    if contains(app_id_l, "\\") || ends_with(app_id_l, ".exe") {
+        .process.executable = app_id
+    } else if app_id != "" {
+        .process.name = app_id
+    }
+}
+
+# User SID
+if exists(.data.user_id) && .data.user_id != "" {
+    sid = to_string!(del(.data.user_id))
+    .user.id = sid
+}
+
+# Auto-increment id
+if exists(.data.auto_inc_id) {
+    raw_inc = del(.data.auto_inc_id)
+    inc, err = to_int(raw_inc)
+    if err == null {
+        .srum.auto_inc_id = inc
+    }
+}
+
+# Default outcome/severity for SRUM: informational metrics
+if !exists(.event.type) {
+    .event.type = ["info"]
+}
+if !exists(.event.category) {
+    .event.category = ["host"]
+}
+
+# -----------------------------------------------------------------------------
+# Per-artifact mappings
+# -----------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------
+# srum_network  → network usage per app/user/interface/time bucket
+# ---------------------------------------------------------------------
+if artifact == "srum_network" {
+    .event.category = ["network"]
+    .event.type     = ["info"]
+
+    # Bytes sent / received
+    src_bytes = null
+    dst_bytes = null
+
+    if exists(.data.bytes_sent) {
+        raw_bs = del(.data.bytes_sent)
+        bs, err = to_int(raw_bs)
+        if err == null {
+            src_bytes = bs
+            .source.bytes = bs
+        }
+    }
+
+    if exists(.data.bytes_recvd) {
+        raw_br = del(.data.bytes_recvd)
+        br, err = to_int(raw_br)
+        if err == null {
+            dst_bytes = br
+            .destination.bytes = br
+        }
+    }
+
+    if src_bytes != null || dst_bytes != null {
+        total = 0
+
+        if src_bytes != null {
+            total, err = total + src_bytes
+            if err != null {
+                # fallback: just src_bytes
+                total = src_bytes
+            }
+        }
+
+        if dst_bytes != null {
+            total, err = total + dst_bytes
+            if err != null {
+                # fallback: at least keep destination side
+                total = dst_bytes
+            }
+        }
+
+        .network.bytes = total
+    }
+
+    # Interface info
+    if exists(.data.interface_luid) {
+        raw_luid = del(.data.interface_luid)
+        luid_int, err = to_int(raw_luid)
+        if err == null {
+            .network.interface.id = to_string(luid_int)
+        } else {
+            .network.interface.id = to_string!(raw_luid)
+        }
+    }
+
+    if exists(.data.l2_profile_id) {
+        raw_l2id = del(.data.l2_profile_id)
+        v, err = to_int(raw_l2id)
+        if err == null { .srum.network.l2_profile_id = v }
+    }
+    if exists(.data.l2_profile_flags) {
+        raw_l2flags = del(.data.l2_profile_flags)
+        v, err = to_int(raw_l2flags)
+        if err == null { .srum.network.l2_profile_flags = v }
+    }
+}
+
+# ---------------------------------------------------------------------
+# srum_application → CPU, IO, context switches per app/user
+# ---------------------------------------------------------------------
+if artifact == "srum_application" {
+    .event.category = ["process"]
+    .event.type     = ["info"]
+
+    # CPU cycles (foreground / background and facetime)
+    if exists(.data.foreground_cycle_time) {
+        raw_v = del(.data.foreground_cycle_time)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_cycle_time = v }
+    }
+    if exists(.data.background_cycle_time) {
+        raw_v = del(.data.background_cycle_time)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_cycle_time = v }
+    }
+    if exists(.data.facetime) {
+        raw_v = del(.data.facetime)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.facetime = v }
+    }
+
+    # Context switches
+    if exists(.data.foreground_context_switches) {
+        raw_v = del(.data.foreground_context_switches)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_context_switches = v }
+    }
+    if exists(.data.background_context_switches) {
+        raw_v = del(.data.background_context_switches)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_context_switches = v }
+    }
+
+    # Foreground IO
+    if exists(.data.foreground_bytes_read) {
+        raw_v = del(.data.foreground_bytes_read)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_bytes_read = v }
+    }
+    if exists(.data.foreground_bytes_written) {
+        raw_v = del(.data.foreground_bytes_written)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_bytes_written = v }
+    }
+    if exists(.data.foreground_num_read_operations) {
+        raw_v = del(.data.foreground_num_read_operations)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_num_read_operations = v }
+    }
+    if exists(.data.foreground_num_write_options) {
+        raw_v = del(.data.foreground_num_write_options)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_num_write_options = v }
+    }
+    if exists(.data.foreground_number_of_flushes) {
+        raw_v = del(.data.foreground_number_of_flushes)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.foreground_number_of_flushes = v }
+    }
+
+    # Background IO
+    if exists(.data.background_bytes_read) {
+        raw_v = del(.data.background_bytes_read)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_bytes_read = v }
+    }
+    if exists(.data.background_bytes_written) {
+        raw_v = del(.data.background_bytes_written)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_bytes_written = v }
+    }
+    if exists(.data.background_num_read_operations) {
+        raw_v = del(.data.background_num_read_operations)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_num_read_operations = v }
+    }
+    if exists(.data.background_num_write_operations) {
+        raw_v = del(.data.background_num_write_operations)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_num_write_operations = v }
+    }
+    if exists(.data.background_number_of_flushes) {
+        raw_v = del(.data.background_number_of_flushes)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app.background_number_of_flushes = v }
+    }
+}
+
+# ---------------------------------------------------------------------
+# srum_connectivity → interface connectivity timeline
+# ---------------------------------------------------------------------
+if artifact == "srum_connectivity" {
+    .event.category = ["network"]
+    .event.type     = ["info"]
+
+    # Connection duration already handled via connected_time → event.duration
+    if exists(.data.interface_luid) {
+        raw_luid = del(.data.interface_luid)
+        luid_int, err = to_int(raw_luid)
+        if err == null {
+            .network.interface.id = to_string(luid_int)
+        } else {
+            .network.interface.id = to_string!(raw_luid)
+        }
+    }
+
+    # connected_time may also be mapped as vendor copy
+    if exists(.data.connected_time) {
+        raw_v = del(.data.connected_time)
+        v, err = to_int(raw_v)
+        if err == null {
+            .srum.connectivity.connected_time_s = v
+        }
+    }
+
+    if exists(.data.l2_profile_id) {
+        raw_v = del(.data.l2_profile_id)
+        v, err = to_int(raw_v)
+        if err == null { .srum.connectivity.l2_profile_id = v }
+    }
+    if exists(.data.l2_profile_flags) {
+        raw_v = del(.data.l2_profile_flags)
+        v, err = to_int(raw_v)
+        if err == null { .srum.connectivity.l2_profile_flags = v }
+    }
+}
+
+# ---------------------------------------------------------------------
+# srum_app_timeline → focus, user input, CPU/disk/network timelines
+# ---------------------------------------------------------------------
+if artifact == "srum_app_timeline" {
+    .event.category = ["process"]
+    .event.type     = ["info"]
+
+    # Simple int fields
+    if exists(.data.flags) {
+        raw_v = del(.data.flags)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.flags = v }
+    }
+
+    if exists(.data.timeline_end) {
+        raw_v = del(.data.timeline_end)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.timeline_end = v }
+    }
+
+    # *_s fields (seconds counters)
+    if exists(.data.in_focus_s) {
+        raw_v = del(.data.in_focus_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.in_focus_s = v }
+    }
+
+    if exists(.data.psm_foreground_s) {
+        raw_v = del(.data.psm_foreground_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.psm_foreground_s = v }
+    }
+
+    if exists(.data.user_input_s) {
+        raw_v = del(.data.user_input_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.user_input_s = v }
+    }
+
+    if exists(.data.comp_rendered_s) {
+        raw_v = del(.data.comp_rendered_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.comp_rendered_s = v }
+    }
+
+    if exists(.data.comp_dirtied_s) {
+        raw_v = del(.data.comp_dirtied_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.comp_dirtied_s = v }
+    }
+
+    if exists(.data.comp_propagated_s) {
+        raw_v = del(.data.comp_propagated_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.comp_propagated_s = v }
+    }
+
+    if exists(.data.audio_in_s) {
+        raw_v = del(.data.audio_in_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.audio_in_s = v }
+    }
+
+    if exists(.data.audio_out_s) {
+        raw_v = del(.data.audio_out_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.audio_out_s = v }
+    }
+
+    if exists(.data.display_required_s) {
+        raw_v = del(.data.display_required_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.display_required_s = v }
+    }
+
+    if exists(.data.keyboard_input_s) {
+        raw_v = del(.data.keyboard_input_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.keyboard_input_s = v }
+    }
+
+    if exists(.data.mouse_input_s) {
+        raw_v = del(.data.mouse_input_s)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.mouse_input_s = v }
+    }
+
+    # *_timeline fields
+    if exists(.data.in_focus_timeline) {
+        raw_v = del(.data.in_focus_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.in_focus_timeline = v }
+    }
+
+    if exists(.data.user_input_timeline) {
+        raw_v = del(.data.user_input_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.user_input_timeline = v }
+    }
+
+    if exists(.data.comp_rendered_timeline) {
+        raw_v = del(.data.comp_rendered_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.comp_rendered_timeline = v }
+    }
+
+    if exists(.data.comp_dirtied_timeline) {
+        raw_v = del(.data.comp_dirtied_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.comp_dirtied_timeline = v }
+    }
+
+    if exists(.data.comp_propagated_timeline) {
+        raw_v = del(.data.comp_propagated_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.comp_propagated_timeline = v }
+    }
+
+    if exists(.data.audio_in_timeline) {
+        raw_v = del(.data.audio_in_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.audio_in_timeline = v }
+    }
+
+    if exists(.data.audio_out_timeline) {
+        raw_v = del(.data.audio_out_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.audio_out_timeline = v }
+    }
+
+    if exists(.data.display_required_timeline) {
+        raw_v = del(.data.display_required_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.display_required_timeline = v }
+    }
+
+    if exists(.data.keyboard_input_timeline) {
+        raw_v = del(.data.keyboard_input_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.keyboard_input_timeline = v }
+    }
+
+    # CPU / disk / network / mbb timelines
+    if exists(.data.cpu_timeline) {
+        raw_v = del(.data.cpu_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cpu_timeline = v }
+    }
+
+    if exists(.data.disk_timeline) {
+        raw_v = del(.data.disk_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.disk_timeline = v }
+    }
+
+    if exists(.data.network_timeline) {
+        raw_v = del(.data.network_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.network_timeline = v }
+    }
+
+    if exists(.data.mbb_timeline) {
+        raw_v = del(.data.mbb_timeline)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.mbb_timeline = v }
+    }
+
+    # Cycles and breakdowns
+    if exists(.data.cycles) {
+        raw_v = del(.data.cycles)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cycles = v }
+    }
+
+    if exists(.data.cycles_breakdown) {
+        raw_v = del(.data.cycles_breakdown)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cycles_breakdown = v }
+    }
+
+    if exists(.data.cycles_attr) {
+        raw_v = del(.data.cycles_attr)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cycles_attr = v }
+    }
+
+    if exists(.data.cycles_attr_breakdown) {
+        raw_v = del(.data.cycles_attr_breakdown)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cycles_attr_breakdown = v }
+    }
+
+    if exists(.data.cycles_wob) {
+        raw_v = del(.data.cycles_wob)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cycles_wob = v }
+    }
+
+    if exists(.data.cycles_wob_breakdown) {
+        raw_v = del(.data.cycles_wob_breakdown)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.cycles_wob_breakdown = v }
+    }
+
+    # Raw disk/network/mbb counters
+    if exists(.data.disk_raw) {
+        raw_v = del(.data.disk_raw)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.disk_raw = v }
+    }
+
+    if exists(.data.network_tail_raw) {
+        raw_v = del(.data.network_tail_raw)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.network_tail_raw = v }
+    }
+
+    if exists(.data.network_bytes_raw) {
+        raw_v = del(.data.network_bytes_raw)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.network_bytes_raw = v }
+    }
+
+    if exists(.data.mbb_tail_raw) {
+        raw_v = del(.data.mbb_tail_raw)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.mbb_tail_raw = v }
+    }
+
+    if exists(.data.mbb_bytes_raw) {
+        raw_v = del(.data.mbb_bytes_raw)
+        v, err = to_int(raw_v)
+        if err == null { .srum.app_timeline.mbb_bytes_raw = v }
+    }
+}
+
+# ---------------------------------------------------------------------
+# srum_notification → toast/push notification traffic
+# ---------------------------------------------------------------------
+if artifact == "srum_notification" {
+    .event.category = ["process"]
+    .event.type     = ["info"]
+
+    if exists(.data.notification_type) {
+        raw_v = del(.data.notification_type)
+        nt, err = to_int(raw_v)
+        if err == null {
+            .srum.notification.type_id = nt
+        }
+    }
+
+    if exists(.data.payload_size) {
+        raw_v = del(.data.payload_size)
+        sz, err = to_int(raw_v)
+        if err == null {
+            .event.size = sz
+        }
+    }
+
+    if exists(.data.network_type) {
+        raw_v = del(.data.network_type)
+        nt2, err = to_int(raw_v)
+        if err == null {
+            .srum.notification.network_type = nt2
+        }
+    }
+}
+
+# ---------------------------------------------------------------------
+# srum_app_vfu → app usage (volume/foreground) data
+# ---------------------------------------------------------------------
+if artifact == "srum_app_vfu" {
+    .event.category = ["process"]
+    .event.type     = ["info"]
+
+    if exists(.data.flags) {
+        raw_v = del(.data.flags)
+        f, err = to_int(raw_v)
+        if err == null {
+            .srum.vfu.flags = f
+        }
+    }
+
+    # Start/end already mapped to event.start / event.end above
+    if exists(.data.usage) {
+        usage_raw = to_string!(del(.data.usage))
+        .srum.vfu.usage_raw_b64 = usage_raw
+    }
+}
+
+# ---------------------------------------------------------------------
+# srum_energy → table-level thing, almost empty in your sample
+# ---------------------------------------------------------------------
+if artifact == "srum_energy" {
+    .event.category = ["host"]
+    .event.type     = ["info"]
+}
+
+# ---------------------------------------------------------------------
+# srum_energy_usage → battery / energy usage snapshots
+# ---------------------------------------------------------------------
+if artifact == "srum_energy_usage" {
+    .event.category = ["host"]
+    .event.type     = ["info"]
+
+    if exists(.data.state_transition) {
+        raw_v = del(.data.state_transition)
+        v, err = to_int(raw_v)
+        if err == null { .srum.energy_usage.state_transition = v }
+    }
+    if exists(.data.full_charged_capacity) {
+        raw_v = del(.data.full_charged_capacity)
+        v, err = to_int(raw_v)
+        if err == null { .srum.energy_usage.full_charged_capacity = v }
+    }
+    if exists(.data.designed_capacity) {
+        raw_v = del(.data.designed_capacity)
+        v, err = to_int(raw_v)
+        if err == null { .srum.energy_usage.designed_capacity = v }
+    }
+    if exists(.data.charge_level) {
+        raw_v = del(.data.charge_level)
+        v, err = to_int(raw_v)
+        if err == null { .srum.energy_usage.charge_level = v }
+    }
+    if exists(.data.cycle_count) {
+        raw_v = del(.data.cycle_count)
+        v, err = to_int(raw_v)
+        if err == null { .srum.energy_usage.cycle_count = v }
+    }
+    if exists(.data.configuration_hash) {
+        raw_v = del(.data.configuration_hash)
+        v, err = to_int(raw_v)
+        if err == null { .srum.energy_usage.configuration_hash = v }
+    }
+}
+
+# Remove useless metadata
+
+if exists(.metadata) {
+    del(.metadata)
+}
+

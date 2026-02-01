@@ -1,0 +1,198 @@
+# -----------------------------------------------------------------------------
+# Windows NTFS Filename-only CSV → ECS-ish
+#
+# Columns:
+# ComputerName,VolumeID,CarvedEntry,FRN,ParentFRN,Name,FilenameFlags,
+# FileNameCreationDate,FileNameLastModificationDate,FileNameLastAccessDate,
+# FileNameLastAttrModificationDate,SnapshotID,DataSize
+# -----------------------------------------------------------------------------
+
+# Ensure .event exists
+if !exists(.event) {
+  .event = {}
+}
+
+# Keep original event once 
+.event.original = encode_json!(.)
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+.event.dataset  = "windows.ntfsinfo.filename"
+.event.module   = "windows"
+.event.kind     = "state"
+.event.category = ["file"]
+.event.type     = ["info"]
+.event.action   = "ntfs_filename"
+.event.code     = "ntfs_filename"
+.event.outcome  = "success"
+.event.provider = "Windows NTFS Filename (detail)"
+
+# -----------------------------------------------------------------------------
+# Host / volume
+# -----------------------------------------------------------------------------
+
+# ComputerName → host.name
+if exists(.ComputerName) {
+  .host.name = to_string!(del(.ComputerName))
+}
+
+# VolumeID → file.Ext.ntfs.volume_id
+if exists(.VolumeID) {
+  .file.Ext.ntfs.volume_id = to_string!(del(.VolumeID))
+}
+
+# -----------------------------------------------------------------------------
+# Basic NTFS filename info
+# -----------------------------------------------------------------------------
+
+# CarvedEntry (Y/N or similar)
+if exists(.CarvedEntry) {
+  ce_raw = to_string!(del(.CarvedEntry))
+  if ce_raw != "" {
+    ce_l = downcase!(ce_raw)
+    if ce_l == "y" || ce_l == "yes" || ce_l == "true" {
+      .file.Ext.ntfs.carved = true
+    } else if ce_l == "n" || ce_l == "no" || ce_l == "false" {
+      .file.Ext.ntfs.carved = false
+    } else {
+      .file.Ext.ntfs.carved_raw = ce_raw
+    }
+  }
+}
+
+# FRN / ParentFRN
+if exists(.FRN) {
+  frn_raw = to_string!(del(.FRN))
+  if frn_raw != "" {
+    .file.Ext.ntfs.frn = frn_raw
+  }
+}
+
+if exists(.ParentFRN) {
+  pfrn_raw = to_string!(del(.ParentFRN))
+  if pfrn_raw != "" {
+    .file.Ext.ntfs.parent_frn = pfrn_raw
+  }
+}
+
+# Name → file.name
+if exists(.Name) {
+  name_raw = to_string!(del(.Name))
+  if name_raw != "" {
+    .file.name = name_raw
+  }
+}
+
+# FilenameFlags
+if exists(.FilenameFlags) {
+  fflags_raw = to_string!(del(.FilenameFlags))
+  if fflags_raw != "" {
+    .file.Ext.ntfs.filename_flags = fflags_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Filename timestamps (FN attribute)
+# -----------------------------------------------------------------------------
+
+# FileNameCreationDate
+if exists(.FileNameCreationDate) {
+  fnc_raw = to_string!(del(.FileNameCreationDate))
+  if fnc_raw != "" {
+    fnc = parse_timestamp(fnc_raw, "%F %T%.f") ?? parse_timestamp(fnc_raw, "%F %T") ?? null
+    if fnc != null {
+      .file.Ext.ntfs.fn_creation = fnc
+    } else {
+      .file.Ext.ntfs.fn_creation_raw = fnc_raw
+    }
+  }
+}
+
+# FileNameLastModificationDate
+if exists(.FileNameLastModificationDate) {
+  fnlm_raw = to_string!(del(.FileNameLastModificationDate))
+  if fnlm_raw != "" {
+    fnlm = parse_timestamp(fnlm_raw, "%F %T%.f") ?? parse_timestamp(fnlm_raw, "%F %T") ?? null
+    if fnlm != null {
+      .file.Ext.ntfs.fn_last_modification = fnlm
+    } else {
+      .file.Ext.ntfs.fn_last_modification_raw = fnlm_raw
+    }
+  }
+}
+
+# FileNameLastAccessDate
+if exists(.FileNameLastAccessDate) {
+  fnla_raw = to_string!(del(.FileNameLastAccessDate))
+  if fnla_raw != "" {
+    fnla = parse_timestamp(fnla_raw, "%F %T%.f") ?? parse_timestamp(fnla_raw, "%F %T") ?? null
+    if fnla != null {
+      .file.Ext.ntfs.fn_last_access = fnla
+    } else {
+      .file.Ext.ntfs.fn_last_access_raw = fnla_raw
+    }
+  }
+}
+
+# FileNameLastAttrModificationDate
+if exists(.FileNameLastAttrModificationDate) {
+  fnlac_raw = to_string!(del(.FileNameLastAttrModificationDate))
+  if fnlac_raw != "" {
+    fnlac = parse_timestamp(fnlac_raw, "%F %T%.f") ?? parse_timestamp(fnlac_raw, "%F %T") ?? null
+    if fnlac != null {
+      .file.Ext.ntfs.fn_last_attr_change = fnlac
+    } else {
+      .file.Ext.ntfs.fn_last_attr_change_raw = fnlac_raw
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Snapshot / size
+# -----------------------------------------------------------------------------
+
+if exists(.SnapshotID) {
+  sid_raw = to_string!(del(.SnapshotID))
+  if sid_raw != "" {
+    .event.Ext.ntfs.snapshot_id = sid_raw
+  }
+}
+
+# DataSize → file.size
+if exists(.DataSize) {
+  ds_raw = to_string!(del(.DataSize))
+  if ds_raw != "" {
+    ds_int = parse_int(ds_raw) ?? null
+    if ds_int != null {
+      .file.size = ds_int
+    } else {
+      .file.Ext.ntfs.data_size_raw = ds_raw
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Fallback .timestamp from filename times
+# Prefer fn_last_modification → fn_creation
+# -----------------------------------------------------------------------------
+ts_value  = null
+ts_source = null
+
+if exists(.file.Ext.ntfs.fn_last_modification) {
+  ts_value  = .file.Ext.ntfs.fn_last_modification
+  ts_source = "ntfs_fn_last_modification"
+} else if exists(.file.Ext.ntfs.fn_creation) {
+  ts_value  = .file.Ext.ntfs.fn_creation
+  ts_source = "ntfs_fn_creation"
+}
+
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}

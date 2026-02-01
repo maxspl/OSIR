@@ -1,0 +1,111 @@
+# -----------------------------------------------------------------------------
+# Sysinternals ListDLLs → ECS
+#   Input fields:
+#     type, process_name, pid, base_address, size, path
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event (ECS best practice) - do this FIRST
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Basic ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.listdlls"
+.event.module   = "windows"
+
+.event.kind     = "event"
+.event.category = ["process"]
+.event.type     = ["info"]
+.event.outcome  = "success"
+
+.event.provider = "Sysinternals ListDLLs"
+
+# -----------------------------------------------------------------------------
+# Basic event classification from "type"
+# -----------------------------------------------------------------------------
+
+if exists(.type) {
+    type_raw = to_string!(del(.type))
+    type_l   = downcase(type_raw)
+
+    .event.code   = type_raw
+    .event.action = type_l
+}
+
+# -----------------------------------------------------------------------------
+# Process info
+# -----------------------------------------------------------------------------
+
+if exists(.process_name) {
+    .process.name = del(.process_name)
+}
+
+if exists(.pid) {
+    pid_raw = to_string!(del(.pid))
+    # parse_int is fallible → handle with ??
+    pid_int = parse_int(pid_raw) ?? null
+
+    if pid_int != null {
+        .process.pid = pid_int
+    } else {
+        .process.pid = pid_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# DLL / module info
+# -----------------------------------------------------------------------------
+
+if exists(.path) {
+    dll_path = to_string!(del(.path))
+
+    # ECS dll.* and file.* mirrors
+    .dll.path  = dll_path
+    .file.path = dll_path
+
+    # Normalize separators for basename()
+    dll_path_norm = replace(dll_path, "\\", "/")
+
+    # basename is fallible → handle with ??
+    dll_name = basename(dll_path_norm) ?? null
+
+    if dll_name != null {
+        .dll.name  = dll_name
+        .file.name = dll_name
+    }
+
+    # If the module path looks like the main executable, set process.executable
+    if exists(.process.name) {
+        proc_name  = to_string!(.process.name)
+        dll_lower  = downcase(dll_path)
+        proc_lower = downcase(proc_name)
+
+        if ends_with(dll_lower, "\\" + proc_lower) || ends_with(dll_lower, "/" + proc_lower) {
+            .process.executable = dll_path
+        }
+    }
+}
+
+# Base address of the loaded module (non-standard ECS → dll.Ext.*)
+if exists(.base_address) {
+    base_addr_raw = to_string!(del(.base_address))
+    .dll.Ext.base_address = base_addr_raw
+}
+
+# Region size (hex string → integer if possible) in dll.Ext
+if exists(.size) {
+    size_raw = to_string!(del(.size))
+    # parse_int is fallible → handle with ??
+    size_int = parse_int(size_raw) ?? null
+
+    if size_int != null {
+        .dll.Ext.memory_size = size_int
+    } else {
+        .dll.Ext.memory_size = size_raw
+    }
+}

@@ -21,3 +21,11 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: routes
+splunk:
+  'windows:live_response:routes':
+    name_rex: --win_routes\.jsonl$
+    path_suffix: win_routes 
+    host_rex: ([\w\.-]+)--
+    artifact: "ROUTES"
+    normalize:
+      - ecs_normalize/windows/live_response/routes.vrl     

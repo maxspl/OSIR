@@ -1,0 +1,359 @@
+# -----------------------------------------------------------------------------
+# ANSSI decode_result_C.csv 
+#   Input fields (CSV columns as JSON keys):
+#   ComputerName, VolumeID, File, ParentName, Extension, SizeInBytes, Attributes,
+#   CreationDate, LastModificationDate, LastAccessDate, LastAttrChangeDate,
+#   FileNameCreationDate, FileNameLastModificationDate, FileNameLastAccessDate,
+#   FileNameLastAttrModificationDate,
+#   SHA1, Version, OriginalFileName, Platform, TimeStamp, SubSystem, FileType,
+#   FileOS, PeSHA1, PeSHA256,
+#   AuthenticodeStatus, AuthenticodeSigner, AuthenticodeSignerThumbprint,
+#   AuthenticodeCA, AuthenticodeCAThumbprint,
+#   PeMD5, SnapshotID, SignedHash, VolumeInfo, FullPath,
+#   FilesCreatedAtSameTime, Analysis, Isolated, isolated_pval,
+#   Features, Path, path_pval, if_features_pval,
+#   db_features, features_core_pnt, db_features_pval, features_pval, final_score,
+#   WarningInListDLLs
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event first
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.anssi_decode"
+.event.module   = "windows"
+
+# This is a file inventory / scoring snapshot
+.event.kind     = "state"
+.event.category = ["file"]
+.event.type     = ["info"]
+
+.event.outcome  = "success"
+.event.provider = "ANSSI decode"
+
+# -----------------------------------------------------------------------------
+# Host info
+# -----------------------------------------------------------------------------
+
+if exists(.ComputerName) {
+    comp = to_string!(del(.ComputerName))
+    if !exists(.host.name) {
+        .host.name = comp
+    }
+    .host.Ext.anssi.computer_name = comp
+}
+
+if exists(.VolumeID) {
+    vol = to_string!(del(.VolumeID))
+    .host.Ext.anssi.volume_id = vol
+}
+
+if exists(.VolumeInfo) {
+    vinfo = to_string!(del(.VolumeInfo))
+    .host.Ext.anssi.volume_info = vinfo
+}
+
+if exists(.SnapshotID) {
+    snap_id = to_string!(del(.SnapshotID))
+    .host.Ext.anssi.snapshot_id = snap_id
+}
+
+# -----------------------------------------------------------------------------
+# Core file info
+# -----------------------------------------------------------------------------
+
+# Full path (canonical)
+if exists(.FullPath) {
+    fp = to_string!(del(.FullPath))
+    .file.path = fp
+}
+
+# Parent directory
+if exists(.ParentName) {
+    parent = to_string!(del(.ParentName))
+    .file.directory = parent
+    .file.Ext.anssi.parent_name = parent
+}
+
+# Base file name
+if exists(.File) {
+    fname = to_string!(del(.File))
+    .file.name = fname
+}
+
+# Extension (".dll" → "dll")
+if exists(.Extension) {
+    ext_raw = to_string!(del(.Extension))
+    ext_norm = downcase(replace(ext_raw, ".", ""))
+    .file.extension = ext_norm
+}
+
+# Size
+if exists(.SizeInBytes) {
+    size_raw = to_string!(del(.SizeInBytes))
+    size_int = parse_int(size_raw) ?? null
+
+    if size_int != null {
+        .file.size = size_int
+    } else {
+        .file.Ext.anssi.size_raw = size_raw
+    }
+}
+
+# Attributes
+if exists(.Attributes) {
+    attrs = to_string!(del(.Attributes))
+    .file.attributes = attrs
+    .file.Ext.anssi.attributes_raw = attrs
+}
+
+# -----------------------------------------------------------------------------
+# File timestamps
+# -----------------------------------------------------------------------------
+# We only map the main ones to ECS; others stay under Ext.*
+
+if exists(.CreationDate) {
+    cd_raw = to_string!(del(.CreationDate))
+    cd_ts = parse_timestamp(cd_raw, "%+") ?? null
+    if cd_ts != null {
+        .file.created = cd_ts
+    } else {
+        .file.Ext.anssi.creation_date_raw = cd_raw
+    }
+}
+
+if exists(.LastModificationDate) {
+    lm_raw = to_string!(del(.LastModificationDate))
+    lm_ts = parse_timestamp(lm_raw, "%+") ?? null
+    if lm_ts != null {
+        .file.mtime = lm_ts
+    } else {
+        .file.Ext.anssi.last_modification_date_raw = lm_raw
+    }
+}
+
+if exists(.LastAccessDate) {
+    la_raw = to_string!(del(.LastAccessDate))
+    la_ts = parse_timestamp(la_raw, "%+") ?? null
+    if la_ts != null {
+        .file.accessed = la_ts
+    } else {
+        .file.Ext.anssi.last_access_date_raw = la_raw
+    }
+}
+
+if exists(.LastAttrChangeDate) {
+    lac_raw = to_string!(del(.LastAttrChangeDate))
+    lac_ts = parse_timestamp(lac_raw, "%+") ?? null
+    if lac_ts != null {
+        .file.Ext.anssi.last_attr_change = lac_ts
+    } else {
+        .file.Ext.anssi.last_attr_change_raw = lac_raw
+    }
+}
+
+# Filename timestamp variants – keep as raw under Ext
+if exists(.FileNameCreationDate) {
+    .file.Ext.anssi.filename_creation_date = to_string!(del(.FileNameCreationDate))
+}
+if exists(.FileNameLastModificationDate) {
+    .file.Ext.anssi.filename_last_modification_date = to_string!(del(.FileNameLastModificationDate))
+}
+if exists(.FileNameLastAccessDate) {
+    .file.Ext.anssi.filename_last_access_date = to_string!(del(.FileNameLastAccessDate))
+}
+if exists(.FileNameLastAttrModificationDate) {
+    .file.Ext.anssi.filename_last_attr_modification_date = to_string!(del(.FileNameLastAttrModificationDate))
+}
+
+# -----------------------------------------------------------------------------
+# Hashes & PE metadata
+# -----------------------------------------------------------------------------
+
+# Main file hash
+if exists(.SHA1) {
+    sha1 = to_string!(del(.SHA1))
+    if sha1 != "" && sha1 != "NaN" {
+        .file.hash.sha1 = sha1
+    }
+}
+
+# PE hashes
+if exists(.PeSHA1) {
+    p_sha1 = to_string!(del(.PeSHA1))
+    if p_sha1 != "" && p_sha1 != "NaN" {
+        .file.Ext.pe.sha1 = p_sha1
+    }
+}
+
+if exists(.PeSHA256) {
+    p_sha256 = to_string!(del(.PeSHA256))
+    if p_sha256 != "" && p_sha256 != "NaN" {
+        .file.Ext.pe.sha256 = p_sha256
+    }
+}
+
+if exists(.PeMD5) {
+    p_md5 = to_string!(del(.PeMD5))
+    if p_md5 != "" && p_md5 != "NaN" {
+        .file.Ext.pe.md5 = p_md5
+    }
+}
+
+if exists(.SignedHash) {
+    s_hash = to_string!(del(.SignedHash))
+    if s_hash != "" && s_hash != "NaN" {
+        .file.Ext.pe.signed_hash = s_hash
+    }
+}
+
+# Version info
+if exists(.Version) {
+    ver = to_string!(del(.Version))
+    .file.version = ver
+}
+
+if exists(.OriginalFileName) {
+    ofn = to_string!(del(.OriginalFileName))
+    .file.Ext.pe.original_file_name = ofn
+}
+
+if exists(.Platform) {
+    plat = to_string!(del(.Platform))
+    .file.Ext.pe.platform = plat
+}
+
+if exists(.TimeStamp) {
+    ts_raw = to_string!(del(.TimeStamp))
+    ts_pe = parse_timestamp(ts_raw, "%+") ?? null
+    if ts_pe != null {
+        .file.Ext.pe.timestamp = ts_pe
+    } else {
+        .file.Ext.pe.timestamp_raw = ts_raw
+    }
+}
+
+if exists(.SubSystem) {
+    ss = to_string!(del(.SubSystem))
+    .file.Ext.pe.subsystem = ss
+}
+
+if exists(.FileType) {
+    ftype = to_string!(del(.FileType))
+    .file.Ext.pe.file_type = ftype
+}
+
+if exists(.FileOS) {
+    fos = to_string!(del(.FileOS))
+    .file.Ext.pe.file_os = fos
+}
+
+# -----------------------------------------------------------------------------
+# Authenticode / code signing
+# -----------------------------------------------------------------------------
+
+if exists(.AuthenticodeStatus) {
+    a_status = to_string!(del(.AuthenticodeStatus))
+    .file.code_signature.status = a_status
+    .file.Ext.code_signature.status_raw = a_status
+}
+
+signer_name = null
+if exists(.AuthenticodeSigner) {
+    signer_name = to_string!(del(.AuthenticodeSigner))
+    .file.code_signature.subject_name = signer_name
+}
+
+issuer_name = null
+if exists(.AuthenticodeCA) {
+    issuer_name = to_string!(del(.AuthenticodeCA))
+    .file.code_signature.issuer_name = issuer_name
+}
+
+# Exists flag: consider "Unknown" as "no reliable info"
+if signer_name != null || issuer_name != null {
+    .file.code_signature.exists = true
+}
+
+if exists(.AuthenticodeSignerThumbprint) {
+    stp = to_string!(del(.AuthenticodeSignerThumbprint))
+    .file.Ext.code_signature.signer_thumbprint = stp
+}
+
+if exists(.AuthenticodeCAThumbprint) {
+    ctp = to_string!(del(.AuthenticodeCAThumbprint))
+    .file.Ext.code_signature.ca_thumbprint = ctp
+}
+
+# -----------------------------------------------------------------------------
+# ANSSI ML / scoring metadata
+# -----------------------------------------------------------------------------
+
+if exists(.FilesCreatedAtSameTime) {
+    fcts_raw = to_string!(del(.FilesCreatedAtSameTime))
+    fcts_int = parse_int(fcts_raw) ?? null
+    if fcts_int != null {
+        .file.Ext.anssi.files_created_same_time = fcts_int
+    } else {
+        .file.Ext.anssi.files_created_same_time_raw = fcts_raw
+    }
+}
+
+if exists(.Analysis) {
+    .file.Ext.anssi.analysis_flag = to_string!(del(.Analysis))
+}
+
+if exists(.Isolated) {
+    .file.Ext.anssi.isolated = to_string!(del(.Isolated))
+}
+
+if exists(.isolated_pval) {
+    .file.Ext.anssi.isolated_pval = to_string!(del(.isolated_pval))
+}
+
+if exists(.Features) {
+    .file.Ext.anssi.features = to_string!(del(.Features))
+}
+
+if exists(.Path) {
+    .file.Ext.anssi.path_model = to_string!(del(.Path))
+}
+
+if exists(.path_pval) {
+    .file.Ext.anssi.path_pval = to_string!(del(.path_pval))
+}
+
+if exists(.if_features_pval) {
+    .file.Ext.anssi.if_features_pval = to_string!(del(.if_features_pval))
+}
+
+if exists(.db_features) {
+    .file.Ext.anssi.db_features = to_string!(del(.db_features))
+}
+
+if exists(.features_core_pnt) {
+    .file.Ext.anssi.features_core_pnt = to_string!(del(.features_core_pnt))
+}
+
+if exists(.db_features_pval) {
+    .file.Ext.anssi.db_features_pval = to_string!(del(.db_features_pval))
+}
+
+if exists(.features_pval) {
+    .file.Ext.anssi.features_pval = to_string!(del(.features_pval))
+}
+
+if exists(.final_score) {
+    .file.Ext.anssi.final_score = to_string!(del(.final_score))
+}
+
+if exists(.WarningInListDLLs) {
+    .file.Ext.anssi.warning_in_listdlls = to_string!(del(.WarningInListDLLs))
+}

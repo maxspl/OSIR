@@ -1,0 +1,213 @@
+# -----------------------------------------------------------------------------
+# Keep raw event
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Basic ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset     = "windows.dns_cache"
+.event.module      = "windows"
+
+.event.kind        = "event"
+.event.category    = ["network"]
+.event.type        = ["info"]
+.event.outcome     = "success"
+
+.event.provider    = "Windows DNS Cache"
+.dns.type          = "answer"
+.network.protocol  = "dns"
+
+# -----------------------------------------------------------------------------
+# Basic event classification from "type"
+# -----------------------------------------------------------------------------
+
+if exists(.type) {
+    type_raw = to_string!(del(.type))
+    type_l   = downcase(type_raw)
+
+    .event.code   = type_raw
+    .event.action = type_l
+}
+
+# -----------------------------------------------------------------------------
+# Question name / domain (FR + EN)
+# -----------------------------------------------------------------------------
+
+qname = null
+
+if exists(.record_name_) {
+    qname = to_string!(del(.record_name_))
+} else if exists(.nom_denregistrement) {
+    qname = to_string!(del(.nom_denregistrement))
+}
+
+# Fallback: if no explicit record name, use domain as qname
+if qname == null && exists(.domain) {
+    qname = to_string!(.domain)
+}
+
+if qname != null {
+    # Force a pure string so replace() is not fallible
+    qname_str   = to_string!(qname)
+    qname_clean = replace(qname_str, "Nom d'enregistrement. : ", "")
+    qname_clean = replace(qname_clean, "Record Name . . . . . : ", "")
+
+    .dns.question.name   = qname_clean
+    .dns.answers[0].name = qname_clean
+}
+
+# Domain field → dns.question.domain (cleaned same way)
+if exists(.domain) {
+    domain_raw = to_string!(del(.domain))
+
+    domain_clean = replace(domain_raw, "Nom d'enregistrement. : ", "")
+    domain_clean = replace(domain_clean, "Record Name . . . . . : ", "")
+
+    .dns.question.domain = domain_clean
+}
+
+# -----------------------------------------------------------------------------
+# Record type → dns.question.type / dns.answers[0].type
+# -----------------------------------------------------------------------------
+
+rt_raw = null
+
+if exists(.type_denregistrement) {
+    rt_raw = to_string!(del(.type_denregistrement))
+} else if exists(.record_type_) {
+    rt_raw = to_string!(del(.record_type_))
+}
+
+rr_type = null
+
+if rt_raw != null {
+    rt_int = parse_int(rt_raw) ?? null
+
+    if rt_int != null {
+        if rt_int == 1 {
+            rr_type = "A"
+        } else if rt_int == 28 {
+            rr_type = "AAAA"
+        } else if rt_int == 5 {
+            rr_type = "CNAME"
+        } else if rt_int == 12 {
+            rr_type = "PTR"
+        } else {
+            # keep numeric as string for unknown types
+            rr_type = to_string!(rt_int)
+        }
+    } else {
+        rr_type = rt_raw
+    }
+
+    if rr_type != null {
+        .dns.question.type   = rr_type
+        .dns.answers[0].type = rr_type
+    }
+}
+
+# -----------------------------------------------------------------------------
+# TTL → dns.answers[0].ttl
+# -----------------------------------------------------------------------------
+
+ttl_raw = null
+
+if exists(.dure_de_vie_) {
+    ttl_raw = to_string!(del(.dure_de_vie_))
+} else if exists(.time_to_live_) {
+    ttl_raw = to_string!(del(.time_to_live_))
+}
+
+if ttl_raw != null {
+    ttl_int = parse_int(ttl_raw) ?? null
+
+    if ttl_int != null {
+        .dns.answers[0].ttl = ttl_int
+    } else {
+        .dns.answers[0].ttl = ttl_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Data length → dns.answers[0].Ext.data_length
+# -----------------------------------------------------------------------------
+
+len_raw = null
+
+if exists(.longueur_de_donnes_) {
+    len_raw = to_string!(del(.longueur_de_donnes_))
+} else if exists(.data_length_) {
+    len_raw = to_string!(del(.data_length_))
+}
+
+if len_raw != null {
+    len_int = parse_int(len_raw) ?? null
+
+    if len_int != null {
+        .dns.answers[0].Ext.data_length = len_int
+    } else {
+        .dns.answers[0].Ext.data_length = len_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Section (Answer / Réponse) → dns.answers[0].Ext.section
+# -----------------------------------------------------------------------------
+
+section_raw = null
+
+if exists(.section_) {
+    section_raw = to_string!(del(.section_))
+}
+
+if section_raw != null {
+    .dns.answers[0].Ext.section = section_raw
+}
+
+# -----------------------------------------------------------------------------
+# Answer data (AAAA / CNAME / A / PTR, FR + EN)
+# -----------------------------------------------------------------------------
+
+answer_data = null
+
+# IPv6 AAAA
+if exists(.enregistrement_aaaa_) {
+    answer_data = to_string!(del(.enregistrement_aaaa_))
+}
+
+# CNAME
+if exists(.enregistrement_cname) {
+    answer_data = to_string!(del(.enregistrement_cname))
+}
+
+# A record (French "hôte")
+if exists(.enregistrement_hte) {
+    answer_data = to_string!(del(.enregistrement_hte))
+}
+
+# PTR (FR)
+if exists(.enregistrement_ptr_) {
+    answer_data = to_string!(del(.enregistrement_ptr_))
+}
+
+# PTR (EN)
+if exists(.ptr_record_) {
+    answer_data = to_string!(del(.ptr_record_))
+}
+
+if answer_data != null {
+    .dns.answers[0].data = answer_data
+
+    # If this is A/AAAA, also map to dns.resolved_ip
+    if exists(.dns.answers[0].type) {
+        atype = to_string!(.dns.answers[0].type)
+
+        if atype == "A" || atype == "AAAA" {
+            .dns.resolved_ip = answer_data
+        }
+    }
+}

@@ -1,0 +1,444 @@
+# -----------------------------------------------------------------------------
+# Windows ActivitiesCache 
+#   Input fields (per record):
+#     hostname, domain, start_time, end_time,
+#     last_modified_time, last_modified_on_client,
+#     original_last_modified_on_client, expiration_time,
+#     created_in_cloud, activity_id, app_id, enterprise_id,
+#     app_activity_id, group_app_activity_id, group,
+#     activity_type, activity_status, activity_priority,
+#     match_id, etag, tag, is_local_only,
+#     platform_device_id, package_id_hash,
+#     payload, original_payload, clipboard_payload,
+#     source, username, user_id, user_group, user_home,
+#     _source, _classification, _generated, _version,
+#     _type, _recorddescriptor
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event (ECS best practice) - do this FIRST
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Basic ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.activities_cache"
+.event.module   = "windows"
+
+.event.kind     = "event"
+.event.category = ["session"]
+.event.type     = ["info"]
+
+.event.outcome  = "success"
+.event.provider = "Windows ActivitiesCache"
+
+# -----------------------------------------------------------------------------
+# Host information
+# -----------------------------------------------------------------------------
+
+if exists(.hostname) {
+    hn_val = del(.hostname)
+    if hn_val != null {
+        hn = to_string!(hn_val)
+        .host.name     = hn
+        .host.hostname = hn
+    }
+}
+
+if exists(.domain) {
+    dom_val = del(.domain)
+    if dom_val != null {
+        .host.domain = to_string!(dom_val)
+    }
+}
+
+# -----------------------------------------------------------------------------
+# User information
+# -----------------------------------------------------------------------------
+
+if exists(.username) {
+    u_val = del(.username)
+    if u_val != null {
+        uname = to_string!(u_val)
+        .user.name      = uname
+        .user.full_name = uname
+    }
+}
+
+if exists(.user_id) {
+    uid_val = del(.user_id)
+    if uid_val != null {
+        .user.id = to_string!(uid_val)
+    }
+}
+
+if exists(.user_home) {
+    uh_val = del(.user_home)
+    if uh_val != null {
+        .user.Ext.activitiescache.home_directory = to_string!(uh_val)
+    }
+}
+
+if exists(.user_group) {
+    ug_val = del(.user_group)
+    if ug_val != null {
+        .user.Ext.activitiescache.group = to_string!(ug_val)
+    }
+}
+
+if exists(.enterprise_id) {
+    ent_val = del(.enterprise_id)
+    if ent_val != null {
+        .user.Ext.activitiescache.enterprise_id = to_string!(ent_val)
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Core timestamps
+# -----------------------------------------------------------------------------
+
+# We'll pick a primary timestamp for the event here
+ts_main = null
+
+# Helper: parse ISO-8601 with timezone if present
+# parse_timestamp(s, "%+") is fallible; we wrap with "?? null"
+# and always keep raw strings in Ext as well.
+
+# -------------------------------------------------------------------------
+# start_time → event.start + candidate for main @timestamp
+# -------------------------------------------------------------------------
+if exists(.start_time) {
+    st_val = del(.start_time)
+    if st_val != null {
+        st_raw = to_string!(st_val)
+        ts = parse_timestamp(st_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.start_time_raw = st_raw
+
+        if ts != null {
+            .event.start = ts
+            ts_main = ts
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# end_time → event.end (does NOT change main timestamp)
+# -------------------------------------------------------------------------
+if exists(.end_time) {
+    et_val = del(.end_time)
+    if et_val != null {
+        et_raw = to_string!(et_val)
+        ts = parse_timestamp(et_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.end_time_raw = et_raw
+
+        if ts != null {
+            .event.end = ts
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# last_modified_time → event.created (and fallback main timestamp)
+# -------------------------------------------------------------------------
+if exists(.last_modified_time) {
+    lmt_val = del(.last_modified_time)
+    if lmt_val != null {
+        lmt_raw = to_string!(lmt_val)
+        ts = parse_timestamp(lmt_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.last_modified_time_raw = lmt_raw
+
+        if ts != null {
+            # Treat this as "record created/updated" time
+            .event.created = ts
+
+            # If we *didn't* get a valid start_time, use this as main
+            if ts_main == null {
+                ts_main = ts
+            }
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# last_modified_on_client → Ext only
+# -------------------------------------------------------------------------
+if exists(.last_modified_on_client) {
+    lmoc_val = del(.last_modified_on_client)
+    if lmoc_val != null {
+        lmoc_raw = to_string!(lmoc_val)
+        ts = parse_timestamp(lmoc_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.last_modified_on_client_raw = lmoc_raw
+
+        if ts != null {
+            .user.Ext.activitiescache.last_modified_on_client = ts
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# original_last_modified_on_client → Ext only
+# -------------------------------------------------------------------------
+if exists(.original_last_modified_on_client) {
+    olmoc_val = del(.original_last_modified_on_client)
+    if olmoc_val != null {
+        olmoc_raw = to_string!(olmoc_val)
+        ts = parse_timestamp(olmoc_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.original_last_modified_on_client_raw = olmoc_raw
+
+        if ts != null {
+            .user.Ext.activitiescache.original_last_modified_on_client = ts
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# expiration_time → Ext (when the record expires)
+# -------------------------------------------------------------------------
+if exists(.expiration_time) {
+    exp_val = del(.expiration_time)
+    if exp_val != null {
+        exp_raw = to_string!(exp_val)
+        ts = parse_timestamp(exp_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.expiration_time_raw = exp_raw
+
+        if ts != null {
+            .user.Ext.activitiescache.expiration_time = ts
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# created_in_cloud → Ext
+# -------------------------------------------------------------------------
+if exists(.created_in_cloud) {
+    cic_val = del(.created_in_cloud)
+    if cic_val != null {
+        cic_raw = to_string!(cic_val)
+        ts = parse_timestamp(cic_raw, "%+") ?? null
+
+        .user.Ext.activitiescache.created_in_cloud_raw = cic_raw
+
+        if ts != null {
+            .user.Ext.activitiescache.created_in_cloud = ts
+        }
+    }
+}
+
+# -------------------------------------------------------------------------
+# Final selection of ECS event time
+# -------------------------------------------------------------------------
+if ts_main != null {
+    .timestamp = ts_main
+
+    # If event.created wasn't set (no last_modified_time), default it to main
+    if !exists(.event.created) {
+        .event.created = ts_main
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Activity metadata (IDs, types, priority, tags, flags)
+# -----------------------------------------------------------------------------
+
+# activity_id → use as event.id + Ext
+if exists(.activity_id) {
+    aid_val = del(.activity_id)
+    if aid_val != null {
+        aid = to_string!(aid_val)
+        .event.id = aid
+        .user.Ext.activitiescache.activity_id = aid
+    }
+}
+
+if exists(.activity_type) {
+    at_val = del(.activity_type)
+    if at_val != null {
+        .user.Ext.activitiescache.activity_type = at_val
+    }
+}
+
+if exists(.activity_status) {
+    as_val = del(.activity_status)
+    if as_val != null {
+        .user.Ext.activitiescache.activity_status = as_val
+    }
+}
+
+if exists(.activity_priority) {
+    ap_val = del(.activity_priority)
+    if ap_val != null {
+        .user.Ext.activitiescache.activity_priority = ap_val
+
+        # Try to map to event.severity (0–10 style, but we just reuse the int)
+        sev = to_int(ap_val) ?? null
+        if sev != null {
+            .event.severity = sev
+        }
+    }
+}
+
+if exists(.etag) {
+    etag_val = del(.etag)
+    if etag_val != null {
+        .user.Ext.activitiescache.etag = etag_val
+    }
+}
+
+if exists(.tag) {
+    tag_val = del(.tag)
+    if tag_val != null {
+        .user.Ext.activitiescache.tag = to_string!(tag_val)
+    }
+}
+
+if exists(.match_id) {
+    mid_val = del(.match_id)
+    if mid_val != null {
+        .user.Ext.activitiescache.match_id = to_string!(mid_val)
+    }
+}
+
+if exists(.group) {
+    grp_val = del(.group)
+    if grp_val != null {
+        .user.Ext.activitiescache.group = to_string!(grp_val)
+    }
+}
+
+if exists(.app_activity_id) {
+    aaid_val = del(.app_activity_id)
+    if aaid_val != null {
+        .user.Ext.activitiescache.app_activity_id = to_string!(aaid_val)
+    }
+}
+
+if exists(.group_app_activity_id) {
+    gaid_val = del(.group_app_activity_id)
+    if gaid_val != null {
+        .user.Ext.activitiescache.group_app_activity_id = to_string!(gaid_val)
+    }
+}
+
+if exists(.is_local_only) {
+    ilo_val = del(.is_local_only)
+    # usually a boolean already
+    .user.Ext.activitiescache.is_local_only = ilo_val
+}
+
+# -----------------------------------------------------------------------------
+# Device / package identifiers
+# -----------------------------------------------------------------------------
+
+if exists(.platform_device_id) {
+    pdid_val = del(.platform_device_id)
+    if pdid_val != null {
+        .user.Ext.activitiescache.platform_device_id = to_string!(pdid_val)
+    }
+}
+
+if exists(.package_id_hash) {
+    pidh_val = del(.package_id_hash)
+    if pidh_val != null {
+        .user.Ext.activitiescache.package_id_hash = to_string!(pidh_val)
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Application ID and payloads
+# -----------------------------------------------------------------------------
+
+# app_id is a JSON string (array of {application, platform,...})
+if exists(.app_id) {
+    appid_val = del(.app_id)
+    if appid_val != null {
+        appid_raw = to_string!(appid_val)
+        .user.Ext.activitiescache.app_id_raw = appid_raw
+
+        parsed = parse_json(appid_raw) ?? null
+        if parsed != null {
+            .user.Ext.activitiescache.app_id_parsed = parsed
+        }
+    }
+}
+
+# payload can be JSON or opaque (base64 etc.)
+if exists(.payload) {
+    pay_val = del(.payload)
+    if pay_val != null {
+        pay_raw = to_string!(pay_val)
+        .user.Ext.activitiescache.payload_raw = pay_raw
+
+        # Try to parse JSON payloads (those that look like objects)
+        if starts_with(pay_raw, "{") {
+            p_json = parse_json(pay_raw) ?? null
+            if p_json != null {
+                .user.Ext.activitiescache.payload_json = p_json
+            }
+        }
+    }
+}
+
+if exists(.original_payload) {
+    op_val = del(.original_payload)
+    if op_val != null {
+        .user.Ext.activitiescache.original_payload_raw = to_string!(op_val)
+    }
+}
+
+if exists(.clipboard_payload) {
+    cb_val = del(.clipboard_payload)
+    if cb_val != null {
+        .user.Ext.activitiescache.clipboard_payload_raw = to_string!(cb_val)
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Source file (ActivitiesCache.db on disk)
+# -----------------------------------------------------------------------------
+
+if exists(.source) {
+    src_val = del(.source)
+    if src_val != null {
+        src_path = to_string!(src_val)
+        .file.path = src_path
+        .event.Ext.activitiescache.db_path = src_path
+    }
+}
+
+# -----------------------------------------------------------------------------
+# del metatada
+# -----------------------------------------------------------------------------
+
+if exists(._source) {
+    del(._source)
+}
+
+if exists(._classification) {
+    del(._classification)
+}
+
+if exists(._generated) {
+    del(._generated)
+}
+
+if exists(._version) {
+    del(._version)
+}
+
+if exists(._type) {
+    del(._type)
+}
+
+if exists(._recorddescriptor) {
+    del(._recorddescriptor)
+}

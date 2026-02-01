@@ -1,0 +1,1135 @@
+# =============================================================================
+# Generic Windows Registry Artifacts → ECS normalizer
+# No per-plugin blocks, only generic mappings of known fields
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ensure .event exists and keep original event
+# -----------------------------------------------------------------------------
+if !exists(.event) {
+  .event = {}
+}
+
+# Always keep original raw event BEFORE we start deleting fields
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# =============================================================================
+# Registry core fields
+# =============================================================================
+
+# BatchKeyPath / BatchValueName → registry.path / registry.value
+if exists(.BatchKeyPath) && !exists(.registry.path) {
+  .registry.path = to_string!(del(.BatchKeyPath))
+}
+
+if exists(.BatchValueName) && !exists(.registry.value) {
+  .registry.value = to_string!(del(.BatchValueName))
+}
+
+# HivePath / HiveType
+if exists(.HivePath) && !exists(.registry.hive) {
+  .registry.hive = to_string!(del(.HivePath))
+}
+
+if exists(.HiveType) {
+  .registry.hive_type = to_string!(del(.HiveType))
+}
+
+# KeyPath and KeyName
+if exists(.KeyPath) && !exists(.registry.key_path) {
+  .registry.key_path = to_string!(del(.KeyPath))
+}
+
+if exists(.KeyName) && !exists(.registry.key_name) {
+  .registry.key_name = to_string!(del(.KeyName))
+}
+
+# ValueName / ValueType / ValueData*
+if exists(.ValueName) && !exists(.registry.value_name) {
+  .registry.value_name = to_string!(del(.ValueName))
+}
+
+if exists(.ValueType) {
+  .registry.value_type = to_string!(del(.ValueType))
+}
+
+if exists(.ValueData) {
+  .registry.value_data = del(.ValueData)
+}
+
+if exists(.ValueData2) {
+  .registry.value_data2 = del(.ValueData2)
+}
+
+if exists(.ValueData3) {
+  .registry.value_data3 = del(.ValueData3)
+}
+
+if exists(.ValueDataRaw) {
+  .registry.value_data_raw = to_string!(del(.ValueDataRaw))
+}
+
+# Generic registry metadata
+if exists(.Category) {
+  .registry.category = to_string!(del(.Category))
+}
+
+if exists(.Comment) {
+  .registry.comment = to_string!(del(.Comment))
+}
+
+if exists(.Comments) {
+  .registry.comments = to_string!(del(.Comments))
+}
+
+if exists(.PluginDetailFile) {
+  .registry.plugin_detail_file = to_string!(del(.PluginDetailFile))
+}
+
+if exists(.Recursive) {
+  .registry.recursive = to_string!(del(.Recursive))
+}
+
+if exists(.Deleted) {
+  .registry.deleted = to_string!(del(.Deleted))
+}
+
+if exists(.ResetData) {
+  .registry.reset_data = to_string!(del(.ResetData))
+}
+
+# =============================================================================
+# Generic file system mapping
+# =============================================================================
+
+# Path-like fields → .file.path
+if exists(.FullPath) && !exists(.file.path) {
+  .file.path = to_string!(del(.FullPath))
+}
+
+if exists(.AbsolutePath) && !exists(.file.path) {
+  .file.path = to_string!(del(.AbsolutePath))
+}
+
+if exists(.Path) && !exists(.file.path) {
+  .file.path = to_string!(del(.Path))
+}
+
+if exists(.Path1) && !exists(.file.path) {
+  .file.path = to_string!(del(.Path1))
+}
+
+# Path2 usually directory
+if exists(.Path2) && !exists(.file.directory) {
+  .file.directory = to_string!(del(.Path2))
+}
+
+# FileName / Filename
+if exists(.Filename) && !exists(.file.name) {
+  .file.name = to_string!(del(.Filename))
+}
+
+if exists(.FileName) && !exists(.file.name) {
+  .file.name = to_string!(del(.FileName))
+}
+
+# If we have a file.path but no file.name, derive the basename
+if exists(.file.path) && !exists(.file.name) {
+  fp = to_string!(.file.path)
+  parts = split!(fp, "\\\\")
+  plen = length(parts)
+  if plen > 0 {
+    idx = plen - 1
+    last_part = get!(parts, [idx])
+    .file.name = last_part
+  }
+}
+
+# FolderName
+if exists(.FolderName) && !exists(.file.directory) {
+  .file.directory = to_string!(del(.FolderName))
+}
+
+# Extension / ExtensionLastOpened
+if exists(.Extension) {
+  .file.extension = to_string!(del(.Extension))
+}
+
+if exists(.ExtensionLastOpened) {
+  .file.Ext.extension_last_opened_raw = to_string!(del(.ExtensionLastOpened))
+}
+
+# FileSize
+if exists(.FileSize) {
+  fs_raw = to_string!(del(.FileSize))
+  fs_val = parse_int(fs_raw) ?? null
+  if fs_val != null {
+    .file.size = fs_val
+  } else {
+    .file.size_raw = fs_raw
+  }
+}
+
+# FileSource / Details / PageCount
+if exists(.FileSource) {
+  .file.source = to_string!(del(.FileSource))
+}
+
+if exists(.Details) {
+  .file.details = to_string!(del(.Details))
+}
+
+if exists(.PageCount) {
+  pc_raw = to_string!(del(.PageCount))
+  pc_val = parse_int(pc_raw) ?? null
+  if pc_val != null {
+    .file.page_count = pc_val
+  } else {
+    .file.page_count_raw = pc_raw
+  }
+}
+
+# LnkName
+if exists(.LnkName) {
+  .file.lnk_name = to_string!(del(.LnkName))
+}
+
+# UninstallString commonly a command/path for uninstall
+if exists(.UninstallString) && !exists(.file.uninstall_command) {
+  .file.uninstall_command = to_string!(del(.UninstallString))
+}
+
+# =============================================================================
+# Generic process / application mapping
+# =============================================================================
+
+# Executable / Program / ImagePath / App
+if exists(.Executable) && !exists(.process.executable) {
+  .process.executable = to_string!(del(.Executable))
+}
+
+if exists(.ProgramName) && !exists(.process.name) {
+  .process.name = to_string!(del(.ProgramName))
+}
+
+if exists(.Program) && !exists(.process.executable) {
+  .process.executable = to_string!(del(.Program))
+}
+
+if exists(.App) && !exists(.process.executable) {
+  .process.executable = to_string!(del(.App))
+}
+
+if exists(.ImagePath) && !exists(.process.executable) {
+  .process.executable = to_string!(del(.ImagePath))
+}
+
+# Service-related fields
+if exists(.Service) && !exists(.service.name) {
+  .service.name = to_string!(del(.Service))
+}
+
+if exists(.ServiceType) {
+  .service.service_type = to_string!(del(.ServiceType))
+}
+
+if exists(.StartMode) {
+  .service.start_mode = to_string!(del(.StartMode))
+}
+
+if exists(.ServiceDLL) {
+  .service.service_dll = to_string!(del(.ServiceDLL))
+}
+
+if exists(.RequiredPrivileges) {
+  .service.required_privileges = to_string!(del(.RequiredPrivileges))
+}
+
+if exists(.NameKeyLastWrite) {
+  .service.name_key_last_write_raw = to_string!(del(.NameKeyLastWrite))
+}
+
+if exists(.ParametersKeyLastWrite) {
+  .service.parameters_key_last_write_raw = to_string!(del(.ParametersKeyLastWrite))
+}
+
+# Run / usage counters
+if exists(.RunCounter) {
+  rc_raw = to_string!(del(.RunCounter))
+  rc_val = parse_int(rc_raw) ?? null
+  if rc_val != null {
+    .process.run_count = rc_val
+  } else {
+    .process.run_count_raw = rc_raw
+  }
+}
+
+if exists(.FocusCount) {
+  fc_raw = to_string!(del(.FocusCount))
+  fc_val = parse_int(fc_raw) ?? null
+  if fc_val != null {
+    .process.focus_count = fc_val
+  } else {
+    .process.focus_count_raw = fc_raw
+  }
+}
+
+if exists(.FocusTime) {
+  .process.focus_time_raw = to_string!(del(.FocusTime))
+}
+
+# JumpListName
+if exists(.JumpListName) {
+  .process.jumplist_name = to_string!(del(.JumpListName))
+}
+
+# =============================================================================
+# URL / Web
+# =============================================================================
+
+if exists(.Url) && !exists(.url.full) {
+  .url.full = to_string!(del(.Url))
+}
+
+if exists(.SearchTerm) && !exists(.url.query) {
+  .url.query = to_string!(del(.SearchTerm))
+}
+
+if exists(.Slack) {
+  .url.slack_raw = to_string!(del(.Slack))
+}
+
+# =============================================================================
+# Host / device / driver / disk
+# =============================================================================
+
+if exists(.HostName) && !exists(.host.name) {
+  .host.name = to_string!(del(.HostName))
+}
+
+if exists(.Device) && !exists(.device.name) {
+  .device.name = to_string!(del(.Device))
+}
+
+if exists(.DeviceName) && !exists(.device.name) {
+  .device.name = to_string!(del(.DeviceName))
+}
+
+if exists(.DeviceDesc) {
+  .device.description = to_string!(del(.DeviceDesc))
+}
+
+if exists(.Manufacturer) && !exists(.device.manufacturer) {
+  .device.manufacturer = to_string!(del(.Manufacturer))
+}
+
+if exists(.SerialNumber) && !exists(.device.serial_number) {
+  .device.serial_number = to_string!(del(.SerialNumber))
+}
+
+if exists(.DiskId) {
+  .device.disk_id = to_string!(del(.DiskId))
+}
+
+if exists(.Title) && !exists(.device.model) {
+  .device.model = to_string!(del(.Title))
+}
+
+if exists(.LocationInformation) {
+  .device.location_information = to_string!(del(.LocationInformation))
+}
+
+if exists(.ParentidPrefix) {
+  .device.parent_id_prefix = to_string!(del(.ParentidPrefix))
+}
+
+# Volume / drive info
+if exists(.DriveName) {
+  .device.volume_drive_name = to_string!(del(.DriveName))
+}
+
+if exists(.VolumeLabel) {
+  .device.volume_label = to_string!(del(.VolumeLabel))
+}
+
+if exists(.DriveType) {
+  .device.volume_drive_type = to_string!(del(.DriveType))
+}
+
+# DeviceClasses / GUIDs
+if exists(.GuidFolder) {
+  .device.guid_folder = to_string!(del(.GuidFolder))
+}
+
+if exists(.Guid) {
+  .device.guid = to_string!(del(.Guid))
+}
+
+if exists(.DeviceInstanceid) {
+  .device.instance_id = to_string!(del(.DeviceInstanceid))
+}
+
+# Driver info
+if exists(.DriverDesc) && !exists(.driver.name) {
+  .driver.name = to_string!(del(.DriverDesc))
+}
+
+if exists(.DriverVersion) {
+  .driver.version = to_string!(del(.DriverVersion))
+}
+
+if exists(.DriverDate) {
+  .driver.date_raw = to_string!(del(.DriverDate))
+}
+
+if exists(.ProviderName) && !exists(.driver.vendor) {
+  .driver.vendor = to_string!(del(.ProviderName))
+}
+
+# Portable / Bluetooth / Network-ish devices
+if exists(.FriendlyName) {
+  .device.friendly_name = to_string!(del(.FriendlyName))
+}
+
+if exists(.GatewayMacAddress) {
+  .network.gateway_mac = to_string!(del(.GatewayMacAddress))
+}
+
+# =============================================================================
+# Network / interface / firewall
+# =============================================================================
+
+if exists(.NetworkName) {
+  .network.name = to_string!(del(.NetworkName))
+}
+
+if exists(.DNSSuffix) {
+  .network.domain = to_string!(del(.DNSSuffix))
+}
+
+if exists(.Alias) {
+  .network.interface_alias = to_string!(del(.Alias))
+}
+
+if exists(.PermanentAddress) {
+  .network.permanent_address = to_string!(del(.PermanentAddress))
+}
+
+if exists(.CurrentAddress) {
+  .network.current_address = to_string!(del(.CurrentAddress))
+}
+
+if exists(.Protocol) {
+  .network.transport = to_string!(del(.Protocol))
+}
+
+if exists(.ProtocolList) {
+  .network.protocol_list = to_string!(del(.ProtocolList))
+}
+
+if exists(.Address) {
+  .network.address_raw = to_string!(del(.Address))
+}
+
+# Ports
+if exists(.LPort) {
+  lp_raw = to_string!(del(.LPort))
+  lp_val = parse_int(lp_raw) ?? null
+  if lp_val != null {
+    .destination.port = lp_val
+  } else {
+    .network.lport_raw = lp_raw
+  }
+}
+
+if exists(.RPort) {
+  rp_raw = to_string!(del(.RPort))
+  rp_val = parse_int(rp_raw) ?? null
+  if rp_val != null {
+    .source.port = rp_val
+  } else {
+    .network.rport_raw = rp_raw
+  }
+}
+
+# Firewall-like fields
+if exists(.Action) {
+  .rule.action = to_string!(del(.Action))
+}
+
+if exists(.Dir) {
+  .rule.direction = to_string!(del(.Dir))
+}
+
+if exists(.Active) {
+  .rule.active_raw = to_string!(del(.Active))
+}
+
+if exists(.SecurityDescriptor) {
+  .rule.security_descriptor = to_string!(del(.SecurityDescriptor))
+}
+
+if exists(.Source) {
+  .rule.source = to_string!(del(.Source))
+}
+
+if exists(.TaskState) {
+  .rule.task_state = to_string!(del(.TaskState))
+}
+
+if exists(.LastActionResult) {
+  .rule.last_action_result = to_string!(del(.LastActionResult))
+}
+
+# =============================================================================
+# User / account / group
+# =============================================================================
+
+# Basic user fields
+if exists(.Username) && !exists(.user.name) {
+  .user.name = to_string!(del(.Username))
+}
+
+if exists(.UserName) && !exists(.user.name) {
+  .user.name = to_string!(del(.UserName))
+}
+
+if exists(.InternetUserName) && !exists(.user.email) {
+  .user.email = to_string!(del(.InternetUserName))
+}
+
+if exists(.UserId) && !exists(.user.id) {
+  .user.id = to_string!(del(.UserId))
+}
+
+if exists(.FullName) {
+  .user.full_name = to_string!(del(.FullName))
+}
+
+if exists(.ProfileImagePath) && !exists(.user.home) {
+  .user.home = to_string!(del(.ProfileImagePath))
+}
+
+if exists(.HomeDirectory) && !exists(.user.home) {
+  .user.home = to_string!(del(.HomeDirectory))
+}
+
+if exists(.HomeDirectoryRequired) {
+  .user.home_directory_required = to_string!(del(.HomeDirectoryRequired))
+}
+
+# Account status flags
+if exists(.AccountDisabled) {
+  .user.account_disabled = to_string!(del(.AccountDisabled))
+}
+
+if exists(.AutoLocked) {
+  .user.auto_locked = to_string!(del(.AutoLocked))
+}
+
+if exists(.NormalUserAccount) {
+  .user.normal_user_account = to_string!(del(.NormalUserAccount))
+}
+
+if exists(.InterdomainTrustAccount) {
+  .user.interdomain_trust_account = to_string!(del(.InterdomainTrustAccount))
+}
+
+if exists(.MnsLogonAccount) {
+  .user.mns_logon_account = to_string!(del(.MnsLogonAccount))
+}
+
+if exists(.ServerTrustAccount) {
+  .user.server_trust_account = to_string!(del(.ServerTrustAccount))
+}
+
+if exists(.TempDuplicateAccount) {
+  .user.temp_duplicate_account = to_string!(del(.TempDuplicateAccount))
+}
+
+if exists(.ValidUserId) {
+  .user.valid_user_id = to_string!(del(.ValidUserId))
+}
+
+if exists(.PasswordDoesNotExpire) {
+  .user.password_does_not_expire = to_string!(del(.PasswordDoesNotExpire))
+}
+
+if exists(.PasswordNotRequired) {
+  .user.password_not_required = to_string!(del(.PasswordNotRequired))
+}
+
+if exists(.PasswordHint) {
+  .user.password_hint = to_string!(del(.PasswordHint))
+}
+
+# Login / password times (kept raw)
+if exists(.LastIncorrectPassword) {
+  .user.last_incorrect_password_raw = to_string!(del(.LastIncorrectPassword))
+}
+
+if exists(.LastLoginTime) {
+  .user.last_login_time_raw = to_string!(del(.LastLoginTime))
+}
+
+if exists(.LastLogoffTime) {
+  .user.last_logoff_time_raw = to_string!(del(.LastLogoffTime))
+}
+
+if exists(.LastLogonTime) {
+  .user.last_logon_time_raw = to_string!(del(.LastLogonTime))
+}
+
+if exists(.LastPasswordChange) {
+  .user.last_password_change_raw = to_string!(del(.LastPasswordChange))
+}
+
+if exists(.TotalLoginCount) {
+  .user.total_login_count_raw = to_string!(del(.TotalLoginCount))
+}
+
+if exists(.InvalidLoginCount) {
+  .user.invalid_login_count_raw = to_string!(del(.InvalidLoginCount))
+}
+
+if exists(.UserComment) {
+  .user.comment = to_string!(del(.UserComment))
+}
+
+# Group / membership
+if exists(.GroupName) {
+  .group.name = to_string!(del(.GroupName))
+}
+
+if exists(.Groups) {
+  .group.groups_raw = to_string!(del(.Groups))
+}
+
+if exists(.Users) {
+  .group.users_raw = to_string!(del(.Users))
+}
+
+# Profile GUID
+if exists(.ProfileGUID) {
+  .user.profile_guid = to_string!(del(.ProfileGUID))
+}
+
+# =============================================================================
+# Package / installer / program inventory
+# =============================================================================
+
+if exists(.DisplayName) && !exists(.package.name) {
+  .package.name = to_string!(del(.DisplayName))
+}
+
+if exists(.DisplayVersion) && !exists(.package.version) {
+  .package.version = to_string!(del(.DisplayVersion))
+}
+
+if exists(.Publisher) && !exists(.package.organization) {
+  .package.organization = to_string!(del(.Publisher))
+}
+
+if exists(.InstallLocation) && !exists(.package.path) {
+  .package.path = to_string!(del(.InstallLocation))
+}
+
+if exists(.InstallSource) {
+  .package.install_source = to_string!(del(.InstallSource))
+}
+
+if exists(.PackageName) && !exists(.package.id) {
+  .package.id = to_string!(del(.PackageName))
+}
+
+if exists(.PackageRootFolder) && !exists(.package.root_folder) {
+  .package.root_folder = to_string!(del(.PackageRootFolder))
+}
+
+if exists(.Version) {
+  .package.version_raw = to_string!(del(.Version))
+}
+
+# =============================================================================
+# MRU / sequence mapping (generic)
+# =============================================================================
+
+if !exists(.event.sequence) && exists(.MruPosition) {
+  mru_raw = to_string!(del(.MruPosition))
+  mru_val = parse_int(mru_raw) ?? null
+  if mru_val != null {
+    .event.sequence = mru_val
+  } else {
+    .event.sequence_raw = mru_raw
+  }
+}
+
+if !exists(.event.sequence) && exists(.MRUPosition) {
+  mru_raw2 = to_string!(del(.MRUPosition))
+  mru_val2 = parse_int(mru_raw2) ?? null
+  if mru_val2 != null {
+    .event.sequence = mru_val2
+  } else {
+    .event.sequence2_raw = mru_raw2
+  }
+}
+
+if !exists(.event.sequence) && exists(.CacheEntryPosition) {
+  cep_raw = to_string!(del(.CacheEntryPosition))
+  cep_val = parse_int(cep_raw) ?? null
+  if cep_val != null {
+    .event.sequence = cep_val
+  } else {
+    .event.cache_entry_position_raw = cep_raw
+  }
+}
+
+# =============================================================================
+# Time / timestamp fields
+# =============================================================================
+
+# Timestamp → event.created (parsed)
+if exists(.Timestamp) && !exists(.event.created) {
+  ts_raw = to_string!(del(.Timestamp))
+  if ts_raw != "" {
+    ts_val = parse_timestamp(ts_raw, "%F %T%.f") ?? parse_timestamp(ts_raw, "%F %T") ?? null
+    if ts_val != null {
+      .event.created = ts_val
+    } else {
+      .event.timestamp_raw = ts_raw
+    }
+  }
+}
+
+# Other time fields as raw strings
+if exists(.CreatedOn) {
+  .event.created_on_raw = to_string!(del(.CreatedOn))
+}
+
+if exists(.ExecutedOn) {
+  .event.executed_on_raw = to_string!(del(.ExecutedOn))
+}
+
+if exists(.ExecutionTime) {
+  .event.execution_time_raw = to_string!(del(.ExecutionTime))
+}
+
+if exists(.ExpiresOn) {
+  .event.expires_on_raw = to_string!(del(.ExpiresOn))
+}
+
+if exists(.InstallDate) {
+  .event.install_date_raw = to_string!(del(.InstallDate))
+}
+
+if exists(.InstallTime) {
+  .event.install_time_raw = to_string!(del(.InstallTime))
+}
+
+if exists(.InitialTimestamp) {
+  .event.initial_timestamp_raw = to_string!(del(.InitialTimestamp))
+}
+
+if exists(.Installed) {
+  .event.installed_raw = to_string!(del(.Installed))
+}
+
+if exists(.FirstInstalled) {
+  .event.first_installed_raw = to_string!(del(.FirstInstalled))
+}
+
+if exists(.FirstConnectLOCAL) {
+  .event.first_connect_local_raw = to_string!(del(.FirstConnectLOCAL))
+}
+
+if exists(.LastConnectedLOCAL) {
+  .event.last_connected_local_raw = to_string!(del(.LastConnectedLOCAL))
+}
+
+if exists(.LastClosed) {
+  .event.last_closed_raw = to_string!(del(.LastClosed))
+}
+
+if exists(.LastConnected) {
+  .event.last_connected_raw = to_string!(del(.LastConnected))
+}
+
+if exists(.LastRemoved) {
+  .event.last_removed_raw = to_string!(del(.LastRemoved))
+}
+
+if exists(.LastSeen) {
+  .event.last_seen_raw = to_string!(del(.LastSeen))
+}
+
+if exists(.LastStart) {
+  .event.last_start_raw = to_string!(del(.LastStart))
+}
+
+if exists(.LastStop) {
+  .event.last_stop_raw = to_string!(del(.LastStop))
+}
+
+if exists(.LastWriteTimestamp) {
+  .event.last_write_timestamp_raw = to_string!(del(.LastWriteTimestamp))
+}
+
+if exists(.LastModified) {
+  .event.last_modified_raw = to_string!(del(.LastModified))
+}
+
+if exists(.LastDetectionTime) {
+  .event.last_detection_time_raw = to_string!(del(.LastDetectionTime))
+}
+
+if exists(.LastExecuted) {
+  .event.last_executed_raw = to_string!(del(.LastExecuted))
+}
+
+# =============================================================================
+# Timestamp fallback resolution
+# Build .timestamp from best available time and record its source
+# =============================================================================
+
+ts_value = null
+ts_source = ""
+
+# 1. Prefer existing .event.created if already set
+if exists(.event.created) {
+  ts_value = .event.created
+  ts_source = "event.created"
+}
+
+# Helper: try parse a raw timestamp field if ts_value is still null
+# (we just inline this pattern for each candidate)
+
+if ts_value == null && exists(.event.timestamp_raw) {
+  raw = to_string!(.event.timestamp_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.timestamp_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.created_on_raw) {
+  raw = to_string!(.event.created_on_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.created_on_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.executed_on_raw) {
+  raw = to_string!(.event.executed_on_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.executed_on_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.execution_time_raw) {
+  raw = to_string!(.event.execution_time_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.execution_time_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.expires_on_raw) {
+  raw = to_string!(.event.expires_on_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.expires_on_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.install_date_raw) {
+  raw = to_string!(.event.install_date_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.install_date_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.install_time_raw) {
+  raw = to_string!(.event.install_time_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.install_time_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.initial_timestamp_raw) {
+  raw = to_string!(.event.initial_timestamp_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.initial_timestamp_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.installed_raw) {
+  raw = to_string!(.event.installed_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.installed_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.first_installed_raw) {
+  raw = to_string!(.event.first_installed_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.first_installed_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.first_connect_local_raw) {
+  raw = to_string!(.event.first_connect_local_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.first_connect_local_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_connected_local_raw) {
+  raw = to_string!(.event.last_connected_local_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_connected_local_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_closed_raw) {
+  raw = to_string!(.event.last_closed_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_closed_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_connected_raw) {
+  raw = to_string!(.event.last_connected_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_connected_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_removed_raw) {
+  raw = to_string!(.event.last_removed_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_removed_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_seen_raw) {
+  raw = to_string!(.event.last_seen_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_seen_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_start_raw) {
+  raw = to_string!(.event.last_start_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_start_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_stop_raw) {
+  raw = to_string!(.event.last_stop_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_stop_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_write_timestamp_raw) {
+  raw = to_string!(.event.last_write_timestamp_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_write_timestamp_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_modified_raw) {
+  raw = to_string!(.event.last_modified_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_modified_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_detection_time_raw) {
+  raw = to_string!(.event.last_detection_time_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_detection_time_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.last_executed_raw) {
+  raw = to_string!(.event.last_executed_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "event.last_executed_raw"
+    }
+  }
+}
+
+# Final application of timestamp if we found any
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}
+
+# =============================================================================
+# Misc / other semantic fields
+# =============================================================================
+
+if exists(.EventType) {
+  .event.reason = to_string!(del(.EventType))
+}
+
+if exists(.Source) && !exists(.event.provider) {
+  .event.provider = to_string!(del(.Source))
+}
+
+if exists(.Name) && !exists(.event.name) {
+  .event.name = to_string!(del(.Name))
+}
+
+if exists(.Title) && !exists(.event.title) {
+  .event.title = to_string!(del(.Title))
+}
+
+if exists(.Description) && !exists(.event.description) {
+  .event.description = to_string!(del(.Description))
+}
+
+if exists(.Type) {
+  .event.type_raw = to_string!(del(.Type))
+}
+
+if exists(.UserChoice) {
+  .event.user_choice_raw = to_string!(del(.UserChoice))
+}
+
+# =============================================================================
+# Fallback: ensure registry.path/value exist if still missing
+# =============================================================================
+
+if exists(.BatchKeyPath) && !exists(.registry.path) {
+  .registry.path = to_string!(del(.BatchKeyPath))
+}
+
+if exists(.BatchValueName) && !exists(.registry.value) {
+  .registry.value = to_string!(del(.BatchValueName))
+}
+
+# =============================================================================
+# ECS base defaults / generic classification
+# =============================================================================
+
+if !exists(.event.dataset) {
+  .event.dataset = "windows.registry_artifacts"
+}
+
+if !exists(.event.provider) {
+  .event.provider = "Windows Registry (generic)"
+}
+
+if !exists(.event.category) {
+  .event.category = ["configuration"]
+}
+
+if !exists(.event.type) {
+  .event.type = ["info"]
+}
+
+if !exists(.event.kind) {
+  .event.kind = "state"
+}
+
+if !exists(.event.outcome) {
+  .event.outcome = "success"
+}
+
+if !exists(.event.module) {
+  .event.module = "windows"
+}

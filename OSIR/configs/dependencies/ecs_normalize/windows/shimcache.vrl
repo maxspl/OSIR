@@ -1,0 +1,166 @@
+# -----------------------------------------------------------------------------
+# Windows ShimCache (AppCompatCache) CSV 
+#
+# Input columns (CSV → JSON fields):
+#   ControlSet
+#   CacheEntryPosition
+#   Path
+#   LastModifiedTimeUTC
+#   Executed
+#   Duplicate
+#   SourceFile
+#
+# Goals:
+#   - Keep raw row in event.original
+#   - Map path + time to ECS file.*
+#   - Track shimcache-specific metadata under file.Ext.shimcache.*
+#   - Promote a best-effort .timestamp/.event.created with source tracking
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event first
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.shimcache"
+.event.module   = "windows"
+
+# ShimCache = historical file presence / execution indicator
+.event.kind     = "state"
+.event.category = ["file"]
+.event.type     = ["info"]
+
+.event.outcome  = "success"
+.event.provider = "Windows ShimCache (AppCompatCache)"
+
+# Generic action/code for this pipeline
+.event.code   = "shimcache_entry"
+.event.action = "shimcache_entry"
+
+# -----------------------------------------------------------------------------
+# ControlSet & entry index
+# -----------------------------------------------------------------------------
+
+if exists(.ControlSet) {
+    cs_raw = to_string!(del(.ControlSet))
+    cs_int = parse_int(cs_raw) ?? null
+    if cs_int != null {
+        .file.Ext.shimcache.control_set = cs_int
+    } else {
+        .file.Ext.shimcache.control_set_raw = cs_raw
+    }
+}
+
+if exists(.CacheEntryPosition) {
+    pos_raw = to_string!(del(.CacheEntryPosition))
+    pos_int = parse_int(pos_raw) ?? null
+    if pos_int != null {
+        .file.Ext.shimcache.entry_index = pos_int
+    } else {
+        .file.Ext.shimcache.entry_index_raw = pos_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Path → file.path
+# -----------------------------------------------------------------------------
+
+if exists(.Path) {
+    path_str = to_string!(del(.Path))
+    .file.path = path_str
+    .file.Ext.shimcache.path_raw = path_str
+}
+
+# -----------------------------------------------------------------------------
+# ShimCache timestamps
+#   LastModifiedTimeUTC is the file's last-modified time as recorded in cache
+#   Sample format: "2023-11-11 02:09:55"
+# -----------------------------------------------------------------------------
+
+ts_value = null
+ts_source = null
+
+if exists(.LastModifiedTimeUTC) {
+    lm_raw = to_string!(del(.LastModifiedTimeUTC))
+    if lm_raw != "" {
+        lm_ts = parse_timestamp(lm_raw, "%F %T") ?? null
+        if lm_ts != null {
+            .file.mtime = lm_ts
+            .file.Ext.shimcache.last_modified_utc = lm_ts
+            .file.Ext.shimcache.last_modified_utc_raw = lm_raw
+
+            ts_value = lm_ts
+            ts_source = "shimcache_last_modified_utc"
+        } else {
+            .file.Ext.shimcache.last_modified_utc_raw = lm_raw
+        }
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Executed / Duplicate flags
+# -----------------------------------------------------------------------------
+
+if exists(.Executed) {
+    ex_raw = to_string!(del(.Executed))
+    ex_l   = downcase(ex_raw)
+
+    .file.Ext.shimcache.executed_raw = ex_raw
+
+    if ex_l == "yes" {
+        .file.Ext.shimcache.executed = true
+
+        # Enrich event.type to show this is an execution indicator, without dupes
+        if exists(.event.type) {
+            if !includes(.event.type, "indicator") {
+                .event.type = push(.event.type, "indicator")
+            }
+        } else {
+            .event.type = ["info", "indicator"]
+        }
+    } else if ex_l == "no" {
+        .file.Ext.shimcache.executed = false
+    }
+}
+
+if exists(.Duplicate) {
+    du_raw = to_string!(del(.Duplicate))
+    du_l   = downcase(du_raw)
+
+    .file.Ext.shimcache.duplicate_raw = du_raw
+
+    if du_l == "true" {
+        .file.Ext.shimcache.duplicate = true
+    } else if du_l == "false" {
+        .file.Ext.shimcache.duplicate = false
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Source hive file (where the cache came from)
+# -----------------------------------------------------------------------------
+
+if exists(.SourceFile) {
+    src = to_string!(del(.SourceFile))
+    .file.Ext.shimcache.source_file = src
+}
+
+# -----------------------------------------------------------------------------
+# Promote best-effort event timestamp with source tracking
+# -----------------------------------------------------------------------------
+
+if ts_value != null {
+    .timestamp = ts_value
+
+    if !exists(.event.created) {
+        .event.created = ts_value
+    }
+
+    .event.Ext.timestamp_source = ts_source
+}

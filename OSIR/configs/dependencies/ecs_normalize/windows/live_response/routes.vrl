@@ -1,0 +1,134 @@
+# -----------------------------------------------------------------------------
+# Windows Routes 
+#   Input fields:
+#     type, index, mac_address, name,
+#     destination, netmask, gateway, interface, metric
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Keep raw event 
+# -----------------------------------------------------------------------------
+if !exists(.event) || !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# -----------------------------------------------------------------------------
+# Basic ECS scaffolding
+# -----------------------------------------------------------------------------
+
+.event.dataset  = "windows.routes"
+.event.module   = "windows"
+
+# Routing table & interface snapshot
+.event.kind     = "state"
+.event.category = ["network", "configuration"]
+.event.type     = ["info", "routing"]
+
+.event.outcome  = "success"
+.event.provider = "Windows routes"
+
+.network.type     = "ipv4"
+.network.protocol = "ip"
+
+# -----------------------------------------------------------------------------
+# Basic event classification from "type"
+# -----------------------------------------------------------------------------
+
+rec_type = null
+if exists(.type) {
+    rec_type = to_string!(del(.type))
+    .event.code   = rec_type
+    .event.action = downcase(rec_type)
+}
+
+# -----------------------------------------------------------------------------
+# Common: interface index (if present)
+# -----------------------------------------------------------------------------
+
+if exists(.index) {
+    idx_raw = to_string!(del(.index))
+    idx_int = parse_int(idx_raw) ?? null
+
+    if idx_int != null {
+        .host.Ext.routes.interface_index = idx_int
+    } else {
+        .host.Ext.routes.interface_index = idx_raw
+    }
+}
+
+# -----------------------------------------------------------------------------
+# route_interface records → interface inventory
+# -----------------------------------------------------------------------------
+
+if rec_type == "route_interface" {
+    # Human interface name
+    if exists(.name) {
+        iface_name = to_string!(del(.name))
+        .host.Ext.routes.interface_name = iface_name
+        .observer.name = iface_name
+    }
+
+    # MAC address: "b4 2e 99 ec a4 6d" → "b4:2e:99:ec:a4:6d"
+    if exists(.mac_address) {
+        mac_raw = to_string!(del(.mac_address))
+        .host.Ext.routes.interface_mac_raw = mac_raw
+
+        mac_norm = downcase(replace(mac_raw, " ", ":"))
+        .host.Ext.routes.interface_mac = mac_norm
+
+        # Simple ECS-style host.mac list with one value for this event
+        .host.mac = [mac_norm]
+    }
+}
+
+# -----------------------------------------------------------------------------
+# ipv4_route records → routing table entries
+# -----------------------------------------------------------------------------
+
+if rec_type == "ipv4_route" {
+    # Destination + netmask → route destination/netmask (Ext)
+    if exists(.destination) {
+        dest = to_string!(del(.destination))
+        .network.Ext.route.destination = dest
+    }
+
+    if exists(.netmask) {
+        mask = to_string!(del(.netmask))
+        .network.Ext.route.netmask = mask
+    }
+
+    # Gateway / next hop
+    if exists(.gateway) {
+        gw_raw = to_string!(del(.gateway))
+
+        # "On-link" = no real gateway, directly reachable
+        if gw_raw == "On-link" {
+            .network.Ext.route.gateway = gw_raw
+            .network.Ext.route.on_link = true
+        } else {
+            .network.next_hop = gw_raw
+            .network.Ext.route.gateway = gw_raw
+        }
+    }
+
+    # Interface IP used for this route
+    if exists(.interface) {
+        iface_ip = to_string!(del(.interface))
+        .network.Ext.route.interface_ip = iface_ip
+
+        # Simple ECS-style host.ip list with one value for this event
+        .host.ip = [iface_ip]
+    }
+
+    # Metric
+    if exists(.metric) {
+        metric_raw = to_string!(del(.metric))
+        metric_int = parse_int(metric_raw) ?? null
+
+        if metric_int != null {
+            .network.Ext.route.metric = metric_int
+        } else {
+            .network.Ext.route.metric = metric_raw
+        }
+    }
+}

@@ -18,3 +18,11 @@ output:
   format: jsonl
   output_file: "{endpoint_name}--{module}-username_changed_by_parser.jsonl"
 endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:powershell_history':
+    name_rex: \.jsonl$
+    path_suffix: powershell_history
+    host_rex: ([\w\.-]+)--
+    artifact: "POWERSHELL"
+    normalize:
+      - ecs_normalize/windows/powershell_history.vrl   

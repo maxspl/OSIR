@@ -21,3 +21,14 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 optional:
   parser: wmi_eventconsumer
+splunk:
+  'windows:live_response:wmi_consummer':
+    name_rex: --win_wmi_eventconsumer\.jsonl$
+    path_suffix: win_wmi_eventconsumer 
+    host_rex: ([\w\.-]+)--
+    artifact: "WMI"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - normalize/windows/live_response/wmi_eventconsumer.vrl

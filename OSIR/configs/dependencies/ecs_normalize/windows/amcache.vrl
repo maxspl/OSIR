@@ -1,0 +1,643 @@
+# =============================================================================
+# Windows Amcache CSV → ECS-ish generic normalizer
+# Handles all Amcache views generically, without view-specific blocks
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ensure .event exists and keep original event
+# -----------------------------------------------------------------------------
+if !exists(.event) {
+  .event = {}
+}
+
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# =============================================================================
+# Generic FILE mapping (unassociated entries, drive binaries, shortcuts, etc.)
+# =============================================================================
+
+# Paths (priority: FullPath, then LnkName, then KeyName)
+if exists(.FullPath) && !exists(.file.path) {
+  .file.path = to_string!(del(.FullPath))
+}
+
+if exists(.LnkName) && !exists(.file.path) {
+  .file.path = to_string!(del(.LnkName))
+}
+
+if exists(.KeyName) && !exists(.file.path) {
+  .file.path = to_string!(del(.KeyName))
+}
+
+# Directory
+if exists(.Directory) && !exists(.file.directory) {
+  .file.directory = to_string!(del(.Directory))
+}
+
+# Name / FileExtension
+if exists(.Name) && !exists(.file.name) {
+  .file.name = to_string!(del(.Name))
+}
+
+if exists(.FileExtension) {
+  ext_raw = to_string!(del(.FileExtension))
+  if ext_raw != "" {
+    .file.extension = replace(ext_raw, ".", "")
+    .file.Ext.amcache.extension_raw = ext_raw
+  }
+}
+
+# If we have a file.path but no file.name, derive basename
+if exists(.file.path) && !exists(.file.name) {
+  fp = to_string!(.file.path)
+  parts = split!(fp, "\\\\")
+  plen = length(parts)
+  if plen > 0 {
+    idx = plen - 1
+    last_part = get!(parts, [idx])
+    .file.name = last_part
+  }
+}
+
+# LnkName as metadata
+if exists(.LnkName) {
+  .file.lnk_name = to_string!(del(.LnkName))
+}
+
+# Size / ImageSize / Size (unassociated)
+if exists(.Size) {
+  sz_raw = to_string!(del(.Size))
+  sz_val = parse_int(sz_raw) ?? null
+  if sz_val != null {
+    .file.size = sz_val
+  } else {
+    .file.Ext.amcache.size_raw = sz_raw
+  }
+}
+
+if exists(.ImageSize) {
+  is_raw = to_string!(del(.ImageSize))
+  is_val = parse_int(is_raw) ?? null
+  if is_val != null {
+    .file.size = is_val
+  } else {
+    .file.Ext.amcache.image_size_raw = is_raw
+  }
+}
+
+# Hashes
+if exists(.SHA1) {
+  sha1_raw = to_string!(del(.SHA1))
+  if sha1_raw != "" {
+    .file.hash.sha1 = sha1_raw
+  }
+}
+
+# Product / version / description
+if exists(.ProductName) && !exists(.file.product) {
+  .file.product = to_string!(del(.ProductName))
+}
+
+if exists(.ProductVersion) && !exists(.file.product_version) {
+  .file.product_version = to_string!(del(.ProductVersion))
+}
+
+if exists(.Version) && !exists(.file.version) {
+  .file.version = to_string!(del(.Version))
+}
+
+if exists(.Description) && !exists(.file.description) {
+  .file.description = to_string!(del(.Description))
+}
+
+if exists(.Language) {
+  .file.Ext.amcache.language = to_string!(del(.Language))
+}
+
+if exists(.BinaryType) {
+  .file.Ext.amcache.binary_type = to_string!(del(.BinaryType))
+}
+
+if exists(.BinFileVersion) {
+  .file.Ext.amcache.bin_file_version = to_string!(del(.BinFileVersion))
+}
+
+if exists(.BinProductVersion) {
+  .file.Ext.amcache.bin_product_version = to_string!(del(.BinProductVersion))
+}
+
+# USN
+if exists(.Usn) {
+  usn_raw = to_string!(del(.Usn))
+  usn_val = parse_int(usn_raw) ?? null
+  if usn_val != null {
+    .file.Ext.amcache.usn = usn_val
+  } else {
+    .file.Ext.amcache.usn_raw = usn_raw
+  }
+}
+
+# Application / program metadata
+if exists(.ApplicationName) {
+  .file.Ext.amcache.application_name = to_string!(del(.ApplicationName))
+}
+
+if exists(.ProgramId) {
+  .file.Ext.amcache.program_id = to_string!(del(.ProgramId))
+}
+
+if exists(.LongPathHash) {
+  .file.Ext.amcache.long_path_hash = to_string!(del(.LongPathHash))
+}
+
+# Booleans: IsOsComponent, IsPeFile
+if exists(.IsOsComponent) {
+  raw = to_string!(del(.IsOsComponent))
+  .file.Ext.amcache.is_os_component_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .file.Ext.amcache.is_os_component = true
+  } else if low == "false" {
+    .file.Ext.amcache.is_os_component = false
+  }
+}
+
+if exists(.IsPeFile) {
+  raw = to_string!(del(.IsPeFile))
+  .file.Ext.amcache.is_pe_file_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .file.Ext.amcache.is_pe_file = true
+  } else if low == "false" {
+    .file.Ext.amcache.is_pe_file = false
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Generic DEVICE mapping (DeviceContainers, DevicePnps)
+# -----------------------------------------------------------------------------
+
+# Device identity / naming
+if exists(.ModelId) && !exists(.device.id) {
+  mid = to_string!(del(.ModelId))
+  .device.id = mid
+  .device.Ext.amcache.model_id = mid
+}
+
+if exists(.FriendlyName) && !exists(.device.name) {
+  fn = to_string!(del(.FriendlyName))
+  .device.name = fn
+  .device.Ext.amcache.friendly_name = fn
+}
+
+if exists(.ModelName) && !exists(.device.model) {
+  .device.model = to_string!(del(.ModelName))
+}
+
+if exists(.ModelNumber) {
+  .device.Ext.amcache.model_number = to_string!(del(.ModelNumber))
+}
+
+if exists(.Manufacturer) && !exists(.device.manufacturer) {
+  .device.manufacturer = to_string!(del(.Manufacturer))
+}
+
+if exists(.PrimaryCategory) {
+  pc = to_string!(del(.PrimaryCategory))
+  if pc != "" {
+    .device.type = pc
+    .device.Ext.amcache.primary_category = pc
+  }
+}
+
+if exists(.Categories) {
+  .device.Ext.amcache.categories_raw = to_string!(del(.Categories))
+}
+
+if exists(.DiscoveryMethod) {
+  .device.Ext.amcache.discovery_method = to_string!(del(.DiscoveryMethod))
+}
+
+if exists(.Icon) {
+  .device.Ext.amcache.icon_resource = to_string!(del(.Icon))
+}
+
+# Container / PnP relations
+if exists(.ContainerId) && !exists(.device.id) {
+  cid = to_string!(del(.ContainerId))
+  .device.id = cid
+  .device.Ext.amcache.container_id = cid
+}
+
+if exists(.Class) {
+  cls = to_string!(del(.Class))
+  .device.type = cls
+  .device.Ext.amcache.class = cls
+}
+
+if exists(.ClassGuid) {
+  .device.Ext.amcache.class_guid = to_string!(del(.ClassGuid))
+}
+
+if exists(.BusReportedDescription) {
+  .device.Ext.amcache.bus_reported_description = to_string!(del(.BusReportedDescription))
+}
+
+if exists(.Enumerator) {
+  .device.Ext.amcache.enumerator = to_string!(del(.Enumerator))
+}
+
+if exists(.HWID) {
+  .device.Ext.amcache.hwid = to_string!(del(.HWID))
+}
+
+if exists(.ParentId) {
+  .device.Ext.amcache.parent_id = to_string!(del(.ParentId))
+}
+
+if exists(.Stackid) {
+  .device.Ext.amcache.stack_id = to_string!(del(.Stackid))
+}
+
+# Device state / problem codes
+if exists(.ProblemCode) {
+  pr_raw = to_string!(del(.ProblemCode))
+  pr_val = parse_int(pr_raw) ?? null
+  if pr_val != null {
+    .device.Ext.amcache.problem_code = pr_val
+  } else {
+    .device.Ext.amcache.problem_code_raw = pr_raw
+  }
+}
+
+if exists(.InstallState) {
+  is_raw = to_string!(del(.InstallState))
+  is_val = parse_int(is_raw) ?? null
+  if is_val != null {
+    .device.Ext.amcache.install_state = is_val
+  } else {
+    .device.Ext.amcache.install_state_raw = is_raw
+  }
+}
+
+if exists(.State) {
+  st_raw = to_string!(del(.State))
+  st_val = parse_int(st_raw) ?? null
+  if st_val != null {
+    .device.Ext.amcache.state = st_val
+  } else {
+    .device.Ext.amcache.state_raw = st_raw
+  }
+}
+
+# Device boolean flags
+if exists(.IsActive) {
+  raw = to_string!(del(.IsActive))
+  .device.Ext.amcache.is_active_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .device.Ext.amcache.is_active = true
+  } else if low == "false" {
+    .device.Ext.amcache.is_active = false
+  }
+}
+
+if exists(.IsConnected) {
+  raw = to_string!(del(.IsConnected))
+  .device.Ext.amcache.is_connected_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .device.Ext.amcache.is_connected = true
+  } else if low == "false" {
+    .device.Ext.amcache.is_connected = false
+  }
+}
+
+if exists(.IsMachineContainer) {
+  raw = to_string!(del(.IsMachineContainer))
+  .device.Ext.amcache.is_machine_container_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .device.Ext.amcache.is_machine_container = true
+  } else if low == "false" {
+    .device.Ext.amcache.is_machine_container = false
+  }
+}
+
+if exists(.IsNetworked) {
+  raw = to_string!(del(.IsNetworked))
+  .device.Ext.amcache.is_networked_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .device.Ext.amcache.is_networked = true
+  } else if low == "false" {
+    .device.Ext.amcache.is_networked = false
+  }
+}
+
+if exists(.IsPaired) {
+  raw = to_string!(del(.IsPaired))
+  .device.Ext.amcache.is_paired_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .device.Ext.amcache.is_paired = true
+  } else if low == "false" {
+    .device.Ext.amcache.is_paired = false
+  }
+}
+
+# -----------------------------------------------------------------------------
+# DRIVER-related mapping (DriveBinaries, DriverPackages, PnP)
+# -----------------------------------------------------------------------------
+
+# Driver name / company / product
+if exists(.DriverName) {
+  dn = to_string!(del(.DriverName))
+  .file.Ext.amcache.driver.name = dn
+}
+
+if exists(.DriverCompany) {
+  .file.Ext.amcache.driver.company = to_string!(del(.DriverCompany))
+}
+
+if exists(.Product) && !exists(.file.product) {
+  .file.product = to_string!(del(.Product))
+}
+
+# Version fields
+if exists(.DriverVersion) {
+  .file.Ext.amcache.driver.version = to_string!(del(.DriverVersion))
+}
+
+if exists(.DriverVerVersion) {
+  .file.Ext.amcache.driver.version_string = to_string!(del(.DriverVerVersion))
+}
+
+if exists(.WdfVersion) {
+  .file.Ext.amcache.driver.wdf_version = to_string!(del(.WdfVersion))
+}
+
+# IDs / packages / inf / service / provider
+if exists(.DriverId) {
+  .file.Ext.amcache.driver.id = to_string!(del(.DriverId))
+}
+
+if exists(.DriverPackageStrongName) {
+  .file.Ext.amcache.driver.package_strong_name = to_string!(del(.DriverPackageStrongName))
+}
+
+if exists(.DriverType) {
+  .file.Ext.amcache.driver.type = to_string!(del(.DriverType))
+}
+
+if exists(.Inf) {
+  .file.Ext.amcache.driver.inf = to_string!(del(.Inf))
+}
+
+if exists(.Service) {
+  .file.Ext.amcache.driver.service = to_string!(del(.Service))
+}
+
+if exists(.Provider) {
+  .file.Ext.amcache.driver.provider = to_string!(del(.Provider))
+}
+
+if exists(.SubmissionId) {
+  .file.Ext.amcache.driver_package_submission_id = to_string!(del(.SubmissionId))
+}
+
+if exists(.Hwids) {
+  .file.Ext.amcache.driver_package_hwids_raw = to_string!(del(.Hwids))
+}
+
+if exists(.SYSFILE) {
+  .file.Ext.amcache.driver_package_sysfile_raw = to_string!(del(.SYSFILE))
+}
+
+if exists(.MatchingId) {
+  .file.Ext.amcache.matching_id = to_string!(del(.MatchingId))
+}
+
+# Driver checksum
+if exists(.DriverCheckSum) {
+  cs_raw = to_string!(del(.DriverCheckSum))
+  cs_val = parse_int(cs_raw) ?? null
+  if cs_val != null {
+    .file.Ext.amcache.driver.checksum = cs_val
+  } else {
+    .file.Ext.amcache.driver.checksum_raw = cs_raw
+  }
+}
+
+# Driver booleans
+if exists(.DriverInBox) {
+  raw = to_string!(del(.DriverInBox))
+  .file.Ext.amcache.driver.inbox_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .file.Ext.amcache.driver.inbox = true
+  } else if low == "false" {
+    .file.Ext.amcache.driver.inbox = false
+  }
+}
+
+if exists(.DriverIsKernelMode) {
+  raw = to_string!(del(.DriverIsKernelMode))
+  .file.Ext.amcache.driver.is_kernel_mode_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .file.Ext.amcache.driver.is_kernel_mode = true
+  } else if low == "false" {
+    .file.Ext.amcache.driver.is_kernel_mode = false
+  }
+}
+
+if exists(.DriverSigned) {
+  raw = to_string!(del(.DriverSigned))
+  .file.Ext.amcache.driver.signed_raw = raw
+  low = downcase(raw)
+  if low == "true" {
+    .file.Ext.amcache.driver.signed = true
+  } else if low == "false" {
+    .file.Ext.amcache.driver.signed = false
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Timestamp RAW fields for Amcache
+# (we only store raw here; parsing is done in a unified fallback block later)
+# -----------------------------------------------------------------------------
+
+if exists(.KeyLastWriteTimestamp) {
+  .event.Ext.amcache.key_last_write_raw = to_string!(del(.KeyLastWriteTimestamp))
+}
+
+if exists(.FileKeyLastWriteTimestamp) {
+  .event.Ext.amcache.file_key_last_write_raw = to_string!(del(.FileKeyLastWriteTimestamp))
+}
+
+if exists(.DriverLastWriteTime) {
+  .event.Ext.amcache.driver_last_write_raw = to_string!(del(.DriverLastWriteTime))
+}
+
+if exists(.DriverTimeStamp) {
+  .event.Ext.amcache.driver_timestamp_raw = to_string!(del(.DriverTimeStamp))
+}
+
+if exists(.LinkDate) {
+  .event.Ext.amcache.link_date_raw = to_string!(del(.LinkDate))
+}
+
+if exists(.Date) {
+  .event.Ext.amcache.date_raw = to_string!(del(.Date))
+}
+
+if exists(.DriverVerDate) {
+  .event.Ext.amcache.driver_ver_date_raw = to_string!(del(.DriverVerDate))
+}
+
+# =============================================================================
+# Timestamp fallback resolution (Amcache-specific)
+# Sets .timestamp and ensures .event.created, records .event.Ext.timestamp_source
+# =============================================================================
+
+ts_value = null
+ts_source = ""
+
+# 1. Prefer existing .event.created if already set
+if exists(.event.created) {
+  ts_value = .event.created
+  ts_source = "event.created"
+}
+
+# Helper: try parse a raw timestamp field if ts_value is still null
+# priority chain for Amcache:
+#   key_last_write_raw
+#   file_key_last_write_raw
+#   driver_last_write_raw
+#   driver_timestamp_raw
+#   link_date_raw
+#   date_raw
+#   driver_ver_date_raw
+
+if ts_value == null && exists(.event.Ext.amcache.key_last_write_raw) {
+  raw = to_string!(.event.Ext.amcache.key_last_write_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.key_last_write_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.Ext.amcache.file_key_last_write_raw) {
+  raw = to_string!(.event.Ext.amcache.file_key_last_write_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.file_key_last_write_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.Ext.amcache.driver_last_write_raw) {
+  raw = to_string!(.event.Ext.amcache.driver_last_write_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.driver_last_write_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.Ext.amcache.driver_timestamp_raw) {
+  raw = to_string!(.event.Ext.amcache.driver_timestamp_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.driver_timestamp_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.Ext.amcache.link_date_raw) {
+  raw = to_string!(.event.Ext.amcache.link_date_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.link_date_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.Ext.amcache.date_raw) {
+  raw = to_string!(.event.Ext.amcache.date_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.date_raw"
+    }
+  }
+}
+
+if ts_value == null && exists(.event.Ext.amcache.driver_ver_date_raw) {
+  raw = to_string!(.event.Ext.amcache.driver_ver_date_raw)
+  if raw != "" {
+    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if v != null {
+      ts_value = v
+      ts_source = "amcache.driver_ver_date_raw"
+    }
+  }
+}
+
+# Final application of timestamp if we found any
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}
+
+# =============================================================================
+# Event-level defaults for generic Amcache
+# =============================================================================
+
+if !exists(.event.dataset) {
+  .event.dataset = "windows.amcache"
+}
+
+if !exists(.event.module) {
+  .event.module = "windows"
+}
+
+if !exists(.event.provider) {
+  .event.provider = "Windows Amcache (generic)"
+}
+
+if !exists(.event.kind) {
+  .event.kind = "state"
+}
+
+if !exists(.event.category) {
+  .event.category = ["file"]
+}
+
+if !exists(.event.type) {
+  .event.type = ["info"]
+}
+
+if !exists(.event.outcome) {
+  .event.outcome = "success"
+}
