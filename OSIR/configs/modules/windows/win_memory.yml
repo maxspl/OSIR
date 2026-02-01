@@ -1,7 +1,7 @@
 version: 1.0
 author: maxspl
 module: win_memory
-description:
+description: Parsing of Windows memory dump.
 os: windows
 type: process
 disk_only: True
@@ -14,7 +14,7 @@ tool:
   path: memprocfs/memprocfs
   source: https://github.com/ufrisk/MemProcFS
   version: v5.12.5
-  cmd: -device {input_file} -pythonexec {optional_pythonexec_path} -forensic 1
+  cmd: -device {input_file} -pythonexec {pythonexec_path} -forensic 1
 input:
   type: file
   path: Memory/
@@ -24,8 +24,6 @@ output:
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
 endpoint: "/Endpoint_(.*?)/"
-optional:
-  pythonexec_path: replaced_by_internal_module
 splunk:
   'windows:live_response:devices':
     name_rex: win_memory-devices
