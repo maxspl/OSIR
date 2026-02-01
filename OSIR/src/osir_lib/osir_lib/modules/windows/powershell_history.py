@@ -43,18 +43,10 @@ class PowerShellHistoryParser():
         records = self._parse_history(input_content)
 
         # Construct output file
-        out_path = None
+        out_path = self.module.output.output_file
         parts = os.path.normpath(input_path).split(os.sep)
         username = parts[parts.index("Users") + 1]
-
-        try:
-            self._format_output_file()
-            out_path = os.path.join(self.default_output_dir, self.module.output.output_file)
-            out_path = out_path.replace("username_changed_by_parser", username)
-            os.makedirs(os.path.dirname(out_path), exist_ok=True)
-        except Exception as e:
-            logger.error(f"Failed to prepare output path: {e}")
-            return False
+        out_path = out_path.replace("username_changed_by_parser", username)
 
         # Write JSONL
         try:
