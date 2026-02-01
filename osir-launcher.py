@@ -1056,6 +1056,22 @@ class Launcher:
         self.ui.box("Containers – master", fmt_group(master_containers))
         self.ui.box("Containers – agent", fmt_group(agent_containers))
 
+    def ensure_env(self):
+        """Ensures that .env files exist, copying from .env.example if needed."""
+        import shutil
+        from pathlib import Path
+        
+        for setup_type in ["agent", "master"]:
+            env_path = Path(f"./setup/{setup_type}/.env")
+            example_path = Path(f"./setup/{setup_type}/.env.example")
+            
+            if not env_path.exists():
+                if not example_path.exists():
+                    raise FileNotFoundError(
+                        f"Missing {example_path}. Cannot create {env_path}. You must setup .env file !"
+                    )
+                shutil.copy(example_path, env_path)
+
     def main(self) -> None:
         """Program entrypoint: handle elevation, parse args, and dispatch."""
         if os.geteuid() != 0 and not os.environ.get("OSIR_LAUNCHER_AS_ROOT"):
@@ -1064,6 +1080,8 @@ class Launcher:
                 os.execvp("sudo", ["sudo", "-E", sys.executable, os.path.realpath(__file__), *sys.argv[1:]])
             except Exception as exc:
                 sys.exit(f"Failed to elevate privileges: {exc}")
+        
+        self.ensure_env()
 
         args = self.parse_arguments()
         if args.command == "start":

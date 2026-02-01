@@ -52,6 +52,13 @@ class DbOSIR:
         self.handler.create_table()
         self.case.create_table()
 
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+    
     def _ensure_connection(self):
         """Checks if connection is alive; if not, creates a new one."""
         try:
@@ -127,6 +134,3 @@ class DbOSIR:
         if self.conn:
             self.conn.close()
             logger.info("Database connection closed.")
-
-
-OSIR_DB = DbOSIR()

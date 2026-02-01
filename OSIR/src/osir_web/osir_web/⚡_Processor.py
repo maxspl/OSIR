@@ -1,4 +1,6 @@
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
+from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+
 import streamlit as st
 import os
 import yaml
@@ -118,15 +120,85 @@ class ConfigurationApp:
             if state_key not in st.session_state:
                 st.session_state[state_key] = self.edited_modules.get(module_name, original)
 
-            st.write(f"### ✏️ Edit configuration for `{module_name}`")
+            css_string = '''
+                background-color: #bee1e5;
 
-            # Render editor from our buffer; code_editor returns a dict with "text"
+                body > #root .ace-streamlit-dark~& {
+                background-color: #262830;
+                }
+
+                .ace-streamlit-dark~& span {
+                color: #fff;
+                opacity: 0.6;
+                }
+
+                span {
+                color: #000;
+                opacity: 0.5;
+                }
+
+                .code_editor-info.message {
+                width: inherit;
+                margin-right: 75px;
+                order: 2;
+                text-align: center;
+                opacity: 0;
+                transition: opacity 0.7s ease-out;
+                }
+
+                .code_editor-info.message.show {
+                opacity: 0.6;
+                }
+
+                .ace-streamlit-dark~& .code_editor-info.message.show {
+                opacity: 0.5;
+                }
+                '''
+
+            info_bar = {
+            "name": "language info",
+            "css": css_string,
+            "style": {
+                        "order": "1",
+                        "display": "flex",
+                        "flexDirection": "row",
+                        "alignItems": "center",
+                        "width": "100%",
+                        "height": "2.5rem",
+                        "padding": "0rem 0.75rem",
+                        "borderRadius": "8px 8px 8px 8px",
+                        "zIndex": "9993",
+                        "marginBottom": "10px"
+                    },
+            "info": [{
+                        "name": f"✏️ Edit configuration for `{module_name}`",
+                        "style": {"width": "500px"}
+                    }]
+            }
+            custom_btns = [
+                {
+                "name": "Save",
+                "feather": "Save",
+                "hasText": True,
+                "alwaysOn": True,
+                "commands": ["save-state", ["response","saved"], ["infoMessage", {
+                "text": "✅ Configuration Changed !",
+                "timeout": 3000,
+                "classToggle": "show"
+            }]],
+                "response": "saved",
+                "style": {"right": "0.4rem"}
+                },
+                ]
+
             result = code_editor(
                 st.session_state[state_key],
                 lang="yaml",
                 height=[20, 36],   # min/max visible line counts
                 theme="vs-dark",
                 key=f"code_editor__{module_name}",
+                buttons=custom_btns,
+                info=info_bar
             )
 
             new_text = result.get("text") if isinstance(result, dict) else None
@@ -137,12 +209,18 @@ class ConfigurationApp:
                     st.session_state[state_key] = new_text
                     self.edited_modules[module_name] = new_text
 
-            # Live YAML validation of the current buffer
-            try:
-                yaml.safe_load(st.session_state[state_key])
-                st.caption("✅ YAML valid")
-            except Exception as e:
-                st.error(f"YAML error: {e}")
+            
+            if result and result.get("type") == "saved":
+                code_content = result.get("text", "")
+                
+                # Live YAML validation of the current buffer
+                try:
+                    yaml.safe_load(st.session_state[state_key])
+                    st.caption("✅ YAML valid")
+                except Exception as e:
+                    st.error(f"YAML error: {e}")
+
+                st.session_state[state_key] = code_content
 
             st.divider()
 
@@ -330,32 +408,38 @@ class ConfigurationApp:
                 st.write(module_content)
 
     # TODO : Rewrite this
-    # def _apply_overrides_to_monitor_case(self, monitor_case):
-    #     """
-    #     Apply in-memory YAML overrides (self.edited_modules) to each live module instance.
-    #     This does NOT touch files on disk; it only mutates the in-memory objects that
-    #     MonitorCase will use during this run.
+    def _apply_overrides_to_monitor_case(self, monitor_case):
+        """
+        Apply in-memory YAML overrides (self.edited_modules) to each live module instance.
+        This does NOT touch files on disk; it only mutates the in-memory objects that
+        MonitorCase will use during this run.
+        Args:
+            monitor_case: a MonitorCase.MonitorCase instance with module_instances loaded.
+        """
+        if not getattr(self, "edited_modules", None):
+            return
+        
+        module_instances = getattr(monitor_case, "module_instances", [])
+        
+        for i, instance in enumerate(module_instances):
+            # Try common attribute names to find the module file basename, e.g., "foo.yml"
+            key = getattr(instance, "filename", None)
+            if not key:
+                continue
+            if key not in self.edited_modules:
+                continue
+            try:
+                parsed = yaml.safe_load(self.edited_modules[key]) or {}
+                modify_instance = OsirModuleModel(**parsed)
+                # CORRECTION: Remplacer l'instance dans la liste
+                monitor_case.module_instances[i] = modify_instance
+                st.success("Modified !")
 
-    #     Args:
-    #         monitor_case: a MonitorCase.MonitorCase instance with module_instances loaded.
-    #     """
-    #     if not getattr(self, "edited_modules", None):
-    #         return
+            except Exception as e:
+                st.error(f"[Override] Invalid YAML for {key}: {e}")
+                return False    
 
-    #     for instance in getattr(monitor_case, "module_instances", []):
-    #         # Try common attribute names to find the module file basename, e.g., "foo.yml"
-    #         key = getattr(instance, "_filename", None) or getattr(instance, "filename", None)
-    #         if not key:
-    #             continue
-    #         if key not in self.edited_modules:
-    #             continue
-
-    #         try:
-    #             parsed = yaml.safe_load(self.edited_modules[key]) or {}
-    #         except Exception as e:
-    #             logger.error(f"[override] Invalid YAML for {key}: {e}")
-    #             continue
-
+        return True
     #         # Core swap-in of the parsed YAML
     #         try:
     #             # Keep this generous: many BaseModule fields are pulled from YAML
@@ -491,21 +575,21 @@ class ConfigurationApp:
         module_w_parentdir = FileManager.resolve_modules_parent_dir(modules_selected)
         modules_selected_str = "\n".join([f"- {module}" for module in module_w_parentdir])
 
-        st.info(f"Modules selected:\n\n{modules_selected_str}")
+        
 
         monitor_case = MonitorCase(case_path, modules_selected, reprocess_case)
 
         # TODO : Fix in memory change
         # Apply in-memory YAML overrides to all module instances for this run
-        # self._apply_overrides_to_monitor_case(monitor_case)
+        if self._apply_overrides_to_monitor_case(monitor_case):
 
-        # Run the setup in a background thread
-        executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-        executor.submit(monitor_case.setup_handler)
-
-        st.success("Processing started.")
-        # Provide a link to the processing status page
-        st.page_link("pages/🏨_ProcessingStatus.py", label="Processing status", icon="🏨")
+            # Run the setup in a background thread
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+            executor.submit(monitor_case.setup_handler)
+            st.info(f"Modules selected:\n\n{modules_selected_str}")
+            st.success("Processing started.")
+            # Provide a link to the processing status page
+            st.page_link("pages/🏨_ProcessingStatus.py", label="Processing status", icon="🏨")
 
 
 if __name__ == "__main__":
@@ -515,8 +599,8 @@ if __name__ == "__main__":
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
-            "Get help": "https://<change-me>",
-            "Report a bug": "https://<change-me>",
+            "Get help": "https://github.com/maxspl/OSIR",
+            "Report a bug": "https://github.com/maxspl/OSIR",
             "About": "OSIR"
         }
     )

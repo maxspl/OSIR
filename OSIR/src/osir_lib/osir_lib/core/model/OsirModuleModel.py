@@ -51,6 +51,9 @@ class OsirModuleModel(BaseModel):
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None
 
+    # Private Attribute 
+    filename: Optional[str] = None
+
     @classmethod
     def from_yaml(cls, path: str) -> "OsirModuleModel":
         """
@@ -75,7 +78,7 @@ class OsirModuleModel(BaseModel):
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
-
+                data['filename'] = os.path.basename(path)
             if not isinstance(data, dict):
                 raise ValueError(f"YAML content must be a dictionary, got {type(data)}")
 

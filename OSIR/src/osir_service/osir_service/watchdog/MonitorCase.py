@@ -7,7 +7,7 @@ from threading import Thread, Event
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
 from osir_lib.logger.logger import CustomLogger
-from osir_service.postgres.PostgresService import OSIR_DB, DbOSIR
+from osir_service.postgres.PostgresService import DbOSIR
 from osir_service.watchdog.WatchdogService import ModuleHandler
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
@@ -35,9 +35,10 @@ class MonitorCase:
         self.module_instances = [OsirModuleModel.from_name(module) for module in modules]  # Transform list of str to list of module
         self.cooldown_period = 20  # Cooldown period in seconds
         case_name = os.path.basename(self.case_path)
-        self.case_uuid = OSIR_DB.case.get(name=case_name)
-        if not self.case_uuid:
-            self.case_uuid = OSIR_DB.case.create(case_name)
+        with DbOSIR() as db:
+            self.case_uuid = db.case.get(name=case_name)
+            if not self.case_uuid:
+                self.case_uuid = db.case.create(case_name)
 
         self.stop_event = Event()
 

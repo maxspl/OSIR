@@ -10,7 +10,7 @@ from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_service.ipc.OsirExceptions import OsirException
 from osir_service.ipc.OsirIpcModel import OsirIpcModel, OsirIpcResponse
 from osir_service.ipc.OsirIpc import OsirIpc
-from osir_service.postgres.PostgresService import OSIR_DB
+from osir_service.postgres.PostgresService import DbOSIR
 from osir_service.watchdog.MonitorCase import MonitorCase
 from osir_service.ipc.JsonSocket import recv_json, send_json
 from osir_lib.core.OsirConstants import OSIR, OSIR_PATHS
@@ -187,16 +187,16 @@ class IpcService(BaseModel):
 
     def action_create_case(self, osir_ipc: OsirIpc):
         """Handles database and filesystem creation for a new forensic case."""
-        case_uuid = OSIR_DB.case.create(name=osir_ipc.case_name)
-        if case_uuid:
-            state, case_path = FileManager.create_case(OSIR_PATHS.CASES_DIR, case_name=osir_ipc.case_name)
-
-        return {
-            "case_name": osir_ipc.case_name,
-            "case_uuid": case_uuid,
-            "case_path": case_path,
-            "state": state
-        }
+        with DbOSIR() as db:
+            case_uuid = db.case.create(name=osir_ipc.case_name)
+            if case_uuid:
+                state, case_path = FileManager.create_case(OSIR_PATHS.CASES_DIR, case_name=osir_ipc.case_name)
+            return {
+                "case_name": osir_ipc.case_name,
+                "case_uuid": case_uuid,
+                "case_path": case_path,
+                "state": state
+            }
 
     def action_get_task_log(self, osir_ipc: OsirIpc):
         """Queries the JSONL log files for specific task traces."""
@@ -204,15 +204,15 @@ class IpcService(BaseModel):
         return get_latest_log_by_task_id(osir_ipc.task_id, log_file)
 
     def action_get_handler_status(self, osir_ipc: OsirIpc):
-        """Retrieves execution status from the PostgreSQL database."""
-        return OSIR_DB.handler.get(handler_id=osir_ipc.handler_id)
-
+        with DbOSIR() as db:
+            return db.handler.get(handler_id=osir_ipc.handler_id)
     def action_get_case_handler(self, osir_ipc: OsirIpc):
         """Returns all handlers associated with a specific case."""
-        if not osir_ipc.case_uuid:
-            osir_ipc.case_uuid = OSIR_DB.case.get(name=osir_ipc.case_name)
+        with DbOSIR() as db:
+            if not osir_ipc.case_uuid:
+                osir_ipc.case_uuid = db.case.get(name=osir_ipc.case_name)
 
-        if not osir_ipc.case_uuid:
-            return "ERROR: CASE NOT FOUND"
+            if not osir_ipc.case_uuid:
+                return "ERROR: CASE NOT FOUND"
 
-        return OSIR_DB.handler.get(case_uuid=osir_ipc.case_uuid)
+            return db.handler.get(case_uuid=osir_ipc.case_uuid)

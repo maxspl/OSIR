@@ -7,7 +7,7 @@ from celery import signature
 
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
-from osir_service.postgres.PostgresService import OSIR_DB
+from osir_service.postgres.PostgresService import DbOSIR
 
 logger = AppLogger(__name__).get_logger()
 
@@ -70,8 +70,8 @@ class TaskService:
             queue=TaskService.get_queue_name(module_instance)
         )
         custom_task_id = str(uuid.uuid4())
-
-        OSIR_DB.task.create(
+        db = DbOSIR()
+        db.task.create(
             task_id=custom_task_id,
             case_uuid=case_uuid,
             agent="Null",
@@ -79,10 +79,11 @@ class TaskService:
             input=module_instance.input.match
         )
 
-        OSIR_DB.handler.append_task_ids(
+        db.handler.append_task_ids(
             handler_id=handler_uuid,
             new_task_ids=[custom_task_id]
         )
+        db.close()
         result = task_signature.apply_async(task_id=custom_task_id)
 
         logger.info(f"""Task Pushed : \n

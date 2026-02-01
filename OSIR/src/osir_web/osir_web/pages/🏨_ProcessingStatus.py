@@ -4,7 +4,6 @@ import pandas as pd
 from sqlalchemy import text
 from streamlit_extras.colored_header import colored_header
 from osir_web.utils import MasterSideBar
-# from osir_service.postgres.PostgresService import OSIR_DB
 from osir_service.postgres.PostgresService import DbOSIR
 
 from streamlit.components.v1 import html
@@ -192,8 +191,7 @@ class ProcessingStatus:
         # Optional: Display raw timestamps at the very bottom
         st.caption(f"Task created: {task_info.get('timestamp')} | Finished: {trace.get('end_time', 'N/A')}")
 
-    @staticmethod
-    def delete_handler_task(case_uuid):
+    def delete_handler_task(self, case_uuid):
         if case_uuid:
             self.db.handler.delete(case_uuid=case_uuid)
             self.db.task.delete(case_uuid=case_uuid)
@@ -330,11 +328,11 @@ with tab1:
     if selected_case_name:
         with st.expander("⚠️ Dangerous action: Clear all tables for this case"):
             st.warning("This will permanently delete all entries in all database tables related to the selected case.")
-            confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion.")
+            confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion.", key="all")
 
             if st.button("❌ Clear all tables for this case", type="primary", disabled=not confirm_delete):
                 with st.spinner(f"Deleting entries for case: {selected_case_name}..."):
-                    ProcessingStatus.delete_handler_task(processing_status.cases[selected_case_name])
+                    processing_status.delete_handler_task(processing_status.cases[selected_case_name])
                 st.success(f"✅ All data related to case '{selected_case_name}' was deleted from the database.")
 
 with tab2:
@@ -368,8 +366,11 @@ with tab2:
         )
 
     with col2:
-        handlers = db_instance.handler.list(case_uuid=processing_status.cases[selected_case_name])
-        handler_ids = [str(handler["handler_id"]) for handler in handlers]
+        if selected_case_name:
+            handlers = db_instance.handler.list(case_uuid=processing_status.cases[selected_case_name])
+            handler_ids = [str(handler["handler_id"]) for handler in handlers]
+        else:
+            handler_ids = []
 
         all_handler_options = [""] + handler_ids
 
@@ -390,7 +391,10 @@ with tab2:
 
     with col4:
         # Fetch modules for the selected case
-        task_list = db_instance.task.list(case_uuid=processing_status.cases[selected_case_name])
+        if selected_case_name:
+            task_list = db_instance.task.list(case_uuid=processing_status.cases[selected_case_name])
+        else:
+            task_list = []
         modules = list(set([str(t['module']) for t in task_list]))
         selected_module = st.selectbox("Module", [""] + modules)
 
@@ -410,7 +414,7 @@ with tab2:
     if selected_handler_id:
         with st.expander("⚠️ Dangerous action: Delete this Handler"):
             st.warning(f"This will permanently delete handler '{selected_handler_id}' and all its associated tasks.")
-            confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion.")
+            confirm_delete = st.checkbox("I understand the consequences and want to proceed with deletion.", key="handler")
 
             if st.button("❌ Delete Handler and Associated Tasks", type="primary", disabled=not confirm_delete):
                 with st.spinner(f"Deleting : {selected_handler_id}..."):
