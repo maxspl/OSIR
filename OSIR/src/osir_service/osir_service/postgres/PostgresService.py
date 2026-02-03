@@ -6,7 +6,6 @@ from osir_lib.core.FileManager import FileManager
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 import os
-from sqlite3 import InterfaceError, OperationalError
 import time
 import psycopg2
 from psycopg2 import sql

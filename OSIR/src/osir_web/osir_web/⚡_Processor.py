@@ -417,7 +417,7 @@ class ConfigurationApp:
             monitor_case: a MonitorCase.MonitorCase instance with module_instances loaded.
         """
         if not getattr(self, "edited_modules", None):
-            return
+            return True
         
         module_instances = getattr(monitor_case, "module_instances", [])
         
