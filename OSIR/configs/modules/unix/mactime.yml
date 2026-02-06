@@ -1,0 +1,37 @@
+version: 1.0
+author: Typ
+module: mactime
+description: Parsing logs from '/bodyfile' in UAC collect
+os: unix
+type: process
+requirements:
+disk_only: True
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: mactime
+  cmd: "-b {input_file} -d -y  > {output_file}"
+input:
+  type: file
+  paths: 
+    - "bodyfile/*.txt"
+    - "**/bodyfile/*.txt"
+    - r"\/bodyfile\.txt$"
+output:
+  type: single_file
+  format: csv
+  output_file: "{endpoint_name}--{module}-{input_file}.csv"
+endpoint: "extract_uac\/Endpoint_(.*?)\/"
+splunk:
+  'linux:files:bodyfile':
+    name_rex: bodyfile.*\.csv$
+    sourcetype: 'linux:files:bodyfile'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "mtime"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "bodyfile"
+    normalize:
+      - ecs_normalize/linux/mactime.vrl

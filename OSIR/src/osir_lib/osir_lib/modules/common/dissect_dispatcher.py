@@ -44,9 +44,9 @@ class DissectDispatcher():
             return False
         
         # Handle input dir
-        if self.module.input.type != "dir":
-            logger.error(f"Unsupported input type {self.module.input.type}")
-            return False
+        # if self.module.input.type != "dir":
+        #     logger.error(f"Unsupported input type {self.module.input.type}")
+        #     return False
         input_path = self.module.input.match
         if not input_path:
             logger.error("input.dir is empty")

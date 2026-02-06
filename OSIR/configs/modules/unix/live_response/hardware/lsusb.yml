@@ -1,0 +1,32 @@
+version: 1.0
+author: Kelly Brazil
+module: lsusb
+description: Kelly Brazil - JsonConverter - Parsing the output of the command lsusb
+os: unix
+type: process
+requirements:
+disk_only: false
+no_multithread: false
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: cat
+  cmd: "{input_file} | jc --lsusb | jq -c '.[]' > {output_file}"
+input:
+  type: file
+  paths:
+    - r"lsusb\.txt$"
+output:
+  type: single_file
+  format: jsonl
+  output_dir: "{case_path}/live_response/hardware"
+  output_file: "{endpoint_name}--{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:hardware:lsusb':
+    name_rex: \.jsonl$
+    path_suffix: lsusb
+    sourcetype: 'linux:live_response:hardware:lsusb'
+    host_rex: _([\w\.-]+)--
+    artifact: lsusb

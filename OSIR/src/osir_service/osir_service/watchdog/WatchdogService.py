@@ -49,12 +49,16 @@ class CaseSnapshot:
         def scan(current_path):
             with os.scandir(current_path) as it:
                 for entry in it:
-                    if entry.is_dir():
-                        self.entries.append((entry.path, 'directory'))
-                        scan(entry.path)  # Recursively scan subdirectory
-                    elif entry.is_file():
-                        self.entries.append((entry.path, 'file'))
-
+                    try:
+                        if entry.is_dir():
+                            self.entries.append((entry.path, 'directory'))
+                            scan(entry.path)  # Recursively scan subdirectory
+                        elif entry.is_file():
+                            self.entries.append((entry.path, 'file'))
+                    except OSError as e:
+                        logger.warning(f"Unreadable entries : {entry}")
+                        continue
+                    
         scan(self.case_path)
         # Add case_path
         self.entries.append((self.case_path, 'directory'))

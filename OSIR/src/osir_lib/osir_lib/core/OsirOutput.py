@@ -64,12 +64,15 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
                 "module": ctx.module,
                 "input_file": ctx.input.get_input_name_safe(),
                 "input_path_hash": self._hash_path(str(ctx.input.match)),
+                "case_path": ctx.case_path
             }
-
+            
             base_output_path = Path(ctx.case_path) / ctx.module
 
+            if self.output_dir and "{case_path}" in self.output_dir:
+                self.output_dir = self.safe_format(self.output_dir, **replacements)
             # Resolve Directory Template
-            if self.output_dir:
+            elif self.output_dir:
                 full_template = str(base_output_path / self.output_dir)
                 self.output_dir = self.safe_format(full_template, **replacements)
             else:
