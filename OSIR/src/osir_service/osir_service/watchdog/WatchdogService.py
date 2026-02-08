@@ -381,9 +381,18 @@ class ModuleHandler(FileSystemEventHandler):
         logger.debug(f"{module_instance.module_name} Directory '{event.src_path}' is busy")
 
     def _get_directory_size(self, path: str) -> int:
-        """Calculates total size using pathlib."""
         root = Path(path)
-        return sum(f.stat().st_size for f in root.rglob('*') if f.is_file())
+        total = 0
+
+        for f in root.rglob('*'):
+            try:
+                if f.is_file():
+                    total += f.stat().st_size
+            except OSError:
+                # Just skip unreadable entries
+                continue
+
+        return total
 
     def _check_parent(self, path, module_instance: OsirModuleModel):
         logger.debug(f"Checking if {module_instance.module_name} idle is not parent of another idle")
