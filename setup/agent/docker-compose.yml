@@ -8,7 +8,7 @@ services:
     tty: true
     privileged: true
     volumes:
-      - OSIR_volume:/OSIR
+      - ../../:/OSIR:z,rshared
       - /var/run/docker.sock:/var/run/docker.sock
     extra_hosts:
       - "host.docker.internal:host-gateway" 
@@ -33,7 +33,7 @@ services:
     tty: true
     privileged: true
     volumes:
-      - OSIR_volume:/OSIR
+      - ../../:/OSIR:z,rshared
       - /var/run/docker.sock:/var/run/docker.sock
     extra_hosts:
       - "host.docker.internal:host-gateway" 
@@ -59,7 +59,7 @@ services:
     tty: true
     privileged: true
     volumes:
-      - OSIR_volume:/OSIR
+      - ../../:/OSIR:z,rshared
       - /var/run/docker.sock:/var/run/docker.sock
       - /mnt/c:/mnt/c  # Mount Windows C drive
       - /run/WSL:/run/WSL # Adding the volume for WSL
@@ -135,10 +135,10 @@ services:
       - "all"
       - "win-offline"
     restart: always
-volumes:
-  OSIR_volume:
-    driver: local
-    driver_opts:
-      type: none
-      device: ../../
-      o: bind
+# volumes:
+#   OSIR_volume:
+#     driver: local
+#     driver_opts:
+#       type: none
+#       device: ../../
+#       o: bind

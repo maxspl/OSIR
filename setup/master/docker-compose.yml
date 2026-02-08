@@ -16,7 +16,7 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - ../../:/OSIR
+      - ../../:/OSIR:rshared
     ports:
       - "8501:8501"
       - "8989:8989"
@@ -40,7 +40,7 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - ../../:/OSIR
+      - ../../:/OSIR:rshared
     ports:
       - "8501:8501"
     extra_hosts:
@@ -57,7 +57,7 @@ services:
     tty: true
     network_mode: bridge
     volumes:
-      - ./../../share:/Shared
+      - ./../../share:/Shared:rshared
     ports:
       - "139:139"
       - "445:445"
@@ -71,7 +71,7 @@ services:
     tty: true
     network_mode: bridge
     volumes:
-      - ./../../share:/Shared
+      - ./../../share:/Shared:rshared
     ports:
       - "139:139"
       - "445:445"
