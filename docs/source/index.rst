@@ -31,7 +31,7 @@ documentation for details.
    modules_and_profiles
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: API:
 
    api

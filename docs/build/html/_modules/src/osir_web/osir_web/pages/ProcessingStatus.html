@@ -1,0 +1,630 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_web.osir_web.pages.ProcessingStatus &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.osir_web.osir_web.pages.ProcessingStatus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.osir_web.osir_web.pages.ProcessingStatus</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="kn">import</span> <span class="n">text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">streamlit_extras.colored_header</span><span class="w"> </span><span class="kn">import</span> <span class="n">colored_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_web.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MasterSideBar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.PostgresService</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbOSIR</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">streamlit.components.v1</span><span class="w"> </span><span class="kn">import</span> <span class="n">html</span>
+
+<div class="viewcode-block" id="get_db">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.get_db">[docs]</a>
+<span class="nd">@st</span><span class="o">.</span><span class="n">cache_resource</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_db</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">DbOSIR</span><span class="p">()</span></div>
+
+<span class="n">db_instance</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
+
+<div class="viewcode-block" id="color_rows">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.color_rows">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">color_rows</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;processing_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;background-color: lightgreen; color: gray;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;processing_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;processing_failed&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;background-color:  lightcoral; color: lightgray;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;processing_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;background-color:  orange; color: lightgray;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;processing_status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;task_created&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;background-color: lightblue; color: gray;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ProcessingStatus">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.ProcessingStatus">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessingStatus</span><span class="p">:</span>
+<div class="viewcode-block" id="ProcessingStatus.__init__">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.ProcessingStatus.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_internal</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the ProcessingStatus class, setting up the database accessor and retrieving cases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db_internal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_cases</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">case</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="n">case</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">case</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">list</span><span class="p">()}</span>
+
+<div class="viewcode-block" id="ProcessingStatus.display_ongoing_tasks">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.ProcessingStatus.display_ongoing_tasks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_ongoing_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_case_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display a single table containing data from all DB tables except &#39;master_status&#39; and &#39;case_snapshot&#39;,</span>
+<span class="sd">        filtered to display only rows where the column &#39;processing_status&#39; does not contain &#39;processing_done&#39;.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            selected_case_name (str): The name of the selected case.</span>
+<span class="sd">            filter_string (str): The string to filter rows by.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Collect data from non-empty tables</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;df&quot;</span><span class="p">)</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="n">selected_case_name</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">tasks</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+            <span class="n">uuid_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;case_uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;task_id&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">uuid_columns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+            <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="n">st</span><span class="o">.</span><span class="n">dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No task ongoing&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProcessingStatus.task_by_case">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.ProcessingStatus.task_by_case">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">task_by_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_case_name</span><span class="p">,</span> <span class="n">selected_task_status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">selected_handler_id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">selected_module</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">selected_case_name</span><span class="p">:</span>
+            <span class="n">tasks_by_case</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+                <span class="n">case_uuid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="n">selected_case_name</span><span class="p">],</span>
+                <span class="n">processing_status</span><span class="o">=</span><span class="n">selected_task_status</span> <span class="k">if</span> <span class="n">selected_task_status</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">tasks_by_case</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tasks_by_case</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span><span class="p">:</span>
+                        <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">selected_handler_id</span><span class="p">:</span>
+                    <span class="n">handler_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">selected_handler_id</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">handler_info</span> <span class="ow">and</span> <span class="s1">&#39;task_ids&#39;</span> <span class="ow">in</span> <span class="n">handler_info</span><span class="p">:</span>
+                        <span class="n">target_task_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tid</span><span class="p">)</span> <span class="k">for</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">handler_info</span><span class="p">[</span><span class="s1">&#39;task_ids&#39;</span><span class="p">]]</span>
+
+                        <span class="k">if</span> <span class="s2">&quot;task_id&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">target_task_ids</span><span class="p">)]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">selected_module</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="s2">&quot;module&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">selected_module</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span> <span class="o">==</span> <span class="n">selected_module</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s1">&#39;agent&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                    <span class="n">styled_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">color_rows</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="n">event</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">dataframe</span><span class="p">(</span>
+                        <span class="n">styled_df</span><span class="p">,</span>
+                        <span class="n">on_select</span><span class="o">=</span><span class="s2">&quot;rerun&quot;</span><span class="p">,</span>
+                        <span class="n">selection_mode</span><span class="o">=</span><span class="s2">&quot;single-cell&quot;</span><span class="p">,</span>
+                        <span class="n">hide_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">,</span>
+                        <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;tasks_by_case_df_</span><span class="si">{</span><span class="n">selected_case_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">selected_task_status</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">selected_handler_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">selected_module</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="c1"># Check if a cell was clicked</span>
+                    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">cells</span><span class="p">:</span>
+                        <span class="c1"># event.selection.cells[0] is a tuple: (row_index, col_index)</span>
+                        <span class="n">selected_cell</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">selected_row_index</span> <span class="o">=</span> <span class="n">selected_cell</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Access the row (first part of tuple)</span>
+
+                        <span class="c1"># Retrieve data from the original DataFrame using .iloc</span>
+                        <span class="n">selected_row</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">selected_row_index</span><span class="p">]</span>
+
+                        <span class="n">previous_task_id</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_task_id</span>
+                        <span class="c1"># Save values to session state for Tab 2</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_task_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">selected_row</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">])</span>
+                        <span class="c1"># Trigger the JS switch by writing to the placeholder</span>
+                        <span class="k">if</span> <span class="n">previous_task_id</span> <span class="o">!=</span> <span class="n">selected_row</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]:</span>
+                            <span class="k">with</span> <span class="n">js_trigger</span><span class="p">:</span>
+                                <span class="n">html</span><span class="p">(</span><span class="n">switch</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No tasks match the selected criteria.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No tasks found for this case.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Please select a case name.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProcessingStatus.display_task_details">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.ProcessingStatus.display_task_details">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_task_details</span><span class="p">(</span><span class="n">task_info</span><span class="p">):</span>
+        <span class="n">trace</span> <span class="o">=</span> <span class="n">task_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trace&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+        <span class="c1"># 1. Top Metadata Header</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;### 🛠️ Task: `</span><span class="si">{</span><span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Metadata Row 1: Case and IDs</span>
+        <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">m1</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;CASE UUID&quot;</span><span class="p">)</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">m2</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;AGENT&quot;</span><span class="p">)</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Null&#39;</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+
+        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+
+        <span class="c1"># 2. Key Performance Metrics Row</span>
+        <span class="n">status_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;processing_done&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;✅ SUCCESS&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;processing_failed&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;❌ FAILED&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;processing_started&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;⏳ PROCESSING&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;task_created&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;🆕 CREATED&quot;</span><span class="p">,</span> <span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">status_text</span><span class="p">,</span> <span class="n">status_color</span> <span class="o">=</span> <span class="n">status_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;processing_status&#39;</span><span class="p">],</span> <span class="p">(</span><span class="s2">&quot;Unknown&quot;</span><span class="p">,</span> <span class="s2">&quot;gray&quot;</span><span class="p">))</span>
+
+        <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">,</span> <span class="n">col3</span><span class="p">,</span> <span class="n">col4</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">col1</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;Module&quot;</span><span class="p">,</span> <span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;Duration&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration_seconds&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">col3</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">metric</span><span class="p">(</span><span class="s2">&quot;Function&quot;</span><span class="p">,</span> <span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;function&#39;</span><span class="p">,</span> <span class="s1">&#39;N/A&#39;</span><span class="p">))</span>
+        <span class="k">with</span> <span class="n">col4</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Status**</span><span class="se">\n\n</span><span class="s2">:</span><span class="si">{</span><span class="n">status_color</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">status_text</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 3. Path &amp; Context (Now always visible)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#### 📂 Input Context&quot;</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;**Input Path:**</span><span class="se">\n\n</span><span class="s2">`</span><span class="si">{</span><span class="n">task_info</span><span class="p">[</span><span class="s1">&#39;input&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 4. Execution Traces (Now always visible)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#### 📜 Execution Traces&quot;</span><span class="p">)</span>
+        <span class="n">logs</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="n">logs</span><span class="p">:</span>
+            <span class="c1"># We join the logs with newlines</span>
+            <span class="n">log_content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
+
+            <span class="c1"># Display logs in a scrollable code block for terminal feel</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">log_content</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No execution logs available for this task.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Optional: Display raw timestamps at the very bottom</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task created: </span><span class="si">{</span><span class="n">task_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;timestamp&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> | Finished: </span><span class="si">{</span><span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_time&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProcessingStatus.delete_handler_task">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.ProcessingStatus.delete_handler_task">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_handler_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">case_uuid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">st</span><span class="o">.</span><span class="n">set_page_config</span><span class="p">(</span>
+    <span class="n">page_title</span><span class="o">=</span><span class="s2">&quot;OSIR&quot;</span><span class="p">,</span>
+    <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;wide&quot;</span><span class="p">,</span>
+    <span class="n">initial_sidebar_state</span><span class="o">=</span><span class="s2">&quot;expanded&quot;</span><span class="p">,</span>
+    <span class="n">menu_items</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;Get help&quot;</span><span class="p">:</span> <span class="s2">&quot;https://&lt;change-me&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Report a bug&quot;</span><span class="p">:</span> <span class="s2">&quot;https://&lt;change-me&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;About&quot;</span><span class="p">:</span> <span class="s2">&quot;OSIR&quot;</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="s2">&quot;switch_count&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">switch_count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">if</span> <span class="s2">&quot;selected_task_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_task_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="k">if</span> <span class="s2">&quot;selected_handler_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_handler_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="k">if</span> <span class="s2">&quot;selected_case_name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_case_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="n">tab1</span><span class="p">,</span> <span class="n">tab2</span><span class="p">,</span> <span class="n">tab3</span><span class="p">,</span> <span class="n">tab4</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">tabs</span><span class="p">([</span><span class="s2">&quot;Handler By Case&quot;</span><span class="p">,</span> <span class="s2">&quot;Tasks By Case&quot;</span><span class="p">,</span> <span class="s2">&quot;Tasks Ongoing&quot;</span><span class="p">,</span> <span class="s2">&quot;Task Logs&quot;</span><span class="p">])</span>
+
+<span class="c1"># 1. Update the function to include a unique timestamp inside the string</span>
+
+
+<div class="viewcode-block" id="switch">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.ProcessingStatus.switch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">switch</span><span class="p">(</span><span class="n">tab_index</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;script&gt;</span>
+<span class="s2">    // Unique ID: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="si">}</span><span class="s2"> </span>
+<span class="s2">    setTimeout(function() </span><span class="se">{{</span>
+<span class="s2">        var tabButtons = window.parent.document.querySelectorAll(&#39;button[data-baseweb=&quot;tab&quot;]&#39;);</span>
+<span class="s2">        if (tabButtons.length &gt; </span><span class="si">{</span><span class="n">tab_index</span><span class="si">}</span><span class="s2">) </span><span class="se">{{</span>
+<span class="s2">            tabButtons[</span><span class="si">{</span><span class="n">tab_index</span><span class="si">}</span><span class="s2">].click();</span>
+<span class="s2">        </span><span class="se">}}</span>
+<span class="s2">    </span><span class="se">}}</span><span class="s2">, 100);</span>
+<span class="s2">    &lt;/script&gt;</span>
+<span class="s2">    &quot;&quot;&quot;</span></div>
+
+
+
+<span class="k">with</span> <span class="n">tab1</span><span class="p">:</span>
+    <span class="n">header_col1</span><span class="p">,</span> <span class="n">header_col2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">header_col1</span><span class="p">:</span>
+        <span class="n">colored_header</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Handler by Cases&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">color_name</span><span class="o">=</span><span class="s2">&quot;violet-70&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">header_col2</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">,</span> <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;↻ Refresh&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Refresh data&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+
+    <span class="n">processing_status</span> <span class="o">=</span> <span class="n">ProcessingStatus</span><span class="p">(</span><span class="n">db_instance</span><span class="p">)</span>
+
+    <span class="n">selected_case_name</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="s2">&quot;Select a case name&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">processing_status</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+
+    <span class="n">processing_status_</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+        <span class="s2">&quot;Filter by Processing Status (optional):&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_failed&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">exclude_status</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+        <span class="s2">&quot;Exclude Processing Status (optional):&quot;</span><span class="p">,</span>
+        <span class="n">options</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_failed&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">handlers</span> <span class="o">=</span> <span class="n">db_instance</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">list</span><span class="p">(</span>
+        <span class="n">case_uuid</span><span class="o">=</span><span class="n">processing_status</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="n">selected_case_name</span><span class="p">]</span> <span class="k">if</span> <span class="n">selected_case_name</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">processing_status</span><span class="o">=</span><span class="n">processing_status_</span> <span class="k">if</span> <span class="n">processing_status_</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">exclude_status</span><span class="o">=</span><span class="n">exclude_status</span> <span class="k">if</span> <span class="n">exclude_status</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="c1"># 2. Use a placeholder to trigger the switch</span>
+    <span class="n">js_trigger</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">empty</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">handlers</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">handlers</span><span class="p">)</span>
+
+        <span class="n">uuid_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;handler_id&quot;</span><span class="p">,</span> <span class="s2">&quot;case_uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;created_at&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">uuid_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;created_at&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;created_at&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="p">[:</span><span class="mi">19</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;task_ids&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;task_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;task_ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">task_list</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">task</span><span class="p">)</span> <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">task_list</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task_list</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">task_list</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">columns_order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;created_at&quot;</span><span class="p">,</span> <span class="s2">&quot;case_name&quot;</span><span class="p">,</span> <span class="s2">&quot;modules&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_status&quot;</span><span class="p">]</span>
+        <span class="n">other_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns_order</span><span class="p">]</span>
+        <span class="n">columns_order</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">other_columns</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns_order</span><span class="p">]</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">styled_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">color_rows</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">dataframe</span><span class="p">(</span>
+            <span class="n">styled_df</span><span class="p">,</span>
+            <span class="n">on_select</span><span class="o">=</span><span class="s2">&quot;rerun&quot;</span><span class="p">,</span>
+            <span class="n">selection_mode</span><span class="o">=</span><span class="s2">&quot;single-cell&quot;</span><span class="p">,</span>  <span class="c1"># Allows clicking a line</span>
+            <span class="n">hide_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Check if a cell was clicked</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">cells</span><span class="p">:</span>
+            <span class="c1"># event.selection.cells[0] is a tuple: (row_index, col_index)</span>
+            <span class="n">selected_cell</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">selected_row_index</span> <span class="o">=</span> <span class="n">selected_cell</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Access the row (first part of tuple)</span>
+
+            <span class="c1"># Retrieve data from the original DataFrame using .iloc</span>
+            <span class="n">selected_row</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">selected_row_index</span><span class="p">]</span>
+
+            <span class="n">previous_handler_id</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_handler_id</span>
+
+            <span class="c1"># Save values to session state for Tab 2</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_case_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">selected_row</span><span class="p">[</span><span class="s2">&quot;case_name&quot;</span><span class="p">])</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_handler_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">selected_row</span><span class="p">[</span><span class="s2">&quot;handler_id&quot;</span><span class="p">])</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="c1"># Trigger the JS switch by writing to the placeholder</span>
+            <span class="k">if</span> <span class="n">previous_handler_id</span> <span class="o">!=</span> <span class="n">selected_row</span><span class="p">[</span><span class="s2">&quot;handler_id&quot;</span><span class="p">]:</span>
+                <span class="k">with</span> <span class="n">js_trigger</span><span class="p">:</span>
+                    <span class="n">html</span><span class="p">(</span><span class="n">switch</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No handler found.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">selected_case_name</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="s2">&quot;⚠️ Dangerous action: Clear all tables for this case&quot;</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This will permanently delete all entries in all database tables related to the selected case.&quot;</span><span class="p">)</span>
+            <span class="n">confirm_delete</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">checkbox</span><span class="p">(</span><span class="s2">&quot;I understand the consequences and want to proceed with deletion.&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;❌ Clear all tables for this case&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="n">disabled</span><span class="o">=</span><span class="ow">not</span> <span class="n">confirm_delete</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">spinner</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting entries for case: </span><span class="si">{</span><span class="n">selected_case_name</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">):</span>
+                    <span class="n">processing_status</span><span class="o">.</span><span class="n">delete_handler_task</span><span class="p">(</span><span class="n">processing_status</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="n">selected_case_name</span><span class="p">])</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ All data related to case &#39;</span><span class="si">{</span><span class="n">selected_case_name</span><span class="si">}</span><span class="s2">&#39; was deleted from the database.&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">tab2</span><span class="p">:</span>
+    <span class="n">header_col1</span><span class="p">,</span> <span class="n">header_col2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">header_col1</span><span class="p">:</span>
+        <span class="n">colored_header</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Tasks By Case&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">color_name</span><span class="o">=</span><span class="s2">&quot;violet-70&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">processing_status</span> <span class="o">=</span> <span class="n">ProcessingStatus</span><span class="p">(</span><span class="n">db_instance</span><span class="p">)</span>
+
+    <span class="n">passed_case_name</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;selected_case_name&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">passed_handler_id</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;selected_handler_id&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">,</span> <span class="n">col3</span><span class="p">,</span> <span class="n">col4</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col1</span><span class="p">:</span>
+        <span class="n">case_options</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">processing_status</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">case_index</span> <span class="o">=</span> <span class="n">case_options</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">passed_case_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">case_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">selected_case_name</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+            <span class="s2">&quot;Case name&quot;</span><span class="p">,</span>
+            <span class="n">case_options</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">case_index</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col2</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">selected_case_name</span><span class="p">:</span>
+            <span class="n">handlers</span> <span class="o">=</span> <span class="n">db_instance</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">processing_status</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="n">selected_case_name</span><span class="p">])</span>
+            <span class="n">handler_ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">handler</span><span class="p">[</span><span class="s2">&quot;handler_id&quot;</span><span class="p">])</span> <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">handler_ids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">all_handler_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">handler_ids</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">handler_index</span> <span class="o">=</span> <span class="n">all_handler_options</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">passed_handler_id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">handler_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">selected_handler_id</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span>
+            <span class="s2">&quot;Handler ID&quot;</span><span class="p">,</span>
+            <span class="n">all_handler_options</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">handler_index</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col3</span><span class="p">:</span>
+        <span class="n">task_status_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;task_created&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_failed&quot;</span><span class="p">]</span>
+        <span class="n">selected_task_status</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="s2">&quot;Task status&quot;</span><span class="p">,</span> <span class="n">task_status_options</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">col4</span><span class="p">:</span>
+        <span class="c1"># Fetch modules for the selected case</span>
+        <span class="k">if</span> <span class="n">selected_case_name</span><span class="p">:</span>
+            <span class="n">task_list</span> <span class="o">=</span> <span class="n">db_instance</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">processing_status</span><span class="o">.</span><span class="n">cases</span><span class="p">[</span><span class="n">selected_case_name</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">task_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">modules</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s1">&#39;module&#39;</span><span class="p">])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">task_list</span><span class="p">]))</span>
+        <span class="n">selected_module</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">selectbox</span><span class="p">(</span><span class="s2">&quot;Module&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">modules</span><span class="p">)</span>
+
+    <span class="c1"># --- Display Results ---</span>
+    <span class="n">processing_status</span><span class="o">.</span><span class="n">task_by_case</span><span class="p">(</span>
+        <span class="n">selected_case_name</span><span class="o">=</span><span class="n">selected_case_name</span><span class="p">,</span>
+        <span class="n">selected_task_status</span><span class="o">=</span><span class="n">selected_task_status</span><span class="p">,</span>
+        <span class="n">selected_handler_id</span><span class="o">=</span><span class="n">selected_handler_id</span><span class="p">,</span>
+        <span class="n">selected_module</span><span class="o">=</span><span class="n">selected_module</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">header_col2</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">,</span> <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;↻ Refresh&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Refresh data&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;refresh_tab2&quot;</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+            
+    <span class="k">if</span> <span class="n">selected_handler_id</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="s2">&quot;⚠️ Dangerous action: Delete this Handler&quot;</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This will permanently delete handler &#39;</span><span class="si">{</span><span class="n">selected_handler_id</span><span class="si">}</span><span class="s2">&#39; and all its associated tasks.&quot;</span><span class="p">)</span>
+            <span class="n">confirm_delete</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">checkbox</span><span class="p">(</span><span class="s2">&quot;I understand the consequences and want to proceed with deletion.&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;handler&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;❌ Delete Handler and Associated Tasks&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="n">disabled</span><span class="o">=</span><span class="ow">not</span> <span class="n">confirm_delete</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">spinner</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting : </span><span class="si">{</span><span class="n">selected_handler_id</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">):</span>
+                    <span class="n">db_instance</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">selected_handler_id</span><span class="p">)</span>
+                    <span class="n">db_instance</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">selected_handler_id</span><span class="p">)</span>
+                    <span class="n">selected_handler_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_handler_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ All data related to &#39;</span><span class="si">{</span><span class="n">selected_handler_id</span><span class="si">}</span><span class="s2">&#39; was deleted from the database.&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">tab3</span><span class="p">:</span>
+    <span class="n">header_col1</span><span class="p">,</span> <span class="n">header_col2</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">header_col1</span><span class="p">:</span>
+        <span class="n">colored_header</span><span class="p">(</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;All Tasks&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">color_name</span><span class="o">=</span><span class="s2">&quot;violet-70&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">header_col2</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">markdown</span><span class="p">(</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="p">,</span> <span class="n">unsafe_allow_html</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;↻ Refresh&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Refresh data&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;refresh_tab3&quot;</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="s2">&quot;df&quot;</span><span class="p">)</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">db_instance</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">processing_status</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;task_created&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_failed&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+        <span class="n">uuid_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;case_uuid&quot;</span><span class="p">,</span> <span class="s2">&quot;task_id&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">uuid_columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;agent&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="s1">&#39;stretch&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No task Found&quot;</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">tab4</span><span class="p">:</span>
+    <span class="n">colored_header</span><span class="p">(</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Tasks Logs&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">color_name</span><span class="o">=</span><span class="s2">&quot;violet-70&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">passed_task_id</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;selected_task_id&#39;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">db_instance</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="n">passed_task_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">info</span><span class="p">:</span>
+        <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">display_task_details</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">passed_task_id</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">expander</span><span class="p">(</span><span class="s2">&quot;⚠️ Dangerous action: Delete this Task&quot;</span><span class="p">):</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This will permanently delete task &#39;</span><span class="si">{</span><span class="n">passed_task_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+            <span class="n">confirm_delete</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">checkbox</span><span class="p">(</span><span class="s2">&quot;I understand the consequences and want to proceed with deletion of the tasks.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;❌ Delete this Task&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span> <span class="n">disabled</span><span class="o">=</span><span class="ow">not</span> <span class="n">confirm_delete</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">spinner</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleting : </span><span class="si">{</span><span class="n">passed_task_id</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">):</span>
+                    <span class="n">db_instance</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="n">passed_task_id</span><span class="p">)</span>
+                    <span class="n">db_instance</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="n">passed_task_id</span><span class="p">)</span>
+                    <span class="n">passed_task_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">selected_task_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ All data related to &#39;</span><span class="si">{</span><span class="n">passed_task_id</span><span class="si">}</span><span class="s2">&#39; was deleted from the database.&quot;</span><span class="p">)</span>
+
+<span class="c1"># Sidebar</span>
+<span class="n">MasterSideBar</span><span class="o">.</span><span class="n">sidebar</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

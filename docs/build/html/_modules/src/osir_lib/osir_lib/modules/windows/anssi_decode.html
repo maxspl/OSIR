@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_lib.osir_lib.modules.windows.anssi_decode &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.osir_lib.osir_lib.modules.windows.anssi_decode</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.osir_lib.osir_lib.modules.windows.anssi_decode</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirDecorator</span><span class="w"> </span><span class="kn">import</span> <span class="n">osir_internal_module</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span><span class="p">,</span> <span class="n">CustomLogger</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">CustomLogger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="ANSSI_Decode">
+<a class="viewcode-back" href="../../../../../../src.osir_lib.osir_lib.modules.windows.html#src.osir_lib.osir_lib.modules.windows.anssi_decode.ANSSI_Decode">[docs]</a>
+<span class="nd">@osir_internal_module</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ANSSI_Decode</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PyModule to apply DECODE tool on NTFS_info files with Listdlls when available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the Module.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            case_path (str): The directory path where case files are stored and operations are performed.</span>
+<span class="sd">            module (OsirModule): Instance of OsirModule containing configuration details for the extraction process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="n">module</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span> <span class="o">=</span> <span class="n">case_path</span>
+        <span class="c1"># Input directory, should be extracted_files/General/NTFSInfoFull_detail/</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ntfs_info_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">endpoint</span>
+
+        <span class="c1"># Save cmd with place‑holders for further iterations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cmd</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># Public entry point</span>
+    <span class="c1"># =========================================================================</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Execute the internal processor of the module.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the processing completes successfully, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Processing dir </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_apply_decode</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>          <span class="c1"># noqa: BLE001 (broad except is fine here)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Unable to run decode: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> done&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># High‑level orchestration</span>
+    <span class="c1"># =========================================================================</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Discover inputs, prepare the command line for each and run the decoder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_input</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">jobs</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No NTFSInfo CSV file found. Nothing to do.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">ntfs_info_file</span><span class="p">,</span> <span class="n">mount_point</span><span class="p">,</span> <span class="n">listdlls</span> <span class="ow">in</span> <span class="n">jobs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">ntfs_info_file</span><span class="p">,</span> <span class="n">mount_point</span><span class="p">,</span> <span class="n">listdlls</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_run_decode</span><span class="p">()</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># External‑tool helpers</span>
+    <span class="c1"># =========================================================================</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Launch the external decoding tool and restore the pristine command.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="c1"># Restore cmd with place‑holders because they are erased by _prepare_input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># Discovery helpers</span>
+    <span class="c1"># =========================================================================</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_input</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scan *self._ntfs_info_dir* to discover every NTFSInfo CSV to decode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[tuple]: Each tuple contains (ntfs_info_file, mount_point|volume_id, listdlls_path|None).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jobs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ntfs_info_dir</span><span class="p">):</span>
+            <span class="c1"># Check if we are in the NTFSInfoFull_detail directory</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;NTFSInfoFull_detail&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Retrieve NTFSInfo*.csv files</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;NTFSInfo&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">)):</span>
+                    <span class="k">continue</span>
+
+                <span class="n">ntfs_info_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found NTFSInfo CSV: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
+
+                <span class="c1"># Check for Listdlls.txt in General directory (parent directory)</span>
+                <span class="n">general_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+                <span class="n">listdlls_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">general_dir</span><span class="p">,</span> <span class="s2">&quot;Listdlls.txt&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">listdlls_path</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found Listdlls.txt: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">listdlls_path</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Listdlls.txt not found in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">general_dir</span><span class="p">)</span>
+                    <span class="n">listdlls_path</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="c1"># Get mount point or fallback volume ID</span>
+                <span class="n">mount_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mount_point_or_volume_id</span><span class="p">(</span>
+                    <span class="n">ntfs_info_file</span><span class="p">,</span>
+                    <span class="n">root</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Mount Point or Volume ID: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mount_point</span><span class="p">)</span>
+
+                <span class="n">jobs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ntfs_info_file</span><span class="p">,</span> <span class="n">mount_point</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span> <span class="n">listdlls_path</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">jobs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_mount_point_or_volume_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ntfs_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Try to get the mount‑point letter from volstats.csv if it exists.</span>
+<span class="sd">        If not possible, return the VolumeID extracted from the NTFSInfo file</span>
+<span class="sd">        name.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ntfs_info_file (str): Path to the NTFSInfo CSV.</span>
+<span class="sd">            ntfs_dir (str): Directory that should contain volstats.csv.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str | None: Drive letter (C, D, …), VolumeID (0x…), or *None*.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">volstats_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ntfs_dir</span><span class="p">,</span> <span class="s2">&quot;volstats.csv&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ------------------------------------------------------------------ #</span>
+        <span class="c1"># Extract VolumeID from filename as fallback</span>
+        <span class="c1"># Example: NTFSInfo_00000000_DiskInterface_0x8a4c79c84c79b015_.csv</span>
+        <span class="c1"># ------------------------------------------------------------------ #</span>
+        <span class="n">fallback_volume_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">ntfs_info_file</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">part</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;0x&quot;</span><span class="p">):</span>
+                    <span class="n">fallback_volume_id</span> <span class="o">=</span> <span class="n">part</span>
+                    <span class="k">break</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to extract VolumeID from filename.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># ------------------------------------------------------------------ #</span>
+        <span class="c1"># Also try to extract the offset from the filename, e.g.:</span>
+        <span class="c1"># NTFSInfo_00000001_PhysicalDrive_1_Offset_122683392_.csv</span>
+        <span class="c1"># ------------------------------------------------------------------ #</span>
+        <span class="n">offset_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Offset_(\d+)&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">ntfs_info_file</span><span class="p">))</span>
+        <span class="n">offset_str</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">offset_match</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># ------------------------------------------------------------------ #</span>
+        <span class="c1"># Try reading volstats.csv</span>
+        <span class="c1"># ------------------------------------------------------------------ #</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">volstats_file</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;volstats_file found : </span><span class="si">{</span><span class="n">volstats_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">volstats_file</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_desc</span><span class="p">:</span>
+                    <span class="n">reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f_desc</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">reader</span><span class="p">:</span>
+                        <span class="n">vol_id</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;VolumeID&quot;</span><span class="p">)</span>
+                        <span class="n">location</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Location&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                        <span class="n">mount_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MountPoint&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+                        <span class="c1"># 1) If we have a VolumeID from the filename, try to match it</span>
+                        <span class="k">if</span> <span class="n">fallback_volume_id</span> <span class="ow">and</span> <span class="n">vol_id</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">vol_id</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="n">fallback_volume_id</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                                <span class="k">if</span> <span class="n">mount_point</span><span class="p">:</span>
+                                    <span class="c1"># Remove &quot;:\&quot; from mount point if present (e.g. C:\ -&gt; C)</span>
+                                    <span class="k">return</span> <span class="n">mount_point</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+                        <span class="c1"># 2) If we DON&#39;T have a VolumeID in the filename but we do</span>
+                        <span class="c1">#    have an Offset_..., match offset=... from Location</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">fallback_volume_id</span> <span class="ow">and</span> <span class="n">offset_str</span><span class="p">:</span>
+                            <span class="n">offset_in_loc_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;offset=(\d+)&quot;</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">offset_in_loc_match</span> <span class="ow">and</span> <span class="n">offset_in_loc_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">offset_str</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">mount_point</span><span class="p">:</span>
+                                    <span class="k">return</span> <span class="n">mount_point</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Error reading volstats.csv: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+
+        <span class="c1"># If no mount point found, return fallback VolumeID</span>
+        <span class="k">return</span> <span class="n">fallback_volume_id</span>
+
+    <span class="c1"># =========================================================================</span>
+    <span class="c1"># Input preparation helpers</span>
+    <span class="c1"># =========================================================================</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">mount_point</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">listdlls_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replace place‑holders in *self.module.tool.cmd* with concrete values.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ntfs_info_file (str): NTFSInfo CSV to decode.</span>
+<span class="sd">            mount_point (str): Drive letter or VolumeID for the current CSV.</span>
+<span class="sd">            listdlls_path (str | None): Path to Listdlls.txt if available.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the processing completes successfully, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endpoint_regex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">endpoint_regex</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Endpoint regex matched nothing&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span> <span class="n">endpoint_name</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">output_file_base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;decode_result_</span><span class="si">{</span><span class="n">mount_point</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Update command with actual paths</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{m_input_file}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{m_output_log}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_file_base</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{m_output_csv}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_file_base</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{m_output_pdf}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">output_file_base</span><span class="si">}</span><span class="s2">.pdf&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add optional --dlls_file if found:</span>
+        <span class="k">if</span> <span class="n">listdlls_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot; --dlls_file </span><span class="si">{</span><span class="n">listdlls_path</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_lib.osir_lib.logger.logger &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.osir_lib.osir_lib.logger.logger</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.osir_lib.osir_lib.logger.logger</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirSingleton</span><span class="w"> </span><span class="kn">import</span> <span class="n">singleton</span>
+
+
+<div class="viewcode-block" id="CustomLogger">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.CustomLogger">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLoggerClass</span><span class="p">()):</span>
+<div class="viewcode-block" id="CustomLogger.__init__">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.CustomLogger.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CustomLogger.error_handler">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.CustomLogger.error_handler">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ex</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Captures detailed exception information, including the exact file and line number of the failure.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                ex (Exception): The exception object caught during execution.</span>
+<span class="sd">                message (str, optional): An additional descriptive message explaining the context of the error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tb_str</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">__traceback__</span><span class="p">)</span>
+        <span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">findCaller</span><span class="p">(</span><span class="n">stack_info</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tb_str</span><span class="p">:</span>
+            <span class="c1"># Get the last entry from the traceback</span>
+            <span class="n">last_entry</span> <span class="o">=</span> <span class="n">tb_str</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">last_entry</span><span class="o">.</span><span class="n">filename</span>
+            <span class="n">lineno</span> <span class="o">=</span> <span class="n">last_entry</span><span class="o">.</span><span class="n">lineno</span>
+            <span class="c1"># Format file name and line number</span>
+            <span class="n">location_info</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">lineno</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># Log the error message with location info</span>
+            <span class="k">if</span> <span class="n">message</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Message: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;caller&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span><span class="p">)})</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                      <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;caller&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span><span class="p">)})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Location: </span><span class="se">\033</span><span class="s2">[1;35m </span><span class="si">{</span><span class="n">location_info</span><span class="si">}</span><span class="s2"> </span><span class="se">\033</span><span class="s2">[0m&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                      <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;caller&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span><span class="p">)})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;Traceback: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())),</span> <span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                      <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;caller&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span><span class="p">)})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                      <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;caller&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span><span class="p">)})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;Traceback: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())),</span> <span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                      <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;caller&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span><span class="p">)})</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LevelBasedHandler">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LevelBasedHandler">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LevelBasedHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">):</span>
+<div class="viewcode-block" id="LevelBasedHandler.__init__">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LevelBasedHandler.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level_formatter_map</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level_formatter_map</span> <span class="o">=</span> <span class="n">level_formatter_map</span></div>
+
+
+<div class="viewcode-block" id="LevelBasedHandler.emit">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LevelBasedHandler.emit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Intercepts log records to apply specific formatters based on their severity level.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                record (logging.LogRecord): The log record containing the message and metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">default_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+            <span class="s1">&#39;[</span><span class="si">%(levelname)s</span><span class="s1">] </span><span class="si">%(filename)s</span><span class="s1">:</span><span class="si">%(lineno)d</span><span class="s1"> - </span><span class="si">%(funcName)s</span><span class="s1">() - </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_formatter_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">levelno</span><span class="p">,</span> <span class="n">default_formatter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="n">record</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LogFormatter">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LogFormatter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
+
+    <span class="n">COLOR_CODES</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;95m&quot;</span><span class="p">,</span>  <span class="c1"># bright/bold magenta</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;91m&quot;</span><span class="p">,</span>  <span class="c1"># bright/bold red</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;93m&quot;</span><span class="p">,</span>  <span class="c1"># bright/bold yellow</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;94m&quot;</span><span class="p">,</span>  <span class="c1"># white / light gray</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;96m&quot;</span>   <span class="c1"># bright/bold black / dark gray</span>
+    <span class="p">}</span>
+
+    <span class="n">RESET_CODE</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0m&quot;</span>
+    <span class="n">ORIGIN_COLOR</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[1;36m&quot;</span>
+
+<div class="viewcode-block" id="LogFormatter.__init__">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LogFormatter.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LogFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span></div>
+
+
+<div class="viewcode-block" id="LogFormatter.format">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LogFormatter.format">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Formats the log record by injecting OSIR-specific metadata like task IDs and component origins.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                record (logging.LogRecord): The record to be formatted.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                str: The fully formatted string ready for output to console or file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">task_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;task_id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">task_id_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[TASK:</span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">]&quot;</span> <span class="k">if</span> <span class="n">task_id</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;origin&#39;</span><span class="p">,</span> <span class="s1">&#39;UNKNOWN&#39;</span><span class="p">)</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">origin_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ORIGIN_COLOR</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">origin</span><span class="si">:</span><span class="s2">^8s</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">RESET_CODE</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">filename_lineno</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">filename_lineno</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename_lineno</span><span class="si">:</span><span class="s2">^25.25</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">funcName</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">funcName</span> <span class="o">+</span> <span class="s1">&#39;()&#39;</span>
+        <span class="n">record</span><span class="o">.</span><span class="n">funcName</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">funcName</span><span class="si">:</span><span class="s2">^25.25</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="s1">&#39;caller&#39;</span><span class="p">):</span>
+            <span class="n">fn</span><span class="p">,</span> <span class="n">lno</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">sinfo</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">caller</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">record</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">fn</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">lineno</span> <span class="o">=</span> <span class="n">lno</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">funcName</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">record</span><span class="o">.</span><span class="n">levelno</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">COLOR_CODES</span><span class="p">):</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">color_on</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">COLOR_CODES</span><span class="p">[</span><span class="n">record</span><span class="o">.</span><span class="n">levelno</span><span class="p">]</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">color_off</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RESET_CODE</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">color_on</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">record</span><span class="o">.</span><span class="n">color_off</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">LogFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="nd">@singleton</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppLogger</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s1">&#39;OSIR.log&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Initializes the global logging system as a singleton, setting up both console and file handlers.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                name (str): The name of the logger instance.</span>
+<span class="sd">                log_file (str): The filename where logs will be persisted on the Master&#39;s disk.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">setLoggerClass</span><span class="p">(</span><span class="n">CustomLogger</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_uncaught_exception</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">excepthook</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_thread_exception</span>
+
+        <span class="c1"># Define formatters for all levels</span>
+        <span class="n">debug_formatter</span> <span class="o">=</span> <span class="n">LogFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(color_on)s</span><span class="s1">[DEBUG] </span><span class="si">%(filename_lineno)s</span><span class="s1"> </span><span class="si">%(color_off)s</span><span class="s1"> - </span><span class="si">%(funcName)-25s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">warning_formatter</span> <span class="o">=</span> <span class="n">LogFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(color_on)s</span><span class="s1">[WARNING] </span><span class="si">%(filename_lineno)s</span><span class="s1"> </span><span class="si">%(color_off)s</span><span class="s1"> - </span><span class="si">%(funcName)-25s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">info_formatter</span> <span class="o">=</span> <span class="n">LogFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(color_on)s</span><span class="s1">[INFO] </span><span class="si">%(filename_lineno)s</span><span class="s1"> </span><span class="si">%(color_off)s</span><span class="s1"> - </span><span class="si">%(funcName)-25s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">critical_formatter</span> <span class="o">=</span> <span class="n">LogFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(color_on)s</span><span class="s1">[CRITICAL] </span><span class="si">%(filename_lineno)s</span><span class="s1"> - </span><span class="si">%(funcName)-25s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1"> </span><span class="si">%(color_off)s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">error_formatter</span> <span class="o">=</span> <span class="n">LogFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%(color_on)s</span><span class="s1">[ERROR] </span><span class="si">%(filename_lineno)s</span><span class="s1"> </span><span class="si">%(color_off)s</span><span class="s1"> - </span><span class="si">%(funcName)-25s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1"> &#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Create and configure the logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;customLogger&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>  <span class="c1"># Capture all messages at or above DEBUG level</span>
+
+        <span class="c1"># Define formatters for file handlers</span>
+        <span class="n">file_debug_formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+            <span class="s1">&#39;[</span><span class="si">%(origin_str)s</span><span class="s1">]</span><span class="si">%(task_id_str)s</span><span class="s1">[</span><span class="si">%(levelname)s</span><span class="s1">][</span><span class="si">%(asctime)s</span><span class="s1">] - </span><span class="si">%(filename)s</span><span class="s1">:</span><span class="si">%(lineno)d</span><span class="s1"> - </span><span class="si">%(funcName)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Create custom handlers for console logging</span>
+        <span class="n">console_level_formatter_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">:</span> <span class="n">debug_formatter</span><span class="p">,</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">:</span> <span class="n">info_formatter</span><span class="p">,</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span> <span class="n">error_formatter</span><span class="p">,</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">:</span> <span class="n">warning_formatter</span><span class="p">,</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span> <span class="n">critical_formatter</span>
+
+        <span class="p">}</span>
+        <span class="n">console_handler</span> <span class="o">=</span> <span class="n">LevelBasedHandler</span><span class="p">(</span><span class="n">console_level_formatter_map</span><span class="p">)</span>
+
+        <span class="n">log_directory</span> <span class="o">=</span> <span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">LOG_DIR</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_directory</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_directory</span><span class="p">)</span>
+
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">LOG_DIR</span><span class="p">,</span> <span class="n">log_file</span><span class="p">)</span>
+
+        <span class="c1"># Create custom handlers for file logging</span>
+        <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">file_debug_formatter</span><span class="p">)</span>  <span class="c1"># Default formatter for all levels</span>
+
+        <span class="c1"># Add handlers to the logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_uncaught_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Intercepts any exception that reaches the top-level of the main execution thread.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                exc_type: The type of the exception.</span>
+<span class="sd">                exc_value: The exception instance.</span>
+<span class="sd">                exc_traceback: The traceback object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">__excepthook__</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Uncaught exception: </span><span class="si">{</span><span class="n">exc_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">exc_info</span><span class="o">=</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">),</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;origin&#39;</span><span class="p">:</span> <span class="s1">&#39;UNCAUGHT&#39;</span><span class="p">}</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_thread_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Captures unhandled exceptions occurring within background threads.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                args: A thread exception object containing type, value, traceback, and thread info.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">,</span> <span class="n">thread</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">exc_value</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">exc_traceback</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">thread</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">exc_type</span> <span class="ow">is</span> <span class="ne">SystemExit</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Uncaught exception in thread </span><span class="si">{</span><span class="n">thread</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">exc_info</span><span class="o">=</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">),</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;origin&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;THREAD-</span><span class="si">{</span><span class="n">thread</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">}</span>
+        <span class="p">)</span>
+
+<span class="c1"># MASTER_LOGGER = logging.LoggerAdapter(AppLogger().get_logger(), {&#39;origin&#39;: &#39;MASTER&#39;})</span>
+<span class="c1"># AGENT_LOGGER = logging.LoggerAdapter(AppLogger().get_logger(), {&#39;origin&#39;: &#39;AGENT&#39;})</span>
+<span class="c1"># API_LOGGER = logging.LoggerAdapter(AppLogger().get_logger(), {&#39;origin&#39;: &#39;API&#39;})</span>
+<span class="c1"># CLIENT_LOGGER = logging.LoggerAdapter(AppLogger().get_logger(), {&#39;origin&#39;: &#39;CLIENT&#39;})</span>
+
+<span class="c1"># Example usage of the imported custom logger with custom function</span>
+<span class="c1"># logger.debug(&quot;This is a debug message from main.py&quot;)</span>
+<span class="c1"># logger.info(&quot;This is an info message from main.py&quot;)</span>
+<span class="c1"># logger.warning(&quot;This is a warning message from main.py&quot;)</span>
+<span class="c1"># logger.error(&quot;This is an error message from main.py&quot;)</span>
+<span class="c1"># logger.critical(&quot;This is a critical message from main.py&quot;)</span>
+
+<span class="c1"># # Using the custom log method</span>
+<span class="c1"># logger.custom_log(&quot;This is a custom log message from main.py&quot;)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

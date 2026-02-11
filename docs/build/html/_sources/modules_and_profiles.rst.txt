@@ -199,15 +199,19 @@ input: **Required**
 *******************
     - type:  **Required** 
         - Possible values: file, dir
-    - name: **Required** 
+    - name: **DEPRECATED/Required** 
         - Regex pattern to identify the input file.
         - Can only be used input type is file.
         - If input type is file, path option can also be used.
-    - path: **Required** 
+    - path: **DEPRECATED/Required**
         - Path suffix of the input file or directory.
         - File or dir to match must end the path specified.
         - Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru
         - **It's also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.** 
+        - **wildcard is supported**. The path field supports a single-level wildcard (*), which matches all immediate subdirectories or files under the specified directory. For example, restore_fs/* will match restore_fs/host_a/ and restore_fs/host_b/, but it will not match deeper paths like restore_fs/host_a/C/.
+    - paths: **Required** 
+        - List of Path either Glob pattern or regex (To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.**).
+        - Ex: r"\*\*/Windows/System32/sru" will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru
         - **wildcard is supported**. The path field supports a single-level wildcard (*), which matches all immediate subdirectories or files under the specified directory. For example, restore_fs/* will match restore_fs/host_a/ and restore_fs/host_b/, but it will not match deeper paths like restore_fs/host_a/C/.
 
 .. tip:: How to use module output as input of a new module ? Just specify input.name or/and input.path corresponding to the output of the first module. The tool automatically processes each new file to match a module.
@@ -250,48 +254,30 @@ Create a new module
 
 To create a new module from scratch you can:
     -    **Manual**: Create a .yml file using an existing one as example and add the binary required if exernal type or create python module if internal type.
-    -    **Automatic**: Run the Python helper to follow a guided module creation like discribed below.
-
-.. warning:: Automatic process only support basic modules options.
-
-.. code-block:: bash
-
-    sudo make module
-
-Then, the helper will propose two types of processes:
-    -    **short**: It will only generates the sample files and gives their path, you have to modify them.
-    -    **long**: It will ask you all (in fact, some options are available through the helper) required fields and generated the module ready to work.
-
-Below is an example of how to create a module for parsing '/var/log/debug'. It will working internal Python module but doing only basic action, the parsing logic must be added by yourself:
-
-.. image:: _img/MakeModule.gif
-   :alt: Make module
-
-After the creation you can execute the module on a extracted collect : 
-
-.. image:: _img/ExecuteDebug.gif
-   :alt: Execute module
-
-And the result of the created module can be see in the cases_path/debug/ 
-
-.. image:: _img/ResultDebug.gif
-   :alt: Examine results
 
 Exposed variables 
 =================
 
 Exposed variables are replaced by the OSIR agent during execution. To be used in the config files, they need to be contained in {}.
 
-.. list-table:: Exposed Variables
+Tool Variables
+--------------
+
+These variables are available in ``tool.cmd`` sections:
+
+.. list-table:: Tool Exposed Variables
    :widths: 20 40 40
    :header-rows: 1
 
    * - Variable
      - Description
      - Where It Can Be Used
+   * - ``{drive}``
+     - Windows mount point with colon (e.g., ``C:``)
+     - ``tool.cmd``
    * - ``{input_file}``
      - Path of the input file that matched input options in module config file.
-     - ``tool.cmd``, ``output.output_file``, ``output_prefix``
+     - ``tool.cmd``
    * - ``{input_dir}``
      - Path of the input directory that matched input options in module config file.
      - ``tool.cmd``
@@ -301,20 +287,46 @@ Exposed variables are replaced by the OSIR agent during execution. To be used in
    * - ``{output_dir}``
      - Path of the output directory, default is the name of the module in the case.
      - ``tool.cmd``
-   * - ``{module}``
-     - Name of the module.
-     - ``tool.cmd``, ``output.output_file``, ``output_prefix``
-   * - ``{endpoint_name}``
-     - Value extracted from pattern regex specified in endpoint option.
-     - ``output.output_file``, ``output_prefix``
    * - ``{case_name}``
      - Name of the case being processed.
      - ``tool.cmd``
    * - ``{case_path}``
      - Path of the case being processed.
-     - ``input.path``
+     - ``tool.cmd``
+   * - ``{master_host}``
+     - SMB host for master server connection.
+     - ``tool.cmd``
+   * - ``{endpoint_name}``
+     - Value extracted from pattern regex specified in endpoint option.
+     - ``tool.cmd``
    * - ``{optional_*}``
      - Optional values, usage described in module documentation.
      - ``tool.cmd``
 
+Output Variables
+----------------
 
+These variables are available in ``output.output_file`` and ``output.output_prefix`` sections:
+
+.. list-table:: Output Exposed Variables
+   :widths: 20 40 40
+   :header-rows: 1
+
+   * - Variable
+     - Description
+     - Where It Can Be Used
+   * - ``{endpoint_name}``
+     - Value extracted from pattern regex specified in endpoint option.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{module}``
+     - Name of the module.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{input_file}``
+     - Sanitized name of the input file that matched input options.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{input_path_hash}``
+     - Hash of the input file path for unique identification.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{case_path}``
+     - Path of the case being processed.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``

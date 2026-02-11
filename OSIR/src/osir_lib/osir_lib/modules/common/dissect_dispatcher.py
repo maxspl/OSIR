@@ -1,10 +1,8 @@
 from __future__ import annotations
 import os
-
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger, CustomLogger
-
 from dissect.target import Target
 from flow.record.jsonpacker import JsonRecordPacker
 from dissect.target.exceptions import TargetError, LoaderError, TargetPathNotFoundError, UnsupportedPluginError, PluginNotFoundError
@@ -13,19 +11,18 @@ logger: CustomLogger = AppLogger().get_logger()
 
 @osir_internal_module
 class DissectDispatcher():
-    """
-    Generic dispatcher to run dissect plugins on a directory input and write JSONL output.
+    """Generic dispatcher to run dissect plugins on a directory input and write JSONL output.
 
     The plugin to run is taken from:
-      - module.optional.plugin (preferred)
+    - module.optional.plugin (preferred)
 
     Example YAML:
-      module: activites_cache
-      alt_module: dissect_dispatcher
-      optional:
-        plugin: activitiescache
+        module: activites_cache
+        alt_module: dissect_dispatcher
+        optional:
+            plugin: activitiescache
 
-    This will call:  t.activitiescache() on a Target opened on the input dir.
+    This will call: t.activitiescache() on a Target opened on the input dir.
     """
 
     def __init__(self, case_path: str, module: OsirModule) -> None:

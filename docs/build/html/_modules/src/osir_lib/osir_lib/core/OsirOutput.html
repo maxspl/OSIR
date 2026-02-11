@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_lib.osir_lib.core.OsirOutput &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.osir_lib.osir_lib.core.OsirOutput</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.osir_lib.osir_lib.core.OsirOutput</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">PrivateAttr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirPathTransformerMixin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirPathTransformerMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirOutputModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirOutputModel</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OsirOutput">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OsirOutput</span><span class="p">(</span><span class="n">OsirOutputModel</span><span class="p">,</span> <span class="n">OsirPathTransformerMixin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Manages the generation, naming, and structural organization of forensic tool outputs.</span>
+
+
+<span class="sd">        Attributes:</span>
+<span class="sd">            _context (OsirModule): Private reference to the parent module for accessing </span>
+<span class="sd">                shared case metadata.</span>
+<span class="sd">            output_prefix_no_endpoint (str): Internal storage for the naming prefix </span>
+<span class="sd">                excluding the endpoint name, used for regex matching during renames.</span>
+<span class="sd">            updated (bool): Flag to ensure path transformations are only performed once.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_context</span><span class="p">:</span> <span class="s2">&quot;OsirModule&quot;</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">()</span>
+
+    <span class="c1"># TODO: Remove this and refactor _rename_items_recursively</span>
+    <span class="n">output_prefix_no_endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">updated</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_hash_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Generates an MD5 hash of a given path string.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                path (str): The file path to hash.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                str: The hex digest of the path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OsirOutput.update">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;OsirOutput&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Resolves output templates and prepares the filesystem for result storage.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                OsirOutput: The instance with fully resolved and absolute paths.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">updated</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span>
+
+            <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">endpoint_name</span><span class="p">,</span>
+                <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
+                <span class="s2">&quot;input_file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get_input_name_safe</span><span class="p">(),</span>
+                <span class="s2">&quot;input_path_hash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">)),</span>
+                <span class="s2">&quot;case_path&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">case_path</span>
+            <span class="p">}</span>
+            
+            <span class="n">base_output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span> <span class="o">/</span> <span class="n">ctx</span><span class="o">.</span><span class="n">module</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="ow">and</span> <span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="o">**</span><span class="n">replacements</span><span class="p">)</span>
+            <span class="c1"># Resolve Directory Template</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">:</span>
+                <span class="n">full_template</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">base_output_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="n">full_template</span><span class="p">,</span> <span class="o">**</span><span class="n">replacements</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_output_path</span>
+
+            <span class="c1"># Resolve Filename Template</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">:</span>
+                <span class="n">formatted_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span> <span class="o">**</span><span class="n">replacements</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">formatted_filename</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_suffix</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_output_dir_exists</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">apply_suffix</span><span class="p">(</span><span class="s2">&quot;output_file&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Handle Naming Prefixes for recursive organization</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">,</span>
+                                                                  <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;endpoint_name&#39;</span><span class="p">})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">replacements</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_output_dir_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Creates if the output directory exists on the master filesystem.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">processor_os</span> <span class="o">==</span> <span class="s1">&#39;unix&#39;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s1">&#39;post_parsing&#39;</span><span class="p">:</span>
+            <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rename_items_recursively</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Recursively applies the OSIR naming prefix to all files and folders in the output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
+
+        <span class="c1"># Build regex to avoid double-renaming items that already have a valid prefix</span>
+        <span class="n">prefix_extented</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.*&quot;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="c1"># Process files within the current directory</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">prefix_extented</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+                    <span class="n">original_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+                    <span class="n">new_file_name</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">file</span>
+                    <span class="n">new_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">new_file_name</span><span class="p">)</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">original_file_path</span><span class="p">,</span> <span class="n">new_file_path</span><span class="p">)</span>
+
+            <span class="c1"># Process sub-directories</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dirs</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">prefix_extented</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">dir</span><span class="p">):</span>
+                    <span class="n">original_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">dir</span><span class="p">)</span>
+                    <span class="n">new_dir_name</span> <span class="o">=</span> <span class="n">prefix</span> <span class="o">+</span> <span class="nb">dir</span>
+                    <span class="n">new_dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">new_dir_name</span><span class="p">)</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">original_dir_path</span><span class="p">,</span> <span class="n">new_dir_path</span><span class="p">)</span>
+                    <span class="c1"># Update directory list to ensure walking continues with the new path</span>
+                    <span class="n">dirs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_dir_name</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
