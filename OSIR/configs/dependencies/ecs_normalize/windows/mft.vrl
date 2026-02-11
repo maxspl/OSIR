@@ -6,38 +6,40 @@
 #
 ##     Destination: 
 #      {
-#        "file.mft.entry_number": <Integer>,
-#        "file.mft.sequence_number": <Integer>,
-#        "file.mft.in_use": <Boolean>,
-#        "file.mft.parent_entry_number": <Integer>,
-#        "file.mft.parent_sequence_number": <Integer>,
+#        "mft.entry_number": <Integer>,
+#        "mft.sequence_number": <Integer>,
+#        "mft.in_use": <Boolean>,
+#        "mft.parent_entry_number": <Integer>,
+#        "mft.parent_sequence_number": <Integer>,
 #        "file.directory": <String>,
 #        "file.name": <String>,
 #        "file.extension": <String>,
 #        "file.size": <Integer>,
-#        "file.mft.reference_count": <Integer>,
+#        "file.path": <String>,
 #        "file.target_path": <String>,
 #        "file.type": <String>,
-#        "file.mft.has_ads": <Boolean>,
-#        "file.mft.is_ads": <Boolean>,
-#        "file.mft.si_less_than_fn": <Boolean>,
-#        "file.mft.usec_zeros": <Boolean>,
-#        "file.mft.copied": <Boolean>,
 #        "file.attributes": <Array>,
-#        "file.mft.name_type": <String>,
 #        "file.created": <Datetime>,
-#        "file.mft.created_fn": <Datetime>,
 #        "file.mtime": <Datetime>,
-#        "file.mft.modified_fn": <Datetime>,
-#        "file.mft.record_change_si": <Datetime>,
-#        "file.mft.record_change_fn": <Datetime>,
+#        "file.ctime": <Datetime>,
 #        "file.accessed": <Datetime>,
-#        "file.mft.accessed_fn": <Datetime>,
-#        "file.mft.update_sequence_number": <Integer>,
-#        "file.mft.logfile_sequence_number": <Integer>,
-#        "file.mft.security_id": <Integer>,
-#        "file.mft.object_id": <String>,
-#        "file.mft.logged_util_stream": <String>,
+#        "mft.reference_count": <Integer>,
+#        "mft.has_ads": <Boolean>,
+#        "mft.is_ads": <Boolean>,
+#        "mft.si_less_than_fn": <Boolean>,
+#        "mft.usec_zeros": <Boolean>,
+#        "mft.copied": <Boolean>,
+#        "mft.name_type": <String>,
+#        "mft.created_fn": <Datetime>,
+#        "mft.modified_fn": <Datetime>,
+#        "mft.record_change_si": <Datetime>,
+#        "mft.record_change_fn": <Datetime>,
+#        "mft.accessed_fn": <Datetime>,
+#        "mft.update_sequence_number": <Integer>,
+#        "mft.logfile_sequence_number": <Integer>,
+#        "mft.security_id": <Integer>,
+#        "mft.object_id": <String>,
+#        "mft.logged_util_stream": <String>,
 #        "labels.zone_id": <String>,
 #        "event.dataset": <String>
 #      }
@@ -47,18 +49,18 @@
 
 # MFT Entry Information
 if exists(.EntryNumber) {
-    .file.mft.entry_number = to_int!(.EntryNumber)
+    .mft.entry_number = to_int!(.EntryNumber)
     del(.EntryNumber)
 }
 
 if exists(.SequenceNumber) {
-    .file.mft.sequence_number = to_int!(.SequenceNumber)
+    .mft.sequence_number = to_int!(.SequenceNumber)
     del(.SequenceNumber)
 }
 
 if exists(.InUse) {
     in_use_str = downcase(to_string!(.InUse))
-    .file.mft.in_use = if in_use_str == "true" || in_use_str == "1" {
+    .mft.in_use = if in_use_str == "true" || in_use_str == "1" {
         true
     } else {
         false
@@ -68,12 +70,12 @@ if exists(.InUse) {
 
 # Parent Information
 if exists(.ParentEntryNumber) {
-    .file.mft.parent_entry_number = to_int!(.ParentEntryNumber)
+    .mft.parent_entry_number = to_int!(.ParentEntryNumber)
     del(.ParentEntryNumber)
 }
 
 if exists(.ParentSequenceNumber) {
-    .file.mft.parent_sequence_number = to_int!(.ParentSequenceNumber)
+    .mft.parent_sequence_number = to_int!(.ParentSequenceNumber)
     del(.ParentSequenceNumber)
 }
 
@@ -108,7 +110,7 @@ if exists(.file.directory) && exists(.file.name) {
 
 # File Attributes
 if exists(.ReferenceCount) {
-    .file.mft.reference_count = to_int!(.ReferenceCount)
+    .mft.reference_count = to_int!(.ReferenceCount)
     del(.ReferenceCount)
 }
 
@@ -137,7 +139,7 @@ if exists(.IsDirectory) {
 
 if exists(.HasAds) {
     has_ads_str = downcase(to_string!(.HasAds))
-    .file.mft.has_ads = if has_ads_str == "true" || has_ads_str == "1" {
+    .mft.has_ads = if has_ads_str == "true" || has_ads_str == "1" {
         true
     } else {
         false
@@ -147,7 +149,7 @@ if exists(.HasAds) {
 
 if exists(.IsAds) {
     is_ads_str = downcase(to_string!(.IsAds))
-    .file.mft.is_ads = if is_ads_str == "true" || is_ads_str == "1" {
+    .mft.is_ads = if is_ads_str == "true" || is_ads_str == "1" {
         true
     } else {
         false
@@ -158,7 +160,7 @@ if exists(.IsAds) {
 # MFT Metadata Flags
 if exists(."SI<FN") {
     si_fn_str = downcase(to_string!(."SI<FN"))
-    .file.mft.si_less_than_fn = if si_fn_str == "true" || si_fn_str == "1" {
+    .mft.si_less_than_fn = if si_fn_str == "true" || si_fn_str == "1" {
         true
     } else {
         false
@@ -168,7 +170,7 @@ if exists(."SI<FN") {
 
 if exists(.uSecZeros) {
     usec_str = downcase(to_string!(.uSecZeros))
-    .file.mft.usec_zeros = if usec_str == "true" || usec_str == "1" {
+    .mft.usec_zeros = if usec_str == "true" || usec_str == "1" {
         true
     } else {
         false
@@ -178,7 +180,7 @@ if exists(.uSecZeros) {
 
 if exists(.Copied) {
     copied_str = downcase(to_string!(.Copied))
-    .file.mft.copied = if copied_str == "true" || copied_str == "1" {
+    .mft.copied = if copied_str == "true" || copied_str == "1" {
         true
     } else {
         false
@@ -197,7 +199,7 @@ if exists(.SiFlags) {
 }
 
 if exists(.NameType) {
-    .file.mft.name_type = to_string!(.NameType)
+    .mft.name_type = to_string!(.NameType)
     del(.NameType)
 }
 
@@ -221,7 +223,7 @@ if exists(.LastModified0x10) {
 if exists(.LastRecordChange0x10) {
     record_change_si = to_string!(.LastRecordChange0x10)
     if record_change_si != "" {
-        .file.mft.record_change_si = parse_timestamp!(record_change_si, format: "%Y-%m-%d %H:%M:%S%.f")
+        .mft.record_change_si = parse_timestamp!(record_change_si, format: "%Y-%m-%d %H:%M:%S%.f")
         .file.ctime = parse_timestamp!(record_change_si, format: "%Y-%m-%d %H:%M:%S%.f")
     }
     del(.LastRecordChange0x10)
@@ -239,7 +241,7 @@ if exists(.LastAccess0x10) {
 if exists(.Created0x30) {
     created_fn = to_string!(.Created0x30)
     if created_fn != "" {
-        .file.mft.created_fn = parse_timestamp!(created_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+        .mft.created_fn = parse_timestamp!(created_fn, format: "%Y-%m-%d %H:%M:%S%.f")
     }
     del(.Created0x30)
 }
@@ -247,7 +249,7 @@ if exists(.Created0x30) {
 if exists(.LastModified0x30) {
     modified_fn = to_string!(.LastModified0x30)
     if modified_fn != "" {
-        .file.mft.modified_fn = parse_timestamp!(modified_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+        .mft.modified_fn = parse_timestamp!(modified_fn, format: "%Y-%m-%d %H:%M:%S%.f")
     }
     del(.LastModified0x30)
 }
@@ -255,7 +257,7 @@ if exists(.LastModified0x30) {
 if exists(.LastRecordChange0x30) {
     record_change_fn = to_string!(.LastRecordChange0x30)
     if record_change_fn != "" {
-        .file.mft.record_change_fn = parse_timestamp!(record_change_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+        .mft.record_change_fn = parse_timestamp!(record_change_fn, format: "%Y-%m-%d %H:%M:%S%.f")
     }
     del(.LastRecordChange0x30)
 }
@@ -263,31 +265,31 @@ if exists(.LastRecordChange0x30) {
 if exists(.LastAccess0x30) {
     accessed_fn = to_string!(.LastAccess0x30)
     if accessed_fn != "" {
-        .file.mft.accessed_fn = parse_timestamp!(accessed_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+        .mft.accessed_fn = parse_timestamp!(accessed_fn, format: "%Y-%m-%d %H:%M:%S%.f")
     }
     del(.LastAccess0x30)
 }
 
 # Additional MFT Metadata
 if exists(.UpdateSequenceNumber) {
-    .file.mft.update_sequence_number = to_int!(.UpdateSequenceNumber)
+    .mft.update_sequence_number = to_int!(.UpdateSequenceNumber)
     del(.UpdateSequenceNumber)
 }
 
 if exists(.LogfileSequenceNumber) {
-    .file.mft.logfile_sequence_number = to_int!(.LogfileSequenceNumber)
+    .mft.logfile_sequence_number = to_int!(.LogfileSequenceNumber)
     del(.LogfileSequenceNumber)
 }
 
 if exists(.SecurityId) {
-    .file.mft.security_id = to_int!(.SecurityId)
+    .mft.security_id = to_int!(.SecurityId)
     del(.SecurityId)
 }
 
 if exists(.ObjectIdFileDroid) {
     object_id = to_string!(.ObjectIdFileDroid)
     if object_id != "" {
-        .file.mft.object_id = object_id
+        .mft.object_id = object_id
     }
     del(.ObjectIdFileDroid)
 }
@@ -295,7 +297,7 @@ if exists(.ObjectIdFileDroid) {
 if exists(.LoggedUtilStream) {
     logged_util = to_string!(.LoggedUtilStream)
     if logged_util != "" {
-        .file.mft.logged_util_stream = logged_util
+        .mft.logged_util_stream = logged_util
     }
     del(.LoggedUtilStream)
 }
@@ -322,21 +324,21 @@ if exists(.SourceFile) {
 # Use primary timestamp (Created0x10 or earliest available)
 if exists(.file.created) {
     .timestamp = .file.created
-} else if exists(.file.mft.created_fn) {
-    .timestamp = .file.mft.created_fn
+} else if exists(.mft.created_fn) {
+    .timestamp = .mft.created_fn
 }
 
 # Anomaly Detection
-if exists(.file.mft.si_less_than_fn) && .file.mft.si_less_than_fn == true {
+if exists(.mft.si_less_than_fn) && .mft.si_less_than_fn == true {
     .event.type = push(.event.type, "indicator")
     .threat.indicator.type = ["file"]
     .threat.indicator.description = "Possible timestomping detected (SI < FN)"
 }
 
-if exists(.file.mft.usec_zeros) && .file.mft.usec_zeros == true {
+if exists(.mft.usec_zeros) && .mft.usec_zeros == true {
     .labels.mft_anomaly = "microseconds_zero"
 }
 
-if exists(.file.mft.has_ads) && .file.mft.has_ads == true {
+if exists(.mft.has_ads) && .mft.has_ads == true {
     .labels.has_alternate_data_stream = "true"
 }

@@ -11,7 +11,7 @@ processor_type:
 processor_os: windows
 tool: 
   path: net9/MFTECmd.exe
-  cmd: -f '{input_file}' --csv "{output_dir}" --csvf "{output_file}"
+  cmd: -f '{input_file}' --csv '{output_dir}' --csvf '{output_file}'
   source: https://ericzimmerman.github.io/
   version: 1.3
 input:
@@ -26,7 +26,7 @@ output:
 endpoint: "/Endpoint_(.*?)/"
 splunk:
   'filesystem:ntfs:info':
-    name_rex: \.csv$
+    name_rex: \$MFT.*\.csv$
     sourcetype: 'filesystem:ntfs:info'
     host_rex: ([\w\.-]+)--
     timestamp_path:
@@ -35,3 +35,12 @@ splunk:
     artifact: "mft"
     normalize:
       - ecs_normalize/windows/mft.vrl
+  'filesystem:ntfs:usn':
+    name_rex: \$J.*.csv$
+    sourcetype: 'filesystem:ntfs:usn'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "timestamp"
+    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    normalize:
+      - ecs_normalize/windows/usn.vrl

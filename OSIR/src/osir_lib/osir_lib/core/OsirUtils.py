@@ -103,3 +103,16 @@ def get_latest_log_by_task_id(target_task_id: str, file_path: str = "/OSIR/share
             logger.error(f"Reverse log read error: {e}")
 
     return None
+
+def remove_placeholders(text: str) -> str:
+    """
+    Replaces all placeholders {key} with an empty string.
+    
+    Args:
+        text: The text containing placeholders
+        
+    Returns:
+        The text without placeholders
+    """
+    import re
+    return re.sub(r'\{[^}]+\}', '', text)

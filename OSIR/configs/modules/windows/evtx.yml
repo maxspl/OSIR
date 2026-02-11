@@ -1,7 +1,7 @@
-version: 1.0
+version: 1.1
 author: maxspl
-module: evtx_orc
-description: Parsing of EVTX collected by DFIR ORC
+module: evtx
+description: Parsing of EVTX collected by DFIR ORC or in the filesystem
 os: windows
 type: process
 disk_only: False
@@ -16,7 +16,9 @@ tool:
   version: 0.8.2
 input:
   type: file
-  name: _[\w%-]+\.evtx_{
+  paths:
+    - r"_[\w%-]+\.evtx_{"
+    - r"\.evtx$"
 output:
   type: single_file
   format: jsonl
@@ -25,7 +27,7 @@ endpoint: "/Endpoint_(.*?)/"
 splunk:
   'windows:evtx:system':
     name_rex: System\.evtx.*\.jsonl$
-    path_suffix: 'evtx_orc'
+    path_suffix: 'evtx'
     sourcetype: 'windows:evtx:system'
     host_rex: ([\w\.-]+)--
     artifact: "EVTX"
@@ -37,7 +39,7 @@ splunk:
 
   'windows:evtx:sysmon':
     name_rex: Sysmon.*\.evtx.*\.jsonl$
-    path_suffix: 'evtx_orc'
+    path_suffix: 'evtx'
     sourcetype: 'windows:evtx:sysmon'
     host_rex: ([\w\.-]+)--
     artifact: "EVTX"
@@ -49,7 +51,7 @@ splunk:
 
   'windows:evtx:security':
     name_rex: Security\.evtx.*\.jsonl$
-    path_suffix: 'evtx_orc'
+    path_suffix: 'evtx'
     sourcetype: 'windows:evtx:security'
     host_rex: ([\w\.-]+)--
     artifact: "EVTX"
@@ -61,7 +63,7 @@ splunk:
 
   'windows:evtx:powershell:operational':
     name_rex: PowerShell.*Operational\.evtx.*\.jsonl$
-    path_suffix: 'evtx_orc'
+    path_suffix: 'evtx'
     sourcetype: 'windows:evtx:powershell:operational'
     host_rex: ([\w\.-]+)--
     artifact: "EVTX"
@@ -73,7 +75,7 @@ splunk:
 
   'windows:evtx:powershell':
     name_rex: PowerShell\.evtx.*\.jsonl$
-    path_suffix: 'evtx_orc'
+    path_suffix: 'evtx'
     sourcetype: 'windows:evtx:powershell'
     host_rex: ([\w\.-]+)--
     artifact: "EVTX"
@@ -85,7 +87,7 @@ splunk:
 
   'windows:evtx':
     name_rex: \.evtx.*\.jsonl$
-    path_suffix: 'evtx_orc'
+    path_suffix: 'evtx'
     sourcetype: 'windows:evtx'
     host_rex: ([\w\.-]+)--
     artifact: "EVTX"

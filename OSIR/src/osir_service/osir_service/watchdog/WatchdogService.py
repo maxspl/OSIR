@@ -16,7 +16,7 @@ from osir_lib.core.OsirUtils import normalize_osir_path
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
-
+from osir_lib.core.OsirUtils import remove_placeholders
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.postgres.PostgresService import DbOSIR
@@ -234,6 +234,17 @@ class ModuleHandler(FileSystemEventHandler):
 
         if output_dir in event_path.parents or event_path == output_dir:
             return
+        
+        if module.output.output_dir and '{case_path}' in module.output.output_dir:
+            alt_output_dir = Path(remove_placeholders(module.output.output_dir.replace('{case_path}', str(self.case_path))))
+            if alt_output_dir in event_path.parents or event_path == alt_output_dir:
+                return
+
+        # Only process FS folder in mounted disk
+        virtual_dir = Path(self.case_path) / 'virtual'
+        if virtual_dir in event_path.parents:
+            if '/fs/' not in str(event_path):
+                return
 
         file_module_pair = (event.src_path, module.module_name)
 

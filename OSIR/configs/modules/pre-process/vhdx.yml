@@ -1,0 +1,24 @@
+version: 1.0
+author: typ
+module: vhdx
+description: Used to mount vhdx file system.
+os: unix
+type: pre-process
+disk_only: True
+no_multithread: True
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: target-mount
+  cmd: "{input_file} {output_dir}"
+  source: https://github.com/fox-it/dissect
+  version: 3.2.1
+input:
+  type: file
+  paths: 
+    - r"\.vhdx$"
+output:
+  type: None
+  output_dir: "{case_path}/virtual/Endpoint_{endpoint_name}"
+endpoint: "([^\/]+).vhdx"
