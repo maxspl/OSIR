@@ -23,7 +23,7 @@ from pathlib import Path
 from shutil import get_terminal_size
 from typing import Iterable, List, Tuple, Dict, Optional
 from contextlib import contextmanager
-
+import hashlib
 # Optional wide-character support for perfect box alignment with emojis/Unicode.
 try:
     # pip install wcwidth
@@ -113,6 +113,61 @@ def format_ports(ports_raw: str) -> str:
         return ports_raw or "-"
 
 
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _find_component_dockerfile_path(repo_root: Path, component_key: str, container_name: str) -> Optional[Path]:
+    """
+    Best-effort: find the Dockerfile used for the main service of the component,
+    by reading setup/<component>/docker-compose.yml.
+
+    Returns absolute Path or None if not found / not parseable.
+    """
+    compose_path = repo_root / "setup" / component_key / "docker-compose.yml"
+    if not compose_path.is_file():
+        return None
+
+    # If PyYAML is not installed, we cannot parse compose reliably.
+    try:
+        compose_obj = _load_yaml_or_die(compose_path)
+    except SystemExit:
+        return None
+
+    services = compose_obj.get("services") or {}
+    candidates = _matching_service_names(component_key, container_name)
+    targets = _services_to_patch(compose_obj, candidates, container_name)
+    if not targets:
+        return None
+
+    # Take the first matching service (master/agent service)
+    svc = services.get(targets[0]) or {}
+    build = svc.get("build")
+
+    # build can be string (context) or dict
+    compose_dir = compose_path.parent
+    if isinstance(build, str):
+        context_dir = (compose_dir / build).resolve()
+        dockerfile_rel = "Dockerfile"
+    elif isinstance(build, dict):
+        context_dir = (compose_dir / str(build.get("context", "."))).resolve()
+        dockerfile_rel = str(build.get("dockerfile", "Dockerfile"))
+    else:
+        return None
+
+    dockerfile_path = (context_dir / dockerfile_rel).resolve()
+    if dockerfile_path.is_file():
+        return dockerfile_path
+
+    # fallback: if referenced dockerfile missing, try a common default
+    fallback = (context_dir / "Dockerfile").resolve()
+    return fallback if fallback.is_file() else None
+
+
 # ────────────────────────────────────────────────────────────────────────────────
 # Temporary in-place compose patching
 # ────────────────────────────────────────────────────────────────────────────────
@@ -169,6 +224,99 @@ def _services_to_patch(compose_obj: Dict, names: List[str], container_name: str)
 
 
 @contextmanager
+def temporarily_patch_compose_image_labels(
+    compose_path: Path,
+    component: str,
+    container_name: str,
+    image_labels: Dict[str, str],
+    ui: "BoxPrinter",
+):
+    """
+    Patch docker-compose.yml in-place to inject *image* labels into the build section.
+
+    We set:
+      services.<svc>.build.labels.<key> = <value>
+
+    Only affects the services matching the component main container (master/agent).
+    Restores the original compose after setup finishes.
+    """
+    compose_path = compose_path.resolve()
+    backup_path = compose_path.with_suffix(compose_path.suffix + ".bak.labels")
+    original_text = compose_path.read_text(encoding="utf-8")
+
+    # Requires PyYAML (same as your debug-shell patcher)
+    compose_obj = _load_yaml_or_die(compose_path)
+
+    candidates = _matching_service_names(component, container_name)
+    targets = _services_to_patch(compose_obj, candidates, container_name)
+
+    if not targets:
+        ui.box(
+            "IMAGE LABELS – Compose patcher",
+            f"Compose file: {compose_path}\n"
+            f"Could not find a service matching any of: {', '.join(candidates)}\n"
+            f"and no service with container_name == {container_name}.\n\n"
+            "No label patch applied. Fingerprint comparison may show UNKNOWN.",
+        )
+        try:
+            yield
+        finally:
+            pass
+        return
+
+    services = compose_obj.get("services") or {}
+    patched_services: List[str] = []
+
+    for svc_name in targets:
+        svc = services.get(svc_name) or {}
+        build = svc.get("build")
+
+        # Ensure build is a dict (we need build.labels)
+        if isinstance(build, str):
+            build = {"context": build}
+        elif build is None:
+            build = {"context": "."}
+        elif not isinstance(build, dict):
+            continue
+
+        labels = build.get("labels")
+        if labels is None:
+            labels = {}
+        if not isinstance(labels, dict):
+            # If labels exists but not dict, skip to avoid corrupting
+            continue
+
+        for k, v in image_labels.items():
+            labels[k] = v
+
+        build["labels"] = labels
+        svc["build"] = build
+        services[svc_name] = svc
+        patched_services.append(svc_name)
+
+    compose_obj["services"] = services
+    patched_text = _dump_yaml_or_die(compose_obj)
+
+    backup_path.write_text(original_text, encoding="utf-8")
+    compose_path.write_text(patched_text, encoding="utf-8")
+
+    ui.box(
+        "IMAGE LABELS – Compose patcher",
+        f"Compose file patched: {compose_path}\n"
+        f"Services patched: {', '.join(patched_services)}\n"
+        f"Injected build labels:\n" + "\n".join([f"  - {k}={v}" for k, v in image_labels.items()]),
+    )
+
+    try:
+        yield
+    finally:
+        try:
+            compose_path.write_text(backup_path.read_text(encoding="utf-8"), encoding="utf-8")
+        finally:
+            backup_path.unlink(missing_ok=True)
+
+
+@contextmanager
 def temporarily_patch_compose_in_place(compose_path: Path, component: str, container_name: str, ui: "BoxPrinter"):
     """Backup docker-compose.yml, patch entrypoint->bash for selected services, then restore.
 
@@ -189,7 +337,7 @@ def temporarily_patch_compose_in_place(compose_path: Path, component: str, conta
 
     if not targets:
         ui.box(
-            "DEBUG SHELL – Compose patcher",
+            "DEBUG SHELL - Compose patcher",
             f"Compose file: {compose_path}\n"
             f"Could not find a service matching any of: {', '.join(candidates)}\n"
             f"and no service with container_name == {container_name}.\n\n"
@@ -219,7 +367,7 @@ def temporarily_patch_compose_in_place(compose_path: Path, component: str, conta
     compose_path.write_text(patched_text, encoding="utf-8")
 
     ui.box(
-        "DEBUG SHELL – Compose patcher",
+        "DEBUG SHELL - Compose patcher",
         f"Compose file patched: {compose_path}\n"
         f"Services set to entrypoint=bash: {', '.join(targets)}\n\n"
         "Note: running containers will be (re)created by your setup script using this patched entrypoint.\n"
@@ -307,7 +455,7 @@ class BoxPrinter:
         body = "Starting component…\n" + " • " + "\n • ".join(flags)
         if note:
             body += f"\n\nNote: {note}"
-        self.box(f"▶ START – {component.upper()}", body)
+        self.box(f"▶ START - {component.upper()}", body)
 
     def skip_banner(self, component: str, reason: str) -> None:
         """Print a 'skipped' banner with a reason.
@@ -316,7 +464,7 @@ class BoxPrinter:
             component: Component name, e.g., "MASTER" or "AGENT".
             reason: Human-readable reason for skipping.
         """
-        self.box(f"⏭ START – {component.upper()} (SKIPPED)", reason)
+        self.box(f"⏭ START - {component.upper()} (SKIPPED)", reason)
 
 
 # ────────────────────────────────────────────────────────────────────────────────
@@ -432,6 +580,55 @@ class DockerClient:
         lines = [ln for ln in cp.stdout.splitlines() if ln.strip()]
         return (len(lines) > 0, lines[0].strip() if lines else "")
 
+
+    def save_images(self, image_refs: List[str], out_tar: Path) -> None:
+        """
+        Save images into a tar archive (docker save -o ...).
+        image_refs: list like ["master-master:latest", "master-redis:latest"] (tag may vary)
+        """
+        if not image_refs:
+            sys.exit(f"No images found to export for {out_tar.name}.")
+        out_tar.parent.mkdir(parents=True, exist_ok=True)
+        cmd = ["docker", "save", "-o", str(out_tar), *image_refs]
+        cp = self._run(cmd)
+        if cp.returncode != 0:
+            sys.exit(f"docker save failed:\n{cp.stderr or cp.stdout}")
+
+    def load_images(self, in_tar: Path) -> None:
+        """Load images from a tar archive (docker load -i ...)."""
+        if not in_tar.is_file():
+            sys.exit(f"Input tar not found: {in_tar}")
+        cmd = ["docker", "load", "-i", str(in_tar)]
+        cp = self._run(cmd)
+        if cp.returncode != 0:
+            sys.exit(f"docker load failed:\n{cp.stderr or cp.stdout}")
+
+    def container_image_id(self, name: str) -> Optional[str]:
+        """
+        Return image ID used by a container (works for running or stopped containers).
+        """
+        cp = self._run(["docker", "inspect", name, "--format", "{{.Image}}"])
+        if cp.returncode != 0:
+            return None
+        val = (cp.stdout or "").strip()
+        return val or None
+
+    def image_labels(self, image_id_or_ref: str) -> Dict[str, str]:
+        """
+        Return image labels dict for an image id/ref.
+        """
+        cp = self._run(["docker", "image", "inspect", image_id_or_ref, "--format", "{{json .Config.Labels}}"])
+        if cp.returncode != 0:
+            return {}
+        raw = (cp.stdout or "").strip()
+        if not raw or raw == "null":
+            return {}
+        try:
+            obj = json.loads(raw)
+            return obj if isinstance(obj, dict) else {}
+        except Exception:
+            return {}
+        
 
 # ────────────────────────────────────────────────────────────────────────────────
 # Process helpers
@@ -590,17 +787,49 @@ class Component:
             cmd.append("-o")
         if (self.key == "master" and cfg.config_master) or (self.key == "agent" and cfg.config_agent):
             cmd.append("-c")
-        self.ui.box(f"{self.label} – Setup", f"Executing {self.key} setup script…")
+        self.ui.box(f"{self.label} - Setup", f"Executing {self.key} setup script…")
 
-        if cfg.debug_shell:
-            compose_path = self._locate_compose_file(repo_root)
-            if not compose_path.exists():
-                sys.exit(f"Compose file not found for {self.key}: {compose_path}")
+        compose_path = self._locate_compose_file(repo_root)
 
-            with temporarily_patch_compose_in_place(compose_path, self.key, self.container, self.ui):
-                exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+        # Compute Dockerfile fingerprint (best-effort)
+        dockerfile_path = _find_component_dockerfile_path(repo_root, self.key, self.container)
+        fingerprint = sha256_file(dockerfile_path) if dockerfile_path and dockerfile_path.is_file() else None
+
+        labels: Dict[str, str] = {}
+        if fingerprint:
+            labels = {
+                "osir.dockerfile.sha256": fingerprint,
+                "osir.dockerfile.path": str(dockerfile_path.relative_to(repo_root)) if dockerfile_path else "",
+                "osir.component": self.key,
+            }
         else:
-            exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+            # No hard fail: best-effort. Status will show UNKNOWN.
+            self.ui.box(
+                f"{self.label} – Fingerprint",
+                "Could not locate/parse Dockerfile for fingerprinting.\n"
+                "Image label injection skipped. Status may show UNKNOWN for fingerprint check.",
+            )
+
+        # Apply patches (labels + optional debug-shell) around the setup call
+        exit_code: int
+        try:
+            if labels:
+                with temporarily_patch_compose_image_labels(compose_path, self.key, self.container, labels, self.ui):
+                    if cfg.debug_shell:
+                        with temporarily_patch_compose_in_place(compose_path, self.key, self.container, self.ui):
+                            exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+                    else:
+                        exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+            else:
+                if cfg.debug_shell:
+                    with temporarily_patch_compose_in_place(compose_path, self.key, self.container, self.ui):
+                        exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+                else:
+                    exit_code = ProcessRunner.run_interactive(cmd, cwd=repo_root)
+        except SystemExit:
+            raise
+        except Exception as e:
+            sys.exit(f"{self.label} setup failed unexpectedly: {e}")
 
         if exit_code != 0:
             sys.exit(f"{self.label.capitalize()} setup failed with exit code {exit_code}.")
@@ -612,7 +841,7 @@ class Component:
             sys.exit(f"Container '{self.container}' not found. Run the {self.key} setup first.")
 
         self.ui.box(
-            f"{self.label} – Start",
+            f"{self.label} - Start",
             f"Ensuring container '{self.container}' is running (ENTRYPOINT may be OSIR.py or bash)…",
         )
 
@@ -621,7 +850,7 @@ class Component:
         if cfg.debug_shell:
             manual = "--web" if self.key == "master" else "--agent"
             self.ui.box(
-                f"{self.label} – DEBUG SHELL",
+                f"{self.label} - DEBUG SHELL",
                 "Container started with bash as entrypoint.\n\n"
                 "⚠️  Now you have to run manually inside the shell:\n"
                 f"   OSIR.py {manual}\n\n"
@@ -795,6 +1024,44 @@ class Launcher:
             ui=self.ui,
         )
 
+    def _fingerprint_status(self, component: Component) -> Tuple[str, str]:
+        """
+        Returns (status_text, details) for dockerfile fingerprint check.
+        status_text is short; details is optional longer info.
+        """
+        dockerfile_path = _find_component_dockerfile_path(self.repo_root, component.key, component.container)
+        if not dockerfile_path or not dockerfile_path.is_file():
+            return ("UNKNOWN ❓", "Dockerfile not found / compose not parseable (best-effort).")
+
+        local_fp = sha256_file(dockerfile_path)
+
+        img_id = self.docker.container_image_id(component.container)
+        if not img_id:
+            # Container may not exist yet; try to infer by image repo name equal to container name
+            imgs = self.docker.images_by_ref(f"{component.key}-*")
+            pick = next((im for im in imgs if im.get("repo") == component.container and im.get("tag") not in (None, "", "<none>")), None)
+            if pick:
+                img_id = f"{pick['repo']}:{pick['tag']}"
+            else:
+                return ("UNKNOWN ❓", "No container and no matching local image found.")
+
+        labels = self.docker.image_labels(img_id)
+        img_fp = (labels.get("osir.dockerfile.sha256") or "").strip()
+
+        if not img_fp:
+            return ("UNKNOWN ❓", "Image has no osir.dockerfile.sha256 label (built with older launcher ?).")
+
+        if img_fp == local_fp:
+            return ("Up to date ✅", f"dockerfile={dockerfile_path.relative_to(self.repo_root)}")
+        
+        comp = component.key  # "master" or "agent"
+        detail = (
+            f"dockerfile changed: {dockerfile_path.relative_to(self.repo_root)}\n"
+            "Recommended actions:\n"
+            f"  1) Delete old image(s): sudo python3 osir-launcher.py stop -i {comp}\n"
+            f"  2) Build again:        sudo python3 osir-launcher.py start {comp}"
+        )
+        return ("OUTDATED ⚠️", detail)
     def _cfg_path_for(self, component: str) -> Path:
         """Return path to the per-component config file.
 
@@ -866,6 +1133,67 @@ class Launcher:
         else:
             setattr(args, f"config_{component}", True)
 
+
+    # ────────────────────────────────────────────────────────────────────────────
+    # Airgap helpers
+    # ────────────────────────────────────────────────────────────────────────────
+    def _refs_from_pattern(self, pattern: str) -> List[str]:
+        """Convert images_by_ref() output into docker refs 'repo:tag'."""
+        imgs = self.docker.images_by_ref(pattern)
+        refs: List[str] = []
+        for im in imgs:
+            repo = (im.get("repo") or "").strip()
+            tag = (im.get("tag") or "").strip()
+            if not repo or not tag or tag == "<none>":
+                continue
+            refs.append(f"{repo}:{tag}")
+        # stable ordering for reproducibility
+        return sorted(set(refs))
+
+    def cmd_airgap(self, args: argparse.Namespace) -> None:
+        """Handle 'airgap export/load' to save/load component images as tar."""
+        if args.airgap_cmd == "export":
+            out_dir = Path(args.out).resolve()
+            out_dir.mkdir(parents=True, exist_ok=True)
+
+            if args.component in ("master", "all"):
+                refs = self._refs_from_pattern("master-*")
+                out_tar = out_dir / "master_containers.tar"
+                self.ui.box(
+                    "AIRGAP - Export MASTER images",
+                    f"Exporting {len(refs)} image(s) to:\n{out_tar}",
+                )
+                self.docker.save_images(refs, out_tar)
+
+            if args.component in ("agent", "all"):
+                refs = self._refs_from_pattern("agent-*")
+                out_tar = out_dir / "agent_containers.tar"
+                self.ui.box(
+                    "AIRGAP - Export AGENT images",
+                    f"Exporting {len(refs)} image(s) to:\n{out_tar}",
+                )
+                self.docker.save_images(refs, out_tar)
+
+            self.ui.box("AIRGAP - Export complete", f"Archives written under:\n{out_dir}")
+            return
+
+        if args.airgap_cmd == "load":
+            in_dir = Path(args.in_dir).resolve()
+
+            if args.component in ("master", "all"):
+                in_tar = in_dir / "master_containers.tar"
+                self.ui.box("AIRGAP - Load MASTER images", f"Loading:\n{in_tar}")
+                self.docker.load_images(in_tar)
+
+            if args.component in ("agent", "all"):
+                in_tar = in_dir / "agent_containers.tar"
+                self.ui.box("AIRGAP - Load AGENT images", f"Loading:\n{in_tar}")
+                self.docker.load_images(in_tar)
+
+            self.ui.box("AIRGAP - Load complete", f"Archives loaded from:\n{in_dir}")
+            return
+
+        sys.exit("Unknown airgap command.")
     def parse_arguments(self) -> argparse.Namespace:
         """Build and parse the command-line interface.
 
@@ -915,6 +1243,26 @@ class Launcher:
             "--verbose",
             action="store_true",
             help="Show all master-* and agent-* container statuses and related images",
+        )
+
+        p_airgap = subparsers.add_parser("airgap", help="Air-gapped workflow (export/load docker images)")
+        airgap_sub = p_airgap.add_subparsers(dest="airgap_cmd", required=True)
+
+        p_airgap_export = airgap_sub.add_parser("export", help="Export docker images to tar archives")
+        p_airgap_export.add_argument("component", choices=["master", "agent", "all"])
+        p_airgap_export.add_argument(
+            "--out",
+            default=str(self.repo_root / "setup" / "offline_release"),
+            help="Output directory for tar archives (default: setup/offline_release)",
+        )
+
+        p_airgap_load = airgap_sub.add_parser("load", help="Load docker images from tar archives")
+        p_airgap_load.add_argument("component", choices=["master", "agent", "all"])
+        p_airgap_load.add_argument(
+            "--in",
+            dest="in_dir",
+            default=str(self.repo_root / "setup" / "offline_release"),
+            help="Input directory containing tar archives (default: setup/offline_release)",
         )
 
         return parser.parse_args()
@@ -969,7 +1317,7 @@ class Launcher:
         elif args.component == "agent":
             self.agent.launch(cfg, self.repo_root)
         elif args.component == "all":
-            self.ui.box("▶ START – ALL", "Beginning start sequence for MASTER and AGENT…")
+            self.ui.box("▶ START - ALL", "Beginning start sequence for MASTER and AGENT…")
             self.master.launch(cfg, self.repo_root)
             self.agent.launch(cfg, self.repo_root)
 
@@ -1019,12 +1367,20 @@ class Launcher:
             else f"DOWN ❌ ({a_detail or 'start agent using OSIR.py --agent inside agent-agent container'})"
         )
 
+        m_fp, m_fp_detail = self._fingerprint_status(self.master)
+        a_fp, a_fp_detail = self._fingerprint_status(self.agent)
+        
         body = (
             "Expected processes inside containers:\n"
             "  • master-master : OSIR.py --web\n"
             "  • agent-agent   : OSIR.py --agent\n\n"
             f"Master process check : {m_status}\n"
-            f"Agent process check  : {a_status}"
+            f"Agent process check  : {a_status}\n\n"
+            "Dockerfile fingerprint check:\n"
+            f"  • MASTER image : {m_fp}\n"
+            f"    {m_fp_detail.replace(chr(10), chr(10) + '    ')}\n"
+            f"  • AGENT  image : {a_fp}\n"
+            f"    {a_fp_detail.replace(chr(10), chr(10) + '    ')}"
         )
         self.ui.box("OSIR status", body)
 
@@ -1033,8 +1389,8 @@ class Launcher:
 
         master_images = self.docker.images_by_ref("master-*")
         agent_images = self.docker.images_by_ref("agent-*")
-        self.ui.box("Docker images – Master component (master-*)", fmt_images(master_images))
-        self.ui.box("Docker images – Agent component (agent-*)", fmt_images(agent_images))
+        self.ui.box("Docker images - Master component (master-*)", fmt_images(master_images))
+        self.ui.box("Docker images - Agent component (agent-*)", fmt_images(agent_images))
 
         master_containers = group_containers_by_prefix("master-", self.docker)
         agent_containers = group_containers_by_prefix("agent-", self.docker)
@@ -1053,8 +1409,8 @@ class Launcher:
             chunks = [fmt_container_block(ci) for ci in infos]
             return "\n\n".join(chunks)
 
-        self.ui.box("Containers – master", fmt_group(master_containers))
-        self.ui.box("Containers – agent", fmt_group(agent_containers))
+        self.ui.box("Containers - master", fmt_group(master_containers))
+        self.ui.box("Containers - agent", fmt_group(agent_containers))
 
     def ensure_env(self):
         """Ensures that .env files exist, copying from .env.example if needed."""
@@ -1090,6 +1446,10 @@ class Launcher:
             self.cmd_stop(args)
         elif args.command == "status":
             self.cmd_status(args)
+        elif args.command == "airgap":
+            self.cmd_airgap(args)
+        else:
+            sys.exit(f"Unknown command: {args.command}")
 
 
 # ────────────────────────────────────────────────────────────────────────────────
