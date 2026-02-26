@@ -11,7 +11,7 @@ import time
 from typing import Any, Callable, Optional
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.logger import AppLogger
-from osir_service.postgres.PostgresConstants import ProcessingStatus
+from osir_service.postgres.OsirDbConstants import ProcessingStatus
 
 logger = AppLogger().get_logger()
 
@@ -194,9 +194,9 @@ def finalize_task(status, task_id, func_name, start, end, logs):
             end (datetime): Execution end timestamp.
             logs (str): The raw log output captured during execution.
     """
-    from osir_service.postgres.PostgresService import DbOSIR
+    from osir_service.postgres.OsirDb import OsirDb
 
-    db = DbOSIR()
+    db = OsirDb()
 
     log_blob = {
         "function": func_name,

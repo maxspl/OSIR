@@ -177,3 +177,14 @@ class FileManager:
         os.makedirs(case_path)
 
         return ('created', case_path)
+
+    @staticmethod
+    def all_profiles(relative: bool = False):
+        return FileManager.get_yaml_files(OSIR_PATHS.PROFILES_DIR, relative=relative)
+
+    @staticmethod
+    def all_modules(relative: bool = False):
+        return FileManager.get_yaml_files(OSIR_PATHS.MODULES_DIR, relative=relative)
+    
+    def all_cases():
+        return FileManager.get_cases(OSIR_PATHS.CASES_DIR)

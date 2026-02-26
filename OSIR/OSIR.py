@@ -103,7 +103,7 @@ def main():
         IpcService(host='0.0.0.0', port=8989).start()
 
         logger.info("Launching web app...")
-        cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/Processor.py"])
+        cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/OsirWeb.py"])
 
     case_path = os.path.join("/OSIR/share/cases", args.case)
     if not os.path.isdir(case_path):

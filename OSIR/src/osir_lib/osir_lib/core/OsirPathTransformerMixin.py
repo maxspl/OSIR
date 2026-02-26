@@ -1,7 +1,6 @@
 import hashlib
-import logging
 from pathlib import Path, PureWindowsPath
-from typing import Optional, Any, Callable
+from typing import Optional, Callable
 
 from osir_lib.logger import AppLogger
 

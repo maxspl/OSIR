@@ -6,7 +6,7 @@ import sys
 import yaml
 import os
 from typing import Callable, Optional, Literal, Pattern
-from pydantic import BaseModel, ValidationError, model_validator
+from pydantic import BaseModel, PrivateAttr, ValidationError, model_validator
 
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
@@ -22,11 +22,11 @@ logger = AppLogger().get_logger()
 
 class OsirModuleModel(BaseModel):
     """
-        Data model defining the structure and validation for OSIR forensic modules.
+        Data model defining the structure and validation for OSIR modules.
 
         This model serves as the blueprint for all modules within the framework. 
         It validates metadata (author, version), execution requirements (OS, 
-        processor type), and the core components of the forensic task (tool, 
+        processor type), and the core components of the task (tool, 
         input, output, and connectors).
     """
     version: float | str
@@ -47,12 +47,20 @@ class OsirModuleModel(BaseModel):
     output: OsirOutputModel
     endpoint: Optional[Pattern] = None
     connector: Optional[OsirConnectorModel] = None
-
+    
+    
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None
 
     # Private Attribute 
     filename: Optional[str] = None
+    _mod_path: str = PrivateAttr(default=None)
+    _rel_path: str = PrivateAttr(default=None)
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self._mod_path = FileManager.get_module_path(self.filename)
+        self._rel_path = str(Path(self._mod_path).relative_to(OSIR_PATHS.MODULES_DIR))
 
     @classmethod
     def from_yaml(cls, path: str) -> "OsirModuleModel":

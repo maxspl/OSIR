@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
+from osir_lib.core.model.LiteralModel import OUTPUT_TYPE
+
 
 class OsirOutputModel(BaseModel):
     """
@@ -17,7 +19,7 @@ class OsirOutputModel(BaseModel):
     """
     model_config = ConfigDict(validate_assignment=True)
 
-    type: Optional[str] = None
+    type: Optional[OUTPUT_TYPE] = None
     format: Optional[str] = None
     output_dir: Optional[str] = None
     output_file: Optional[str] = None
@@ -57,3 +59,11 @@ class OsirOutputModel(BaseModel):
                     f"(current type: '{self.type}')"
                 )
         return self
+
+    @property
+    def file(self):
+        return self.output_file
+
+    @property
+    def dir(self):
+        return self.output_dir

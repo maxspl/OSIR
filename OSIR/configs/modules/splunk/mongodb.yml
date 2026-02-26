@@ -22,7 +22,7 @@ input:
     - "**/var/log/mongodb/*.log"
     - r"^mongod.log$"
 output:
-  type: none
+  type: None
 splunk:
   'linux:app:mongodb':
     name_rex: mongod.log$

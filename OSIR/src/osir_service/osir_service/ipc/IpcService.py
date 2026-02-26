@@ -2,6 +2,8 @@ import socket
 import json
 import threading
 import time
+import re
+import os
 from pydantic import BaseModel
 
 from osir_lib.core.FileManager import FileManager
@@ -10,9 +12,12 @@ from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_service.ipc.OsirExceptions import OsirException
 from osir_service.ipc.OsirIpcModel import OsirIpcModel, OsirIpcResponse
 from osir_service.ipc.OsirIpc import OsirIpc
-from osir_service.postgres.PostgresService import DbOSIR
+from osir_service.postgres.OsirDb import OsirDb
 from osir_service.watchdog.MonitorCase import MonitorCase
 from osir_service.ipc.JsonSocket import recv_json, send_json
+from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
+from osir_service.orchestration.TaskService import TaskService
+
 from osir_lib.core.OsirConstants import OSIR, OSIR_PATHS
 from osir_lib.logger import AppLogger
 
@@ -49,11 +54,11 @@ class IpcService(BaseModel):
                                 while True:
                                     try:
                                         request = recv_json(conn)
-                                        logger.debug(f"Received JSON: {request}")
+                                        # logger.debug(f"Received JSON: {request}")
                                         response = self.action(request)
                                         if response is not None:
                                             send_json(conn, response, pydantic=True)
-                                            logger.info(f"Sent IPC response to client: {response}")
+                                            # logger.info(f"Sent IPC response to client: {response}")
                                     except ConnectionError:
                                         logger.debug("Client disconnected.")
                                         break
@@ -114,29 +119,63 @@ class IpcService(BaseModel):
                     if not hasattr(osir_ipc_request, "case_path") or not osir_ipc_request.case_path:
                         return OsirException.CASE_NOT_FOUND(case=osir_ipc_model.case_name)
 
-                    # Trigger background module execution
-                    gen = self.action_exec_module(osir_ipc_request)
-                    handler_uuid = next(gen)
-                    threading.Thread(target=self.consume_generator, args=(gen,), daemon=True).start()
+                    if hasattr(osir_ipc_request, "input_path") and osir_ipc_request.input_path:
+                        # TODO: Security check on input file
+                        module_model = OsirModuleModel.from_name(osir_ipc_request.modules[0])
+                        module_model.input.match = osir_ipc_request.input_path
+                        case_path = re.match(r'^(.*?/cases/[^/]+)', osir_ipc_request.input_path).group(1)
+                        with OsirDb() as db:
+                            case_uuid = db.case.get(name=os.path.basename(case_path)).case_uuid
+                        task_id = TaskService.push_task(case_path=case_path,module_instance=module_model,case_uuid=case_uuid)
+                        with OsirDb() as db:
+                            osir_ipc_response.message = "Module execution started"
+                            osir_ipc_response.response = db.task.get(task_id=task_id)
+                    else:
+                        # Trigger background module execution
+                        gen = self.action_exec_module(osir_ipc_request)
+                        handler_uuid, case_uuid = next(gen)
+                        threading.Thread(target=self.consume_generator, args=(gen,), daemon=True).start()
 
-                    osir_ipc_response.message = "Module execution started"
-                    osir_ipc_response.response["handler_id"] = handler_uuid
+                        osir_ipc_response.message = "Module execution started"
+                        osir_ipc_response.response = OsirDbHandlerModel(
+                            handler_id=handler_uuid,
+                            case_uuid=case_uuid,
+                            task_id=[],
+                            modules=osir_ipc_request.modules,
+                            processing_status='processing_started',
+                        )
 
                 case 'exec_profile':
                     if not hasattr(osir_ipc_request, "profile") or not osir_ipc_request.profile:
                         return OsirException.MISSING_PARAMETER(parameter_name="profile")
 
                     gen = self.action_exec_profile(osir_ipc_request)
-                    handler_uuid = next(gen)
+                    handler_uuid, case_uuid = next(gen)
                     threading.Thread(target=self.consume_generator, args=(gen,), daemon=True).start()
 
                     osir_ipc_response.response["message"] = "Profile execution started"
-                    osir_ipc_response.response["handler_id"] = handler_uuid
+                    osir_ipc_response.response = OsirDbHandlerModel(
+                        handler_id=handler_uuid,
+                        case_uuid=case_uuid,
+                        task_id=[],
+                        modules=osir_ipc_request.profile.modules,
+                        processing_status='processing_started',
+                    )
 
                 case 'create_case':
                     if not hasattr(osir_ipc_request, "case_name") or not osir_ipc_request.case_name:
                         return OsirException.MISSING_PARAMETER(parameter_name="case_name")
                     osir_ipc_response.response = self.action_create_case(osir_ipc_request)
+
+                case 'get_cases':
+                    osir_ipc_response.response = self.action_get_cases()
+
+                case 'get_tasks':
+                    if not hasattr(osir_ipc_request, "case_name") or not osir_ipc_request.case_name:
+                        return OsirException.MISSING_PARAMETER(parameter_name="case_name")
+
+                    osir_ipc_response.message = "Tasks retrieved"
+                    osir_ipc_response.response = self.action_get_tasks(osir_ipc_request)
 
                 case 'get_task_log':
                     if not hasattr(osir_ipc_request, "task_id") or not osir_ipc_request.task_id:
@@ -161,7 +200,7 @@ class IpcService(BaseModel):
                         return OsirException.MISSING_PARAMETER(parameter_name="case_name")
 
                     osir_ipc_response.message = "Handler retrieved"
-                    osir_ipc_response.response["handlers"] = self.action_get_case_handler(osir_ipc_request)
+                    osir_ipc_response.response = self.action_get_case_handler(osir_ipc_request)
 
         except Exception as e:
             logger.error(
@@ -176,41 +215,44 @@ class IpcService(BaseModel):
     def action_exec_module(self, osir_ipc: OsirIpc):
         """Initializes a case monitor for specific module execution."""
         handler_module = MonitorCase(case_path=osir_ipc.case_path, modules=osir_ipc.modules, reprocess_case=True)
-        yield handler_module.handler_uuid
+        yield (handler_module.handler_uuid, handler_module.case_uuid)
         handler_module.setup_handler()
 
     def action_exec_profile(self, osir_ipc: OsirIpc):
         """Initializes a case monitor for profile-based execution."""
         handler_profile = MonitorCase(case_path=osir_ipc.case_path, modules=osir_ipc.profile.modules, reprocess_case=True)
-        yield handler_profile.handler_uuid
+        yield (handler_profile.handler_uuid, handler_profile.case_uuid)
         handler_profile.setup_handler()
 
     def action_create_case(self, osir_ipc: OsirIpc):
         """Handles database and filesystem creation for a new forensic case."""
-        with DbOSIR() as db:
-            case_uuid = db.case.create(name=osir_ipc.case_name)
-            if case_uuid:
-                state, case_path = FileManager.create_case(OSIR_PATHS.CASES_DIR, case_name=osir_ipc.case_name)
-            return {
-                "case_name": osir_ipc.case_name,
-                "case_uuid": case_uuid,
-                "case_path": case_path,
-                "state": state
-            }
+        with OsirDb() as db:
+            return db.case.create(name=osir_ipc.case_name)
 
     def action_get_task_log(self, osir_ipc: OsirIpc):
         """Queries the JSONL log files for specific task traces."""
-        log_file = OSIR_PATHS.LOG_DIR / "task_traces.jsonl"
-        return get_latest_log_by_task_id(osir_ipc.task_id, log_file)
+        with OsirDb() as db:
+            return db.task.get(osir_ipc.task_id)
+
+    def action_get_tasks(self, osir_ipc: OsirIpc):
+        with OsirDb() as db:
+            if not osir_ipc.case_uuid:
+                osir_ipc.case_uuid = db.case.get(name=osir_ipc.case_name).case_uuid
+            return db.task.list(case_uuid=osir_ipc.case_uuid)
+    
+    def action_get_cases(self):
+        with OsirDb() as db:
+            return db.case.list()
 
     def action_get_handler_status(self, osir_ipc: OsirIpc):
-        with DbOSIR() as db:
+        with OsirDb() as db:
             return db.handler.get(handler_id=osir_ipc.handler_id)
+
     def action_get_case_handler(self, osir_ipc: OsirIpc):
         """Returns all handlers associated with a specific case."""
-        with DbOSIR() as db:
+        with OsirDb() as db:
             if not osir_ipc.case_uuid:
-                osir_ipc.case_uuid = db.case.get(name=osir_ipc.case_name)
+                osir_ipc.case_uuid = db.case.get(name=osir_ipc.case_name).case_uuid
 
             if not osir_ipc.case_uuid:
                 return "ERROR: CASE NOT FOUND"

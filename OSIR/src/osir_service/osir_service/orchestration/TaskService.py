@@ -7,7 +7,7 @@ from celery import signature
 
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
-from osir_service.postgres.PostgresService import DbOSIR
+from osir_service.postgres.OsirDb import OsirDb
 
 logger = AppLogger(__name__).get_logger()
 
@@ -35,7 +35,7 @@ class TaskService:
             return f"{module.processor_os}_multithread"
 
     @staticmethod
-    def push_task(case_path, module_instance: OsirModuleModel, case_uuid, handler_uuid):
+    def push_task(case_path, module_instance: OsirModuleModel, case_uuid, handler_uuid = None):
         """
             Submits a task for asynchronous execution using Celery, specifying the task's parameters and execution queue.
 
@@ -70,20 +70,21 @@ class TaskService:
             queue=TaskService.get_queue_name(module_instance)
         )
         custom_task_id = str(uuid.uuid4())
-        db = DbOSIR()
-        db.task.create(
-            task_id=custom_task_id,
-            case_uuid=case_uuid,
-            agent="Null",
-            module=module_instance.module_name,
-            input=module_instance.input.match
-        )
 
-        db.handler.append_task_ids(
-            handler_id=handler_uuid,
-            new_task_ids=[custom_task_id]
-        )
-        db.close()
+        with OsirDb() as db:
+            db.task.create(
+                task_id=custom_task_id,
+                case_uuid=case_uuid,
+                agent="Null",
+                module=module_instance.module_name,
+                input=module_instance.input.match
+            )
+            if handler_uuid:
+                db.handler.append_task_ids(
+                    handler_id=handler_uuid,
+                    new_task_ids=[custom_task_id]
+                )
+
         result = task_signature.apply_async(task_id=custom_task_id)
 
         logger.info(f"""Task Pushed : \n
@@ -93,3 +94,5 @@ class TaskService:
                     Case Path : {case_path} \n
                     Input : {module_instance.input.match} \n
                     Case UUID : {case_uuid} \n""")
+
+        return custom_task_id

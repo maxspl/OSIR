@@ -21,8 +21,8 @@ from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.core.OsirUtils import capture_log_output
 from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
-from osir_service.postgres.PostgresConstants import ProcessingStatus
-from osir_service.postgres.PostgresService import DbOSIR
+from osir_service.postgres.OsirDbConstants import ProcessingStatus
+from osir_service.postgres.OsirDb import OsirDb
 from celery.signals import task_success
 
 logger = AppLogger().get_logger()
@@ -67,7 +67,7 @@ class CeleryWorker:
         self._register_tasks()
         self._local_count = 0
 
-    def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: DbOSIR):
+    def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: OsirDb):
         """
             Wait until the input file or directory is free to use, i.e., not being used by another module.
 
@@ -135,10 +135,16 @@ class CeleryWorker:
                 processor = InternalProcessor(case_path, module_instance, task_id=task_id, agent_name=worker_name)
                 logger.debug("Check if input files/foles of module is in use...")
 
-                db = DbOSIR()
-                self._is_item_in_use(case_uuid, module_instance, db)
-                db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name)
-                db.close()
+                with OsirDb() as db:
+                    if module_instance.output.type == 'multiple_files':
+                        output_path = module_instance.output.dir
+                    elif module_instance.output.type != 'None':
+                        output_path = module_instance.output.file
+                    else:
+                        output_path = "N/A"
+
+                    self._is_item_in_use(case_uuid, module_instance, db)
+                    db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name, output=output_path)
 
                 # Wait if file is currently beeing written
                 file_written = self._is_file_being_written(module_instance)
@@ -150,7 +156,7 @@ class CeleryWorker:
                     logger.debug(f"Running internal module {module_instance.module_name}.py")
                     processor.run_module()
             except Exception as exc:
-                db = DbOSIR()
+                db = OsirDb()
                 with capture_log_output(logger) as log_buffer:
                     logger.error_handler(exc)
                     captured_trace = log_buffer.getvalue()
@@ -174,10 +180,16 @@ class CeleryWorker:
 
                 logger.debug(f"Check if input of {module_instance.module_name} is in use...")
 
-                db = DbOSIR()
-                self._is_item_in_use(case_uuid, module_instance, db)
-                db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name)
-                db.close()
+                with OsirDb() as db:
+                    if module_instance.output.type == 'multiple_files':
+                        output_path = module_instance.output.dir
+                    elif module_instance.output.type != 'None':
+                        output_path = module_instance.output.file
+                    else:
+                        output_path = "N/A"
+
+                    self._is_item_in_use(case_uuid, module_instance, db)
+                    db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name, output=output_path)
 
                 file_written = self._is_file_being_written(module_instance)
                 while file_written:
@@ -187,7 +199,7 @@ class CeleryWorker:
 
                 processor.run_module()
             except Exception as exc:
-                db = DbOSIR()
+                db = OsirDb()
                 with capture_log_output(logger) as log_buffer:
                     logger.error_handler(exc)
                     captured_trace = log_buffer.getvalue()

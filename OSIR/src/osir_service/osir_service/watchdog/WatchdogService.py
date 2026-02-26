@@ -19,7 +19,7 @@ from watchdog.events import FileSystemEventHandler
 from osir_lib.core.OsirUtils import remove_placeholders
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_service.orchestration.TaskService import TaskService
-from osir_service.postgres.PostgresService import DbOSIR
+from osir_service.postgres.OsirDb import OsirDb
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -111,13 +111,13 @@ class ModuleHandler(FileSystemEventHandler):
         # Initialize a set and a lock to keep track of active timers
         self.active_timers = set()
         self.timers_lock = threading.Lock()
-        self.db = DbOSIR()
-        self.db.handler.create(
-            handler_id=self.handler_uuid,
-            case_uuid=self.case_uuid,
-            modules=[module.module_name for module in module_instances],
-            task_ids=[]
-        )
+        with OsirDb() as db:
+            db.handler.create(
+                handler_id=self.handler_uuid,
+                case_uuid=self.case_uuid,
+                modules=[module.module_name for module in module_instances],
+                task_ids=[]
+            )
 
     def monitor_directory(self, case_path, interval=5, reprocess=False):
         """
@@ -133,7 +133,8 @@ class ModuleHandler(FileSystemEventHandler):
         if not reprocess:
             # Fetch previously stored entries
             logger.debug(f"Fetching previously stored entries for case_uuid={self.case_uuid}")
-            previous_entries = set(self.db.snapshot.get_stored_case_snapshot(case_path))
+            with OsirDb() as db:
+                previous_entries = set(db.snapshot.get_stored_case_snapshot(case_path))
             if not previous_entries:
                 logger.debug("No previous entries found, starting with an empty set.")
         else:
@@ -163,17 +164,17 @@ class ModuleHandler(FileSystemEventHandler):
                 logger.debug(f"Time taken to process new items: {new_entries_duration:.4} seconds")
             else:
                 logger.debug("No new item detected. Checking if a task is still ongoing before exiting...")
-                if not self.db.handler.is_processing_active(self.handler_uuid):
-                    with self.timers_lock:
-                        if not self.active_timers:
-                            logger.debug("Case snaphost is being saved before exiting...")
-                            self.db.snapshot.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
-                            if self.db.handler.check_handler_failure(self.handler_uuid):
-                                self.db.handler.update(self.handler_uuid, "processing_failed")
-                            else:
-                                self.db.handler.update(self.handler_uuid, "processing_done")
-                            self.db.close()
-                            exit()
+                with OsirDb() as db:
+                    if not db.handler.is_processing_active(self.handler_uuid):
+                        with self.timers_lock:
+                            if not self.active_timers:
+                                logger.debug("Case snaphost is being saved before exiting...")
+                                db.snapshot.store_case_snapshot(self.case_uuid, case_path, list(current_entries))
+                                if db.handler.check_handler_failure(self.handler_uuid):
+                                    db.handler.update(self.handler_uuid, "processing_failed")
+                                else:
+                                    db.handler.update(self.handler_uuid, "processing_done")
+                                exit()
             previous_entries = current_entries
 
             time.sleep(interval)

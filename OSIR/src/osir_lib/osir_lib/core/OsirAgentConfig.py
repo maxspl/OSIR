@@ -126,16 +126,15 @@ class OsirAgentConfig:
             with open(FileManager.get_config_path('agent'), 'r') as file:
                 data = yaml.safe_load(file)
 
-            # Pydantic valide et désérialise les données
             self.config_data = FullAgentConfig.model_validate(data)
         except FileNotFoundError as e:
             logger.warning(f"Missing agent.yml: {e}")
             raise
         except yaml.YAMLError as e:
-            logger.error(f"Erreur de parsing YAML : {e}")
+            logger.error(f"YAML parsing error: {e}")
             raise
         except Exception as e:
-            logger.error("Échec du chargement ou de la validation de la configuration de l'agent. " + str(e))
+            logger.error("Failed to load or validate agent configuration. " + str(e))
             raise
 
     @property
