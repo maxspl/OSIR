@@ -1,7 +1,5 @@
-import re
 from osir_lib.core.LogUtils import LogUtils
 from osir_lib.core.OsirDecorator import osir_internal_module
-from osir_lib.core.LogUtils import LogUtils
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger, CustomLogger
 

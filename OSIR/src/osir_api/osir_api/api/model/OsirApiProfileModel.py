@@ -19,6 +19,8 @@ Response model:
 
 ==========================================
 """
+
+
 class GetProfileListResponse(OsirIpcResponse):
     response: List[str]
 
@@ -37,6 +39,8 @@ Response model:
 
 ==========================================
 """
+
+
 class GetProfileInfoResponse(OsirIpcResponse):
     response: Union[OsirProfileModel, None]
 
@@ -55,6 +59,7 @@ Response model:
 
 ==========================================
 """
+
 
 class PostProfileRunRequest(BaseModel):
     case_name: str

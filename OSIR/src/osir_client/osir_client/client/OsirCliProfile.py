@@ -30,8 +30,9 @@ class OsirCliProfile(BaseModel):
         Retrieve profile info by name.
         GET /api/profile/{profile_name}/info
         """
-        response: GetProfileInfoResponse = self._api.get(f"/api/profile/{profile_name}/info",
-                response_model=GetProfileInfoResponse)
+        response: GetProfileInfoResponse = self._api.get(
+            f"/api/profile/{profile_name}/info",
+            response_model=GetProfileInfoResponse)
         return response.response
 
     def list(self, print: bool = True) -> list[str]:
@@ -39,8 +40,9 @@ class OsirCliProfile(BaseModel):
         Retrieve all available profiles.
         GET /api/profile
         """
-        response: GetProfileListResponse = self._api.get("/api/profile",
-                response_model=GetProfileListResponse)
+        response: GetProfileListResponse = self._api.get(
+            "/api/profile",
+            response_model=GetProfileListResponse)
 
         if print:
             OsirCliDisplay.profiles(response.response)

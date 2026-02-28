@@ -48,8 +48,6 @@ class OsirWebFile:
         if st.context.theme.type == 'light':
             is_light = "true"
 
-        all_module = OsirWebFile.get_all_module()
-
         file_explorer_component = OsirWebFile.create_file_explorer_component(is_light=is_light)
 
         event = file_explorer_component(
@@ -78,7 +76,7 @@ class OsirWebFile:
                         case_path = re.match(r'^(.*?/cases/[^/]+)', selected_path).group(1)
                         with OsirDb() as db:
                             case_uuid = db.case.get(name=os.path.basename(case_path)).case_uuid
-                        TaskService.push_task(case_path=case_path,module_instance=module_model,case_uuid=case_uuid)
+                        TaskService.push_task(case_path=case_path, module_instance=module_model, case_uuid=case_uuid)
                         OsirWebUtils.toast(
                             txt="Task started ! Follow the progression in 'Task On Going' or in 'Orchestration Monitoring'",
                             background="#28a745",
@@ -124,17 +122,17 @@ class OsirWebFile:
                     try:
                         # Resolve real absolute path (resolves ../ etc)
                         resolved = Path(path).resolve()
-                        allowed  = Path("/OSIR/share/cases").resolve()
+                        allowed = Path("/OSIR/share/cases").resolve()
 
                         # Security checks
                         if not resolved.is_relative_to(allowed):
-                            raise PermissionError(f"Access denied: path outside allowed directory")
+                            raise PermissionError("Access denied: path outside allowed directory")
                         if not resolved.exists():
-                            raise FileNotFoundError(f"File not found")
+                            raise FileNotFoundError("File not found")
                         if not resolved.is_file():
-                            raise ValueError(f"Path is not a file")
+                            raise ValueError("Path is not a file")
                         if resolved.stat().st_size == 0:
-                            raise ValueError(f"File is empty")
+                            raise ValueError("File is empty")
                         
                         logger.info(resolved)
                         with open(resolved, "r", encoding="utf-8", errors="replace") as f:
@@ -163,7 +161,7 @@ class OsirWebFile:
                     path = event["path"]
                     try:
                         resolved = Path(path).resolve()
-                        allowed  = Path("/OSIR/share/cases").resolve()
+                        allowed = Path("/OSIR/share/cases").resolve()
 
                         if not resolved.is_relative_to(allowed):
                             raise PermissionError("Access denied")
@@ -174,12 +172,12 @@ class OsirWebFile:
 
                         with open(resolved, "rb") as f:
                             OsirWebUtils.toast(
-                                txt=f"File successfuly loaded go at the bottom of the page.",
+                                txt="File successfuly loaded go at the bottom of the page.",
                                 background="#28a745",
                                 icon="🎉"
                             )
                             st.download_button(
-                                label=f"⬇️ Your download is ready ! Click on me !",
+                                label="⬇️ Your download is ready ! Click on me !",
                                 data=f,
                                 file_name=resolved.name,
                                 mime="application/octet-stream",
@@ -232,7 +230,8 @@ class OsirWebFile:
         file_task_log: list = None,
         file_actions: list = None,
         folder_actions: list = None,
-        light_mode: str = 'true'):
+        light_mode: str = 'true'
+    ):
         """
         Renders an interactive file explorer iframe.
 

@@ -1,4 +1,4 @@
-from typing import Union, List, Tuple
+from typing import Union, List
 import uuid
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS

@@ -1,6 +1,7 @@
 import streamlit as st
 from osir_web.pages.OsirWebHeader import OsirWebHeader
 
+
 class OsirWebBug:
     GITHUB_REPO = "https://github.com/maxspl/OSIR/issues"
 

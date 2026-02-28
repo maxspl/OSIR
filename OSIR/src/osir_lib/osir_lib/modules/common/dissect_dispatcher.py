@@ -1,5 +1,4 @@
 from __future__ import annotations
-import os
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger, CustomLogger
@@ -8,6 +7,7 @@ from flow.record.jsonpacker import JsonRecordPacker
 from dissect.target.exceptions import TargetError, LoaderError, TargetPathNotFoundError, UnsupportedPluginError, PluginNotFoundError
 
 logger: CustomLogger = AppLogger().get_logger()
+
 
 @osir_internal_module
 class DissectDispatcher():
@@ -28,7 +28,6 @@ class DissectDispatcher():
     def __init__(self, case_path: str, module: OsirModule) -> None:
         self.module = module
         self.case_path = case_path
-
 
     def __call__(self) -> bool:
 

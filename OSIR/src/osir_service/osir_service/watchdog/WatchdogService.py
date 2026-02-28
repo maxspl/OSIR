@@ -2,16 +2,12 @@ import re
 import time
 import os
 import threading
-import pkgutil
-import importlib
-import pickle
 import copy
 
 from pathlib import Path
 from threading import Timer
 import uuid
 
-from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.OsirUtils import normalize_osir_path
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
@@ -56,7 +52,7 @@ class CaseSnapshot:
                         elif entry.is_file():
                             self.entries.append((entry.path, 'file'))
                     except OSError as e:
-                        logger.warning(f"Unreadable entries : {entry}")
+                        logger.warning(f"Unreadable entries : {entry}. Error: {str(e)}")
                         continue
                     
         scan(self.case_path)
@@ -102,11 +98,6 @@ class ModuleHandler(FileSystemEventHandler):
         self.last_processed = set()
 
         self.agent_config = OsirAgentConfig()
-
-        if self.agent_config.standalone:
-            db_postgres = "master-postgres"
-        else:
-            db_postgres = self.agent_config.master_host
 
         # Initialize a set and a lock to keep track of active timers
         self.active_timers = set()

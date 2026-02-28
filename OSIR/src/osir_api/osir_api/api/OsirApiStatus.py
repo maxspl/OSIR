@@ -7,6 +7,7 @@ from osir_service.ipc.OsirIpcClient import OsirIpcClient
 
 router = APIRouter()
 
+
 @router.get("/active",
             response_model=OsirIpcResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})

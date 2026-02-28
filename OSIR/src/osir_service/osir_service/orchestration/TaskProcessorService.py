@@ -1,8 +1,5 @@
-import os
-import pkgutil
 import importlib
 import sys
-import traceback
 
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.OsirModule import OsirModule

@@ -1,6 +1,6 @@
 
 import requests
-from typing import Optional, Dict, Any, Type, TypeVar
+from typing import Optional, Type, TypeVar
 from pydantic import BaseModel, PrivateAttr
 from osir_client.client.OsirCliCase import OsirCliCase
 from osir_lib.logger import AppLogger

@@ -5,7 +5,6 @@ from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.logger import AppLogger
 from osir_lib.logger.logger import CustomLogger
-from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
 

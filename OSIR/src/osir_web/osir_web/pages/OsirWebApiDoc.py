@@ -1,7 +1,7 @@
-import streamlit as st
 from osir_web.pages.OsirWebHeader import OsirWebHeader
 import streamlit.components.v1 as components
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
+
 
 class OsirWebApiDoc:
     @staticmethod

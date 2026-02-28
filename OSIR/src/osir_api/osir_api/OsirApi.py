@@ -1,9 +1,7 @@
 import importlib
-import os
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
 from osir_api.api.OsirApiExceptions import (
     UnexpectedException,
     unexpected_error_handler

@@ -1,8 +1,6 @@
 import io
 from sqlite3 import OperationalError
-from typing import Union, List, Tuple
-import uuid
-from osir_lib.core.FileManager import FileManager
+from typing import List, Tuple
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -24,7 +22,7 @@ class OsirDbSnapshot:
             """
         try:
             self.db.execute_query(query)
-            #logger.debug("Table `case_snapshot` ensured.")
+            # logger.debug("Table `case_snapshot` ensured.")
         except Exception as e:
             logger.error(f"Error creating `case_snapshot` table: {str(e)}")
 

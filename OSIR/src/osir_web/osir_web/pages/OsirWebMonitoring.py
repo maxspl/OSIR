@@ -1,12 +1,12 @@
 import pandas as pd
 import streamlit as st
-from osir_web.pages.OsirWebCase import FileManager
 from osir_web.pages.OsirWebHeader import OsirWebHeader
 from osir_web.pages.OsirWebUtils import OsirWebUtils
 from osir_service.postgres.OsirDb import OsirDb
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
+
 
 class OsirWebMonitoring:
     @staticmethod
@@ -46,7 +46,6 @@ class OsirWebMonitoring:
     @staticmethod
     def tab1_handler_by_case(tab):
         with tab:
-            all_cases = FileManager.all_cases()
 
             filters = OsirWebUtils.filters(
                 show_case_name=True,
@@ -102,7 +101,7 @@ class OsirWebMonitoring:
                             "Created At",
                             format="YYYY-MM-DD HH:mm:ss"  
                         ),
-                         "case_name": st.column_config.TextColumn(
+                        "case_name": st.column_config.TextColumn(
                             "Case Name"  
                         ),
                         "modules": st.column_config.ListColumn(
@@ -140,7 +139,6 @@ class OsirWebMonitoring:
                     if previous_handler_id != selected_row["handler_id"]:
                         with js_trigger:
                             OsirWebUtils.switch(1)
-
 
             else:
                 st.info("No handler found.")

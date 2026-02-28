@@ -3,13 +3,9 @@ import functools
 import inspect
 from io import StringIO
 import io
-import json
 import logging
-import os
-import threading
 import time
-from typing import Any, Callable, Optional
-from osir_lib.core.OsirConstants import OSIR_PATHS
+from typing import Any, Optional
 from osir_lib.logger import AppLogger
 from osir_service.postgres.OsirDbConstants import ProcessingStatus
 
@@ -53,7 +49,7 @@ def pinfo(func):
 
         result = func(self, *args, **kwargs)
 
-        AppLogger().get_logger().debug(f"Processing done")
+        AppLogger().get_logger().debug("Processing done")
         return result
     return wrapper
 

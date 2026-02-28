@@ -1,5 +1,4 @@
 from __future__ import annotations
-import os
 from typing import Callable, Dict
 
 from osir_lib.core.OsirDecorator import osir_internal_module

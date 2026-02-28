@@ -21,7 +21,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from shutil import get_terminal_size
-from typing import Iterable, List, Tuple, Dict, Optional
+from typing import List, Tuple, Dict, Optional
 from contextlib import contextmanager
 import hashlib
 # Optional wide-character support for perfect box alignment with emojis/Unicode.
@@ -580,7 +580,6 @@ class DockerClient:
         lines = [ln for ln in cp.stdout.splitlines() if ln.strip()]
         return (len(lines) > 0, lines[0].strip() if lines else "")
 
-
     def save_images(self, image_refs: List[str], out_tar: Path) -> None:
         """
         Save images into a tar archive (docker save -o ...).
@@ -1062,6 +1061,7 @@ class Launcher:
             f"  2) Build again:        sudo python3 osir-launcher.py start {comp}"
         )
         return ("OUTDATED ⚠️", detail)
+
     def _cfg_path_for(self, component: str) -> Path:
         """Return path to the per-component config file.
 
@@ -1133,7 +1133,6 @@ class Launcher:
         else:
             setattr(args, f"config_{component}", True)
 
-
     # ────────────────────────────────────────────────────────────────────────────
     # Airgap helpers
     # ────────────────────────────────────────────────────────────────────────────
@@ -1194,6 +1193,7 @@ class Launcher:
             return
 
         sys.exit("Unknown airgap command.")
+        
     def parse_arguments(self) -> argparse.Namespace:
         """Build and parse the command-line interface.
 

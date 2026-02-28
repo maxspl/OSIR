@@ -3,7 +3,6 @@ import logging
 import io
 import json
 import os
-from pathlib import Path, PureWindowsPath
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -103,6 +102,7 @@ def get_latest_log_by_task_id(target_task_id: str, file_path: str = "/OSIR/share
             logger.error(f"Reverse log read error: {e}")
 
     return None
+
 
 def remove_placeholders(text: str) -> str:
     """

@@ -1,6 +1,5 @@
 from psycopg2 import OperationalError, InterfaceError
 
-from osir_lib.core.FileManager import FileManager
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 import os
@@ -121,8 +120,8 @@ class OsirDb:
                 if self.conn:
                     try:
                         self.conn.close()
-                    except:
-                        pass
+                    except Exception as exc:
+                        logger.debug("Failed to close connection: %s", exc)
                 self.conn = None
 
                 # Exponential backoff (2s, 4s, 8s...)

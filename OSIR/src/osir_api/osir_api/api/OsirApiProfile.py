@@ -1,5 +1,3 @@
-from uuid import UUID
-from pydantic import BaseModel
 from fastapi import APIRouter
 
 from osir_api.api.OsirApiMetadata import API_VERSION
@@ -17,6 +15,7 @@ from osir_lib.logger import AppLogger
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
 router = APIRouter()
+
 
 @router.get("/profile",
             response_model=GetProfileListResponse,
@@ -40,6 +39,7 @@ def get_profiles():
     except Exception as e:
         raise UnexpectedException(str(e))
 
+
 @router.get("/profile/{profile_name}/info",
             response_model=GetProfileInfoResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
@@ -53,10 +53,10 @@ def profile_exists(profile_name: str):
         )
 
         if profile_path:
-            response.message="Profile info retrieved."
+            response.message = "Profile info retrieved."
             response.response = OsirProfileModel.from_yaml(str(profile_path))
         else:
-            response.message="Profile not found."
+            response.message = "Profile not found."
             response.response = None
 
         return handle_response(response)

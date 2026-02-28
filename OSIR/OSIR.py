@@ -113,8 +113,6 @@ def main():
     # Create an instance of the profile class
     # profile_instance = task_manager.profile(args.profile) if args.profile else None
 
-    profile_instance = OsirProfileModel.from_name(args.profile) if args.profile else None
-
     # Initialize module lists based on command-line arguments
     selected_modules = args.module if args.module else []
     modules_to_add = args.module_add if args.module_add else []

@@ -18,6 +18,7 @@ from osir_lib.core.FileManager import FileManager
 
 router = APIRouter()
 
+
 @router.get("/case",
             response_model=GetCaseListResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
@@ -31,6 +32,7 @@ def get_case():
     except Exception as e:
         raise UnexpectedException(str(e))
 
+
 @router.post("/case/{case_name}",
              response_model=PostCaseCreateResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})
@@ -42,6 +44,7 @@ def create_case(case_name: str):
         return handle_response(response)
     except Exception as e:
         raise UnexpectedException(str(e))
+
 
 @router.post("/case/{case_name}/handler",
              response_model=GetCaseHandlerResponse,
@@ -128,6 +131,7 @@ async def upload_file(
 
     except Exception as e:
         raise UnexpectedException(str(e))
+
 
 @router.get("/case/{case_name}/tasks",
             response_model=GetTasksListResponse,

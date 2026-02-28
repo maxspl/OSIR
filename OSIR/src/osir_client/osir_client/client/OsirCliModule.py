@@ -5,7 +5,6 @@ from pydantic import BaseModel, PrivateAttr
 
 from osir_lib.logger.logger import AppLogger, CustomLogger
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
-from osir_lib.core.OsirConstants import OSIR_PATHS
 
 from osir_client.client.OsirCliHandler import OsirCliHandler
 from osir_client.client.OsirCliDisplay import OsirCliDisplay

@@ -57,7 +57,7 @@ class OsirDbTask:
             logger.error(f"Error creating table: {e}")
             raise
 
-    def create(self, case_uuid: str, agent: str, module: str, input: str, output: str = 'N/A' ,task_id: Optional[str] = None) -> str:
+    def create(self, case_uuid: str, agent: str, module: str, input: str, output: str = 'N/A', task_id: Optional[str] = None) -> str:
         """
             Inserts a new task into the database.
 

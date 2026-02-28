@@ -8,13 +8,16 @@ from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 
 if TYPE_CHECKING:
     from osir_client.client.OsirClient import OsirClient
+    from osir_client.client.OsirCliCase import OsirCliCase
 
 from osir_lib.logger import AppLogger
 from osir_lib.logger.logger import CustomLogger
 
 from osir_client.client.OsirCliDisplay import OsirCliDisplay
 
+
 logger: CustomLogger = AppLogger().get_logger()
+
 
 class OsirCliTask(BaseModel):
     _api: "OsirClient" = PrivateAttr()
@@ -29,8 +32,10 @@ class OsirCliTask(BaseModel):
         Retrieve task info by task ID.
         GET /api/tasks/{task_id}/info
         """
-        response: GetTaskInfoResponse = self._api.get(f"/api/tasks/{task_id}/info",
-        response_model=GetTaskInfoResponse)
+        response: GetTaskInfoResponse = self._api.get(
+            f"/api/tasks/{task_id}/info",
+            response_model=GetTaskInfoResponse
+        )
         if print:
             OsirCliDisplay.task_info(response.response)
         return response.response
@@ -65,6 +70,8 @@ class OsirCliTask(BaseModel):
         Helper to retrieve task IDs associated with a given handler.
         POST /api/handler/{handler_uuid}/info
         """
-        response: GetHandlerStatusResponse = self._api.post(f"/api/handler/{handler_id}/info",
-            response_model=GetHandlerStatusResponse)
+        response: GetHandlerStatusResponse = self._api.post(
+            f"/api/handler/{handler_id}/info",
+            response_model=GetHandlerStatusResponse
+        )
         return [str(task_id) for task_id in response.response.task_id]

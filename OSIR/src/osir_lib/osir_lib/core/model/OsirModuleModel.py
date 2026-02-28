@@ -1,12 +1,10 @@
 import importlib
-import inspect
 from pathlib import Path
-import pkgutil
 import sys
 import yaml
 import os
-from typing import Callable, Optional, Literal, Pattern
-from pydantic import BaseModel, PrivateAttr, ValidationError, model_validator
+from typing import Callable, Optional, Pattern
+from pydantic import BaseModel, PrivateAttr, ValidationError
 
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
@@ -47,7 +45,6 @@ class OsirModuleModel(BaseModel):
     output: OsirOutputModel
     endpoint: Optional[Pattern] = None
     connector: Optional[OsirConnectorModel] = None
-    
     
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None

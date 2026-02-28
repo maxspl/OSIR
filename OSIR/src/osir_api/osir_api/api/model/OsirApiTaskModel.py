@@ -16,8 +16,11 @@ Response model:
 
 ==========================================
 """
+
+
 class GetTaskInfoResponse(OsirIpcResponse):
     response: OsirDbTaskModel
+
 
 """ 
 ==========================================
@@ -33,6 +36,7 @@ Response model:
 
 ==========================================
 """
+
 
 class GetTasksListResponse(OsirIpcResponse):
     response: List[OsirDbTaskModel]

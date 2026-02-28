@@ -2,7 +2,6 @@ import streamlit as st
 import os
 import psutil
 import subprocess
-import time
 
 from streamlit_extras.colored_header import colored_header
 
@@ -64,7 +63,6 @@ def sidebar():
         # time.sleep(1)
         # host = location_details["hostname"]
         
-
         # Get splunk host
         try:
             agent_config = OsirAgentConfig()

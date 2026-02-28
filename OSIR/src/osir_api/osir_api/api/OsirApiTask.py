@@ -1,6 +1,5 @@
 
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
 
 from osir_service.ipc.OsirIpcClient import OsirIpcClient
 from osir_service.ipc.OsirIpcModel import OsirIpcModel, OsirIpcResponse
@@ -9,6 +8,7 @@ from osir_api.api.OsirApiExceptions import UnexpectedException, UnexpectedExcept
 from osir_api.api.OsirApiResponse import handle_response
 
 router = APIRouter()
+
 
 @router.get("/tasks/{task_id}/info",
             response_model=GetTaskInfoResponse,

@@ -1,11 +1,7 @@
-import io
 import json
-import logging
 import multiprocessing
 import sys
 import signal
-import pickle
-import copy
 import os
 import time
 from celery import Celery
@@ -13,17 +9,14 @@ from celery import current_task
 from os import environ, cpu_count
 
 from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.logger import AppLogger
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
-from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.core.OsirUtils import capture_log_output
 from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
 from osir_service.postgres.OsirDbConstants import ProcessingStatus
 from osir_service.postgres.OsirDb import OsirDb
-from celery.signals import task_success
 
 logger = AppLogger().get_logger()
 

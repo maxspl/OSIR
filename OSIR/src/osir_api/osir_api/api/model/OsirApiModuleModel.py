@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from typing import Optional, Union
 from osir_service.ipc.OsirIpcModel import OsirIpcResponse
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
-
-from pydantic import BaseModel, ConfigDict, model_validator
+from pydantic import BaseModel
 
 """ 
 ==========================================
@@ -39,11 +38,13 @@ class OsirModuleSubGroupModel(BaseModel):
     """Represents a simple subgroup with only a list of modules (no further nesting)."""
     modules: list[str] = []
 
+
 class OsirModuleOsGroupModel(BaseModel):
     """Represents an OS-specific group (windows or unix) with dissect and live_response."""
     modules: list[str] = []
     live_response: Optional[OsirModuleLiveResponseModel] = None
     dissect: Optional[OsirModuleSubGroupModel] = None
+
 
 class OsirModuleTreeModel(BaseModel):
     """Represents the full module tree returned by GET /api/module."""
@@ -55,6 +56,7 @@ class OsirModuleTreeModel(BaseModel):
     network: Optional[OsirModuleSubGroupModel] = None
     pre_process: Optional[OsirModuleSubGroupModel] = None
     test: Optional[OsirModuleSubGroupModel] = None
+
 
 class GetModuleListResponse(OsirIpcResponse):
     response: OsirModuleTreeModel
@@ -74,10 +76,10 @@ Response model:
 
 ==========================================
 """
+
+
 class GetModuleExistsResponse(OsirIpcResponse):
     response: Union[None, OsirModuleModel]
-
-
 
 
 """ 
@@ -94,6 +96,7 @@ Response model:
 
 ==========================================
 """
+
 
 class PostModuleRunRequest(BaseModel):
     case_name: str
@@ -118,5 +121,7 @@ Response model:
 
 ==========================================
 """
+
+
 class PostModuleRunOnFileResponse(OsirIpcResponse):
     response: OsirDbTaskModel

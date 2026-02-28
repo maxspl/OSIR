@@ -17,6 +17,7 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class OsirWebCase:
 
     @staticmethod
@@ -204,9 +205,9 @@ class OsirWebCase:
                 '''
 
             info_bar = {
-            "name": "language info",
-            "css": css_string,
-            "style": {
+                "name": "language info",
+                "css": css_string,
+                "style": {
                         "order": "1",
                         "display": "flex",
                         "flexDirection": "row",
@@ -217,27 +218,28 @@ class OsirWebCase:
                         "borderRadius": "8px 8px 8px 8px",
                         "zIndex": "9993",
                         "marginBottom": "10px"
-                    },
-            "info": [{
-                        "name": f"✏️ Edit configuration for `{module_name}`",
-                        "style": {"width": "500px"}
-                    }]
+                },
+                "info": [{
+                    "name": f"✏️ Edit configuration for `{module_name}`",
+                    "style": {"width": "500px"}
+                }]
             }
             custom_btns = [
                 {
-                "name": "Save",
-                "feather": "Save",
-                "hasText": True,
-                "alwaysOn": True,
-                "commands": ["save-state", ["response","saved"], ["infoMessage", {
-                "text": "✅ Configuration Changed !",
-                "timeout": 3000,
-                "classToggle": "show"
-            }]],
-                "response": "saved",
-                "style": {"right": "0.4rem"}
+                    "name": "Save",
+                    "feather": "Save",
+                    "hasText": True,
+                    "alwaysOn": True,
+                    "commands": ["save-state", ["response", "saved"], ["infoMessage", {
+                        "text": "✅ Configuration Changed !",
+                        "timeout": 3000,
+                        "classToggle": "show"
+                    }
+                    ]],
+                    "response": "saved",
+                    "style": {"right": "0.4rem"}
                 },
-                ]
+            ]
 
             result = code_editor(
                 st.session_state[state_key],
@@ -257,7 +259,6 @@ class OsirWebCase:
                     st.session_state[state_key] = new_text
                     st.session_state["edited_modules"][module_name] = new_text
 
-            
             if result and result.get("type") == "saved":
                 code_content = result.get("text", "")
                 
@@ -279,7 +280,8 @@ class OsirWebCase:
         modules_to_add: List[str] = [],
         modules_to_remove: List[str] = [],
         selected_case: str = None,
-        reprocess_case: bool = False):
+        reprocess_case: bool = False
+    ):
         # Validate inputs similar to the original argparse checks
         if not profile_instance and not selected_modules:
             st.error("At least one of profile or module must be specified.")

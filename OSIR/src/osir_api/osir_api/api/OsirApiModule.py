@@ -43,6 +43,7 @@ def make_node():
     """Returns a normalized node structure."""
     return defaultdict(make_node, {"modules": []})
 
+
 @router.get("/module",
             response_model=GetModuleListResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
@@ -84,6 +85,7 @@ def get_modules():
     except Exception as e:
         raise UnexpectedException(str(e))
 
+
 @router.get("/module/{module_name}/info",
             response_model=GetModuleExistsResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
@@ -98,15 +100,16 @@ def module_exists(module_name: str):
         )
        
         if module_model:
-            response.message="Module Info Retrieved."
+            response.message = "Module Info Retrieved."
             response.response = module_model.model_dump()
         else:
-            response.message="Module not found."
+            response.message = "Module not found."
             response.response = None
 
         return handle_response(response)
     except Exception as e:
         raise UnexpectedException(str(e))
+
 
 @router.post("/module/{module_name}/run",
              response_model=PostModuleRunResponse,
@@ -114,7 +117,8 @@ def module_exists(module_name: str):
 def run_module(request: PostModuleRunRequest, module_name: str):
     try:
         client = OsirIpcClient()
-        action = OsirIpcModel(action="exec_module", 
+        action = OsirIpcModel(
+            action="exec_module", 
             modules=[module_name],
             case_name=request.case_name)
         response = OsirIpcResponse.model_validate_json(client.send(action))
@@ -122,13 +126,15 @@ def run_module(request: PostModuleRunRequest, module_name: str):
     except Exception as e:
         raise UnexpectedException(str(e))
 
+
 @router.post("/module/{module_name}/run/file",
              response_model=PostModuleRunOnFileResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})
-def run_module(request: PostModuleRunRequest, module_name: str):
+def run_module(request: PostModuleRunRequest, module_name: str):        # noqa: F811
     try:
         client = OsirIpcClient()
-        action = OsirIpcModel(action="exec_module", 
+        action = OsirIpcModel(
+            action="exec_module", 
             modules=[module_name],
             case_name=request.case_name,
             input_path=request.input_path)

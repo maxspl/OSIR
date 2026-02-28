@@ -3,11 +3,10 @@ import requests
 import streamlit as st
 import pandas as pd
 
-from streamlit_extras.colored_header import colored_header
-
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_web.pages.OsirWebHeader import OsirWebHeader
 from osir_web.pages.OsirWebUtils import OsirWebUtils
+
 
 class OsirWebFlower:
     @staticmethod
@@ -54,7 +53,6 @@ class OsirWebFlower:
             else:
                 st.warning("Failed to retrieve worker information from Flower.")
                 st.info("This may be normal if no data has been processed yet.")
-
 
     @staticmethod
     def tab2_tasks_details(tab):

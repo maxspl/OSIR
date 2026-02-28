@@ -1,7 +1,4 @@
-import re
 import os
-import copy
-from datetime import datetime
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.core.OsirModule import OsirModule

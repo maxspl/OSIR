@@ -10,20 +10,20 @@ from osir_api.api.model.OsirApiModuleModel import OsirModuleTreeModel, OsirModul
 console = Console()
 
 STATUS_COLORS = {
-    "task_created":        "cyan",
-    "processing_started":  "yellow",
-    "processing_done":     "green",
-    "processing_failed":   "red",
+    "task_created":        "cyan",    # noqa: E241
+    "processing_started":  "yellow",  # noqa: E241
+    "processing_done":     "green",   # noqa: E241
+    "processing_failed":   "red",     # noqa: E241
 }
 
 
 def _status_text(status: Optional[str]) -> Text:
     color = STATUS_COLORS.get(status, "white")
     icons = {
-        "task_created":       "⏳",
-        "processing_started": "🔄",
-        "processing_done":    "✅",
-        "processing_failed":  "❌",
+        "task_created":         "⏳",   # noqa: E241
+        "processing_started":   "🔄",   # noqa: E241
+        "processing_done":      "✅",   # noqa: E241
+        "processing_failed":    "❌",   # noqa: E241
     }
     icon = icons.get(status, "•")
     return Text(f"{icon} {status or 'N/A'}", style=color)
@@ -159,22 +159,23 @@ class OsirCliDisplay:
             category: str,
             subcategory: Optional[str] = None,
             subsubcategory: Optional[str] = None
-        ) -> None:
-            parts = [p for p in [category, subcategory, subsubcategory] if p]
-            title = " / ".join(parts)
+    ) -> None:
+        parts = [p for p in [category, subcategory, subsubcategory] if p]
+        title = " / ".join(parts)
 
-            table = Table(
-                title=f"🧩 Modules — {title}",
-                box=box.ROUNDED,
-                show_lines=True,
-                title_style="bold cyan"
-            )
-            table.add_column("Module", style="white")
+        table = Table(
+            title=f"🧩 Modules — {title}",
+            box=box.ROUNDED,
+            show_lines=True,
+            title_style="bold cyan"
+        )
+        table.add_column("Module", style="white")
 
-            for module in modules:
-                table.add_row(module)
+        for module in modules:
+            table.add_row(module)
 
-            console.print(table)
+        console.print(table)
+
     @staticmethod
     def profiles(profiles: list) -> None:
         table = Table(
@@ -193,9 +194,6 @@ class OsirCliDisplay:
     @staticmethod
     def task_info(task: OsirDbTaskModel) -> None:
         from rich.panel import Panel
-        from rich.columns import Columns
-        from rich.syntax import Syntax
-        import json
 
         console = Console()
 
@@ -204,14 +202,14 @@ class OsirCliDisplay:
         table.add_column("Field", style="bold cyan", no_wrap=True)
         table.add_column("Value", style="white")
 
-        table.add_row("Task ID",   str(task.task_id))
-        table.add_row("Case UUID", str(task.case_uuid))
-        table.add_row("Agent",     task.agent)
-        table.add_row("Module",    task.module)
-        table.add_row("Input",     task.input)
-        table.add_row("Output",    task.output or "N/A")
-        table.add_row("Status",    _status_text(task.processing_status))
-        table.add_row("Timestamp", str(task.timestamp))
+        table.add_row("Task ID",    str(task.task_id))                      # noqa: E241
+        table.add_row("Case UUID",  str(task.case_uuid))                    # noqa: E241
+        table.add_row("Agent",      task.agent)                             # noqa: E241
+        table.add_row("Module",     task.module)                            # noqa: E241
+        table.add_row("Input",      task.input)                             # noqa: E241
+        table.add_row("Output",     task.output or "N/A")                   # noqa: E241
+        table.add_row("Status",     _status_text(task.processing_status))   # noqa: E241
+        table.add_row("Timestamp",  str(task.timestamp))                    # noqa: E241
 
         console.print(table)
 
@@ -224,20 +222,20 @@ class OsirCliDisplay:
             timing_table.add_column("Field", style="bold magenta")
             timing_table.add_column("Value", style="white")
 
-            timing_table.add_row("Function",  trace.get("function", "N/A"))
-            timing_table.add_row("Start",     trace.get("start_time", "N/A"))
-            timing_table.add_row("End",       trace.get("end_time", "N/A"))
-            timing_table.add_row("Duration",  f"{trace.get('duration_seconds', 'N/A')}s")
+            timing_table.add_row("Function",  trace.get("function", "N/A"))                 # noqa: E241
+            timing_table.add_row("Start",     trace.get("start_time", "N/A"))               # noqa: E241
+            timing_table.add_row("End",       trace.get("end_time", "N/A"))                 # noqa: E241
+            timing_table.add_row("Duration",  f"{trace.get('duration_seconds', 'N/A')}s")   # noqa: E241
 
             console.print(Panel(timing_table, title="⏱️  Trace", border_style="magenta"))
 
             # Logs
             if trace.get("logs"):
                 log_colors = {
-                    "[DEBUG]": "dim white",
-                    "[INFO]":  "green",
-                    "[WARNING]": "yellow",
-                    "[ERROR]": "bold red",
+                    "[DEBUG]":      "dim white",    # noqa: E241
+                    "[INFO]":       "green",        # noqa: E241
+                    "[WARNING]":    "yellow",       # noqa: E241
+                    "[ERROR]":      "bold red",     # noqa: E241
                 }
 
                 log_table = Table(box=box.SIMPLE, show_header=False, padding=(0, 1))

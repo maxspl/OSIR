@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 class OsirWebHeader:
 
     @staticmethod

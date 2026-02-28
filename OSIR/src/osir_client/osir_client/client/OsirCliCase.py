@@ -1,7 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from pydantic import BaseModel, PrivateAttr
-from tabulate import tabulate
 
 from osir_client.client.OsirCliModule import OsirCliModule
 from osir_client.client.OsirCliProfile import OsirCliProfile

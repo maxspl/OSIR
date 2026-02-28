@@ -1,6 +1,3 @@
-from typing import List
-from uuid import UUID
-from pydantic import BaseModel
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.ipc.OsirIpcModel import OsirIpcResponse
 
@@ -18,5 +15,7 @@ Response model:
 
 ==========================================
 """
+
+
 class GetHandlerStatusResponse(OsirIpcResponse):
     response: OsirDbHandlerModel

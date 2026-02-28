@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from osir_lib.core.model.LiteralModel import INPUT_TYPE
 

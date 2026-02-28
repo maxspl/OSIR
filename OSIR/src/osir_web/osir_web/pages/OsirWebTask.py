@@ -10,6 +10,7 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class OsirWebTask:
 
     @staticmethod
@@ -37,9 +38,6 @@ class OsirWebTask:
 
     def tab1_task_ongoing(tab):
         with tab:
-            filters = OsirWebUtils.filters(
-                show_case_name=True
-            )
             st.echo("df")
             with OsirDb() as db:
                 tasks = db.task.list(processing_status=["task_created", "processing_started"])

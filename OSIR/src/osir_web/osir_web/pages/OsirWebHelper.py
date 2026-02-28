@@ -6,6 +6,7 @@ from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_web.pages.OsirWebHeader import OsirWebHeader
 
+
 class OsirWebHelper:
     @staticmethod
     def render():

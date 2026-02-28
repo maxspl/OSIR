@@ -11,6 +11,7 @@ from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
 
+
 class OsirWebFilters(BaseModel):
     case_name: Optional[str] = None
     input: Optional[str] = None
@@ -19,6 +20,7 @@ class OsirWebFilters(BaseModel):
     processing_status: Optional[str] = None
     handler_id: Optional[str] = None
     module: Optional[str] = None
+
 
 class OsirWebUtils:
 
@@ -48,7 +50,6 @@ class OsirWebUtils:
             </script>
         """
         html(switch_html, height=0, width=0)
-
     
     @staticmethod
     def color_rows(row):
@@ -163,8 +164,8 @@ class OsirWebUtils:
                                 if handler_id:
                                     try:
                                         handler_index = handler_ids.index(handler_id)
-                                    except: 
-                                        handler_index=0                                    
+                                    except ValueError: 
+                                        handler_index = 0                                    
 
                     filter_show_handler_id = st.selectbox(
                         "Filter by Handler ID :",

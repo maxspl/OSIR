@@ -1,5 +1,5 @@
 import uuid
-from typing import Union, Optional, List, Dict
+from typing import Union, Optional, List
 from osir_lib.logger import AppLogger
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 
@@ -35,7 +35,7 @@ class OsirDbHandler:
                     created_at TIMESTAMPTZ DEFAULT NOW()
                 );
             """)
-            #logger.info("Table `osir_handlers` initialized successfully.")
+            # logger.info("Table `osir_handlers` initialized successfully.")
         except Exception as e:
             logger.error(f"Error creating `osir_handlers` table: {e}")
             raise
@@ -134,7 +134,7 @@ class OsirDbHandler:
             logger.error(f"Error fetching handler list: {e}")
             raise
 
-    def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[OsirDbHandlerModel,List[OsirDbHandlerModel], None]:
+    def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[OsirDbHandlerModel, List[OsirDbHandlerModel], None]:
         """
         Retrieves one or more handlers by ID or Case UUID.
         """
@@ -239,7 +239,6 @@ class OsirDbHandler:
         """
         result = self.db.execute_query(query, (handler_id,), fetch="fetchone")
         return result['exists']
-
 
     def is_processing_active(self, handler_uuid: str) -> bool:
         """

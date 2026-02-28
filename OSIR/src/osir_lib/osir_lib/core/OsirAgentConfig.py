@@ -1,9 +1,8 @@
 import os
 import yaml
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
-from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.OsirSingleton import singleton
 from osir_lib.core.FileManager import FileManager
 

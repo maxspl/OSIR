@@ -1,12 +1,9 @@
 import datetime
 import gzip
 import json
-import os
 import queue
 import re
 import threading
-
-from typing import Callable
 
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.OsirDecorator import timeit

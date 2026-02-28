@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 from osir_lib.core.OsirDecorator import osir_internal_module
 from osir_lib.core.OsirModule import OsirModule

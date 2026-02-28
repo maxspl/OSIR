@@ -9,6 +9,7 @@ from osir_api.api.OsirApiResponse import handle_response
 
 router = APIRouter()
 
+
 @router.post("/handler/{handler_id}/info",
              response_model=GetHandlerStatusResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})

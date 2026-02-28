@@ -4,8 +4,6 @@ from osir_service.postgres.model.OsirDbCaseModel import OsirDbCaseModel
 from osir_service.ipc.OsirIpcModel import OsirIpcResponse
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 
-from pydantic import BaseModel
-
 
 """ 
 ==========================================
@@ -21,6 +19,7 @@ Response model:
 
 ==========================================
 """
+
 
 class GetCaseListResponse(OsirIpcResponse):
     response: List[OsirDbCaseModel]
@@ -40,8 +39,11 @@ Response model:
 
 ==========================================
 """
+
+
 class PostCaseCreateResponse(OsirIpcResponse):
-  response: OsirDbCaseModel
+    response: OsirDbCaseModel
+
 
 """ 
 ==========================================
@@ -57,5 +59,7 @@ Response model:
 
 ==========================================
 """
+
+
 class GetCaseHandlerResponse(OsirIpcResponse):
     response: List[OsirDbHandlerModel]

@@ -160,7 +160,7 @@ def main():
         elif args.command == "profile":
             if args.action == "list":
                 profiles = osir.cases.profiles.list()
-                # logger.info(f"Available profiles: {profiles}")
+                logger.info(f"Available profiles: {profiles}")
 
             elif args.action == "exists":
                 profile = osir.cases.profiles.exists(args.profile_name)
@@ -194,7 +194,7 @@ def main():
     
             elif args.action == "info":
                 task = osir.cases.tasks.get_task_info(args.task_id)
-                # logger.info(f"Task info: {task}")
+                logger.info(f"Task info: {task}")
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")

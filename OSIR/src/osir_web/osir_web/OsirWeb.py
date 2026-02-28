@@ -1,20 +1,9 @@
-from osir_lib.core.model.OsirProfileModel import OsirProfileModel
-from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 
 import streamlit as st
-import os
-import yaml
-import concurrent.futures
-import pandas as pd
 
-from streamlit_extras.colored_header import colored_header
 from osir_web.utils import OsirWebSidebar
 
-from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_lib.core.FileManager import FileManager
 from osir_lib.logger.logger import AppLogger
-from osir_lib.core.OsirInput import OsirInput
-from osir_service.watchdog.MonitorCase import MonitorCase
 
 from osir_web.pages.OsirWebCase import OsirWebCase
 from osir_web.pages.OsirWebFile import OsirWebFile
@@ -27,6 +16,7 @@ from osir_web.pages.OsirWebBug import OsirWebBug
 from osir_web.pages.OsirWebApiDoc import OsirWebApiDoc
 
 logger = AppLogger().get_logger()
+
 
 class OsirWeb:
     def __init__(self):
@@ -41,7 +31,6 @@ class OsirWeb:
                 "About": "OSIR"
             }
         )
-        
 
     def render(self):
         # Map page titles to callable functions
@@ -64,8 +53,7 @@ class OsirWeb:
         }
         pg = st.navigation(navigation)
         
-
-            # For widget persistence, we need always copy the session state to itself, being careful with widgets that cannot be persisted, like st.data_editor() (where we use the "__do_not_persist" suffix to avoid persisting it)
+        # For widget persistence, we need always copy the session state to itself, being careful with widgets that cannot be persisted, like st.data_editor() (where we use the "__do_not_persist" suffix to avoid persisting it)
         for key in st.session_state.keys():
             if not key.endswith('__do_not_persist'):
                 st.session_state[key] = st.session_state[key]
@@ -87,13 +75,10 @@ class OsirWeb:
         # Update the previous page location
         st.session_state['url_path_prev'] = st.session_state['url_path']
 
+
 if __name__ == "__main__":
     app = OsirWeb()
     app.render()
-
-
-
-
 
 # if __name__ == "__main__":
 #     app = ConfigurationApp()
