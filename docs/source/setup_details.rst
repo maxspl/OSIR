@@ -10,7 +10,7 @@ Interactive setup (recommended)
 .. code-block:: bash
 
     cd OSIR
-    sudo python3 osir-launcher.py start master
+    python3 osir-launcher.py start master
 
 To see available launcher commands:
 
@@ -68,7 +68,7 @@ To start MASTER while reusing the detected configuration:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py start master --config
+    python3 osir-launcher.py start master --config
 Agent setup in details
 ======================
 
@@ -80,7 +80,7 @@ Interactive setup (recommended)
 .. code-block:: bash
 
     cd OSIR
-    sudo python3 osir-launcher.py start agent
+    python3 osir-launcher.py start agent
 
 Options Explained
 -----------------
@@ -136,7 +136,7 @@ To start AGENT while reusing the detected configuration:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py start agent --config
+    python3 osir-launcher.py start agent --config
 
 Developer mode (Module development)
 ===================================
@@ -172,7 +172,7 @@ Start MASTER in developer mode:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py start master --attach --debug-shell
+    python3 osir-launcher.py start master --attach --debug-shell
 
 What happens:
 
@@ -205,7 +205,7 @@ Start AGENT in developer mode:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py start agent --attach --debug-shell
+    python3 osir-launcher.py start agent --attach --debug-shell
 
 Inside the container shell, launch:
 
@@ -270,7 +270,7 @@ Setup MASTER and AGENT normally on a machine with internet access:
 .. code-block:: bash
 
     cd OSIR
-    sudo python3 osir-launcher.py start all
+    python3 osir-launcher.py start all
 
 This ensures all required images are built locally.
 
@@ -284,19 +284,19 @@ Export MASTER images:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py airgap export master
+    python3 osir-launcher.py airgap export master
 
 Export AGENT images:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py airgap export agent
+    python3 osir-launcher.py airgap export agent
 
 Export both components at once:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py airgap export all
+    python3 osir-launcher.py airgap export all
 
 .. note::
    Archives are created in:
@@ -351,19 +351,19 @@ Load MASTER images:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py airgap load master
+    python3 osir-launcher.py airgap load master
 
 Load AGENT images:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py airgap load agent
+    python3 osir-launcher.py airgap load agent
 
 Or load everything:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py airgap load all
+    python3 osir-launcher.py airgap load all
 
 
 Step 5 — Start OSIR in offline mode
@@ -373,7 +373,7 @@ Start both components:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py start all --offline
+    python3 osir-launcher.py start all --offline
 
 This will start MASTER and AGENT without attempting to download images.
 

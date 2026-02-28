@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -90,6 +91,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
@@ -98,9 +101,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcModel</span><span class="p">,</span> <span class="n">OsirIpcResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpc</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.PostgresService</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbOSIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.MonitorCase</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitorCase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.JsonSocket</span><span class="w"> </span><span class="kn">import</span> <span class="n">recv_json</span><span class="p">,</span> <span class="n">send_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR</span><span class="p">,</span> <span class="n">OSIR_PATHS</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
@@ -141,11 +147,11 @@
                                 <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
                                     <span class="k">try</span><span class="p">:</span>
                                         <span class="n">request</span> <span class="o">=</span> <span class="n">recv_json</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
-                                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received JSON: </span><span class="si">{</span><span class="n">request</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                        <span class="c1"># logger.debug(f&quot;Received JSON: {request}&quot;)</span>
                                         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
                                         <span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                                             <span class="n">send_json</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">pydantic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sent IPC response to client: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                            <span class="c1"># logger.info(f&quot;Sent IPC response to client: {response}&quot;)</span>
                                     <span class="k">except</span> <span class="ne">ConnectionError</span><span class="p">:</span>
                                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Client disconnected.&quot;</span><span class="p">)</span>
                                         <span class="k">break</span>
@@ -215,29 +221,63 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">,</span> <span class="s2">&quot;case_path&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">case_path</span><span class="p">:</span>
                         <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">CASE_NOT_FOUND</span><span class="p">(</span><span class="n">case</span><span class="o">=</span><span class="n">osir_ipc_model</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
 
-                    <span class="c1"># Trigger background module execution</span>
-                    <span class="n">gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_exec_module</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
-                    <span class="n">handler_uuid</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
-                    <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">consume_generator</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">gen</span><span class="p">,),</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">,</span> <span class="s2">&quot;input_path&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">input_path</span><span class="p">:</span>
+                        <span class="c1"># TODO: Security check on input file</span>
+                        <span class="n">module_model</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                        <span class="n">module_model</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">input_path</span>
+                        <span class="n">case_path</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(.*?/cases/[^/]+)&#39;</span><span class="p">,</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">case_path</span><span class="p">))</span><span class="o">.</span><span class="n">case_uuid</span>
+                        <span class="n">task_id</span> <span class="o">=</span> <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">case_path</span><span class="p">,</span><span class="n">module_instance</span><span class="o">=</span><span class="n">module_model</span><span class="p">,</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                            <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module execution started&quot;</span>
+                            <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Trigger background module execution</span>
+                        <span class="n">gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_exec_module</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
+                        <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">case_uuid</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+                        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">consume_generator</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">gen</span><span class="p">,),</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module execution started&quot;</span>
-                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;handler_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler_uuid</span>
+                        <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module execution started&quot;</span>
+                        <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">OsirDbHandlerModel</span><span class="p">(</span>
+                            <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
+                            <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">,</span>
+                            <span class="n">task_id</span><span class="o">=</span><span class="p">[],</span>
+                            <span class="n">modules</span><span class="o">=</span><span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span>
+                            <span class="n">processing_status</span><span class="o">=</span><span class="s1">&#39;processing_started&#39;</span><span class="p">,</span>
+                        <span class="p">)</span>
 
                 <span class="k">case</span> <span class="s1">&#39;exec_profile&#39;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">,</span> <span class="s2">&quot;profile&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">profile</span><span class="p">:</span>
                         <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MISSING_PARAMETER</span><span class="p">(</span><span class="n">parameter_name</span><span class="o">=</span><span class="s2">&quot;profile&quot;</span><span class="p">)</span>
 
                     <span class="n">gen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_exec_profile</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
-                    <span class="n">handler_uuid</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
+                    <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">case_uuid</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">gen</span><span class="p">)</span>
                     <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">consume_generator</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">gen</span><span class="p">,),</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
                     <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Profile execution started&quot;</span>
-                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;handler_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler_uuid</span>
+                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">OsirDbHandlerModel</span><span class="p">(</span>
+                        <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
+                        <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">,</span>
+                        <span class="n">task_id</span><span class="o">=</span><span class="p">[],</span>
+                        <span class="n">modules</span><span class="o">=</span><span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span>
+                        <span class="n">processing_status</span><span class="o">=</span><span class="s1">&#39;processing_started&#39;</span><span class="p">,</span>
+                    <span class="p">)</span>
 
                 <span class="k">case</span> <span class="s1">&#39;create_case&#39;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">,</span> <span class="s2">&quot;case_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">case_name</span><span class="p">:</span>
                         <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MISSING_PARAMETER</span><span class="p">(</span><span class="n">parameter_name</span><span class="o">=</span><span class="s2">&quot;case_name&quot;</span><span class="p">)</span>
                     <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_create_case</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
+
+                <span class="k">case</span> <span class="s1">&#39;get_cases&#39;</span><span class="p">:</span>
+                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_get_cases</span><span class="p">()</span>
+
+                <span class="k">case</span> <span class="s1">&#39;get_tasks&#39;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">,</span> <span class="s2">&quot;case_name&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">case_name</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MISSING_PARAMETER</span><span class="p">(</span><span class="n">parameter_name</span><span class="o">=</span><span class="s2">&quot;case_name&quot;</span><span class="p">)</span>
+
+                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Tasks retrieved&quot;</span>
+                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_get_tasks</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
 
                 <span class="k">case</span> <span class="s1">&#39;get_task_log&#39;</span><span class="p">:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">,</span> <span class="s2">&quot;task_id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">task_id</span><span class="p">:</span>
@@ -262,7 +302,7 @@
                         <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MISSING_PARAMETER</span><span class="p">(</span><span class="n">parameter_name</span><span class="o">=</span><span class="s2">&quot;case_name&quot;</span><span class="p">)</span>
 
                     <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler retrieved&quot;</span>
-                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;handlers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_get_case_handler</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
+                    <span class="n">osir_ipc_response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_get_case_handler</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="p">)</span>
 
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
@@ -280,7 +320,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">action_exec_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes a case monitor for specific module execution.&quot;&quot;&quot;</span>
         <span class="n">handler_module</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">yield</span> <span class="n">handler_module</span><span class="o">.</span><span class="n">handler_uuid</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">handler_module</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">,</span> <span class="n">handler_module</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">)</span>
         <span class="n">handler_module</span><span class="o">.</span><span class="n">setup_handler</span><span class="p">()</span></div>
 
 
@@ -289,7 +329,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">action_exec_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes a case monitor for profile-based execution.&quot;&quot;&quot;</span>
         <span class="n">handler_profile</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">yield</span> <span class="n">handler_profile</span><span class="o">.</span><span class="n">handler_uuid</span>
+        <span class="k">yield</span> <span class="p">(</span><span class="n">handler_profile</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">,</span> <span class="n">handler_profile</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">)</span>
         <span class="n">handler_profile</span><span class="o">.</span><span class="n">setup_handler</span><span class="p">()</span></div>
 
 
@@ -297,39 +337,48 @@
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_create_case">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">action_create_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handles database and filesystem creation for a new forensic case.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">DbOSIR</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
-            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">case_uuid</span><span class="p">:</span>
-                <span class="n">state</span><span class="p">,</span> <span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">create_case</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">CASES_DIR</span><span class="p">,</span> <span class="n">case_name</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
-            <span class="k">return</span> <span class="p">{</span>
-                <span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">,</span>
-                <span class="s2">&quot;case_uuid&quot;</span><span class="p">:</span> <span class="n">case_uuid</span><span class="p">,</span>
-                <span class="s2">&quot;case_path&quot;</span><span class="p">:</span> <span class="n">case_path</span><span class="p">,</span>
-                <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">state</span>
-            <span class="p">}</span></div>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="IpcService.action_get_task_log">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_task_log">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">action_get_task_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Queries the JSONL log files for specific task traces.&quot;&quot;&quot;</span>
-        <span class="n">log_file</span> <span class="o">=</span> <span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">LOG_DIR</span> <span class="o">/</span> <span class="s2">&quot;task_traces.jsonl&quot;</span>
-        <span class="k">return</span> <span class="n">get_latest_log_by_task_id</span><span class="p">(</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span> <span class="n">log_file</span><span class="p">)</span></div>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IpcService.action_get_tasks">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_tasks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">:</span>
+                <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span><span class="o">.</span><span class="n">case_uuid</span>
+            <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="IpcService.action_get_cases">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_cases">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action_get_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">list</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="IpcService.action_get_handler_status">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_handler_status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">action_get_handler_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
-        <span class="k">with</span> <span class="n">DbOSIR</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">handler_id</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="IpcService.action_get_case_handler">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_case_handler">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">action_get_case_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc</span><span class="p">:</span> <span class="n">OsirIpc</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns all handlers associated with a specific case.&quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="n">DbOSIR</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">:</span>
-                <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
+                <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span><span class="o">.</span><span class="n">case_uuid</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">osir_ipc</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">:</span>
                 <span class="k">return</span> <span class="s2">&quot;ERROR: CASE NOT FOUND&quot;</span>

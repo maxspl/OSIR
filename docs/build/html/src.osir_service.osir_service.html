@@ -51,6 +51,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -118,8 +119,10 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_exec_module"><code class="docutils literal notranslate"><span class="pre">IpcService.action_exec_module()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_exec_profile"><code class="docutils literal notranslate"><span class="pre">IpcService.action_exec_profile()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_case_handler"><code class="docutils literal notranslate"><span class="pre">IpcService.action_get_case_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_cases"><code class="docutils literal notranslate"><span class="pre">IpcService.action_get_cases()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_handler_status"><code class="docutils literal notranslate"><span class="pre">IpcService.action_get_handler_status()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_task_log"><code class="docutils literal notranslate"><span class="pre">IpcService.action_get_task_log()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.action_get_tasks"><code class="docutils literal notranslate"><span class="pre">IpcService.action_get_tasks()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.consume_generator"><code class="docutils literal notranslate"><span class="pre">IpcService.consume_generator()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.host"><code class="docutils literal notranslate"><span class="pre">IpcService.host</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.IpcService.IpcService.listen"><code class="docutils literal notranslate"><span class="pre">IpcService.listen()</span></code></a></li>
@@ -189,6 +192,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#id6"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.case_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#id7"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.case_uuid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#id8"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.handler_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcModel.OsirIpcModel.input_path"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.input_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcModel.OsirIpcModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.model_config</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#id9"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.modules</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#id10"><code class="docutils literal notranslate"><span class="pre">OsirIpcModel.profile</span></code></a></li>
@@ -244,77 +248,12 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="src.osir_service.osir_service.postgres.html">src.osir_service.osir_service.postgres package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres.PostgresConstants">src.osir_service.osir_service.postgres.PostgresConstants module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresConstants.ProcessingStatus"><code class="docutils literal notranslate"><span class="pre">ProcessingStatus</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresConstants.ProcessingStatus.PROCESSING_DONE"><code class="docutils literal notranslate"><span class="pre">ProcessingStatus.PROCESSING_DONE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresConstants.ProcessingStatus.PROCESSING_FAILED"><code class="docutils literal notranslate"><span class="pre">ProcessingStatus.PROCESSING_FAILED</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresConstants.ProcessingStatus.PROCESSING_STARTED"><code class="docutils literal notranslate"><span class="pre">ProcessingStatus.PROCESSING_STARTED</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresConstants.ProcessingStatus.TASK_CREATED"><code class="docutils literal notranslate"><span class="pre">ProcessingStatus.TASK_CREATED</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres.PostgresService">src.osir_service.osir_service.postgres.PostgresService module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresService.DbOSIR"><code class="docutils literal notranslate"><span class="pre">DbOSIR</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresService.DbOSIR.__init__"><code class="docutils literal notranslate"><span class="pre">DbOSIR.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresService.DbOSIR.close"><code class="docutils literal notranslate"><span class="pre">DbOSIR.close()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.PostgresService.DbOSIR.execute_query"><code class="docutils literal notranslate"><span class="pre">DbOSIR.execute_query()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres.case_manager">src.osir_service.osir_service.postgres.case_manager module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager"><code class="docutils literal notranslate"><span class="pre">CaseManager</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager.__init__"><code class="docutils literal notranslate"><span class="pre">CaseManager.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager.create"><code class="docutils literal notranslate"><span class="pre">CaseManager.create()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager.create_table"><code class="docutils literal notranslate"><span class="pre">CaseManager.create_table()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager.delete"><code class="docutils literal notranslate"><span class="pre">CaseManager.delete()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager.get"><code class="docutils literal notranslate"><span class="pre">CaseManager.get()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.case_manager.CaseManager.list"><code class="docutils literal notranslate"><span class="pre">CaseManager.list()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres.handler_manager">src.osir_service.osir_service.postgres.handler_manager module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager"><code class="docutils literal notranslate"><span class="pre">HandlerManager</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.__init__"><code class="docutils literal notranslate"><span class="pre">HandlerManager.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.append_task_ids"><code class="docutils literal notranslate"><span class="pre">HandlerManager.append_task_ids()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.check_handler_failure"><code class="docutils literal notranslate"><span class="pre">HandlerManager.check_handler_failure()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.create"><code class="docutils literal notranslate"><span class="pre">HandlerManager.create()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.create_table"><code class="docutils literal notranslate"><span class="pre">HandlerManager.create_table()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.delete"><code class="docutils literal notranslate"><span class="pre">HandlerManager.delete()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.get"><code class="docutils literal notranslate"><span class="pre">HandlerManager.get()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.is_processing_active"><code class="docutils literal notranslate"><span class="pre">HandlerManager.is_processing_active()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.list"><code class="docutils literal notranslate"><span class="pre">HandlerManager.list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.handler_manager.HandlerManager.update"><code class="docutils literal notranslate"><span class="pre">HandlerManager.update()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres.snapshot_manager">src.osir_service.osir_service.postgres.snapshot_manager module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.snapshot_manager.SnapshotManager"><code class="docutils literal notranslate"><span class="pre">SnapshotManager</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.snapshot_manager.SnapshotManager.__init__"><code class="docutils literal notranslate"><span class="pre">SnapshotManager.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.snapshot_manager.SnapshotManager.create_table"><code class="docutils literal notranslate"><span class="pre">SnapshotManager.create_table()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.snapshot_manager.SnapshotManager.get_stored_case_snapshot"><code class="docutils literal notranslate"><span class="pre">SnapshotManager.get_stored_case_snapshot()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.snapshot_manager.SnapshotManager.store_case_snapshot"><code class="docutils literal notranslate"><span class="pre">SnapshotManager.store_case_snapshot()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres.task_manager">src.osir_service.osir_service.postgres.task_manager module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager"><code class="docutils literal notranslate"><span class="pre">TaskManager</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.__init__"><code class="docutils literal notranslate"><span class="pre">TaskManager.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.check_input"><code class="docutils literal notranslate"><span class="pre">TaskManager.check_input()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.create"><code class="docutils literal notranslate"><span class="pre">TaskManager.create()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.create_table"><code class="docutils literal notranslate"><span class="pre">TaskManager.create_table()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.delete"><code class="docutils literal notranslate"><span class="pre">TaskManager.delete()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.get"><code class="docutils literal notranslate"><span class="pre">TaskManager.get()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.list"><code class="docutils literal notranslate"><span class="pre">TaskManager.list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.task_manager.TaskManager.update"><code class="docutils literal notranslate"><span class="pre">TaskManager.update()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-postgresconstants-module">src.osir_service.osir_service.postgres.PostgresConstants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-postgresservice-module">src.osir_service.osir_service.postgres.PostgresService module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-case-manager-module">src.osir_service.osir_service.postgres.case_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-handler-manager-module">src.osir_service.osir_service.postgres.handler_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-snapshot-manager-module">src.osir_service.osir_service.postgres.snapshot_manager module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-task-manager-module">src.osir_service.osir_service.postgres.task_manager module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres">Module contents</a></li>
 </ul>
 </li>
@@ -343,6 +282,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.__init__"><code class="docutils literal notranslate"><span class="pre">MonitorCase.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.on_inactivity"><code class="docutils literal notranslate"><span class="pre">MonitorCase.on_inactivity()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.setup_handler"><code class="docutils literal notranslate"><span class="pre">MonitorCase.setup_handler()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.start"><code class="docutils literal notranslate"><span class="pre">MonitorCase.start()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -87,7 +88,6 @@
              
   <h1>Source code for src.osir_lib.osir_lib.modules.common.dissect_dispatcher</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirDecorator</span><span class="w"> </span><span class="kn">import</span> <span class="n">osir_internal_module</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span><span class="p">,</span> <span class="n">CustomLogger</span>
@@ -96,6 +96,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dissect.target.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TargetError</span><span class="p">,</span> <span class="n">LoaderError</span><span class="p">,</span> <span class="n">TargetPathNotFoundError</span><span class="p">,</span> <span class="n">UnsupportedPluginError</span><span class="p">,</span> <span class="n">PluginNotFoundError</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">CustomLogger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
 
 <div class="viewcode-block" id="DissectDispatcher">
 <a class="viewcode-back" href="../../../../../../src.osir_lib.osir_lib.modules.common.html#src.osir_lib.osir_lib.modules.common.dissect_dispatcher.DissectDispatcher">[docs]</a>
@@ -118,7 +119,6 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="n">module</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span> <span class="o">=</span> <span class="n">case_path</span>
-
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 

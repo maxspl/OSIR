@@ -69,11 +69,24 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#all-in-one-deployment">All in one deployment</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#master-installation">Master installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#agent-installation">Agent installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#network-requirements">Network requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#osir-launcher">OSIR Launcher</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#commands-overview">Commands Overview</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#all-in-one-installation-and-start">All-in-one installation and start</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checking-osir-status">Checking OSIR status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#status-meanings">Status meanings</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#from-unix-host">From Unix host</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#from-windows-host">From Windows host</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#stopping-osir">Stopping OSIR</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#stop-master">Stop MASTER</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#stop-agent">Stop AGENT</a></li>
 </ul>
 </li>
 </ul>
@@ -86,6 +99,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -258,12 +272,12 @@
 <p>This guided example will demonstrate how to setup the solution and how to use it.
 For the example, <strong>All in one architecture</strong> is used.</p>
 <p>Clone the repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>&lt;TO<span class="w"> </span>CHANGE<span class="w"> </span>after<span class="w"> </span>release&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>https://github.com/maxspl/OSIR.git
 </pre></div>
 </div>
 </section>
-<section id="master-installation">
-<h3>Master installation<a class="headerlink" href="#master-installation" title="Link to this heading"></a></h3>
+<section id="network-requirements">
+<h3>Network requirements<a class="headerlink" href="#network-requirements" title="Link to this heading"></a></h3>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Make sure that the following ports are not currently in use :</p>
@@ -281,28 +295,116 @@ For the example, <strong>All in one architecture</strong> is used.</p>
 <li><p>8089: Splunk services interface</p></li>
 <li><p>9997: Splunk event listening port</p></li>
 <li><p>8088: HEC port for Splunk event forwarding</p></li>
+<li><p>8502: FastAPI</p></li>
 </ul>
 </div>
-<p>Launch the master setup:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
-make<span class="w"> </span>master
-</pre></div>
-</div>
-<p>Provide requested input, just press Enter each step to keep default options.</p>
-<img alt="Master installation" src="_images/Master-fresh-interactive-install_.png" />
 </section>
-<section id="agent-installation">
-<h3>Agent installation<a class="headerlink" href="#agent-installation" title="Link to this heading"></a></h3>
-<p>On the same host, launch the agent setup:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>agent
+<section id="osir-launcher">
+<h3>OSIR Launcher<a class="headerlink" href="#osir-launcher" title="Link to this heading"></a></h3>
+<p>OSIR now uses a unified launcher named <code class="docutils literal notranslate"><span class="pre">osir-launcher.py</span></code>.
+This tool replaces previous bash scripts and manual container commands.</p>
+<p>Display global help:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>-h
 </pre></div>
 </div>
+<p>Example output:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: osir-launcher.py [-h] {start,stop,status} ...</span>
+
+<span class="go">Unified OSIR launcher.</span>
+
+<span class="go">positional arguments:</span>
+<span class="go">  {start,stop,status}</span>
+<span class="go">    start              Install and start components</span>
+<span class="go">    stop               Stop master or agent</span>
+<span class="go">    status             Show OSIR status</span>
+<span class="go">    airgap             Air-gapped workflow (export/load docker images)</span>
+</pre></div>
+</div>
+<section id="commands-overview">
+<h4>Commands Overview<a class="headerlink" href="#commands-overview" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>start</strong> : Install and launch OSIR components</p></li>
+<li><p><strong>stop</strong> : Stop running components</p></li>
+<li><p><strong>status</strong> : Check if OSIR processes are running inside containers</p></li>
+<li><p><strong>airgap</strong> : Export docker images to prepare offline setup and load them afterwards</p></li>
+</ul>
+<p>You can also view help for the start command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>-h
+</pre></div>
+</div>
+<p>Which displays:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: osir-launcher.py start [-h] {master,agent,all} ...</span>
+
+<span class="go">  master   Install and start the MASTER component</span>
+<span class="go">  agent    Install and start the AGENT component</span>
+<span class="go">  all      Install and start both MASTER and AGENT</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="all-in-one-installation-and-start">
+<h3>All-in-one installation and start<a class="headerlink" href="#all-in-one-installation-and-start" title="Link to this heading"></a></h3>
+<p>OSIR can be installed and started in a single command using the launcher.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>all
+</pre></div>
+</div>
+<p>This command will:</p>
+<ul class="simple">
+<li><p>Install MASTER and AGENT if not already configured</p></li>
+<li><p>Start required containers</p></li>
+<li><p>Launch OSIR processes automatically</p></li>
+</ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The first agent setup will take time as it downloads and configures a Windows VM using Vagrant.</p>
+<p>The first execution can take time because Docker images,
+dependencies, and the Windows VM for the Agent may be downloaded.</p>
 </div>
-<p>Provide requested input, just press Enter each step to keep default options.</p>
-<img alt="Agent installation" src="_images/Agent-fresh-interactive-install.png" />
+</section>
+<section id="checking-osir-status">
+<h3>Checking OSIR status<a class="headerlink" href="#checking-osir-status" title="Link to this heading"></a></h3>
+<p>You can verify if OSIR components are running with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>status
+</pre></div>
+</div>
+<p>The launcher prints an overview table and performs two checks per component:</p>
+<ol class="arabic simple">
+<li><p><strong>Container check</strong>: verifies the Docker container is running</p></li>
+<li><p><strong>Process check</strong>: verifies the expected OSIR process is running inside the container</p></li>
+</ol>
+<p>Expected processes inside containers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">master-master</span></code> must run <code class="docutils literal notranslate"><span class="pre">OSIR.py</span> <span class="pre">--web</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agent-agent</span></code> must run <code class="docutils literal notranslate"><span class="pre">OSIR.py</span> <span class="pre">--agent</span></code></p></li>
+</ul>
+<section id="status-meanings">
+<h4>Status meanings<a class="headerlink" href="#status-meanings" title="Link to this heading"></a></h4>
+<dl>
+<dt><strong>UP ✅</strong></dt><dd><p>The container is running and the expected OSIR process is running inside it.</p>
+</dd>
+<dt><strong>DOWN ❌ (container not running)</strong></dt><dd><p>Example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Agent process check  : DOWN ❌ (container not running. Start it using OSIR_launcher.py start command)</span>
+</pre></div>
+</div>
+<p>This means Docker containers are not up yet (or were stopped).
+Start everything again with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>all
+</pre></div>
+</div>
+</dd>
+<dt><strong>DOWN ❌ (process not running inside container)</strong></dt><dd><p>Example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Master process check : DOWN ❌ (start master using OSIR.py --web inside master-master container)</span>
+<span class="go">Agent process check  : DOWN ❌ (start agent using OSIR.py --agent inside agent-agent container)</span>
+</pre></div>
+</div>
+<p>This means containers are running, but the OSIR processes inside are not.
+The recommended fix is to restart using the launcher:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>all
+</pre></div>
+</div>
+</dd>
+</dl>
+</section>
 </section>
 <section id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h3>
@@ -323,14 +425,7 @@ cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_Powershell.7z<s
 cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_SAM.7z<span class="w"> </span>OSIR/share/cases/my_first_case
 </pre></div>
 </div>
-<p>Start agent:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>agent-agent<span class="w"> </span>OSIR.py<span class="w"> </span>--agent
-</pre></div>
-</div>
-<p>Start master (open a new terminal to keep agent up):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>agent-agent<span class="w"> </span>OSIR.py<span class="w"> </span>--web
-</pre></div>
-</div>
+<p>At this step, master and agent should be running.</p>
 <p>Access the web UI and run the processing</p>
 <p>Use a defined profile or select several modules</p>
 <img alt="Master installation" src="_images/web_ui_processing_profile.png" />
@@ -350,6 +445,47 @@ cp<span class="w"> </span>/tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_SAM.7z<span cla
 <p>To parse a UAC collection, create a new case, upload the UAC archive and run either the chosen profile or a specific module:</p>
 <img alt="UAC setup" src="_images/UAC_IMPORT.gif" />
 <img alt="UAC execution" src="_images/UAC_EXECUTE.gif" />
+</section>
+</section>
+<section id="stopping-osir">
+<h3>Stopping OSIR<a class="headerlink" href="#stopping-osir" title="Link to this heading"></a></h3>
+<p>OSIR components can be stopped using the launcher <code class="docutils literal notranslate"><span class="pre">osir-launcher.py</span></code>.</p>
+<p>Show stop command help:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>-h
+</pre></div>
+</div>
+<section id="stop-master">
+<h4>Stop MASTER<a class="headerlink" href="#stop-master" title="Link to this heading"></a></h4>
+<p>Stop the MASTER stack:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>master
+</pre></div>
+</div>
+<p>Optional flags:</p>
+<ul class="simple">
+<li><p><strong>-i / –images</strong>: also remove docker images related to MASTER.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>master<span class="w"> </span>--images
+</pre></div>
+</div>
+</section>
+<section id="stop-agent">
+<h4>Stop AGENT<a class="headerlink" href="#stop-agent" title="Link to this heading"></a></h4>
+<p>Stop the AGENT stack:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>agent
+</pre></div>
+</div>
+<p>Optional flags:</p>
+<ul class="simple">
+<li><p><strong>-v / –vagrant</strong>: also stop the Vagrant Windows VM (if used by the agent).</p></li>
+<li><p><strong>-d / –dockur</strong>: also stop Dockur-related services (if enabled/used).</p></li>
+<li><p><strong>-i / –images</strong>: also remove docker images related to AGENT.</p></li>
+</ul>
+<p>Examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>agent<span class="w"> </span>--vagrant
+python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>agent<span class="w"> </span>--dockur
+python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>stop<span class="w"> </span>agent<span class="w"> </span>--images
+</pre></div>
+</div>
 </section>
 </section>
 </section>

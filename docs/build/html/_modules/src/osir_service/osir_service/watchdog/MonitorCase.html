@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -92,10 +93,11 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span> <span class="n">Event</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">concurrent</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomLogger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.PostgresService</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbOSIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.WatchdogService</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleHandler</span>
 
 <span class="n">logger</span><span class="p">:</span> <span class="n">CustomLogger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
@@ -127,11 +129,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">module_instances</span> <span class="o">=</span> <span class="p">[</span><span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">]</span>  <span class="c1"># Transform list of str to list of module</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cooldown_period</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Cooldown period in seconds</span>
         <span class="n">case_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span>
-        <span class="k">with</span> <span class="n">DbOSIR</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">case_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">case_name</span><span class="p">)</span>
-
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">case</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">case_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">case</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">case_name</span><span class="p">)</span><span class="o">.</span><span class="n">case_uuid</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span> <span class="o">=</span> <span class="n">case</span><span class="o">.</span><span class="n">case_uuid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop_event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">()</span></div>
 
 
@@ -154,6 +157,16 @@
             <span class="n">monitor_case_thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="n">monitor_case_thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_inactivity</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MonitorCase.start">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">executor</span> <span class="o">=</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setup_handler</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
 </div>

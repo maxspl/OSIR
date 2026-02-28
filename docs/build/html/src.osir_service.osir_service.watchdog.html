@@ -51,6 +51,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -129,6 +130,11 @@
 <span class="sig-name descname"><span class="pre">setup_handler</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/watchdog/MonitorCase.html#MonitorCase.setup_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.setup_handler" title="Link to this definition"></a></dt>
 <dd><p>Sets up file and directory event handlers for each module, configuring and starting an observer to monitor the filesystem.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/watchdog/MonitorCase.html#MonitorCase.start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.start" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -222,7 +228,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>case_path</strong> (<em>str</em>) – Path of the case to monitor.</p></li>
-<li><p><strong>interval</strong> (<em>int</em><em>, </em><a class="reference internal" href="src.osir_client.osir_client.api.html#src.osir_client.osir_client.api.osir_api_models.OsirModuleModel.optional" title="src.osir_client.osir_client.api.osir_api_models.OsirModuleModel.optional"><em>optional</em></a>) – Interval in seconds to wait between scans. Default is 5 seconds.</p></li>
+<li><p><strong>interval</strong> (<em>int</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Interval in seconds to wait between scans. Default is 5 seconds.</p></li>
 <li><p><strong>reprocess</strong> (<em>bool</em>) – If True, it will reprocess all the files. If False, files that were present during previous execution will not be processed.</p></li>
 </ul>
 </dd>
@@ -250,7 +256,7 @@ module-specific filtering rules before triggering processing.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event</strong> (<em>watchdog.events.FileSystemEvent</em>) – The event object representing
 the file system change.</p></li>
-<li><p><strong>module</strong> (<a class="reference internal" href="src.osir_client.osir_client.api.html#src.osir_client.osir_client.api.osir_api_models.OsirModuleModel" title="src.osir_client.osir_client.api.osir_api_models.OsirModuleModel"><em>OsirModuleModel</em></a>) – The module configuration containing input
+<li><p><strong>module</strong> (<a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><em>OsirModuleModel</em></a>) – The module configuration containing input
 types, patterns, and processing logic.</p></li>
 </ul>
 </dd>

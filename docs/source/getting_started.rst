@@ -219,7 +219,7 @@ OSIR can be installed and started in a single command using the launcher.
 .. code-block:: bash
 
     cd OSIR
-    sudo python3 osir-launcher.py start all
+    python3 osir-launcher.py start all
 
 This command will:
 
@@ -269,7 +269,7 @@ Status meanings
 
   .. code-block:: bash
 
-      sudo python3 osir-launcher.py start all
+      python3 osir-launcher.py start all
 
 **DOWN ❌ (process not running inside container)**
   Example:
@@ -284,7 +284,7 @@ Status meanings
 
   .. code-block:: bash
 
-      sudo python3 osir-launcher.py start all
+      python3 osir-launcher.py start all
 
 Usage
 *****
@@ -375,7 +375,7 @@ Stop the MASTER stack:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py stop master
+    python3 osir-launcher.py stop master
 
 Optional flags:
 
@@ -383,7 +383,7 @@ Optional flags:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py stop master --images
+    python3 osir-launcher.py stop master --images
 
 
 Stop AGENT
@@ -393,7 +393,7 @@ Stop the AGENT stack:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py stop agent
+    python3 osir-launcher.py stop agent
 
 Optional flags:
 
@@ -405,6 +405,6 @@ Examples:
 
 .. code-block:: bash
 
-    sudo python3 osir-launcher.py stop agent --vagrant
-    sudo python3 osir-launcher.py stop agent --dockur
-    sudo python3 osir-launcher.py stop agent --images
+    python3 osir-launcher.py stop agent --vagrant
+    python3 osir-launcher.py stop agent --dockur
+    python3 osir-launcher.py stop agent --images

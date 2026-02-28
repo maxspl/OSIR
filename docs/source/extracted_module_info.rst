@@ -11,41 +11,6 @@ Supported Modules
      - Version
      - Processor Type
      - Tool Path
-   * - all
-     - thor_lite.yml
-     - Scan of collected file using Thor Lite.
-     - typ
-     - 1.0
-     - external
-     - thor-lite/thor-lite-linux-64
-   * - all
-     - thor_orc.yml
-     - Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).
-     - maxspl
-     - 1.0
-     - external
-     - thor/thor-linux-64
-   * - all
-     - thor_orc_ram.yml
-     - Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
-     - maxspl
-     - 1.0
-     - external
-     - thor/thor-linux-64
-   * - all
-     - thor_uac.yml
-     - Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
-     - typ
-     - 1.0
-     - external
-     - thor/thor-linux-64
-   * - all
-     - thor_update.yml
-     - Update Thor signature files using thor-util.
-     - maxspl
-     - 1.0
-     - external
-     - thor/thor-util
    * - generic
      - indexer-ng.yml
      - Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs configuration.
@@ -60,20 +25,41 @@ Supported Modules
      - 1.0
      - external
      - json2splunk-rs
-   * - linux
-     - uac_indexer.yml
-     - Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
-     - Typ
+   * - generic
+     - thor_lite.yml
+     - Scan of collected file using Thor Lite.
+     - typ
      - 1.0
      - external
-     - python
-   * - module_os
-     - sample.yml
-     - module_description
-     - author_name
+     - thor-lite/thor-lite-linux-64
+   * - generic
+     - thor_orc.yml
+     - Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).
+     - maxspl
      - 1.0
-     - module_processor_type
-     - module_tool_name
+     - external
+     - thor/thor-linux-64
+   * - generic
+     - thor_orc_ram.yml
+     - Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
+     - maxspl
+     - 1.0
+     - external
+     - thor/thor-linux-64
+   * - generic
+     - thor_uac.yml
+     - Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
+     - typ
+     - 1.0
+     - external
+     - thor/thor-linux-64
+   * - generic
+     - thor_update.yml
+     - Update Thor signature files using thor-util.
+     - maxspl
+     - 1.0
+     - external
+     - thor/thor-util
    * - network
      - zeek.yml
      - Parsing of pcap files using zeek
@@ -355,6 +341,13 @@ Supported Modules
      - external
      - cat
    * - unix
+     - uac_indexer.yml
+     - Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
+     - Typ
+     - 1.0
+     - external
+     - python
+   * - unix
      - utmp.yml
      - Parsing logs from '/var/log/utmp btmp wtmp'
      - Typ
@@ -615,14 +608,14 @@ Supported Modules
      - artemis
    * - windows
      - test_process_dir.yml
-     - 
+     - description
      - maxspl
      - 1.0
      - external
      - process_dir
    * - windows
      - test_process_dir_multiple_output.yml
-     - 
+     - test_process_dir_multiple_output
      - maxspl
      - 1.0
      - external

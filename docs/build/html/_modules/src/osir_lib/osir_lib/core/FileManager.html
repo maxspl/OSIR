@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -296,6 +297,26 @@
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">case_path</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;created&#39;</span><span class="p">,</span> <span class="n">case_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.all_profiles">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.FileManager.FileManager.all_profiles">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_profiles</span><span class="p">(</span><span class="n">relative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_yaml_files</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">PROFILES_DIR</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="n">relative</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FileManager.all_modules">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.FileManager.FileManager.all_modules">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_modules</span><span class="p">(</span><span class="n">relative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_yaml_files</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="n">relative</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="FileManager.all_cases">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.FileManager.FileManager.all_cases">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all_cases</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">CASES_DIR</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

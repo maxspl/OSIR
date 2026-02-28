@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -86,14 +87,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.osir_service.osir_service.agent.AgentService</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">Celery</span>
@@ -101,17 +98,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span><span class="p">,</span> <span class="n">cpu_count</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirDecorator</span><span class="w"> </span><span class="kn">import</span> <span class="n">osir_internal_module</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">capture_log_output</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskProcessorService</span><span class="w"> </span><span class="kn">import</span> <span class="n">InternalProcessor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskProcessorService</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExternalProcessor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.PostgresConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingStatus</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.PostgresService</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbOSIR</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">celery.signals</span><span class="w"> </span><span class="kn">import</span> <span class="n">task_success</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDbConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingStatus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
@@ -160,7 +154,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_local_count</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">DbOSIR</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">OsirDb</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Wait until the input file or directory is free to use, i.e., not being used by another module.</span>
 
@@ -228,10 +222,16 @@
                 <span class="n">processor</span> <span class="o">=</span> <span class="n">InternalProcessor</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">,</span> <span class="n">agent_name</span><span class="o">=</span><span class="n">worker_name</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Check if input files/foles of module is in use...&quot;</span><span class="p">)</span>
 
-                <span class="n">db</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_STARTED</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">)</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;multiple_files&#39;</span><span class="p">:</span>
+                        <span class="n">output_path</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">dir</span>
+                    <span class="k">elif</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+                        <span class="n">output_path</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">file</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">output_path</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+                    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_STARTED</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
 
                 <span class="c1"># Wait if file is currently beeing written</span>
                 <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
@@ -243,7 +243,7 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running internal module </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">)</span>
                     <span class="n">processor</span><span class="o">.</span><span class="n">run_module</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">db</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">()</span>
+                <span class="n">db</span> <span class="o">=</span> <span class="n">OsirDb</span><span class="p">()</span>
                 <span class="k">with</span> <span class="n">capture_log_output</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_buffer</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
                     <span class="n">captured_trace</span> <span class="o">=</span> <span class="n">log_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
@@ -267,10 +267,16 @@
 
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Check if input of </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> is in use...&quot;</span><span class="p">)</span>
 
-                <span class="n">db</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_STARTED</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">)</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;multiple_files&#39;</span><span class="p">:</span>
+                        <span class="n">output_path</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">dir</span>
+                    <span class="k">elif</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+                        <span class="n">output_path</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">file</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">output_path</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
+                    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_STARTED</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
 
                 <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
                 <span class="k">while</span> <span class="n">file_written</span><span class="p">:</span>
@@ -280,7 +286,7 @@
 
                 <span class="n">processor</span><span class="o">.</span><span class="n">run_module</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">db</span> <span class="o">=</span> <span class="n">DbOSIR</span><span class="p">()</span>
+                <span class="n">db</span> <span class="o">=</span> <span class="n">OsirDb</span><span class="p">()</span>
                 <span class="k">with</span> <span class="n">capture_log_output</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_buffer</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
                     <span class="n">captured_trace</span> <span class="o">=</span> <span class="n">log_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>

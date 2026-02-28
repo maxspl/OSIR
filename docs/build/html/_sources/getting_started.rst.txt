@@ -138,10 +138,10 @@ Clone the repository:
 
 .. code-block:: bash
 
-    git clone <TO CHANGE after release>
+    git clone --recurse-submodules https://github.com/maxspl/OSIR.git
 
-Master installation
-*******************
+Network requirements
+********************
 
 .. important:: Make sure that the following ports are not currently in use :
 
@@ -158,37 +158,133 @@ Master installation
     - 8089: Splunk services interface
     - 9997: Splunk event listening port
     - 8088: HEC port for Splunk event forwarding
+    - 8502: FastAPI
 
+OSIR Launcher
+*************
 
-Launch the master setup:
+OSIR now uses a unified launcher named ``osir-launcher.py``.
+This tool replaces previous bash scripts and manual container commands.
+
+Display global help:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py -h
+
+Example output:
+
+.. code-block:: console
+
+    usage: osir-launcher.py [-h] {start,stop,status} ...
+
+    Unified OSIR launcher.
+
+    positional arguments:
+      {start,stop,status}
+        start              Install and start components
+        stop               Stop master or agent
+        status             Show OSIR status
+        airgap             Air-gapped workflow (export/load docker images)
+
+Commands Overview
+^^^^^^^^^^^^^^^^^
+
+- **start** : Install and launch OSIR components
+- **stop** : Stop running components
+- **status** : Check if OSIR processes are running inside containers
+- **airgap** : Export docker images to prepare offline setup and load them afterwards
+
+You can also view help for the start command:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py start -h
+
+Which displays:
+
+.. code-block:: console
+
+    usage: osir-launcher.py start [-h] {master,agent,all} ...
+
+      master   Install and start the MASTER component
+      agent    Install and start the AGENT component
+      all      Install and start both MASTER and AGENT
+
+All-in-one installation and start
+*********************************
+
+OSIR can be installed and started in a single command using the launcher.
 
 .. code-block:: bash
 
     cd OSIR
-    make master
+    python3 osir-launcher.py start all
 
-Provide requested input, just press Enter each step to keep default options.
+This command will:
 
-.. image:: _img/Master-fresh-interactive-install_.png
-   :alt: Master installation
+- Install MASTER and AGENT if not already configured
+- Start required containers
+- Launch OSIR processes automatically
+
+.. warning::
+   The first execution can take time because Docker images,
+   dependencies, and the Windows VM for the Agent may be downloaded.
 
 
-Agent installation
-*******************
+Checking OSIR status
+********************
 
-On the same host, launch the agent setup:
+You can verify if OSIR components are running with:
 
 .. code-block:: bash
 
-    make agent
+    python3 osir-launcher.py status
 
-.. warning:: The first agent setup will take time as it downloads and configures a Windows VM using Vagrant.
+The launcher prints an overview table and performs two checks per component:
 
-Provide requested input, just press Enter each step to keep default options.
+1. **Container check**: verifies the Docker container is running
+2. **Process check**: verifies the expected OSIR process is running inside the container
 
-.. image:: _img/Agent-fresh-interactive-install.png
-   :alt: Agent installation
+Expected processes inside containers:
 
+- ``master-master`` must run ``OSIR.py --web``
+- ``agent-agent`` must run ``OSIR.py --agent``
+
+Status meanings
+^^^^^^^^^^^^^^^
+
+**UP ✅**
+  The container is running and the expected OSIR process is running inside it.
+
+**DOWN ❌ (container not running)**
+  Example:
+
+  .. code-block:: console
+
+      Agent process check  : DOWN ❌ (container not running. Start it using OSIR_launcher.py start command)
+
+  This means Docker containers are not up yet (or were stopped).
+  Start everything again with:
+
+  .. code-block:: bash
+
+      python3 osir-launcher.py start all
+
+**DOWN ❌ (process not running inside container)**
+  Example:
+
+  .. code-block:: console
+
+      Master process check : DOWN ❌ (start master using OSIR.py --web inside master-master container)
+      Agent process check  : DOWN ❌ (start agent using OSIR.py --agent inside agent-agent container)
+
+  This means containers are running, but the OSIR processes inside are not.
+  The recommended fix is to restart using the launcher:
+
+  .. code-block:: bash
+
+      python3 osir-launcher.py start all
 
 Usage
 *****
@@ -215,17 +311,7 @@ Copy the files you want to process under OSIR/share/cases/<case name>
     cp /tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_Powershell.7z OSIR/share/cases/my_first_case
     cp /tmp/DFIR-ORC_WorkStation_DESKTOP-BV02_SAM.7z OSIR/share/cases/my_first_case
 
-Start agent:
-
-.. code-block:: bash
-
-    sudo docker exec -it agent-agent OSIR.py --agent
-
-Start master (open a new terminal to keep agent up):
-
-.. code-block:: bash
-
-    sudo docker exec -it agent-agent OSIR.py --web
+At this step, master and agent should be running.
 
 Access the web UI and run the processing
 
@@ -270,3 +356,55 @@ To parse a UAC collection, create a new case, upload the UAC archive and run eit
 
 .. image:: _img/UAC_EXECUTE.gif
    :alt: UAC execution 
+
+Stopping OSIR
+*************
+
+OSIR components can be stopped using the launcher ``osir-launcher.py``.
+
+Show stop command help:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py stop -h
+
+Stop MASTER
+^^^^^^^^^^^
+
+Stop the MASTER stack:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py stop master
+
+Optional flags:
+
+- **-i / --images**: also remove docker images related to MASTER.
+
+.. code-block:: bash
+
+    python3 osir-launcher.py stop master --images
+
+
+Stop AGENT
+^^^^^^^^^^
+
+Stop the AGENT stack:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py stop agent
+
+Optional flags:
+
+- **-v / --vagrant**: also stop the Vagrant Windows VM (if used by the agent).
+- **-d / --dockur**: also stop Dockur-related services (if enabled/used).
+- **-i / --images**: also remove docker images related to AGENT.
+
+Examples:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py stop agent --vagrant
+    python3 osir-launcher.py stop agent --dockur
+    python3 osir-launcher.py stop agent --images

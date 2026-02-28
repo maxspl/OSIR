@@ -50,6 +50,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -111,18 +112,35 @@ documentation for details.</p>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#interactive-setup-recommended">Interactive setup (recommended)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="setup_details.html#options-explained">Options Explained</a></li>
 <li class="toctree-l2"><a class="reference internal" href="setup_details.html#using-a-configuration-file">Using a Configuration File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="setup_details.html#example-usage">Example Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id1">Options Explained</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id2">Using a Configuration File</a></li>
-<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id3">Example Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id1">Interactive setup (recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id2">Options Explained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id3">Using a Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#id4">Example Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#terminal-1-master">Terminal 1: MASTER</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#terminal-2-agent">Terminal 2: AGENT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#step-1-prepare-osir-on-an-online-host">Step 1 — Prepare OSIR on an online host</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#step-2-export-docker-images">Step 2 — Export Docker images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#optional-components">Optional components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#step-3-transfer-offline-release">Step 3 — Transfer offline release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#step-4-load-images-on-the-air-gapped-host">Step 4 — Load images on the air-gapped host</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#step-5-start-osir-in-offline-mode">Step 5 — Start OSIR in offline mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup_details.html#verification">Verification</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -146,6 +164,12 @@ documentation for details.</p>
 <p class="caption" role="heading"><span class="caption-text">API:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="OSIR.html">OSIR module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="OSIR.html#OSIR.comma_separated_strings"><code class="docutils literal notranslate"><span class="pre">comma_separated_strings()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="OSIR.html#OSIR.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="OSIR.html#OSIR.parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_lib.html">src.osir_lib package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_lib.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.html">src.osir_lib.osir_lib package</a><ul>
@@ -175,7 +199,7 @@ documentation for details.</p>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_web.osir_web.html">src.osir_web.osir_web package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.html#subpackages">Subpackages</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.html#module-src.osir_web.osir_web.Processor">src.osir_web.osir_web.Processor module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.html#src-osir-web-osir-web-processor-module">src.osir_web.osir_web.Processor module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.html#module-src.osir_web.osir_web">Module contents</a></li>
 </ul>
 </li>
@@ -190,7 +214,7 @@ documentation for details.</p>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.html#subpackages">Subpackages</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.html#submodules">Submodules</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.html#src-osir-client-osir-client-main-module">src.osir_client.osir_client.main module</a></li>
-<li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.html#module-src.osir_client.osir_client.osir_cli">src.osir_client.osir_client.osir_cli module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.html#src-osir-client-osir-client-osir-cli-module">src.osir_client.osir_client.osir_cli module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.html#module-src.osir_client.osir_client">Module contents</a></li>
 </ul>
 </li>
@@ -204,7 +228,7 @@ documentation for details.</p>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_api.osir_api.html">src.osir_api.osir_api package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_api.osir_api.html#subpackages">Subpackages</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_api.osir_api.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="src.osir_api.osir_api.html#module-src.osir_api.osir_api.main">src.osir_api.osir_api.main module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_api.osir_api.html#src-osir-api-osir-api-main-module">src.osir_api.osir_api.main module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_api.osir_api.html#module-src.osir_api.osir_api">Module contents</a></li>
 </ul>
 </li>
