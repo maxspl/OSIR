@@ -11,7 +11,7 @@ git clone https://github.com/maxspl/OSIR.git
 
 
 # Install the package
-pip install -e OSRIR_PATHS/osir_lib
+pip install -e OSIR_PATH/osir_lib
 ```
 
 ## Quick Start
