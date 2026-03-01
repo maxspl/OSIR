@@ -449,7 +449,7 @@ class ModuleHandler(FileSystemEventHandler):
             timer = Timer(self.cooldown, self._check_for_idle, [path, module_instance])
             timer.start()
 
-    def process(self, file_math: Path, module_instance: OsirModuleModel):
+    def process(self, file_match: Path, module_instance: OsirModuleModel):
         """
             Initiates processing of a file or directory based on the module configuration.
 
@@ -460,11 +460,11 @@ class ModuleHandler(FileSystemEventHandler):
 
         logger.debug(f"""{module_instance.module_name}.yaml - Processing : \n
                     Case Path : {self.case_path} \n
-                    File Match : {Path(file_math).relative_to(self.case_path)} \n""")
+                    File Match : {Path(file_match).relative_to(self.case_path)} \n""")
 
         module_instance = copy.deepcopy(module_instance)
 
-        module_instance.input.match = file_math
+        module_instance.input.match = str(file_match)
         self._push_task(module_instance)
 
     def _push_task(self, module_instance: OsirModuleModel):
