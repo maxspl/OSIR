@@ -73,6 +73,5 @@ class Memory_Processor():
         """
         Run memprocfs as configured in the yml configuration file.
         """
-        logger.debug(f'MSP self.module.tool.cmd : {self.module.tool.cmd}')
         self.module.tool.cmd = self.module.tool.cmd.replace('{pythonexec_path}', self.pythonexec_path)
         self.module.tool.run()
