@@ -254,7 +254,7 @@ class ModuleHandler(FileSystemEventHandler):
         for pattern in module.input.paths:
 
             if "{case_path}" in pattern:
-                pattern = pattern.replace("{case_path}", self.case_path)
+                pattern = pattern.replace("{case_path}", str(self.case_path))
 
             if self.check_match(src_path, pattern, module.__class__.__name__):
                 self.last_processed.add(file_module_pair)
