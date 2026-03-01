@@ -91,8 +91,10 @@ class ANSSI_Decode():
         jobs: List[Tuple[str, str, Optional[str]]] = []
 
         for root, _dirs, files in os.walk(self._ntfs_info_dir):
-            # Check if we are in the NTFSInfoFull_detail directory
-            if not root.endswith("NTFSInfoFull_detail"):
+            base = os.path.basename(root).lower()
+
+            # ORC layout: directory name starts with "ntfsinfo" (e.g. ntfsinfo_<endpoint>)
+            if base != "ntfsinfofull_detail" and not base.startswith("ntfsinfo"):
                 continue
 
             # Retrieve NTFSInfo*.csv files
@@ -103,14 +105,55 @@ class ANSSI_Decode():
                 ntfs_info_file = os.path.join(root, filename)
                 logger.debug("Found NTFSInfo CSV: %s", ntfs_info_file)
 
-                # Check for Listdlls.txt in General directory (parent directory)
-                general_dir = os.path.dirname(root)
-                listdlls_path = os.path.join(general_dir, "Listdlls.txt")
-                if os.path.isfile(listdlls_path):
-                    logger.debug("Found Listdlls.txt: %s", listdlls_path)
+                # Find listdlls in a simple, predictable way:
+                #   - locate nearest parent dir named "extracted_files"
+                #   - then try to find listdll.txt
+
+                listdlls_path: Optional[str] = None
+
+                # Extract endpoint name using the same regex as _prepare_input
+                endpoint_name: Optional[str] = None
+                match = re.search(self.module.endpoint, ntfs_info_file)
+                if match:
+                    endpoint_name = match.group(1)
                 else:
-                    logger.debug("Listdlls.txt not found in %s", general_dir)
-                    listdlls_path = None
+                    logger.debug("Endpoint regex matched nothing for listdlls search: %s", ntfs_info_file)
+
+                # Walk upward to find ".../extracted_files"
+                cur = root
+                extracted_files_dir: Optional[str] = None
+                while True:
+                    if os.path.basename(cur) == "extracted_files":
+                        extracted_files_dir = cur
+                        break
+
+                    parent = os.path.dirname(cur)
+                    if parent == cur:
+                        break
+                    cur = parent
+
+                if extracted_files_dir:
+                    if endpoint_name:
+                        candidate = os.path.join(
+                            extracted_files_dir,
+                            "external",
+                            f"listdlls_{endpoint_name}.txt",
+                        )
+                        if os.path.isfile(candidate):
+                            listdlls_path = candidate
+                            logger.debug("Found listdlls: %s", listdlls_path)
+                        else:
+                            logger.debug("listdlls not found at %s", candidate)
+
+                    if not listdlls_path:
+                        candidate = os.path.join(extracted_files_dir, "General", "Listdlls.txt")
+                        if os.path.isfile(candidate):
+                            listdlls_path = candidate
+                            logger.debug("Found Listdlls.txt: %s", listdlls_path)
+                        else:
+                            logger.debug("Listdlls.txt not found at %s", candidate)
+                else:
+                    logger.debug("Could not locate an 'extracted_files' parent for %s", ntfs_info_file)
 
                 # Get mount point or fallback volume ID
                 mount_point = self._get_mount_point_or_volume_id(
