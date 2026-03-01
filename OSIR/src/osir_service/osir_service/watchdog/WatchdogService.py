@@ -460,12 +460,11 @@ class ModuleHandler(FileSystemEventHandler):
 
         logger.debug(f"""{module_instance.module_name}.yaml - Processing : \n
                     Case Path : {self.case_path} \n
-                    File Math : {Path(file_math).relative_to(self.case_path)} \n""")
+                    File Match : {Path(file_math).relative_to(self.case_path)} \n""")
 
         module_instance = copy.deepcopy(module_instance)
 
         module_instance.input.match = file_math
-
         self._push_task(module_instance)
 
     def _push_task(self, module_instance: OsirModuleModel):
