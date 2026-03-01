@@ -204,6 +204,10 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span> <span class="o">=</span> <span class="n">OsirAgentConfig</span><span class="p">()</span>
 
+        <span class="c1"># Used to check if file already processed under another name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seen_prefix_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seen_prefix</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
         <span class="c1"># Initialize a set and a lock to keep track of active timers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">active_timers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timers_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
@@ -310,21 +314,21 @@
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.on_created_new">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_created_new</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Handles the creation of new files or directories by checking them against </span>
-<span class="sd">            module-specific filtering rules before triggering processing.</span>
+<span class="sd">        Handles the creation of new files or directories by checking them against </span>
+<span class="sd">        module-specific filtering rules before triggering processing.</span>
 
-<span class="sd">            Args:</span>
-<span class="sd">                event (watchdog.events.FileSystemEvent): The event object representing </span>
-<span class="sd">                    the file system change.</span>
-<span class="sd">                module (OsirModuleModel): The module configuration containing input </span>
-<span class="sd">                    types, patterns, and processing logic.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            event (watchdog.events.FileSystemEvent): The event object representing </span>
+<span class="sd">                the file system change.</span>
+<span class="sd">            module (OsirModuleModel): The module configuration containing input </span>
+<span class="sd">                types, patterns, and processing logic.</span>
 
-<span class="sd">            Returns:</span>
-<span class="sd">                None: This method performs actions (logging, triggering processing) </span>
-<span class="sd">                    but does not return a value.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            None: This method performs actions (logging, triggering processing) </span>
+<span class="sd">                but does not return a value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;src_path&#39;</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Événement sans chemin source, ignoré.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Event without path, ignored.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">src_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">)</span>
@@ -358,7 +362,7 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="s1">&#39;paths&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aucun motif de chemin défini pour le module </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, ignoré.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No path pattern defined for the module </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">, skipping.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
@@ -368,10 +372,21 @@
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_match</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">module</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">file_module_pair</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="p">)</span>
+                <span class="c1"># logger.warning(self.last_processed)</span>
                 <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;dir&quot;</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">handle_directory_event</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+                    <span class="c1"># Content-based dedup (prefix hash + size) to avoid duplicates under different paths.</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_duplicate_by_prefix_hash</span><span class="p">(</span>
+                            <span class="n">module_name</span><span class="o">=</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span>
+                            <span class="n">file_path</span><span class="o">=</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span>
+                            <span class="n">prefix_size</span><span class="o">=</span><span class="mi">8192</span>
+                        <span class="p">):</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - Skipping duplicate (prefix xxh3_128): </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">return</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - Prefix hash dedup failed for </span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span> <span class="n">module</span><span class="p">)</span>
 
                 <span class="k">break</span></div>
@@ -482,7 +497,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            event: The event object representing the directory event.</span>
-<span class="sd">            module_info (dict): Dictionary containing module information.</span>
+<span class="sd">            module_instance (OsirModuleModel): Module configuration instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">last_modified_times</span><span class="p">[</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_time</span>
@@ -536,7 +551,7 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            path (str): Path to the directory being monitored.</span>
-<span class="sd">            module_info (dict): Dictionary containing module information.</span>
+<span class="sd">            module_instance (OsirModuleModel): Module configuration instance</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting _check_for_idle for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">current_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_directory_size</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -557,23 +572,22 @@
 
 <div class="viewcode-block" id="ModuleHandler.process">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.process">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_math</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_match</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Initiates processing of a directory based on the module configuration.</span>
+<span class="sd">            Initiates processing of a file or directory based on the module configuration.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                directory_path (str): Path to the directory to be processed.</span>
-<span class="sd">                module_info (dict): Dictionary containing module information.</span>
+<span class="sd">                match_path (Path): Path to the file or directory that matched the module input rules.</span>
+<span class="sd">                module_instance (OsirModuleModel): Module configuration instance to execute (will be deep-copied and updated).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.yaml - Processing : </span><span class="se">\n</span>
 <span class="s2">                    Case Path : </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    File Math : </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">file_math</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+<span class="s2">                    File Match : </span><span class="si">{</span><span class="n">Path</span><span class="p">(</span><span class="n">file_match</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="n">module_instance</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
 
-        <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="n">file_math</span>
-
+        <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_match</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span></div>
 
 
@@ -585,7 +599,46 @@
 <span class="sd">                module_instance: The module instance to be processed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">task_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">normalize_osir_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">),</span> <span class="n">module_instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">)</span>
-        <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="o">*</span><span class="n">task_params</span><span class="p">)</span></div>
+        <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="o">*</span><span class="n">task_params</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_duplicate_by_prefix_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8192</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks whether a file should be considered a duplicate using only a prefix hash.</span>
+
+<span class="sd">        This uses xxh3_128 over the first `prefix_size` bytes (default: 8KB) and stores</span>
+<span class="sd">        the resulting signature in an in-memory cache. This prevents re-processing the</span>
+<span class="sd">        same content when it appears under different paths/names *during the lifetime</span>
+<span class="sd">        of this WatchdogService instance*.</span>
+
+<span class="sd">        NOTE:</span>
+<span class="sd">            - This is not persisted (duplicates can reappear after restart).</span>
+<span class="sd">            - Prefix-hash dedup can cause false duplicates if two different files share</span>
+<span class="sd">            the same first bytes.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            module_name (str): The module name (dedup scope is per module).</span>
+<span class="sd">            file_path (str): Path to the file to hash.</span>
+<span class="sd">            prefix_size (int): Prefix size in bytes to hash (default 8192).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the file is considered a duplicate (already seen),</span>
+<span class="sd">                False if it is new (and has been recorded).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_file_xxh3_128_prefix</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">file_size</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="n">prefix_hash</span> <span class="o">=</span> <span class="n">compute_file_xxh3_128_prefix</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">prefix_size</span><span class="o">=</span><span class="n">prefix_size</span><span class="p">)</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">file_size</span><span class="p">,</span> <span class="n">prefix_hash</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seen_prefix_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seen_prefix</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_seen_prefix</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
 
 </pre></div>
 

@@ -214,7 +214,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>event</strong> – The event object representing the directory event.</p></li>
-<li><p><strong>module_info</strong> (<em>dict</em>) – Dictionary containing module information.</p></li>
+<li><p><strong>module_instance</strong> (<a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><em>OsirModuleModel</em></a>) – Module configuration instance</p></li>
 </ul>
 </dd>
 </dl>
@@ -275,13 +275,13 @@ types, patterns, and processing logic.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.process">
-<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_math</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><span class="pre">OsirModuleModel</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/watchdog/WatchdogService.html#ModuleHandler.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.process" title="Link to this definition"></a></dt>
-<dd><p>Initiates processing of a directory based on the module configuration.</p>
+<span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_match</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><span class="pre">OsirModuleModel</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/watchdog/WatchdogService.html#ModuleHandler.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.process" title="Link to this definition"></a></dt>
+<dd><p>Initiates processing of a file or directory based on the module configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>directory_path</strong> (<em>str</em>) – Path to the directory to be processed.</p></li>
-<li><p><strong>module_info</strong> (<em>dict</em>) – Dictionary containing module information.</p></li>
+<li><p><strong>match_path</strong> (<em>Path</em>) – Path to the file or directory that matched the module input rules.</p></li>
+<li><p><strong>module_instance</strong> (<a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><em>OsirModuleModel</em></a>) – Module configuration instance to execute (will be deep-copied and updated).</p></li>
 </ul>
 </dd>
 </dl>

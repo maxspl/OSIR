@@ -12,6 +12,13 @@ Supported Modules
      - Processor Type
      - Tool Path
    * - generic
+     - age_decrypt.yml
+     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
+     - maxspl
+     - 1.0
+     - external
+     - age
+   * - generic
      - indexer-ng.yml
      - Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs configuration.
      - maxspl
@@ -438,6 +445,13 @@ Supported Modules
      - 1.0
      - external
      - /usr/bin/find
+   * - windows
+     - dfir_orc_decrypt.yml
+     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/DFIRORC_key.pem.
+     - maxspl
+     - 1.0
+     - external
+     - orc-decrypt-rs
    * - windows
      - dummy_external.yml
      - Dummy module to test WSL / Powershell connexion

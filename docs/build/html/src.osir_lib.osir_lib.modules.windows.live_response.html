@@ -461,12 +461,12 @@ each describing a network connection with fields:</p>
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.RoutesParser">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.</span></span><span class="sig-name descname"><span class="pre">RoutesParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/routes_parser.html#RoutesParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.RoutesParser" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Parse Windows route print output (supports localized output).</p>
+<p>Parse Windows <cite>route print</cite> output (supports localized output).</p>
 <dl class="simple">
-<dt>The parser extracts:</dt><dd><ul class="simple">
+<dt>Extracts:</dt><dd><ul class="simple">
 <li><p>Interface list</p></li>
-<li><p>IPv4 routing table</p></li>
-<li><p>IPv6 routing table</p></li>
+<li><p>IPv4 routing table (active)</p></li>
+<li><p>IPv6 routing table (active)</p></li>
 </ul>
 </dd>
 </dl>
@@ -474,51 +474,7 @@ each describing a network connection with fields:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.RoutesParser.parse">
 <span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/routes_parser.html#RoutesParser.parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.RoutesParser.parse" title="Link to this definition"></a></dt>
-<dd><p>Convert route print console output into JSONL records.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>text</strong> – Full output of route print (any locale, typically French or English).</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><dl>
-<dt>Interface entry:</dt><dd><dl class="simple">
-<dt>{</dt><dd><p>“type”: “route_interface”,
-“index”: “17”,
-“mac_address”: “94 c6 91 12 a4 3b”,
-“name”: “Intel(R) Ethernet I219-V”</p>
-</dd>
-</dl>
-<p>}</p>
-</dd>
-<dt>IPv4 route:</dt><dd><dl class="simple">
-<dt>{</dt><dd><p>“type”: “ipv4_route”,
-“destination”: “0.0.0.0”,
-“netmask”: “0.0.0.0”,
-“gateway”: “192.168.1.1”,
-“interface”: “192.168.1.42”,
-“metric”: “25”</p>
-</dd>
-</dl>
-<p>}</p>
-</dd>
-<dt>IPv6 route:</dt><dd><dl class="simple">
-<dt>{</dt><dd><p>“type”: “ipv6_route”,
-“interface_index”: “17”,
-“metric”: “25”,
-“destination”: “::/0”,
-“gateway”: “fe80::1”</p>
-</dd>
-</dl>
-<p>}</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A JSONL string where each line is one of</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 </dd></dl>
 

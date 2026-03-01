@@ -182,8 +182,10 @@
         <span class="n">jobs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">_dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ntfs_info_dir</span><span class="p">):</span>
-            <span class="c1"># Check if we are in the NTFSInfoFull_detail directory</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;NTFSInfoFull_detail&quot;</span><span class="p">):</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+            <span class="c1"># ORC layout: directory name starts with &quot;ntfsinfo&quot; (e.g. ntfsinfo_&lt;endpoint&gt;)</span>
+            <span class="k">if</span> <span class="n">base</span> <span class="o">!=</span> <span class="s2">&quot;ntfsinfofull_detail&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">base</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ntfsinfo&quot;</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Retrieve NTFSInfo*.csv files</span>
@@ -194,14 +196,55 @@
                 <span class="n">ntfs_info_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found NTFSInfo CSV: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
 
-                <span class="c1"># Check for Listdlls.txt in General directory (parent directory)</span>
-                <span class="n">general_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
-                <span class="n">listdlls_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">general_dir</span><span class="p">,</span> <span class="s2">&quot;Listdlls.txt&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">listdlls_path</span><span class="p">):</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found Listdlls.txt: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">listdlls_path</span><span class="p">)</span>
+                <span class="c1"># Find listdlls in a simple, predictable way:</span>
+                <span class="c1">#   - locate nearest parent dir named &quot;extracted_files&quot;</span>
+                <span class="c1">#   - then try to find listdll.txt</span>
+
+                <span class="n">listdlls_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="c1"># Extract endpoint name using the same regex as _prepare_input</span>
+                <span class="n">endpoint_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                    <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Listdlls.txt not found in </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">general_dir</span><span class="p">)</span>
-                    <span class="n">listdlls_path</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Endpoint regex matched nothing for listdlls search: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
+
+                <span class="c1"># Walk upward to find &quot;.../extracted_files&quot;</span>
+                <span class="n">cur</span> <span class="o">=</span> <span class="n">root</span>
+                <span class="n">extracted_files_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;extracted_files&quot;</span><span class="p">:</span>
+                        <span class="n">extracted_files_dir</span> <span class="o">=</span> <span class="n">cur</span>
+                        <span class="k">break</span>
+
+                    <span class="n">parent</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">parent</span> <span class="o">==</span> <span class="n">cur</span><span class="p">:</span>
+                        <span class="k">break</span>
+                    <span class="n">cur</span> <span class="o">=</span> <span class="n">parent</span>
+
+                <span class="k">if</span> <span class="n">extracted_files_dir</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">endpoint_name</span><span class="p">:</span>
+                        <span class="n">candidate</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                            <span class="n">extracted_files_dir</span><span class="p">,</span>
+                            <span class="s2">&quot;external&quot;</span><span class="p">,</span>
+                            <span class="sa">f</span><span class="s2">&quot;listdlls_</span><span class="si">{</span><span class="n">endpoint_name</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+                            <span class="n">listdlls_path</span> <span class="o">=</span> <span class="n">candidate</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found listdlls: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">listdlls_path</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;listdlls not found at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">listdlls_path</span><span class="p">:</span>
+                        <span class="n">candidate</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">extracted_files_dir</span><span class="p">,</span> <span class="s2">&quot;General&quot;</span><span class="p">,</span> <span class="s2">&quot;Listdlls.txt&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+                            <span class="n">listdlls_path</span> <span class="o">=</span> <span class="n">candidate</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found Listdlls.txt: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">listdlls_path</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Listdlls.txt not found at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">candidate</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not locate an &#39;extracted_files&#39; parent for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
 
                 <span class="c1"># Get mount point or fallback volume ID</span>
                 <span class="n">mount_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mount_point_or_volume_id</span><span class="p">(</span>

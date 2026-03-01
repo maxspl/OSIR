@@ -1541,6 +1541,26 @@ during a specific forensic execution without cluttering the main system log.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.compute_file_xxh3_128_prefix">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">compute_file_xxh3_128_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8192</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#compute_file_xxh3_128_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.compute_file_xxh3_128_prefix" title="Link to this definition"></a></dt>
+<dd><p>Computes xxh3_128 on only the first bytes of a file (default: first 8KB).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>Path</em>) – Path to the file.</p></li>
+<li><p><strong>prefix_size</strong> (<em>int</em>) – Number of bytes to read from the beginning.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hex digest of xxh3_128 over the prefix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.get_latest_log_by_task_id">
 <span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">get_latest_log_by_task_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_task_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/OSIR/share/log/task_traces.jsonl'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#get_latest_log_by_task_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.get_latest_log_by_task_id" title="Link to this definition"></a></dt>
 <dd><p>Retrieves the most recent log trace for a specific Task ID by reading the log file in reverse.</p>
