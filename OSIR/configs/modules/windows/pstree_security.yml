@@ -16,13 +16,13 @@ tool:
   version: 2025.08.07
 input:
   type: file
-  name: _Security\.evtx.*?\.jsonl$
-  path: evtx_orc/
+  name: -Security\.evtx.*?\.jsonl$
+  path: evtx/
 output:
   type: multiple_files
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
-endpoint: "evtx_orc\/(.*?)--"
+endpoint: "evtx\/(.*?)--"
 splunk:
   'windows:evtx:pstree':
     name_rex: nodes\.jsonl$

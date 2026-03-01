@@ -16,8 +16,9 @@ tool:
   version: 2025.08.07
 input:
   type: file
-  name: ^processes1\.csv$
-  path: extracted_files/Powershell
+  paths: 
+    - "**/extracted_files/Powershell/processes1.csv"
+    - "**/extracted_files/powershell/processeswmi*.csv"
 output:
   type: multiple_files
   format: jsonl

@@ -12,8 +12,9 @@ processor_type:
 processor_os: unix
 input:
   type: file
-  name: netstat.txt
-  path: extracted_files/General/
+  paths: 
+    - "**/extracted_files/General/netstat.txt"
+    - r"netstat_.*\.txt$" 
 output:
   type: single_file
   format: jsonl

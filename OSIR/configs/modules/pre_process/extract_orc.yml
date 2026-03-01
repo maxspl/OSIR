@@ -25,9 +25,9 @@ optional:
   password: avproof
 splunk:
   'windows:live_response:systeminfo':
-      name_rex: Systeminfo\.csv
+      name_rex: (?i)^systeminfo(?:_.+)?\.csv$
+      path_rex: '.*\/extract_orc.*'
       host_rex: "\/Endpoint_(.*?)\/"
-      path_suffix: General
       sourcetype: _json               
       timestamp_path:
         - "timestamp" 
@@ -35,9 +35,9 @@ splunk:
       normalize:
         - ecs_normalize/windows/live_response/systeminfo.vrl    
   'windows:live_response:processes':
-      name_rex: processes\d\.csv$
+      name_rex: (?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$
+      path_rex: '.*\/extract_orc.*'
       host_rex: "\/Endpoint_(.*?)\/"
-      path_suffix: Powershell
       sourcetype: _json          
       timestamp_path:
         - "timestamp" 
@@ -46,7 +46,7 @@ splunk:
         - ecs_normalize/windows/live_response/ps1_processes.vrl         
   'filesystem:ntfs:info':
     name_rex: NTFSInfo.*.csv$
-    path_rex: '.*\/NTFSInfo.*'
+    path_rex: '.*\/extract_orc.*'
     sourcetype: 'filesystem:ntfs:info'
     host_rex: "\/Endpoint_(.*?)\/"
     timestamp_path:
@@ -57,7 +57,7 @@ splunk:
       - ecs_normalize/windows/NTFSInfo.vrl        
   'filesystem:ntfs:usn':
     name_rex: USNInfo.*.csv$
-    path_rex: '.*\/USNInfo.*'
+    path_rex: '.*\/extract_orc.*'
     sourcetype: 'filesystem:ntfs:usn'
     host_rex: "\/Endpoint_(.*?)\/"
     timestamp_path: 
@@ -65,7 +65,7 @@ splunk:
     timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
   'filesystem:ntfs:i30':
     name_rex: I30Info.*.csv$
-    path_rex: '.*\/NTFSInfo.*i30Info.*'
+    path_rex: '.*\/extract_orc.*'
     sourcetype: 'filesystem:ntfs:i30'
     host_rex: "\/Endpoint_(.*?)\/"
     timestamp_path:
@@ -75,8 +75,8 @@ splunk:
     normalize:
       - ecs_normalize/windows/NTFSInfo_i30.vrl
   'windows:live_response:autoruns':
-    name_rex: autoruns.csv$
-    path_suffix: 'General'
+    name_rex: autoruns.*csv$
+    path_rex: '.*\/extract_orc.*'
     sourcetype: 'windows:autoruns'
     host_rex: "\/Endpoint_(.*?)\/"
     timestamp_path:
