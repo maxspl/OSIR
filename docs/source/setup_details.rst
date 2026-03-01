@@ -1,122 +1,110 @@
 
-Master setup in details 
+Master setup in details
 =======================
 
-The basic option is to use **make** command to start interactive setup.
+The recommended option is to use the unified launcher ``osir-launcher.py`` to run the interactive setup and start the MASTER component.
+
+Interactive setup (recommended)
+-------------------------------
 
 .. code-block:: bash
 
     cd OSIR
-    make master
+    python3 osir-launcher.py start master
 
-To access more setup option, run the setup script for the master directory.
+To see available launcher commands:
 
 .. code-block:: bash
 
-    cd OSIR/setup/master
-    sudo ./master_setup.sh
+    python3 osir-launcher.py -h
 
-Usage:
+To see options for the start command:
 
-.. code-block:: console
+.. code-block:: bash
 
-    Usage: ./master_setup.sh [-d] [-h] [-c]
-    Options:
-      -d  Enable debug mode
-      -h  Show this help message
-      -c  Setup master from config file. Default is interactive
+    python3 osir-launcher.py start -h
 
 Options Explained
 -----------------
 
-- **-d**: Enable debug mode. This option provides more detailed output for troubleshooting.
-- **-h**: Show the help message. Use this option to see all available options and their descriptions.
-- **-c**: Setup master from a configuration file. If this option is not used, the script runs in interactive mode by default.
+- **--offline**: Run in offline mode (use offline compose/services when available).
+- **--debug**: Enable verbose output for troubleshooting.
+- **--config**: Use an existing configuration file instead of prompting interactively.
+- **--attach**: Attach to container output (interactive) instead of starting in background.
+- **--debug-shell**: Start the container with a shell entrypoint (development/debug only).
 
 Using a Configuration File
 --------------------------
 
-Instead of running the script in interactive mode, you can use a configuration file. Here is an example of a configuration file that can be used:
+Instead of running the setup in interactive mode, you can reuse an existing configuration file.
 
-**Path**: `OSIR/setup/conf/master.yanl`
+**Path**: ``OSIR/setup/conf/master.yml``
 
 **Content**:
 
 .. code-block:: yaml
 
-    splunk: # Paramters of local (self deployed by master) or external (deployed by yourself) Splunk server
-      location: {splunk_location} # external (deployed by yourself or local (self deployed by master)
+    splunk: # Parameters of local (self deployed by master) or external (deployed by yourself) Splunk server
+      location: {splunk_location} # external (deployed by yourself) or local (self deployed by master)
       user: {splunk_user}
       password: {splunk_password}
       port: {splunk_port} # default is 8000
       mport: {splunk_mport} # default is 8089
       ssl: {splunk_ssl} # True or False
       local_splunk: # what to do with Splunk data if a previous installation has been done
-        previous_data: erase # possible values: erase, keep, stop 
-      remote_splunk: 
+        previous_data: erase # possible values: erase, keep, stop
+      remote_splunk:
         host: {splunk_remote_splunk_host} # IP or FQDN if external Splunk
 
-Replace the placeholders (e.g., `{splunk_location}`, `{splunk_user}`) with the actual values for your setup.
+Replace the placeholders (e.g., ``{splunk_location}``, ``{splunk_user}``) with the actual values for your setup.
 
-.. note:: Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.
+.. note::
+   Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.
 
 Example Usage
 -------------
 
-To run the script with the configuration file, use the following command:
+To start MASTER while reusing the detected configuration:
 
 .. code-block:: bash
 
-    sudo ./master_setup.sh -c 
-
-Agent setup in details 
+    python3 osir-launcher.py start master --config
+Agent setup in details
 ======================
 
-The basic option is to use **make** command to start interactive setup.
+The recommended option is to use the unified launcher ``osir-launcher.py`` to run the interactive setup and start the AGENT component.
+
+Interactive setup (recommended)
+-------------------------------
 
 .. code-block:: bash
 
     cd OSIR
-    make agent
-
-To access more setup option, run the setup script for the master directory.
-
-.. code-block:: bash
-
-    cd OSIR/setup/agent
-    sudo ./agent_setup.sh
-
-Usage:
-
-.. code-block:: console
-
-    Usage: ./agent_setup.sh [-d] [-h] [-c]
-    Options:
-      -d  Enable debug mode
-      -h  Show this help message
-      -c  Setup agent from config file. Default is interactive
+    python3 osir-launcher.py start agent
 
 Options Explained
 -----------------
 
-- **-d**: Enable debug mode. This option provides more detailed output for troubleshooting.
-- **-h**: Show the help message. Use this option to see all available options and their descriptions.
-- **-c**: Setup agent from a configuration file. If this option is not used, the script runs in interactive mode by default.
+- **--offline**: Run in offline mode (use offline compose/services when available).
+- **--debug**: Enable verbose output for troubleshooting.
+- **--config**: Use an existing configuration file instead of prompting interactively.
+- **--attach**: Attach to container output (interactive) instead of starting in background.
+- **--debug-shell**: Start the container with a shell entrypoint (development/debug only).
 
 Using a Configuration File
 --------------------------
 
-Instead of running the script in interactive mode, you can use a configuration file. Here is an example of a configuration file that can be used:
+Instead of running the setup in interactive mode, you can reuse an existing configuration file.
 
-**Path**: `OSIR/setup/conf/agent.yaml`
+**Path**: ``OSIR/setup/conf/agent.yml``
 
 **Content**:
 
 .. code-block:: yaml
 
     master:
-        host: {master_host} # If windows machine is remote but master and agent are on the same host, specify the IP used by Windows IP to connect master 
-    splunk: # Paramters of local (self deployed by master) or external (deployed by yourself) Splunk server
+        host: {master_host} # If windows machine is remote but master and agent are on the same host, specify the IP used by Windows to connect to master
+    splunk: # Parameters of local (self deployed by master) or external (deployed by yourself) Splunk server
         host: {splunk_host}
         user: {splunk_user}
         password: {splunk_password}
@@ -124,110 +112,290 @@ Instead of running the script in interactive mode, you can use a configuration f
         mport: {splunk_mport} # default is 8089
         ssl: {splunk_ssl} # True or False
     windows_box:
-        location: {windows_box_location} # external (deployed by yourself) or local (self deployed by master)
+        location: {windows_box_location} # external (deployed by yourself) or local
         cores: {windows_box_cores} # Number of cores of the windows box, to adapt the number of concurrent tasks
         remote_box: # if external (deployed by yourself) windows box
             host: {windows_box_remote_box_host} # IP or FQDN
-            user: {windows_box_remote_box_user} # admin user 
+            user: {windows_box_remote_box_user} # admin user
             password: {windows_box_remote_box_password}
             custom_mountpoint: {windows_box_remote_box_custom_mountpoint} # Drive letter (Ex. D)
 
-Replace the placeholders (e.g., `{splunk_location}`, `{splunk_user}`) with the actual values for your setup.
+Replace the placeholders (e.g., ``{splunk_host}``, ``{splunk_user}``) with the actual values for your setup.
 
-.. note:: Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.
+.. note::
+   Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.
 
-.. warning:: If using your own Windows box, Winrm must enabled and user provided must be admin. Internet access is also required to setup tools.
+.. warning::
+   If using your own Windows box, WinRM must be enabled and the user provided must be admin.
+   Internet access is also required to setup tools.
 
 Example Usage
 -------------
 
-To run the script with the configuration file, use the following command:
+To start AGENT while reusing the detected configuration:
 
 .. code-block:: bash
 
-    sudo ./agent_setup.sh -c 
+    python3 osir-launcher.py start agent --config
+
+Developer mode (Module development)
+===================================
+
+When developing OSIR modules, it is often useful to:
+
+- Start or stop OSIR quickly
+- Launch OSIR manually inside the container
+- Watch logs in real time
+- Restart only the OSIR process without recreating containers
+
+The launcher provides a **developer mode** using the options:
+
+- ``--attach``
+- ``--debug-shell``
+
+This mode starts containers with a shell entrypoint instead of
+launching OSIR automatically.
+
+.. warning::
+   This mode is intended for development and debugging only.
+   Normal users should use ``start all`` without debug options.
+
+Recommended workflow
+********************
+
+It is recommended to use **two terminals**.
+
+Terminal 1: MASTER
+----------------------------------------
+
+Start MASTER in developer mode:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py start master --attach --debug-shell
+
+What happens:
+
+- Existing configuration is reused
+- Docker compose is temporarily patched
+- The container starts with ``bash`` instead of ``OSIR.py``
+- You get an interactive shell inside the container
+
+Example message:
+
+.. code-block:: console
+
+    Container started with bash as entrypoint.
+    Now you have to run manually inside the shell:
+        OSIR.py --web
+
+Inside the container shell, start OSIR manually:
+
+.. code-block:: bash
+
+    OSIR.py --web
+
+You will now see MASTER (web) logs live in this terminal.
+This is ideal when developing or debugging modules.
+
+Terminal 2: AGENT
+---------------------------------------
+
+Start AGENT in developer mode:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py start agent --attach --debug-shell
+
+Inside the container shell, launch:
+
+.. code-block:: bash
+
+    OSIR.py --agent
+
+You will now see AGENT logs live in this terminal.
+This allows you to:
+
+- Observe processing logs live
+- Restart the agent process quickly
+- Test modules without rebuilding containers
+
+Why use developer mode?
+***********************
+
+Developer mode is useful when:
+
+- Creating or modifying OSIR modules
+- Debugging API or processing behavior
+- Watching Streamlit or backend logs live
+- Restarting OSIR quickly after code changes
+
+Instead of restarting all containers, you only restart:
+
+.. code-block:: bash
+
+    OSIR.py --web
+    # or
+    OSIR.py --agent
+
+This significantly speeds up development cycles.
+
+The goal is to keep:
+
+- Terminal 1 for MASTER (web) logs
+- Terminal 2 for AGENT logs
 
 Air Gap setup
 =============
 
-**Offline setup is possible:**
+OSIR supports deployment in **air-gapped environments** (no internet access).
+This is done by exporting Docker images from an online host and loading them
+on the offline host.
 
-**1.** Setup Master and Agent on hosts with **internet access** (cf. previous sections)
+Overview
+--------
 
-**2.** Save **Master images**
+The workflow is:
 
-.. code-block:: bash
+1. Prepare OSIR on an **internet-connected host**
+2. Export Docker images using the launcher
+3. Transfer the offline release to the air-gapped host
+4. Load images and start OSIR in offline mode
 
-    sudo make master_full_offline_release
-.. note:: It will produce this file: OSIR/setup/offline_release/master_containers.tar
+Step 1 — Prepare OSIR on an online host
+---------------------------------------
 
-**3.** Save **Agent images**
-
-.. code-block:: bash
-
-    sudo make agent_full_offline_release
-
-.. note:: It will produce this file: OSIR/setup/offline_release/agent_containers.tar
-
-**4.** Optional: if your original OSIR setup does not include Splunk and/or Dockur (Windows in Docker) dockers, you can still do the previous steps and generate these dockers from another setup as follows:
-
-For Splunk:
+Setup MASTER and AGENT normally on a machine with internet access:
 
 .. code-block:: bash
 
-    sudo make master_splunk_offline_release
+    cd OSIR
+    python3 osir-launcher.py start all
 
-.. note:: It will produce this file: OSIR/setup/offline_release/splunk_containers.tar
-
-For Windows in Docker:
-
-.. code-block:: bash
-
-    sudo make agent_dockur_offline_release
-
-.. note:: It will produce this file: OSIR/setup/offline_release/win_containers.tar
-
-**5.** Transfer **OSIR/setup/offline_release/** directory to the **air-gapped hosts** in the **same OSIR path**.
-
-**6.** Optional: If **Windows in Docker** is used in the air-gapped host, also **copy** the following directory into the air-gapped host in the same OSIR path: **OSIR/setup/windows_setup/src/dockur_storage/**
+This ensures all required images are built locally.
 
 
-**7.** **Load** the docker images in the **air-gapped hosts**
+Step 2 — Export Docker images
+------------------------------
 
-Master:
+Use the launcher to generate offline archives:
+
+Export MASTER images:
 
 .. code-block:: bash
 
-    sudo make master_load_full_release
+    python3 osir-launcher.py airgap export master
 
-Agent:
-
-.. code-block:: bash
-
-    sudo make agent_load_full_release
-
-Splunk (Only if step 4 was done):
+Export AGENT images:
 
 .. code-block:: bash
 
-    sudo make master_load_splunk_release
+    python3 osir-launcher.py airgap export agent
 
-Windows in Docker (Only if step 4 was done):
-
-.. code-block:: bash
-
-    sudo make agent_load_dockur_release
-
-**8.** Start Master and Agent
-
-Master:
+Export both components at once:
 
 .. code-block:: bash
 
-    sudo make master_offline
+    python3 osir-launcher.py airgap export all
 
-Agent:
+.. note::
+   Archives are created in:
+
+   ``OSIR/setup/offline_release/``
+
+   Expected files:
+
+   - ``master_containers.tar``
+   - ``agent_containers.tar``
+
+
+Optional components
+-------------------
+
+If your deployment uses **Splunk** or **Windows in Docker (Dockur)**,
+ensure the corresponding images exist on the export host before running
+the airgap export.
+
+These images will automatically be included if they are present locally.
+
+
+Step 3 — Transfer offline release
+---------------------------------
+
+Copy the following directory to the air-gapped host,
+keeping the **same OSIR path**:
+
+.. code-block:: text
+
+    OSIR/setup/offline_release/
+
+Optional — Windows in Docker:
+
+If Dockur is used, also copy:
+
+.. code-block:: text
+
+    OSIR/setup/windows_setup/src/dockur_storage/
+
+
+Step 4 — Load images on the air-gapped host
+-------------------------------------------
+
+On the offline machine:
 
 .. code-block:: bash
 
-    sudo make agent_offline
+    cd OSIR
+
+Load MASTER images:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py airgap load master
+
+Load AGENT images:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py airgap load agent
+
+Or load everything:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py airgap load all
+
+
+Step 5 — Start OSIR in offline mode
+-----------------------------------
+
+Start both components:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py start all --offline
+
+This will start MASTER and AGENT without attempting to download images.
+
+
+Verification
+------------
+
+You can verify the installation with:
+
+.. code-block:: bash
+
+    python3 osir-launcher.py status
+
+The launcher will display:
+
+- Process status (MASTER / AGENT)
+- Dockerfile fingerprint check (best-effort)
+
+.. note::
+   In air-gapped environments the fingerprint status may show:
+
+   - ``OK ✅`` → images match local Dockerfiles
+   - ``OUTDATED ⚠️`` → rebuild recommended
+   - ``UNKNOWN ❓`` → images were built without fingerprint labels
+     or Dockerfile detection was not possible (expected in some offline setups)

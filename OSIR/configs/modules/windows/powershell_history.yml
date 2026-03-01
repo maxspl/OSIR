@@ -1,0 +1,28 @@
+version: 1.0
+author: maxspl
+module: powershell_history
+description: Parse ConsoleHost_history.txt 
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: ConsoleHost_history.txt
+  path: AppData/Roaming/Microsoft/Windows/PowerShell/PSReadLine/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}-username_changed_by_parser.jsonl"
+endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:powershell_history':
+    name_rex: \.jsonl$
+    path_suffix: powershell_history
+    host_rex: ([\w\.-]+)--
+    artifact: "POWERSHELL"
+    normalize:
+      - ecs_normalize/windows/powershell_history.vrl   

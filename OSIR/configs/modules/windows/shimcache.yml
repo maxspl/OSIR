@@ -1,5 +1,5 @@
 version: 1.0
-author:
+author: maxspl
 module: shimcache
 description: Parsing of ShimCache artifact.
 os: windows
@@ -29,7 +29,9 @@ splunk:
     path_suffix: 'shimcache'
     sourcetype: 'windows:registry:hklm:shimcache'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "LastModifiedTimeUTC"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "ShimCache"
+    normalize:
+      - ecs_normalize/windows/shimcache.vrl    

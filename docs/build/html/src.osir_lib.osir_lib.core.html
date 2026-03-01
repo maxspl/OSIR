@@ -1,0 +1,1651 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_lib.osir_lib.core package &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="src.osir_lib.osir_lib.core.model package" href="src.osir_lib.osir_lib.core.model.html" />
+    <link rel="prev" title="src.osir_lib.osir_lib package" href="src.osir_lib.osir_lib.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="api.html">API Documentation</a></li>
+          <li class="breadcrumb-item"><a href="src.osir_lib.html">src.osir_lib package</a></li>
+          <li class="breadcrumb-item"><a href="src.osir_lib.osir_lib.html">src.osir_lib.osir_lib package</a></li>
+      <li class="breadcrumb-item active">src.osir_lib.osir_lib.core package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.osir_lib.osir_lib.core.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-osir-lib-osir-lib-core-package">
+<h1>src.osir_lib.osir_lib.core package<a class="headerlink" href="#src-osir-lib-osir-lib-core-package" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html">src.osir_lib.osir_lib.core.model package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.LiteralModel">src.osir_lib.osir_lib.core.model.LiteralModel module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirInputModel">src.osir_lib.osir_lib.core.model.OsirInputModel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel"><code class="docutils literal notranslate"><span class="pre">OsirInputModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.type"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.path"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.name"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.file"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.dir"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.paths"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.match"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.match</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id0"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id1"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id2"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.match</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id3"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id4"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id5"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.paths</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id6"><code class="docutils literal notranslate"><span class="pre">OsirInputModel.type</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirModuleModel">src.osir_lib.osir_lib.core.model.OsirModuleModel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.__init__"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.alt_module"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.alt_module</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.author"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.author</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.connector"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.connector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.description"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.disk_only"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.disk_only</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.endpoint"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.endpoint</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.env"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.filename"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.filename</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.find_and_load_internal_module"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.find_and_load_internal_module()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.from_name"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.from_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.get_module_name"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.get_module_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.input"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.model_post_init"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.model_post_init()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.module"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.module</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.module_name"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.module_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.no_multithread"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.no_multithread</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.optional</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.os"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.os</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.output"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.processor_os"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.processor_os</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.processor_type"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.processor_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.splunk"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.splunk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.tool"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.tool</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.type"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.version"><code class="docutils literal notranslate"><span class="pre">OsirModuleModel.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirOutputModel">src.osir_lib.osir_lib.core.model.OsirOutputModel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.type"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.format"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.output_dir"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.output_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.output_file"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.output_file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.output_prefix"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.output_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.cast_path_to_str"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.cast_path_to_str()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.check_prefix_usage"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.check_prefix_usage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.dir"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.file"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id7"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.format</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id8"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.output_dir</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id9"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.output_file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id10"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.output_prefix</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id11"><code class="docutils literal notranslate"><span class="pre">OsirOutputModel.type</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirProfileModel">src.osir_lib.osir_lib.core.model.OsirProfileModel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.version"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.author"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.author</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.description"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.os"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.os</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.modules"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.add_modules"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.add_modules()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id12"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.author</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id13"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.filename"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.filename</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.from_name"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.from_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.from_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id14"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.modules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id15"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.os</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.remove_modules"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.remove_modules()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id16"><code class="docutils literal notranslate"><span class="pre">OsirProfileModel.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirToolModel">src.osir_lib.osir_lib.core.model.OsirToolModel module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel"><code class="docutils literal notranslate"><span class="pre">OsirToolModel</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.path"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.cmd"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.cmd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.source"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.source</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.version"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.version</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.license"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.license</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.env"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id17"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.cmd</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id18"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.env</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id19"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.license</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id20"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.path</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id21"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.source</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id22"><code class="docutils literal notranslate"><span class="pre">OsirToolModel.version</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-src.osir_lib.osir_lib.core.FileManager">
+<span id="src-osir-lib-osir-lib-core-filemanager-module"></span><h2>src.osir_lib.osir_lib.core.FileManager module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.FileManager" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.FileManager.</span></span><span class="sig-name descname"><span class="pre">FileManager</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.all_cases">
+<span class="sig-name descname"><span class="pre">all_cases</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.all_cases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.all_cases" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.all_modules">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">all_modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.all_modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.all_modules" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.all_profiles">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">all_profiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.all_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.all_profiles" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.create_case">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">create_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.create_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.create_case" title="Link to this definition"></a></dt>
+<dd><p>Create a new case directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>str</em>) – The directory where the case will be created.</p></li>
+<li><p><strong>case_name</strong> (<em>str</em>) – The name of the case (will be the directory name).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The path to the created case directory.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileExistsError</strong> – If the case directory already exists.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_cases">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_cases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_cases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_cases" title="Link to this definition"></a></dt>
+<dd><p>Get a list of subdirectories in a given directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) – The directory to search.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of subdirectory names.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_cases_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_cases_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_cases_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_cases_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_config_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_config_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_config_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_config_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_files_in_cases">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_files_in_cases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_files_in_cases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_files_in_cases" title="Link to this definition"></a></dt>
+<dd><p>Get a list of files in a given directory (recursive).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) – The directory to search for files.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of relative file paths found in the directory.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_module_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_module_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_module_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_module_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_profile_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_profile_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">profile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raise_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_profile_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_profile_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.get_yaml_files">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_yaml_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.get_yaml_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.get_yaml_files" title="Link to this definition"></a></dt>
+<dd><p>Get a list of .yml files in a given directory recursively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>directory</strong> (<em>str</em>) – The directory to search for .yml files.</p></li>
+<li><p><strong>relative</strong> (<em>bool</em>) – If True, return paths relative to <cite>directory</cite>. If False, return basenames.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of YAML file paths or basenames.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.load_yaml_file">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_yaml_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.load_yaml_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.load_yaml_file" title="Link to this definition"></a></dt>
+<dd><p>Load and parse content from a YAML file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – The path to the YAML file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed YAML content.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.FileManager.FileManager.resolve_modules_parent_dir">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">resolve_modules_parent_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modules</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/FileManager.html#FileManager.resolve_modules_parent_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.FileManager.FileManager.resolve_modules_parent_dir" title="Link to this definition"></a></dt>
+<dd><p>Convert a list of module filenames to their relative paths from the base modules directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>modules</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of module file names (e.g., “foo.yml”).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Relative paths under the modules directory (e.g., “windows/foo.yml”).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.LogUtils">
+<span id="src-osir-lib-osir-lib-core-logutils-module"></span><h2>src.osir_lib.osir_lib.core.LogUtils module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.LogUtils" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.LogUtils.</span></span><span class="sig-name descname"><span class="pre">LogUtils</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule"><span class="pre">OsirModule</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A utility class for processing Unix-based log files, handling log writing, reading, and formatting.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.case_path">
+<span class="sig-name descname"><span class="pre">case_path</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.case_path" title="Link to this definition"></a></dt>
+<dd><p>Path to the directory where case-related files are stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.module">
+<span class="sig-name descname"><span class="pre">module</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.module" title="Link to this definition"></a></dt>
+<dd><p>Instance of the module being used for processing.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule">OsirModule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.default_output_dir">
+<span class="sig-name descname"><span class="pre">default_output_dir</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.default_output_dir" title="Link to this definition"></a></dt>
+<dd><p>Default directory path for storing output logs based on the module name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ctx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule"><span class="pre">OsirModule</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.date_format">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">date_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.date_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.date_format" title="Link to this definition"></a></dt>
+<dd><p>Determines the date format for a given log line by matching against known patterns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>log_line</strong> (<em>str</em>) – The log line to analyze for date format.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The matching date regex pattern or logs a warning if no format is found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.get_date">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strtime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.get_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.get_date" title="Link to this definition"></a></dt>
+<dd><p>Parses a date from a log line based on a given regex or inferred format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>line</strong> (<em>str</em>) – The log line to parse for date information.</p></li>
+<li><p><strong>regex</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Regular expression pattern for date extraction.</p></li>
+<li><p><strong>strtime</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – Date format string for parsing.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ISO formatted date string or “N/A” if no date found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.get_log">
+<span class="sig-name descname"><span class="pre">get_log</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.get_log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.get_log" title="Link to this definition"></a></dt>
+<dd><p>Generates each line from a log file, handling .gz compressed files if needed.</p>
+<dl class="simple">
+<dt>Test multiple encodings :</dt><dd><p>‘utf-8’, ‘latin1’, ‘iso-8859-1’, ‘windows-1252’</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>str</em> – A single log line.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.get_severity">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_severity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.get_severity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.get_severity" title="Link to this definition"></a></dt>
+<dd><p>Extracts the severity level from a log line based on predefined keywords.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>line</strong> (<em>str</em>) – The log line from which to extract the severity.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The extracted severity level in lowercase, or “N/A” if not found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.safe_search">
+<span class="sig-name descname"><span class="pre">safe_search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.safe_search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.safe_search" title="Link to this definition"></a></dt>
+<dd><p>Searches for a regex pattern in a log line and returns the first group if found.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> (<em>str</em>) – Regex pattern to search for.</p></li>
+<li><p><strong>log</strong> (<em>str</em>) – The log line to search within.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>First matching group, or None if no match is found.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.LogUtils.LogUtils.start_writer_thread">
+<span class="sig-name descname"><span class="pre">start_writer_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/LogUtils.html#LogUtils.start_writer_thread"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.LogUtils.LogUtils.start_writer_thread" title="Link to this definition"></a></dt>
+<dd><p>Starts a writer thread that will handle saving data to JSONL files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A queue that will hold data to be processed by the writer thread.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Queue</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirAgentConfig">
+<span id="src-osir-lib-osir-lib-core-osiragentconfig-module"></span><h2>src.osir_lib.osir_lib.core.OsirAgentConfig module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirAgentConfig" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirAgentConfig.</span></span><span class="sig-name descname"><span class="pre">BoxDetails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_mountpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'C'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirAgentConfig.html#BoxDetails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Defines the connection parameters for a remote Windows forensic environment.</p>
+<p>This model stores the credentials and host information required for the agent
+to mount and interact with a remote Windows machine where forensic tools
+might be executed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>) – IP address or hostname of the remote Windows box.</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – Username for authentication.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for authentication.</p></li>
+<li><p><strong>custom_mountpoint</strong> (<em>str</em>) – The drive letter or path (default ‘C’) to be used during tasks.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.custom_mountpoint">
+<span class="sig-name descname"><span class="pre">custom_mountpoint</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.custom_mountpoint" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.host">
+<span class="sig-name descname"><span class="pre">host</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.host" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.password">
+<span class="sig-name descname"><span class="pre">password</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.password" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.user">
+<span class="sig-name descname"><span class="pre">user</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirAgentConfig.</span></span><span class="sig-name descname"><span class="pre">FullAgentConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">master</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig" title="src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig"><span class="pre">MasterConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig" title="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig"><span class="pre">WindowsBoxConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">splunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig" title="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig"><span class="pre">SplunkConfig</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirAgentConfig.html#FullAgentConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>The root validation model for the ‘agent.yml’ configuration file.</p>
+<p>It acts as a single point of truth, validating that the Master, Windows Box,
+and Splunk sections are correctly formatted and present before the agent starts.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.master">
+<span class="sig-name descname"><span class="pre">master</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig" title="src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig"><span class="pre">MasterConfig</span></a></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.master" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.splunk">
+<span class="sig-name descname"><span class="pre">splunk</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig" title="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig"><span class="pre">SplunkConfig</span></a></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.splunk" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.windows_box">
+<span class="sig-name descname"><span class="pre">windows_box</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig" title="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig"><span class="pre">WindowsBoxConfig</span></a></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.windows_box" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirAgentConfig.</span></span><span class="sig-name descname"><span class="pre">MasterConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirAgentConfig.html#MasterConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Specifies the network coordinates of the OSIR Master node.y</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>host</strong> (<em>str</em>) – The IP address or DNS name of the OSIR Master.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig.host">
+<span class="sig-name descname"><span class="pre">host</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig.host" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirAgentConfig.</span></span><span class="sig-name descname"><span class="pre">SplunkConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mport</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ssl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirAgentConfig.html#SplunkConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Contains the authentication and connection parameters for Splunk integration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>) – The address of the Splunk server.</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – Username for the Splunk.</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password for the Splunk.</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – The destination port for data ingestion (usually HEC or forwarder).</p></li>
+<li><p><strong>mport</strong> (<em>int</em>) – The Splunk Management Port (default 8089).</p></li>
+<li><p><strong>ssl</strong> (<em>bool</em>) – Whether to use encrypted HTTPS for the connection.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.host">
+<span class="sig-name descname"><span class="pre">host</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.host" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.mport">
+<span class="sig-name descname"><span class="pre">mport</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.mport" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.password">
+<span class="sig-name descname"><span class="pre">password</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.password" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.port">
+<span class="sig-name descname"><span class="pre">port</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.port" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.ssl">
+<span class="sig-name descname"><span class="pre">ssl</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.ssl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.user">
+<span class="sig-name descname"><span class="pre">user</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.user" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirAgentConfig.</span></span><span class="sig-name descname"><span class="pre">WindowsBoxConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_box</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails" title="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails"><span class="pre">BoxDetails</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirAgentConfig.html#WindowsBoxConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Defines the execution environment for Windows-based forensic modules.</p>
+<p>In the OSIR workflow, ‘location’ determines if the tools run locally, in a
+Docker container (dockur), or on a remote machine. This model also allows
+for resource allocation by specifying CPU cores, ensuring that heavy forensic
+parsing doesn’t overwhelm the host system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>location</strong> (<em>str</em>) – The deployment type (e.g., ‘local’, ‘remote’, ‘dockur’).</p></li>
+<li><p><strong>cores</strong> (<em>int</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The number of CPU cores allocated to the forensic tasks.</p></li>
+<li><p><strong>remote_box</strong> (<a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails" title="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails"><em>BoxDetails</em></a>) – Nested connection details for remote execution.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.cores">
+<span class="sig-name descname"><span class="pre">cores</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.cores" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.location">
+<span class="sig-name descname"><span class="pre">location</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.location" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.remote_box">
+<span class="sig-name descname"><span class="pre">remote_box</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails" title="src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails"><span class="pre">BoxDetails</span></a></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.remote_box" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirConnector">
+<span id="src-osir-lib-osir-lib-core-osirconnector-module"></span><h2>src.osir_lib.osir_lib.core.OsirConnector module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirConnector" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirConnector.OsirConnector">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirConnector.</span></span><span class="sig-name descname"><span class="pre">OsirConnector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">json2splunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Json2SplunkConfigModel</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elastic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Json2ElasticModel</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirConnector.html#OsirConnector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirConnector.OsirConnector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirConnectorModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirConnector.OsirConnector.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirConnector.OsirConnector.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirConstants">
+<span id="src-osir-lib-osir-lib-core-osirconstants-module"></span><h2>src.osir_lib.osir_lib.core.OsirConstants module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirConstants" title="Link to this heading"></a></h2>
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirDecorator">
+<span id="src-osir-lib-osir-lib-core-osirdecorator-module"></span><h2>src.osir_lib.osir_lib.core.OsirDecorator module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirDecorator" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirDecorator.finalize_task">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirDecorator.</span></span><span class="sig-name descname"><span class="pre">finalize_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">status</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirDecorator.html#finalize_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirDecorator.finalize_task" title="Link to this definition"></a></dt>
+<dd><p>Updates the PostgreSQL database with the final results and logs of a task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>ProcessingStatus</em>) – The final status (DONE or FAILED).</p></li>
+<li><p><strong>task_id</strong> (<em>int</em>) – The unique ID of the task in the database.</p></li>
+<li><p><strong>func_name</strong> (<em>str</em>) – The name of the module/function that executed.</p></li>
+<li><p><strong>start</strong> (<em>datetime</em>) – Execution start timestamp.</p></li>
+<li><p><strong>end</strong> (<em>datetime</em>) – Execution end timestamp.</p></li>
+<li><p><strong>logs</strong> (<em>str</em>) – The raw log output captured during execution.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirDecorator.osir_internal_module">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirDecorator.</span></span><span class="sig-name descname"><span class="pre">osir_internal_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls_or_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">trace</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirDecorator.html#osir_internal_module"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirDecorator.osir_internal_module" title="Link to this definition"></a></dt>
+<dd><p>Core OSIR decorator for internal modules that automates task state and logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cls_or_func</strong> (<em>Any</em>) – The class or function representing the internal module.</p></li>
+<li><p><strong>trace</strong> (<em>bool</em>) – Whether to capture and persist logs to the database.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The decorated module ready for the OSIR task dispatcher.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirDecorator.pinfo">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirDecorator.</span></span><span class="sig-name descname"><span class="pre">pinfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirDecorator.html#pinfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirDecorator.pinfo" title="Link to this definition"></a></dt>
+<dd><p>Decorator to log the lifecycle of file processing within an OSIR module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – The processing function to be wrapped.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The wrapped function with start/end logging for the input file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirDecorator.timeit">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirDecorator.</span></span><span class="sig-name descname"><span class="pre">timeit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirDecorator.html#timeit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirDecorator.timeit" title="Link to this definition"></a></dt>
+<dd><p>Decorator that measures and logs the execution time of a specific function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – The function whose execution time is to be measured.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The wrapped function with performance logging enabled.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirDecorator.trace_func">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirDecorator.</span></span><span class="sig-name descname"><span class="pre">trace_func</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirDecorator.html#trace_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirDecorator.trace_func" title="Link to this definition"></a></dt>
+<dd><p>Decorator used to capture function output and update the task status in the DB.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The decorated function with full database tracing.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Callable</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirInput">
+<span id="src-osir-lib-osir-lib-core-osirinput-module"></span><h2>src.osir_lib.osir_lib.core.OsirInput module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirInput" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirInput.</span></span><span class="sig-name descname"><span class="pre">OsirInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'file'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dir'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_updated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirInput.html#OsirInput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirInputModel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirPathTransformerMixin</span></code></p>
+<p>Manages the input data source for an OSIR module, handling path resolution and transformation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput._context">
+<span class="sig-name descname"><span class="pre">_context</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput._context" title="Link to this definition"></a></dt>
+<dd><p>Private reference to the parent module context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule">OsirModule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.match">
+<span class="sig-name descname"><span class="pre">match</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.match" title="Link to this definition"></a></dt>
+<dd><p>The original match file path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.match_updated">
+<span class="sig-name descname"><span class="pre">match_updated</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.match_updated" title="Link to this definition"></a></dt>
+<dd><p>The resolved path after transformations are applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Path]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.get_input_name_safe">
+<span class="sig-name descname"><span class="pre">get_input_name_safe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirInput.html#OsirInput.get_input_name_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.get_input_name_safe" title="Link to this definition"></a></dt>
+<dd><p>Returns a truncated and filesystem-safe version of the input filename.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The sanitized filename string.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">match</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">match_updated</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.model_post_init" title="Link to this definition"></a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput" title="src.osir_lib.osir_lib.core.OsirInput.OsirInput"><span class="pre">OsirInput</span></a></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirInput.html#OsirInput.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.update" title="Link to this definition"></a></dt>
+<dd><p>Applies path transformation logic to the input match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The current instance with updated path information.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput" title="src.osir_lib.osir_lib.core.OsirInput.OsirInput">OsirInput</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirInput.OsirInput.updated">
+<span class="sig-name descname"><span class="pre">updated</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput.updated" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirModule">
+<span id="src-osir-lib-osir-lib-core-osirmodule-module"></span><h2>src.osir_lib.osir_lib.core.OsirModule module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirModule" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirModule.</span></span><span class="sig-name descname"><span class="pre">OsirModule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'windows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'unix'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ios'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'macos'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'network'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'android'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'generic'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'pre-process'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'process'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'post-process'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'post_parsing'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disk_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_multithread</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'internal'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'external'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">processor_os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'windows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'unix'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tool</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool" title="src.osir_lib.osir_lib.core.OsirTool.OsirTool"><span class="pre">OsirTool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput" title="src.osir_lib.osir_lib.core.OsirInput.OsirInput"><span class="pre">OsirInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput" title="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput"><span class="pre">OsirOutput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Pattern</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirConnector.OsirConnector" title="src.osir_lib.osir_lib.core.OsirConnector.OsirConnector"><span class="pre">OsirConnector</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">splunk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">endpoint_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirModule.html#OsirModule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirModuleModel</span></code></p>
+<p>Main domain class representing a forensic processing module within OSIR.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.case_path">
+<span class="sig-name descname"><span class="pre">case_path</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.case_path" title="Link to this definition"></a></dt>
+<dd><p>The filesystem path to the current forensic case.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.tool">
+<span class="sig-name descname"><span class="pre">tool</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.tool" title="Link to this definition"></a></dt>
+<dd><p>The forensic tool/binary logic associated with this module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool" title="src.osir_lib.osir_lib.core.OsirTool.OsirTool">OsirTool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.input">
+<span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.input" title="Link to this definition"></a></dt>
+<dd><p>The source file or data to be processed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput" title="src.osir_lib.osir_lib.core.OsirInput.OsirInput">OsirInput</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.output">
+<span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.output" title="Link to this definition"></a></dt>
+<dd><p>The destination and formatting logic for results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput" title="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput">OsirOutput</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.endpoint_name">
+<span class="sig-name descname"><span class="pre">endpoint_name</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.endpoint_name" title="Link to this definition"></a></dt>
+<dd><p>The name of the workstation or source of the artifact.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirModule.html#OsirModule.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes the OsirModule by converting base models module into OsirModule.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.case_name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">case_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.case_name" title="Link to this definition"></a></dt>
+<dd><p>Extracts the identifier of the current case from the filesystem path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The lowercase name of the case directory.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">case_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.connector">
+<span class="sig-name descname"><span class="pre">connector</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirConnector.OsirConnector" title="src.osir_lib.osir_lib.core.OsirConnector.OsirConnector"><span class="pre">OsirConnector</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.connector" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">endpoint_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">input</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirInput.OsirInput" title="src.osir_lib.osir_lib.core.OsirInput.OsirInput"><span class="pre">OsirInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.is_wsl">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_wsl</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.is_wsl" title="Link to this definition"></a></dt>
+<dd><p>Runtime detection for the Windows Subsystem for Linux environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if executing inside WSL, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.link_and_update">
+<span class="sig-name descname"><span class="pre">link_and_update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule"><span class="pre">OsirModule</span></a></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirModule.html#OsirModule.link_and_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.link_and_update" title="Link to this definition"></a></dt>
+<dd><p>Post-initialization validator that establishes component relationships.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The fully linked and updated module instance.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule">OsirModule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.model_post_init" title="Link to this definition"></a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">output</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput" title="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput"><span class="pre">OsirOutput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.output_dir">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">output_dir</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.output_dir" title="Link to this definition"></a></dt>
+<dd><p>Constructs the absolute path where the module results will be stored.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The joined path as a string, or empty if no case_path is set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id6">
+<span class="sig-name descname"><span class="pre">tool</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool" title="src.osir_lib.osir_lib.core.OsirTool.OsirTool"><span class="pre">OsirTool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id6" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirModule.OsirModule.validate_module_if_internal">
+<span class="sig-name descname"><span class="pre">validate_module_if_internal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><span class="pre">OsirModuleModel</span></a></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirModule.html#OsirModule.validate_module_if_internal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule.validate_module_if_internal" title="Link to this definition"></a></dt>
+<dd><p>Ensures internal Python-based modules are discoverable and valid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the internal module logic cannot be loaded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirOutput">
+<span id="src-osir-lib-osir-lib-core-osiroutput-module"></span><h2>src.osir_lib.osir_lib.core.OsirOutput module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirOutput" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirOutput.</span></span><span class="sig-name descname"><span class="pre">OsirOutput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'single_file'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'None'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'multiple_files'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_prefix_no_endpoint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirOutput.html#OsirOutput"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirOutputModel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirPathTransformerMixin</span></code></p>
+<p>Manages the generation, naming, and structural organization of forensic tool outputs.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput._context">
+<span class="sig-name descname"><span class="pre">_context</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput._context" title="Link to this definition"></a></dt>
+<dd><p>Private reference to the parent module for accessing
+shared case metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule">OsirModule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.output_prefix_no_endpoint">
+<span class="sig-name descname"><span class="pre">output_prefix_no_endpoint</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.output_prefix_no_endpoint" title="Link to this definition"></a></dt>
+<dd><p>Internal storage for the naming prefix
+excluding the endpoint name, used for regex matching during renames.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.updated">
+<span class="sig-name descname"><span class="pre">updated</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.updated" title="Link to this definition"></a></dt>
+<dd><p>Flag to ensure path transformations are only performed once.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.model_post_init" title="Link to this definition"></a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id7">
+<span class="sig-name descname"><span class="pre">output_prefix_no_endpoint</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id7" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput" title="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput"><span class="pre">OsirOutput</span></a></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirOutput.html#OsirOutput.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.update" title="Link to this definition"></a></dt>
+<dd><p>Resolves output templates and prepares the filesystem for result storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance with fully resolved and absolute paths.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput" title="src.osir_lib.osir_lib.core.OsirOutput.OsirOutput">OsirOutput</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id8">
+<span class="sig-name descname"><span class="pre">updated</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id8" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirPathTransformerMixin">
+<span id="src-osir-lib-osir-lib-core-osirpathtransformermixin-module"></span><h2>src.osir_lib.osir_lib.core.OsirPathTransformerMixin module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirPathTransformerMixin" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirPathTransformerMixin.</span></span><span class="sig-name descname"><span class="pre">OsirPathTransformerMixin</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirPathTransformerMixin.html#OsirPathTransformerMixin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Mixin centralizing the path transformation logic for the OSIR framework.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.apply_suffix">
+<span class="sig-name descname"><span class="pre">apply_suffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirPathTransformerMixin.html#OsirPathTransformerMixin.apply_suffix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.apply_suffix" title="Link to this definition"></a></dt>
+<dd><p>Retrieves a specific field’s value, transforms it, and reassigns it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field_name</strong> (<em>str</em>) – The name of the attribute to transform (e.g., ‘match’, ‘output_dir’).</p></li>
+<li><p><strong>return_value</strong> (<em>bool</em>) – If True, returns the path instead of setting the attribute.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.safe_format">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">safe_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirPathTransformerMixin.html#OsirPathTransformerMixin.safe_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.safe_format" title="Link to this definition"></a></dt>
+<dd><p>Performs placeholder substitution in strings using direct replacement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) – The template string (e.g., “results_{endpoint_name}.csv”).</p></li>
+<li><p><strong>**kwargs</strong> – Key-value pairs for substitution.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The formatted string with placeholders replaced.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirPathTransformerMixin.html#OsirPathTransformerMixin.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.update" title="Link to this definition"></a></dt>
+<dd><p>Abstract method intended to be implemented by child models.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirProfile">
+<span id="src-osir-lib-osir-lib-core-osirprofile-module"></span><h2>src.osir_lib.osir_lib.core.OsirProfile module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirProfile" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirProfile.OsirProfile">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirProfile.</span></span><span class="sig-name descname"><span class="pre">OsirProfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule"><span class="pre">OsirModule</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirProfile.html#OsirProfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirProfile.OsirProfile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirProfileModel</span></code></p>
+<p>Represents a forensic execution profile within the OSIR framework.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.modules_instance">
+<span class="sig-name descname"><span class="pre">modules_instance</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.modules_instance" title="Link to this definition"></a></dt>
+<dd><p>A list of fully initialized
+OsirModule objects derived from the profile configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule">OsirModule</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirProfile.html#OsirProfile.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initializes the OsirProfile and automatically loads nested modules.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id9">
+<span class="sig-name descname"><span class="pre">modules_instance</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule"><span class="pre">OsirModule</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#id9" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirSingleton">
+<span id="src-osir-lib-osir-lib-core-osirsingleton-module"></span><h2>src.osir_lib.osir_lib.core.OsirSingleton module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirSingleton" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirSingleton.singleton">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirSingleton.</span></span><span class="sig-name descname"><span class="pre">singleton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirSingleton.html#singleton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirSingleton.singleton" title="Link to this definition"></a></dt>
+<dd><p>Decorator to transform a class into a singleton. Ensures that only one instance of the class exists within the application.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cls</strong> (<a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#id6" title="src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.type"><em>type</em></a>) – The class to be transformed into a singleton.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A wrapper function that manages the instantiation of the singleton class, ensuring only one instance is created.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirTool">
+<span id="src-osir-lib-osir-lib-core-osirtool-module"></span><h2>src.osir_lib.osir_lib.core.OsirTool module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirTool" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirTool.</span></span><span class="sig-name descname"><span class="pre">OsirTool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">license</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirToolModel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirPathTransformerMixin</span></code></p>
+<p>Orchestrates the execution of forensic binaries across varied environments.</p>
+<p>This class acts as the final translation layer in the OSIR pipeline. It
+takes the high-level tool definitions and adapts them—via path transformations
+and command formatting—to run correctly on Linux (Local), Windows (Remote WinRM),
+or Windows Subsystem for Linux (WSL).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool._context">
+<span class="sig-name descname"><span class="pre">_context</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool._context" title="Link to this definition"></a></dt>
+<dd><p>Private link to the parent module providing metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirModule.OsirModule" title="src.osir_lib.osir_lib.core.OsirModule.OsirModule">OsirModule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.path">
+<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.path" title="Link to this definition"></a></dt>
+<dd><p>The resolved filesystem path to the tool binary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.cmd">
+<span class="sig-name descname"><span class="pre">cmd</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.cmd" title="Link to this definition"></a></dt>
+<dd><p>The fully formatted command-line string with all arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.__init__" title="Link to this definition"></a></dt>
+<dd><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises [<cite>ValidationError</cite>][pydantic_core.ValidationError] if the input data cannot be
+validated to form a valid model.</p>
+<p><cite>self</cite> is explicitly positional-only to allow <cite>self</cite> as a field name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.init_tool">
+<span class="sig-name descname"><span class="pre">init_tool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">processor_os</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.init_tool"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.init_tool" title="Link to this definition"></a></dt>
+<dd><p>Validates the existence of the tool binary on the local or remote filesystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>FileNotFoundError</strong> – If the binary cannot be located in any known path.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.model_post_init" title="Link to this definition"></a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run" title="Link to this definition"></a></dt>
+<dd><p>Primary entry point to start the tool execution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the execution completed without unhandled exceptions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_local">
+<span class="sig-name descname"><span class="pre">run_local</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_agent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.run_local"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_local" title="Link to this definition"></a></dt>
+<dd><p>Spawns a local subprocess to run the tool directly on the current host.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The captured stdout and stderr of the process.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_remote">
+<span class="sig-name descname"><span class="pre">run_remote</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.run_remote"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_remote" title="Link to this definition"></a></dt>
+<dd><p>Executes the command on a remote Windows host using the WinRM protocol.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Success status and the combined output logs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[bool, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_wsl">
+<span class="sig-name descname"><span class="pre">run_wsl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.run_wsl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_wsl" title="Link to this definition"></a></dt>
+<dd><p>Executes a Windows binary from within a Linux WSL environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The command output logs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_wsl_bak">
+<span class="sig-name descname"><span class="pre">run_wsl_bak</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.run_wsl_bak"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_wsl_bak" title="Link to this definition"></a></dt>
+<dd><p>Executes a Windows binary from within a Linux WSL environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The command output logs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool" title="src.osir_lib.osir_lib.core.OsirTool.OsirTool"><span class="pre">OsirTool</span></a></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.update" title="Link to this definition"></a></dt>
+<dd><p>Injects runtime variables into the tool path and command string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The instance with fully resolved and formatted commands.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool" title="src.osir_lib.osir_lib.core.OsirTool.OsirTool">OsirTool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirTool.OsirTool.update_env">
+<span class="sig-name descname"><span class="pre">update_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirTool.html#OsirTool.update_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirTool.OsirTool.update_env" title="Link to this definition"></a></dt>
+<dd><p>Prepares a clean environment variable dictionary for the subprocess.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A copy of the environment variables with OSIR-specific additions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core.OsirUtils">
+<span id="src-osir-lib-osir-lib-core-osirutils-module"></span><h2>src.osir_lib.osir_lib.core.OsirUtils module<a class="headerlink" href="#module-src.osir_lib.osir_lib.core.OsirUtils" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.capture_log_output">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">capture_log_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_logger</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#capture_log_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.capture_log_output" title="Link to this definition"></a></dt>
+<dd><p>Temporarily captures log emissions from a specific logger into an in-memory buffer.</p>
+<p>In the OSIR orchestration flow, this context manager is used to intercept
+module-specific logs (DEBUG, INFO, ERROR) so they can be saved into
+the task trace database. This provides a granular view of what happened
+during a specific forensic execution without cluttering the main system log.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>target_logger</strong> (<em>logging.Logger</em>) – The logger instance to intercept.</p>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>io.StringIO</em> – A string buffer containing the captured log data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.compute_file_xxh3_128_prefix">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">compute_file_xxh3_128_prefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8192</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#compute_file_xxh3_128_prefix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.compute_file_xxh3_128_prefix" title="Link to this definition"></a></dt>
+<dd><p>Computes xxh3_128 on only the first bytes of a file (default: first 8KB).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em> | </em><em>Path</em>) – Path to the file.</p></li>
+<li><p><strong>prefix_size</strong> (<em>int</em>) – Number of bytes to read from the beginning.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Hex digest of xxh3_128 over the prefix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.get_latest_log_by_task_id">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">get_latest_log_by_task_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_task_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/OSIR/share/log/task_traces.jsonl'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#get_latest_log_by_task_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.get_latest_log_by_task_id" title="Link to this definition"></a></dt>
+<dd><p>Retrieves the most recent log trace for a specific Task ID by reading the log file in reverse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_task_id</strong> (<em>str</em>) – The unique identifier of the forensic task.</p></li>
+<li><p><strong>file_path</strong> (<em>str</em>) – The path to the JSONL trace file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The parsed JSON trace object if found, None otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.normalize_osir_path">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">normalize_osir_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#normalize_osir_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.normalize_osir_path" title="Link to this definition"></a></dt>
+<dd><p>Standardizes paths to be relative to the framework’s internal share mount point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_path</strong> (<em>str</em>) – The absolute or prefixed path to normalize.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The normalized path starting from /OSIR/share.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_lib.osir_lib.core.OsirUtils.remove_placeholders">
+<span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.core.OsirUtils.</span></span><span class="sig-name descname"><span class="pre">remove_placeholders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/core/OsirUtils.html#remove_placeholders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_lib.osir_lib.core.OsirUtils.remove_placeholders" title="Link to this definition"></a></dt>
+<dd><p>Replaces all placeholders {key} with an empty string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> – The text containing placeholders</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The text without placeholders</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.osir_lib.osir_lib.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.osir_lib.osir_lib.core" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="src.osir_lib.osir_lib.html" class="btn btn-neutral float-left" title="src.osir_lib.osir_lib package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="src.osir_lib.osir_lib.core.model.html" class="btn btn-neutral float-right" title="src.osir_lib.osir_lib.core.model package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

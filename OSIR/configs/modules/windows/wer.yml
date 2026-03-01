@@ -1,0 +1,30 @@
+version: 1.0
+author: maxspl
+module: wer
+description: Parse .wer files
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: dir
+  path: ProgramData/Microsoft/Windows/WER/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "restore_fs\/(.*?)\/"
+splunk:
+  'windows:wer':
+    name_rex: --wer\.jsonl$
+    path_suffix: 'wer'
+    host_rex: ([\w\.-]+)--
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "WER"
+    normalize:
+      - ecs_normalize/windows/wer.vrl

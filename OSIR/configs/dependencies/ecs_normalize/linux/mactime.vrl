@@ -1,0 +1,82 @@
+# OSIR - MacTime log normalizer
+# 
+# Schema:
+#   Source :
+#     [
+#         {
+#            "Date": "2024-01-10T12:34:56Z",
+#            "Size": "0",
+#            "Type": "...b",
+#            "Mode": "drwxr-xr-x",
+#            "UID": "0",
+#            "GID": "0",
+#            "Meta": "1",
+#            "File Name": "/dev/pts"
+#         }
+#         ...
+#     ]
+# 
+# Destination:
+#
+# [
+#     {
+#         "timestamp": <Datetime>,   # Event date and time
+#         "file.size": <Integer>,    # File size in bytes
+#         "message": <String>,     # 
+#         "file.mode": <Integer>,    # File permissions (e.g. 0644)
+#         "file.uid": <Integer>,     # File owner user ID
+#         "file.gid": <Integer>,     # File owner group ID
+#         "file.name": <String>,     # File name
+#         "file.meta": <Object>,     # Additional meta
+#     },
+#     ...
+# ]
+
+
+if exists(.Date) {
+    .timestamp = del(.Date)
+}
+
+if exists(.Size) {
+    .file.size = del(.Size)
+}
+
+if exists(.Type) {
+    .type_details = []
+    
+    if contains(string!(.Type), "m") {
+        .type_details = push(.type_details, "Last Modified")
+    }
+    if contains(string!(.Type), "a") {
+        .type_details = push(.type_details, "Last Accessed")
+    }
+    if contains(string!(.Type), "c") {
+        .type_details = push(.type_details, "Last Changed OR Last MFT Modified")
+    }
+    if contains(string!(.Type), "b") {
+        .type_details = push(.type_details, "Created")
+    }
+
+    if length(.type_details) > 0 {
+        .message = join!(.type_details, " | ")
+    }
+}
+
+if exists(.Mode) {
+    .file.mode = del(.Mode)
+}
+
+if exists(.UID) {
+    .file.uid = del(.UID)
+}
+
+if exists(.GID) {
+    .file.guid = del(.GID)
+}
+
+.file.name = get!(., path: ["File Name"])
+remove!(., path: ["File Name"])
+
+if exists(.Meta) {
+    .file.meta = del(.Meta)
+}

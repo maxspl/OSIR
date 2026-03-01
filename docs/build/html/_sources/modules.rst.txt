@@ -1,7 +1,7 @@
-OSIR
-======
+src
+===
 
 .. toctree::
    :maxdepth: 4
 
-   OSIR
+   src

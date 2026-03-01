@@ -1,0 +1,106 @@
+# -----------------------------------------------------------------------------
+# Windows netstat → ECS only
+# -----------------------------------------------------------------------------
+
+# Keep raw event
+.event.original = encode_json(.)
+
+.event.dataset  = "windows.netstat"
+.event.module   = "windows"
+.event.kind     = "event"
+.event.category = ["network"]
+.event.type     = ["info"]
+
+# -----------------------------------------------------------------------------
+# type  → event.code / event.action
+# -----------------------------------------------------------------------------
+
+if exists(.type) {
+    t = to_string(del(.type)) ?? ""
+    .event.code   = t
+    .event.action = downcase(t)
+}
+
+# -----------------------------------------------------------------------------
+# protocol → network.transport / network.protocol
+# -----------------------------------------------------------------------------
+
+if exists(.protocol) {
+    proto_raw = to_string(del(.protocol)) ?? ""
+    proto_l   = downcase(proto_raw)
+
+    .network.transport = proto_l
+    .network.protocol  = proto_l
+}
+
+# -----------------------------------------------------------------------------
+# state → network.state
+# -----------------------------------------------------------------------------
+
+if exists(.state) {
+    state_raw = to_string(del(.state)) ?? ""
+    .network.state = state_raw
+}
+
+# Direction hint for LISTENING
+if exists(.network.state) {
+    s = downcase(to_string(.network.state) ?? "")
+
+    if s == "listening" {
+        .network.direction = "ingress"
+    }
+}
+
+# -----------------------------------------------------------------------------
+# pid → process.pid
+# -----------------------------------------------------------------------------
+
+if exists(.pid) {
+    pid_raw = to_string(del(.pid)) ?? ""
+    pid_i   = to_int(pid_raw) ?? null
+
+    .process.pid = pid_i
+}
+
+
+if exists(.local_address) {
+    raw = to_string(del(.local_address)) ?? ""
+    raw = replace(raw, "[","")
+    raw = replace(raw, "]","")
+
+    parts = split(raw, ":")
+
+    if length(parts) >= 2 {
+        ip_parts = slice!(parts, 0, length(parts) - 1)
+        ip = join!(ip_parts, ":")
+        port_s = parts[-1]
+        port_i = to_int(port_s) ?? null
+
+        .source.ip   = ip
+        .source.port = port_i
+
+        # Optional: store full original form in ECS-ish place
+        .source.address = raw
+    }
+}
+
+if exists(.remote_address) {
+    raw = to_string(del(.remote_address)) ?? ""
+    raw = replace(raw, "[","")
+    raw = replace(raw, "]","")
+
+
+    parts = split(raw, ":")
+
+    if length(parts) >= 2 {
+        ip_parts = slice!(parts, 0, length(parts) - 1)
+        ip = join!(ip_parts, ":")
+        port_s = parts[-1]
+        port_i = to_int(port_s) ?? null
+
+        .destination.ip   = ip
+        .destination.port = port_i
+
+        .destination.address = raw
+    }
+}

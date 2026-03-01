@@ -1,0 +1,159 @@
+# OSIR - USN (Update Sequence Number) Journal normalizer
+## 
+## Schema:
+##     Source: CSV : 
+#      Name,Extension,EntryNumber,SequenceNumber,ParentEntryNumber,ParentSequenceNumber,ParentPath,UpdateSequenceNumber,UpdateTimestamp,UpdateReasons,FileAttributes,OffsetToData,SourceFile
+#
+##     Destination: 
+#      {
+#        "file.name": <String>,
+#        "file.extension": <String>,
+#        "file.directory": <String>,
+#        "file.path": <String>,
+#        "file.created": <Datetime>,
+#        "file.mtime": <Datetime>,
+#        "file.ctime": <Datetime>,
+#        "file.attributes": <Array>,
+#        "mft.entry_number": <Integer>,
+#        "mft.sequence_number": <Integer>,
+#        "mft.parent_entry_number": <Integer>,
+#        "mft.parent_sequence_number": <Integer>,
+#        "mft.update_sequence_number": <Integer>,
+#        "mft.update_reasons": <Array>,
+#        "mft.offset_to_data": <Integer>,
+#        "event.dataset": <String>
+#      }
+
+# Parse CSV if needed (skip if already parsed)
+# . = parse_csv!(.message)
+
+# File Information
+if exists(.Name) {
+    .file.name = to_string!(.Name)
+    del(.Name)
+}
+
+if exists(.Extension) {
+    ext = to_string!(.Extension)
+    if ext != "" {
+        .file.extension = ext
+    }
+    del(.Extension)
+}
+
+# MFT Entry Information
+if exists(.EntryNumber) {
+    .mft.entry_number = to_int!(.EntryNumber)
+    del(.EntryNumber)
+}
+
+if exists(.SequenceNumber) {
+    .mft.sequence_number = to_int!(.SequenceNumber)
+    del(.SequenceNumber)
+}
+
+# Parent Information
+if exists(.ParentEntryNumber) {
+    .mft.parent_entry_number = to_int!(.ParentEntryNumber)
+    del(.ParentEntryNumber)
+}
+
+if exists(.ParentSequenceNumber) {
+    .mft.parent_sequence_number = to_int!(.ParentSequenceNumber)
+    del(.ParentSequenceNumber)
+}
+
+if exists(.ParentPath) {
+    .file.directory = to_string!(.ParentPath)
+    del(.ParentPath)
+}
+
+# Build full path
+if exists(.file.directory) && exists(.file.name) {
+    .file.path = to_string!(.file.directory) + "\\" + to_string!(.file.name)
+}
+
+# USN Journal Specific Fields
+if exists(.UpdateSequenceNumber) {
+    .mft.update_sequence_number = to_int!(.UpdateSequenceNumber)
+    del(.UpdateSequenceNumber)
+}
+
+# Store update timestamp temporarily
+update_timestamp = null
+if exists(.UpdateTimestamp) {
+    update_time = to_string!(.UpdateTimestamp)
+    if update_time != "" {
+        update_timestamp = parse_timestamp!(update_time, format: "%Y-%m-%d %H:%M:%S%.f")
+        .timestamp = parse_timestamp!(update_time, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.UpdateTimestamp)
+}
+
+if exists(.UpdateReasons) {
+    reasons_str = to_string!(.UpdateReasons)
+    if reasons_str != "" {
+        # Parse reasons like "DataExtend | Close"
+        .mft.update_reasons = split(reasons_str, " | ")
+    }
+    del(.UpdateReasons)
+}
+
+# File Attributes
+if exists(.FileAttributes) {
+    attributes_str = to_string!(.FileAttributes)
+    if attributes_str != "" {
+        # Parse attributes like "Archive, NotContentIndexed"
+        .file.attributes = split(attributes_str, ", ")
+    }
+    del(.FileAttributes)
+}
+
+if exists(.OffsetToData) {
+    .mft.offset_to_data = to_int!(.OffsetToData)
+    del(.OffsetToData)
+}
+
+if exists(.SourceFile) {
+    .event.dataset = to_string!(.SourceFile)
+    del(.SourceFile)
+}
+
+# Set event metadata
+.event.kind = "event"
+.event.category = ["file"]
+.event.type = ["change"]
+.event.module = "usn"
+
+# Set appropriate timestamp based on update reasons
+if exists(.mft.update_reasons) && update_timestamp != null {
+    reasons = array!(.mft.update_reasons)
+    
+    # FileCreate or FileNameChange = created timestamp
+    if includes(reasons, "FileCreate") || includes(reasons, "FileNameChange") {
+        .file.ctime = update_timestamp
+        .event.type = push(.event.type, "File Creation")
+    }
+    
+    # FileDelete or RenameOldName = deletion
+    if includes(reasons, "FileDelete") || includes(reasons, "RenameOldName") {
+        .event.type = push(.event.type, "File Deletion")
+    }
+    
+    # Data modifications = mtime
+    if includes(reasons, "DataExtend") || includes(reasons, "DataOverwrite") || includes(reasons, "DataTruncation") {
+        .file.mtime = update_timestamp
+        .event.type = push(.event.type, "File Modification")
+    }
+    
+    # RenameNewName = rename
+    if includes(reasons, "RenameNewName") {
+        .event.type = push(.event.type, "File Rename")
+    }
+    
+    # BasicInfoChange, SecurityChange, or other metadata changes = ctime
+    if includes(reasons, "BasicInfoChange") || includes(reasons, "SecurityChange") || includes(reasons, "EaChange") || includes(reasons, "StreamChange") {
+        .file.ctime = update_timestamp
+        .event.type = push(.event.type, "File Modification")
+    }
+}

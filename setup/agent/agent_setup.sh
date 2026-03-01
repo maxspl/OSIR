@@ -252,8 +252,7 @@ remote_installation(){
 }
 setup_dockur_win(){
     # Define the directories
-    # ISO_URL="https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso" 
-    ISO_URL="https://natopia.fr/tiny10_x64_23h2.iso"
+    ISO_URL="https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso" 
     ISO_NAME="tiny10_x64_23h2.iso"
     ISO_DIR="$MASTER_DIR/../windows_setup/src/win_iso"
     DOCKUR_STORAGE_DIR="$MASTER_DIR/../windows_setup/src/dockur_storage"
@@ -361,7 +360,7 @@ install_from_conf(){
     # Get master host
     master_host=$(get_yml_value "" master_host)
     # Validate IP or FQDN
-    if [[ $master_host =~ $ip_regex || $master_host =~ $fqdn_regex ]]; then
+    if [[ $master_host =~ $ip_regex || $master_host =~ $fqdn_regex || $master_host =~ agent-windows ]]; then
         (echo >&2 "${INFO} Valid host string.")
     else
         (echo >&2 "${ERROR} Please enter valid IP or FQDN.")
@@ -400,10 +399,10 @@ install_from_conf(){
     if [ "$windows_location" = "local" ] ; then 
         local_installation
     elif [ "$windows_location" = "dockur" ] ; then 
-        local_agent_host_ip=$(hostname -I | awk '{print $1}')
+        local_agent_host_ip='agent-windows'
         # If the master is localhost, use its local IP to avoid Windows using 10.0.2.2 that is only working for Vagrant
         if [[ "$master_host" == "localhost" || "$master_host" == "127.0.0.1" || "$master_host" == "host.docker.internal" ]]; then
-            master_host=$local_agent_host_ip
+            master_host=$(hostname -I | awk '{print $1}')
             export MASTER_IP=$master_host
         fi
         dockur_win_installation $local_agent_host_ip
@@ -429,7 +428,8 @@ manual_install(){
     #local_installation
 
     # Ask user : master host
-    default_master_host="127.0.0.1"
+    # default_master_host="127.0.0.1"
+    default_master_host=$(hostname -I | awk '{print $1}')
     read -p "$(echo -n >&2 "${USERINPUT} Enter the remote master host. [Default is: $default_master_host] [options: IP/FQDN]: ")" master_host
     if [[ -z "$master_host" ]]; then
         master_host="$default_master_host"
@@ -459,15 +459,29 @@ manual_install(){
         win_cores="$default_win_cores"
     fi
     export WINDOWS_CORES=$win_cores
+
+    # Prepare vars for later setup (setup will start only after Splunk Qs + saving config)
+    host=""
+    user=""
+    password=""
+    mount_point=""
     if [ "$location_type" = "local" ] ; then
         location_type="local"
-        local_installation
+        if is_wsl; then
+            host="windows_setup"
+        else
+            host="host.docker.internal"
+        fi
+        user="vagrant"
+        password="vagrant"
+        mount_point="C:"
         
     elif [ -z "$location_type" ] || [ "$location_type" = "dockur" ] ; then
         location_type="dockur"
 
         # Get the default local IP address using `hostname -I` and take the first result
-        default_ip=$(hostname -I | awk '{print $1}')
+        # default_ip=$(hostname -I | awk '{print $1}')
+        default_ip="agent-windows"
 
         # Prompt for the IP address, showing the default
         read -p "$(echo -n >&2 "${USERINPUT} Enter the IP address of your agent host (required for host <-> docker communication) [default: $default_ip]: ")" windows_host_ip
@@ -481,7 +495,7 @@ manual_install(){
             exit 0
         fi
 
-        if [[ $windows_host_ip =~ $ip_regex ]]; then
+        if [[ $windows_host_ip =~ $ip_regex || $windows_host_ip =~ agent-windows ]]; then
            (echo >&2 "${INFO} Valid IP.")
         else
             (echo >&2 "${ERROR} Please enter valid IP.")
@@ -490,11 +504,14 @@ manual_install(){
 
         # If the master is localhost, use its local IP to avoid Windows using 10.0.2.2 that is only working for Vagrant
         if [[ "$master_host" == "localhost" || "$master_host" == "127.0.0.1" || "$master_host" == "host.docker.internal" ]]; then
-            master_host=$windows_host_ip
+            master_host=$default_master_host
             export MASTER_IP=$master_host
         fi
 
-        dockur_win_installation $windows_host_ip
+        host="$windows_host_ip"
+        user="vagrant"
+        password="vagrant"
+        mount_point="C:"
     elif [ "$location_type" = "remote" ] ; then
         # Ask user : remote Windows host IP/FQDN
         default_host="host.docker.internal"
@@ -547,6 +564,13 @@ manual_install(){
     # Ask user : connect agent to Splunk server
     default_connect_splunk="yes"
     read -p "$(echo -n >&2 "${USERINPUT} Do you want to connect agent to a Splunk server ? [Default is: $default_connect_splunk] [options: yes/no]: ")" connect_splunk
+    # Initialize Splunk vars even if user answers "no"
+    splunk_host=""
+    splunk_user=""
+    splunk_password=""
+    splunk_port=""
+    splunk_mport=""
+    splunk_ssl=""
     if [ -z "$connect_splunk" ] || [ "$connect_splunk" = "yes" ] ; then
 
         # Ask user for the Splunk host
@@ -619,7 +643,17 @@ manual_install(){
     else
         $SETUP_SCRIPT_PATH/save_setup_config.sh agent $conf_agent_sample $conf_agent > /dev/null
     fi
-
+    if [ "$location_type" = "local" ] ; then
+        local_installation
+    elif [ "$location_type" = "dockur" ] ; then
+        dockur_win_installation $host
+    elif [ "$location_type" = "remote" ] ; then
+        remote_installation $host $user $password $remote_installation_args_mount_point
+    else
+        echo $location_type
+        (echo >&2 "${ERROR} Please select local or remote")
+        exit 0
+    fi
 }
 
 main() {

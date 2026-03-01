@@ -1,0 +1,32 @@
+version: 1.0
+author: Kelly Brazil
+module: nmcli
+description: Kelly Brazil - JsonConverter - Parsing the output of the command nmcli 
+os: unix
+type: process
+requirements:
+disk_only: false
+no_multithread: false
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: cat
+  cmd: "{input_file} | jc --nmcli | jq -c '.[]' > {output_file}"
+input:
+  type: file
+  paths:
+    - r"nmcli_general\.txt$"
+    - r"nmcli_general_permissions\.txt$"
+    - r"nmcli_connection\.txt$"
+    - r"nmcli_connection_show\.txt$"
+    - r"nmcli_connection_show.*\.txt$"
+    - r"nmcli_device\.txt$"
+    - r"nmcli_device_show\.txt$"
+    - r"nmcli_device_show.*\.txt$"
+output:
+  type: single_file
+  format: jsonl
+  output_dir: "{case_path}/live_response/network"
+  output_file: "{endpoint_name}--{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"

@@ -1,0 +1,657 @@
+# -----------------------------------------------------------------------------
+# Windows NTFSInfoFull_detail CSV → ECS-ish
+#
+# Columns:
+# ComputerName,VolumeID,File,ParentName,FullName,Extension,SizeInBytes,
+# Attributes,CreationDate,LastModificationDate,LastAccessDate,LastAttrChangeDate,
+# FileNameCreationDate,FileNameLastModificationDate,FileNameLastAccessDate,
+# FileNameLastAttrModificationDate,USN,FRN,ParentFRN,ExtendedAttribute,ADS,
+# FilenameID,DataID,RecordInUse,ShortName,MD5,SHA1,FirstBytes,OwnerId,OwnerSid,
+# Owner,Version,CompanyName,ProductName,OriginalFileName,Platform,TimeStamp,
+# SubSystem,FileType,FileOS,FilenameFlags,SHA256,PeSHA1,PeSHA256,SecDescrID,
+# EASize,SecurityDirectory,AuthenticodeStatus,AuthenticodeSigner,
+# AuthenticodeSignerThumbprint,AuthenticodeCA,AuthenticodeCAThumbprint,PeMD5,
+# FilenameIndex,DataIndex,SnapshotID,SSDeep,TLSH,SignedHash,
+# SecurityDirectorySize,SecurityDirectorySignatureSize
+# -----------------------------------------------------------------------------
+
+
+# Ensure .event exists
+if !exists(.event) {
+  .event = {}
+}
+
+# Keep original event 
+.event.original = encode_json!(.)
+
+# -----------------------------------------------------------------------------
+# ECS scaffolding
+# -----------------------------------------------------------------------------
+.event.dataset  = "windows.ntfsinfo"
+.event.module   = "windows"
+.event.kind     = "state"
+.event.category = ["file"]
+.event.type     = ["info"]
+.event.action   = "ntfs_file"
+.event.code     = "ntfs_file"
+.event.outcome  = "success"
+.event.provider = "Windows NTFSInfo (detail)"
+
+# -----------------------------------------------------------------------------
+# Host / volume
+# -----------------------------------------------------------------------------
+
+# ComputerName → host.name
+if exists(.ComputerName) {
+  .host.name = to_string!(del(.ComputerName))
+}
+
+# VolumeID → file.Ext.ntfs.volume_id
+if exists(.VolumeID) {
+  .file.Ext.ntfs.volume_id = to_string!(del(.VolumeID))
+}
+
+# -----------------------------------------------------------------------------
+# Path / names / size / attributes
+# -----------------------------------------------------------------------------
+
+# FullName is the full path when present
+full_raw = null
+if exists(.FullName) {
+  full_raw = to_string!(del(.FullName))
+}
+if full_raw != null && full_raw != "" {
+  .file.path = full_raw
+}
+
+# File (name only)
+if exists(.File) {
+  fname_raw = to_string!(del(.File))
+  if fname_raw != "" {
+    .file.name = fname_raw
+  }
+}
+
+# ParentName → file.directory (normalize directory, preserve raw in event.original)
+if exists(.ParentName) {
+  pn_raw = to_string!(del(.ParentName))
+  if pn_raw != "" {
+    dir_norm = pn_raw
+
+    # NTFSInfo often appends "\r" or "\f" at the end (stream/type markers),
+    # strip those for the *normalized* directory, but keep the raw in event.original
+    if ends_with(dir_norm, "\\r") || ends_with(dir_norm, "\\f") {
+      len = length(dir_norm)
+      if len > 2 {
+        # keep everything except the last 2 characters ("\r" or "\f")
+        dir_norm = slice!(dir_norm, 0, len - 2)
+      }
+    }
+
+    .file.directory = dir_norm
+  }
+}
+
+# If FullName was empty, reconstruct path from directory + name
+if !exists(.file.path) && exists(.file.name) {
+  fname = to_string!(.file.name)
+
+  if exists(.file.directory) {
+    dir = to_string!(.file.directory)
+    if dir != "" {
+      if ends_with(dir, "\\") {
+        .file.path = dir + fname
+      } else {
+        .file.path = dir + "\\" + fname
+      }
+    } else {
+      .file.path = fname
+    }
+  } else {
+    # No directory, only name
+    .file.path = fname
+  }
+}
+
+
+# Extension → file.extension (without dot)
+if exists(.Extension) {
+  ext_raw = to_string!(del(.Extension))
+  if ext_raw != "" {
+    # strip leading dot if any
+    if starts_with(ext_raw, ".") {
+      .file.extension = slice!(ext_raw, 1)
+    } else {
+      .file.extension = ext_raw
+    }
+    # raw value is already preserved in event.original.Extension
+  }
+}
+
+# SizeInBytes → file.size
+if exists(.SizeInBytes) {
+  sb_raw = to_string!(del(.SizeInBytes))
+  if sb_raw != "" {
+    sb_int = parse_int(sb_raw) ?? null
+    if sb_int != null {
+      .file.size = sb_int
+    } else {
+      .file.Ext.ntfs.size_bytes_raw = sb_raw
+    }
+  }
+}
+
+# Attributes → NTFS attribute string
+if exists(.Attributes) {
+  attr_raw = to_string!(del(.Attributes))
+  if attr_raw != "" {
+    .file.attributes = attr_raw
+    # raw is already in event.original.Attributes
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Timestamps on the file (standard times)
+# Format: 2025-01-19 01:24:39.695
+# -----------------------------------------------------------------------------
+
+# CreationDate → file.ctime
+if exists(.CreationDate) {
+  cd_raw = to_string!(del(.CreationDate))
+  if cd_raw != "" {
+    cd = parse_timestamp(cd_raw, "%F %T%.f") ?? parse_timestamp(cd_raw, "%F %T") ?? null
+    if cd != null {
+      .file.ctime = cd
+    } else {
+      .file.Ext.ntfs.creation_date_raw = cd_raw
+    }
+  }
+}
+
+# LastModificationDate → file.mtime
+if exists(.LastModificationDate) {
+  lmd_raw = to_string!(del(.LastModificationDate))
+  if lmd_raw != "" {
+    lmd = parse_timestamp(lmd_raw, "%F %T%.f") ?? parse_timestamp(lmd_raw, "%F %T") ?? null
+    if lmd != null {
+      .file.mtime = lmd
+    } else {
+      .file.Ext.ntfs.last_modification_raw = lmd_raw
+    }
+  }
+}
+
+# LastAccessDate → file.atime
+if exists(.LastAccessDate) {
+  lad_raw = to_string!(del(.LastAccessDate))
+  if lad_raw != "" {
+    lad = parse_timestamp(lad_raw, "%F %T%.f") ?? parse_timestamp(lad_raw, "%F %T") ?? null
+    if lad != null {
+      .file.atime = lad
+    } else {
+      .file.Ext.ntfs.last_access_raw = lad_raw
+    }
+  }
+}
+
+# LastAttrChangeDate → MFT change time (ECS has no direct field, keep in Ext)
+if exists(.LastAttrChangeDate) {
+  lac_raw = to_string!(del(.LastAttrChangeDate))
+  if lac_raw != "" {
+    lac = parse_timestamp(lac_raw, "%F %T%.f") ?? parse_timestamp(lac_raw, "%F %T") ?? null
+    if lac != null {
+      .file.Ext.ntfs.last_attr_change = lac
+    } else {
+      .file.Ext.ntfs.last_attr_change_raw = lac_raw
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Timestamps on the filename metadata (FN attribute)
+# -----------------------------------------------------------------------------
+
+if exists(.FileNameCreationDate) {
+  fnc_raw = to_string!(del(.FileNameCreationDate))
+  if fnc_raw != "" {
+    fnc = parse_timestamp(fnc_raw, "%F %T%.f") ?? parse_timestamp(fnc_raw, "%F %T") ?? null
+    if fnc != null {
+      .file.Ext.ntfs.fn_creation = fnc
+    } else {
+      .file.Ext.ntfs.fn_creation_raw = fnc_raw
+    }
+  }
+}
+
+if exists(.FileNameLastModificationDate) {
+  fnlm_raw = to_string!(del(.FileNameLastModificationDate))
+  if fnlm_raw != "" {
+    fnlm = parse_timestamp(fnlm_raw, "%F %T%.f") ?? parse_timestamp(fnlm_raw, "%F %T") ?? null
+    if fnlm != null {
+      .file.Ext.ntfs.fn_last_modification = fnlm
+    } else {
+      .file.Ext.ntfs.fn_last_modification_raw = fnlm_raw
+    }
+  }
+}
+
+if exists(.FileNameLastAccessDate) {
+  fnla_raw = to_string!(del(.FileNameLastAccessDate))
+  if fnla_raw != "" {
+    fnla = parse_timestamp(fnla_raw, "%F %T%.f") ?? parse_timestamp(fnla_raw, "%F %T") ?? null
+    if fnla != null {
+      .file.Ext.ntfs.fn_last_access = fnla
+    } else {
+      .file.Ext.ntfs.fn_last_access_raw = fnla_raw
+    }
+  }
+}
+
+if exists(.FileNameLastAttrModificationDate) {
+  fnlac_raw = to_string!(del(.FileNameLastAttrModificationDate))
+  if fnlac_raw != "" {
+    fnlac = parse_timestamp(fnlac_raw, "%F %T%.f") ?? parse_timestamp(fnlac_raw, "%F %T") ?? null
+    if fnlac != null {
+      .file.Ext.ntfs.fn_last_attr_change = fnlac
+    } else {
+      .file.Ext.ntfs.fn_last_attr_change_raw = fnlac_raw
+    }
+  }
+}
+
+# -----------------------------------------------------------------------------
+# NTFS IDs / metadata
+# -----------------------------------------------------------------------------
+
+if exists(.USN) {
+  usn_raw = to_string!(del(.USN))
+  if usn_raw != "" {
+    .file.Ext.ntfs.usn = usn_raw
+  }
+}
+
+if exists(.FRN) {
+  frn_raw = to_string!(del(.FRN))
+  if frn_raw != "" {
+    .file.Ext.ntfs.frn = frn_raw
+  }
+}
+
+if exists(.ParentFRN) {
+  pfrn_raw = to_string!(del(.ParentFRN))
+  if pfrn_raw != "" {
+    .file.Ext.ntfs.parent_frn = pfrn_raw
+  }
+}
+
+if exists(.ExtendedAttribute) {
+  ea_raw = to_string!(del(.ExtendedAttribute))
+  if ea_raw != "" {
+    .file.Ext.ntfs.extended_attribute = ea_raw
+  }
+}
+
+if exists(.ADS) {
+  ads_raw = to_string!(del(.ADS))
+  if ads_raw != "" {
+    .file.Ext.ntfs.ads = ads_raw
+  }
+}
+
+if exists(.FilenameID) {
+  fid_raw = to_string!(del(.FilenameID))
+  if fid_raw != "" {
+    .file.Ext.ntfs.filename_id = fid_raw
+  }
+}
+
+if exists(.DataID) {
+  did_raw = to_string!(del(.DataID))
+  if did_raw != "" {
+    .file.Ext.ntfs.data_id = did_raw
+  }
+}
+
+if exists(.RecordInUse) {
+  riu_raw = to_string!(del(.RecordInUse))
+  if riu_raw != "" {
+    riu_l = downcase!(riu_raw)
+    if riu_l == "y" || riu_l == "yes" || riu_l == "true" {
+      .file.Ext.ntfs.record_in_use = true
+    } else if riu_l == "n" || riu_l == "no" || riu_l == "false" {
+      .file.Ext.ntfs.record_in_use = false
+    } else {
+      # Only keep raw when we don't understand the value
+      .file.Ext.ntfs.record_in_use_raw = riu_raw
+    }
+  }
+}
+
+if exists(.ShortName) {
+  sn_raw = to_string!(del(.ShortName))
+  if sn_raw != "" {
+    .file.Ext.ntfs.short_name = sn_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Hashes & content preview
+# -----------------------------------------------------------------------------
+
+if exists(.MD5) {
+  md5_raw = to_string!(del(.MD5))
+  if md5_raw != "" {
+    .file.hash.md5 = md5_raw
+  }
+}
+
+if exists(.SHA1) {
+  sha1_raw = to_string!(del(.SHA1))
+  if sha1_raw != "" {
+    .file.hash.sha1 = sha1_raw
+  }
+}
+
+if exists(.SHA256) {
+  sha256_raw = to_string!(del(.SHA256))
+  if sha256_raw != "" {
+    .file.hash.sha256 = sha256_raw
+  }
+}
+
+if exists(.PeSHA1) {
+  pesha1_raw = to_string!(del(.PeSHA1))
+  if pesha1_raw != "" {
+    .file.Ext.ntfs.pesha1 = pesha1_raw
+  }
+}
+
+if exists(.PeSHA256) {
+  pesha256_raw = to_string!(del(.PeSHA256))
+  if pesha256_raw != "" {
+    .file.Ext.ntfs.pesha256 = pesha256_raw
+  }
+}
+
+if exists(.PeMD5) {
+  pemd5_raw = to_string!(del(.PeMD5))
+  if pemd5_raw != "" {
+    .file.Ext.ntfs.pemd5 = pemd5_raw
+  }
+}
+
+if exists(.FirstBytes) {
+  fb_raw = to_string!(del(.FirstBytes))
+  if fb_raw != "" {
+    .file.Ext.ntfs.first_bytes = fb_raw
+  }
+}
+
+# SSDeep / TLSH / SignedHash
+if exists(.SSDeep) {
+  ssdeep_raw = to_string!(del(.SSDeep))
+  if ssdeep_raw != "" {
+    .file.hash.ssdeep = ssdeep_raw
+  }
+}
+
+if exists(.TLSH) {
+  tlsh_raw = to_string!(del(.TLSH))
+  if tlsh_raw != "" {
+    .file.hash.tlsh = tlsh_raw
+  }
+}
+
+if exists(.SignedHash) {
+  sh_raw = to_string!(del(.SignedHash))
+  if sh_raw != "" {
+    .file.Ext.ntfs.signed_hash = sh_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Ownership
+# -----------------------------------------------------------------------------
+
+if exists(.OwnerId) {
+  oid_raw = to_string!(del(.OwnerId))
+  if oid_raw != "" {
+    .file.Ext.ntfs.owner_id = oid_raw
+  }
+}
+
+if exists(.OwnerSid) {
+  osid_raw = to_string!(del(.OwnerSid))
+  if osid_raw != "" {
+    .file.Ext.ntfs.owner_sid = osid_raw
+  }
+}
+
+if exists(.Owner) {
+  own_raw = to_string!(del(.Owner))
+  if own_raw != "" {
+    .file.owner = own_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# File version / PE metadata
+# -----------------------------------------------------------------------------
+
+if exists(.Version) {
+  ver_raw = to_string!(del(.Version))
+  if ver_raw != "" {
+    .file.version = ver_raw
+  }
+}
+
+if exists(.CompanyName) {
+  comp_raw = to_string!(del(.CompanyName))
+  if comp_raw != "" {
+    .file.company = comp_raw
+  }
+}
+
+if exists(.ProductName) {
+  prod_raw = to_string!(del(.ProductName))
+  if prod_raw != "" {
+    .file.product = prod_raw
+  }
+}
+
+if exists(.OriginalFileName) {
+  ofn_raw = to_string!(del(.OriginalFileName))
+  if ofn_raw != "" {
+    .file.Ext.ntfs.original_file_name = ofn_raw
+  }
+}
+
+if exists(.Platform) {
+  plat_raw = to_string!(del(.Platform))
+  if plat_raw != "" {
+    .file.Ext.ntfs.platform = plat_raw
+  }
+}
+
+if exists(.TimeStamp) {
+  tspe_raw = to_string!(del(.TimeStamp))
+  if tspe_raw != "" {
+    .file.Ext.ntfs.pe_timestamp_raw = tspe_raw
+  }
+}
+
+if exists(.SubSystem) {
+  subsys_raw = to_string!(del(.SubSystem))
+  if subsys_raw != "" {
+    .file.Ext.ntfs.subsystem = subsys_raw
+  }
+}
+
+if exists(.FileType) {
+  ftype_raw = to_string!(del(.FileType))
+  if ftype_raw != "" {
+    .file.Ext.ntfs.file_type = ftype_raw
+  }
+}
+
+if exists(.FileOS) {
+  fos_raw = to_string!(del(.FileOS))
+  if fos_raw != "" {
+    .file.Ext.ntfs.file_os = fos_raw
+  }
+}
+
+if exists(.FilenameFlags) {
+  fflags_raw = to_string!(del(.FilenameFlags))
+  if fflags_raw != "" {
+    .file.Ext.ntfs.filename_flags = fflags_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Security / Authenticode
+# -----------------------------------------------------------------------------
+
+if exists(.SecDescrID) {
+  sdid_raw = to_string!(del(.SecDescrID))
+  if sdid_raw != "" {
+    .file.Ext.ntfs.sec_descr_id = sdid_raw
+  }
+}
+
+if exists(.EASize) {
+  eas_raw = to_string!(del(.EASize))
+  if eas_raw != "" {
+    eas_int = parse_int(eas_raw) ?? null
+    if eas_int != null {
+      .file.Ext.ntfs.ea_size = eas_int
+    } else {
+      .file.Ext.ntfs.ea_size_raw = eas_raw
+    }
+  }
+}
+
+if exists(.SecurityDirectory) {
+  secdir_raw = to_string!(del(.SecurityDirectory))
+  if secdir_raw != "" {
+    .file.Ext.ntfs.security_directory_raw = secdir_raw
+  }
+}
+
+if exists(.SecurityDirectorySize) {
+  sds_raw = to_string!(del(.SecurityDirectorySize))
+  if sds_raw != "" {
+    sds_int = parse_int(sds_raw) ?? null
+    if sds_int != null {
+      .file.Ext.ntfs.security_directory_size = sds_int
+    } else {
+      .file.Ext.ntfs.security_directory_size_raw = sds_raw
+    }
+  }
+}
+
+if exists(.SecurityDirectorySignatureSize) {
+  sdss_raw = to_string!(del(.SecurityDirectorySignatureSize))
+  if sdss_raw != "" {
+    sdss_int = parse_int(sdss_raw) ?? null
+    if sdss_int != null {
+      .file.Ext.ntfs.security_directory_signature_size = sdss_int
+    } else {
+      .file.Ext.ntfs.security_directory_signature_size_raw = sdss_raw
+    }
+  }
+}
+
+if exists(.AuthenticodeStatus) {
+  as_raw = to_string!(del(.AuthenticodeStatus))
+  if as_raw != "" {
+    .file.Ext.ntfs.authenticode_status = as_raw
+    as_l = downcase!(as_raw)
+    if contains(as_l, "trusted") || contains(as_l, "valid") {
+      .file.code_signature.trusted = true
+    } else if contains(as_l, "invalid") || contains(as_l, "revoked") || contains(as_l, "not trusted") {
+      .file.code_signature.trusted = false
+    }
+  }
+}
+
+if exists(.AuthenticodeSigner) {
+  sig_raw = to_string!(del(.AuthenticodeSigner))
+  if sig_raw != "" {
+    .file.code_signature.subject_name = sig_raw
+  }
+}
+
+if exists(.AuthenticodeSignerThumbprint) {
+  sigtp_raw = to_string!(del(.AuthenticodeSignerThumbprint))
+  if sigtp_raw != "" {
+    .file.Ext.ntfs.authenticode_signer_thumbprint = sigtp_raw
+  }
+}
+
+if exists(.AuthenticodeCA) {
+  ca_raw = to_string!(del(.AuthenticodeCA))
+  if ca_raw != "" {
+    .file.code_signature.issuer_name = ca_raw
+  }
+}
+
+if exists(.AuthenticodeCAThumbprint) {
+  catp_raw = to_string!(del(.AuthenticodeCAThumbprint))
+  if catp_raw != "" {
+    .file.Ext.ntfs.authenticode_ca_thumbprint = catp_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Misc indexes / snapshot
+# -----------------------------------------------------------------------------
+
+if exists(.FilenameIndex) {
+  fi_raw = to_string!(del(.FilenameIndex))
+  if fi_raw != "" {
+    .file.Ext.ntfs.filename_index = fi_raw
+  }
+}
+
+if exists(.DataIndex) {
+  di_raw = to_string!(del(.DataIndex))
+  if di_raw != "" {
+    .file.Ext.ntfs.data_index = di_raw
+  }
+}
+
+if exists(.SnapshotID) {
+  sid_raw = to_string!(del(.SnapshotID))
+  if sid_raw != "" {
+    .event.Ext.ntfs.snapshot_id = sid_raw
+  }
+}
+
+# -----------------------------------------------------------------------------
+# Fallback .timestamp from available file times
+# Order: file.mtime > file.atime > file.ctime
+# -----------------------------------------------------------------------------
+ts_value  = null
+ts_source = null
+
+if exists(.file.mtime) {
+  ts_value  = .file.mtime
+  ts_source = "ntfs_last_modification"
+} else if exists(.file.atime) {
+  ts_value  = .file.atime
+  ts_source = "ntfs_last_access"
+} else if exists(.file.ctime) {
+  ts_value  = .file.ctime
+  ts_source = "ntfs_creation"
+}
+
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}

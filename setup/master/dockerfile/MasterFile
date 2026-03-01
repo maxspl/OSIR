@@ -29,6 +29,7 @@ RUN set -eux; \
         libpq-dev \
         smbclient \
         cifs-utils \
+        libfuse2 \
         wget; \
     \
     # add Deadsnakes PPA for Python 3.12
@@ -50,5 +51,11 @@ COPY sources/requirements.txt /tmp/requirements.txt
 RUN set -eux; \
     python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
 
-# - Default command ------------------------------
+COPY sources/master_entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# ENTRYPOINT executes at runtime, so volumes are available
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Can be replaced in docker-compose to start container without starting OSIR
 CMD ["OSIR.py", "--web"]

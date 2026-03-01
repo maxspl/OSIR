@@ -34,8 +34,10 @@ RUN set -eux; \
         wget \
         jc \
         jq \
+        sleuthkit \
         graphviz \
         git \
+        age \
         software-properties-common; \
     \
     # add Deadsnakes PPA for Python 3.12
@@ -72,5 +74,12 @@ RUN set -eux; \
         http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
     dpkg -i /tmp/libssl1.1.deb && rm /tmp/libssl1.1.deb
 
-# - Default command ------------------------------
+# - Copy entry point that install python libs from mounted volume
+COPY sources/agent_entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# ENTRYPOINT executes at runtime, so volumes are available
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Can be replaced in docker-compose to start container without starting OSIR
 CMD ["OSIR.py", "--agent"]

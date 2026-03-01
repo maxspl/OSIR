@@ -11,339 +11,402 @@ Supported Modules
      - Version
      - Processor Type
      - Tool Path
-   * - 
-     - prefetch_orc.yml
-     - 
-     - 
+   * - generic
+     - age_decrypt.yml
+     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
+     - maxspl
      - 1.0
-     - 
-     - net9/PECmd.exe
-   * - 
-     - sample_c.yml
-     - 
-     - 
+     - external
+     - age
+   * - generic
+     - indexer-ng.yml
+     - Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs configuration.
+     - maxspl
      - 1.0
-     - 
-     - 
-   * - all
+     - internal
+     - json2splunk-rs
+   * - generic
+     - mongodb.yml
+     - Splunk logs ingestion of Mongodb logs.
+     - Typ
+     - 1.0
+     - external
+     - json2splunk-rs
+   * - generic
      - thor_lite.yml
      - Scan of collected file using Thor Lite.
-     - 
+     - typ
      - 1.0
      - external
      - thor-lite/thor-lite-linux-64
-   * - all
+   * - generic
      - thor_orc.yml
      - Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).
-     - 
+     - maxspl
      - 1.0
      - external
      - thor/thor-linux-64
-   * - all
+   * - generic
+     - thor_orc_ram.yml
+     - Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
+     - maxspl
+     - 1.0
+     - external
+     - thor/thor-linux-64
+   * - generic
      - thor_uac.yml
      - Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
-     - 
+     - typ
      - 1.0
      - external
      - thor/thor-linux-64
-   * - all
+   * - generic
      - thor_update.yml
      - Update Thor signature files using thor-util.
-     - 
+     - maxspl
      - 1.0
      - external
      - thor/thor-util
-   * - linux
-     - uac_indexer.yml
-     - Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
-     - 
-     - 1.0
-     - external
-     - python
-   * - module_os
-     - sample.yml
-     - module_description
-     - author_name
-     - 1.0
-     - module_processor_type
-     - module_tool_name
    * - network
      - zeek.yml
-     - SParsing of pcap files using zeek
-     - 
+     - Parsing of pcap files using zeek
+     - maxspl
      - 1.0
      - external
      - docker
    * - unix
      - arp.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command arp or arp -a
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - audit.yml
      - Parsing logs from '/var/log/audit'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - auth.yml
      - Parsing logs from '/var/log/auth.log'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - blkid.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command blkid
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
-     - bodyfile.yml
-     - Parsing logs from '/bodyfile' in UAC collect
-     - 
+     - boot.yml
+     - Parsing logs from '/var/log/boot'
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
-     - boot.yml
-     - Parsing logs from '/var/log/boot'
-     - 
+     - collect_info_uac.yml
+     - Hash of DFIR UAC collected file
+     - maxspl
      - 1.0
-     - internal
-     - 
+     - external
+     - /usr/bin/find
    * - unix
      - cron.yml
      - Parsing logs from '/var/log/cron'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - debug.yml
      - Parsing logs from '/var/log/debug'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - df.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command df and df -h
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - dmidecode.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command dmidecode
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - dpkg-l.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command dpkg -l
      - Kelly Brazil
-     - 1.0
+     - 1.1
      - external
      - cat
    * - unix
      - dpkg.yml
      - Parsing logs from '/var/log/dpkg'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - env.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command env
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - extract_uac.yml
-     - 
-     - 
-     - 1.0
+     - Used to execute internal pre-processing for Unix Artefact Collector Capture
+     - Typ
+     - 1.1
      - internal
      - tar
    * - unix
      - findmnt.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command findmnt
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - free.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command free
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - ip_route.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command ip route
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - iptables.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command iptables
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - journal.yml
      - Parsing logs from '/var/log/journal/'
-     - 
+     - Typ
      - 1.1
      - external
      - journalctl
    * - unix
      - kernel.yml
      - Parsing logs from '/var/log/kernel'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - last.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command last and lastb
-     - 
-     - 1.0
+     - Kelly Brazil
+     - 1.1
      - external
      - cat
    * - unix
      - lastlog.yml
      - Parsing logs from '/var/log/lastlog'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - lsblk.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lsblk
-     - 
+     - Kelly Brazil
+     - 1.1
+     - external
+     - cat
+   * - unix
+     - lscpu.yml
+     - Kelly Brazil - JsonConverter - Parsing the output of the command lscpu
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - lsmod.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lsmod
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - lsusb.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lsusb
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
+     - mactime.yml
+     - Parsing logs from '/bodyfile' in UAC collect
+     - Typ
+     - 1.0
+     - external
+     - mactime
+   * - unix
      - mail.yml
      - Parsing logs from '/var/log/mail'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - message.yml
      - Parsing logs from '/var/log/message'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - mount.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command mount
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - netstat.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command netstat
-     - 
+     - Kelly Brazil
+     - 1.0
+     - external
+     - cat
+   * - unix
+     - nmcli.yml
+     - Kelly Brazil - JsonConverter - Parsing the output of the command nmcli
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - postgresql.yml
      - Parsing logs from '/var/log/postgresql'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - ps.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command ps and ps -ef
-     - 
+     - Kelly Brazil
+     - 1.0
+     - external
+     - cat
+   * - unix
+     - snap.yml
+     - Kelly Brazil - JsonConverter - Parsing the output of the command snap
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - sysctl.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command sysctl -a
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - syslog.yml
      - Parsing logs from '/var/log/syslog'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
      - systemctl_luf.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command systemctl list-unit-files
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
      - top.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command top and top -b
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
+     - uac_indexer.yml
+     - Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
+     - Typ
+     - 1.0
+     - external
+     - python
+   * - unix
      - utmp.yml
      - Parsing logs from '/var/log/utmp btmp wtmp'
-     - 
+     - Typ
      - 1.0
      - internal
      - 
    * - unix
+     - vhdx.yml
+     - Used to mount vhdx file system.
+     - typ
+     - 1.0
+     - external
+     - target-mount
+   * - unix
      - vmstat.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command vmstat
-     - 
+     - Kelly Brazil
      - 1.0
      - external
      - cat
    * - unix
+     - web_access.yml
+     - Parsing web access logs
+     - maxspl
+     - 1.0
+     - external
+     - TurboLP
+   * - unix
      - yum.yml
      - Parsing logs from '/var/log/yum'
+     - Typ
+     - 1.0
+     - internal
      - 
+   * - windows
+     - IIS.yml
+     - Parse IIS from DFIR ORC restore_fs using Dissect plugin
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - activities_cache.yml
+     - Parse ActivitiesCache.db from DFIR ORC restore_fs using Dissect plugin
+     - maxspl
      - 1.0
      - internal
      - 
    * - windows
      - amcache.yml
      - Parsing of amcache artifact.
-     - 
+     - maxspl
      - 1.1
      - external
      - net9/AmcacheParser.exe
@@ -355,30 +418,58 @@ Supported Modules
      - internal
      - machine_analysis
    * - windows
+     - authlog.yml
+     - Parse auth log from UAC [root] using Dissect plugin
+     - Typ
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - bash_history.yml
+     - Parse bash history from UAC [root] using Dissect plugin
+     - Typ
+     - 1.0
+     - internal
+     - 
+   * - windows
      - browsers.yml
      - Parsing of browsers artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - python
    * - windows
+     - collect_info_orc.yml
+     - Hash of DFIR ORC collected file
+     - maxspl
+     - 1.0
+     - external
+     - /usr/bin/find
+   * - windows
+     - dfir_orc_decrypt.yml
+     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/DFIRORC_key.pem.
+     - maxspl
+     - 1.0
+     - external
+     - orc-decrypt-rs
+   * - windows
      - dummy_external.yml
      - Dummy module to test WSL / Powershell connexion
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/AmcacheParser.exe
    * - windows
-     - evtx_orc.yml
-     - Parsing of EVTX collected by DFIR ORC
-     - 
-     - 1.0
+     - evtx.yml
+     - Parsing of EVTX collected by DFIR ORC or in the filesystem
+     - maxspl
+     - 1.1
      - external
      - evtx_dump
    * - windows
      - extract_orc.yml
-     - 
-     - 
+     - Used to execute internal pre-processing for DFIR-ORC capture
+     - maxspl
      - 1.1
      - internal, external
      - 7zz
@@ -392,63 +483,84 @@ Supported Modules
    * - windows
      - hives_hkcu.yml
      - Parsing of registry hives artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/RECmd/RECmd.exe
    * - windows
      - hives_hklm.yml
      - Parsing of registry hives artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/RECmd/RECmd.exe
    * - windows
      - indexer.yml
      - Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk configuration instead of dependencies/*_indexer_patterns.yml
-     - 
+     - maxspl
      - 1.0
      - internal
      - python
    * - windows
      - jump_list.yml
      - Parsing of jump list artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/JLECmd.exe
    * - windows
      - lnk.yml
      - Parsing of lnk artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/LECmd.exe
    * - windows
      - log2timeline_plaso.yml
      - run log2timeline to create a Plaso storage file
-     - 
+     - maxspl
      - 1.0
      - external
      - docker
    * - windows
+     - mft.yml
+     - Parsing of $MFT artifact.
+     - Typ
+     - 1.0
+     - external
+     - net9/MFTECmd.exe
+   * - windows
      - orc_indexer.yml
      - plunk logs ingestion (ORC) using json2splunk configuration from dependencies/orc_indexer_patterns.yml
-     - 
+     - maxspl
      - 1.0
      - external
      - python
    * - windows
      - orc_offline.yml
-     - 
+     - Used to execute DFIR ORC on dd capture
      - maxspl
      - 1.0
      - external
      - python.exe
    * - windows
+     - powershell_history.yml
+     - Parse ConsoleHost_history.txt
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
      - prefetch.yml
-     - 
-     - 
+     - Eric Zimmerman - PECmd.exe
+     - Eric Zimmerman
+     - 1.0
+     - external
+     - net9/PECmd.exe
+   * - windows
+     - prefetch_orc.yml
+     - Parse Prefetch
+     - maxspl
      - 1.0
      - external
      - net9/PECmd.exe
@@ -462,77 +574,161 @@ Supported Modules
    * - windows
      - pstree_security.yml
      - Parse output of EVTX module to build process tree from security.evtx - event ID 4688
-     - 
+     - maxspl
      - 1.0
      - external
      - python
    * - windows
      - pstree_sysmon.yml
      - Parse output of EVTX module to build process tree from security.evtx - event ID 1
-     - 
+     - maxspl
      - 1.0
      - external
      - python
    * - windows
      - recycle_bin.yml
      - Parsing of recycle bin artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/RBCmd.exe
    * - windows
      - restore_fs.yml
      - Restore original filesystem structure from DFIR ORC triage
-     - 
+     - maxspl
      - 1.0
      - external
      - Restore_FS
    * - windows
      - shell_bags.yml
      - Parsing of shell bags artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/SBECmd.exe
    * - windows
      - shimcache.yml
      - Parsing of ShimCache artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - net9/AppCompatCacheParser.exe
    * - windows
      - srum.yml
      - Parsing of SRUM artifact.
-     - 
+     - maxspl
      - 1.0
      - external
      - artemis
    * - windows
      - test_process_dir.yml
-     - 
-     - 
+     - description
+     - maxspl
      - 1.0
      - external
      - process_dir
    * - windows
      - test_process_dir_multiple_output.yml
-     - 
-     - 
+     - test_process_dir_multiple_output
+     - maxspl
      - 1.0
      - external
      - process_dir_multiple_output
    * - windows
-     - win_memory.yml
-     - 
-     - 
+     - wer.yml
+     - Parse .wer files
+     - maxspl
      - 1.0
+     - internal
+     - 
+   * - windows
+     - win_arp_cache.yml
+     - Parse arp_cache.txt from DFIR ORC (arp -a command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_bits.yml
+     - Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_dns_cache.yml
+     - Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fields lang depends on the system lang
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_dns_records.yml
+     - Parse DNS_records.txt from DFIR ORC (custom ps1 command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_enumlocs.yml
+     - Parse Enumlocs.txt from DFIR ORC
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_handle.yml
+     - Parse handle from DFIR ORC (handle.exe /a command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_listdlls.yml
+     - Parse Listdlls.txt from DFIR ORC (Listdlls.exe command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_memory.yml
+     - Parsing of Windows memory dump.
+     - maxspl
+     - 1.1
      - internal, external
      - memprocfs/memprocfs
    * - windows
-     - win_timeline.yml
-     - Parsing of Windows Timeline (ActivitiesCache.db) artifact.
-     - 
+     - win_netstat.yml
+     - Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)
+     - maxspl
      - 1.0
+     - internal
+     - 
+   * - windows
+     - win_routes.yml
+     - Parse routes.txt from DFIR ORC (route.exe PRINT command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_tcpvcon.yml
+     - Parse routes.txt from DFIR ORC (Tcpvcon.exe -a -n -c command)
+     - maxspl
+     - 1.0
+     - internal
+     - 
+   * - windows
+     - win_timeline.yml
+     - Parsing of Windows Timeline (ActivitiesCache.db) artifact. Tool from Nihith (https://github.com/bolisettynihith/ActivitiesCacheParser)
+     - maxspl
+     - 1.1
      - external
-     - net9/WxTCmd.exe
+     - python
+   * - windows
+     - win_wmi_eventconsumer.yml
+     - Parse EventConsumer.txt from DFIR ORC (powershell.exe Get-WMIObject -Namespace root\Subscription -Class __EventConsumer command)
+     - maxspl
+     - 1.0
+     - internal
+     - 

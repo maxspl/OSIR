@@ -1,5 +1,5 @@
 version: 1.0
-author:
+author: maxspl
 module: hives_hklm
 description: Parsing of registry hives artifact.
 os: windows
@@ -12,8 +12,8 @@ processor_os: windows
 tool: 
   path: net9/RECmd/RECmd.exe
   cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" --bn "{drive}\OSIR\bin\net9\RECmd\BatchExamples\DFIRBatch.reb" --recover
-  source:
-  version: 
+  source: https://ericzimmerman.github.io/
+  version: 2.1
 input:
   type: dir
   path: Windows/System32/config
@@ -28,8 +28,9 @@ splunk:
     path_rex: '.*\/hives_hklm.*'
     sourcetype: 'windows:registry:hklm'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "LastWriteTimestamp"
-        - "Timestamp"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
     artifact: "Hives"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/hives.vrl

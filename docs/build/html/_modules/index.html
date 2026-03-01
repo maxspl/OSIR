@@ -7,14 +7,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Overview: module code &mdash; OSIR 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=d45e8c67"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" /> 
@@ -48,6 +48,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -86,18 +87,81 @@
              
   <h1>All modules for which code is available</h1>
 <ul><li><a href="OSIR.html">OSIR</a></li>
-<li><a href="src/log/logger.html">src.log.logger</a></li>
-<li><a href="src/monitor/ModuleHandler.html">src.monitor.ModuleHandler</a></li>
-<li><a href="src/monitor/MonitorCase.html">src.monitor.MonitorCase</a></li>
-<li><a href="src/tasks/task_client.html">src.tasks.task_client</a></li>
-<li><a href="src/tasks/task_manager.html">src.tasks.task_manager</a></li>
-<li><a href="src/tasks/tasks.html">src.tasks.tasks</a></li>
-<li><a href="src/utils/BaseModule.html">src.utils.BaseModule</a></li>
-<li><a href="src/utils/BaseProfile.html">src.utils.BaseProfile</a></li>
-<li><a href="src/utils/DbOSIR.html">src.utils.DbOSIR</a></li>
-<li><a href="src/utils/PyModule.html">src.utils.PyModule</a></li>
-<li><a href="src/utils/SmbMounter.html">src.utils.SmbMounter</a></li>
-<li><a href="src/utils/singleton.html">src.utils.singleton</a></li>
+<li><a href="src/osir_api/osir_api/api/model/OsirApiCaseModel.html">src.osir_api.osir_api.api.model.OsirApiCaseModel</a></li>
+<li><a href="src/osir_api/osir_api/api/model/OsirApiHandlerModel.html">src.osir_api.osir_api.api.model.OsirApiHandlerModel</a></li>
+<li><a href="src/osir_api/osir_api/api/model/OsirApiModuleModel.html">src.osir_api.osir_api.api.model.OsirApiModuleModel</a></li>
+<li><a href="src/osir_api/osir_api/api/model/OsirApiProfileModel.html">src.osir_api.osir_api.api.model.OsirApiProfileModel</a></li>
+<li><a href="src/osir_api/osir_api/api/model/OsirApiTaskModel.html">src.osir_api.osir_api.api.model.OsirApiTaskModel</a></li>
+<li><a href="src/osir_lib/osir_lib/core/FileManager.html">src.osir_lib.osir_lib.core.FileManager</a></li>
+<li><a href="src/osir_lib/osir_lib/core/LogUtils.html">src.osir_lib.osir_lib.core.LogUtils</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirAgentConfig.html">src.osir_lib.osir_lib.core.OsirAgentConfig</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirConnector.html">src.osir_lib.osir_lib.core.OsirConnector</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirDecorator.html">src.osir_lib.osir_lib.core.OsirDecorator</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirInput.html">src.osir_lib.osir_lib.core.OsirInput</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirModule.html">src.osir_lib.osir_lib.core.OsirModule</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirOutput.html">src.osir_lib.osir_lib.core.OsirOutput</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirPathTransformerMixin.html">src.osir_lib.osir_lib.core.OsirPathTransformerMixin</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirProfile.html">src.osir_lib.osir_lib.core.OsirProfile</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirSingleton.html">src.osir_lib.osir_lib.core.OsirSingleton</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirTool.html">src.osir_lib.osir_lib.core.OsirTool</a></li>
+<li><a href="src/osir_lib/osir_lib/core/OsirUtils.html">src.osir_lib.osir_lib.core.OsirUtils</a></li>
+<li><a href="src/osir_lib/osir_lib/core/model/OsirInputModel.html">src.osir_lib.osir_lib.core.model.OsirInputModel</a></li>
+<li><a href="src/osir_lib/osir_lib/core/model/OsirModuleModel.html">src.osir_lib.osir_lib.core.model.OsirModuleModel</a></li>
+<li><a href="src/osir_lib/osir_lib/core/model/OsirOutputModel.html">src.osir_lib.osir_lib.core.model.OsirOutputModel</a></li>
+<li><a href="src/osir_lib/osir_lib/core/model/OsirProfileModel.html">src.osir_lib.osir_lib.core.model.OsirProfileModel</a></li>
+<li><a href="src/osir_lib/osir_lib/core/model/OsirToolModel.html">src.osir_lib.osir_lib.core.model.OsirToolModel</a></li>
+<li><a href="src/osir_lib/osir_lib/logger/logger.html">src.osir_lib.osir_lib.logger.logger</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/common/dissect_dispatcher.html">src.osir_lib.osir_lib.modules.common.dissect_dispatcher</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/common/live_response_dispatcher.html">src.osir_lib.osir_lib.modules.common.live_response_dispatcher</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/indexer/indexer.html">src.osir_lib.osir_lib.modules.indexer.indexer</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/apt_history.html">src.osir_lib.osir_lib.modules.linux.apt_history</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/audit.html">src.osir_lib.osir_lib.modules.linux.audit</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/auth.html">src.osir_lib.osir_lib.modules.linux.auth</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/boot.html">src.osir_lib.osir_lib.modules.linux.boot</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/cron.html">src.osir_lib.osir_lib.modules.linux.cron</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/debug.html">src.osir_lib.osir_lib.modules.linux.debug</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/dpkg.html">src.osir_lib.osir_lib.modules.linux.dpkg</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/extract_uac.html">src.osir_lib.osir_lib.modules.linux.extract_uac</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/kernel.html">src.osir_lib.osir_lib.modules.linux.kernel</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/lastlog.html">src.osir_lib.osir_lib.modules.linux.lastlog</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/mail.html">src.osir_lib.osir_lib.modules.linux.mail</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/postgresql.html">src.osir_lib.osir_lib.modules.linux.postgresql</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/syslog.html">src.osir_lib.osir_lib.modules.linux.syslog</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/utmp.html">src.osir_lib.osir_lib.modules.linux.utmp</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/linux/yum.html">src.osir_lib.osir_lib.modules.linux.yum</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/anssi_decode.html">src.osir_lib.osir_lib.modules.windows.anssi_decode</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/extract_orc.html">src.osir_lib.osir_lib.modules.windows.extract_orc</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/arp_cache_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/bits_jobs_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.bits_jobs_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/dns_cache_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.dns_cache_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/dns_records_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.dns_records_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/enumlocs_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.enumlocs_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/handle_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.handle_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/listdlls_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.listdlls_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/netstat_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.netstat_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/routes_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.routes_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/tcpvcon_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.tcpvcon_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/live_response/wmi_eventconsumer_parser.html">src.osir_lib.osir_lib.modules.windows.live_response.wmi_eventconsumer_parser</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/powershell_history.html">src.osir_lib.osir_lib.modules.windows.powershell_history</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/wer.html">src.osir_lib.osir_lib.modules.windows.wer</a></li>
+<li><a href="src/osir_lib/osir_lib/modules/windows/win_memory.html">src.osir_lib.osir_lib.modules.windows.win_memory</a></li>
+<li><a href="src/osir_service/osir_service/agent/AgentService.html">src.osir_service.osir_service.agent.AgentService</a></li>
+<li><a href="src/osir_service/osir_service/ipc/IpcService.html">src.osir_service.osir_service.ipc.IpcService</a></li>
+<li><a href="src/osir_service/osir_service/ipc/JsonSocket.html">src.osir_service.osir_service.ipc.JsonSocket</a></li>
+<li><a href="src/osir_service/osir_service/ipc/OsirExceptions.html">src.osir_service.osir_service.ipc.OsirExceptions</a></li>
+<li><a href="src/osir_service/osir_service/ipc/OsirIpc.html">src.osir_service.osir_service.ipc.OsirIpc</a></li>
+<li><a href="src/osir_service/osir_service/ipc/OsirIpcClient.html">src.osir_service.osir_service.ipc.OsirIpcClient</a></li>
+<li><a href="src/osir_service/osir_service/ipc/OsirIpcModel.html">src.osir_service.osir_service.ipc.OsirIpcModel</a></li>
+<li><a href="src/osir_service/osir_service/orchestration/TaskProcessorService.html">src.osir_service.osir_service.orchestration.TaskProcessorService</a></li>
+<li><a href="src/osir_service/osir_service/orchestration/TaskService.html">src.osir_service.osir_service.orchestration.TaskService</a></li>
+<li><a href="src/osir_service/osir_service/postgres/model/OsirDbCaseModel.html">src.osir_service.osir_service.postgres.model.OsirDbCaseModel</a></li>
+<li><a href="src/osir_service/osir_service/postgres/model/OsirDbHandlerModel.html">src.osir_service.osir_service.postgres.model.OsirDbHandlerModel</a></li>
+<li><a href="src/osir_service/osir_service/postgres/model/OsirDbSnapshotModel.html">src.osir_service.osir_service.postgres.model.OsirDbSnapshotModel</a></li>
+<li><a href="src/osir_service/osir_service/postgres/model/OsirDbStatusModel.html">src.osir_service.osir_service.postgres.model.OsirDbStatusModel</a></li>
+<li><a href="src/osir_service/osir_service/postgres/model/OsirDbTaskModel.html">src.osir_service.osir_service.postgres.model.OsirDbTaskModel</a></li>
+<li><a href="src/osir_service/osir_service/smb/SMBService.html">src.osir_service.osir_service.smb.SMBService</a></li>
+<li><a href="src/osir_service/osir_service/watchdog/MonitorCase.html">src.osir_service.osir_service.watchdog.MonitorCase</a></li>
+<li><a href="src/osir_service/osir_service/watchdog/WatchdogService.html">src.osir_service.osir_service.watchdog.WatchdogService</a></li>
 </ul>
 
            </div>

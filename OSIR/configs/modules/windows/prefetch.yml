@@ -1,7 +1,7 @@
 version: 1.0
-author:
+author: Eric Zimmerman
 module: prefetch
-description:
+description: Eric Zimmerman - PECmd.exe
 os: windows
 type: process
 disk_only: False
@@ -12,8 +12,8 @@ processor_os: windows
 tool: 
   path: net9/PECmd.exe
   cmd: -d "{input_dir}" --json "{output_dir}" --jsonf "{output_file}" -q
-  source:
-  version:
+  source: https://ericzimmerman.github.io/
+  version: 1.5.1
 input:
   type: dir
   path: Windows/Prefetch
@@ -28,7 +28,9 @@ splunk:
     path_suffix: 'prefetch'
     sourcetype: 'windows:files:prefetch'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "LastRun"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "Prefetch"
+    normalize:
+      - ecs_normalize/windows/prefetch.vrl

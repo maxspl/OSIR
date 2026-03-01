@@ -1,0 +1,162 @@
+
+# OSIR - MongoDB log normalizer
+# 
+# Schema:
+#     Source :
+#     [
+#         {
+#         "t": <Datetime>, // timestamp
+#         "s": <String>, // severity
+#         "c": <String>, // component
+#         "id": <Integer>, // unique identifier
+#         "ctx": <String>, // context
+#         "svc": <String>, // service
+#         "msg": <String>, // message body
+#         "attr": <Object>, // additional attributes (optional)
+#         "tags": <Array of strings>, // tags (optional)
+#         "truncated": <Object>, // truncation info (if truncated)
+#         "size": <Object> // original size of entry (if truncated)
+#         }
+#         ...
+#     ]
+# 
+#     Destination :
+# 
+#     [
+#         {
+#         "timestamp": <Datetime>, // timestamp
+#         "event.severity": <String>, // severity
+#         "event.kind": <String>, // component
+#         "event.id": <Integer>, // unique identifier
+#         "event.context": <String>, // context
+#         "service.name": <String>, // service
+#         "message": <String>, // message body
+#         "log.extra": <Object>, // additional attributes (optional)
+#         "log.tags": <Array of strings>, // tags (optional)
+#         "log.truncated": <Object>, // truncation info (if truncated)
+#         "log.size": <Object> // original size of entry (if truncated)
+#         }
+#         ...
+#     ]
+
+# Mapping timestamp
+if exists(.t) {
+    t_val, err = get(.t, ["$date"])
+    if t_val != null {
+        .timestamp = t_val
+    }
+    del(.t)
+}
+
+if exists(.s) {
+    s_val = del(.s)
+    if s_val != null {
+        s_str = to_string!(s_val)
+        .event.severity = if s_str == "F" {
+            "fatal"
+        } else if s_str == "E" {
+            "error"
+        } else if s_str == "W" {
+            "warning"
+        } else if s_str == "I" {
+            "informational"
+        } else if starts_with(s_str, "D") {
+            "debug" + " " + s_str
+        } else {
+            s_str
+        }
+    }
+}
+
+# Mapping event.kind
+if exists(.c) {
+    c_val = del(.c)
+    if c_val != null {
+        .event.kind = to_string!(c_val)
+    }
+}
+
+# Mapping event.id
+if exists(.id) {
+    id_val = del(.id)
+    if id_val != null {
+        .event.id = id_val
+    }
+}
+
+# Mapping event.context
+if exists(.ctx) {
+    ctx_val = del(.ctx)
+    if ctx_val != null {
+        .event.context = to_string!(ctx_val)
+    }
+}
+
+# Mapping service.name
+if exists(.svc) {
+    svc_val = del(.svc)
+    if svc_val != null {
+        .service.name = to_string!(svc_val)
+    }
+}
+
+# Mapping message
+if exists(.msg) {
+    msg_val = del(.msg)
+    if msg_val != null {
+        .message = to_string!(msg_val)
+    }
+}
+
+# Mapping log.extra (champ optionnel)
+if exists(.attr) {
+    attr_val = del(.attr)
+    if attr_val != null {
+        .log = attr_val
+    }
+}
+
+# Mapping source.address et source.ip depuis remote
+if exists(.log.remote) {
+    remote_val = to_string!(.log.remote)
+    parts = split(remote_val, ":")
+    if length(parts) == 2 {
+        .source.address = remote_val
+        .source.ip = parts[0]
+        .source.port = to_int!(parts[1])
+    }
+    del(.log.remote)
+}
+
+# Mapping UUID
+if exists(.log.uuid.uuid) {
+    uuid_val, err = get(.log.uuid.uuid, ["$uuid"])
+    if uuid_val != null {
+        .log.uuid = to_string!(uuid_val)
+    }
+    del(.log.uuid.uuid)
+}
+
+# Mapping log.tags (champ optionnel)
+if exists(.tags) {
+    tags_val = del(.tags)
+    if tags_val != null {
+        .log.tags = tags_val
+    }
+}
+
+# Mapping log.truncated (optionnal)
+if exists(.truncated) {
+    truncated_val = del(.truncated)
+    if truncated_val != null {
+        .log.truncated = truncated_val
+    }
+}
+
+# Mapping log.size (optionnal)
+if exists(.size) {
+    size_val = del(.size)
+    if size_val != null {
+        .log.size = size_val
+    }
+}

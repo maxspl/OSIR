@@ -1,0 +1,114 @@
+# Define the format string for parsing the BITS timestamps
+time_format = "%d/%m/%Y %H:%M:%S"
+
+.bits.job.id = del(.GUID)
+.bits.job.name = del(.DISPLAY)
+
+# Convert TYPE and STATE to lowercase for standardization
+.bits.job.type = downcase!(del(.TYPE))
+.bits.job.state = downcase!(del(.STATE))
+.bits.job.priority = downcase!(del(.PRIORITY))
+
+# Map BITS job state to the general ECS event.state and determine the outcome
+.event.state = .bits.job.state
+if .event.state == "error" {
+  .event.outcome = "failure"
+} else if .event.state == "transferred" || .event.state == "completed" {
+  .event.outcome = "success"
+} else {
+  .event.outcome = "in_progress"
+}
+
+# The OWNER field is in DOMAIN\User or HOST\User format.
+owner_parts = split!(del(.OWNER), pattern: "\\")
+
+if length(owner_parts) == 2 {
+  # Assign the first part as the host and the second as the username
+  .host.name = downcase!(owner_parts[0])
+  .user.name = owner_parts[1]
+} else {
+  # Fallback for unexpected format: assume the whole string is the username
+  .user.name = owner_parts[0]
+}
+
+if exists!(."owner elevated ?") {
+  .user.is_elevated = ."owner elevated ?"
+}
+
+if exists!(."MODIFICATION TIME") {
+  .msp_val2 = ."MODIFICATION TIME"
+}
+
+.bits.job.owner_mic_integrity_level = del(."owner MIC integrity level")
+
+
+# The ERROR FILE field contains the source URL and destination path, separated by " -> "
+if exists!(."ERROR FILE") {
+    error_file = del(."ERROR FILE")
+    parts = split!(error_file, pattern: " -> ")
+    if length(parts) == 2 {
+        # The source URL (the file being downloaded)
+        .source.url = strip_whitespace!(parts[0])
+        # The destination path (where the file is saved)
+        .destination.path = strip_whitespace!(parts[1])
+    }
+}
+
+if exists!(."ERROR CODE") {
+  .error.code = del(."ERROR CODE")
+}
+
+.bits.job.error_context = del(."ERROR CONTEXT")
+.bits.job.description = del(.DESCRIPTION)
+
+if exists(."ERROR COUNT") {
+  .error.count = to_int!(del(."ERROR COUNT"))
+}
+
+# CREATION TIME -> event.created and the primary timestamp
+if exists!(."CREATION TIME") {
+  creation_time = del(."CREATION TIME")
+  ts = parse_timestamp(creation_time, format: time_format) ?? null
+  if ts != null {
+    .event.created = ts
+    # Set the primary ECS timestamp for indexing
+    .timestamp = ts
+  }
+}
+
+# MODIFICATION TIME -> event.ingested 
+if exists!(."MODIFICATION TIME") {
+  modification_time = del(."MODIFICATION TIME")
+  ts = parse_timestamp(modification_time, format: time_format) ?? null
+  if ts != null {
+    .event.ingested = ts
+  }
+}
+
+# COMPLETION TIME -> event.end
+if exists(."COMPLETION TIME") {
+  completion_time = del(."COMPLETION TIME")
+
+  ts = parse_timestamp(completion_time, format: "%d/%m/%Y %H:%M:%S") ?? null
+
+  if ts != null {
+    .event.end = ts
+  }
+}
+
+.bits.job.files_summary = del(.FILES)
+.bits.job.bytes_summary = del(.BYTES)
+.bits.job.job_files_list = del(."JOB FILES LIST")
+.bits.job.original_type = del(.type)
+.bits.job.proxy_usage = del(."PROXY USAGE")
+.bits.job.proxy_list = del(."PROXY LIST")
+.bits.job.proxy_bypass_list = del(."PROXY BYPASS LIST")
+.bits.job.acl_flags = del(."ACL FLAGS")
+.bits.job.notify_interface = del(."NOTIFY INTERFACE")
+.bits.job.notification_flags = del(."NOTIFICATION FLAGS")
+.bits.job.retry_delay = del(."RETRY DELAY")
+.bits.job.no_progress_timeout = del(."NO PROGRESS TIMEOUT")
+.bits.job.notification_command_line = del(."NOTIFICATION COMMAND LINE")
+.bits.job.job_files = del(."JOB FILES")
+.bits.job.custom_headers = del(."CUSTOM HEADERS")
+.bits.job.peercaching_flags = del(."Peercaching flags")

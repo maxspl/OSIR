@@ -1,0 +1,760 @@
+# -----------------------------------------------------------------------------
+# Windows Error Reporting (WER) 
+# Supports French + English WER JSON exports
+# -----------------------------------------------------------------------------
+
+.event.dataset = "windows.wer"
+.event.module  = "windows"
+
+# FILETIME → Unix epoch
+windows_epoch_seconds = 11644473600
+
+# -----------------------------------------------------------------------------
+# Event type / basic ECS classification
+# -----------------------------------------------------------------------------
+
+if exists(.EventType) {
+    event_type = to_string!(del(.EventType))
+    event_type_l = downcase(event_type)
+
+    .wer.event_type = event_type
+    .event.code = event_type
+    .event.action = event_type_l
+
+    if event_type_l == "appcrash" || event_type_l == "bex" || contains(event_type_l, "failureinfo") {
+        .event.type = ["error"]
+        .log.level = "error"
+    } else {
+        .event.type = ["info"]
+    }
+}
+
+.event.kind = "event"
+.event.category = ["process"]
+
+# -----------------------------------------------------------------------------
+# Outcome / severity from IsFatal & general crash nature
+# -----------------------------------------------------------------------------
+
+if exists(.IsFatal) {
+    is_fatal = to_string!(del(.IsFatal))
+    .wer.is_fatal_raw = is_fatal
+
+    if is_fatal == "1" || is_fatal == "4294967295" {
+        .event.outcome  = "failure"
+        .event.severity = 3
+    }
+}
+
+if !exists(.event.outcome) {
+    .event.outcome = "failure"
+}
+
+if exists(.Consent) {
+    .wer.consent = del(.Consent)
+}
+if exists(.ConsentKey) {
+    .wer.consent_key = del(.ConsentKey)
+}
+
+# Some WER internals
+if exists(.EtwNonCollectReason) {
+    .wer.etw_non_collect_reason = del(.EtwNonCollectReason)
+}
+
+# -----------------------------------------------------------------------------
+# Timestamps (EventTime / UploadTime) - FILETIME format
+# -----------------------------------------------------------------------------
+
+windows_epoch_seconds = 11644473600
+
+# EventTime → .timestamp / event.created
+if exists(.EventTime) {
+    ft_raw = to_int!(del(.EventTime))          # FILETIME as integer (100-ns ticks since 1601)
+
+    # This becomes a float in VRL because of "/"
+    unix_sec_f = (ft_raw / 10000000) - windows_epoch_seconds
+
+    # Coerce float → int (truncating fractional seconds)
+    unix_sec = to_int(unix_sec_f) 
+
+    if unix_sec != null {
+        ts = from_unix_timestamp!(unix_sec)
+
+        .timestamp     = ts
+        .event.created = ts
+    }
+}
+
+# UploadTime → event.ingested
+if exists(.UploadTime) {
+    ft_raw = to_int!(del(.UploadTime))
+
+    unix_sec_f = (ft_raw / 10000000) - windows_epoch_seconds
+    unix_sec   = to_int(unix_sec_f) 
+
+    if unix_sec != null {
+        ts = from_unix_timestamp!(unix_sec)
+        .event.ingested = ts
+    }
+}
+
+
+# -----------------------------------------------------------------------------
+# Process / application info
+# -----------------------------------------------------------------------------
+
+# Process / app name (FR + EN variants)
+if exists(.AppName) {
+    .process.name = del(.AppName)
+} else if exists(.NsAppName) {
+    .process.name = del(.NsAppName)
+} else if exists(."PS_Application_name") {
+    .process.name = del(."PS_Application_name")
+} else if exists(."PS_Application_Name") {
+    .process.name = del(."PS_Application_Name")
+} else if exists(."PS_Nom_de_l’application") {
+    .process.name = del(."PS_Nom_de_l’application")
+}
+
+# Executable path (command/executable)
+if exists(.AppPath) {
+    app_path = del(.AppPath)
+    .process.executable = app_path
+}
+
+# Command line / UI
+if exists(."UI[2]") {
+    .process.command_line = del(."UI[2]")
+}
+
+# Original EXE filename → PE info
+if exists(.OriginalFilename) {
+    .process.pe.original_file_name = del(.OriginalFilename)
+}
+
+# Application identity → good unique ID
+if exists(.ApplicationIdentity) {
+    .process.entity_id = del(.ApplicationIdentity)
+}
+
+# Session GUID
+if exists(.AppSessionGuid) {
+    .process.session_leader.id = del(.AppSessionGuid)
+}
+
+# Target application info (keep under .wer)
+if exists(.TargetAppId) {
+    .wer.target.app.id = del(.TargetAppId)
+}
+if exists(.TargetAppVer) {
+    .wer.target.app.version = del(.TargetAppVer)
+}
+if exists(.TargetAsId) {
+    .wer.target.as_id = del(.TargetAsId)
+}
+
+# Boot ID
+if exists(.BootId) {
+    .host.boot.id = del(.BootId)
+}
+
+# Wow64 info
+if exists(.Wow64Host) {
+    .wer.wow64.host = del(.Wow64Host)
+}
+if exists(.Wow64Guest) {
+    .wer.wow64.guest = del(.Wow64Guest)
+}
+
+# -----------------------------------------------------------------------------
+# Host / OS info (FR WER has os_info, EN usually not)
+# -----------------------------------------------------------------------------
+
+if exists(.os_info) {
+    os = del(.os_info)
+
+    .host.os.type = "windows"
+    .host.os.name = "Windows"
+
+    if exists(os.osver) {
+        .host.os.version = os.osver
+    }
+    if exists(os.verbld) {
+        .host.os.build = os.verbld
+    }
+    if exists(os.edition) {
+        .host.os.full = "Windows " + to_string!(os.edition)
+    }
+    if exists(os.osver) && contains(to_string!(os.osver), "amd64") {
+        .host.architecture = "x86_64"
+    }
+
+    .wer.os_info = os
+}
+
+# OS version from PS_* variants (FR + EN)
+if exists(."PS_Version_du_système_d’exploitation") {
+    .host.os.version = to_string!(del(."PS_Version_du_système_d’exploitation"))
+} else if exists(."PS_OsVersion") {
+    .host.os.version = to_string!(del(."PS_OsVersion"))
+} else if exists(."PS_OSVersion") {
+    .host.os.version = to_string!(del(."PS_OSVersion"))
+}
+
+if exists(."PS_OSRevision") {
+    .wer.ps_os_revision = del(."PS_OSRevision")
+}
+if exists(."PS_Service_Pack") {
+    .wer.ps_service_pack = del(."PS_Service_Pack")
+}
+
+# -----------------------------------------------------------------------------
+# Log / source file info
+# -----------------------------------------------------------------------------
+
+if exists(._file) {
+    .log.file.path = del(._file)
+}
+
+# -----------------------------------------------------------------------------
+# High-level event description / message
+# -----------------------------------------------------------------------------
+
+if exists(.FriendlyEventName) {
+    .event.reason = del(.FriendlyEventName)
+}
+
+if exists(.ReportDescription) {
+    .message = del(.ReportDescription)
+}
+
+# -----------------------------------------------------------------------------
+# WER response / bucket info
+# -----------------------------------------------------------------------------
+
+if exists(."Response.BucketId") {
+    .wer.response.bucket_id = del(."Response.BucketId")
+}
+if exists(."Response.BucketTable") {
+    .wer.response.bucket_table = del(."Response.BucketTable")
+}
+if exists(."Response.LegacyBucketId") {
+    .wer.response.legacy_bucket_id = del(."Response.LegacyBucketId")
+}
+if exists(."Response.type") {
+    .wer.response.type_flat = del(."Response.type")
+}
+
+if exists(.Response) {
+    .wer.response.raw = del(.Response)
+}
+
+# -----------------------------------------------------------------------------
+# Error / exception details (FR + EN PS_* variants)
+# -----------------------------------------------------------------------------
+
+# PS_Message → error.message (if we don't have one yet)
+if exists(."PS_Message") {
+    .error.message = del(."PS_Message")
+}
+
+# Exception code: FR + EN + generic
+if exists(."PS_Code_de_l’exception") {
+    .error.code = del(."PS_Code_de_l’exception")
+} else if exists(."PS_Exception_Code") {
+    .error.code = del(."PS_Exception_Code")
+} else if exists(."PS_Error_Code") {
+    .error.code = del(."PS_Error_Code")
+} else if exists(.PS_Code) {
+    .error.code = del(.PS_Code)
+}
+
+# Exception offset
+if exists(."PS_Décalage_de_l’exception") {
+    .wer.ps_exception_offset = del(."PS_Décalage_de_l’exception")
+} else if exists(."PS_Exception_Offset") {
+    .wer.ps_exception_offset = del(."PS_Exception_Offset")
+}
+
+# Faulting module name (FR + EN) → error.culprit
+if exists(."PS_Nom_du_module_défaillant") {
+    .error.culprit = del(."PS_Nom_du_module_défaillant")
+} else if exists(."PS_Fault_Module_Name") {
+    .error.culprit = del(."PS_Fault_Module_Name")
+}
+
+# Faulting module version / timestamp
+if exists(."PS_Version_du_module_défaillant") {
+    .wer.ps_faulting_module_version = del(."PS_Version_du_module_défaillant")
+}
+if exists(."PS_Fault_Module_Version") {
+    .wer.ps_faulting_module_version_en = del(."PS_Fault_Module_Version")
+}
+if exists(."PS_Horodateur_du_module_défaillant") {
+    .wer.ps_faulting_module_timestamp = del(."PS_Horodateur_du_module_défaillant")
+}
+if exists(."PS_Fault_Module_Timestamp") {
+    .wer.ps_faulting_module_timestamp_en = del(."PS_Fault_Module_Timestamp")
+}
+
+# HResult / Win32 HResult
+if exists(."PS_HResult") {
+    .wer.ps_hresult = del(."PS_HResult")
+}
+if exists(."PS_Win32HResult") {
+    .wer.ps_win32_hresult = del(."PS_Win32HResult")
+}
+
+# Additional exception data
+if exists(."PS_Données_d’exception") {
+    .wer.ps_exception_data = del(."PS_Données_d’exception")
+}
+
+# LastError (EN)
+if exists(."PS_LastError") {
+    .wer.ps_last_error = del(."PS_LastError")
+}
+
+# Stack hash / signatures (FR + EN)
+if exists(."PS_StackHash") {
+    .wer.ps_stackhash = del(."PS_StackHash")
+}
+if exists(."PS_Signature") {
+    .wer.ps_signature = del(."PS_Signature")
+}
+if exists(."PS_Signature_du_problème_01") {
+    .wer.ps_problem_signature_01 = del(."PS_Signature_du_problème_01")
+}
+if exists(."PS_Signature_du_problème_02") {
+    .wer.ps_problem_signature_02 = del(."PS_Signature_du_problème_02")
+}
+if exists(."PS_Signature_du_problème_03") {
+    .wer.ps_problem_signature_03 = del(."PS_Signature_du_problème_03")
+}
+if exists(."PS_Signature_du_problème_04") {
+    .wer.ps_problem_signature_04 = del(."PS_Signature_du_problème_04")
+}
+if exists(."PS_Signature_du_problème_05") {
+    .wer.ps_problem_signature_05 = del(."PS_Signature_du_problème_05")
+}
+if exists(."PS_Signature_du_problème_06") {
+    .wer.ps_problem_signature_06 = del(."PS_Signature_du_problème_06")
+}
+if exists(."PS_Signature_du_problème_07") {
+    .wer.ps_problem_signature_07 = del(."PS_Signature_du_problème_07")
+}
+if exists(."PS_Signature_du_problème_08") {
+    .wer.ps_problem_signature_08 = del(."PS_Signature_du_problème_08")
+}
+if exists(."PS_Signature_du_problème_09") {
+    .wer.ps_problem_signature_09 = del(."PS_Signature_du_problème_09")
+}
+
+# Innermost / outermost exception types
+if exists(."PS_InnermostExceptionType") {
+    .wer.ps_innermost_exception_type = del(."PS_InnermostExceptionType")
+}
+if exists(."PS_OutermostExceptionType") {
+    .wer.ps_outermost_exception_type = del(."PS_OutermostExceptionType")
+}
+
+# Deepest frame info (PS)
+if exists(."PS_DeepestFrame") {
+    .wer.ps_deepest_frame = del(."PS_DeepestFrame")
+}
+if exists(."PS_DeepestPowerShellFrame") {
+    .wer.ps_deepest_powershell_frame = del(."PS_DeepestPowerShellFrame")
+}
+
+# File / function / line
+if exists(."PS_File") {
+    .wer.ps_file = del(."PS_File")
+}
+if exists(."PS_Function") {
+    .wer.ps_function = del(."PS_Function")
+}
+if exists(."PS_Line") {
+    .wer.ps_line = del(."PS_Line")
+}
+if exists(."PS_Callsite") {
+    .wer.ps_callsite = del(."PS_Callsite")
+}
+
+# Status
+if exists(."PS_Status") {
+    .wer.ps_status = del(."PS_Status")
+}
+
+# Hang info
+if exists(."PS_Hang_Signature") {
+    .wer.ps_hang_signature = del(."PS_Hang_Signature")
+}
+if exists(."PS_Hang_Type") {
+    .wer.ps_hang_type = del(."PS_Hang_Type")
+}
+
+# Misc PowerShell / update / scenario metadata (EN)
+if exists(."PS_Architecture") {
+    .wer.ps_architecture = del(."PS_Architecture")
+}
+if exists(."PS_CallerAppID") {
+    .wer.ps_caller_app_id = del(."PS_CallerAppID")
+}
+if exists(."PS_ClientAppId") {
+    .wer.ps_client_app_id = del(."PS_ClientAppId")
+}
+if exists(."PS_ClientVersion") {
+    .wer.ps_client_version = del(."PS_ClientVersion")
+}
+if exists(."PS_DeviceClass") {
+    .wer.ps_device_class = del(."PS_DeviceClass")
+}
+if exists(."PS_Hardware_Id") {
+    .wer.ps_hardware_id = del(."PS_Hardware_Id")
+}
+if exists(."PS_IsManaged") {
+    .wer.ps_is_managed = del(."PS_IsManaged")
+}
+if exists(."PS_MiscField2") {
+    .wer.ps_misc_field2 = del(."PS_MiscField2")
+}
+if exists(."PS_Produit") {
+    .wer.ps_product = del(."PS_Produit")
+}
+if exists(."PS_ServiceUsed") {
+    .wer.ps_service_used = del(."PS_ServiceUsed")
+}
+if exists(."PS_Scenario") {
+    .wer.ps_scenario = del(."PS_Scenario")
+}
+if exists(."PS_UpdateID") {
+    .wer.ps_update_id = del(."PS_UpdateID")
+}
+if exists(."PS_ThreadName") {
+    .wer.ps_thread_name = del(."PS_ThreadName")
+}
+
+# Waiting-on information (FR)
+if exists(."PS_Waiting_on_Application_Name") {
+    .wer.ps_waiting_on_app_name = del(."PS_Waiting_on_Application_Name")
+}
+if exists(."PS_Waiting_on_Application_Version") {
+    .wer.ps_waiting_on_app_version = del(."PS_Waiting_on_Application_Version")
+}
+if exists(."PS_Waiting_on_Package_Full_Name") {
+    .wer.ps_waiting_on_package_full_name = del(."PS_Waiting_on_Package_Full_Name")
+}
+
+# Package / product info
+if exists(."PS_Package_Full_name") {
+    .wer.ps_package_full_name = del(."PS_Package_Full_name")
+}
+if exists(."PS_Package_Full_Name") {
+    .wer.ps_package_full_name_en = del(."PS_Package_Full_Name")
+}
+if exists(."PS_Nom_complet_du_package") {
+    .wer.ps_package_full_name_fr = del(."PS_Nom_complet_du_package")
+}
+if exists(."PS_Produit") {
+    .wer.ps_product = del(."PS_Produit")
+}
+
+if exists(."PS_NameOfExe") {
+    .wer.ps_name_of_exe = del(."PS_NameOfExe")
+}
+
+if exists(."PS_Application_Version") {
+    .process.pe.file_version = del(."PS_Application_Version")
+} else if exists(."PS_Version_de_l’application") {
+    .process.pe.file_version = del(."PS_Version_de_l’application")
+}
+
+if exists(."PS_Application_Timestamp") {
+    .wer.ps_application_timestamp = del(."PS_Application_Timestamp")
+}
+if exists(."PS_Horodatage_de_l’application") {
+    .wer.ps_application_timestamp_fr = del(."PS_Horodatage_de_l’application")
+}
+
+if exists(."PS_FileVersionOfSystemManagementAutomation") {
+    .wer.ps_file_version_of_sma = del(."PS_FileVersionOfSystemManagementAutomation")
+}
+
+if exists(."PS_RevisionID") {
+    .wer.ps_revision_id = del(."PS_RevisionID")
+}
+
+# FR parameters 1–4
+if exists(."PS_Paramètre 1") {
+    .wer.ps_param_1 = del(."PS_Paramètre 1")
+}
+if exists(."PS_Paramètre 2") {
+    .wer.ps_param_2 = del(."PS_Paramètre 2")
+}
+if exists(."PS_Paramètre 3") {
+    .wer.ps_param_3 = del(."PS_Paramètre 3")
+}
+if exists(."PS_Paramètre 4") {
+    .wer.ps_param_4 = del(."PS_Paramètre 4")
+}
+
+# -----------------------------------------------------------------------------
+# Dynamic signatures / Ns* / ProcessMetadata / state
+# -----------------------------------------------------------------------------
+
+if exists(.dynamic_signatures) {
+    .wer.dynamic_signatures = del(.dynamic_signatures)
+}
+if exists(.dynamic_signatures_raw) {
+    .wer.dynamic_signatures_raw = del(.dynamic_signatures_raw)
+}
+
+# Ns[0..4].Name/Value (FR only)
+ns = []
+
+if exists(."Ns[0].Name") {
+    ns0 = {
+        "name": del(."Ns[0].Name"),
+        "value": del(."Ns[0].Value")
+    }
+    ns = push(ns, ns0)
+}
+if exists(."Ns[1].Name") {
+    ns1 = {
+        "name": del(."Ns[1].Name"),
+        "value": del(."Ns[1].Value")
+    }
+    ns = push(ns, ns1)
+}
+if exists(."Ns[2].Name") {
+    ns2 = {
+        "name": del(."Ns[2].Name"),
+        "value": del(."Ns[2].Value")
+    }
+    ns = push(ns, ns2)
+}
+if exists(."Ns[3].Name") {
+    ns3 = {
+        "name": del(."Ns[3].Name"),
+        "value": del(."Ns[3].Value")
+    }
+    ns = push(ns, ns3)
+}
+if exists(."Ns[4].Name") {
+    ns4 = {
+        "name": del(."Ns[4].Name"),
+        "value": del(."Ns[4].Value")
+    }
+    ns = push(ns, ns4)
+}
+
+if length(ns) > 0 {
+    .wer.ns = ns
+}
+
+# Ns partner / group (both FR + EN)
+if exists(.NsPartner) {
+    .wer.ns_partner = del(.NsPartner)
+}
+if exists(.NsGroup) {
+    .wer.ns_group = del(.NsGroup)
+}
+
+# ProcessMetadata[0..5].Key/Value
+pm = []
+
+if exists(."ProcessMetadata[0].Key") {
+    pm0 = {
+        "key": del(."ProcessMetadata[0].Key"),
+        "value": del(."ProcessMetadata[0].Value")
+    }
+    pm = push(pm, pm0)
+}
+if exists(."ProcessMetadata[1].Key") {
+    pm1 = {
+        "key": del(."ProcessMetadata[1].Key"),
+        "value": del(."ProcessMetadata[1].Value")
+    }
+    pm = push(pm, pm1)
+}
+if exists(."ProcessMetadata[2].Key") {
+    pm2 = {
+        "key": del(."ProcessMetadata[2].Key"),
+        "value": del(."ProcessMetadata[2].Value")
+    }
+    pm = push(pm, pm2)
+}
+if exists(."ProcessMetadata[3].Key") {
+    pm3 = {
+        "key": del(."ProcessMetadata[3].Key"),
+        "value": del(."ProcessMetadata[3].Value")
+    }
+    pm = push(pm, pm3)
+}
+if exists(."ProcessMetadata[4].Key") {
+    pm4 = {
+        "key": del(."ProcessMetadata[4].Key"),
+        "value": del(."ProcessMetadata[4].Value")
+    }
+    pm = push(pm, pm4)
+}
+if exists(."ProcessMetadata[5].Key") {
+    pm5 = {
+        "key": del(."ProcessMetadata[5].Key"),
+        "value": del(."ProcessMetadata[5].Value")
+    }
+    pm = push(pm, pm5)
+}
+
+if length(pm) > 0 {
+    .wer.process_metadata = pm
+}
+
+# state (WER internal) → move away from ECS .event.state
+if exists(.state) {
+    .wer.state = del(.state)
+}
+
+# -----------------------------------------------------------------------------
+# Loaded modules
+# -----------------------------------------------------------------------------
+
+if exists(.loaded_modules) {
+    .wer.loaded_modules = del(.loaded_modules)
+}
+
+# -----------------------------------------------------------------------------
+# Files (File[0..6].*)
+# -----------------------------------------------------------------------------
+
+files = []
+
+# 0..6
+# index 0
+if exists(."File[0].Path") || exists(."File[0].Original.Path") || exists(."File[0].CabName") {
+    f0 = {}
+    if exists(."File[0].Path")           { f0.path          = del(."File[0].Path") }
+    if exists(."File[0].Original.Path")  { f0.original_path = del(."File[0].Original.Path") }
+    if exists(."File[0].Type")           { f0.type          = del(."File[0].Type") }
+    if exists(."File[0].CabName")        { f0.cab_name      = del(."File[0].CabName") }
+    if exists(."File[0].Flags")          { f0.flags         = del(."File[0].Flags") }
+    files = push(files, f0)
+}
+
+# index 1
+if exists(."File[1].Path") || exists(."File[1].Original.Path") || exists(."File[1].CabName") {
+    f1 = {}
+    if exists(."File[1].Path")           { f1.path          = del(."File[1].Path") }
+    if exists(."File[1].Original.Path")  { f1.original_path = del(."File[1].Original.Path") }
+    if exists(."File[1].Type")           { f1.type          = del(."File[1].Type") }
+    if exists(."File[1].CabName")        { f1.cab_name      = del(."File[1].CabName") }
+    if exists(."File[1].Flags")          { f1.flags         = del(."File[1].Flags") }
+    files = push(files, f1)
+}
+
+# index 2
+if exists(."File[2].Path") || exists(."File[2].Original.Path") || exists(."File[2].CabName") {
+    f2 = {}
+    if exists(."File[2].Path")           { f2.path          = del(."File[2].Path") }
+    if exists(."File[2].Original.Path")  { f2.original_path = del(."File[2].Original.Path") }
+    if exists(."File[2].Type")           { f2.type          = del(."File[2].Type") }
+    if exists(."File[2].CabName")        { f2.cab_name      = del(."File[2].CabName") }
+    if exists(."File[2].Flags")          { f2.flags         = del(."File[2].Flags") }
+    files = push(files, f2)
+}
+
+# index 3
+if exists(."File[3].Path") || exists(."File[3].Original.Path") || exists(."File[3].CabName") {
+    f3 = {}
+    if exists(."File[3].Path")           { f3.path          = del(."File[3].Path") }
+    if exists(."File[3].Original.Path")  { f3.original_path = del(."File[3].Original.Path") }
+    if exists(."File[3].Type")           { f3.type          = del(."File[3].Type") }
+    if exists(."File[3].CabName")        { f3.cab_name      = del(."File[3].CabName") }
+    if exists(."File[3].Flags")          { f3.flags         = del(."File[3].Flags") }
+    files = push(files, f3)
+}
+
+# index 4
+if exists(."File[4].Path") || exists(."File[4].Original.Path") || exists(."File[4].CabName") {
+    f4 = {}
+    if exists(."File[4].Path")           { f4.path          = del(."File[4].Path") }
+    if exists(."File[4].Original.Path")  { f4.original_path = del(."File[4].Original.Path") }
+    if exists(."File[4].Type")           { f4.type          = del(."File[4].Type") }
+    if exists(."File[4].CabName")        { f4.cab_name      = del(."File[4].CabName") }
+    if exists(."File[4].Flags")          { f4.flags         = del(."File[4].Flags") }
+    files = push(files, f4)
+}
+
+# index 5
+if exists(."File[5].Path") || exists(."File[5].Original.Path") || exists(."File[5].CabName") {
+    f5 = {}
+    if exists(."File[5].Path")           { f5.path          = del(."File[5].Path") }
+    if exists(."File[5].Original.Path")  { f5.original_path = del(."File[5].Original.Path") }
+    if exists(."File[5].Type")           { f5.type          = del(."File[5].Type") }
+    if exists(."File[5].CabName")        { f5.cab_name      = del(."File[5].CabName") }
+    if exists(."File[5].Flags")          { f5.flags         = del(."File[5].Flags") }
+    files = push(files, f5)
+}
+
+# index 6
+if exists(."File[6].Path") || exists(."File[6].Original.Path") || exists(."File[6].CabName") {
+    f6 = {}
+    if exists(."File[6].Path")           { f6.path          = del(."File[6].Path") }
+    if exists(."File[6].Original.Path")  { f6.original_path = del(."File[6].Original.Path") }
+    if exists(."File[6].Type")           { f6.type          = del(."File[6].Type") }
+    if exists(."File[6].CabName")        { f6.cab_name      = del(."File[6].CabName") }
+    if exists(."File[6].Flags")          { f6.flags         = del(."File[6].Flags") }
+    files = push(files, f6)
+}
+
+if length(files) > 0 {
+    .wer.files = files
+}
+
+# -----------------------------------------------------------------------------
+# Miscellaneous / remaining WER metadata
+# -----------------------------------------------------------------------------
+
+if exists(.ReportType) {
+    .wer.report_type = del(.ReportType)
+}
+if exists(.ReportIdentifier) {
+    .wer.report_identifier = del(.ReportIdentifier)
+}
+if exists(.IntegratorReportIdentifier) {
+    .wer.integrator_report_identifier = del(.IntegratorReportIdentifier)
+}
+if exists(.MetadataHash) {
+    .wer.metadata_hash = del(.MetadataHash)
+}
+if exists(.ReportFlags) {
+    .wer.report_flags = del(.ReportFlags)
+}
+if exists(.ReportStatus) {
+    .wer.report_status = del(.ReportStatus)
+}
+if exists(.ServiceSplit) {
+    .wer.service_split = del(.ServiceSplit)
+}
+if exists(.UserImpactVector) {
+    .wer.user_impact_vector = del(.UserImpactVector)
+}
+if exists(.Version) {
+    .wer.version = del(.Version)
+}
+
+# UI[3..10] (we already consumed UI[2] as command_line)
+ui = {}
+if exists(."UI[3]")  { ui."3"  = del(."UI[3]") }
+if exists(."UI[4]")  { ui."4"  = del(."UI[4]") }
+if exists(."UI[5]")  { ui."5"  = del(."UI[5]") }
+if exists(."UI[6]")  { ui."6"  = del(."UI[6]") }
+if exists(."UI[7]")  { ui."7"  = del(."UI[7]") }
+if exists(."UI[8]")  { ui."8"  = del(."UI[8]") }
+if exists(."UI[9]")  { ui."9"  = del(."UI[9]") }
+if exists(."UI[10]") { ui."10" = del(."UI[10]") }
+
+if length(ui) > 0 {
+    .wer.ui = ui
+}

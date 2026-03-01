@@ -56,7 +56,7 @@ check_smb(){
         python -c 'import remote_box_setup; \
         remote_box_setup.check_smb(\"$host\", \"$user\", \"$password\", \"/OSIR/setup/windows_setup/src/ps1/setup_unsecure_smb.ps1\", \"$MASTER_IP\")'") #$MASTER_IP from env
     if echo "$output" | grep -q "Failed winrm"; then 
-        (echo >&2 "${ERROR} SMB share cannot be accessed from Windows box.")
+        (echo >&2 "${ERROR} SMB share cannot be accessed from Windows box. Are you sure the master is running and SMB accessible from agent ?")
         (echo "${DEBUG} $output") # Print to sdtout for debug only
     else 
         (echo >&2 "${GOODTOGO} SMB share can be accessed from Windows box..")
@@ -130,7 +130,8 @@ main() {
     if [ -n "$winrm_status" ] && [ "$winrm_status" -ne 0 ]; then
         if [[ -n "$DOCKUR_SETUP" ]]; then
             (echo >&2 "${INFO} Waiting for WinRM to be available. Normal behavior if first setup of Windows in docker...")
-            (echo >&2 "${INFO} You can follow Windows setup here : http://$host:8006")
+            local_host=$(hostname -I | awk '{print $1}')
+            (echo >&2 "${INFO} You can follow Windows setup here : http://$local_host:8006")
             start_time=$(date +%s)
             timeout=600 # 10 minutes in seconds
 

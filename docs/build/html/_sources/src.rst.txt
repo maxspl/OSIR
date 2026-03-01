@@ -7,15 +7,16 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   src.log
-   src.monitor
-   src.tasks
-   src.utils
+   src.osir_api
+   src.osir_client
+   src.osir_lib
+   src.osir_service
+   src.osir_web
 
 Module contents
 ---------------
 
 .. automodule:: src
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

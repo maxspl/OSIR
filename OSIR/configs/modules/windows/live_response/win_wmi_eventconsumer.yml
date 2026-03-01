@@ -1,0 +1,34 @@
+version: 1.0
+author: maxspl
+module: win_wmi_eventconsumer
+alt_module: live_response_dispatcher
+description: Parse EventConsumer.txt from DFIR ORC (powershell.exe Get-WMIObject -Namespace root\Subscription -Class __EventConsumer command)
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: EventConsumer.txt
+  path: extracted_files/Powershell/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+optional:
+  parser: wmi_eventconsumer
+splunk:
+  'windows:live_response:wmi_consummer':
+    name_rex: --win_wmi_eventconsumer\.jsonl$
+    path_suffix: win_wmi_eventconsumer 
+    host_rex: ([\w\.-]+)--
+    artifact: "WMI"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - normalize/windows/live_response/wmi_eventconsumer.vrl

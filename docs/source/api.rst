@@ -2,12 +2,11 @@ API Documentation
 =================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
 
    OSIR
-   src
-   src.log
-   src.monitor
-   src.tasks
-   src.utils
-   src.web_app
+   src.osir_lib
+   src.osir_service
+   src.osir_web
+   src.osir_client
+   src.osir_api

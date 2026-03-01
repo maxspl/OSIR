@@ -1,0 +1,31 @@
+version: 1.0
+author: maxspl
+module: win_tcpvcon
+alt_module: live_response_dispatcher
+description: Parse routes.txt from DFIR ORC (Tcpvcon.exe -a -n -c command)
+os: windows
+type: process
+disk_only: False
+no_multithread: False
+processor_type: 
+  - internal
+processor_os: unix
+input:
+  type: file
+  name: Tcpvcon.txt
+  path: extracted_files/General/
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+endpoint: "/Endpoint_(.*?)/"
+optional:
+  parser: tcpvcon
+splunk:
+  'windows:live_response:win_tcpvcon':
+    name_rex: --win_tcpvcon\.jsonl$
+    path_suffix: win_tcpvcon 
+    host_rex: ([\w\.-]+)--
+    artifact: "TCPVCON"
+    normalize:
+      - ecs_normalize/windows/live_response/tcpvcon.vrl 

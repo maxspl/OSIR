@@ -1,0 +1,36 @@
+version: 1.1
+author: Kelly Brazil
+module: dpkg
+description: Kelly Brazil - JsonConverter - Parsing the output of the command dpkg -l
+os: unix
+type: process
+requirements:
+disk_only: false
+no_multithread: false
+processor_type: 
+  - external
+processor_os: unix
+tool: 
+  path: cat
+  cmd: "{input_file} | jc --dpkg-l | jq -c '.[]' > {output_file}"
+input:
+  type: file
+  paths: 
+    - r"dpkg_-l\.txt$"
+output:
+  type: single_file
+  format: json
+  output_dir: "{case_path}/live_response/packages"
+  output_file: "{endpoint_name}--{input_file}.jsonl"
+endpoint: "extract_uac\/(.*?)\/"
+splunk:
+  'linux:live_response:packages:dpkg':
+    name_rex: dpkg.*\.jsonl$
+    sourcetype: 'linux:live_response:packages:dpkg'
+    host_rex: "\/Endpoint_(.*?)\/"
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    artifact: dpkg
+    normalize:
+      - ecs_normalize/linux/live_response/packages/dpkg.vrl

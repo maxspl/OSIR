@@ -8,14 +8,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Master setup in details &mdash; OSIR 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=d45e8c67"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -50,18 +50,38 @@
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Master setup in details</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-setup-recommended">Interactive setup (recommended)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#options-explained">Options Explained</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#using-a-configuration-file">Using a Configuration File</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#example-usage">Example Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#agent-setup-in-details">Agent setup in details</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Options Explained</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">Using a Configuration File</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">Example Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Interactive setup (recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Options Explained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Using a Configuration File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Example Usage</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#air-gap-setup">Air Gap setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#developer-mode-module-development">Developer mode (Module development)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#terminal-1-master">Terminal 1: MASTER</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#terminal-2-agent">Terminal 2: AGENT</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-use-developer-mode">Why use developer mode?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#air-gap-setup">Air Gap setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-prepare-osir-on-an-online-host">Step 1 — Prepare OSIR on an online host</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-export-docker-images">Step 2 — Export Docker images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-components">Optional components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-transfer-offline-release">Step 3 — Transfer offline release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-load-images-on-the-air-gapped-host">Step 4 — Load images on the air-gapped host</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-start-osir-in-offline-mode">Step 5 — Start OSIR in offline mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verification">Verification</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
 <ul>
@@ -100,39 +120,39 @@
              
   <section id="master-setup-in-details">
 <h1>Master setup in details<a class="headerlink" href="#master-setup-in-details" title="Link to this heading"></a></h1>
-<p>The basic option is to use <strong>make</strong> command to start interactive setup.</p>
+<p>The recommended option is to use the unified launcher <code class="docutils literal notranslate"><span class="pre">osir-launcher.py</span></code> to run the interactive setup and start the MASTER component.</p>
+<section id="interactive-setup-recommended">
+<h2>Interactive setup (recommended)<a class="headerlink" href="#interactive-setup-recommended" title="Link to this heading"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
-make<span class="w"> </span>master
+python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>master
 </pre></div>
 </div>
-<p>To access more setup option, run the setup script for the master directory.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR/setup/master
-sudo<span class="w"> </span>./master_setup.sh
+<p>To see available launcher commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>-h
 </pre></div>
 </div>
-<p>Usage:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: ./master_setup.sh [-d] [-h] [-c]</span>
-<span class="go">Options:</span>
-<span class="go">  -d  Enable debug mode</span>
-<span class="go">  -h  Show this help message</span>
-<span class="go">  -c  Setup master from config file. Default is interactive</span>
+<p>To see options for the start command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>-h
 </pre></div>
 </div>
+</section>
 <section id="options-explained">
 <h2>Options Explained<a class="headerlink" href="#options-explained" title="Link to this heading"></a></h2>
 <ul class="simple">
-<li><p><strong>-d</strong>: Enable debug mode. This option provides more detailed output for troubleshooting.</p></li>
-<li><p><strong>-h</strong>: Show the help message. Use this option to see all available options and their descriptions.</p></li>
-<li><p><strong>-c</strong>: Setup master from a configuration file. If this option is not used, the script runs in interactive mode by default.</p></li>
+<li><p><strong>–offline</strong>: Run in offline mode (use offline compose/services when available).</p></li>
+<li><p><strong>–debug</strong>: Enable verbose output for troubleshooting.</p></li>
+<li><p><strong>–config</strong>: Use an existing configuration file instead of prompting interactively.</p></li>
+<li><p><strong>–attach</strong>: Attach to container output (interactive) instead of starting in background.</p></li>
+<li><p><strong>–debug-shell</strong>: Start the container with a shell entrypoint (development/debug only).</p></li>
 </ul>
 </section>
 <section id="using-a-configuration-file">
 <h2>Using a Configuration File<a class="headerlink" href="#using-a-configuration-file" title="Link to this heading"></a></h2>
-<p>Instead of running the script in interactive mode, you can use a configuration file. Here is an example of a configuration file that can be used:</p>
-<p><strong>Path</strong>: <cite>OSIR/setup/conf/master.yanl</cite></p>
+<p>Instead of running the setup in interactive mode, you can reuse an existing configuration file.</p>
+<p><strong>Path</strong>: <code class="docutils literal notranslate"><span class="pre">OSIR/setup/conf/master.yml</span></code></p>
 <p><strong>Content</strong>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># Paramters of local (self deployed by master) or external (deployed by yourself) Splunk server</span>
-<span class="w">  </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_location</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># external (deployed by yourself or local (self deployed by master)</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># Parameters of local (self deployed by master) or external (deployed by yourself) Splunk server</span>
+<span class="w">  </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_location</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># external (deployed by yourself) or local (self deployed by master)</span>
 <span class="w">  </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_user</span><span class="p p-Indicator">}</span>
 <span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_password</span><span class="p p-Indicator">}</span>
 <span class="w">  </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_port</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># default is 8000</span>
@@ -144,7 +164,7 @@ sudo<span class="w"> </span>./master_setup.sh
 <span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_remote_splunk_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># IP or FQDN if external Splunk</span>
 </pre></div>
 </div>
-<p>Replace the placeholders (e.g., <cite>{splunk_location}</cite>, <cite>{splunk_user}</cite>) with the actual values for your setup.</p>
+<p>Replace the placeholders (e.g., <code class="docutils literal notranslate"><span class="pre">{splunk_location}</span></code>, <code class="docutils literal notranslate"><span class="pre">{splunk_user}</span></code>) with the actual values for your setup.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.</p>
@@ -152,48 +172,40 @@ sudo<span class="w"> </span>./master_setup.sh
 </section>
 <section id="example-usage">
 <h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
-<p>To run the script with the configuration file, use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>./master_setup.sh<span class="w"> </span>-c
+<p>To start MASTER while reusing the detected configuration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>master<span class="w"> </span>--config
 </pre></div>
 </div>
 </section>
 </section>
 <section id="agent-setup-in-details">
 <h1>Agent setup in details<a class="headerlink" href="#agent-setup-in-details" title="Link to this heading"></a></h1>
-<p>The basic option is to use <strong>make</strong> command to start interactive setup.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
-make<span class="w"> </span>agent
-</pre></div>
-</div>
-<p>To access more setup option, run the setup script for the master directory.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR/setup/agent
-sudo<span class="w"> </span>./agent_setup.sh
-</pre></div>
-</div>
-<p>Usage:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Usage: ./agent_setup.sh [-d] [-h] [-c]</span>
-<span class="go">Options:</span>
-<span class="go">  -d  Enable debug mode</span>
-<span class="go">  -h  Show this help message</span>
-<span class="go">  -c  Setup agent from config file. Default is interactive</span>
-</pre></div>
-</div>
+<p>The recommended option is to use the unified launcher <code class="docutils literal notranslate"><span class="pre">osir-launcher.py</span></code> to run the interactive setup and start the AGENT component.</p>
 <section id="id1">
-<h2>Options Explained<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><strong>-d</strong>: Enable debug mode. This option provides more detailed output for troubleshooting.</p></li>
-<li><p><strong>-h</strong>: Show the help message. Use this option to see all available options and their descriptions.</p></li>
-<li><p><strong>-c</strong>: Setup agent from a configuration file. If this option is not used, the script runs in interactive mode by default.</p></li>
-</ul>
+<h2>Interactive setup (recommended)<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>agent
+</pre></div>
+</div>
 </section>
 <section id="id2">
-<h2>Using a Configuration File<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
-<p>Instead of running the script in interactive mode, you can use a configuration file. Here is an example of a configuration file that can be used:</p>
-<p><strong>Path</strong>: <cite>OSIR/setup/conf/agent.yaml</cite></p>
+<h2>Options Explained<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>–offline</strong>: Run in offline mode (use offline compose/services when available).</p></li>
+<li><p><strong>–debug</strong>: Enable verbose output for troubleshooting.</p></li>
+<li><p><strong>–config</strong>: Use an existing configuration file instead of prompting interactively.</p></li>
+<li><p><strong>–attach</strong>: Attach to container output (interactive) instead of starting in background.</p></li>
+<li><p><strong>–debug-shell</strong>: Start the container with a shell entrypoint (development/debug only).</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>Using a Configuration File<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>Instead of running the setup in interactive mode, you can reuse an existing configuration file.</p>
+<p><strong>Path</strong>: <code class="docutils literal notranslate"><span class="pre">OSIR/setup/conf/agent.yml</span></code></p>
 <p><strong>Content</strong>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">master</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">master_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># If windows machine is remote but master and agent are on the same host, specify the IP used by Windows IP to connect master</span>
-<span class="nt">splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># Paramters of local (self deployed by master) or external (deployed by yourself) Splunk server</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">master_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># If windows machine is remote but master and agent are on the same host, specify the IP used by Windows to connect to master</span>
+<span class="nt">splunk</span><span class="p">:</span><span class="w"> </span><span class="c1"># Parameters of local (self deployed by master) or external (deployed by yourself) Splunk server</span>
 <span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_host</span><span class="p p-Indicator">}</span>
 <span class="w">    </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_user</span><span class="p p-Indicator">}</span>
 <span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_password</span><span class="p p-Indicator">}</span>
@@ -201,7 +213,7 @@ sudo<span class="w"> </span>./agent_setup.sh
 <span class="w">    </span><span class="nt">mport</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_mport</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># default is 8089</span>
 <span class="w">    </span><span class="nt">ssl</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">splunk_ssl</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># True or False</span>
 <span class="nt">windows_box</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_location</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># external (deployed by yourself) or local (self deployed by master)</span>
+<span class="w">    </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_location</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># external (deployed by yourself) or local</span>
 <span class="w">    </span><span class="nt">cores</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_cores</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># Number of cores of the windows box, to adapt the number of concurrent tasks</span>
 <span class="w">    </span><span class="nt">remote_box</span><span class="p">:</span><span class="w"> </span><span class="c1"># if external (deployed by yourself) windows box</span>
 <span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_remote_box_host</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># IP or FQDN</span>
@@ -210,89 +222,233 @@ sudo<span class="w"> </span>./agent_setup.sh
 <span class="w">        </span><span class="nt">custom_mountpoint</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">windows_box_remote_box_custom_mountpoint</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="c1"># Drive letter (Ex. D)</span>
 </pre></div>
 </div>
-<p>Replace the placeholders (e.g., <cite>{splunk_location}</cite>, <cite>{splunk_user}</cite>) with the actual values for your setup.</p>
+<p>Replace the placeholders (e.g., <code class="docutils literal notranslate"><span class="pre">{splunk_host}</span></code>, <code class="docutils literal notranslate"><span class="pre">{splunk_user}</span></code>) with the actual values for your setup.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Splunk parameters are not used and are not tested during the setup. They are used afterwards by processing modules.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>If using your own Windows box, Winrm must enabled and user provided must be admin. Internet access is also required to setup tools.</p>
+<p>If using your own Windows box, WinRM must be enabled and the user provided must be admin.
+Internet access is also required to setup tools.</p>
 </div>
 </section>
-<section id="id3">
-<h2>Example Usage<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
-<p>To run the script with the configuration file, use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>./agent_setup.sh<span class="w"> </span>-c
+<section id="id4">
+<h2>Example Usage<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>To start AGENT while reusing the detected configuration:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>agent<span class="w"> </span>--config
 </pre></div>
 </div>
+</section>
+</section>
+<section id="developer-mode-module-development">
+<h1>Developer mode (Module development)<a class="headerlink" href="#developer-mode-module-development" title="Link to this heading"></a></h1>
+<p>When developing OSIR modules, it is often useful to:</p>
+<ul class="simple">
+<li><p>Start or stop OSIR quickly</p></li>
+<li><p>Launch OSIR manually inside the container</p></li>
+<li><p>Watch logs in real time</p></li>
+<li><p>Restart only the OSIR process without recreating containers</p></li>
+</ul>
+<p>The launcher provides a <strong>developer mode</strong> using the options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--attach</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--debug-shell</span></code></p></li>
+</ul>
+<p>This mode starts containers with a shell entrypoint instead of
+launching OSIR automatically.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This mode is intended for development and debugging only.
+Normal users should use <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">all</span></code> without debug options.</p>
+</div>
+<p>It is recommended to use <strong>two terminals</strong>.</p>
+<section id="terminal-1-master">
+<h2>Terminal 1: MASTER<a class="headerlink" href="#terminal-1-master" title="Link to this heading"></a></h2>
+<p>Start MASTER in developer mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>master<span class="w"> </span>--attach<span class="w"> </span>--debug-shell
+</pre></div>
+</div>
+<p>What happens:</p>
+<ul class="simple">
+<li><p>Existing configuration is reused</p></li>
+<li><p>Docker compose is temporarily patched</p></li>
+<li><p>The container starts with <code class="docutils literal notranslate"><span class="pre">bash</span></code> instead of <code class="docutils literal notranslate"><span class="pre">OSIR.py</span></code></p></li>
+<li><p>You get an interactive shell inside the container</p></li>
+</ul>
+<p>Example message:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Container started with bash as entrypoint.</span>
+<span class="go">Now you have to run manually inside the shell:</span>
+<span class="go">    OSIR.py --web</span>
+</pre></div>
+</div>
+<p>Inside the container shell, start OSIR manually:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OSIR.py<span class="w"> </span>--web
+</pre></div>
+</div>
+<p>You will now see MASTER (web) logs live in this terminal.
+This is ideal when developing or debugging modules.</p>
+</section>
+<section id="terminal-2-agent">
+<h2>Terminal 2: AGENT<a class="headerlink" href="#terminal-2-agent" title="Link to this heading"></a></h2>
+<p>Start AGENT in developer mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>agent<span class="w"> </span>--attach<span class="w"> </span>--debug-shell
+</pre></div>
+</div>
+<p>Inside the container shell, launch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OSIR.py<span class="w"> </span>--agent
+</pre></div>
+</div>
+<p>You will now see AGENT logs live in this terminal.
+This allows you to:</p>
+<ul class="simple">
+<li><p>Observe processing logs live</p></li>
+<li><p>Restart the agent process quickly</p></li>
+<li><p>Test modules without rebuilding containers</p></li>
+</ul>
+<section id="why-use-developer-mode">
+<h3>Why use developer mode?<a class="headerlink" href="#why-use-developer-mode" title="Link to this heading"></a></h3>
+<p>Developer mode is useful when:</p>
+<ul class="simple">
+<li><p>Creating or modifying OSIR modules</p></li>
+<li><p>Debugging API or processing behavior</p></li>
+<li><p>Watching Streamlit or backend logs live</p></li>
+<li><p>Restarting OSIR quickly after code changes</p></li>
+</ul>
+<p>Instead of restarting all containers, you only restart:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OSIR.py<span class="w"> </span>--web
+<span class="c1"># or</span>
+OSIR.py<span class="w"> </span>--agent
+</pre></div>
+</div>
+<p>This significantly speeds up development cycles.</p>
+<p>The goal is to keep:</p>
+<ul class="simple">
+<li><p>Terminal 1 for MASTER (web) logs</p></li>
+<li><p>Terminal 2 for AGENT logs</p></li>
+</ul>
+</section>
 </section>
 </section>
 <section id="air-gap-setup">
 <h1>Air Gap setup<a class="headerlink" href="#air-gap-setup" title="Link to this heading"></a></h1>
-<p><strong>Offline setup is possible:</strong></p>
-<p><strong>1.</strong> Setup Master and Agent on hosts with <strong>internet access</strong> (cf. previous sections)</p>
-<p><strong>2.</strong> Save <strong>Master images</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_full_offline_release
+<p>OSIR supports deployment in <strong>air-gapped environments</strong> (no internet access).
+This is done by exporting Docker images from an online host and loading them
+on the offline host.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The workflow is:</p>
+<ol class="arabic simple">
+<li><p>Prepare OSIR on an <strong>internet-connected host</strong></p></li>
+<li><p>Export Docker images using the launcher</p></li>
+<li><p>Transfer the offline release to the air-gapped host</p></li>
+<li><p>Load images and start OSIR in offline mode</p></li>
+</ol>
+</section>
+<section id="step-1-prepare-osir-on-an-online-host">
+<h2>Step 1 — Prepare OSIR on an online host<a class="headerlink" href="#step-1-prepare-osir-on-an-online-host" title="Link to this heading"></a></h2>
+<p>Setup MASTER and AGENT normally on a machine with internet access:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>all
+</pre></div>
+</div>
+<p>This ensures all required images are built locally.</p>
+</section>
+<section id="step-2-export-docker-images">
+<h2>Step 2 — Export Docker images<a class="headerlink" href="#step-2-export-docker-images" title="Link to this heading"></a></h2>
+<p>Use the launcher to generate offline archives:</p>
+<p>Export MASTER images:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>airgap<span class="w"> </span><span class="nb">export</span><span class="w"> </span>master
+</pre></div>
+</div>
+<p>Export AGENT images:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>airgap<span class="w"> </span><span class="nb">export</span><span class="w"> </span>agent
+</pre></div>
+</div>
+<p>Export both components at once:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>airgap<span class="w"> </span><span class="nb">export</span><span class="w"> </span>all
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>It will produce this file: OSIR/setup/offline_release/master_containers.tar</p>
+<p>Archives are created in:</p>
+<p><code class="docutils literal notranslate"><span class="pre">OSIR/setup/offline_release/</span></code></p>
+<p>Expected files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">master_containers.tar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">agent_containers.tar</span></code></p></li>
+</ul>
 </div>
-<p><strong>3.</strong> Save <strong>Agent images</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_full_offline_release
+</section>
+<section id="optional-components">
+<h2>Optional components<a class="headerlink" href="#optional-components" title="Link to this heading"></a></h2>
+<p>If your deployment uses <strong>Splunk</strong> or <strong>Windows in Docker (Dockur)</strong>,
+ensure the corresponding images exist on the export host before running
+the airgap export.</p>
+<p>These images will automatically be included if they are present locally.</p>
+</section>
+<section id="step-3-transfer-offline-release">
+<h2>Step 3 — Transfer offline release<a class="headerlink" href="#step-3-transfer-offline-release" title="Link to this heading"></a></h2>
+<p>Copy the following directory to the air-gapped host,
+keeping the <strong>same OSIR path</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>OSIR/setup/offline_release/
 </pre></div>
 </div>
+<p>Optional — Windows in Docker:</p>
+<p>If Dockur is used, also copy:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>OSIR/setup/windows_setup/src/dockur_storage/
+</pre></div>
+</div>
+</section>
+<section id="step-4-load-images-on-the-air-gapped-host">
+<h2>Step 4 — Load images on the air-gapped host<a class="headerlink" href="#step-4-load-images-on-the-air-gapped-host" title="Link to this heading"></a></h2>
+<p>On the offline machine:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>OSIR
+</pre></div>
+</div>
+<p>Load MASTER images:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>airgap<span class="w"> </span>load<span class="w"> </span>master
+</pre></div>
+</div>
+<p>Load AGENT images:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>airgap<span class="w"> </span>load<span class="w"> </span>agent
+</pre></div>
+</div>
+<p>Or load everything:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>airgap<span class="w"> </span>load<span class="w"> </span>all
+</pre></div>
+</div>
+</section>
+<section id="step-5-start-osir-in-offline-mode">
+<h2>Step 5 — Start OSIR in offline mode<a class="headerlink" href="#step-5-start-osir-in-offline-mode" title="Link to this heading"></a></h2>
+<p>Start both components:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>start<span class="w"> </span>all<span class="w"> </span>--offline
+</pre></div>
+</div>
+<p>This will start MASTER and AGENT without attempting to download images.</p>
+</section>
+<section id="verification">
+<h2>Verification<a class="headerlink" href="#verification" title="Link to this heading"></a></h2>
+<p>You can verify the installation with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>osir-launcher.py<span class="w"> </span>status
+</pre></div>
+</div>
+<p>The launcher will display:</p>
+<ul class="simple">
+<li><p>Process status (MASTER / AGENT)</p></li>
+<li><p>Dockerfile fingerprint check (best-effort)</p></li>
+</ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>It will produce this file: OSIR/setup/offline_release/agent_containers.tar</p>
+<p>In air-gapped environments the fingerprint status may show:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OK</span> <span class="pre">✅</span></code> → images match local Dockerfiles</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OUTDATED</span> <span class="pre">⚠️</span></code> → rebuild recommended</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UNKNOWN</span> <span class="pre">❓</span></code> → images were built without fingerprint labels
+or Dockerfile detection was not possible (expected in some offline setups)</p></li>
+</ul>
 </div>
-<p><strong>4.</strong> Optional: if your original OSIR setup does not include Splunk and/or Dockur (Windows in Docker) dockers, you can still do the previous steps and generate these dockers from another setup as follows:</p>
-<p>For Splunk:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_splunk_offline_release
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It will produce this file: OSIR/setup/offline_release/splunk_containers.tar</p>
-</div>
-<p>For Windows in Docker:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_dockur_offline_release
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It will produce this file: OSIR/setup/offline_release/win_containers.tar</p>
-</div>
-<p><strong>5.</strong> Transfer <strong>OSIR/setup/offline_release/</strong> directory to the <strong>air-gapped hosts</strong> in the <strong>same OSIR path</strong>.</p>
-<p><strong>6.</strong> Optional: If <strong>Windows in Docker</strong> is used in the air-gapped host, also <strong>copy</strong> the following directory into the air-gapped host in the same OSIR path: <strong>OSIR/setup/windows_setup/src/dockur_storage/</strong></p>
-<p><strong>7.</strong> <strong>Load</strong> the docker images in the <strong>air-gapped hosts</strong></p>
-<p>Master:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_load_full_release
-</pre></div>
-</div>
-<p>Agent:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_load_full_release
-</pre></div>
-</div>
-<p>Splunk (Only if step 4 was done):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_load_splunk_release
-</pre></div>
-</div>
-<p>Windows in Docker (Only if step 4 was done):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_load_dockur_release
-</pre></div>
-</div>
-<p><strong>8.</strong> Start Master and Agent</p>
-<p>Master:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>master_offline
-</pre></div>
-</div>
-<p>Agent:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>make<span class="w"> </span>agent_offline
-</pre></div>
-</div>
+</section>
 </section>
 
 

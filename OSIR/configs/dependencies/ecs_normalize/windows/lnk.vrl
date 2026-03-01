@@ -1,0 +1,361 @@
+# =============================================================================
+# Windows LNK CSV
+# Based on fields:
+# SourceFile,SourceCreated,SourceModified,SourceAccessed,
+# TargetCreated,TargetModified,TargetAccessed,
+# FileSize,RelativePath,WorkingDirectory,FileAttributes,HeaderFlags,
+# DriveType,VolumeSerialNumber,VolumeLabel,
+# LocalPath,NetworkPath,CommonPath,Arguments,TargetIDAbsolutePath,
+# TargetMFTEntryNumber,TargetMFTSequenceNumber,
+# MachineID,MachineMACAddress,MACVendor,
+# TrackerCreatedOn,ExtraBlocksPresent
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ensure .event exists and keep original event
+# -----------------------------------------------------------------------------
+if !exists(.event) {
+  .event = {}
+}
+
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# =============================================================================
+# Basic ECS scaffolding defaults (can be overridden upstream)
+# =============================================================================
+
+if !exists(.event.dataset) {
+  .event.dataset = "windows.lnk"
+}
+
+if !exists(.event.module) {
+  .event.module = "windows"
+}
+
+if !exists(.event.provider) {
+  .event.provider = "Windows LNK"
+}
+
+if !exists(.event.kind) {
+  .event.kind = "state"
+}
+
+if !exists(.event.category) {
+  .event.category = ["file"]
+}
+
+if !exists(.event.type) {
+  .event.type = ["info"]
+}
+
+if !exists(.event.action) {
+  .event.action = "shortcut"
+}
+
+if !exists(.event.code) {
+  .event.code = "lnk"
+}
+
+if !exists(.event.outcome) {
+  .event.outcome = "success"
+}
+
+# =============================================================================
+# Source LNK file metadata
+# =============================================================================
+
+# SourceFile = path to the .lnk artifact itself
+if exists(.SourceFile) {
+  .file.Ext.lnk.source_file = to_string!(del(.SourceFile))
+}
+
+# ExtraBlocksPresent
+if exists(.ExtraBlocksPresent) {
+  .file.Ext.lnk.extra_blocks_present = to_string!(del(.ExtraBlocksPresent))
+}
+
+# HeaderFlags
+if exists(.HeaderFlags) {
+  .file.Ext.lnk.header_flags = to_string!(del(.HeaderFlags))
+}
+
+# FileAttributes (usually for the target, but keep as LNK metadata)
+if exists(.FileAttributes) {
+  .file.attributes = to_string!(del(.FileAttributes))
+}
+
+# Drive / volume info (mostly about the target)
+if exists(.DriveType) {
+  .file.Ext.lnk.drive_type = to_string!(del(.DriveType))
+}
+
+if exists(.VolumeSerialNumber) {
+  .file.Ext.lnk.volume_serial_number = to_string!(del(.VolumeSerialNumber))
+}
+
+if exists(.VolumeLabel) {
+  .file.Ext.lnk.volume_label = to_string!(del(.VolumeLabel))
+}
+
+# =============================================================================
+# Target path mapping
+# =============================================================================
+
+# Preferred order for target path:
+#   1. TargetIDAbsolutePath
+#   2. LocalPath
+#   3. CommonPath
+#   4. NetworkPath
+# We also keep each of them under file.Ext.lnk.*
+
+# 1) TargetIDAbsolutePath
+if exists(.TargetIDAbsolutePath) {
+  tid_raw = to_string!(del(.TargetIDAbsolutePath))
+  if tid_raw != "" && !exists(.file.path) {
+    .file.path = tid_raw
+  }
+  .file.Ext.lnk.target_id_absolute_path = tid_raw
+}
+
+# 2) LocalPath
+if exists(.LocalPath) {
+  lp_raw = to_string!(del(.LocalPath))
+  if lp_raw != "" && !exists(.file.path) {
+    .file.path = lp_raw
+  }
+  .file.Ext.lnk.local_path = lp_raw
+}
+
+# 3) CommonPath
+if exists(.CommonPath) {
+  cp_raw = to_string!(del(.CommonPath))
+  if cp_raw != "" && !exists(.file.path) {
+    .file.path = cp_raw
+  }
+  .file.Ext.lnk.common_path = cp_raw
+}
+
+# 4) NetworkPath
+if exists(.NetworkPath) {
+  np_raw = to_string!(del(.NetworkPath))
+  if np_raw != "" && !exists(.file.path) {
+    .file.path = np_raw
+  }
+  .file.Ext.lnk.network_path = np_raw
+}
+
+# RelativePath & WorkingDirectory
+if exists(.RelativePath) {
+  .file.Ext.lnk.relative_path = to_string!(del(.RelativePath))
+}
+
+if exists(.WorkingDirectory) {
+  .file.Ext.lnk.working_directory = to_string!(del(.WorkingDirectory))
+}
+
+# Arguments (launch arguments for the target)
+if exists(.Arguments) {
+  .file.Ext.lnk.arguments = to_string!(del(.Arguments))
+}
+
+# Derive file.name from file.path if missing
+if exists(.file.path) && !exists(.file.name) {
+  fp = to_string!(.file.path)
+  parts = split!(fp, "\\\\")
+  plen = length(parts)
+  if plen > 0 {
+    idx = plen - 1
+    last_part = get!(parts, [idx])
+    .file.name = last_part
+  }
+}
+
+# =============================================================================
+# File size
+# =============================================================================
+
+if exists(.FileSize) {
+  fs_raw = to_string!(del(.FileSize))
+  fs_val = parse_int(fs_raw) ?? null
+  if fs_val != null {
+    .file.size = fs_val
+  } else {
+    .file.size_raw = fs_raw
+  }
+}
+
+# =============================================================================
+# Host / machine information
+# =============================================================================
+
+# MachineID: often hostname
+if exists(.MachineID) {
+  mid = to_string!(del(.MachineID))
+  .host.id = mid
+  if !exists(.host.name) && mid != "" {
+    .host.name = mid
+  }
+}
+
+# MachineMACAddress
+if exists(.MachineMACAddress) {
+  mac = to_string!(del(.MachineMACAddress))
+  .host.mac = mac
+}
+
+# MACVendor
+if exists(.MACVendor) {
+  .host.Ext.lnk.mac_vendor = to_string!(del(.MACVendor))
+}
+
+# =============================================================================
+# Timestamps (parse once into specific ECS-ish fields)
+# CSV timestamps look like "2024-04-27 14:01:41"
+# We try "%F %T%.f" then "%F %T"
+# =============================================================================
+
+# Helper pattern inlined for each field: parse and set target field, keep raw if parse fails
+
+# SourceCreated → file.Ext.lnk.source_created
+if exists(.SourceCreated) {
+  raw = to_string!(del(.SourceCreated))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      .file.Ext.lnk.source_created = ts
+    } else {
+      .file.Ext.lnk.source_created_raw = raw
+    }
+  }
+}
+
+# SourceModified → file.Ext.lnk.source_modified
+if exists(.SourceModified) {
+  raw = to_string!(del(.SourceModified))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      .file.Ext.lnk.source_modified = ts
+    } else {
+      .file.Ext.lnk.source_modified_raw = raw
+    }
+  }
+}
+
+# SourceAccessed → file.Ext.lnk.source_accessed
+if exists(.SourceAccessed) {
+  raw = to_string!(del(.SourceAccessed))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      .file.Ext.lnk.source_accessed = ts
+    } else {
+      .file.Ext.lnk.source_accessed_raw = raw
+    }
+  }
+}
+
+# TargetCreated → file.created (preferred), with extra copy under Ext
+if exists(.TargetCreated) {
+  raw = to_string!(del(.TargetCreated))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      if !exists(.file.created) {
+        .file.created = ts
+      }
+      .file.Ext.lnk.target_created = ts
+    } else {
+      .file.Ext.lnk.target_created_raw = raw
+    }
+  }
+}
+
+# TargetModified → file.mtime
+if exists(.TargetModified) {
+  raw = to_string!(del(.TargetModified))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      .file.mtime = ts
+      .file.Ext.lnk.target_modified = ts
+    } else {
+      .file.Ext.lnk.target_modified_raw = raw
+    }
+  }
+}
+
+# TargetAccessed → file.atime
+if exists(.TargetAccessed) {
+  raw = to_string!(del(.TargetAccessed))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      .file.atime = ts
+      .file.Ext.lnk.target_accessed = ts
+    } else {
+      .file.Ext.lnk.target_accessed_raw = raw
+    }
+  }
+}
+
+# TrackerCreatedOn → event.Ext.lnk.tracker_created
+if exists(.TrackerCreatedOn) {
+  raw = to_string!(del(.TrackerCreatedOn))
+  if raw != "" {
+    ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts != null {
+      .event.Ext.lnk.tracker_created = ts
+    } else {
+      .event.Ext.lnk.tracker_created_raw = raw
+    }
+  }
+}
+
+# =============================================================================
+# Target MFT info
+# =============================================================================
+
+if exists(.TargetMFTEntryNumber) {
+  .file.Ext.lnk.target_mft_entry_number = to_string!(del(.TargetMFTEntryNumber))
+}
+
+if exists(.TargetMFTSequenceNumber) {
+  .file.Ext.lnk.target_mft_sequence_number = to_string!(del(.TargetMFTSequenceNumber))
+}
+
+# =============================================================================
+# Timestamp fallback resolution
+# Use best available timestamp to set .timestamp and .event.created
+# Priority:
+#   1. try .file.Ext.lnk.source_modified
+#   2. fallback to file.Ext.lnk.source_created
+# =============================================================================
+
+ts_value = null
+ts_source = ""
+
+# 1) try file.Ext.lnk.source_modified
+if exists(.file.Ext.lnk.source_modified) {
+  ts_value = .file.Ext.lnk.source_modified
+  ts_source = "lnk.source_modified"
+}
+
+# 2) fallback to file.Ext.lnk.source_created
+if ts_value == null && exists(.file.atime) {
+  ts_value = .file.atime
+  ts_source = "lnk.source_created"
+}
+
+# Final application
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}

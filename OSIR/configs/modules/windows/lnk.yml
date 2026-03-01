@@ -1,5 +1,5 @@
 version: 1.0
-author:
+author: maxspl
 module: lnk
 description: Parsing of lnk artifact.
 os: windows
@@ -12,23 +12,27 @@ processor_os: windows
 tool: 
   path: net9/LECmd.exe
   cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" -q --all
-  source:
-  version: 
+  source: https://ericzimmerman.github.io/
+  version: 1.5.1
 input:
   type: dir
-  path: Artefacts/lnk
+  paths: 
+  - "**/Artefacts/lnk"
+  - "**/lnk"
 output:
   type: single_file
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
-endpoint: "/Endpoint_(.*?)/"
+endpoint: "Endpoint_([^\\./]+)"
 splunk:
   'windows:lnk':
     name_rex: \.csv$
     path_suffix: 'lnk'
     sourcetype: 'windows:files:lnk'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "SourceModified"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "Lnk"
+    normalize:
+      - ecs_normalize/windows/lnk.vrl

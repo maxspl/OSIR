@@ -1,5 +1,5 @@
 version: 1.0
-author:
+author: maxspl
 module: pstree_sysmon
 description: Parse output of EVTX module to build process tree from security.evtx - event ID 1
 os: windows
@@ -16,20 +16,22 @@ tool:
   version: 2025.08.07
 input:
   type: file
-  name: _Security\.evtx.*?\.jsonl$
-  path: evtx_orc/
+  name: -Security\.evtx.*?\.jsonl$
+  path: evtx/
 output:
   type: multiple_files
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
-endpoint: "evtx_orc\/(.*?)--"
+endpoint: "evtx\/(.*?)--"
 splunk:
   'windows:sysmon:pstree':
     name_rex: nodes\.jsonl$
-    path_suffix: 'pstree_sysmon/'
+    path_suffix: 'pstree_sysmon'
     sourcetype: 'windows:sysmon:pstree'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "time"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "pstree_sysmon"
+    normalize:
+      - ecs_normalize/windows/pstree_nodes.vrl   

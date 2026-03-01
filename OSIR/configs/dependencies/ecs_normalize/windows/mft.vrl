@@ -1,0 +1,344 @@
+# OSIR - MFT (Master File Table) normalizer
+## 
+## Schema:
+##     Source: CSV : 
+#      EntryNumber,SequenceNumber,InUse,ParentEntryNumber,ParentSequenceNumber,ParentPath,FileName,Extension,FileSize,ReferenceCount,ReparseTarget,IsDirectory,HasAds,IsAds,SI<FN,uSecZeros,Copied,SiFlags,NameType,Created0x10,Created0x30,LastModified0x10,LastModified0x30,LastRecordChange0x10,LastRecordChange0x30,LastAccess0x10,LastAccess0x30,UpdateSequenceNumber,LogfileSequenceNumber,SecurityId,ObjectIdFileDroid,LoggedUtilStream,ZoneIdContents,SourceFile
+#
+##     Destination: 
+#      {
+#        "mft.entry_number": <Integer>,
+#        "mft.sequence_number": <Integer>,
+#        "mft.in_use": <Boolean>,
+#        "mft.parent_entry_number": <Integer>,
+#        "mft.parent_sequence_number": <Integer>,
+#        "file.directory": <String>,
+#        "file.name": <String>,
+#        "file.extension": <String>,
+#        "file.size": <Integer>,
+#        "file.path": <String>,
+#        "file.target_path": <String>,
+#        "file.type": <String>,
+#        "file.attributes": <Array>,
+#        "file.created": <Datetime>,
+#        "file.mtime": <Datetime>,
+#        "file.ctime": <Datetime>,
+#        "file.accessed": <Datetime>,
+#        "mft.reference_count": <Integer>,
+#        "mft.has_ads": <Boolean>,
+#        "mft.is_ads": <Boolean>,
+#        "mft.si_less_than_fn": <Boolean>,
+#        "mft.usec_zeros": <Boolean>,
+#        "mft.copied": <Boolean>,
+#        "mft.name_type": <String>,
+#        "mft.created_fn": <Datetime>,
+#        "mft.modified_fn": <Datetime>,
+#        "mft.record_change_si": <Datetime>,
+#        "mft.record_change_fn": <Datetime>,
+#        "mft.accessed_fn": <Datetime>,
+#        "mft.update_sequence_number": <Integer>,
+#        "mft.logfile_sequence_number": <Integer>,
+#        "mft.security_id": <Integer>,
+#        "mft.object_id": <String>,
+#        "mft.logged_util_stream": <String>,
+#        "labels.zone_id": <String>,
+#        "event.dataset": <String>
+#      }
+
+# Parse CSV if needed (skip if already parsed)
+# . = parse_csv!(.message)
+
+# MFT Entry Information
+if exists(.EntryNumber) {
+    .mft.entry_number = to_int!(.EntryNumber)
+    del(.EntryNumber)
+}
+
+if exists(.SequenceNumber) {
+    .mft.sequence_number = to_int!(.SequenceNumber)
+    del(.SequenceNumber)
+}
+
+if exists(.InUse) {
+    in_use_str = downcase(to_string!(.InUse))
+    .mft.in_use = if in_use_str == "true" || in_use_str == "1" {
+        true
+    } else {
+        false
+    }
+    del(.InUse)
+}
+
+# Parent Information
+if exists(.ParentEntryNumber) {
+    .mft.parent_entry_number = to_int!(.ParentEntryNumber)
+    del(.ParentEntryNumber)
+}
+
+if exists(.ParentSequenceNumber) {
+    .mft.parent_sequence_number = to_int!(.ParentSequenceNumber)
+    del(.ParentSequenceNumber)
+}
+
+if exists(.ParentPath) {
+    .file.directory = to_string!(.ParentPath)
+    del(.ParentPath)
+}
+
+# File Information
+if exists(.FileName) {
+    .file.name = to_string!(.FileName)
+    del(.FileName)
+}
+
+if exists(.Extension) {
+    ext = to_string!(.Extension)
+    if ext != "" {
+        .file.extension = ext
+    }
+    del(.Extension)
+}
+
+if exists(.FileSize) {
+    .file.size = to_int!(.FileSize)
+    del(.FileSize)
+}
+
+# Build full path (using fallible assignment or string coercion)
+if exists(.file.directory) && exists(.file.name) {
+    .file.path = to_string!(.file.directory) + "\\" + to_string!(.file.name)
+}
+
+# File Attributes
+if exists(.ReferenceCount) {
+    .mft.reference_count = to_int!(.ReferenceCount)
+    del(.ReferenceCount)
+}
+
+if exists(.ReparseTarget) {
+    target = to_string!(.ReparseTarget)
+    if target != "" {
+        .file.target_path = target
+    }
+    del(.ReparseTarget)
+}
+
+if exists(.IsDirectory) {
+    is_dir_str = downcase(to_string!(.IsDirectory))
+    is_dir = if is_dir_str == "true" || is_dir_str == "1" {
+        true
+    } else {
+        false
+    }
+    .file.type = if is_dir {
+        "dir"
+    } else {
+        "file"
+    }
+    del(.IsDirectory)
+}
+
+if exists(.HasAds) {
+    has_ads_str = downcase(to_string!(.HasAds))
+    .mft.has_ads = if has_ads_str == "true" || has_ads_str == "1" {
+        true
+    } else {
+        false
+    }
+    del(.HasAds)
+}
+
+if exists(.IsAds) {
+    is_ads_str = downcase(to_string!(.IsAds))
+    .mft.is_ads = if is_ads_str == "true" || is_ads_str == "1" {
+        true
+    } else {
+        false
+    }
+    del(.IsAds)
+}
+
+# MFT Metadata Flags
+if exists(."SI<FN") {
+    si_fn_str = downcase(to_string!(."SI<FN"))
+    .mft.si_less_than_fn = if si_fn_str == "true" || si_fn_str == "1" {
+        true
+    } else {
+        false
+    }
+    del(."SI<FN")
+}
+
+if exists(.uSecZeros) {
+    usec_str = downcase(to_string!(.uSecZeros))
+    .mft.usec_zeros = if usec_str == "true" || usec_str == "1" {
+        true
+    } else {
+        false
+    }
+    del(.uSecZeros)
+}
+
+if exists(.Copied) {
+    copied_str = downcase(to_string!(.Copied))
+    .mft.copied = if copied_str == "true" || copied_str == "1" {
+        true
+    } else {
+        false
+    }
+    del(.Copied)
+}
+
+# SiFlags (File Attributes)
+if exists(.SiFlags) {
+    flags_str = to_string!(.SiFlags)
+    if flags_str != "" {
+        # Parse flags like "Archive, NotContentIndexed"
+        .file.attributes = split(flags_str, ", ")
+    }
+    del(.SiFlags)
+}
+
+if exists(.NameType) {
+    .mft.name_type = to_string!(.NameType)
+    del(.NameType)
+}
+
+# Timestamps - $STANDARD_INFORMATION (0x10)
+if exists(.Created0x10) {
+    created_si = to_string!(.Created0x10)
+    if created_si != "" {
+        .file.created = parse_timestamp!(created_si, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.Created0x10)
+}
+
+if exists(.LastModified0x10) {
+    modified_si = to_string!(.LastModified0x10)
+    if modified_si != "" {
+        .file.mtime = parse_timestamp!(modified_si, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.LastModified0x10)
+}
+
+if exists(.LastRecordChange0x10) {
+    record_change_si = to_string!(.LastRecordChange0x10)
+    if record_change_si != "" {
+        .mft.record_change_si = parse_timestamp!(record_change_si, format: "%Y-%m-%d %H:%M:%S%.f")
+        .file.ctime = parse_timestamp!(record_change_si, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.LastRecordChange0x10)
+}
+
+if exists(.LastAccess0x10) {
+    accessed_si = to_string!(.LastAccess0x10)
+    if accessed_si != "" {
+        .file.accessed = parse_timestamp!(accessed_si, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.LastAccess0x10)
+}
+
+# Timestamps - $FILE_NAME (0x30)
+if exists(.Created0x30) {
+    created_fn = to_string!(.Created0x30)
+    if created_fn != "" {
+        .mft.created_fn = parse_timestamp!(created_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.Created0x30)
+}
+
+if exists(.LastModified0x30) {
+    modified_fn = to_string!(.LastModified0x30)
+    if modified_fn != "" {
+        .mft.modified_fn = parse_timestamp!(modified_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.LastModified0x30)
+}
+
+if exists(.LastRecordChange0x30) {
+    record_change_fn = to_string!(.LastRecordChange0x30)
+    if record_change_fn != "" {
+        .mft.record_change_fn = parse_timestamp!(record_change_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.LastRecordChange0x30)
+}
+
+if exists(.LastAccess0x30) {
+    accessed_fn = to_string!(.LastAccess0x30)
+    if accessed_fn != "" {
+        .mft.accessed_fn = parse_timestamp!(accessed_fn, format: "%Y-%m-%d %H:%M:%S%.f")
+    }
+    del(.LastAccess0x30)
+}
+
+# Additional MFT Metadata
+if exists(.UpdateSequenceNumber) {
+    .mft.update_sequence_number = to_int!(.UpdateSequenceNumber)
+    del(.UpdateSequenceNumber)
+}
+
+if exists(.LogfileSequenceNumber) {
+    .mft.logfile_sequence_number = to_int!(.LogfileSequenceNumber)
+    del(.LogfileSequenceNumber)
+}
+
+if exists(.SecurityId) {
+    .mft.security_id = to_int!(.SecurityId)
+    del(.SecurityId)
+}
+
+if exists(.ObjectIdFileDroid) {
+    object_id = to_string!(.ObjectIdFileDroid)
+    if object_id != "" {
+        .mft.object_id = object_id
+    }
+    del(.ObjectIdFileDroid)
+}
+
+if exists(.LoggedUtilStream) {
+    logged_util = to_string!(.LoggedUtilStream)
+    if logged_util != "" {
+        .mft.logged_util_stream = logged_util
+    }
+    del(.LoggedUtilStream)
+}
+
+if exists(.ZoneIdContents) {
+    zone_id = to_string!(.ZoneIdContents)
+    if zone_id != "" {
+        .labels.zone_id = zone_id
+    }
+    del(.ZoneIdContents)
+}
+
+if exists(.SourceFile) {
+    .event.dataset = to_string!(.SourceFile)
+    del(.SourceFile)
+}
+
+# Set event metadata
+.event.kind = "event"
+.event.category = ["file"]
+.event.type = ["info"]
+.event.module = "mft"
+
+# Use primary timestamp (Created0x10 or earliest available)
+if exists(.file.created) {
+    .timestamp = .file.created
+} else if exists(.mft.created_fn) {
+    .timestamp = .mft.created_fn
+}
+
+# Anomaly Detection
+if exists(.mft.si_less_than_fn) && .mft.si_less_than_fn == true {
+    .event.type = push(.event.type, "indicator")
+    .threat.indicator.type = ["file"]
+    .threat.indicator.description = "Possible timestomping detected (SI < FN)"
+}
+
+if exists(.mft.usec_zeros) && .mft.usec_zeros == true {
+    .labels.mft_anomaly = "microseconds_zero"
+}
+
+if exists(.mft.has_ads) && .mft.has_ads == true {
+    .labels.has_alternate_data_stream = "true"
+}

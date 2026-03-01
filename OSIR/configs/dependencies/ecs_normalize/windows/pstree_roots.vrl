@@ -1,0 +1,84 @@
+# -----------------------------------------------------------------------------
+# Windows live response – process tree roots → ECS
+# Source: pstree_live_response JSONL
+# Fields: root_exe, root_pid, root_time, tree_id
+# -----------------------------------------------------------------------------
+
+.event.dataset = "windows.pstree_live_response"
+.event.module  = "windows"
+
+.event.kind     = "event"
+.event.category = ["process"]
+.event.type     = ["info"]
+.event.action   = "process_tree_root"
+.event.outcome  = "success"
+
+# -----------------------------------------------------------------------------
+# tree_id → .pstree.tree_id
+# -----------------------------------------------------------------------------
+
+if exists(.tree_id) {
+    # tree_id can be int already or string → normalize to int if possible
+    tree_id_val = to_int(.tree_id) ?? null
+
+    if tree_id_val != null {
+        .pstree.tree_id = tree_id_val
+    } else {
+        .pstree.tree_id_raw = to_string!(.tree_id)
+    }
+
+    del(.tree_id)
+}
+
+# -----------------------------------------------------------------------------
+# root_pid → .process.pid + .pstree.root_pid
+# -----------------------------------------------------------------------------
+
+if exists(.root_pid) {
+    root_pid_val = to_int(.root_pid) ?? null
+
+    if root_pid_val != null {
+        .process.pid      = root_pid_val
+        .pstree.root_pid  = root_pid_val
+    } else {
+        .pstree.root_pid_raw = to_string!(.root_pid)
+    }
+
+    del(.root_pid)
+}
+
+# -----------------------------------------------------------------------------
+# root_exe → .process.executable / .process.name + .pstree.root_exe
+# -----------------------------------------------------------------------------
+
+if exists(.root_exe) {
+    exe = to_string!(del(.root_exe))
+
+    if exe != "" {
+        .process.executable = exe
+        .process.name       = exe      # for roots, exe == name (no path)
+        .pstree.root_exe    = exe
+    }
+}
+
+# -----------------------------------------------------------------------------
+# root_time (RFC3339 with microseconds + offset) → timestamp / process.start
+# Example: "2024-04-26T16:06:10.676711+00:00"
+# -----------------------------------------------------------------------------
+
+if exists(.root_time) {
+    rt_raw = to_string!(del(.root_time))
+
+    # "%+" = RFC3339 (handles fractional seconds + timezone offset)
+    ts = parse_timestamp(rt_raw, format: "%+") ?? null
+
+    if ts != null {
+        # Use root_time as main event timestamp and process start
+        .timestamp      = ts
+        .event.created  = ts
+        .process.start  = ts
+        .pstree.root_time = ts
+    } else if rt_raw != "" {
+        .pstree.root_time_raw = rt_raw
+    }
+}

@@ -8,14 +8,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>API Documentation &mdash; OSIR 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="_static/documentation_options.js?v=d45e8c67"></script>
-      <script src="_static/doctools.js?v=9bcbadda"></script>
-      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -51,6 +51,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
@@ -63,12 +64,11 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="OSIR.html">OSIR module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.html">src package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.log.html">src.log package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.monitor.html">src.monitor package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.tasks.html">src.tasks package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html">src.utils package</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.web_app.html">src.web_app package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.html">src.osir_lib package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.html">src.osir_service package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_web.html">src.osir_web package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_client.html">src.osir_client package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_api.html">src.osir_api package</a></li>
 </ul>
 </li>
 </ul>
@@ -107,48 +107,202 @@
 <li class="toctree-l2"><a class="reference internal" href="OSIR.html#OSIR.parse_args"><code class="docutils literal notranslate"><span class="pre">parse_args()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.html">src package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.html#module-src">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.osir_lib.html">src.osir_lib package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_lib.osir_lib.html">src.osir_lib.osir_lib package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_lib.osir_lib.core.html">src.osir_lib.osir_lib.core package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#subpackages">Subpackages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.FileManager">src.osir_lib.osir_lib.core.FileManager module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.LogUtils">src.osir_lib.osir_lib.core.LogUtils module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirAgentConfig">src.osir_lib.osir_lib.core.OsirAgentConfig module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirConnector">src.osir_lib.osir_lib.core.OsirConnector module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirConstants">src.osir_lib.osir_lib.core.OsirConstants module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirDecorator">src.osir_lib.osir_lib.core.OsirDecorator module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirInput">src.osir_lib.osir_lib.core.OsirInput module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirModule">src.osir_lib.osir_lib.core.OsirModule module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirOutput">src.osir_lib.osir_lib.core.OsirOutput module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirPathTransformerMixin">src.osir_lib.osir_lib.core.OsirPathTransformerMixin module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirProfile">src.osir_lib.osir_lib.core.OsirProfile module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirSingleton">src.osir_lib.osir_lib.core.OsirSingleton module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirTool">src.osir_lib.osir_lib.core.OsirTool module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core.OsirUtils">src.osir_lib.osir_lib.core.OsirUtils module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.core.html#module-src.osir_lib.osir_lib.core">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.log.html">src.log package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.log.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.log.html#module-src.log.logger">src.log.logger module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.log.html#module-src.log">Module contents</a></li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_lib.osir_lib.logger.html">src.osir_lib.osir_lib.logger package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.logger.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.logger.html#module-src.osir_lib.osir_lib.logger.logger">src.osir_lib.osir_lib.logger.logger module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.logger.html#module-src.osir_lib.osir_lib.logger">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.monitor.html">src.monitor package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.monitor.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.monitor.html#module-src.monitor.ModuleHandler">src.monitor.ModuleHandler module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.monitor.html#module-src.monitor.MonitorCase">src.monitor.MonitorCase module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.monitor.html#module-src.monitor">Module contents</a></li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_lib.osir_lib.modules.html">src.osir_lib.osir_lib.modules package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.modules.html#subpackages">Subpackages</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_lib.osir_lib.modules.html#module-src.osir_lib.osir_lib.modules">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.tasks.html">src.tasks package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.tasks.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.tasks.html#module-src.tasks.task_client">src.tasks.task_client module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.tasks.html#module-src.tasks.task_manager">src.tasks.task_manager module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.tasks.html#module-src.tasks.tasks">src.tasks.tasks module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.tasks.html#module-src.tasks">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.utils.html">src.utils package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.AgentConfig">src.utils.AgentConfig module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.BaseModule">src.utils.BaseModule module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.BaseProfile">src.utils.BaseProfile module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.DbOSIR">src.utils.DbOSIR module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.PyModule">src.utils.PyModule module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.SmbMounter">src.utils.SmbMounter module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils.singleton">src.utils.singleton module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.utils.html#module-src.utils">Module contents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_lib.osir_lib.html#module-src.osir_lib.osir_lib">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="src.web_app.html">src.web_app package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.web_app.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.web_app.html#src-web-app-processor-module">src.web_app.⚡_Processor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.web_app.html#module-src.web_app">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_lib.html#module-src.osir_lib">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.osir_service.html">src.osir_service package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.html">src.osir_service.osir_service package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_service.osir_service.agent.html">src.osir_service.osir_service.agent package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.agent.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.agent.html#module-src.osir_service.osir_service.agent.AgentService">src.osir_service.osir_service.agent.AgentService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.agent.html#module-src.osir_service.osir_service.agent">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_service.osir_service.ipc.html">src.osir_service.osir_service.ipc package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc.IpcService">src.osir_service.osir_service.ipc.IpcService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc.JsonSocket">src.osir_service.osir_service.ipc.JsonSocket module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc.OsirExceptions">src.osir_service.osir_service.ipc.OsirExceptions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc.OsirIpc">src.osir_service.osir_service.ipc.OsirIpc module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc.OsirIpcClient">src.osir_service.osir_service.ipc.OsirIpcClient module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc.OsirIpcModel">src.osir_service.osir_service.ipc.OsirIpcModel module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.ipc.html#module-src.osir_service.osir_service.ipc">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_service.osir_service.orchestration.html">src.osir_service.osir_service.orchestration package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.orchestration.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.orchestration.html#module-src.osir_service.osir_service.orchestration.TaskProcessorService">src.osir_service.osir_service.orchestration.TaskProcessorService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.orchestration.html#module-src.osir_service.osir_service.orchestration.TaskService">src.osir_service.osir_service.orchestration.TaskService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.orchestration.html#module-src.osir_service.osir_service.orchestration">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_service.osir_service.postgres.html">src.osir_service.osir_service.postgres package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-postgresconstants-module">src.osir_service.osir_service.postgres.PostgresConstants module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-postgresservice-module">src.osir_service.osir_service.postgres.PostgresService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-case-manager-module">src.osir_service.osir_service.postgres.case_manager module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-handler-manager-module">src.osir_service.osir_service.postgres.handler_manager module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-snapshot-manager-module">src.osir_service.osir_service.postgres.snapshot_manager module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#src-osir-service-osir-service-postgres-task-manager-module">src.osir_service.osir_service.postgres.task_manager module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.postgres.html#module-src.osir_service.osir_service.postgres">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_service.osir_service.smb.html">src.osir_service.osir_service.smb package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.smb.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.smb.html#module-src.osir_service.osir_service.smb.SMBService">src.osir_service.osir_service.smb.SMBService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.smb.html#module-src.osir_service.osir_service.smb">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html">src.osir_service.osir_service.watchdog package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#module-src.osir_service.osir_service.watchdog.MonitorCase">src.osir_service.osir_service.watchdog.MonitorCase module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#module-src.osir_service.osir_service.watchdog.WatchdogService">src.osir_service.osir_service.watchdog.WatchdogService module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_service.osir_service.watchdog.html#module-src.osir_service.osir_service.watchdog">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.html#module-src.osir_service.osir_service">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_service.html#module-src.osir_service">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.osir_web.html">src.osir_web package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_web.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_web.osir_web.html">src.osir_web.osir_web package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_web.osir_web.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.pages.html">src.osir_web.osir_web.pages package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.pages.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.pages.html#src-osir-web-osir-web-pages-masteragentstatus-module">src.osir_web.osir_web.pages.MasterAgentStatus module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.pages.html#src-osir-web-osir-web-pages-processingstatus-module">src.osir_web.osir_web.pages.ProcessingStatus module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.pages.html#module-src.osir_web.osir_web.pages">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_web.osir_web.utils.html">src.osir_web.osir_web.utils package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.utils.html#src-osir-web-osir-web-utils-mastersidebar-module">src.osir_web.osir_web.utils.MasterSideBar module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_web.osir_web.utils.html#module-src.osir_web.osir_web.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_web.osir_web.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_web.osir_web.html#src-osir-web-osir-web-processor-module">src.osir_web.osir_web.Processor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_web.osir_web.html#module-src.osir_web.osir_web">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_web.html#module-src.osir_web">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.osir_client.html">src.osir_client package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_client.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_client.osir_client.html">src.osir_client.osir_client package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_client.osir_client.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_client.osir_client.api.html">src.osir_client.osir_client.api package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-case-module">src.osir_client.osir_client.api.osir_api_case module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-client-module">src.osir_client.osir_client.api.osir_api_client module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-handlers-module">src.osir_client.osir_client.api.osir_api_handlers module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-models-module">src.osir_client.osir_client.api.osir_api_models module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-module-module">src.osir_client.osir_client.api.osir_api_module module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-profile-module">src.osir_client.osir_client.api.osir_api_profile module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-response-module">src.osir_client.osir_client.api.osir_api_response module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-status-module">src.osir_client.osir_client.api.osir_api_status module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#src-osir-client-osir-client-api-osir-api-task-module">src.osir_client.osir_client.api.osir_api_task module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_client.osir_client.api.html#module-contents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_client.osir_client.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_client.osir_client.html#src-osir-client-osir-client-main-module">src.osir_client.osir_client.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_client.osir_client.html#src-osir-client-osir-client-osir-cli-module">src.osir_client.osir_client.osir_cli module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_client.osir_client.html#module-src.osir_client.osir_client">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_client.html#module-src.osir_client">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="src.osir_api.html">src.osir_api package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_api.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.html">src.osir_api.osir_api package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_api.osir_api.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_api.osir_api.api.html">src.osir_api.osir_api.api package</a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-case-module">src.osir_api.osir_api.api.case module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-exceptions-module">src.osir_api.osir_api.api.exceptions module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-handler-module">src.osir_api.osir_api.api.handler module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-log-module">src.osir_api.osir_api.api.log module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-metadata-module">src.osir_api.osir_api.api.metadata module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-module-module">src.osir_api.osir_api.api.module module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-profile-module">src.osir_api.osir_api.api.profile module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-response-module">src.osir_api.osir_api.api.response module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-status-module">src.osir_api.osir_api.api.status module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#src-osir-api-osir-api-api-version-module">src.osir_api.osir_api.api.version module</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_api.osir_api.api.html#module-src.osir_api.osir_api.api">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_api.osir_api.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_api.osir_api.html#src-osir-api-osir-api-main-module">src.osir_api.osir_api.main module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_api.osir_api.html#module-src.osir_api.osir_api">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="src.osir_api.html#module-src.osir_api">Module contents</a></li>
 </ul>
 </li>
 </ul>

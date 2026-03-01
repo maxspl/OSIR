@@ -1,5 +1,5 @@
 version: 1.1
-author:
+author: maxspl
 module: amcache
 description: Parsing of amcache artifact.
 os: windows
@@ -29,8 +29,9 @@ splunk:
     path_suffix: 'amcache'
     sourcetype: 'windows:files:amcache'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "KeyLastWriteTimestamp"
-        - "FileKeyLastWriteTimestamp"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "AmCache"
+    normalize:
+      - ecs_normalize/windows/amcache.vrl

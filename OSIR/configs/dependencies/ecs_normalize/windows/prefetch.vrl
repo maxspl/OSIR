@@ -1,0 +1,313 @@
+# -----------------------------------------------------------------------------
+# Windows Prefetch JSONL → ECS
+# -----------------------------------------------------------------------------
+
+.event.dataset = "windows.prefetch"
+.event.module  = "windows"
+
+# Basic ECS classification
+.event.kind      = "event"
+.event.category  = ["process"]
+.event.type      = ["start", "info"]
+.event.action    = "prefetch_summary"
+.log.level       = "info"
+
+# Keep original event 
+.event.original = encode_json!(.)
+
+# We'll keep most source-specific stuff under .prefetch.*
+# -----------------------------------------------------------------------------
+# Source prefetch file metadata (Source* fields)
+# -----------------------------------------------------------------------------
+
+# Path of the .pf file
+if exists(.SourceFilename) {
+    src = to_string!(del(.SourceFilename))
+
+    .file.path                  = src
+    .prefetch.source_filename   = src
+}
+
+# Timestamps of the .pf file (assume "YYYY-MM-DD HH:MM:SS")
+if exists(.SourceCreated) {
+    created_s = to_string!(del(.SourceCreated))
+    created_ts = parse_timestamp(created_s, format: "%F %T") ?? null
+
+    if created_ts != null {
+        .file.created              = created_ts
+        .prefetch.source_created   = created_ts
+    } else {
+        .prefetch.source_created_raw = created_s
+    }
+}
+
+if exists(.SourceModified) {
+    modified_s = to_string!(del(.SourceModified))
+    modified_ts = parse_timestamp(modified_s, format: "%F %T") ?? null
+
+    if modified_ts != null {
+        .file.mtime               = modified_ts
+        .prefetch.source_modified = modified_ts
+    } else {
+        .prefetch.source_modified_raw = modified_s
+    }
+}
+
+if exists(.SourceAccessed) {
+    accessed_s = to_string!(del(.SourceAccessed))
+    accessed_ts = parse_timestamp(accessed_s, format: "%F %T") ?? null
+
+    if accessed_ts != null {
+        .file.atime              = accessed_ts
+        .prefetch.source_accessed = accessed_ts
+    } else {
+        .prefetch.source_accessed_raw = accessed_s
+    }
+}
+
+# Size of the .pf file
+if exists(.Size) {
+    size_i = to_int(to_string!(del(.Size))) ?? null
+    if size_i != null {
+        .file.size       = size_i
+        .prefetch.size   = size_i
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Executable / process info
+# -----------------------------------------------------------------------------
+
+# ExecutableName → process.name
+if exists(.ExecutableName) {
+    exe_name = to_string!(del(.ExecutableName))
+
+    .process.name                = exe_name
+    .prefetch.executable_name   = exe_name
+}
+
+# Prefetch hash of the executable path
+if exists(.Hash) {
+    hash_s = to_string!(del(.Hash))
+    .prefetch.hash = hash_s
+}
+
+# Version info (Windows version that created the prefetch)
+if exists(.Version) {
+    .prefetch.version = to_string!(del(.Version))
+}
+
+# -----------------------------------------------------------------------------
+# Run times (LastRun + PreviousRun0-6)
+# All timestamps look like "YYYY-MM-DD HH:MM:SS"
+# -----------------------------------------------------------------------------
+
+# LastRun → main event timestamp (best approximation of "event time")
+if exists(.LastRun) {
+    last_run_s  = to_string!(del(.LastRun))
+    last_run_ts = parse_timestamp(last_run_s, format: "%F %T") ?? null
+
+    if last_run_ts != null {
+        .timestamp      = last_run_ts
+        .event.start    = last_run_ts
+        .process.start  = last_run_ts
+        .prefetch.last_run = last_run_ts
+    } else {
+        .prefetch.last_run_raw = last_run_s
+    }
+}
+
+# Helper to accumulate previous runs into an array
+# (we keep them in .prefetch.previous_runs as timestamps)
+if exists(.PreviousRun0) {
+    s  = to_string!(del(.PreviousRun0))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+if exists(.PreviousRun1) {
+    s  = to_string!(del(.PreviousRun1))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+if exists(.PreviousRun2) {
+    s  = to_string!(del(.PreviousRun2))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+if exists(.PreviousRun3) {
+    s  = to_string!(del(.PreviousRun3))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+if exists(.PreviousRun4) {
+    s  = to_string!(del(.PreviousRun4))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+if exists(.PreviousRun5) {
+    s  = to_string!(del(.PreviousRun5))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+if exists(.PreviousRun6) {
+    s  = to_string!(del(.PreviousRun6))
+    ts = parse_timestamp(s, format: "%F %T") ?? null
+
+    if ts != null {
+        if exists(.prefetch.previous_runs) {
+            .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
+        } else {
+            .prefetch.previous_runs = [ts]
+        }
+    } else {
+        .prefetch.previous_run0_raw = s
+    }
+}
+
+# RunCount → how many times process was seen in this .pf file
+if exists(.RunCount) {
+    run_count_i = to_int(to_string!(del(.RunCount))) ?? null
+    if run_count_i != null {
+        .prefetch.run_count = run_count_i
+    } else {
+        .prefetch.run_count_raw = .RunCount
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Directories / FilesLoaded (comma-separated lists)
+# -----------------------------------------------------------------------------
+
+if exists(.Directories) {
+    dirs_raw = to_string!(del(.Directories))
+    # Prefetch separates entries with ", "
+    .prefetch.directories = split(dirs_raw, ", ")
+}
+
+if exists(.FilesLoaded) {
+    files_raw = to_string!(del(.FilesLoaded))
+    .prefetch.files_loaded = split(files_raw, ", ")
+}
+
+# -----------------------------------------------------------------------------
+# Volume information
+# -----------------------------------------------------------------------------
+
+if exists(.Volume0Name) {
+    .prefetch.volume0_name = to_string!(del(.Volume0Name))
+}
+if exists(.Volume0Serial) {
+    .prefetch.volume0_serial = to_string!(del(.Volume0Serial))
+}
+if exists(.Volume0Created) {
+    v0c_s  = to_string!(del(.Volume0Created))
+    v0c_ts = parse_timestamp(v0c_s, format: "%F %T") ?? null
+
+    if v0c_ts != null {
+        .prefetch.volume0_created = v0c_ts
+    } else {
+        .prefetch.volume0_created_raw = v0c_s
+    }
+}
+
+if exists(.Volume1Name) {
+    .prefetch.volume1_name = to_string!(del(.Volume1Name))
+}
+if exists(.Volume1Serial) {
+    .prefetch.volume1_serial = to_string!(del(.Volume1Serial))
+}
+if exists(.Volume1Created) {
+    v1c_s  = to_string!(del(.Volume1Created))
+    v1c_ts = parse_timestamp(v1c_s, format: "%F %T") ?? null
+
+    if v1c_ts != null {
+        .prefetch.volume1_created = v1c_ts
+    } else {
+        .prefetch.volume1_created_raw = v1c_s
+    }
+}
+
+# -----------------------------------------------------------------------------
+# Parsing status
+# -----------------------------------------------------------------------------
+
+if exists(.ParsingError) {
+    parsing = to_bool(.ParsingError) ?? null
+    del(.ParsingError)
+
+    if parsing != null {
+        .prefetch.parsing_error = parsing
+
+        if parsing == true {
+            .event.outcome = "failure"
+            .log.level     = "error"
+        }
+    } else {
+        .prefetch.parsing_error_raw = .ParsingError
+    }
+}
+
+# Default outcome if not set by parsing status
+if !exists(.event.outcome) {
+    .event.outcome = "success"
+}

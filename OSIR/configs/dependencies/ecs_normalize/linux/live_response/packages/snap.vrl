@@ -1,0 +1,58 @@
+# OSIR - snap package list normalizer
+#
+# Schema:
+#
+#     Source :
+#
+#     {
+#         "name": <String>,       // snap package name
+#         "version": <String>,    // snap package version
+#         "rev": <String>,        // snap package revision
+#         "tracking": <String>,   // snap tracking channel (e.g., stable, beta)
+#         "publisher": <String>,  // snap publisher/vendor
+#         "notes": <String>       // additional notes (e.g., disabled, classic)
+#     }
+#
+#     Destination (ECS):
+#
+#     {
+#         "package.name": <String>,        // package name
+#         "package.version": <String>,     // package version
+#         "package.reference": <String>,   // package revision (snap rev)
+#         "package.type": <String>,        // package type (snap / tracking info)
+#         "package.vendor": <String>,      // package publisher
+#         "message": <String>              // package notes / comments
+#     }
+
+# Mapping with existence checks
+
+if exists(.name) {
+    .package.name = .name
+}
+
+if exists(.version) {
+    .package.version = .version
+}
+
+if exists(.rev) {
+    .package.reference = .rev
+}
+
+if exists(.tracking) {
+    .package.type = .tracking
+}
+
+if exists(.publisher) {
+    .package.vendor = .publisher
+}
+
+if exists(.notes) {
+    .message = .Notes
+}
+
+del(.name)
+del(.version)
+del(.rev)
+del(.tracking)
+del(.publisher)
+del(.notes)

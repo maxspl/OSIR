@@ -1,0 +1,510 @@
+# =============================================================================
+# Windows JumpList CSV (automaticDestinations & customDestinations) 
+#
+# Variants:
+# 1) automaticDestinations-ms:
+#    SourceFile,SourceCreated,SourceModified,SourceAccessed,
+#    AppId,AppIdDescription,HasSps,DestListVersion,LastUsedEntryNumber,MRU,
+#    EntryNumber,CreationTime,LastModified,Hostname,MacAddress,Path,
+#    InteractionCount,PinStatus,FileBirthDroid,FileDroid,VolumeBirthDroid,
+#    VolumeDroid,TargetCreated,TargetModified,TargetAccessed,
+#    FileSize,RelativePath,WorkingDirectory,FileAttributes,HeaderFlags,
+#    DriveType,VolumeSerialNumber,VolumeLabel,LocalPath,CommonPath,
+#    TargetIDAbsolutePath,TargetMFTEntryNumber,TargetMFTSequenceNumber,
+#    MachineID,MachineMACAddress,TrackerCreatedOn,ExtraBlocksPresent,
+#    Arguments,Notes
+#
+# 2) customDestinations-ms:
+#    SourceFile,SourceCreated,SourceModified,SourceAccessed,
+#    AppId,AppIdDescription,EntryName,
+#    TargetCreated,TargetModified,TargetAccessed,
+#    FileSize,RelativePath,WorkingDirectory,FileAttributes,HeaderFlags,
+#    DriveType,VolumeSerialNumber,VolumeLabel,LocalPath,CommonPath,
+#    TargetIDAbsolutePath,TargetMFTEntryNumber,TargetMFTSequenceNumber,
+#    MachineID,MachineMACAddress,TrackerCreatedOn,ExtraBlocksPresent,Arguments
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Ensure .event exists and keep original event
+# -----------------------------------------------------------------------------
+if !exists(.event) {
+  .event = {}
+}
+
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# =============================================================================
+# Basic ECS scaffolding defaults
+# =============================================================================
+
+if !exists(.event.dataset) {
+  .event.dataset = "windows.jumplist"
+}
+
+if !exists(.event.module) {
+  .event.module = "windows"
+}
+
+if !exists(.event.provider) {
+  .event.provider = "Windows JumpList (generic)"
+}
+
+if !exists(.event.kind) {
+  .event.kind = "state"
+}
+
+if !exists(.event.category) {
+  .event.category = ["process"]
+}
+
+if !exists(.event.type) {
+  .event.type = ["info"]
+}
+
+if !exists(.event.action) {
+  .event.action = "jumplist"
+}
+
+if !exists(.event.code) {
+  .event.code = "jumplist"
+}
+
+if !exists(.event.outcome) {
+  .event.outcome = "success"
+}
+
+# =============================================================================
+# Source JumpList file metadata
+# =============================================================================
+
+# SourceFile = path to the .automaticDestinations-ms / .customDestinations-ms file
+if exists(.SourceFile) {
+  .event.Ext.jumplist.source_file = to_string!(del(.SourceFile))
+}
+
+# HasSps
+if exists(.HasSps) {
+  .event.Ext.jumplist.has_sps = to_string!(del(.HasSps))
+}
+
+# DestListVersion
+if exists(.DestListVersion) {
+  dlv_raw = to_string!(del(.DestListVersion))
+  dlv_val = parse_int(dlv_raw) ?? null
+  if dlv_val != null {
+    .event.Ext.jumplist.dest_list_version = dlv_val
+  } else {
+    .event.Ext.jumplist.dest_list_version_raw = dlv_raw
+  }
+}
+
+# ExtraBlocksPresent
+if exists(.ExtraBlocksPresent) {
+  .event.Ext.jumplist.extra_blocks_present = to_string!(del(.ExtraBlocksPresent))
+}
+
+# HeaderFlags
+if exists(.HeaderFlags) {
+  .event.Ext.jumplist.header_flags = to_string!(del(.HeaderFlags))
+}
+
+# FileAttributes (attributes of target / container)
+if exists(.FileAttributes) {
+  .file.attributes = to_string!(del(.FileAttributes))
+}
+
+# =============================================================================
+# App / jumplist identity
+# =============================================================================
+
+# AppId & description
+if exists(.AppId) {
+  .event.Ext.jumplist.app_id = to_string!(del(.AppId))
+}
+
+if exists(.AppIdDescription) {
+  .event.Ext.jumplist.app_description = to_string!(del(.AppIdDescription))
+}
+
+# customDestinations EntryName
+if exists(.EntryName) {
+  .event.Ext.jumplist.entry_name = to_string!(del(.EntryName))
+}
+
+# automaticDestinations MRU / EntryNumber / LastUsedEntryNumber
+if exists(.MRU) {
+  mru_raw = to_string!(del(.MRU))
+  mru_val = parse_int(mru_raw) ?? null
+  if mru_val != null {
+    .event.Ext.jumplist.mru = mru_val
+  } else {
+    .event.Ext.jumplist.mru_raw = mru_raw
+  }
+}
+
+if exists(.LastUsedEntryNumber) {
+  lu_raw = to_string!(del(.LastUsedEntryNumber))
+  lu_val = parse_int(lu_raw) ?? null
+  if lu_val != null {
+    .event.Ext.jumplist.last_used_entry_number = lu_val
+  } else {
+    .event.Ext.jumplist.last_used_entry_number_raw = lu_raw
+  }
+}
+
+if exists(.EntryNumber) {
+  en_raw = to_string!(del(.EntryNumber))
+  en_val = parse_int(en_raw) ?? null
+  if en_val != null {
+    .event.sequence = en_val
+  } else {
+    .event.Ext.jumplist.entry_number_raw = en_raw
+  }
+}
+
+# InteractionCount
+if exists(.InteractionCount) {
+  ic_raw = to_string!(del(.InteractionCount))
+  ic_val = parse_int(ic_raw) ?? null
+  if ic_val != null {
+    .event.Ext.jumplist.interaction_count = ic_val
+  } else {
+    .event.Ext.jumplist.interaction_count_raw = ic_raw
+  }
+}
+
+# PinStatus
+if exists(.PinStatus) {
+  ps_raw = to_string!(del(.PinStatus))
+  .event.Ext.jumplist.pin_status_raw = ps_raw
+  low = downcase(ps_raw)
+  if low == "true" {
+    .event.Ext.jumplist.pinned = true
+  } else if low == "false" {
+    .event.Ext.jumplist.pinned = false
+  }
+}
+
+# Notes (automaticDestinations)
+if exists(.Notes) {
+  .event.Ext.jumplist.notes = to_string!(del(.Notes))
+}
+
+# =============================================================================
+# Host / machine information
+# =============================================================================
+
+# Hostname / MacAddress
+if exists(.Hostname) {
+  hn = to_string!(del(.Hostname))
+  if hn != "" && !exists(.host.name) {
+    .host.name = hn
+  }
+}
+
+if exists(.MacAddress) {
+  mac = to_string!(del(.MacAddress))
+  if mac != "" && !exists(.host.mac) {
+    .host.mac = mac
+  }
+}
+
+# MachineID / MachineMACAddress (source machine)
+if exists(.MachineID) {
+  mid = to_string!(del(.MachineID))
+  .host.id = mid
+  if !exists(.host.name) && mid != "" {
+    .host.name = mid
+  }
+}
+
+if exists(.MachineMACAddress) {
+  mmac = to_string!(del(.MachineMACAddress))
+  if mmac != "" && !exists(.host.mac) {
+    .host.mac = mmac
+  }
+}
+
+# =============================================================================
+# Target path mapping (file.*)
+# =============================================================================
+
+# Preferred order for final file.path:
+#   1. Path (primary jump list target path)
+#   2. TargetIDAbsolutePath
+#   3. LocalPath
+#   4. CommonPath
+
+# 1) Path
+if exists(.Path) {
+  p_raw = to_string!(del(.Path))
+  if p_raw != "" && !exists(.file.path) {
+    .file.path = p_raw
+  }
+  .file.Ext.jumplist.path_raw = p_raw
+}
+
+# 2) TargetIDAbsolutePath
+if exists(.TargetIDAbsolutePath) {
+  tid_raw = to_string!(del(.TargetIDAbsolutePath))
+  if tid_raw != "" && !exists(.file.path) {
+    .file.path = tid_raw
+  }
+  .file.Ext.jumplist.target_id_absolute_path = tid_raw
+}
+
+# 3) LocalPath
+if exists(.LocalPath) {
+  lp_raw = to_string!(del(.LocalPath))
+  if lp_raw != "" && !exists(.file.path) {
+    .file.path = lp_raw
+  }
+  .file.Ext.jumplist.local_path = lp_raw
+}
+
+# 4) CommonPath
+if exists(.CommonPath) {
+  cp_raw = to_string!(del(.CommonPath))
+  if cp_raw != "" && !exists(.file.path) {
+    .file.path = cp_raw
+  }
+  .file.Ext.jumplist.common_path = cp_raw
+}
+
+# RelativePath & WorkingDirectory
+if exists(.RelativePath) {
+  .file.Ext.jumplist.relative_path = to_string!(del(.RelativePath))
+}
+
+if exists(.WorkingDirectory) {
+  .file.Ext.jumplist.working_directory = to_string!(del(.WorkingDirectory))
+}
+
+# Arguments (launch arguments)
+if exists(.Arguments) {
+  .file.Ext.jumplist.arguments = to_string!(del(.Arguments))
+}
+
+# Derive file.name from file.path if missing
+if exists(.file.path) && !exists(.file.name) {
+  fp = to_string!(.file.path)
+  parts = split!(fp, "\\\\")
+  plen = length(parts)
+  if plen > 0 {
+    idx = plen - 1
+    last_part = get!(parts, [idx])
+    .file.name = last_part
+  }
+}
+
+# =============================================================================
+# File size
+# =============================================================================
+
+if exists(.FileSize) {
+  fs_raw = to_string!(del(.FileSize))
+  fs_val = parse_int(fs_raw) ?? null
+  if fs_val != null {
+    .file.size = fs_val
+  } else {
+    .file.Ext.jumplist.file_size_raw = fs_raw
+  }
+}
+
+# =============================================================================
+# Drive / volume info
+# =============================================================================
+
+if exists(.DriveType) {
+  .file.Ext.jumplist.drive_type = to_string!(del(.DriveType))
+}
+
+if exists(.VolumeSerialNumber) {
+  .file.Ext.jumplist.volume_serial_number = to_string!(del(.VolumeSerialNumber))
+}
+
+if exists(.VolumeLabel) {
+  .file.Ext.jumplist.volume_label = to_string!(del(.VolumeLabel))
+}
+
+# Droid / BirthDroid GUIDs
+if exists(.FileBirthDroid) {
+  .file.Ext.jumplist.file_birth_droid = to_string!(del(.FileBirthDroid))
+}
+
+if exists(.FileDroid) {
+  .file.Ext.jumplist.file_droid = to_string!(del(.FileDroid))
+}
+
+if exists(.VolumeBirthDroid) {
+  .file.Ext.jumplist.volume_birth_droid = to_string!(del(.VolumeBirthDroid))
+}
+
+if exists(.VolumeDroid) {
+  .file.Ext.jumplist.volume_droid = to_string!(del(.VolumeDroid))
+}
+
+# =============================================================================
+# Target MFT info
+# =============================================================================
+
+if exists(.TargetMFTEntryNumber) {
+  .file.Ext.jumplist.target_mft_entry_number = to_string!(del(.TargetMFTEntryNumber))
+}
+
+if exists(.TargetMFTSequenceNumber) {
+  .file.Ext.jumplist.target_mft_sequence_number = to_string!(del(.TargetMFTSequenceNumber))
+}
+
+# =============================================================================
+# Timestamps
+# =============================================================================
+
+# Helper pattern: parse timestamp or keep *_raw
+
+# SourceCreated
+if exists(.SourceCreated) {
+  raw = to_string!(del(.SourceCreated))
+  if raw != "" {
+    ts_sc = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_sc != null {
+      .event.Ext.jumplist.source_created = ts_sc
+    } else {
+      .event.Ext.jumplist.source_created_raw = raw
+    }
+  }
+}
+
+# SourceModified
+if exists(.SourceModified) {
+  raw = to_string!(del(.SourceModified))
+  if raw != "" {
+    ts_sm = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_sm != null {
+      .event.Ext.jumplist.source_modified = ts_sm
+    } else {
+      .event.Ext.jumplist.source_modified_raw = raw
+    }
+  }
+}
+
+# SourceAccessed
+if exists(.SourceAccessed) {
+  raw = to_string!(del(.SourceAccessed))
+  if raw != "" {
+    ts_sa = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_sa != null {
+      .event.Ext.jumplist.source_accessed = ts_sa
+    } else {
+      .event.Ext.jumplist.source_accessed_raw = raw
+    }
+  }
+}
+
+# CreationTime (entry creation)
+if exists(.CreationTime) {
+  raw = to_string!(del(.CreationTime))
+  if raw != "" {
+    ts_ct = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_ct != null {
+      .event.Ext.jumplist.entry_created = ts_ct
+    } else {
+      .event.Ext.jumplist.entry_created_raw = raw
+    }
+  }
+}
+
+# LastModified (entry modification)
+if exists(.LastModified) {
+  raw = to_string!(del(.LastModified))
+  if raw != "" {
+    ts_lm = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_lm != null {
+      .event.Ext.jumplist.entry_last_modified = ts_lm
+    } else {
+      .event.Ext.jumplist.entry_last_modified_raw = raw
+    }
+  }
+}
+
+# TargetCreated → file.created
+if exists(.TargetCreated) {
+  raw = to_string!(del(.TargetCreated))
+  if raw != "" {
+    ts_tc = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_tc != null {
+      if !exists(.file.created) {
+        .file.created = ts_tc
+      }
+      .file.Ext.jumplist.target_created = ts_tc
+    } else {
+      .file.Ext.jumplist.target_created_raw = raw
+    }
+  }
+}
+
+# TargetModified → file.mtime
+if exists(.TargetModified) {
+  raw = to_string!(del(.TargetModified))
+  if raw != "" {
+    ts_tm = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_tm != null {
+      .file.mtime = ts_tm
+      .file.Ext.jumplist.target_modified = ts_tm
+    } else {
+      .file.Ext.jumplist.target_modified_raw = raw
+    }
+  }
+}
+
+# TargetAccessed → file.atime
+if exists(.TargetAccessed) {
+  raw = to_string!(del(.TargetAccessed))
+  if raw != "" {
+    ts_ta = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_ta != null {
+      .file.atime = ts_ta
+      .file.Ext.jumplist.target_accessed = ts_ta
+    } else {
+      .file.Ext.jumplist.target_accessed_raw = raw
+    }
+  }
+}
+
+# TrackerCreatedOn
+if exists(.TrackerCreatedOn) {
+  raw = to_string!(del(.TrackerCreatedOn))
+  if raw != "" {
+    ts_tr = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    if ts_tr != null {
+      .event.Ext.jumplist.tracker_created = ts_tr
+    } else {
+      .event.Ext.jumplist.tracker_created_raw = raw
+    }
+  }
+}
+
+# =============================================================================
+# Timestamp fallback for .timestamp
+#   1. event.Ext.jumplist.entry_last_modified => last time the file has been opened
+# =============================================================================
+
+ts_value = null
+ts_source = ""
+
+if exists(.event.Ext.jumplist.entry_last_modified) {
+  ts_value = .event.Ext.jumplist.entry_last_modified
+  ts_source = "jumplist.entry_last_modified"
+}
+
+if ts_value != null {
+  .timestamp = ts_value
+
+  if !exists(.event.created) {
+    .event.created = ts_value
+  }
+
+  .event.Ext.timestamp_source = ts_source
+}

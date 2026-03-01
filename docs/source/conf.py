@@ -8,7 +8,11 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../OSIR/'))
+# then into OSIR/src/
+sys.path.insert(0, os.path.abspath('../../OSIR/src'))
+
+# Add this line to also include the OSIR directory itself
+sys.path.insert(0, os.path.abspath('../../OSIR'))
 
 project = 'OSIR'
 copyright = '2024, maxspl - Typ'
@@ -27,6 +31,14 @@ extensions = [
 templates_path = ['_templates']
 exclude_patterns = []
 
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': False,
+    'private-members': False,
+    'special-members': '__init__',
+    'inherited-members': False,
+    'show-inheritance': True,
+}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

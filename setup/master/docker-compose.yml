@@ -4,6 +4,7 @@ services:
       dockerfile: MasterFile
       context: ./dockerfile
     container_name: master-master
+    hostname: OSIR-MASTER
     stdin_open: true
     tty: true
     privileged: true
@@ -15,16 +16,16 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - ../../:/OSIR
+      - ../../:/OSIR:rshared
     ports:
       - "8501:8501"
+      - "8989:8989"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     profiles:
       - "master-online"
       - "all"
     restart: always
-
   master-offline:
     image: master-master
     container_name: master-master
@@ -39,7 +40,7 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     volumes:
-      - ../../:/OSIR
+      - ../../:/OSIR:rshared
     ports:
       - "8501:8501"
     extra_hosts:
@@ -56,7 +57,7 @@ services:
     tty: true
     network_mode: bridge
     volumes:
-      - ./../../share:/Shared
+      - ./../../share:/Shared:rshared
     ports:
       - "139:139"
       - "445:445"
@@ -70,7 +71,7 @@ services:
     tty: true
     network_mode: bridge
     volumes:
-      - ./../../share:/Shared
+      - ./../../share:/Shared:rshared
     ports:
       - "139:139"
       - "445:445"
@@ -104,6 +105,7 @@ services:
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
       - ../splunk/apps/DECODE/:/opt/splunk/etc/apps/DECODE/ # DECODE app
+      - ../splunk/apps/Timeline-Explorer/:/opt/splunk/etc/apps/Timeline-Explorer/
     profiles:
       - "splunk-online"
       - "all"
@@ -130,6 +132,8 @@ services:
       - ../splunk/apps/DFIR_ORC/:/opt/splunk/etc/apps/DFIR_ORC/ # DFIR ORC app
       - ./dockerfile/sources/default.yml:/tmp/defaults/default.yml # Conffiguration file to enable HEC
       - ../splunk/apps/DECODE/:/opt/splunk/etc/apps/DECODE/ # DECODE app
+      - ../splunk/apps/Timeline-Explorer/:/opt/splunk/etc/apps/Timeline-Explorer/
+
     profiles:
       - "splunk-offline"
       - "all"
@@ -304,5 +308,26 @@ services:
       - postgres-offline
     profiles:
       - "default-offline"
+      - "all"
+    restart: always
+
+  api:
+    build:
+      dockerfile: FastApiFile
+      context: ./dockerfile
+    container_name: master-api
+    environment:
+      - HOST_HOSTNAME=${HOST_HOSTNAME}
+      - HOST_IP_LIST=${HOST_IP_LIST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
+    ports:
+      - "8502:8502"
+    volumes:
+      - ../../:/OSIR
+    profiles:
+      - "default"
       - "all"
     restart: always

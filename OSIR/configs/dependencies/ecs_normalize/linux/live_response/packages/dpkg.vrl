@@ -1,0 +1,141 @@
+# OSIR - dpkg package status normalizer
+# 
+# Schema:
+#     Source :
+#     [
+#         {
+#         "codes": <String>, // dpkg status codes (e.g., "ii", "rc", "iHR")
+#                            // First letter: desired state (u/i/r/p/h)
+#                            // Second letter: current state (n/i/c/U/F/h/W/t)
+#                            // Third letter: error state (R or space)
+#         "name": <String>, // package name
+#         "version": <String>, // package version
+#         "architecture": <String>, // package architecture (e.g., "amd64", "i386")
+#         "description": <String>, // package description
+#         "desired": <String>, // desired package state
+#         "status": <String> // current package status
+#         }
+#         ...
+#     ]
+# 
+#     Destination :
+# 
+#     [
+#         {
+#         "package.name": <String>, // package name
+#         "package.version": <String>, // package version
+#         "package.architecture": <String>, // package architecture
+#         "package.description": <String>, // package description
+#         "package.install_scope": <String>, // desired package state
+#         "package.type": <String>, // package type (always "dpkg")
+#         "labels.package_codes": <String>, // original dpkg status codes
+#         "labels.package_status": <String>, // current package status
+#         "labels.package_desired_state": <String>, // decoded desired state
+#                                                    // (unknown/install/remove/purge/hold)
+#         "labels.package_current_state": <String>, // decoded current state
+#                                                    // (not-installed/installed/config-files/
+#                                                    //  unpacked/half-configured/half-installed/
+#                                                    //  triggers-awaited/triggers-pending)
+#         "labels.package_error_state": <String>, // decoded error state (optional)
+#                                                  // (reinst-required)
+#         }
+#         ...
+#     ]
+
+
+# Mapping package fields
+if exists(.name) {
+    .package.name = to_string!(.name)
+}
+
+if exists(.version) {
+    .package.version = to_string!(.version)
+}
+
+if exists(.architecture) {
+    .package.architecture = to_string!(.architecture)
+}
+
+if exists(.description) {
+    .package.description = to_string!(.description)
+}
+
+if exists(.desired) {
+    .package.install_scope = to_string!(.desired)
+}
+
+# Set package type
+.package.type = "dpkg"
+
+# Store additional metadata in labels
+if exists(.status) {
+    .labels.package_status = to_string!(.status)
+}
+
+# Decode dpkg status codes
+if exists(.codes) {
+    codes = to_string!(.codes)
+    .labels.package_codes = codes
+    
+    # First character: Desired package state (selection state)
+    if length(codes) >= 1 {
+        desired_code = slice!(codes, 0, 1)
+        .labels.package_desired_state = if desired_code == "u" {
+            "unknown"
+        } else if desired_code == "i" {
+            "install"
+        } else if desired_code == "r" {
+            "remove"
+        } else if desired_code == "p" {
+            "purge"
+        } else if desired_code == "h" {
+            "hold"
+        } else {
+            desired_code
+        }
+    }
+    
+    # Second character: Current package state
+    if length(codes) >= 2 {
+        current_code = slice!(codes, 1, 2)
+        .labels.package_current_state = if current_code == "n" {
+            "not-installed"
+        } else if current_code == "i" {
+            "installed"
+        } else if current_code == "c" {
+            "config-files"
+        } else if current_code == "U" {
+            "unpacked"
+        } else if current_code == "F" {
+            "half-configured"
+        } else if current_code == "h" {
+            "half-installed"
+        } else if current_code == "W" {
+            "triggers-awaited"
+        } else if current_code == "t" {
+            "triggers-pending"
+        } else {
+            current_code
+        }
+    }
+    
+    # Third character: Error state (optional)
+    if length(codes) >= 3 {
+        error_code = slice!(codes, 2, 3)
+        if error_code != " " {
+            .labels.package_error_state = if error_code == "R" {
+                "reinst-required"
+            } else {
+                error_code
+            }
+        }
+    }
+}
+
+del(.codes)
+del(.name)
+del(.version)
+del(.architecture)
+del(.description)
+del(.desired)
+del(.status)
