@@ -149,7 +149,7 @@ class OsirModule(OsirModuleModel):
         except FileNotFoundError:
             return False
 
-    def _calculate_endpoint_name(self) -> str:
+    def _calculate_endpoint_name_b(self) -> str:
         """
             Parses the input file path to extract the originating computer name.
 
@@ -166,3 +166,37 @@ class OsirModule(OsirModuleModel):
         except Exception as e:
             logger.error(f"Error extracting endpoint: {e}")
         return 'UNKNOWN'
+
+    @staticmethod
+    def _first_group(m: re.Match) -> Optional[str]:
+        """
+        Return the first non-empty captured group from a regex match.
+
+        For an alternation regex like (?: (cap1) | (cap2) | (cap3) ...),
+        only one capture group will be non-None when a branch matches.
+        """
+        return next((g for g in m.groups() if g), None)
+
+    def _calculate_endpoint_name(self) -> str:
+        """
+        Parse the input file path (or other match string) to extract the originating
+        endpoint/hostname using a fallback regex strategy.
+
+        Returns:
+            str: The extracted endpoint/hostname if found, otherwise "UNKNOWN".
+        """
+        if not self.endpoint or not self.input or not self.input.match:
+            return 'UNKNOWN'
+
+        input_match_str = str(self.input.match)
+
+        try:
+            m = re.search(self.endpoint, input_match_str)
+            if m:
+                value = self._first_group(m)
+                if value:
+                    return value
+        except Exception as e:
+            logger.error(f"Error extracting endpoint: {e}")
+
+        return "UNKNOWN"

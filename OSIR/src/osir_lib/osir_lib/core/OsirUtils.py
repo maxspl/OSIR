@@ -3,6 +3,8 @@ import logging
 import io
 import json
 import os
+from pathlib import Path as _Path
+import xxhash
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -116,3 +118,21 @@ def remove_placeholders(text: str) -> str:
     """
     import re
     return re.sub(r'\{[^}]+\}', '', text)
+
+
+def compute_file_xxh3_128_prefix(path, prefix_size: int = 8192) -> str:
+    """
+    Computes xxh3_128 on only the first bytes of a file (default: first 8KB).
+
+    Args:
+        path (str | Path): Path to the file.
+        prefix_size (int): Number of bytes to read from the beginning.
+
+    Returns:
+        str: Hex digest of xxh3_128 over the prefix.
+    """
+    p = _Path(path)
+    h = xxhash.xxh3_128()
+    with p.open("rb") as f:
+        h.update(f.read(prefix_size))
+    return h.hexdigest()

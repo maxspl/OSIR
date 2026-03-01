@@ -99,6 +99,10 @@ class ModuleHandler(FileSystemEventHandler):
 
         self.agent_config = OsirAgentConfig()
 
+        # Used to check if file already processed under another name
+        self._seen_prefix_lock = threading.Lock()
+        self._seen_prefix = set()
+
         # Initialize a set and a lock to keep track of active timers
         self.active_timers = set()
         self.timers_lock = threading.Lock()
@@ -196,18 +200,18 @@ class ModuleHandler(FileSystemEventHandler):
 
     def on_created_new(self, event, module: OsirModuleModel):
         """
-            Handles the creation of new files or directories by checking them against 
-            module-specific filtering rules before triggering processing.
+        Handles the creation of new files or directories by checking them against 
+        module-specific filtering rules before triggering processing.
 
-            Args:
-                event (watchdog.events.FileSystemEvent): The event object representing 
-                    the file system change.
-                module (OsirModuleModel): The module configuration containing input 
-                    types, patterns, and processing logic.
+        Args:
+            event (watchdog.events.FileSystemEvent): The event object representing 
+                the file system change.
+            module (OsirModuleModel): The module configuration containing input 
+                types, patterns, and processing logic.
 
-            Returns:
-                None: This method performs actions (logging, triggering processing) 
-                    but does not return a value.
+        Returns:
+            None: This method performs actions (logging, triggering processing) 
+                but does not return a value.
         """
         if not hasattr(event, 'src_path'):
             logger.warning("Event without path, ignored.")
@@ -254,10 +258,21 @@ class ModuleHandler(FileSystemEventHandler):
 
             if self.check_match(src_path, pattern, module.__class__.__name__):
                 self.last_processed.add(file_module_pair)
-                logger.warning(self.last_processed)
+                # logger.warning(self.last_processed)
                 if module.input.type == "dir":
                     self.handle_directory_event(event, module)
                 elif module.input.type == "file":
+                    # Content-based dedup (prefix hash + size) to avoid duplicates under different paths.
+                    try:
+                        if self._is_duplicate_by_prefix_hash(
+                            module_name=module.module_name,
+                            file_path=event.src_path,
+                            prefix_size=8192
+                        ):
+                            logger.info(f"{module.module_name} - Skipping duplicate (prefix xxh3_128): {event.src_path}")
+                            return
+                    except Exception as e:
+                        logger.warning(f"{module.module_name} - Prefix hash dedup failed for {event.src_path}: {e}")
                     self.process(event.src_path, module)
 
                 break
@@ -462,3 +477,42 @@ class ModuleHandler(FileSystemEventHandler):
         """
         task_params = (normalize_osir_path(self.case_path), module_instance, self.case_uuid, self.handler_uuid)
         TaskService.push_task(*task_params)
+
+    def _is_duplicate_by_prefix_hash(self, module_name: str, file_path: str, prefix_size: int = 8192) -> bool:
+        """
+        Checks whether a file should be considered a duplicate using only a prefix hash.
+
+        This uses xxh3_128 over the first `prefix_size` bytes (default: 8KB) and stores
+        the resulting signature in an in-memory cache. This prevents re-processing the
+        same content when it appears under different paths/names *during the lifetime
+        of this WatchdogService instance*.
+
+        NOTE:
+            - This is not persisted (duplicates can reappear after restart).
+            - Prefix-hash dedup can cause false duplicates if two different files share
+            the same first bytes.
+
+        Args:
+            module_name (str): The module name (dedup scope is per module).
+            file_path (str): Path to the file to hash.
+            prefix_size (int): Prefix size in bytes to hash (default 8192).
+
+        Returns:
+            bool: True if the file is considered a duplicate (already seen),
+                False if it is new (and has been recorded).
+        """
+        from osir_lib.core.OsirUtils import compute_file_xxh3_128_prefix
+
+        try:
+            file_size = os.path.getsize(file_path)
+        except Exception:
+            file_size = -1
+
+        prefix_hash = compute_file_xxh3_128_prefix(file_path, prefix_size=prefix_size)
+        key = (module_name, file_size, prefix_hash)
+
+        with self._seen_prefix_lock:
+            if key in self._seen_prefix:
+                return True
+            self._seen_prefix.add(key)
+            return False

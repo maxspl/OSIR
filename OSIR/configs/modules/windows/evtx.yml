@@ -23,7 +23,7 @@ output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+endpoint: "(?:restore_fs\/(.*?)\/|\/Endpoint_(.*?)\/)"
 splunk:
   'windows:evtx:system':
     name_rex: System\.evtx.*\.jsonl$
