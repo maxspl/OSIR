@@ -210,7 +210,7 @@ class ModuleHandler(FileSystemEventHandler):
                     but does not return a value.
         """
         if not hasattr(event, 'src_path'):
-            logger.warning("Événement sans chemin source, ignoré.")
+            logger.warning("Event without path, ignored.")
             return
 
         src_path = Path(event.src_path)
@@ -244,7 +244,7 @@ class ModuleHandler(FileSystemEventHandler):
             return
 
         if not hasattr(module.input, 'paths') or not module.input.paths:
-            logger.debug(f"Aucun motif de chemin défini pour le module {module.__class__.__name__}, ignoré.")
+            logger.debug(f"No path pattern defined for the module {module.__class__.__name__}, skipping.")
             return
 
         for pattern in module.input.paths:
@@ -362,7 +362,7 @@ class ModuleHandler(FileSystemEventHandler):
 
         Args:
             event: The event object representing the directory event.
-            module_info (dict): Dictionary containing module information.
+            module_instance (OsirModuleModel): Module configuration instance
         """
         current_time = time.time()
         self.last_modified_times[event.src_path] = current_time
@@ -415,7 +415,7 @@ class ModuleHandler(FileSystemEventHandler):
 
         Args:
             path (str): Path to the directory being monitored.
-            module_info (dict): Dictionary containing module information.
+            module_instance (OsirModuleModel): Module configuration instance
         """
         logger.debug(f"Starting _check_for_idle for {path} - {module_instance.module_name}")
         current_size = self._get_directory_size(path)
@@ -436,11 +436,11 @@ class ModuleHandler(FileSystemEventHandler):
 
     def process(self, file_math: Path, module_instance: OsirModuleModel):
         """
-            Initiates processing of a directory based on the module configuration.
+            Initiates processing of a file or directory based on the module configuration.
 
             Args:
-                directory_path (str): Path to the directory to be processed.
-                module_info (dict): Dictionary containing module information.
+                match_path (Path): Path to the file or directory that matched the module input rules.
+                module_instance (OsirModuleModel): Module configuration instance to execute (will be deep-copied and updated).
         """
 
         logger.debug(f"""{module_instance.module_name}.yaml - Processing : \n
