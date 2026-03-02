@@ -75,7 +75,7 @@ class OsirWebFile:
                         module_model.input.match = selected_path
                         case_path = re.match(r'^(.*?/cases/[^/]+)', selected_path).group(1)
                         with OsirDb() as db:
-                            case_uuid = db.case.get(name=os.path.basename(case_path)).case_uuid
+                            case_uuid = db.case.create(name=os.path.basename(case_path)).case_uuid
                         TaskService.push_task(case_path=case_path, module_instance=module_model, case_uuid=case_uuid)
                         OsirWebUtils.toast(
                             txt="Task started ! Follow the progression in 'Task On Going' or in 'Orchestration Monitoring'",
@@ -92,7 +92,7 @@ class OsirWebFile:
                         module_model = OsirModuleModel.from_yaml(OSIR_PATHS.MODULES_DIR / event['action_id'])
                         case_path = re.match(r'^(.*?/cases/[^/]+)', selected_path).group(1)
                         with OsirDb() as db:
-                            case_uuid = db.case.get(name=os.path.basename(case_path)).case_uuid
+                            case_uuid = db.case.create(name=os.path.basename(case_path)).case_uuid
                         if os.path.isdir(selected_path):
                             files = [os.path.join(selected_path, f) for f in os.listdir(selected_path) if os.path.isfile(os.path.join(selected_path, f))]
                             if not files:
