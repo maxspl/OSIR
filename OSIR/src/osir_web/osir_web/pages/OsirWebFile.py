@@ -218,6 +218,7 @@ class OsirWebFile:
             except Exception as e:
                 logger.error_handler(e)
 
+        logger.info(module_rows)
         return module_rows
 
     @staticmethod
@@ -232,30 +233,6 @@ class OsirWebFile:
         folder_actions: list = None,
         light_mode: str = 'true'
     ):
-        """
-        Renders an interactive file explorer iframe.
-
-        Returns a dict with event info when a file/folder is selected OR when
-        an action is triggered:
-
-            Selection event:
-            {
-                "event": "SELECT|FILE" | "SELECT|DIR",
-                "path": "/full/path/to/item",
-                "name": "item_name",
-                "is_dir": True/False,
-                "size": int (bytes, 0 for dirs)
-            }
-
-            Action event:
-            {
-                "event": "ACTION",
-                "action_id": "module_id",
-                "path": "/full/path/to/item",
-                "name": "item_name",
-                "is_dir": True/False,
-            }
-        """
         tree = OsirWebFile._build_tree(root_path, max_depth=max_depth)
         tree_json = json.dumps(tree)
         root_json = json.dumps(root_path)
@@ -539,7 +516,6 @@ class OsirWebFile:
             .log-body::-webkit-scrollbar-track {{ background: var(--bg-panel); }}
             .log-body::-webkit-scrollbar-thumb {{ background: var(--bg-scrollbar); border-radius: 3px; }}
 
-            /* entry whose path doesn't match the selected file */
             .log-entry.dimmed {{
                 opacity: 0.32;
                 filter: grayscale(0.4);
@@ -581,7 +557,6 @@ class OsirWebFile:
             .log-level.debug   {{ background: #a371f718; color: var(--text-muted);      border: 1px solid #a371f733; }}
             .log-msg {{ color: var(--text-primary); flex: 1; line-height: 1.5; word-break: break-all; }}
 
-            /* small chip showing which file a log entry belongs to */
             .log-path-chip {{
                 font-size: 10px;
                 font-family: var(--font-mono);
@@ -633,27 +608,6 @@ class OsirWebFile:
                 gap: 10px;
                 flex-wrap: wrap;
             }}
-
-            .action-select {{
-                flex: 1;
-                min-width: 160px;
-                background: var(--bg-dark);
-                border: 1px solid var(--bg-border);
-                border-radius: 6px;
-                padding: 7px 28px 7px 10px;
-                color: var(--text-primary);
-                font-size: 12px;
-                font-family: var(--font-main);
-                outline: none;
-                cursor: pointer;
-                transition: border-color 0.2s;
-                appearance: none;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236e7681'/%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 10px center;
-            }}
-            .action-select:focus {{ border-color: var(--text-highlight); }}
-            .action-select option {{ background: var(--bg-panel); color: var(--text-primary); }}
 
             .action-desc {{
                 width: 100%;
@@ -734,9 +688,8 @@ class OsirWebFile:
                 --text-secondary: #57606a;
                 --text-highlight: #1a7f37;
             }}
-            .light-mode .action-select {{
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2357606a'/%3E%3C/svg%3E");
-            }}
+
+            /* ── Content card ── */
             .content-card {{
                 background: var(--bg-panel);
                 border: 1px solid var(--bg-border);
@@ -768,6 +721,168 @@ class OsirWebFile:
                 font-size: 12px;
                 font-style: italic;
                 text-align: center;
+            }}
+
+            /* ── Portal dropdown menu ────────────────────────────────── */
+            .osir-portal-menu {{
+                display: none;
+                position: fixed;
+                z-index: 99999;
+                min-width: 240px;
+                background: #1e1e2e;
+                border: 1px solid #444;
+                border-radius: 8px;
+                box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
+                flex-direction: column;
+                overflow: hidden;
+            }}
+
+            .osir-portal-menu.open {{ display: flex; }}
+
+            .light-mode .osir-portal-menu {{
+                background: #ffffff;
+                border-color: #d0d7de;
+                box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+            }}
+
+            .osir-menu-search {{
+                padding: 8px 10px;
+                border-bottom: 1px solid #333;
+                flex-shrink: 0;
+            }}
+
+            .light-mode .osir-menu-search {{
+                border-bottom-color: #d0d7de;
+            }}
+
+            .osir-menu-search input {{
+                width: 100%;
+                background: #13131f;
+                border: 1px solid #444;
+                border-radius: 5px;
+                padding: 5px 9px;
+                color: #cdd6f4;
+                font-size: 12px;
+                outline: none;
+                font-family: var(--font-main);
+                box-sizing: border-box;
+            }}
+
+            .light-mode .osir-menu-search input {{
+                background: #f6f8fa;
+                border-color: #d0d7de;
+                color: #31333F;
+            }}
+
+            .osir-menu-search input:focus {{ border-color: #89b4fa; }}
+
+            .osir-menu-list {{
+                overflow-y: auto;
+                padding: 4px 0;
+            }}
+
+            .osir-menu-list::-webkit-scrollbar {{ width: 4px; }}
+            .osir-menu-list::-webkit-scrollbar-track {{ background: #1e1e2e; }}
+            .osir-menu-list::-webkit-scrollbar-thumb {{ background: #444; border-radius: 3px; }}
+
+            .light-mode .osir-menu-list::-webkit-scrollbar-track {{ background: #f6f8fa; }}
+            .light-mode .osir-menu-list::-webkit-scrollbar-thumb {{ background: #d0d7de; }}
+
+            .osir-menu-group-label {{
+                padding: 6px 12px 3px 12px;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.1em;
+                color: #89b4fa;
+                text-transform: uppercase;
+                user-select: none;
+            }}
+
+            .light-mode .osir-menu-group-label {{
+                color: #0969da;
+            }}
+
+            .osir-item {{
+                padding: 6px 14px;
+                font-size: 12px;
+                color: #cdd6f4;
+                cursor: pointer;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+
+            .light-mode .osir-item {{
+                color: #31333F;
+            }}
+
+            .osir-item:hover {{
+                background: #313244;
+                color: #cba6f7;
+            }}
+
+            .light-mode .osir-item:hover {{
+                background: #eaeef2;
+                color: #1a7f37;
+            }}
+
+            .osir-item.hidden {{ display: none; }}
+
+            /* ── Trigger button ──────────────────────────────────────── */
+            .osir-action-row {{
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+            }}
+
+            .osir-action-row .run-btn {{ flex-shrink: 0; }}
+
+            .osir-dropdown {{
+                position: relative;
+                flex: 1;
+                user-select: none;
+            }}
+
+            .osir-selected {{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 10px;
+                background: #1e1e2e;
+                border: 1px solid #444;
+                border-radius: 6px;
+                cursor: pointer;
+                color: #cdd6f4;
+                font-size: 13px;
+            }}
+
+            .light-mode .osir-selected {{
+                background: #f6f8fa;
+                border-color: #d0d7de;
+                color: #31333F;
+            }}
+
+            .osir-selected:hover {{ border-color: #89b4fa; }}
+            .osir-caret {{ font-size: 11px; color: #888; }}
+
+            .osir-selected-label {{
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+                font-size: 12px;
+                font-family: var(--font-main);
+            }}
+
+            .osir-no-results {{
+                padding: 12px 14px;
+                color: #6e7681;
+                font-size: 12px;
+                font-style: italic;
+                text-align: center;
+                display: none;
             }}
             </style>
             </head>
@@ -811,7 +926,7 @@ class OsirWebFile:
             localStorage.setItem('fileExplorerLightMode', '{light_mode}');
             let allNodes    = [];
             let isLightMode = false;
-            let currentItem = null;   // tracks selected item for action dispatch
+            let currentItem = null;
 
             // ── Utilities ─────────────────────────────────────────────
             function getIcon(name, isDir) {{
@@ -848,7 +963,6 @@ class OsirWebFile:
                 .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             }}
             function escAttr(s) {{ return escHtml(s); }}
-
 
             // ── Streamlit events ──────────────────────────────────────
             function sendDataToPython(data) {{
@@ -905,12 +1019,9 @@ class OsirWebFile:
                 }}
                 return `<div class="content-body">${{escHtml(entry)}}</div>`;
             }}
+
             // ── Task-Log HTML builder ─────────────────────────────────
-            // selectedPath: the currently selected file's full path (or null)
-            // Entries with a "path" field are highlighted only when path === selectedPath;
-            // entries without a "path" field are always shown at full opacity.
             function buildTaskLogHTML(selectedPath) {{
-            
             const filteredLogs = FILE_TASK_LOG.filter(entry => entry.path === selectedPath);
             if (!filteredLogs || filteredLogs.length === 0) {{
                 return '<div class="log-empty">Not Loaded</div>';
@@ -923,9 +1034,6 @@ class OsirWebFile:
                 const msg     = entry.msg  || '';
                 const logPath = entry.path || null;
 
-                // Determine if this entry is "owned" by the selected file.
-                // If the entry has no path → always fully visible.
-                // If it has a path → dimmed when it doesn't match the selected file.
                 const isPathMismatch = logPath !== null && logPath !== selectedPath;
                 const dimClass = isPathMismatch ? ' dimmed' : '';
 
@@ -935,29 +1043,205 @@ class OsirWebFile:
                 <span class="log-msg">${{escHtml(msg)}}</span>
                 </div>`;
                 }}
-                
             }}).join('');
 
             return `<div class="log-body">${{rows}}</div>`;
             }}
 
-            // ── Action Card HTML builder ──────────────────────────────
+            // ── Dropdown helpers ──────────────────────────────────────
+            function groupActions(actions) {{
+                const tree = {{}};
+                for (const a of actions) {{
+                    const parts = a.id.replace('.yml', '').split('/');
+                    const cat = parts[0];
+                    if (!tree[cat]) tree[cat] = [];
+                    tree[cat].push(a);
+                }}
+                return tree;
+            }}
+
+            function buildCustomDropdown(actions, selectId, descId) {{
+                const first = actions[0] ?? null;
+                const firstLabel = first ? first.id : 'Select a module...';
+                const firstDesc  = first ? (first.description || '') : '';
+
+                const tree = groupActions(actions);
+                let itemsHtml = '';
+                for (const [cat, items] of Object.entries(tree)) {{
+                    itemsHtml += `<div class="osir-menu-group-label">${{escHtml(cat)}}</div>`;
+                    for (const a of items) {{
+                        itemsHtml += `<div class="osir-item"
+                            data-value="${{escAttr(a.id)}}"
+                            data-desc="${{escAttr(a.description || '')}}"
+                            data-select="${{selectId}}"
+                            data-desc-id="${{descId}}"
+                            onclick="osirSelectItem(this)">
+                            ${{escHtml(a.id)}}
+                        </div>`;
+                    }}
+                }}
+
+                return `
+                <div class="osir-action-row">
+                    <div class="osir-dropdown" id="${{selectId}}_dropdown"
+                         data-select-id="${{selectId}}"
+                         data-desc-id="${{descId}}">
+                        <div class="osir-selected" onclick="osirToggleDropdown('${{selectId}}')">
+                            <span class="osir-selected-label" id="${{selectId}}_label">${{escHtml(firstLabel)}}</span>
+                            <span class="osir-caret">▾</span>
+                        </div>
+                    </div>
+                    <button class="run-btn" onclick="runAction('${{selectId}}')">
+                        <span class="run-icon">▶</span> Run
+                    </button>
+                </div>
+                <input type="hidden" id="${{selectId}}" value="${{escAttr(first ? first.id : '')}}">
+                <div class="action-desc" id="${{descId}}_desc">${{escHtml(firstDesc)}}</div>
+
+                <div class="osir-portal-menu" id="${{selectId}}_menu" data-select-id="${{selectId}}" data-desc-id="${{descId}}">
+                    <div class="osir-menu-search">
+                        <input type="text" placeholder="🔍 Filter modules..."
+                               oninput="osirFilterMenu('${{selectId}}', this.value)"
+                               onclick="event.stopPropagation()">
+                    </div>
+                    <div class="osir-menu-list" id="${{selectId}}_list">
+                        ${{itemsHtml}}
+                        <div class="osir-no-results" id="${{selectId}}_noresults">No modules found</div>
+                    </div>
+                </div>`;
+            }}
+
+            function osirFilterMenu(selectId, query) {{
+                const list = document.getElementById(selectId + '_list');
+                const noResults = document.getElementById(selectId + '_noresults');
+                if (!list) return;
+                const q = query.toLowerCase().trim();
+                let anyVisible = false;
+                list.querySelectorAll('.osir-item').forEach(el => {{
+                    const match = !q || el.dataset.value.toLowerCase().includes(q);
+                    el.classList.toggle('hidden', !match);
+                    if (match) anyVisible = true;
+                }});
+                // Hide/show group labels based on visible children
+                list.querySelectorAll('.osir-menu-group-label').forEach(label => {{
+                    let next = label.nextElementSibling;
+                    let groupVisible = false;
+                    while (next && !next.classList.contains('osir-menu-group-label')) {{
+                        if (next.classList.contains('osir-item') && !next.classList.contains('hidden')) {{
+                            groupVisible = true;
+                        }}
+                        next = next.nextElementSibling;
+                    }}
+                    label.style.display = groupVisible ? '' : 'none';
+                }});
+                if (noResults) noResults.style.display = anyVisible ? 'none' : 'block';
+            }}
+
+            function osirEnsurePortal(selectId) {{
+                const menu = document.getElementById(selectId + '_menu');
+                if (menu && menu.parentElement !== document.body) {{
+                    document.body.appendChild(menu);
+                }}
+            }}
+
+            function osirToggleDropdown(selectId) {{
+                osirEnsurePortal(selectId);
+                const trigger = document.getElementById(selectId + '_dropdown');
+                const menu    = document.getElementById(selectId + '_menu');
+                if (!trigger || !menu) return;
+
+                const isOpen = menu.classList.contains('open');
+
+                // Close all open menus first
+                document.querySelectorAll('.osir-portal-menu.open').forEach(m => m.classList.remove('open'));
+
+                if (!isOpen) {{
+                    const rect  = trigger.getBoundingClientRect();
+                    const viewH = window.innerHeight;
+
+                    menu.style.minWidth = rect.width + 'px';
+                    menu.style.left     = rect.left + 'px';
+
+                    // Calculate available space above and below
+                    const spaceAbove = rect.top - 8;
+                    const spaceBelow = viewH - rect.bottom - 8;
+                    const preferAbove = spaceAbove > spaceBelow;
+
+                    // List max-height = available space minus search bar (~46px) and padding
+                    const overhead = 58;
+                    if (preferAbove) {{
+                        const listMaxH = Math.max(80, spaceAbove - overhead);
+                        menu.querySelector('.osir-menu-list').style.maxHeight = listMaxH + 'px';
+                        menu.style.bottom = (viewH - rect.top + 4) + 'px';
+                        menu.style.top    = 'auto';
+                    }} else {{
+                        const listMaxH = Math.max(80, spaceBelow - overhead);
+                        menu.querySelector('.osir-menu-list').style.maxHeight = listMaxH + 'px';
+                        menu.style.top    = (rect.bottom + 4) + 'px';
+                        menu.style.bottom = 'auto';
+                    }}
+
+                    menu.classList.add('open');
+
+                    // Ensure menu doesn't overflow left/right
+                    requestAnimationFrame(() => {{
+                        const mr = menu.getBoundingClientRect();
+                        if (mr.right > window.innerWidth - 8) {{
+                            menu.style.left = Math.max(8, window.innerWidth - mr.width - 8) + 'px';
+                        }}
+                        // Focus search input
+                        const input = menu.querySelector('.osir-menu-search input');
+                        if (input) input.focus();
+                    }});
+                }}
+            }}
+
+            function osirSelectItem(el) {{
+                const val    = el.dataset.value;
+                const desc   = el.dataset.desc;
+                const selId  = el.dataset.select;
+                const descId = el.dataset.descId;
+
+                document.getElementById(selId).value                = val;
+                document.getElementById(selId + '_label').innerText  = val;
+                document.getElementById(descId + '_desc').innerText  = desc;
+                document.getElementById(selId + '_menu').classList.remove('open');
+
+                // Clear the search filter
+                const searchInput = document.querySelector('#' + selId + '_menu .osir-menu-search input');
+                if (searchInput) {{ searchInput.value = ''; osirFilterMenu(selId, ''); }}
+            }}
+
+            // Close on outside click
+            document.addEventListener('click', function(e) {{
+                if (e.target.closest('.osir-dropdown') || e.target.closest('.osir-portal-menu')) return;
+                document.querySelectorAll('.osir-portal-menu.open').forEach(m => m.classList.remove('open'));
+            }});
+
+            window.addEventListener('scroll', osirRepositionOpenMenus, true);
+            window.addEventListener('resize',  osirRepositionOpenMenus);
+
+            function osirRepositionOpenMenus() {{
+                document.querySelectorAll('.osir-portal-menu.open').forEach(menu => {{
+                    const selId   = menu.dataset.selectId;
+                    const trigger = document.getElementById(selId + '_dropdown');
+                    if (!trigger) return;
+                    const rect  = trigger.getBoundingClientRect();
+                    const viewH = window.innerHeight;
+                    menu.style.left = rect.left + 'px';
+                    if (menu.style.bottom && menu.style.bottom !== 'auto') {{
+                        menu.style.bottom = (viewH - rect.top + 4) + 'px';
+                    }} else {{
+                        menu.style.top = (rect.bottom + 4) + 'px';
+                    }}
+                }});
+            }}
+
             function buildActionCardHTML(actions, selectId, descId) {{
                 if (!actions || actions.length === 0) return '';
 
-                const options = actions.map(a =>
-                    `<option value="${{escAttr(a.id)}}" data-desc="${{escAttr(a.description || '')}}">${{escHtml(a.label || a.id)}}</option>`
-                ).join('');
-
-                const firstDesc = (actions[0] && actions[0].description) ? escHtml(actions[0].description) : '';
-                const firstDescFile = (FILE_ACTIONS[0] && FILE_ACTIONS[0].description) ? escHtml(FILE_ACTIONS[0].description) : '';
-
                 const folderSelectId = selectId + '_folder';
                 const folderDescId   = descId   + '_folder';
-
-                const fileOptions = FILE_ACTIONS.map(a =>
-                    `<option value="${{escAttr(a.id)}}" data-desc="${{escAttr(a.description || '')}}">${{escHtml(a.label || a.id)}}</option>`
-                ).join('');
 
                 const folderActionCard = selectId === 'folderActionSel' ? `
                     <div class="action-card folder-action-card">
@@ -966,14 +1250,7 @@ class OsirWebFile:
                             Action on all files in dir
                         </div>
                         <div class="action-body">
-                            <select class="action-select" id="${{folderSelectId}}"
-                                    onchange="updateActionDesc('${{folderSelectId}}','${{folderDescId}}')">
-                                ${{fileOptions}}
-                            </select>
-                            <button class="run-btn" onclick="runFolderAction('${{folderSelectId}}')">
-                                <span class="run-icon">▶</span> Run
-                            </button>
-                            <div class="action-desc" id="${{folderDescId}}">${{firstDescFile}}</div>
+                            ${{buildCustomDropdown(FILE_ACTIONS, folderSelectId, folderDescId)}}
                         </div>
                     </div>` : '';
 
@@ -985,14 +1262,7 @@ class OsirWebFile:
                             Action
                         </div>
                         <div class="action-body">
-                            <select class="action-select" id="${{selectId}}"
-                                    onchange="updateActionDesc('${{selectId}}','${{descId}}')">
-                                ${{options}}
-                            </select>
-                            <button class="run-btn" onclick="runAction('${{selectId}}')">
-                                <span class="run-icon">▶</span> Run
-                            </button>
-                            <div class="action-desc" id="${{descId}}">${{firstDesc}}</div>
+                            ${{buildCustomDropdown(actions, selectId, descId)}}
                         </div>
                     </div>
                     ${{folderActionCard}}
@@ -1015,6 +1285,7 @@ class OsirWebFile:
             const actionId = sel.value;
             if (actionId) sendActionEvent(actionId, currentItem, 'RUN_MODULE');
             }}
+
             function runFolderAction(selectId) {{
                 if (!currentItem) return;
                 const sel = document.getElementById(selectId);
@@ -1065,8 +1336,7 @@ class OsirWebFile:
                     const opening = !childrenEl.classList.contains('open');
                     childrenEl.classList.toggle('open', opening);
                     toggle.textContent = opening ? '▼' : '▶';
-                    icon.textContent   = opening ? '📂' : '📁';     
-                }} else {{
+                    icon.textContent   = opening ? '📂' : '📁';
                 }}
 
                 showDetail(item);
@@ -1098,7 +1368,6 @@ class OsirWebFile:
                 </div>`;
 
             if (item.is_dir) {{
-                // ── Folder detail ──────────────────────────────────────
                 const childRows = (item.children || []).map(c => `
                 <div class="cl-row" onclick="focusNode('${{c.path}}')">
                     <span class="ci">${{getIcon(c.name, c.is_dir)}}</span>
@@ -1116,8 +1385,6 @@ class OsirWebFile:
                 FOLDER_ACTIONS, 'folderActionSel', 'folderActionDesc'
                 );
 
-                
-
                 p.innerHTML = `
                 ${{header}}
                 <div class="stats">
@@ -1129,8 +1396,6 @@ class OsirWebFile:
                 `;
 
             }} else {{
-                // ── File detail ────────────────────────────────────────
-                // const matchedCount = FILE_TASK_LOG.filter(e => !e.path || e.path === item.path).length;
                 const contentCard = `
                 <div class="content-card">
                     <div class="card-header">
@@ -1140,13 +1405,13 @@ class OsirWebFile:
                     </div>
                     ${{buildContentHTML(item.path)}}
                 </div>`;
+
                 const taskLogCard = `
                 <div class="task-log-card">
                     <div class="card-header">
                     <span class="card-icon">📋</span>
                     Task Log
-                    <div class="badge btn " onclick="sendActionEvent('LOAD_LOG', '${{item.path}}', 'LOAD_LOG')">Load log</div>
-                    
+                    <div class="badge btn" onclick="sendActionEvent('LOAD_LOG', '${{item.path}}', 'LOAD_LOG')">Load log</div>
                     </div>
                     ${{buildTaskLogHTML(item.path)}}
                 </div>`;
@@ -1251,14 +1516,13 @@ class OsirWebFile:
                 }} else if (retries > 0) {{
                     setTimeout(() => selectInitialNodeWhenReady(path, retries - 1), 50);
                 }}
-            }}  
-
+            }}
 
             // ── Init ──────────────────────────────────────────────────
             buildTree(TREE, document.getElementById('treePanel'));
             isLightMode = localStorage.getItem('fileExplorerLightMode') === 'true';
             document.body.classList.toggle('light-mode', isLightMode);
-            
+
             if (window.Streamlit) window.Streamlit.setFrameHeight();
             </script>
             <script>
@@ -1283,7 +1547,7 @@ class OsirWebFile:
                     INITIAL_SELECTION = event.data.args.initial_selection;                    
                 }}
                 if (event.data.args.content) {{
-                    FILE_CONTENT = event.data.args.content;  // ← dict {{path: "content string"}}
+                    FILE_CONTENT = event.data.args.content;
                 }}
                 requestAnimationFrame(() => selectInitialNode(INITIAL_SELECTION));
                 }}
