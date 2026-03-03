@@ -139,8 +139,6 @@ class OsirWebMonitoring:
 
                     previous_handler_id = st.session_state.selected_handler_id
 
-                    # Save values to session state for Tab 2
-                    logger.info(selected_row["case_name"])
                     st.session_state.selected_case_name = str(selected_row["case_name"])
                     st.session_state.selected_handler_id = str(selected_row["handler_id"])
                     event = pd.DataFrame()
