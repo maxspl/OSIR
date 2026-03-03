@@ -43,7 +43,7 @@ class OsirWebFile:
         )
         
         OsirWebFile._init_session_state()
-
+        
         is_light = "false"
         if st.context.theme.type == 'light':
             is_light = "true"
