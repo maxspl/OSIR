@@ -35,6 +35,10 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
     output_prefix_no_endpoint: Optional[str] = None
     updated: Optional[bool] = False
 
+    # TODO: Not the best implemantation i think 
+    output_file_without_suffix: Optional[str] = None
+    output_dir_without_suffix: Optional[str] = None
+
     def _hash_path(self, path: str) -> str:
         """
             Generates an MD5 hash of a given path string.
@@ -82,7 +86,9 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
             if self.output_file:
                 formatted_filename = self.safe_format(self.output_file, **replacements)
                 self.output_file = str(Path(self.output_dir) / formatted_filename)
-
+            
+            self.output_dir_without_suffix = self.output_dir
+            self.output_file_without_suffix = self.output_file
             self.apply_suffix("output_dir")
             self._ensure_output_dir_exists()
             self.apply_suffix("output_file")
