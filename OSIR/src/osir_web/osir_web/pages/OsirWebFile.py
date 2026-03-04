@@ -774,7 +774,7 @@ class OsirWebFile:
                 color: #31333F;
             }}
 
-            .osir-menu-search input:focus {{ border-color: #89b4fa; }}
+            .osir-menu-search input:focus {{ border-color: #1a7f37; }}
 
             .osir-menu-list {{
                 overflow-y: auto;
@@ -799,7 +799,7 @@ class OsirWebFile:
             }}
 
             .light-mode .osir-menu-group-label {{
-                color: #0969da;
+                color: #1a7f37;
             }}
 
             .osir-item {{
@@ -864,7 +864,7 @@ class OsirWebFile:
                 color: #31333F;
             }}
 
-            .osir-selected:hover {{ border-color: #89b4fa; }}
+            .osir-selected:hover {{ border-color: #1a7f37; }}
             .osir-caret {{ font-size: 11px; color: #888; }}
 
             .osir-selected-label {{
