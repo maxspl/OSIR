@@ -61,17 +61,3 @@ class OsirWeb:
 if __name__ == "__main__":
     app = OsirWeb()
     app.render()
-
-# if __name__ == "__main__":
-#     app = ConfigurationApp()
-#     st.set_page_config(
-#         page_title="OSIR",
-#         layout="wide",
-#         initial_sidebar_state="expanded",
-#         menu_items={
-#             "Get help": "https://github.com/maxspl/OSIR",
-#             "Report a bug": "https://github.com/maxspl/OSIR",
-#             "About": "OSIR"
-#         }
-#     )
-#     app.run()

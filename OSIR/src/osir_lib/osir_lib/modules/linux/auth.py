@@ -51,3 +51,5 @@ class AuthModule(LogUtils):
 
         except Exception as exc:
             logger.error_handler(exc)
+            return False
+        return True

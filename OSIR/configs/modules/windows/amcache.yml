@@ -1,28 +1,39 @@
-version: 1.1
-author: maxspl
-module: amcache
-description: Parsing of amcache artifact.
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of amcache artifact.
+  os: windows
+
+configuration:
+  module: amcache
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: windows
+  processor_os: windows
+
 tool: 
   path: net9/AmcacheParser.exe
   cmd: -f "{input_file}" --csv "{output_dir}" --csvf "{output_file}"
-  source:
-  version: 
+  source: https://github.com/EricZimmerman/AmcacheParser
+  version: 1.2.0
+
 input:
   type: file
   name: Amcache\.hve$
   path: Windows/AppCompat/Programs
+
 output:
   type: single_file
   format: csv
   output_file: "{endpoint_name}--{module}-{input_file}.csv"
-endpoint: "restore_fs\/(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)$"
+  default: "UNKNOWN"
+
 splunk:
   'windows:amcache':
     name_rex: \.csv$

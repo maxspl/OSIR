@@ -1,22 +1,29 @@
-version: 1.0
-author: maxspl
-module: indexer
-description: Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk configuration instead of dependencies/*_indexer_patterns.yml
-os: windows
-type: post_parsing
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk
+    configuration instead of dependencies/*_indexer_patterns.yml
+  os: windows
+
+configuration:
+  module: indexer
+  type: post_parsing
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: python
   cmd: /OSIR/OSIR/bin/json2splunk/json2splunk.py --input {input_dir} --index {case_name} --config_spl /OSIR/setup/conf/agent.yml --indexer_patterns {indexer_path} 
   source: https://github.com/maxspl/json2splunk
   version: 1.25.06.2024
+
 input:
   type: dir
   path: "{case_path}"
+
 output:
   type: single_file
   format: jsonl

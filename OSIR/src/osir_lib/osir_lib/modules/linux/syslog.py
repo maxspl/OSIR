@@ -58,6 +58,8 @@ class SyslogModule(LogUtils):
             logger.debug(f"{self.module.module_name} done")
         except Exception as exc:
             logger.error_handler(exc)
+            return False
+        return True
 
     def parse_event_type(self, log: str) -> str:
         if "starting" in log:

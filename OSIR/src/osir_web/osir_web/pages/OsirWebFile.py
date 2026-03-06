@@ -207,18 +207,17 @@ class OsirWebFile:
                     module_rows.append({
                         "id": mod,
                         "label": mod,
-                        "description": content.description
+                        "description": content.metadata.description
                     })
                 if not for_file and content.input.type == 'dir':
                     module_rows.append({
                         "id": mod,
                         "label": mod,
-                        "description": content.description
+                        "description": content.metadata.description
                     })
             except Exception as e:
                 logger.error_handler(e)
 
-        logger.info(module_rows)
         return module_rows
 
     @staticmethod

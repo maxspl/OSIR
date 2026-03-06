@@ -291,7 +291,7 @@ class OsirWebMonitoring:
             left, right = st.columns([3, 1])
             with left:
                 with st.container(border=True):
-                    st.caption("#### 🛠️ Task")
+                    st.caption("### 🛠️ Task")
                     st.code(task_info.task_id, language=None)
                     st.caption(
                         f"🕐 Created: {task_info.timestamp} · "
@@ -301,14 +301,14 @@ class OsirWebMonitoring:
                     with st.container(border=True):
                         title, btn = st.columns([4, 1])
                         with title:
-                            st.caption("#### 📡 Status")
+                            st.caption("### 📡 Status")
                         with btn:
                             if st.button("🔄", key="refresh_status_btn"):
                                 st.rerun()
                         st.code(status_text, language=None)
                         st.caption(task_info.processing_status)
             with st.container(border=True):
-                st.markdown("##### ℹ️ Information")
+                st.caption("### ℹ️ Information")
                 c1, c2, c3, c4 = st.columns(4)
                 with c1:
                     st.caption("CASE UUID")
@@ -324,7 +324,7 @@ class OsirWebMonitoring:
                     st.code(trace.get('function', 'N/A'), language=None)
 
             with st.container(border=True):
-                st.markdown("##### 📊 Metrics")
+                st.caption("### 📊 Metrics")
                 m1, m2, m3 = st.columns(3)
                 with m1:
                     st.caption("⏱️ DURATION")
@@ -342,7 +342,7 @@ class OsirWebMonitoring:
 
                 title, _, btn = st.columns([4, 2, 1])
                 with title:
-                    st.markdown("##### 📜 Execution Traces")
+                    st.caption("### 📜 Execution Traces")
                 with btn:
                     st.download_button(
                         label="⬇️",
@@ -373,7 +373,7 @@ class OsirWebMonitoring:
                     st.warning("No execution logs available for this task.")
             
             with st.container(border=True):
-                st.markdown("##### ⚡ Actions")
+                st.caption("### ⚡ Actions")
                 if st.button("🔁 Rerun Task", key="rerun_task_btn"):
                     with st.spinner("Resubmitting task..."):
                         try:

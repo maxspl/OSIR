@@ -1,27 +1,38 @@
-version: 1.0
-author: maxspl
-module: win_netstat
-alt_module: live_response_dispatcher
-description: Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)
+  os: windows
+
+configuration:
+  module: win_netstat
+  alt_module: live_response_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: file
   paths: 
     - "**/extracted_files/General/netstat.txt"
-    - r"netstat_.*\.txt$" 
+    - r"netstat_.*\.txt$"
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 optional:
   parser: netstat
+
 splunk:
   'windows:live_response:netstat':
     name_rex: --win_netstat\.jsonl$

@@ -51,7 +51,7 @@ class OsirModule(OsirModuleModel):
             self.tool = OsirTool(**self.tool.model_dump())
             if self.env:
                 self.tool.env = self.env
-            self.tool.init_tool(self.processor_os)
+            self.tool.init_tool(self.configuration.processor_os)
         if isinstance(self.input, OsirInputModel):
             self.input = OsirInput(**self.input.model_dump())
         if isinstance(self.connector, OsirConnectorModel):
@@ -91,14 +91,14 @@ class OsirModule(OsirModuleModel):
             Raises:
                 ValueError: If the internal module logic cannot be loaded.
         """
-        if "internal" in self.processor_type:
-            if self.alt_module:
-                if self.find_and_load_internal_module(self.alt_module):
+        if "internal" in self.configuration.processor_type:
+            if self.configuration.alt_module:
+                if self.find_and_load_internal_module(self.configuration.alt_module):
                     return self
 
             if not self.find_and_load_internal_module():
                 raise ValueError(
-                    f"The module '{self.module}' could not be found or does not "
+                    f"The module '{self.configuration.module}' could not be found or does not "
                     f"contain a valid PyModule class within {OSIR_PATHS.PY_MODULES_DIR}."
                 )
         return self
@@ -114,7 +114,11 @@ class OsirModule(OsirModuleModel):
         if not self.case_path:
             return ""
 
-        return str(Path(self.case_path) / self.module)
+        return str(Path(self.case_path) / self.configuration.module)
+
+    @property
+    def module(self) -> str:
+        return self.configuration.module
 
     @property
     def case_name(self) -> str:
@@ -149,54 +153,36 @@ class OsirModule(OsirModuleModel):
         except FileNotFoundError:
             return False
 
-    def _calculate_endpoint_name_b(self) -> str:
-        """
-            Parses the input file path to extract the originating computer name.
-
-            Returns:
-                str: The extracted hostname/endpoint, or 'UNKNOWN' if extraction fails.
-        """
-        if not self.endpoint or not self.input or not self.input.match:
-            return 'UNKNOWN'
-        try:
-            input_match_str = str(self.input.match)
-            endpoint_match = re.search(self.endpoint, input_match_str)
-            if endpoint_match and endpoint_match.groups():
-                return endpoint_match.group(1)
-        except Exception as e:
-            logger.error(f"Error extracting endpoint: {e}")
-        return 'UNKNOWN'
-
-    @staticmethod
-    def _first_group(m: re.Match) -> Optional[str]:
-        """
-        Return the first non-empty captured group from a regex match.
-
-        For an alternation regex like (?: (cap1) | (cap2) | (cap3) ...),
-        only one capture group will be non-None when a branch matches.
-        """
-        return next((g for g in m.groups() if g), None)
-
     def _calculate_endpoint_name(self) -> str:
         """
-        Parse the input file path (or other match string) to extract the originating
-        endpoint/hostname using a fallback regex strategy.
+            Parse the input file path (or other match string) to extract the originating
+            endpoint/hostname using a fallback regex strategy.
 
-        Returns:
-            str: The extracted endpoint/hostname if found, otherwise "UNKNOWN".
+            Returns:
+                str: The extracted endpoint/hostname if found, otherwise "UNKNOWN".
         """
         if not self.endpoint or not self.input or not self.input.match:
             return 'UNKNOWN'
 
+        if not self.endpoint.patterns:
+            return self.endpoint.default
+        
         input_match_str = str(self.input.match)
 
         try:
-            m = re.search(self.endpoint, input_match_str)
-            if m:
-                value = self._first_group(m)
-                if value:
-                    return value
+            for pattern in self.endpoint.patterns:
+                if pattern.startswith(('r"', "r'")):
+                    pattern = pattern[2:-1]
+
+                endpoint_match = re.search(pattern, input_match_str)
+
+                if endpoint_match and endpoint_match.groups():
+                    return endpoint_match.group(1)
+
         except Exception as e:
             logger.error(f"Error extracting endpoint: {e}")
-
-        return "UNKNOWN"
+        
+        if self.endpoint.default:
+            return self.endpoint.default
+        else:
+            return "UNKNOWN"

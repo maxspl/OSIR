@@ -1,29 +1,40 @@
-version: 1.0
-author: maxspl
-module: jump_list
-description: Parsing of jump list artifact.
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of jump list artifact.
+  os: windows
+
+configuration:
+  module: jump_list
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: windows
+  processor_os: windows
+
 tool: 
   path: net9/JLECmd.exe
   cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" -q --all --fd
   source: https://ericzimmerman.github.io/
   version: 1.5
+
 input:
   type: dir
   paths: 
   - "**/Artefacts/recentFile"
   - "**/recentFile"
+
 output:
   type: single_file
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 splunk:
   'windows:jumplist':
     name_rex: \.csv$

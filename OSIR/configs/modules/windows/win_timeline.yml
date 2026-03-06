@@ -1,24 +1,34 @@
-version: 1.1
-author: maxspl
-module: win_timeline
-description: Parsing of Windows Timeline (ActivitiesCache.db) artifact. Tool from Nihith (https://github.com/bolisettynihith/ActivitiesCacheParser)
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of Windows Timeline (ActivitiesCache.db) artifact. Tool from Nihith (https://github.com/bolisettynihith/ActivitiesCacheParser)
+  os: windows
+
+configuration:
+  module: win_timeline
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: python
   cmd: /OSIR/OSIR/bin/ActivitiesCacheParser/ActivitiesCacheParser.py -f "{input_file}" --o "{output_dir}"
   source: https://github.com/maxspl/ActivitiesCacheParser
   version: 2025.09.30
+
 input:
   type: file
   name: ActivitiesCache\.db$
+
 output:
   type: multiple_files
   format: csv
   output_prefix: "{endpoint_name}--{module}-"
-endpoint: restore_fs/(.*?)/
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+  default: "UNKNOWN"

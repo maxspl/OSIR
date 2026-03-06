@@ -1,27 +1,38 @@
-version: 1.0
-author: maxspl
-module: recycle_bin
-description: Parsing of recycle bin artifact.
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of recycle bin artifact.
+  os: windows
+
+configuration:
+  module: recycle_bin
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: windows
+  processor_os: windows
+
 tool: 
   path: net9/RBCmd.exe
   cmd: -d '{input_dir}' --csv "{output_dir}" --csvf "{output_file}" -q 
-  source:
-  version: 
+  source: https://github.com/EricZimmerman/RBCmd
+  version: 1.6.0
+
 input:
   type: dir
   path: $Recycle.Bin
+
 output:
   type: single_file
   format: csv
   output_file: "{endpoint_name}--{module}.csv"
-endpoint: "restore_fs\/(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+  default: "UNKNOWN"
+
 splunk:
   'windows:recyclebin':
     name_rex: \.csv$

@@ -53,6 +53,8 @@ class YumModule(LogUtils):
             logger.debug(f"{self.module.module_name} done")
         except Exception as exc:
             logger.error_handler(exc)
+            return False
+        return True
 
     def parse(self, log):
         """

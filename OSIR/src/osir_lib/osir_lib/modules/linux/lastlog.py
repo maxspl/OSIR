@@ -81,11 +81,10 @@ class LastlogModule(LogUtils):
 
             writer_queue.put(None)
             logger.debug(f"{self.module.module_name} done")
-            return True
         except Exception as exc:
             logger.error_handler(exc)
             return False
-
+        return True
     def parse(self, log_chunk, format_type):
         """
         Parse a single log chunk according to the given format.

@@ -1,28 +1,40 @@
-version: 1.0
-author: maxspl
-module: pstree_security
-description: Parse output of EVTX module to build process tree from security.evtx - event ID 4688
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse output of EVTX module to build process tree from security.evtx
+    - event ID 4688
+  os: windows
+
+configuration:
+  module: pstree_security
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: python
   cmd: OSIR/OSIR/bin/log2pstree/log2pstree.py --input {input_file} --pid-path "Event.EventData.NewProcessId" --ppid-path "Event.EventData.ProcessId" --exe-path "Event.EventData.NewProcessName" --cmdline-path "Event.EventData.CommandLine" --time-path "Event.System.TimeCreated.#attributes.SystemTime" --event-id-path "Event.System.EventID" --event-id-value "4688" --output-dir {output_dir}
   source: https://github.com/maxspl/log2pstree
   version: 2025.08.07
+
 input:
   type: file
   name: -Security\.evtx.*?\.jsonl$
   path: evtx/
+
 output:
   type: multiple_files
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
-endpoint: "evtx\/(.*?)--"
+
+endpoint: 
+  patterns:
+    - r"evtx\/(.*?)--"
+  default: "UNKNOWN"
+
 splunk:
   'windows:evtx:pstree':
     name_rex: nodes\.jsonl$

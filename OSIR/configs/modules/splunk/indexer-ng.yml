@@ -1,14 +1,19 @@
-version: 1.0
-author: maxspl
-module: indexer-ng
-description: Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs configuration.
-os: generic
-type: post_parsing
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs
+    configuration.
+  os: generic
+
+configuration:
+  module: indexer-ng
+  type: post_parsing
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: json2splunk-rs
   cmd: >-
@@ -16,9 +21,11 @@ tool:
     --indexer_patterns {indexer_path} --vrl_dir /OSIR/OSIR/configs/dependencies/
   source: https://github.com/maxspl/json2splunk-rs/releases
   version: 1.4
+
 input:
   type: dir
   path: "{case_path}"
+
 output:
   type: single_file
   format: jsonl

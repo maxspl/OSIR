@@ -1,27 +1,38 @@
-version: 1.0
-author: maxspl
-module: browsers
-description: Parsing of browsers artifact.
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of browsers artifact.
+  os: windows
+
+configuration:
+  module: browsers
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: python
   cmd: /OSIR/OSIR/bin/BrowserParser/main.py {input_dir} {output_dir} --json
   source: https://github.com/seba7236/BrowserParser
   version: 1.0.1
+
 input:
   type: dir
   path: r"restore_fs\/[^\/]+\/C$"
+
 output:
   type: multiple_files
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
-endpoint: "restore_fs\/(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+  default: "UNKNOWN"
+
 splunk:
   'application:firefox':
     name_rex: .*firefox.*\.json$

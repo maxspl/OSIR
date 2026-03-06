@@ -1,14 +1,18 @@
-version: 1.0
-author: Typ
-module: indexer-ng
-description: Splunk logs ingestion of Mongodb logs.
-os: generic
-type: post_parsing
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: Typ
+  description: Splunk logs ingestion of Mongodb logs.
+  os: generic
+
+configuration:
+  module: indexer-ng
+  type: post_parsing
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: json2splunk-rs
   cmd: >-
@@ -16,13 +20,16 @@ tool:
     --indexer_patterns /OSIR/OSIR/configs/modules/splunk/mongodb.yml --vrl_dir /OSIR/OSIR/configs/dependencies/
   source: https://github.com/maxspl/json2splunk-rs/releases
   version: 1.3
+
 input:
   type: file
   paths: 
     - "**/var/log/mongodb/*.log"
     - r"^mongod.log$"
+
 output:
   type: None
+
 splunk:
   'linux:app:mongodb':
     name_rex: mongod.log$

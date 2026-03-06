@@ -1,29 +1,40 @@
-version: 1.0
-author: maxspl
-module: pstree_live_response
-description: Parse processes1.csv to produce pstree
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse processes1.csv to produce pstree
+  os: windows
+
+configuration:
+  module: pstree_live_response
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: python
   cmd: OSIR/OSIR/bin/log2pstree/log2pstree.py --input {input_file} --pid-path "ProcessId" --ppid-path "ParentProcessId" --exe-path "ProcessName" --cmdline-path "CommandLine" --time-path "CreationDate" --output-dir {output_dir}
   source: https://github.com/maxspl/log2pstree
   version: 2025.08.07
+
 input:
   type: file
   paths: 
     - "**/extracted_files/Powershell/processes1.csv"
     - "**/extracted_files/powershell/processeswmi*.csv"
+
 output:
   type: multiple_files
   format: jsonl
   output_prefix: "{endpoint_name}--{module}-"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 splunk:
   'windows:live_response:pstree':
     name_rex: nodes\.jsonl$

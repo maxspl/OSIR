@@ -1,26 +1,37 @@
-version: 1.0
-author: maxspl
-module: win_arp_cache
-alt_module: live_response_dispatcher
-description: Parse arp_cache.txt from DFIR ORC (arp -a command)
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse arp_cache.txt from DFIR ORC (arp -a command)
+  os: windows
+
+configuration:
+  module: win_arp_cache
+  alt_module: live_response_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: file
   name: arp_cache.txt
   path: extracted_files/General/
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 optional:
   parser: arp_cache
+
 splunk:
   'windows:live_response:arp_cache':
     name_rex: --win_arp_cache\.jsonl$

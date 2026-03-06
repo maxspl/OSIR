@@ -108,7 +108,7 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
         """
             Creates if the output directory exists on the master filesystem.
         """
-        if self._context.processor_os == 'unix' and self._context.type != 'post_parsing':
+        if self._context.configuration.processor_os == 'unix' and self._context.configuration.type != 'post_parsing':
             Path(self.output_dir).mkdir(parents=True, exist_ok=True)
 
     def _rename_items_recursively(self):

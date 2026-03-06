@@ -1,25 +1,36 @@
-version: 1.0
-author: maxspl
-module: IIS
-alt_module: dissect_dispatcher
-description: Parse IIS from DFIR ORC restore_fs using Dissect plugin
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse IIS from DFIR ORC restore_fs using Dissect plugin
+  os: windows
+
+configuration:
+  module: IIS
+  alt_module: dissect_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: dir
   path: r"restore_fs\/[^\/]*$"
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "restore_fs\/(.*?)$"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)$"
+  default: "UNKNOWN"
+
 optional:
   plugin: iis
+
 splunk:
   'windows:iis':
     name_rex: --IIS\.jsonl$

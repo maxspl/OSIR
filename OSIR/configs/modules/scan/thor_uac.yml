@@ -1,27 +1,38 @@
-version: 1.0
-author: typ
-module: thor_uac
-description: Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).
-os: generic
-type: process
-disk_only: False
-no_multithread: True
-processor_type: 
+metadata:
+  version: "2.0"
+  author: Typ
+  description: Scan of collected UAC (output of extract_uac module) files using Thor
+    (requires Forensic license).
+  os: generic
+configuration:
+  module: thor_uac
+  type: process
+  disk_only: false
+  no_multithread: true
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: thor/thor-linux-64
   cmd: --lab --nocsv --silent --nolog -p {input_dir} --jsonfile {output_file}
   source: https://www.nextron-systems.com/thor/
   version: 1.0
+
 input:
   type: dir
   path: r"extract_uac\/[^\/]+\/extracted_files$"
+
 output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "extract_uac\/Endpoint_(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
 splunk:
   'thor:files':
     name_rex: \.jsonl$

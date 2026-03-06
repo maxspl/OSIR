@@ -1,14 +1,18 @@
-version: 1.0
-author: maxspl
-module: collect_info_uac
-description: Hash of DFIR UAC collected file
-os: unix
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Hash of DFIR UAC collected file
+  os: unix
+
+configuration:
+  module: collect_info_uac
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: /usr/bin/find
   cmd:  -P {input_dir} -name "uac-*.tar.gz" -exec sh -c
@@ -17,14 +21,21 @@ tool:
     [ "$birth" = "-1" ] && birth=$(stat -c %Y "$1");
     jq -n -c --arg sha1 "$sha1" --arg date "$birth" --arg name "$(basename "$1")" "{sha1:\$sha1,date:\$date,name:\$name}"' sh {} \;
     > {output_file}
+
 input:
   type: dir
   path: extract_uac/*
+
 output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "Endpoint_(.*?)$"
+
+endpoint: 
+  patterns:
+    - r"Endpoint_(.*?)$"
+  default: "UNKNOWN"
+
 splunk:
   'collect:info':
     name_rex: \.jsonl$

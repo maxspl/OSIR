@@ -1,27 +1,38 @@
-version: 1.0
-author: maxspl
-module: win_handle
-alt_module: live_response_dispatcher
-description: Parse handle from DFIR ORC (handle.exe /a command)
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse handle from DFIR ORC (handle.exe /a command)
+  os: windows
+
+configuration:
+  module: win_handle
+  alt_module: live_response_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: file
   paths: 
     - "**/extracted_files/General/handle.txt"
-    - r"handle_.*\.txt$" 
+    - r"handle_.*\.txt$"
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 optional:
   parser: handle
+
 splunk:
   'windows:live_response:handle':
     name_rex: --win_handle\.jsonl$

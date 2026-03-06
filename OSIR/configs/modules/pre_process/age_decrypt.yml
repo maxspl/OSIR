@@ -1,14 +1,18 @@
-version: 1.0
-author: maxspl
-module: age_decrypt
-description: Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
-os: generic
-type: pre-process
-disk_only: True
-no_multithread: True
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
+  os: generic
+
+configuration:
+  module: age_decrypt
+  type: pre-process
+  disk_only: true
+  no_multithread: true
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: age
   source: 
@@ -19,11 +23,17 @@ tool:
     mkdir -p "$outdir" &&
     tar -zxvf "{output_dir}/{endpoint_name}" -C "$outdir" &&
     mv "{input_file}" "{output_dir}/"
+
 input:
   type: file
   paths: 
     - r"\.age$"
+
 output:
   type: multiple_files
   format: raw
-endpoint: \/([^\/]+)\.age
+
+endpoint: 
+  patterns:
+    - r"\/([^\/]+)\.age"
+  default: "NOT_FOUND"

@@ -89,7 +89,7 @@ class OsirPathTransformerMixin:
         if not hasattr(self, "_context") or self._context is None:
             return None
 
-        os_type = self._context.processor_os
+        os_type = self._context.configuration.processor_os
         if os_type == 'unix':
             return None
         elif os_type == 'windows':

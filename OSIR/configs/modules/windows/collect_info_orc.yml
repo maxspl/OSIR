@@ -1,14 +1,18 @@
-version: 1.0
-author: maxspl
-module: collect_info_orc
-description: Hash of DFIR ORC collected file
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Hash of DFIR ORC collected file
+  os: windows
+
+configuration:
+  module: collect_info_orc
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: /usr/bin/find
   cmd:  -P {input_dir} -name "DFIR-ORC_*.7z" -exec sh -c
@@ -17,14 +21,21 @@ tool:
     [ "$birth" = "-1" ] && birth=$(stat -c %Y "$1");
     jq -n -c --arg sha1 "$sha1" --arg date "$birth" --arg name "$(basename "$1")" "{sha1:\$sha1,date:\$date,name:\$name}"' sh {} \;
     > {output_file}
+
 input:
   type: dir
   path: extract_orc/*
+
 output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "Endpoint_(.*?)$"
+
+endpoint: 
+  patterns:
+    - r"Endpoint_(.*?)$"
+  default: "UNKNOWN"
+  
 splunk:
   'collect:info':
     name_rex: \.jsonl$

@@ -1,22 +1,28 @@
-version: 1.0
-author: maxspl
-module: zeek
-description: Parsing of pcap files using zeek
-os: network
-type: process
-disk_only: False
-no_multithread: True
-processor_type: 
-  - external
-processor_os: unix
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of pcap files using zeek
+  os: network
+
+configuration:
+  module: zeek
+  type: process
+  disk_only: False
+  no_multithread: True
+  processor_type: 
+    - external
+  processor_os: unix
+
 tool: 
   path: docker
   cmd: run --rm -v agent_OSIR_volume:/OSIR/ public.ecr.aws/zeek/zeek:latest zeek -C -r {input_file} LogAscii::use_json=T Log::default_logdir={output_dir} ; for file in {output_dir}/*.log; do mv "$file" "${file%.log}.jsonl" ;done
   source: public.ecr.aws/zeek/zeek:latest
   version: latest
+
 input:
   type: file
   name: \.pcap$
+
 output:
   type: multiple_files
   format: jsonl

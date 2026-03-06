@@ -1,14 +1,18 @@
-version: 1.0
-author: maxspl
-module: orc_offline
-description: Used to execute DFIR ORC on dd capture  
-os: windows
-type: pre-process
-disk_only: False
-no_multithread: True
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Used to execute DFIR ORC on dd capture
+  os: windows
+
+configuration:
+  module: orc_offline
+  type: pre-process
+  disk_only: false
+  no_multithread: true
+  processor_type:
   - external
-processor_os: windows
+  processor_os: windows
+
 tool: 
   path: python.exe
   cmd: >-
@@ -16,11 +20,17 @@ tool:
     -i "{input_file}" -o "{output_dir}" -e "{endpoint_name}"
   source: https://github.com/dfir-orc
   version: latest
+
 input:
   type: file
   name: \.dd$
   path: r"\/[^\/]+--"
+
 output:
   type: multiple_files
   format: raw
-endpoint: "\/([^\/]+)--"
+
+endpoint: 
+  patterns:
+    - r"\/([^\/]+)--"
+  default: "UNKNOWN"

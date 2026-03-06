@@ -1,29 +1,40 @@
-version: 1.0
-author: Kelly Brazil
-module: ps
-description: Kelly Brazil - JsonConverter - Parsing the output of the command ps and ps -ef
-os: unix
-type: process
-requirements:
-disk_only: false
-no_multithread: false
-processor_type:
+metadata:
+  version: "2.0"
+  author: Kelly Brazil
+  description: Kelly Brazil - JsonConverter - Parsing the output of the command ps
+    and ps -ef
+  os: unix
+
+configuration:
+  module: ps
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool:
   path: cat
   cmd: "{input_file} | jc --ps | jq -c '.[]' > {output_file}"
+
 input:
   type: file
   paths:
     - r"\/ps\.txt$"
     - r"\/ps_-ef\.txt$"
+
 output:
   type: single_file
   format: json
   output_dir: "{case_path}/live_response/process"
   output_file: "{endpoint_name}--{input_file}.jsonl"
-endpoint: "extract_uac\/(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"extract_uac\/(.*?)\/"
+  default: "UNKNOWN"
+
 splunk:
   'linux:live_response:ps':
     name_rex: \.jsonl$

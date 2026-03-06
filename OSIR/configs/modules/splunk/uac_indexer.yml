@@ -1,23 +1,28 @@
-version: 1.0
-author: Typ
-module: uac_indexer
-description: Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
-os: unix
-type: post-process
-requirements:
-disk_only: False
-no_multithread: True
-processor_type: 
+metadata:
+  version: "2.0"
+  author: Typ
+  description: Splunk logs ingestion (UAC) using json2splunk configuration from dependencies/uac_indexer_patterns.yml
+  os: unix
+
+configuration:
+  module: uac_indexer
+  type: post-process
+  disk_only: false
+  no_multithread: true
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: python
   cmd: /OSIR/OSIR/bin/json2splunk/json2splunk.py --input {input_dir} --index {case_name} --config_spl /OSIR/setup/conf/agent.yml --indexer_patterns /OSIR/OSIR/configs/dependencies/uac_indexer_patterns.yml
   source: https://github.com/maxspl/json2splunk
   version: 1.25.06.2024
+
 input:
   type: dir
   path: "{case_path}"
+
 output:
   type: None
 
