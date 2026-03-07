@@ -7,23 +7,15 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   src.osir_client.osir_client.api
+   src.osir_client.osir_client.client
 
 Submodules
 ----------
 
-src.osir\_client.osir\_client.main module
------------------------------------------
+src.osir\_client.osir\_client.OsirClient module
+-----------------------------------------------
 
-.. automodule:: src.osir_client.osir_client.main
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-src.osir\_client.osir\_client.osir\_cli module
-----------------------------------------------
-
-.. automodule:: src.osir_client.osir_client.osir_cli
+.. automodule:: src.osir_client.osir_client.OsirClient
    :members:
    :show-inheritance:
    :undoc-members:

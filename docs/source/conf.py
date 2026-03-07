@@ -13,7 +13,8 @@ sys.path.insert(0, os.path.abspath('../../OSIR/src'))
 
 # Add this line to also include the OSIR directory itself
 sys.path.insert(0, os.path.abspath('../../OSIR'))
-
+sys.path.insert(0, os.path.abspath("../../OSIR/src/osir_api"))
+sys.path.insert(0, os.path.abspath("../../OSIR/src/osir_client"))
 project = 'OSIR'
 copyright = '2024, maxspl - Typ'
 author = 'maxspl - Typ'
@@ -26,6 +27,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',  # Optional, for Google-style docstrings
     'sphinx.ext.viewcode',  # Optional, for viewing source code
+    'sphinxcontrib.video'
 ]
 
 templates_path = ['_templates']

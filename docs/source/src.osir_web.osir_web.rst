@@ -13,10 +13,10 @@ Subpackages
 Submodules
 ----------
 
-src.osir\_web.osir\_web.Processor module
-----------------------------------------
+src.osir\_web.osir\_web.OsirWeb module
+--------------------------------------
 
-.. automodule:: src.osir_web.osir_web.Processor
+.. automodule:: src.osir_web.osir_web.OsirWeb
    :members:
    :show-inheritance:
    :undoc-members:

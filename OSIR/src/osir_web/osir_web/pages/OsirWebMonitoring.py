@@ -158,6 +158,8 @@ class OsirWebMonitoring:
                     if st.button("❌ Clear all tables for this case", type="primary", disabled=not confirm_delete):
                         with st.spinner(f"Deleting entries for case: {filters.case_name}..."):
                             OsirWebUtils.delete_handler_task(filters.case_name)
+                            st.session_state.selected_task_id = ""
+                            st.session_state.selected_handler_id = ""
                         st.success(f"✅ All data related to case '{filters.case_name}' was deleted from the database.")
     
     @staticmethod

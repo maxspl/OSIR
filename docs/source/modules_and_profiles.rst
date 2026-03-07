@@ -76,31 +76,41 @@ srum.yml
 
 .. code-block:: yaml
 
-    version: 1.0
-    author:
-    module: srum
-    description: Parsing of SRUM artifact.
-    os: windows
-    type: process
-    disk_only: False
-    no_multithread: False
-    processor_type: 
+    metadata:
+      version: "2.0"
+      author: maxspl
+      description: Parsing of SRUM artifact.
+      os: windows
+
+    configuration:
+      module: srum
+      type: process
+      disk_only: false
+      no_multithread: false
+      processor_type:
       - external
-    processor_os: unix
+      processor_os: unix
+
     tool: 
       path: artemis
       cmd: acquire --format JSONL --output-dir {output_dir} srum --alt-file {input_file}
       source: https://github.com/maxspl/artemis
       version: 1.1
+
     input:
       type: file
       name: SRUDB\.dat
       path: Windows/System32/sru
+
     output:
       type: multiple_files
       format: csv
       output_prefix: "{endpoint_name}--{module}-"
-    endpoint: "restore_fs\\/(.*?)\\/"
+
+    endpoint: 
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
 
 
 Parameters
@@ -240,8 +250,9 @@ output: **Required**
 endpoint: **Optional** 
 **********************
 
-    - Regex pattern to capture the name of the endpoint in the path of the input dir or the input directory. 
-    - Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.
+    - patterns: **Optional** List of Regex pattern to capture the name of the endpoint in the path of the input dir or the input directory. 
+        - Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.
+    - default: **Optional** Name of the endpoint if patterns doesn't match
 
 optional: **Optional**
 ***********************
@@ -304,7 +315,7 @@ These variables are available in ``tool.cmd`` sections:
      - ``tool.cmd``
 
 Output Variables
-----------------
+--------------
 
 These variables are available in ``output.output_file`` and ``output.output_prefix`` sections:
 

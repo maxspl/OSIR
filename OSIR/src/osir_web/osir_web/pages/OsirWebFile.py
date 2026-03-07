@@ -1594,7 +1594,25 @@ class OsirWebFile:
             return []
         items = []
         try:
-            entries = sorted(os.scandir(path), key=lambda e: (not e.is_dir(), e.name.lower()))
+            # Collect entries safely, skipping any that raise I/O errors
+            raw_entries = []
+            try:
+                scanner = os.scandir(path)
+            except OSError:
+                return []
+
+            for entry in scanner:
+                try:
+                    _ = entry.is_dir()  # Pre-flight check — will raise if inaccessible
+                    raw_entries.append(entry)
+                except OSError:
+                    continue  # Skip unreadable entries like $Secure
+
+            entries = sorted(
+                raw_entries,
+                key=lambda e: (not e.is_dir(), e.name.lower())
+            )
+
             for entry in entries:
                 if entry.name.startswith('.'):
                     continue
@@ -1610,9 +1628,13 @@ class OsirWebFile:
                         item["size"] = entry.stat().st_size
                 except OSError:
                     pass
+
                 if entry.is_dir():
-                    item["children"] = OsirWebFile._build_tree(entry.path, max_depth, current_depth + 1)
+                    item["children"] = OsirWebFile._build_tree(
+                        entry.path, max_depth, current_depth + 1
+                    )
                 items.append(item)
+
         except PermissionError:
             pass
         return items

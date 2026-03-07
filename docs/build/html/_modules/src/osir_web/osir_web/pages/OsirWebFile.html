@@ -1,0 +1,1779 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_web.osir_web.pages.OsirWebFile &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.osir_web.osir_web.pages.OsirWebFile</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.osir_web.osir_web.pages.OsirWebFile</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">streamlit.components.v1</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">components</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_web.pages.OsirWebUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirWebUtils</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_web.pages.OsirWebHeader</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirWebHeader</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OsirWebFile">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebFile.OsirWebFile">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OsirWebFile</span><span class="p">:</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_session_state</span><span class="p">():</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize session state variables if they don&#39;t exist.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;last_selected_path&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">last_selected_path</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;initial_selection&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">initial_selection</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">CASES_DIR</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;previous_select&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">previous_select</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;task_log&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">task_log</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="s1">&#39;file_content&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">file_content</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="OsirWebFile.render">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebFile.OsirWebFile.render">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">():</span>
+        <span class="n">OsirWebHeader</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="s2">&quot;OSIR — File &amp; Folder&quot;</span><span class="p">,</span>
+            <span class="n">subtitle</span><span class="o">=</span><span class="s2">&quot;Execute modules on file or folder.&quot;</span>
+        <span class="p">)</span>
+        
+        <span class="n">OsirWebFile</span><span class="o">.</span><span class="n">_init_session_state</span><span class="p">()</span>
+        
+        <span class="n">is_light</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">theme</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;light&#39;</span><span class="p">:</span>
+            <span class="n">is_light</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+
+        <span class="n">file_explorer_component</span> <span class="o">=</span> <span class="n">OsirWebFile</span><span class="o">.</span><span class="n">create_file_explorer_component</span><span class="p">(</span><span class="n">is_light</span><span class="o">=</span><span class="n">is_light</span><span class="p">)</span>
+
+        <span class="n">event</span> <span class="o">=</span> <span class="n">file_explorer_component</span><span class="p">(</span>
+            <span class="n">height</span><span class="o">=</span><span class="mi">720</span><span class="p">,</span>
+            <span class="n">log</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">task_log</span><span class="p">,</span>
+            <span class="n">initial_selection</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">initial_selection</span><span class="p">,</span>
+            <span class="n">content</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">file_content</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">event</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+            <span class="n">selected_path</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">selected_path</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Path must be set in event try reload the page&quot;</span><span class="p">)</span>
+            <span class="k">match</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">]:</span>
+                <span class="k">case</span> <span class="s2">&quot;LOAD_LOG&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">previous_select</span> <span class="o">!=</span> <span class="n">selected_path</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">task_log</span> <span class="o">=</span> <span class="n">OsirWebFile</span><span class="o">.</span><span class="n">get_taks_log</span><span class="p">(</span><span class="n">selected_path</span><span class="p">)</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">previous_select</span> <span class="o">=</span> <span class="n">selected_path</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">initial_selection</span> <span class="o">=</span> <span class="n">selected_path</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+                <span class="k">case</span> <span class="s2">&quot;RUN_MODULE&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">module_model</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span> <span class="o">/</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;action_id&#39;</span><span class="p">])</span>
+                        <span class="n">module_model</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="n">selected_path</span>
+                        <span class="n">case_path</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(.*?/cases/[^/]+)&#39;</span><span class="p">,</span> <span class="n">selected_path</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">case_path</span><span class="p">))</span><span class="o">.</span><span class="n">case_uuid</span>
+                        <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">=</span><span class="n">module_model</span><span class="p">,</span> <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+                        <span class="n">OsirWebUtils</span><span class="o">.</span><span class="n">toast</span><span class="p">(</span>
+                            <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;Task started ! Follow the progression in &#39;Task On Going&#39; or in &#39;Orchestration Monitoring&#39;&quot;</span><span class="p">,</span>
+                            <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#28a745&quot;</span><span class="p">,</span>
+                            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;🎉&quot;</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">OsirWebUtils</span><span class="o">.</span><span class="n">toast</span><span class="p">(</span>
+                            <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;An error occured report it in &#39;Report &amp; Github&#39;&quot;</span><span class="p">,</span>
+                            <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#dc2626&quot;</span><span class="p">,</span>
+                            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;🚨&quot;</span><span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">case</span> <span class="s2">&quot;RUN_FOLDER_ACTION&quot;</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">module_model</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span> <span class="o">/</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;action_id&#39;</span><span class="p">])</span>
+                        <span class="n">case_path</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(.*?/cases/[^/]+)&#39;</span><span class="p">,</span> <span class="n">selected_path</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">case_path</span><span class="p">))</span><span class="o">.</span><span class="n">case_uuid</span>
+                        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">selected_path</span><span class="p">):</span>
+                            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">selected_path</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">selected_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">selected_path</span><span class="p">,</span> <span class="n">f</span><span class="p">))]</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">files</span><span class="p">:</span>
+                                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No files found in directory: </span><span class="si">{</span><span class="n">selected_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing file: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                <span class="n">module_model</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="n">file</span>
+                                <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">=</span><span class="n">module_model</span><span class="p">,</span> <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+
+                            <span class="n">OsirWebUtils</span><span class="o">.</span><span class="n">toast</span><span class="p">(</span>
+                                <span class="n">txt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Tasks started for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files! Follow progression in &#39;Task On Going&#39; or &#39;Orchestration Monitoring&#39;&quot;</span><span class="p">,</span>
+                                <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#28a745&quot;</span><span class="p">,</span>
+                                <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;🎉&quot;</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Selected path is not a directory: </span><span class="si">{</span><span class="n">selected_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">OsirWebUtils</span><span class="o">.</span><span class="n">toast</span><span class="p">(</span>
+                            <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;An error occurred. Report it in &#39;Report &amp; Github&#39;&quot;</span><span class="p">,</span>
+                            <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#dc2626&quot;</span><span class="p">,</span>
+                            <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;🚨&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+                <span class="k">case</span> <span class="s2">&quot;LOAD_CONTENT&quot;</span><span class="p">:</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># Resolve real absolute path (resolves ../ etc)</span>
+                        <span class="n">resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+                        <span class="n">allowed</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/OSIR/share/cases&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+                        <span class="c1"># Security checks</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolved</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">allowed</span><span class="p">):</span>
+                            <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;Access denied: path outside allowed directory&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolved</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;File not found&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolved</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Path is not a file&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">resolved</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;File is empty&quot;</span><span class="p">)</span>
+                        
+                        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">resolved</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+                                <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+                                <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                                    <span class="k">break</span>
+                                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+                    <span class="k">except</span> <span class="ne">PermissionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;⛔ </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;❓ </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;⚠️ </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;❌ Error reading file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+
+                    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">previous_select</span> <span class="o">=</span> <span class="n">path</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">initial_selection</span> <span class="o">=</span> <span class="n">path</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">file_content</span> <span class="o">=</span> <span class="p">{</span><span class="n">path</span><span class="p">:</span> <span class="n">content</span><span class="p">}</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
+                <span class="k">case</span> <span class="s2">&quot;DOWNLOAD&quot;</span><span class="p">:</span>
+                    <span class="n">path</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">resolved</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+                        <span class="n">allowed</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/OSIR/share/cases&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolved</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">allowed</span><span class="p">):</span>
+                            <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;Access denied&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">resolved</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">resolved</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;File not found&quot;</span><span class="p">)</span>
+
+                        <span class="n">st</span><span class="o">.</span><span class="n">divider</span><span class="p">()</span>
+
+                        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">resolved</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                            <span class="n">OsirWebUtils</span><span class="o">.</span><span class="n">toast</span><span class="p">(</span>
+                                <span class="n">txt</span><span class="o">=</span><span class="s2">&quot;File successfuly loaded go at the bottom of the page.&quot;</span><span class="p">,</span>
+                                <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#28a745&quot;</span><span class="p">,</span>
+                                <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;🎉&quot;</span>
+                            <span class="p">)</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">download_button</span><span class="p">(</span>
+                                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;⬇️ Your download is ready ! Click on me !&quot;</span><span class="p">,</span>
+                                <span class="n">data</span><span class="o">=</span><span class="n">f</span><span class="p">,</span>
+                                <span class="n">file_name</span><span class="o">=</span><span class="n">resolved</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                                <span class="n">mime</span><span class="o">=</span><span class="s2">&quot;application/octet-stream&quot;</span><span class="p">,</span>
+                                <span class="n">key</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;dl_</span><span class="si">{</span><span class="n">resolved</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="OsirWebFile.get_taks_log">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebFile.OsirWebFile.get_taks_log">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_taks_log</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get_by_output</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">logs</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[{</span><span class="o">**</span><span class="n">log</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">}</span> <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">logs</span><span class="o">.</span><span class="n">get_logs</span><span class="p">()]</span>    
+            <span class="k">return</span> <span class="p">[{</span><span class="s1">&#39;msg&#39;</span><span class="p">:</span> <span class="s2">&quot;There is no log associated with this file&quot;</span><span class="p">,</span> <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="s2">&quot;ts&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">}]</span></div>
+
+
+<div class="viewcode-block" id="OsirWebFile.get_all_module">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebFile.OsirWebFile.get_all_module">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_module</span><span class="p">(</span><span class="n">for_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="n">module_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">modules</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_yaml_files</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+            <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">for_file</span> <span class="ow">and</span> <span class="n">content</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">:</span>
+                    <span class="n">module_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">mod</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">mod</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">content</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">description</span>
+                    <span class="p">})</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">for_file</span> <span class="ow">and</span> <span class="n">content</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;dir&#39;</span><span class="p">:</span>
+                    <span class="n">module_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">mod</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">mod</span><span class="p">,</span>
+                        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">content</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">description</span>
+                    <span class="p">})</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">module_rows</span></div>
+
+
+<div class="viewcode-block" id="OsirWebFile.file_explorer">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebFile.OsirWebFile.file_explorer">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">file_explorer</span><span class="p">(</span>
+        <span class="n">root_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">650</span><span class="p">,</span>
+        <span class="n">key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">initial_selection</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">file_task_log</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">file_actions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">folder_actions</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">light_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;true&#39;</span>
+    <span class="p">):</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">OsirWebFile</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">root_path</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">)</span>
+        <span class="n">tree_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="n">root_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">root_path</span><span class="p">)</span>
+        <span class="n">initial_selection_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">initial_selection</span><span class="p">)</span>
+        <span class="n">file_task_log_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">file_task_log</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="n">file_actions_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">file_actions</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="n">folder_actions_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">folder_actions</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="n">light_mode</span> <span class="o">=</span> <span class="n">light_mode</span>
+        <span class="n">html</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;</span>
+<span class="s2">            &lt;html lang=&quot;en&quot;&gt;</span>
+<span class="s2">            &lt;head&gt;</span>
+<span class="s2">            &lt;meta charset=&quot;UTF-8&quot;/&gt;</span>
+<span class="s2">            &lt;link rel=&quot;preconnect&quot; href=&quot;https://fonts.googleapis.com&quot;&gt;</span>
+<span class="s2">            &lt;link href=&quot;https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Syne:wght@700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;</span>
+<span class="s2">            &lt;style&gt;</span>
+<span class="s2">            :root </span><span class="se">{{</span>
+<span class="s2">                --bg-dark: #0d0f14;</span>
+<span class="s2">                --bg-darker: #0d1117;</span>
+<span class="s2">                --bg-panel: #161b22;</span>
+<span class="s2">                --bg-item-hover: #1f2937;</span>
+<span class="s2">                --bg-selected: #21c55d18;</span>
+<span class="s2">                --bg-border: #21262d;</span>
+<span class="s2">                --bg-scrollbar: #30363d;</span>
+<span class="s2">                --text-primary: #c9d1d9;</span>
+<span class="s2">                --text-secondary: #6e7681;</span>
+<span class="s2">                --text-highlight: #21c55d;</span>
+<span class="s2">                --text-warn: #f0a43a;</span>
+<span class="s2">                --text-error: #f85149;</span>
+<span class="s2">                --text-info: #58a6ff;</span>
+<span class="s2">                --border-radius: 10px;</span>
+<span class="s2">                --card-border-radius: 12px;</span>
+<span class="s2">                --font-main: &quot;Source Sans&quot;, sans-serif;</span>
+<span class="s2">                --font-mono: &#39;JetBrains Mono&#39;, monospace;</span>
+<span class="s2">                --font-title: &quot;Source Sans&quot;, sans-serif;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            * </span><span class="se">{{</span><span class="s2"> margin: 0; padding: 0; box-sizing: border-box; </span><span class="se">}}</span>
+
+<span class="s2">            html, body </span><span class="se">{{</span>
+<span class="s2">                background: transparent;</span>
+<span class="s2">                color: var(--text-primary);</span>
+<span class="s2">                font-family: var(--font-main);</span>
+<span class="s2">                font-size: 13px;</span>
+<span class="s2">                height: 100%;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .card-container </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-darker);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: var(--card-border-radius);</span>
+<span class="s2">                height: 100%;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .layout </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">                height: 100%;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Toolbar ── */</span>
+<span class="s2">            .toolbar </span><span class="se">{{</span>
+<span class="s2">                height: 50px;</span>
+<span class="s2">                border-bottom: 1px solid var(--bg-border);</span>
+<span class="s2">                padding: 8px 12px;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 8px;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">                background: var(--bg-darker);</span>
+<span class="s2">                border-top-left-radius: var(--card-border-radius);</span>
+<span class="s2">                border-top-right-radius: var(--card-border-radius);</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .toolbar input </span><span class="se">{{</span>
+<span class="s2">            height: 30px;</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">                background: var(--bg-dark);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: var(--border-radius);</span>
+<span class="s2">                padding: 5px 10px;</span>
+<span class="s2">                color: var(--text-primary);</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                outline: none;</span>
+<span class="s2">                transition: border-color 0.2s;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .toolbar input:focus </span><span class="se">{{</span><span class="s2"> border-color: var(--text-highlight); </span><span class="se">}}</span>
+
+<span class="s2">            .btn </span><span class="se">{{</span>
+<span class="s2">                background: #21c55d15;</span>
+<span class="s2">                border: 1px solid #21c55d33;</span>
+<span class="s2">                border-radius: 5px;</span>
+<span class="s2">                color: var(--text-highlight);</span>
+<span class="s2">                padding: 5px 10px;</span>
+<span class="s2">                cursor: pointer;</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                transition: background 0.15s;</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .btn:hover </span><span class="se">{{</span><span class="s2"> background: #21c55d25; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Main split ── */</span>
+<span class="s2">            .main </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                background: var(--bg-dark);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Tree panel ── */</span>
+<span class="s2">            .tree-panel </span><span class="se">{{</span>
+<span class="s2">                width: 280px;</span>
+<span class="s2">                background: var(--bg-darker);</span>
+<span class="s2">                border-right: 1px solid var(--bg-border);</span>
+<span class="s2">                overflow-y: auto;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">                padding: 6px 0;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .tree-panel::-webkit-scrollbar </span><span class="se">{{</span><span class="s2"> width: 5px; </span><span class="se">}}</span>
+<span class="s2">            .tree-panel::-webkit-scrollbar-track </span><span class="se">{{</span><span class="s2"> background: var(--bg-darker); </span><span class="se">}}</span>
+<span class="s2">            .tree-panel::-webkit-scrollbar-thumb </span><span class="se">{{</span><span class="s2"> background: var(--bg-scrollbar); border-radius: 3px; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Tree items ── */</span>
+<span class="s2">            .tree-item </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 5px;</span>
+<span class="s2">                padding: 4px 8px;</span>
+<span class="s2">                cursor: pointer;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                margin: 1px 4px;</span>
+<span class="s2">                transition: background 0.12s;</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                user-select: none;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .tree-item:hover </span><span class="se">{{</span><span class="s2"> background: var(--bg-item-hover); </span><span class="se">}}</span>
+<span class="s2">            .tree-item.selected </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-selected);</span>
+<span class="s2">                outline: 1px solid #21c55d33;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .toggle </span><span class="se">{{</span><span class="s2"> width: 12px; text-align: center; color: var(--text-secondary); font-size: 9px; flex-shrink: 0; transition: transform 0.15s; </span><span class="se">}}</span>
+<span class="s2">            .file-icon </span><span class="se">{{</span><span class="s2"> font-size: 13px; flex-shrink: 0; </span><span class="se">}}</span>
+<span class="s2">            .file-name </span><span class="se">{{</span><span class="s2"> overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: var(--text-primary); </span><span class="se">}}</span>
+<span class="s2">            .tree-item.is-dir .file-name </span><span class="se">{{</span><span class="s2"> font-weight: 600; </span><span class="se">}}</span>
+<span class="s2">            .children </span><span class="se">{{</span><span class="s2"> display: none; padding-left: 14px; </span><span class="se">}}</span>
+<span class="s2">            .children.open </span><span class="se">{{</span><span class="s2"> display: block; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Detail panel ── */</span>
+<span class="s2">            .detail-panel </span><span class="se">{{</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">                overflow-y: auto;</span>
+<span class="s2">                padding: 18px 20px;</span>
+<span class="s2">                background: var(--bg-dark);</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">                gap: 16px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .detail-panel::-webkit-scrollbar </span><span class="se">{{</span><span class="s2"> width: 5px; </span><span class="se">}}</span>
+<span class="s2">            .detail-panel::-webkit-scrollbar-track </span><span class="se">{{</span><span class="s2"> background: var(--bg-dark); </span><span class="se">}}</span>
+<span class="s2">            .detail-panel::-webkit-scrollbar-thumb </span><span class="se">{{</span><span class="s2"> background: var(--bg-scrollbar); border-radius: 3px; </span><span class="se">}}</span>
+
+<span class="s2">            .empty-state </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                justify-content: center;</span>
+<span class="s2">                height: 100%;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                gap: 10px;</span>
+<span class="s2">                font-family: var(--font-title);</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .empty-state .big </span><span class="se">{{</span><span class="s2"> font-size: 40px; </span><span class="se">}}</span>
+
+<span class="s2">            .detail-title </span><span class="se">{{</span>
+<span class="s2">                font-family: var(--font-title);</span>
+<span class="s2">                font-size: 18px;</span>
+<span class="s2">                font-weight: 700;</span>
+<span class="s2">                color: var(--text-primary);</span>
+<span class="s2">                margin-bottom: 4px;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 10px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .detail-subtitle </span><span class="se">{{</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                font-family: var(--font-mono);</span>
+<span class="s2">                word-break: break-all;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .stats </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                gap: 12px;</span>
+<span class="s2">                flex-wrap: wrap;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .stat </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-panel);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: 7px;</span>
+<span class="s2">                padding: 10px 14px;</span>
+<span class="s2">                min-width: 120px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .stat .slabel </span><span class="se">{{</span><span class="s2"> font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; </span><span class="se">}}</span>
+<span class="s2">            .stat .sval </span><span class="se">{{</span><span class="s2"> font-size: 13px; color: var(--text-highlight); font-weight: 600; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Folder contents list ── */</span>
+<span class="s2">            .children-list </span><span class="se">{{</span>
+<span class="s2">                overflow-y: auto;</span>
+<span class="s2">                overscroll-behavior: contain;</span>
+<span class="s2">                background: var(--bg-panel);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: 8px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .cl-header </span><span class="se">{{</span>
+<span class="s2">                padding: 8px 14px;</span>
+<span class="s2">                border-bottom: 1px solid var(--bg-border);</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                text-transform: uppercase;</span>
+<span class="s2">                letter-spacing: 0.1em;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .cl-row </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 8px;</span>
+<span class="s2">                padding: 7px 14px;</span>
+<span class="s2">                border-bottom: 1px solid #21262d1a;</span>
+<span class="s2">                cursor: pointer;</span>
+<span class="s2">                transition: background 0.12s;</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .cl-row:last-child </span><span class="se">{{</span><span class="s2"> border-bottom: none; </span><span class="se">}}</span>
+<span class="s2">            .cl-row:hover </span><span class="se">{{</span><span class="s2"> background: var(--bg-item-hover); </span><span class="se">}}</span>
+<span class="s2">            .cl-row .ci </span><span class="se">{{</span><span class="s2"> width: 18px; text-align: center; </span><span class="se">}}</span>
+<span class="s2">            .cl-row .cn </span><span class="se">{{</span><span class="s2"> flex: 1; color: var(--text-primary); </span><span class="se">}}</span>
+<span class="s2">            .cl-row .cn.d </span><span class="se">{{</span><span class="s2"> font-weight: 600; </span><span class="se">}}</span>
+<span class="s2">            .cl-row .cs </span><span class="se">{{</span><span class="s2"> color: var(--text-secondary); font-size: 11px; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Shared card header ── */</span>
+<span class="s2">            .card-header </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 8px;</span>
+<span class="s2">                padding: 9px 14px;</span>
+<span class="s2">                border-bottom: 1px solid var(--bg-border);</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                text-transform: uppercase;</span>
+<span class="s2">                letter-spacing: 0.1em;</span>
+<span class="s2">                font-weight: 600;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .card-header .card-icon </span><span class="se">{{</span><span class="s2"> font-size: 13px; </span><span class="se">}}</span>
+<span class="s2">            .card-header .badge </span><span class="se">{{</span>
+<span class="s2">                margin-left: auto;</span>
+<span class="s2">                background: #21c55d22;</span>
+<span class="s2">                color: var(--text-highlight);</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">                padding: 2px 7px;</span>
+<span class="s2">                border-radius: 99px;</span>
+<span class="s2">                border: 1px solid #21c55d33;</span>
+<span class="s2">                font-family: var(--font-mono);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Task Log Card ── */</span>
+<span class="s2">            .task-log-card </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-panel);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: 8px;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .log-body </span><span class="se">{{</span>
+<span class="s2">                overflow-y: auto;</span>
+<span class="s2">                overscroll-behavior: contain;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .log-body::-webkit-scrollbar </span><span class="se">{{</span><span class="s2"> width: 4px; </span><span class="se">}}</span>
+<span class="s2">            .log-body::-webkit-scrollbar-track </span><span class="se">{{</span><span class="s2"> background: var(--bg-panel); </span><span class="se">}}</span>
+<span class="s2">            .log-body::-webkit-scrollbar-thumb </span><span class="se">{{</span><span class="s2"> background: var(--bg-scrollbar); border-radius: 3px; </span><span class="se">}}</span>
+
+<span class="s2">            .log-entry.dimmed </span><span class="se">{{</span>
+<span class="s2">                opacity: 0.32;</span>
+<span class="s2">                filter: grayscale(0.4);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .log-entry </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: flex-start;</span>
+<span class="s2">                gap: 10px;</span>
+<span class="s2">                padding: 7px 14px;</span>
+<span class="s2">                border-bottom: 1px solid #21262d22;</span>
+<span class="s2">                font-family: var(--font-mono);</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                transition: background 0.1s;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .log-entry:last-child </span><span class="se">{{</span><span class="s2"> border-bottom: none; </span><span class="se">}}</span>
+<span class="s2">            .log-entry:hover </span><span class="se">{{</span><span class="s2"> background: var(--bg-item-hover); </span><span class="se">}}</span>
+
+<span class="s2">            .log-ts </span><span class="se">{{</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">                padding-top: 2px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .log-level </span><span class="se">{{</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">                font-weight: 700;</span>
+<span class="s2">                text-transform: uppercase;</span>
+<span class="s2">                letter-spacing: 0.05em;</span>
+<span class="s2">                padding: 1px 6px;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .log-level.info    </span><span class="se">{{</span><span class="s2"> background: #58a6ff18; color: var(--text-info);      border: 1px solid #58a6ff33; </span><span class="se">}}</span>
+<span class="s2">            .log-level.warn    </span><span class="se">{{</span><span class="s2"> background: #f0a43a18; color: var(--text-warn);      border: 1px solid #f0a43a33; </span><span class="se">}}</span>
+<span class="s2">            .log-level.error   </span><span class="se">{{</span><span class="s2"> background: #f8514918; color: var(--text-error);     border: 1px solid #f8514933; </span><span class="se">}}</span>
+<span class="s2">            .log-level.success </span><span class="se">{{</span><span class="s2"> background: #21c55d18; color: var(--text-highlight); border: 1px solid #21c55d33; </span><span class="se">}}</span>
+<span class="s2">            .log-level.debug   </span><span class="se">{{</span><span class="s2"> background: #a371f718; color: var(--text-muted);      border: 1px solid #a371f733; </span><span class="se">}}</span>
+<span class="s2">            .log-msg </span><span class="se">{{</span><span class="s2"> color: var(--text-primary); flex: 1; line-height: 1.5; word-break: break-all; </span><span class="se">}}</span>
+
+<span class="s2">            .log-path-chip </span><span class="se">{{</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">                font-family: var(--font-mono);</span>
+<span class="s2">                background: #58a6ff12;</span>
+<span class="s2">                color: #58a6ff99;</span>
+<span class="s2">                border: 1px solid #58a6ff22;</span>
+<span class="s2">                border-radius: 4px;</span>
+<span class="s2">                padding: 1px 5px;</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">                max-width: 120px;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                text-overflow: ellipsis;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .log-empty </span><span class="se">{{</span>
+<span class="s2">                padding: 16px 14px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                font-style: italic;</span>
+<span class="s2">                text-align: center;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Action Card ── */</span>
+<span class="s2">            .action-cards-wrapper </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: row;</span>
+<span class="s2">                align-items: stretch;</span>
+<span class="s2">                gap: 10px;</span>
+<span class="s2">                margin-top: auto;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .action-card </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-panel);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: 8px;</span>
+<span class="s2">                overflow: visible;</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .folder-action-card </span><span class="se">{{</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .action-body </span><span class="se">{{</span>
+<span class="s2">                padding: 12px 14px;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 10px;</span>
+<span class="s2">                flex-wrap: wrap;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .action-desc </span><span class="se">{{</span>
+<span class="s2">                width: 100%;</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                padding: 0 2px 4px 2px;</span>
+<span class="s2">                min-height: 16px;</span>
+<span class="s2">                font-style: italic;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .run-btn </span><span class="se">{{</span>
+<span class="s2">                background: linear-gradient(135deg, #21c55d22, #21c55d15);</span>
+<span class="s2">                border: 1px solid #21c55d55;</span>
+<span class="s2">                border-radius: 6px;</span>
+<span class="s2">                color: var(--text-highlight);</span>
+<span class="s2">                padding: 7px 16px;</span>
+<span class="s2">                cursor: pointer;</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                font-weight: 600;</span>
+<span class="s2">                font-family: var(--font-main);</span>
+<span class="s2">                transition: background 0.15s, transform 0.1s, box-shadow 0.15s;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 6px;</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .run-btn:hover </span><span class="se">{{</span>
+<span class="s2">                background: linear-gradient(135deg, #21c55d33, #21c55d22);</span>
+<span class="s2">                box-shadow: 0 0 12px #21c55d22;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .run-btn:active </span><span class="se">{{</span><span class="s2"> transform: scale(0.97); </span><span class="se">}}</span>
+<span class="s2">            .run-btn .run-icon </span><span class="se">{{</span><span class="s2"> font-size: 13px; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Status bar ── */</span>
+<span class="s2">            .status-bar </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-panel);</span>
+<span class="s2">                border-top: 1px solid var(--bg-border);</span>
+<span class="s2">                padding: 4px 14px;</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                gap: 20px;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">                border-bottom-left-radius: var(--card-border-radius);</span>
+<span class="s2">                border-bottom-right-radius: var(--card-border-radius);</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .status-bar .highlight </span><span class="se">{{</span><span class="s2"> color: var(--text-highlight); </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Event flash ── */</span>
+<span class="s2">            .event-flash </span><span class="se">{{</span>
+<span class="s2">                position: fixed;</span>
+<span class="s2">                bottom: 30px;</span>
+<span class="s2">                right: 16px;</span>
+<span class="s2">                background: var(--text-highlight);</span>
+<span class="s2">                color: var(--bg-dark);</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                font-weight: 600;</span>
+<span class="s2">                padding: 6px 12px;</span>
+<span class="s2">                border-radius: var(--border-radius);</span>
+<span class="s2">                opacity: 0;</span>
+<span class="s2">                transform: translateY(8px);</span>
+<span class="s2">                transition: opacity 0.2s, transform 0.2s;</span>
+<span class="s2">                pointer-events: none;</span>
+<span class="s2">                z-index: 999;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            .event-flash.show </span><span class="se">{{</span><span class="s2"> opacity: 1; transform: translateY(0); </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Light mode ── */</span>
+<span class="s2">            .light-mode </span><span class="se">{{</span>
+<span class="s2">                --bg-dark: #f6f8fa;</span>
+<span class="s2">                --bg-darker: #ffffff;</span>
+<span class="s2">                --bg-panel: #f6f8fa;</span>
+<span class="s2">                --bg-item-hover: #eaeef2;</span>
+<span class="s2">                --bg-selected: #d8f5e2;</span>
+<span class="s2">                --bg-border: #d0d7de;</span>
+<span class="s2">                --bg-scrollbar: #d0d7de;</span>
+<span class="s2">                --text-primary: #31333F;</span>
+<span class="s2">                --text-secondary: #57606a;</span>
+<span class="s2">                --text-highlight: #1a7f37;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Content card ── */</span>
+<span class="s2">            .content-card </span><span class="se">{{</span>
+<span class="s2">                background: var(--bg-panel);</span>
+<span class="s2">                border: 1px solid var(--bg-border);</span>
+<span class="s2">                border-radius: 8px;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .content-body </span><span class="se">{{</span>
+<span class="s2">                padding: 12px 14px;</span>
+<span class="s2">                font-family: var(--font-mono);</span>
+<span class="s2">                font-size: 11px;</span>
+<span class="s2">                color: var(--text-primary);</span>
+<span class="s2">                white-space: pre-wrap;</span>
+<span class="s2">                word-break: break-all;</span>
+<span class="s2">                overflow-y: auto;</span>
+<span class="s2">                max-height: 300px;</span>
+<span class="s2">                line-height: 1.6;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .content-body::-webkit-scrollbar </span><span class="se">{{</span><span class="s2"> width: 4px; </span><span class="se">}}</span>
+<span class="s2">            .content-body::-webkit-scrollbar-track </span><span class="se">{{</span><span class="s2"> background: var(--bg-panel); </span><span class="se">}}</span>
+<span class="s2">            .content-body::-webkit-scrollbar-thumb </span><span class="se">{{</span><span class="s2"> background: var(--bg-scrollbar); border-radius: 3px; </span><span class="se">}}</span>
+
+<span class="s2">            .content-empty </span><span class="se">{{</span>
+<span class="s2">                padding: 16px 14px;</span>
+<span class="s2">                color: var(--text-secondary);</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                font-style: italic;</span>
+<span class="s2">                text-align: center;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Portal dropdown menu ────────────────────────────────── */</span>
+<span class="s2">            .osir-portal-menu </span><span class="se">{{</span>
+<span class="s2">                display: none;</span>
+<span class="s2">                position: fixed;</span>
+<span class="s2">                z-index: 99999;</span>
+<span class="s2">                min-width: 240px;</span>
+<span class="s2">                background: #1e1e2e;</span>
+<span class="s2">                border: 1px solid #444;</span>
+<span class="s2">                border-radius: 8px;</span>
+<span class="s2">                box-shadow: 0 -8px 32px rgba(0,0,0,0.6);</span>
+<span class="s2">                flex-direction: column;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-portal-menu.open </span><span class="se">{{</span><span class="s2"> display: flex; </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-portal-menu </span><span class="se">{{</span>
+<span class="s2">                background: #ffffff;</span>
+<span class="s2">                border-color: #d0d7de;</span>
+<span class="s2">                box-shadow: 0 4px 24px rgba(0,0,0,0.12);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-menu-search </span><span class="se">{{</span>
+<span class="s2">                padding: 8px 10px;</span>
+<span class="s2">                border-bottom: 1px solid #333;</span>
+<span class="s2">                flex-shrink: 0;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-menu-search </span><span class="se">{{</span>
+<span class="s2">                border-bottom-color: #d0d7de;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-menu-search input </span><span class="se">{{</span>
+<span class="s2">                width: 100%;</span>
+<span class="s2">                background: #13131f;</span>
+<span class="s2">                border: 1px solid #444;</span>
+<span class="s2">                border-radius: 5px;</span>
+<span class="s2">                padding: 5px 9px;</span>
+<span class="s2">                color: #cdd6f4;</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                outline: none;</span>
+<span class="s2">                font-family: var(--font-main);</span>
+<span class="s2">                box-sizing: border-box;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-menu-search input </span><span class="se">{{</span>
+<span class="s2">                background: #f6f8fa;</span>
+<span class="s2">                border-color: #d0d7de;</span>
+<span class="s2">                color: #31333F;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-menu-search input:focus </span><span class="se">{{</span><span class="s2"> border-color: #1a7f37; </span><span class="se">}}</span>
+
+<span class="s2">            .osir-menu-list </span><span class="se">{{</span>
+<span class="s2">                overflow-y: auto;</span>
+<span class="s2">                padding: 4px 0;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-menu-list::-webkit-scrollbar </span><span class="se">{{</span><span class="s2"> width: 4px; </span><span class="se">}}</span>
+<span class="s2">            .osir-menu-list::-webkit-scrollbar-track </span><span class="se">{{</span><span class="s2"> background: #1e1e2e; </span><span class="se">}}</span>
+<span class="s2">            .osir-menu-list::-webkit-scrollbar-thumb </span><span class="se">{{</span><span class="s2"> background: #444; border-radius: 3px; </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-menu-list::-webkit-scrollbar-track </span><span class="se">{{</span><span class="s2"> background: #f6f8fa; </span><span class="se">}}</span>
+<span class="s2">            .light-mode .osir-menu-list::-webkit-scrollbar-thumb </span><span class="se">{{</span><span class="s2"> background: #d0d7de; </span><span class="se">}}</span>
+
+<span class="s2">            .osir-menu-group-label </span><span class="se">{{</span>
+<span class="s2">                padding: 6px 12px 3px 12px;</span>
+<span class="s2">                font-size: 10px;</span>
+<span class="s2">                font-weight: 700;</span>
+<span class="s2">                letter-spacing: 0.1em;</span>
+<span class="s2">                color: #89b4fa;</span>
+<span class="s2">                text-transform: uppercase;</span>
+<span class="s2">                user-select: none;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-menu-group-label </span><span class="se">{{</span>
+<span class="s2">                color: #1a7f37;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-item </span><span class="se">{{</span>
+<span class="s2">                padding: 6px 14px;</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                color: #cdd6f4;</span>
+<span class="s2">                cursor: pointer;</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                text-overflow: ellipsis;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-item </span><span class="se">{{</span>
+<span class="s2">                color: #31333F;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-item:hover </span><span class="se">{{</span>
+<span class="s2">                background: #313244;</span>
+<span class="s2">                color: #cba6f7;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-item:hover </span><span class="se">{{</span>
+<span class="s2">                background: #eaeef2;</span>
+<span class="s2">                color: #1a7f37;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-item.hidden </span><span class="se">{{</span><span class="s2"> display: none; </span><span class="se">}}</span>
+
+<span class="s2">            /* ── Trigger button ──────────────────────────────────────── */</span>
+<span class="s2">            .osir-action-row </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                flex-direction: row;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                gap: 8px;</span>
+<span class="s2">                width: 100%;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-action-row .run-btn </span><span class="se">{{</span><span class="s2"> flex-shrink: 0; </span><span class="se">}}</span>
+
+<span class="s2">            .osir-dropdown </span><span class="se">{{</span>
+<span class="s2">                position: relative;</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">                user-select: none;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-selected </span><span class="se">{{</span>
+<span class="s2">                display: flex;</span>
+<span class="s2">                justify-content: space-between;</span>
+<span class="s2">                align-items: center;</span>
+<span class="s2">                padding: 6px 10px;</span>
+<span class="s2">                background: #1e1e2e;</span>
+<span class="s2">                border: 1px solid #444;</span>
+<span class="s2">                border-radius: 6px;</span>
+<span class="s2">                cursor: pointer;</span>
+<span class="s2">                color: #cdd6f4;</span>
+<span class="s2">                font-size: 13px;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .light-mode .osir-selected </span><span class="se">{{</span>
+<span class="s2">                background: #f6f8fa;</span>
+<span class="s2">                border-color: #d0d7de;</span>
+<span class="s2">                color: #31333F;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-selected:hover </span><span class="se">{{</span><span class="s2"> border-color: #1a7f37; </span><span class="se">}}</span>
+<span class="s2">            .osir-caret </span><span class="se">{{</span><span class="s2"> font-size: 11px; color: #888; </span><span class="se">}}</span>
+
+<span class="s2">            .osir-selected-label </span><span class="se">{{</span>
+<span class="s2">                overflow: hidden;</span>
+<span class="s2">                text-overflow: ellipsis;</span>
+<span class="s2">                white-space: nowrap;</span>
+<span class="s2">                flex: 1;</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                font-family: var(--font-main);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            .osir-no-results </span><span class="se">{{</span>
+<span class="s2">                padding: 12px 14px;</span>
+<span class="s2">                color: #6e7681;</span>
+<span class="s2">                font-size: 12px;</span>
+<span class="s2">                font-style: italic;</span>
+<span class="s2">                text-align: center;</span>
+<span class="s2">                display: none;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            &lt;/style&gt;</span>
+<span class="s2">            &lt;/head&gt;</span>
+<span class="s2">            &lt;body&gt;</span>
+<span class="s2">            &lt;div class=&quot;card-container&quot;&gt;</span>
+<span class="s2">            &lt;div class=&quot;layout&quot;&gt;</span>
+<span class="s2">                &lt;div class=&quot;toolbar&quot;&gt;</span>
+<span class="s2">                &lt;input type=&quot;text&quot; id=&quot;search&quot; placeholder=&quot;🔍 Search...&quot; oninput=&quot;filterTree(this.value)&quot;/&gt;</span>
+<span class="s2">                &lt;button class=&quot;btn&quot; onclick=&quot;expandAll()&quot;&gt;➕&lt;/button&gt;</span>
+<span class="s2">                &lt;button class=&quot;btn&quot; onclick=&quot;collapseAll()&quot;&gt;➖&lt;/button&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+
+<span class="s2">                &lt;div class=&quot;main&quot;&gt;</span>
+<span class="s2">                &lt;div class=&quot;tree-panel&quot; id=&quot;treePanel&quot;&gt;&lt;/div&gt;</span>
+<span class="s2">                &lt;div class=&quot;detail-panel&quot; id=&quot;detailPanel&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;empty-state&quot;&gt;</span>
+<span class="s2">                    &lt;span class=&quot;big&quot;&gt;📁&lt;/span&gt;</span>
+<span class="s2">                    &lt;span&gt;Select an item&lt;/span&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+
+<span class="s2">                &lt;div class=&quot;status-bar&quot;&gt;</span>
+<span class="s2">                &lt;span id=&quot;statItems&quot;&gt;&lt;/span&gt;</span>
+<span class="s2">                &lt;span id=&quot;statSel&quot;&gt;No selection&lt;/span&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+
+<span class="s2">            &lt;div class=&quot;event-flash&quot; id=&quot;flash&quot;&gt;&lt;/div&gt;</span>
+<span class="s2">            &lt;/div&gt;</span>
+
+<span class="s2">            &lt;script&gt;</span>
+<span class="s2">            // ── Data ──────────────────────────────────────────────────</span>
+<span class="s2">            const TREE              = </span><span class="si">{</span><span class="n">tree_json</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            const ROOT              = </span><span class="si">{</span><span class="n">root_json</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            let INITIAL_SELECTION = </span><span class="si">{</span><span class="n">initial_selection_json</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            let FILE_CONTENT = </span><span class="se">{{}}</span><span class="s2">;</span>
+<span class="s2">            let FILE_TASK_LOG     = </span><span class="si">{</span><span class="n">file_task_log_json</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            const FILE_ACTIONS      = </span><span class="si">{</span><span class="n">file_actions_json</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            const FOLDER_ACTIONS    = </span><span class="si">{</span><span class="n">folder_actions_json</span><span class="si">}</span><span class="s2">;</span>
+<span class="s2">            localStorage.setItem(&#39;fileExplorerLightMode&#39;, &#39;</span><span class="si">{</span><span class="n">light_mode</span><span class="si">}</span><span class="s2">&#39;);</span>
+<span class="s2">            let allNodes    = [];</span>
+<span class="s2">            let isLightMode = false;</span>
+<span class="s2">            let currentItem = null;</span>
+
+<span class="s2">            // ── Utilities ─────────────────────────────────────────────</span>
+<span class="s2">            function getIcon(name, isDir) </span><span class="se">{{</span>
+<span class="s2">            if (isDir) return &#39;📁&#39;;</span>
+<span class="s2">            const ext = name.split(&#39;.&#39;).pop().toLowerCase();</span>
+<span class="s2">            return (</span><span class="se">{{</span>
+<span class="s2">                py:&#39;🐍&#39;,js:&#39;📜&#39;,ts:&#39;📘&#39;,jsx:&#39;⚛️&#39;,tsx:&#39;⚛️&#39;,</span>
+<span class="s2">                html:&#39;🌐&#39;,css:&#39;🎨&#39;,scss:&#39;🎨&#39;,</span>
+<span class="s2">                json:&#39;📋&#39;,xml:&#39;📋&#39;,</span>
+<span class="s2">                md:&#39;📝&#39;,txt:&#39;📄&#39;,csv:&#39;📊&#39;,</span>
+<span class="s2">                pdf:&#39;📕&#39;,</span>
+<span class="s2">                png:&#39;🖼️&#39;,jpg:&#39;🖼️&#39;,jpeg:&#39;🖼️&#39;,gif:&#39;🖼️&#39;,svg:&#39;🎨&#39;,webp:&#39;🖼️&#39;,</span>
+<span class="s2">                mp4:&#39;🎬&#39;,mov:&#39;🎬&#39;,mp3:&#39;🎵&#39;,wav:&#39;🎵&#39;,</span>
+<span class="s2">                zip:&#39;📦&#39;,tar:&#39;📦&#39;,gz:&#39;📦&#39;,rar:&#39;📦&#39;,</span>
+<span class="s2">                sh:&#39;⚡&#39;,bash:&#39;⚡&#39;,</span>
+<span class="s2">                yml:&#39;⚙️&#39;,yaml:&#39;⚙️&#39;,toml:&#39;⚙️&#39;,env:&#39;🔒&#39;,ini:&#39;⚙️&#39;,cfg:&#39;⚙️&#39;,</span>
+<span class="s2">                sql:&#39;🗄️&#39;,db:&#39;🗄️&#39;,sqlite:&#39;🗄️&#39;,</span>
+<span class="s2">                exe:&#39;⚙️&#39;,dmg:&#39;💿&#39;,deb:&#39;📦&#39;,</span>
+<span class="s2">                go:&#39;🐹&#39;,rs:&#39;🦀&#39;,cpp:&#39;⚙️&#39;,c:&#39;⚙️&#39;,java:&#39;☕&#39;,rb:&#39;💎&#39;,php:&#39;🐘&#39;,</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">)[ext] || &#39;📄&#39;;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function fmtSize(b) </span><span class="se">{{</span>
+<span class="s2">            if (!b) return &#39;—&#39;;</span>
+<span class="s2">            const u = [&#39;B&#39;,&#39;KB&#39;,&#39;MB&#39;,&#39;GB&#39;];</span>
+<span class="s2">            let i = 0;</span>
+<span class="s2">            while (b &gt;= 1024 &amp;&amp; i &lt; 3) </span><span class="se">{{</span><span class="s2"> b /= 1024; i++; </span><span class="se">}}</span>
+<span class="s2">            return b.toFixed(1) + &#39; &#39; + u[i];</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function escHtml(s) </span><span class="se">{{</span>
+<span class="s2">            return String(s)</span>
+<span class="s2">                .replace(/&amp;/g, &#39;&amp;amp;&#39;).replace(/&lt;/g, &#39;&amp;lt;&#39;)</span>
+<span class="s2">                .replace(/&gt;/g, &#39;&amp;gt;&#39;).replace(/&quot;/g, &#39;&amp;quot;&#39;);</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            function escAttr(s) </span><span class="se">{{</span><span class="s2"> return escHtml(s); </span><span class="se">}}</span>
+
+<span class="s2">            // ── Streamlit events ──────────────────────────────────────</span>
+<span class="s2">            function sendDataToPython(data) </span><span class="se">{{</span>
+<span class="s2">            sendMessageToStreamlitClient(&quot;streamlit:setComponentValue&quot;, data);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function sendMessageToStreamlitClient(type, data) </span><span class="se">{{</span>
+<span class="s2">            var outData = Object.assign(</span><span class="se">{{</span><span class="s2"> isStreamlitMessage: true, type: type </span><span class="se">}}</span><span class="s2">, data);</span>
+<span class="s2">            window.parent.postMessage(outData, &quot;*&quot;);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function sendEvent(eventType, item) </span><span class="se">{{</span>
+<span class="s2">            sendDataToPython(</span><span class="se">{{</span>
+<span class="s2">                value: </span><span class="se">{{</span>
+<span class="s2">                action_id: &#39;SELECT&#39;,</span>
+<span class="s2">                event:  eventType,</span>
+<span class="s2">                path:   item.path,</span>
+<span class="s2">                name:   item.name,</span>
+<span class="s2">                is_dir: item.is_dir,</span>
+<span class="s2">                size:   item.size || 0,</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">,</span>
+<span class="s2">                dataType: &quot;json&quot;,</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            flashEvent(eventType, item.name);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function sendActionEvent(actionId, item, event) </span><span class="se">{{</span>
+<span class="s2">            const isString = typeof item === &#39;string&#39;;</span>
+<span class="s2">            sendDataToPython(</span><span class="se">{{</span>
+<span class="s2">                value: </span><span class="se">{{</span>
+<span class="s2">                event:     event,</span>
+<span class="s2">                action_id: actionId,</span>
+<span class="s2">                path:      isString ? item : item.path,</span>
+<span class="s2">                name:      isString ? &quot;&quot; : item.name,</span>
+<span class="s2">                is_dir:    isString ? false : item.is_dir,</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">,</span>
+<span class="s2">                dataType: &quot;json&quot;,</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            flashEvent(&quot;RUN › &quot; + actionId, isString ? item : item.name);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function flashEvent(type, name) </span><span class="se">{{</span>
+<span class="s2">            const el = document.getElementById(&#39;flash&#39;);</span>
+<span class="s2">            el.textContent = `$</span><span class="se">{{</span><span class="s2">type.toUpperCase()</span><span class="se">}}</span><span class="s2"> → $</span><span class="se">{{</span><span class="s2">name</span><span class="se">}}</span><span class="s2">`;</span>
+<span class="s2">            el.classList.add(&#39;show&#39;);</span>
+<span class="s2">            clearTimeout(el._t);</span>
+<span class="s2">            el._t = setTimeout(() =&gt; el.classList.remove(&#39;show&#39;), 1800);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function buildContentHTML(filePath) </span><span class="se">{{</span>
+<span class="s2">                const entry = FILE_CONTENT[filePath];</span>
+<span class="s2">                if (!entry) </span><span class="se">{{</span>
+<span class="s2">                    return &#39;&lt;div class=&quot;content-empty&quot;&gt;Not Loaded&lt;/div&gt;&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                return `&lt;div class=&quot;content-body&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(entry)</span><span class="se">}}</span><span class="s2">&lt;/div&gt;`;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Task-Log HTML builder ─────────────────────────────────</span>
+<span class="s2">            function buildTaskLogHTML(selectedPath) </span><span class="se">{{</span>
+<span class="s2">            const filteredLogs = FILE_TASK_LOG.filter(entry =&gt; entry.path === selectedPath);</span>
+<span class="s2">            if (!filteredLogs || filteredLogs.length === 0) </span><span class="se">{{</span>
+<span class="s2">                return &#39;&lt;div class=&quot;log-empty&quot;&gt;Not Loaded&lt;/div&gt;&#39;;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            const rows = FILE_TASK_LOG.map(entry =&gt; </span><span class="se">{{</span>
+<span class="s2">                if(entry.path == selectedPath)</span><span class="se">{{</span>
+<span class="s2">                const level   = (entry.level || &#39;info&#39;).toLowerCase();</span>
+<span class="s2">                const ts      = entry.ts   || &#39;&#39;;</span>
+<span class="s2">                const msg     = entry.msg  || &#39;&#39;;</span>
+<span class="s2">                const logPath = entry.path || null;</span>
+
+<span class="s2">                const isPathMismatch = logPath !== null &amp;&amp; logPath !== selectedPath;</span>
+<span class="s2">                const dimClass = isPathMismatch ? &#39; dimmed&#39; : &#39;&#39;;</span>
+
+<span class="s2">                return `&lt;div class=&quot;log-entry$</span><span class="se">{{</span><span class="s2">dimClass</span><span class="se">}}</span><span class="s2">&quot;&gt;</span>
+<span class="s2">                &lt;span class=&quot;log-ts&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(ts)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                &lt;span class=&quot;log-level $</span><span class="se">{{</span><span class="s2">level</span><span class="se">}}</span><span class="s2">&quot;&gt;$</span><span class="se">{{</span><span class="s2">level</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                &lt;span class=&quot;log-msg&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(msg)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">).join(&#39;&#39;);</span>
+
+<span class="s2">            return `&lt;div class=&quot;log-body&quot;&gt;$</span><span class="se">{{</span><span class="s2">rows</span><span class="se">}}</span><span class="s2">&lt;/div&gt;`;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Dropdown helpers ──────────────────────────────────────</span>
+<span class="s2">            function groupActions(actions) </span><span class="se">{{</span>
+<span class="s2">                const tree = </span><span class="se">{{}}</span><span class="s2">;</span>
+<span class="s2">                for (const a of actions) </span><span class="se">{{</span>
+<span class="s2">                    const parts = a.id.replace(&#39;.yml&#39;, &#39;&#39;).split(&#39;/&#39;);</span>
+<span class="s2">                    const cat = parts[0];</span>
+<span class="s2">                    if (!tree[cat]) tree[cat] = [];</span>
+<span class="s2">                    tree[cat].push(a);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                return tree;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function buildCustomDropdown(actions, selectId, descId) </span><span class="se">{{</span>
+<span class="s2">                const first = actions[0] ?? null;</span>
+<span class="s2">                const firstLabel = first ? first.id : &#39;Select a module...&#39;;</span>
+<span class="s2">                const firstDesc  = first ? (first.description || &#39;&#39;) : &#39;&#39;;</span>
+
+<span class="s2">                const tree = groupActions(actions);</span>
+<span class="s2">                let itemsHtml = &#39;&#39;;</span>
+<span class="s2">                for (const [cat, items] of Object.entries(tree)) </span><span class="se">{{</span>
+<span class="s2">                    itemsHtml += `&lt;div class=&quot;osir-menu-group-label&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(cat)</span><span class="se">}}</span><span class="s2">&lt;/div&gt;`;</span>
+<span class="s2">                    for (const a of items) </span><span class="se">{{</span>
+<span class="s2">                        itemsHtml += `&lt;div class=&quot;osir-item&quot;</span>
+<span class="s2">                            data-value=&quot;$</span><span class="se">{{</span><span class="s2">escAttr(a.id)</span><span class="se">}}</span><span class="s2">&quot;</span>
+<span class="s2">                            data-desc=&quot;$</span><span class="se">{{</span><span class="s2">escAttr(a.description || &#39;&#39;)</span><span class="se">}}</span><span class="s2">&quot;</span>
+<span class="s2">                            data-select=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&quot;</span>
+<span class="s2">                            data-desc-id=&quot;$</span><span class="se">{{</span><span class="s2">descId</span><span class="se">}}</span><span class="s2">&quot;</span>
+<span class="s2">                            onclick=&quot;osirSelectItem(this)&quot;&gt;</span>
+<span class="s2">                            $</span><span class="se">{{</span><span class="s2">escHtml(a.id)</span><span class="se">}}</span>
+<span class="s2">                        &lt;/div&gt;`;</span>
+<span class="s2">                    </span><span class="se">}}</span>
+<span class="s2">                </span><span class="se">}}</span>
+
+<span class="s2">                return `</span>
+<span class="s2">                &lt;div class=&quot;osir-action-row&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;osir-dropdown&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">_dropdown&quot;</span>
+<span class="s2">                         data-select-id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&quot;</span>
+<span class="s2">                         data-desc-id=&quot;$</span><span class="se">{{</span><span class="s2">descId</span><span class="se">}}</span><span class="s2">&quot;&gt;</span>
+<span class="s2">                        &lt;div class=&quot;osir-selected&quot; onclick=&quot;osirToggleDropdown(&#39;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&#39;)&quot;&gt;</span>
+<span class="s2">                            &lt;span class=&quot;osir-selected-label&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">_label&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(firstLabel)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                            &lt;span class=&quot;osir-caret&quot;&gt;▾&lt;/span&gt;</span>
+<span class="s2">                        &lt;/div&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                    &lt;button class=&quot;run-btn&quot; onclick=&quot;runAction(&#39;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&#39;)&quot;&gt;</span>
+<span class="s2">                        &lt;span class=&quot;run-icon&quot;&gt;▶&lt;/span&gt; Run</span>
+<span class="s2">                    &lt;/button&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                &lt;input type=&quot;hidden&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&quot; value=&quot;$</span><span class="se">{{</span><span class="s2">escAttr(first ? first.id : &#39;&#39;)</span><span class="se">}}</span><span class="s2">&quot;&gt;</span>
+<span class="s2">                &lt;div class=&quot;action-desc&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">descId</span><span class="se">}}</span><span class="s2">_desc&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(firstDesc)</span><span class="se">}}</span><span class="s2">&lt;/div&gt;</span>
+
+<span class="s2">                &lt;div class=&quot;osir-portal-menu&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">_menu&quot; data-select-id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&quot; data-desc-id=&quot;$</span><span class="se">{{</span><span class="s2">descId</span><span class="se">}}</span><span class="s2">&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;osir-menu-search&quot;&gt;</span>
+<span class="s2">                        &lt;input type=&quot;text&quot; placeholder=&quot;🔍 Filter modules...&quot;</span>
+<span class="s2">                               oninput=&quot;osirFilterMenu(&#39;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">&#39;, this.value)&quot;</span>
+<span class="s2">                               onclick=&quot;event.stopPropagation()&quot;&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                    &lt;div class=&quot;osir-menu-list&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">_list&quot;&gt;</span>
+<span class="s2">                        $</span><span class="se">{{</span><span class="s2">itemsHtml</span><span class="se">}}</span>
+<span class="s2">                        &lt;div class=&quot;osir-no-results&quot; id=&quot;$</span><span class="se">{{</span><span class="s2">selectId</span><span class="se">}}</span><span class="s2">_noresults&quot;&gt;No modules found&lt;/div&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function osirFilterMenu(selectId, query) </span><span class="se">{{</span>
+<span class="s2">                const list = document.getElementById(selectId + &#39;_list&#39;);</span>
+<span class="s2">                const noResults = document.getElementById(selectId + &#39;_noresults&#39;);</span>
+<span class="s2">                if (!list) return;</span>
+<span class="s2">                const q = query.toLowerCase().trim();</span>
+<span class="s2">                let anyVisible = false;</span>
+<span class="s2">                list.querySelectorAll(&#39;.osir-item&#39;).forEach(el =&gt; </span><span class="se">{{</span>
+<span class="s2">                    const match = !q || el.dataset.value.toLowerCase().includes(q);</span>
+<span class="s2">                    el.classList.toggle(&#39;hidden&#39;, !match);</span>
+<span class="s2">                    if (match) anyVisible = true;</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                // Hide/show group labels based on visible children</span>
+<span class="s2">                list.querySelectorAll(&#39;.osir-menu-group-label&#39;).forEach(label =&gt; </span><span class="se">{{</span>
+<span class="s2">                    let next = label.nextElementSibling;</span>
+<span class="s2">                    let groupVisible = false;</span>
+<span class="s2">                    while (next &amp;&amp; !next.classList.contains(&#39;osir-menu-group-label&#39;)) </span><span class="se">{{</span>
+<span class="s2">                        if (next.classList.contains(&#39;osir-item&#39;) &amp;&amp; !next.classList.contains(&#39;hidden&#39;)) </span><span class="se">{{</span>
+<span class="s2">                            groupVisible = true;</span>
+<span class="s2">                        </span><span class="se">}}</span>
+<span class="s2">                        next = next.nextElementSibling;</span>
+<span class="s2">                    </span><span class="se">}}</span>
+<span class="s2">                    label.style.display = groupVisible ? &#39;&#39; : &#39;none&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                if (noResults) noResults.style.display = anyVisible ? &#39;none&#39; : &#39;block&#39;;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function osirEnsurePortal(selectId) </span><span class="se">{{</span>
+<span class="s2">                const menu = document.getElementById(selectId + &#39;_menu&#39;);</span>
+<span class="s2">                if (menu &amp;&amp; menu.parentElement !== document.body) </span><span class="se">{{</span>
+<span class="s2">                    document.body.appendChild(menu);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function osirToggleDropdown(selectId) </span><span class="se">{{</span>
+<span class="s2">                osirEnsurePortal(selectId);</span>
+<span class="s2">                const trigger = document.getElementById(selectId + &#39;_dropdown&#39;);</span>
+<span class="s2">                const menu    = document.getElementById(selectId + &#39;_menu&#39;);</span>
+<span class="s2">                if (!trigger || !menu) return;</span>
+
+<span class="s2">                const isOpen = menu.classList.contains(&#39;open&#39;);</span>
+
+<span class="s2">                // Close all open menus first</span>
+<span class="s2">                document.querySelectorAll(&#39;.osir-portal-menu.open&#39;).forEach(m =&gt; m.classList.remove(&#39;open&#39;));</span>
+
+<span class="s2">                if (!isOpen) </span><span class="se">{{</span>
+<span class="s2">                    const rect  = trigger.getBoundingClientRect();</span>
+<span class="s2">                    const viewH = window.innerHeight;</span>
+
+<span class="s2">                    menu.style.minWidth = rect.width + &#39;px&#39;;</span>
+<span class="s2">                    menu.style.left     = rect.left + &#39;px&#39;;</span>
+
+<span class="s2">                    // Calculate available space above and below</span>
+<span class="s2">                    const spaceAbove = rect.top - 8;</span>
+<span class="s2">                    const spaceBelow = viewH - rect.bottom - 8;</span>
+<span class="s2">                    const preferAbove = spaceAbove &gt; spaceBelow;</span>
+
+<span class="s2">                    // List max-height = available space minus search bar (~46px) and padding</span>
+<span class="s2">                    const overhead = 58;</span>
+<span class="s2">                    if (preferAbove) </span><span class="se">{{</span>
+<span class="s2">                        const listMaxH = Math.max(80, spaceAbove - overhead);</span>
+<span class="s2">                        menu.querySelector(&#39;.osir-menu-list&#39;).style.maxHeight = listMaxH + &#39;px&#39;;</span>
+<span class="s2">                        menu.style.bottom = (viewH - rect.top + 4) + &#39;px&#39;;</span>
+<span class="s2">                        menu.style.top    = &#39;auto&#39;;</span>
+<span class="s2">                    </span><span class="se">}}</span><span class="s2"> else </span><span class="se">{{</span>
+<span class="s2">                        const listMaxH = Math.max(80, spaceBelow - overhead);</span>
+<span class="s2">                        menu.querySelector(&#39;.osir-menu-list&#39;).style.maxHeight = listMaxH + &#39;px&#39;;</span>
+<span class="s2">                        menu.style.top    = (rect.bottom + 4) + &#39;px&#39;;</span>
+<span class="s2">                        menu.style.bottom = &#39;auto&#39;;</span>
+<span class="s2">                    </span><span class="se">}}</span>
+
+<span class="s2">                    menu.classList.add(&#39;open&#39;);</span>
+
+<span class="s2">                    // Ensure menu doesn&#39;t overflow left/right</span>
+<span class="s2">                    requestAnimationFrame(() =&gt; </span><span class="se">{{</span>
+<span class="s2">                        const mr = menu.getBoundingClientRect();</span>
+<span class="s2">                        if (mr.right &gt; window.innerWidth - 8) </span><span class="se">{{</span>
+<span class="s2">                            menu.style.left = Math.max(8, window.innerWidth - mr.width - 8) + &#39;px&#39;;</span>
+<span class="s2">                        </span><span class="se">}}</span>
+<span class="s2">                        // Focus search input</span>
+<span class="s2">                        const input = menu.querySelector(&#39;.osir-menu-search input&#39;);</span>
+<span class="s2">                        if (input) input.focus();</span>
+<span class="s2">                    </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function osirSelectItem(el) </span><span class="se">{{</span>
+<span class="s2">                const val    = el.dataset.value;</span>
+<span class="s2">                const desc   = el.dataset.desc;</span>
+<span class="s2">                const selId  = el.dataset.select;</span>
+<span class="s2">                const descId = el.dataset.descId;</span>
+
+<span class="s2">                document.getElementById(selId).value                = val;</span>
+<span class="s2">                document.getElementById(selId + &#39;_label&#39;).innerText  = val;</span>
+<span class="s2">                document.getElementById(descId + &#39;_desc&#39;).innerText  = desc;</span>
+<span class="s2">                document.getElementById(selId + &#39;_menu&#39;).classList.remove(&#39;open&#39;);</span>
+
+<span class="s2">                // Clear the search filter</span>
+<span class="s2">                const searchInput = document.querySelector(&#39;#&#39; + selId + &#39;_menu .osir-menu-search input&#39;);</span>
+<span class="s2">                if (searchInput) </span><span class="se">{{</span><span class="s2"> searchInput.value = &#39;&#39;; osirFilterMenu(selId, &#39;&#39;); </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // Close on outside click</span>
+<span class="s2">            document.addEventListener(&#39;click&#39;, function(e) </span><span class="se">{{</span>
+<span class="s2">                if (e.target.closest(&#39;.osir-dropdown&#39;) || e.target.closest(&#39;.osir-portal-menu&#39;)) return;</span>
+<span class="s2">                document.querySelectorAll(&#39;.osir-portal-menu.open&#39;).forEach(m =&gt; m.classList.remove(&#39;open&#39;));</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">);</span>
+
+<span class="s2">            window.addEventListener(&#39;scroll&#39;, osirRepositionOpenMenus, true);</span>
+<span class="s2">            window.addEventListener(&#39;resize&#39;,  osirRepositionOpenMenus);</span>
+
+<span class="s2">            function osirRepositionOpenMenus() </span><span class="se">{{</span>
+<span class="s2">                document.querySelectorAll(&#39;.osir-portal-menu.open&#39;).forEach(menu =&gt; </span><span class="se">{{</span>
+<span class="s2">                    const selId   = menu.dataset.selectId;</span>
+<span class="s2">                    const trigger = document.getElementById(selId + &#39;_dropdown&#39;);</span>
+<span class="s2">                    if (!trigger) return;</span>
+<span class="s2">                    const rect  = trigger.getBoundingClientRect();</span>
+<span class="s2">                    const viewH = window.innerHeight;</span>
+<span class="s2">                    menu.style.left = rect.left + &#39;px&#39;;</span>
+<span class="s2">                    if (menu.style.bottom &amp;&amp; menu.style.bottom !== &#39;auto&#39;) </span><span class="se">{{</span>
+<span class="s2">                        menu.style.bottom = (viewH - rect.top + 4) + &#39;px&#39;;</span>
+<span class="s2">                    </span><span class="se">}}</span><span class="s2"> else </span><span class="se">{{</span>
+<span class="s2">                        menu.style.top = (rect.bottom + 4) + &#39;px&#39;;</span>
+<span class="s2">                    </span><span class="se">}}</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function buildActionCardHTML(actions, selectId, descId) </span><span class="se">{{</span>
+<span class="s2">                if (!actions || actions.length === 0) return &#39;&#39;;</span>
+
+<span class="s2">                const folderSelectId = selectId + &#39;_folder&#39;;</span>
+<span class="s2">                const folderDescId   = descId   + &#39;_folder&#39;;</span>
+
+<span class="s2">                const folderActionCard = selectId === &#39;folderActionSel&#39; ? `</span>
+<span class="s2">                    &lt;div class=&quot;action-card folder-action-card&quot;&gt;</span>
+<span class="s2">                        &lt;div class=&quot;card-header&quot;&gt;</span>
+<span class="s2">                            &lt;span class=&quot;card-icon&quot;&gt;📁&lt;/span&gt;</span>
+<span class="s2">                            Action on all files in dir</span>
+<span class="s2">                        &lt;/div&gt;</span>
+<span class="s2">                        &lt;div class=&quot;action-body&quot;&gt;</span>
+<span class="s2">                            $</span><span class="se">{{</span><span class="s2">buildCustomDropdown(FILE_ACTIONS, folderSelectId, folderDescId)</span><span class="se">}}</span>
+<span class="s2">                        &lt;/div&gt;</span>
+<span class="s2">                    &lt;/div&gt;` : &#39;&#39;;</span>
+
+<span class="s2">                return `</span>
+<span class="s2">                &lt;div class=&quot;action-cards-wrapper&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;action-card&quot;&gt;</span>
+<span class="s2">                        &lt;div class=&quot;card-header&quot;&gt;</span>
+<span class="s2">                            &lt;span class=&quot;card-icon&quot;&gt;⚡&lt;/span&gt;</span>
+<span class="s2">                            Action</span>
+<span class="s2">                        &lt;/div&gt;</span>
+<span class="s2">                        &lt;div class=&quot;action-body&quot;&gt;</span>
+<span class="s2">                            $</span><span class="se">{{</span><span class="s2">buildCustomDropdown(actions, selectId, descId)</span><span class="se">}}</span>
+<span class="s2">                        &lt;/div&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                    $</span><span class="se">{{</span><span class="s2">folderActionCard</span><span class="se">}}</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function updateActionDesc(selectId, descId) </span><span class="se">{{</span>
+<span class="s2">            const sel  = document.getElementById(selectId);</span>
+<span class="s2">            const desc = document.getElementById(descId);</span>
+<span class="s2">            if (sel &amp;&amp; desc) </span><span class="se">{{</span>
+<span class="s2">                const opt = sel.options[sel.selectedIndex];</span>
+<span class="s2">                desc.textContent = opt ? (opt.dataset.desc || &#39;&#39;) : &#39;&#39;;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function runAction(selectId) </span><span class="se">{{</span>
+<span class="s2">            if (!currentItem) return;</span>
+<span class="s2">            const sel = document.getElementById(selectId);</span>
+<span class="s2">            if (!sel) return;</span>
+<span class="s2">            const actionId = sel.value;</span>
+<span class="s2">            if (actionId) sendActionEvent(actionId, currentItem, &#39;RUN_MODULE&#39;);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function runFolderAction(selectId) </span><span class="se">{{</span>
+<span class="s2">                if (!currentItem) return;</span>
+<span class="s2">                const sel = document.getElementById(selectId);</span>
+<span class="s2">                if (!sel) return;</span>
+<span class="s2">                const actionId = sel.value;</span>
+<span class="s2">                if (actionId) sendActionEvent(actionId, currentItem, &#39;RUN_FOLDER_ACTION&#39;);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Build tree DOM ────────────────────────────────────────</span>
+<span class="s2">            function buildTree(items, container) </span><span class="se">{{</span>
+<span class="s2">            items.forEach(item =&gt; </span><span class="se">{{</span>
+<span class="s2">                const wrap = document.createElement(&#39;div&#39;);</span>
+
+<span class="s2">                const row = document.createElement(&#39;div&#39;);</span>
+<span class="s2">                row.className = &#39;tree-item&#39; + (item.is_dir ? &#39; is-dir&#39; : &#39;&#39;);</span>
+<span class="s2">                row.dataset.path = item.path;</span>
+<span class="s2">                row.dataset.nameLower = item.name.toLowerCase();</span>
+
+<span class="s2">                const toggle = document.createElement(&#39;span&#39;);</span>
+<span class="s2">                toggle.className = &#39;toggle&#39;;</span>
+<span class="s2">                toggle.textContent = item.is_dir &amp;&amp; item.children.length ? &#39;▶&#39; : &#39;&#39;;</span>
+
+<span class="s2">                const icon = document.createElement(&#39;span&#39;);</span>
+<span class="s2">                icon.className = &#39;file-icon&#39;;</span>
+<span class="s2">                icon.textContent = getIcon(item.name, item.is_dir);</span>
+
+<span class="s2">                const name = document.createElement(&#39;span&#39;);</span>
+<span class="s2">                name.className = &#39;file-name&#39;;</span>
+<span class="s2">                name.textContent = item.name;</span>
+
+<span class="s2">                row.appendChild(toggle);</span>
+<span class="s2">                row.appendChild(icon);</span>
+<span class="s2">                row.appendChild(name);</span>
+
+<span class="s2">                let childrenEl = null;</span>
+<span class="s2">                if (item.is_dir &amp;&amp; item.children.length) </span><span class="se">{{</span>
+<span class="s2">                childrenEl = document.createElement(&#39;div&#39;);</span>
+<span class="s2">                childrenEl.className = &#39;children&#39;;</span>
+<span class="s2">                buildTree(item.children, childrenEl);</span>
+<span class="s2">                </span><span class="se">}}</span>
+
+<span class="s2">                row.addEventListener(&#39;click&#39;, e =&gt; </span><span class="se">{{</span>
+<span class="s2">                e.stopPropagation();</span>
+<span class="s2">                document.querySelectorAll(&#39;.tree-item.selected&#39;).forEach(el =&gt; el.classList.remove(&#39;selected&#39;));</span>
+<span class="s2">                row.classList.add(&#39;selected&#39;);</span>
+
+<span class="s2">                if (item.is_dir &amp;&amp; childrenEl) </span><span class="se">{{</span>
+<span class="s2">                    const opening = !childrenEl.classList.contains(&#39;open&#39;);</span>
+<span class="s2">                    childrenEl.classList.toggle(&#39;open&#39;, opening);</span>
+<span class="s2">                    toggle.textContent = opening ? &#39;▼&#39; : &#39;▶&#39;;</span>
+<span class="s2">                    icon.textContent   = opening ? &#39;📂&#39; : &#39;📁&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span>
+
+<span class="s2">                showDetail(item);</span>
+<span class="s2">                document.getElementById(&#39;statSel&#39;).innerHTML =</span>
+<span class="s2">                    `&lt;span class=&quot;highlight&quot;&gt;&lt;/span&gt; $</span><span class="se">{{</span><span class="s2">item.path</span><span class="se">}}</span><span class="s2">`;</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">);</span>
+
+<span class="s2">                wrap.appendChild(row);</span>
+<span class="s2">                if (childrenEl) wrap.appendChild(childrenEl);</span>
+<span class="s2">                container.appendChild(wrap);</span>
+<span class="s2">                allNodes.push(</span><span class="se">{{</span><span class="s2"> row, item </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Detail panel ──────────────────────────────────────────</span>
+<span class="s2">            function showDetail(item) </span><span class="se">{{</span>
+<span class="s2">            currentItem = item;</span>
+<span class="s2">            const p   = document.getElementById(&#39;detailPanel&#39;);</span>
+<span class="s2">            const ext = (!item.is_dir &amp;&amp; item.name.includes(&#39;.&#39;))</span>
+<span class="s2">                ? item.name.split(&#39;.&#39;).pop().toUpperCase() : &#39;&#39;;</span>
+
+<span class="s2">            const header = `</span>
+<span class="s2">                &lt;div&gt;</span>
+<span class="s2">                &lt;div class=&quot;detail-title&quot;&gt;</span>
+<span class="s2">                    &lt;span&gt;$</span><span class="se">{{</span><span class="s2">getIcon(item.name, item.is_dir)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                    $</span><span class="se">{{</span><span class="s2">escHtml(item.name)</span><span class="se">}}</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                &lt;div class=&quot;detail-subtitle&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(item.path)</span><span class="se">}}</span><span class="s2">&lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+
+<span class="s2">            if (item.is_dir) </span><span class="se">{{</span>
+<span class="s2">                const childRows = (item.children || []).map(c =&gt; `</span>
+<span class="s2">                &lt;div class=&quot;cl-row&quot; onclick=&quot;focusNode(&#39;$</span><span class="se">{{</span><span class="s2">c.path</span><span class="se">}}</span><span class="s2">&#39;)&quot;&gt;</span>
+<span class="s2">                    &lt;span class=&quot;ci&quot;&gt;$</span><span class="se">{{</span><span class="s2">getIcon(c.name, c.is_dir)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                    &lt;span class=&quot;cn $</span><span class="se">{{</span><span class="s2">c.is_dir ? &#39;d&#39; : &#39;&#39;</span><span class="se">}}</span><span class="s2">&quot;&gt;$</span><span class="se">{{</span><span class="s2">escHtml(c.name)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                    &lt;span class=&quot;cs&quot;&gt;$</span><span class="se">{{</span><span class="s2">c.is_dir ? c.children.length + &#39; item(s)&#39; : fmtSize(c.size)</span><span class="se">}}</span><span class="s2">&lt;/span&gt;</span>
+<span class="s2">                &lt;/div&gt;`).join(&#39;&#39;);</span>
+
+<span class="s2">                const contentsCard = `</span>
+<span class="s2">                &lt;div class=&quot;children-list&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;cl-header&quot;&gt;Contents — $</span><span class="se">{{</span><span class="s2">(item.children||[]).length</span><span class="se">}}</span><span class="s2"> item(s)&lt;/div&gt;</span>
+<span class="s2">                    $</span><span class="se">{{</span><span class="s2">childRows || &#39;&lt;div style=&quot;padding:12px 14px;color:#6e7681;font-size:12px;&quot;&gt;Empty folder&lt;/div&gt;&#39;</span><span class="se">}}</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+
+<span class="s2">                const folderActionCard = buildActionCardHTML(</span>
+<span class="s2">                FOLDER_ACTIONS, &#39;folderActionSel&#39;, &#39;folderActionDesc&#39;</span>
+<span class="s2">                );</span>
+
+<span class="s2">                p.innerHTML = `</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">header</span><span class="se">}}</span>
+<span class="s2">                &lt;div class=&quot;stats&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;slabel&quot;&gt;Type&lt;/div&gt;&lt;div class=&quot;sval&quot;&gt;Folder&lt;/div&gt;&lt;/div&gt;</span>
+<span class="s2">                    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;slabel&quot;&gt;Items&lt;/div&gt;&lt;div class=&quot;sval&quot;&gt;$</span><span class="se">{{</span><span class="s2">(item.children||[]).length</span><span class="se">}}</span><span class="s2">&lt;/div&gt;&lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">contentsCard</span><span class="se">}}</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">folderActionCard</span><span class="se">}}</span>
+<span class="s2">                `;</span>
+
+<span class="s2">            </span><span class="se">}}</span><span class="s2"> else </span><span class="se">{{</span>
+<span class="s2">                const contentCard = `</span>
+<span class="s2">                &lt;div class=&quot;content-card&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;card-header&quot;&gt;</span>
+<span class="s2">                        &lt;span class=&quot;card-icon&quot;&gt;📄&lt;/span&gt;</span>
+<span class="s2">                        Content</span>
+<span class="s2">                        &lt;div class=&quot;badge btn&quot; onclick=&quot;sendActionEvent(&#39;LOAD_CONTENT&#39;, &#39;$</span><span class="se">{{</span><span class="s2">item.path</span><span class="se">}}</span><span class="s2">&#39;, &#39;LOAD_CONTENT&#39;)&quot;&gt;Load content&lt;/div&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                    $</span><span class="se">{{</span><span class="s2">buildContentHTML(item.path)</span><span class="se">}}</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+
+<span class="s2">                const taskLogCard = `</span>
+<span class="s2">                &lt;div class=&quot;task-log-card&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;card-header&quot;&gt;</span>
+<span class="s2">                    &lt;span class=&quot;card-icon&quot;&gt;📋&lt;/span&gt;</span>
+<span class="s2">                    Task Log</span>
+<span class="s2">                    &lt;div class=&quot;badge btn&quot; onclick=&quot;sendActionEvent(&#39;LOAD_LOG&#39;, &#39;$</span><span class="se">{{</span><span class="s2">item.path</span><span class="se">}}</span><span class="s2">&#39;, &#39;LOAD_LOG&#39;)&quot;&gt;Load log&lt;/div&gt;</span>
+<span class="s2">                    &lt;/div&gt;</span>
+<span class="s2">                    $</span><span class="se">{{</span><span class="s2">buildTaskLogHTML(item.path)</span><span class="se">}}</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+
+<span class="s2">                const fileActionCard = buildActionCardHTML(</span>
+<span class="s2">                FILE_ACTIONS, &#39;fileActionSel&#39;, &#39;fileActionDesc&#39;</span>
+<span class="s2">                );</span>
+
+<span class="s2">                const downloadBtn = `</span>
+<span class="s2">                &lt;div class=&quot;stat&quot; style=&quot;cursor:pointer; border-color: #21c55d33; background: #21c55d0a;&quot;</span>
+<span class="s2">                    onclick=&quot;sendActionEvent(&#39;DOWNLOAD&#39;, &#39;$</span><span class="se">{{</span><span class="s2">item.path</span><span class="se">}}</span><span class="s2">&#39;, &#39;DOWNLOAD&#39;)&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;slabel&quot;&gt;Download&lt;/div&gt;</span>
+<span class="s2">                    &lt;div class=&quot;sval&quot;&gt;Get File&lt;/div&gt;</span>
+<span class="s2">                &lt;/div&gt;`;</span>
+
+<span class="s2">                p.innerHTML = `</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">header</span><span class="se">}}</span>
+<span class="s2">                &lt;div class=&quot;stats&quot;&gt;</span>
+<span class="s2">                    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;slabel&quot;&gt;Type&lt;/div&gt;&lt;div class=&quot;sval&quot;&gt;$</span><span class="se">{{</span><span class="s2">ext || &#39;File&#39;</span><span class="se">}}</span><span class="s2">&lt;/div&gt;&lt;/div&gt;</span>
+<span class="s2">                    &lt;div class=&quot;stat&quot;&gt;&lt;div class=&quot;slabel&quot;&gt;Size&lt;/div&gt;&lt;div class=&quot;sval&quot;&gt;$</span><span class="se">{{</span><span class="s2">fmtSize(item.size)</span><span class="se">}}</span><span class="s2">&lt;/div&gt;&lt;/div&gt;</span>
+<span class="s2">                    $</span><span class="se">{{</span><span class="s2">downloadBtn</span><span class="se">}}</span>
+<span class="s2">                &lt;/div&gt;</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">taskLogCard</span><span class="se">}}</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">contentCard</span><span class="se">}}</span>
+<span class="s2">                $</span><span class="se">{{</span><span class="s2">fileActionCard</span><span class="se">}}</span>
+<span class="s2">                `;</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function focusNode(path) </span><span class="se">{{</span>
+<span class="s2">            expandParentsToPath(path);</span>
+<span class="s2">            const found = allNodes.find(n =&gt; n.row.dataset.path === path);</span>
+<span class="s2">            if (found) found.row.click();</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function expandParentsToPath(path) </span><span class="se">{{</span>
+<span class="s2">            if (!path) return;</span>
+<span class="s2">            const normalizedRoot    = ROOT.endsWith(&#39;/&#39;) || ROOT.endsWith(&#39;</span><span class="se">\\\\</span><span class="s2">&#39;) ? ROOT.slice(0, -1) : ROOT;</span>
+<span class="s2">            const normalizedPath    = path.split(&#39;</span><span class="se">\\\\</span><span class="s2">&#39;).join(&#39;/&#39;);</span>
+<span class="s2">            const normalizedRootFwd = normalizedRoot.split(&#39;</span><span class="se">\\\\</span><span class="s2">&#39;).join(&#39;/&#39;);</span>
+<span class="s2">            const relativePath = normalizedPath.startsWith(normalizedRootFwd)</span>
+<span class="s2">                ? normalizedPath.slice(normalizedRootFwd.length) : normalizedPath;</span>
+<span class="s2">            const pathParts = relativePath.split(&#39;/&#39;).filter(p =&gt; p);</span>
+<span class="s2">            let currentPath     = normalizedRoot;</span>
+<span class="s2">            let currentChildren = TREE;</span>
+<span class="s2">            for (let i = 0; i &lt; pathParts.length - 1; i++) </span><span class="se">{{</span>
+<span class="s2">                const part = pathParts[i];</span>
+<span class="s2">                currentPath += &#39;/&#39; + part;</span>
+<span class="s2">                const found = currentChildren.find(item =&gt; item.name === part &amp;&amp; item.is_dir);</span>
+<span class="s2">                if (!found) break;</span>
+<span class="s2">                const node = allNodes.find(n =&gt; n.item.path === currentPath);</span>
+<span class="s2">                if (node) </span><span class="se">{{</span>
+<span class="s2">                const wrap       = node.row.parentElement;</span>
+<span class="s2">                const childrenEl = wrap ? wrap.querySelector(&#39;.children&#39;) : null;</span>
+<span class="s2">                const toggle     = node.row.querySelector(&#39;.toggle&#39;);</span>
+<span class="s2">                const iconEl     = node.row.querySelector(&#39;.file-icon&#39;);</span>
+<span class="s2">                if (childrenEl &amp;&amp; !childrenEl.classList.contains(&#39;open&#39;)) </span><span class="se">{{</span>
+<span class="s2">                    childrenEl.classList.add(&#39;open&#39;);</span>
+<span class="s2">                    if (toggle) toggle.textContent = &#39;▼&#39;;</span>
+<span class="s2">                    if (iconEl)  iconEl.textContent = &#39;📂&#39;;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                currentChildren = found.children || [];</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            function selectInitialNode(path) </span><span class="se">{{</span>
+<span class="s2">                if (!path) return;</span>
+<span class="s2">                expandParentsToPath(path);</span>
+<span class="s2">                const found = allNodes.find(n =&gt; n.row.dataset.path === path);</span>
+<span class="s2">                if (found) </span><span class="se">{{</span>
+<span class="s2">                    found.row.scrollIntoView(</span><span class="se">{{</span><span class="s2"> behavior: &#39;smooth&#39;, block: &#39;center&#39; </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                    found.row.click();</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Search ────────────────────────────────────────────────</span>
+<span class="s2">            function filterTree(q) </span><span class="se">{{</span>
+<span class="s2">            if (!q) collapseAll(); else expandAll();</span>
+<span class="s2">            const lq = q.toLowerCase();</span>
+<span class="s2">            allNodes.forEach((</span><span class="se">{{</span><span class="s2"> row </span><span class="se">}}</span><span class="s2">) =&gt; </span><span class="se">{{</span>
+<span class="s2">                row.style.display = (!lq || row.dataset.nameLower.includes(lq)) ? &#39;&#39; : &#39;none&#39;;</span>
+<span class="s2">            </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Expand / Collapse ─────────────────────────────────────</span>
+<span class="s2">            function expandAll() </span><span class="se">{{</span>
+<span class="s2">            document.querySelectorAll(&#39;.children&#39;).forEach(c =&gt; c.classList.add(&#39;open&#39;));</span>
+<span class="s2">            document.querySelectorAll(&#39;.toggle&#39;).forEach(t =&gt; </span><span class="se">{{</span><span class="s2"> if (t.textContent) t.textContent = &#39;▼&#39;; </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            function collapseAll() </span><span class="se">{{</span>
+<span class="s2">            document.querySelectorAll(&#39;.children&#39;).forEach(c =&gt; c.classList.remove(&#39;open&#39;));</span>
+<span class="s2">            document.querySelectorAll(&#39;.toggle&#39;).forEach(t =&gt; </span><span class="se">{{</span><span class="s2"> if (t.textContent) t.textContent = &#39;▶&#39;; </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">            </span><span class="se">}}</span>
+<span class="s2">            function selectInitialNodeWhenReady(path, retries = 10) </span><span class="se">{{</span>
+<span class="s2">                if (!path) return;</span>
+<span class="s2">                expandParentsToPath(path);</span>
+<span class="s2">                const found = allNodes.find(n =&gt; n.row.dataset.path === path);</span>
+<span class="s2">                if (found) </span><span class="se">{{</span>
+<span class="s2">                    found.row.scrollIntoView(</span><span class="se">{{</span><span class="s2"> behavior: &#39;smooth&#39;, block: &#39;center&#39; </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                    found.row.click();</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2"> else if (retries &gt; 0) </span><span class="se">{{</span>
+<span class="s2">                    setTimeout(() =&gt; selectInitialNodeWhenReady(path, retries - 1), 50);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">            </span><span class="se">}}</span>
+
+<span class="s2">            // ── Init ──────────────────────────────────────────────────</span>
+<span class="s2">            buildTree(TREE, document.getElementById(&#39;treePanel&#39;));</span>
+<span class="s2">            isLightMode = localStorage.getItem(&#39;fileExplorerLightMode&#39;) === &#39;true&#39;;</span>
+<span class="s2">            document.body.classList.toggle(&#39;light-mode&#39;, isLightMode);</span>
+
+<span class="s2">            if (window.Streamlit) window.Streamlit.setFrameHeight();</span>
+<span class="s2">            &lt;/script&gt;</span>
+<span class="s2">            &lt;script&gt;</span>
+<span class="s2">                function sendMessageToStreamlitClient(type, data) </span><span class="se">{{</span>
+<span class="s2">                var outData = Object.assign(</span><span class="se">{{</span><span class="s2"> isStreamlitMessage: true, type: type </span><span class="se">}}</span><span class="s2">, data);</span>
+<span class="s2">                window.parent.postMessage(outData, &quot;*&quot;);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                function init() </span><span class="se">{{</span>
+<span class="s2">                sendMessageToStreamlitClient(&quot;streamlit:componentReady&quot;, </span><span class="se">{{</span><span class="s2">apiVersion: 1</span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                function sendDataToPython(data) </span><span class="se">{{</span>
+<span class="s2">                sendMessageToStreamlitClient(&quot;streamlit:setComponentValue&quot;, data);</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                function onDataFromPython(event) </span><span class="se">{{</span>
+<span class="s2">                    console.log(event);</span>
+<span class="s2">                if (event.data.type !== &quot;streamlit:render&quot;) return;</span>
+<span class="s2">                if (event.data.args.log)</span><span class="se">{{</span>
+<span class="s2">                    FILE_TASK_LOG = event.data.args.log;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                if (event.data.args.initial_selection)</span><span class="se">{{</span>
+<span class="s2">                    console.log(event.data.args.initial_selection);</span>
+<span class="s2">                    INITIAL_SELECTION = event.data.args.initial_selection;                    </span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                if (event.data.args.content) </span><span class="se">{{</span>
+<span class="s2">                    FILE_CONTENT = event.data.args.content;</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                requestAnimationFrame(() =&gt; selectInitialNode(INITIAL_SELECTION));</span>
+<span class="s2">                </span><span class="se">}}</span>
+<span class="s2">                window.addEventListener(&quot;message&quot;, onDataFromPython);</span>
+<span class="s2">                init();</span>
+<span class="s2">                window.addEventListener(&quot;load&quot;, function() </span><span class="se">{{</span>
+<span class="s2">                //window.setTimeout(function() </span><span class="se">{{</span><span class="s2"> setFrameHeight(document.documentElement.clientHeight); </span><span class="se">}}</span><span class="s2">, 0);</span>
+<span class="s2">                </span><span class="se">}}</span><span class="s2">);</span>
+<span class="s2">                //setFrameHeight(0);</span>
+<span class="s2">            &lt;/script&gt;</span>
+<span class="s2">            &lt;/body&gt;</span>
+<span class="s2">            &lt;/html&gt;&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">html</span></div>
+
+
+<div class="viewcode-block" id="OsirWebFile.create_file_explorer_component">
+<a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebFile.OsirWebFile.create_file_explorer_component">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_file_explorer_component</span><span class="p">(</span><span class="n">html_content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">is_light</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">html_content</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">=</span> <span class="n">OsirWebFile</span><span class="o">.</span><span class="n">file_explorer</span><span class="p">(</span>
+                <span class="n">root_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">CASES_DIR</span><span class="p">),</span>
+                <span class="n">file_actions</span><span class="o">=</span><span class="n">OsirWebFile</span><span class="o">.</span><span class="n">get_all_module</span><span class="p">(),</span>
+                <span class="n">folder_actions</span><span class="o">=</span><span class="n">OsirWebFile</span><span class="o">.</span><span class="n">get_all_module</span><span class="p">(</span><span class="n">for_file</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+                <span class="n">light_mode</span><span class="o">=</span><span class="n">is_light</span>
+            <span class="p">)</span>
+        <span class="n">component_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">component_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component_dir</span><span class="p">,</span> <span class="s1">&#39;dynamic&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">component_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">component_path</span><span class="p">)</span>
+        
+        <span class="n">index_html_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">component_path</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">index_html_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_content</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">components</span><span class="o">.</span><span class="n">declare_component</span><span class="p">(</span>
+            <span class="s2">&quot;file_explorer&quot;</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">component_path</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_build_tree</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">current_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Recursively build a directory tree.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">current_depth</span> <span class="o">&gt;=</span> <span class="n">max_depth</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Collect entries safely, skipping any that raise I/O errors</span>
+            <span class="n">raw_entries</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">scanner</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">scandir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">scanner</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span>  <span class="c1"># Pre-flight check — will raise if inaccessible</span>
+                    <span class="n">raw_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="k">continue</span>  <span class="c1"># Skip unreadable entries like $Secure</span>
+
+            <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">raw_entries</span><span class="p">,</span>
+                <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="p">(</span><span class="ow">not</span> <span class="n">e</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span> <span class="n">e</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+                    <span class="s2">&quot;is_dir&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">(),</span>
+                    <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;children&quot;</span><span class="p">:</span> <span class="p">[]</span>
+                <span class="p">}</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                        <span class="n">item</span><span class="p">[</span><span class="s2">&quot;size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+                <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                    <span class="n">item</span><span class="p">[</span><span class="s2">&quot;children&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OsirWebFile</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span>
+                        <span class="n">entry</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="p">)</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">PermissionError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">items</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

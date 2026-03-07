@@ -12,10 +12,10 @@ Subpackages
 Submodules
 ----------
 
-src.osir\_api.osir\_api.main module
------------------------------------
+src.osir\_api.osir\_api.OsirApi module
+--------------------------------------
 
-.. automodule:: src.osir_api.osir_api.main
+.. automodule:: src.osir_api.osir_api.OsirApi
    :members:
    :show-inheritance:
    :undoc-members:

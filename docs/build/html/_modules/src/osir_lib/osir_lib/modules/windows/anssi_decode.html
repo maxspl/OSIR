@@ -43,6 +43,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../getting_started.html">OSIR basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -119,7 +121,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span> <span class="o">=</span> <span class="n">case_path</span>
         <span class="c1"># Input directory, should be extracted_files/General/NTFSInfoFull_detail/</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ntfs_info_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">endpoint</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">patterns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Save cmd with place‑holders for further iterations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cmd</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">cmd</span>
@@ -204,7 +206,10 @@
 
                 <span class="c1"># Extract endpoint name using the same regex as _prepare_input</span>
                 <span class="n">endpoint_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
+                <span class="n">endpoint_regex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">patterns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">endpoint_regex</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;r&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;r&#39;&quot;</span><span class="p">)):</span>
+                    <span class="n">endpoint_regex</span> <span class="o">=</span> <span class="n">endpoint_regex</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">endpoint_regex</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
                     <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -339,7 +344,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            bool: True if the processing completes successfully, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">endpoint_regex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span>
+        <span class="n">endpoint_regex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">patterns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">endpoint_regex</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;r&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;r&#39;&quot;</span><span class="p">)):</span>
+            <span class="n">endpoint_regex</span> <span class="o">=</span> <span class="n">endpoint_regex</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">endpoint_regex</span><span class="p">,</span> <span class="n">ntfs_info_file</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
             <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
