@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 import re
 import pandas as pd
 import streamlit as st
@@ -303,7 +305,7 @@ class OsirWebMonitoring:
                     with st.container(border=True):
                         title, btn = st.columns([4, 1])
                         with title:
-                            st.caption("### 📡 Status")
+                            st.caption("#### 📡 Status")
                         with btn:
                             if st.button("🔄", key="refresh_status_btn"):
                                 st.rerun()
@@ -329,14 +331,42 @@ class OsirWebMonitoring:
                 st.caption("### 📊 Metrics")
                 m1, m2, m3 = st.columns(3)
                 with m1:
-                    st.caption("⏱️ DURATION")
+                    title_col, btn_col = st.columns([6, 1])
+                    with title_col:
+                        st.caption("#### ⏱️ Duration")
+                    with btn_col:
+                        st.button("", key="empty_btn", type="tertiary")
                     st.code(f"{trace.get('duration_seconds', 0):.3f}s", language=None)
                 with m2:
-                    st.caption("📥 INPUT PATH")
+                    title_col, btn_col = st.columns([6, 1])
+                    with title_col:
+                        st.caption("#### 📥 Input Path")
+                    with btn_col:
+                        if st.button("👁️", key="preview_input_btn", help="Preview file"):
+                            st.session_state["preview_input"] = not st.session_state.get("preview_input", False)
+                            st.session_state["preview_output"] = False
                     st.code(task_info.input, language=None)
+
                 with m3:
-                    st.caption("📤 OUTPUT PATH")
-                    st.code(task_info.output, language=None)
+                    title_col, btn_col = st.columns([6, 1])
+                    with title_col:
+                        st.caption("#### 📤 Output Path")
+                    with btn_col:
+                        if st.button("👁️", key="preview_output_btn", help="Preview file"):
+                            st.session_state["preview_output"] = not st.session_state.get("preview_output", False)
+                            st.session_state["preview_input"] = False
+                    st.code(task_info.output, language=None)  # close the other one
+
+            # Preview container — shown below Metrics, outside the Metrics box
+            if st.session_state.get("preview_input", False):
+                with st.container(border=True):
+                    st.caption("### 🔍 File Preview — Input")
+                    OsirWebMonitoring._render_file_preview(task_info.input, key="input")
+
+            if st.session_state.get("preview_output", False):
+                with st.container(border=True):
+                    st.caption("### 🔍 File Preview — Output")
+                    OsirWebMonitoring._render_file_preview(task_info.output, key="output")
 
             with st.container(border=True):
                 logs = trace.get('logs', [])
@@ -373,7 +403,7 @@ class OsirWebMonitoring:
                     st.code("\n".join(filtered_logs), language="log", line_numbers=True)
                 else:
                     st.warning("No execution logs available for this task.")
-            
+
             with st.container(border=True):
                 st.caption("### ⚡ Actions")
                 if st.button("🔁 Rerun Task", key="rerun_task_btn"):
@@ -393,5 +423,42 @@ class OsirWebMonitoring:
                                 background="#dc2626",
                                 icon="🚨")
                             logger.error_handler(e)
-                        
+
                     st.success(f"Task has been successfully resubmitted.")
+
+    @staticmethod
+    def _render_file_preview(path: str, key: str, max_chars: int = 2000):
+        """Read the first max_chars characters of a file and display them in a code block."""
+        if not path or path == "N/A":
+            st.warning("No path available.")
+            return
+
+        try:
+            with open(path, "r", errors="replace") as f:
+                content = f.read(max_chars)
+
+            suffix = Path(path).suffix.lower()
+            lang_map = {
+                ".py": "python", ".js": "javascript", ".ts": "typescript",
+                ".sh": "bash", ".json": "json", ".yaml": "yaml", ".yml": "yaml",
+                ".toml": "toml", ".csv": "text", ".log": "log", ".xml": "xml",
+            }
+            lang = lang_map.get(suffix, "text")
+
+            truncated = len(content) == max_chars
+            st.caption(f"📄 `{path}`" + (f" — first {max_chars} characters" if truncated else ""))
+            st.code(content, language=lang, line_numbers=True)
+            if truncated:
+                st.caption(f"_Preview limited to {max_chars} characters._")
+
+        except IsADirectoryError:
+            try:
+                entries = os.listdir(path)
+                st.caption(f"📁 `{path}` — {len(entries)} item(s)")
+                st.code("\n".join(sorted(entries)), language="text")
+            except Exception as e:
+                st.error(f"Cannot read directory: {e}")
+        except FileNotFoundError:
+            st.error(f"File not found: `{path}`")
+        except Exception as e:
+            st.error(f"Error reading file: {e}")
