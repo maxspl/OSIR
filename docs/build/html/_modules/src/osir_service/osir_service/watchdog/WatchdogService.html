@@ -43,6 +43,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">OSIR basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -368,7 +370,7 @@
         <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">paths</span><span class="p">:</span>
 
             <span class="k">if</span> <span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">pattern</span><span class="p">:</span>
-                <span class="n">pattern</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">)</span>
+                <span class="n">pattern</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{case_path}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_match</span><span class="p">(</span><span class="n">src_path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">module</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">file_module_pair</span><span class="p">)</span>

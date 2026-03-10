@@ -53,9 +53,10 @@ class PostgresqlModule(LogUtils):
 
             logger.debug(f"""Processing Done: \n
                     File Input: {self.module.input.file} \n""")
-
         except Exception as exc:
             logger.error_handler(exc)
+            return False
+        return True
 
     def parse(self, log: str) -> dict:
         """

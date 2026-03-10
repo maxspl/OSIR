@@ -47,6 +47,7 @@ class UAC_Extractor():
             self.module.output.output_dir = extraction_dir
         except Exception as e:
             logger.error(f"Failed to extract {moved_archive_path}: {e}")
-
+            return False
         # Process
         logger.debug(f"{self.module.module_name} done")
+        return True

@@ -43,6 +43,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../getting_started.html">OSIR basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -97,10 +99,12 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.LiteralModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">MODULE_TYPE</span><span class="p">,</span> <span class="n">OS_TYPE</span><span class="p">,</span> <span class="n">PROCESSOR_OS</span><span class="p">,</span> <span class="n">PROCESSOR_TYPE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirEndpointModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirEndpointModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirInputModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirInputModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirOutputModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirOutputModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirToolModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirToolModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirMetadataModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirMetadataModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirConfigurationModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConfigurationModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.connector.OsirConnectorModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConnectorModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
@@ -118,23 +122,14 @@
 <span class="sd">        processor type), and the core components of the task (tool, </span>
 <span class="sd">        input, output, and connectors).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">version</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span>
-    <span class="n">author</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">module</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">os</span><span class="p">:</span> <span class="n">OS_TYPE</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">MODULE_TYPE</span>
-    <span class="n">disk_only</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">no_multithread</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">processor_type</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PROCESSOR_TYPE</span><span class="p">]</span>
-    <span class="n">processor_os</span><span class="p">:</span> <span class="n">PROCESSOR_OS</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">OsirMetadataModel</span>
+    <span class="n">configuration</span><span class="p">:</span> <span class="n">OsirConfigurationModel</span>
     <span class="n">optional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">alt_module</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">env</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">tool</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirToolModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">OsirInputModel</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">OsirOutputModel</span>
-    <span class="n">endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Pattern</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirEndpointModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">connector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirConnectorModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     
     <span class="c1"># TODO: REMOVE LEGACY</span>
@@ -218,7 +213,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">module_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">module</span>
 
 <div class="viewcode-block" id="OsirModuleModel.find_and_load_internal_module">
 <a class="viewcode-back" href="../../../../../../src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.find_and_load_internal_module">[docs]</a>

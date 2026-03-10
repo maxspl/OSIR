@@ -1,29 +1,40 @@
-version: 1.0
-author: Typ
-module: mft
-description: Parsing of $MFT artifact.
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: Typ
+  description: Parsing of $MFT artifact.
+  os: windows
+
+configuration:
+  module: mft
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: windows
+  processor_os: windows
+
 tool: 
   path: net9/MFTECmd.exe
   cmd: -f '{input_file}' --csv '{output_dir}' --csvf '{output_file}'
   source: https://ericzimmerman.github.io/
   version: 1.3
+
 input:
   type: file
   paths: 
     - r"\$MFT$"
     - r"\$J$"
+
 output:
   type: single_file
   format: csv
   output_file: "{endpoint_name}--{input_file}-{module}.csv"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 splunk:
   'filesystem:ntfs:info':
     name_rex: \$MFT.*\.csv$

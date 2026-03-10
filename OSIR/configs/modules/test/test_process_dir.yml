@@ -1,25 +1,35 @@
-version: 1.0
-author: maxspl
-module: test_process_dir
-description: description
-os: windows
-type: process
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: description
+  os: windows
+
+configuration:
+  module: test_process_dir
+  type: process
+  disk_only: true
+  no_multithread: true
+  processor_type:
   - external
-processor_os: unix
-disk_only: True
-no_multithread: True
+  processor_os: unix
+
 tool: 
   path: process_dir
   cmd: -d {input_dir} -o {output_file}
   source: 
   version: 1.0
+
 input:
   type: dir
   path: extracted_files/SAM
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
 

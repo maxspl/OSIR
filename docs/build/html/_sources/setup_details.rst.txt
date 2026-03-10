@@ -69,6 +69,7 @@ To start MASTER while reusing the detected configuration:
 .. code-block:: bash
 
     python3 osir-launcher.py start master --config
+
 Agent setup in details
 ======================
 

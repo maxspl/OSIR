@@ -65,7 +65,7 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
 
         logger.debug(f"Running the tool of {self._context.module_name}")
 
-        match self._context.processor_os:
+        match self._context.configuration.processor_os:
             case 'unix':
                 self.run_local()
             case 'windows':

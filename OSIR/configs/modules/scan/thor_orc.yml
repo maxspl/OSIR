@@ -1,27 +1,39 @@
-version: 1.0
-author: maxspl
-module: thor_orc
-description: Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).
-os: generic
-type: process
-disk_only: False
-no_multithread: True
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Scan of collected DFIR ORC (output of restore_fs module) file using
+    Thor (requires Forensic license).
+  os: generic
+
+configuration:
+  module: thor_orc
+  type: process
+  disk_only: false
+  no_multithread: true
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: thor/thor-linux-64
   cmd: --lab --nocsv --silent --nolog -p {input_dir} --jsonfile {output_file}
   source: https://www.nextron-systems.com/thor/
   version: 1.0
+
 input:
   type: dir
   path: restore_fs/*
+
 output:
   type: single_file
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "restore_fs\/(.*)"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*)"
+  default: "UNKNOWN"
+
 splunk:
   'thor:files':
     name_rex: \.jsonl$

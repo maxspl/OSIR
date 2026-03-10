@@ -1,0 +1,330 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_client.osir_client.OsirClient &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">src.osir_client.osir_client.OsirClient</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for src.osir_client.osir_client.OsirClient</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dotenv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_client.client.OsirClient</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_client.client.OsirCliDisplay</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirCliDisplay</span>
+
+<span class="n">load_dotenv</span><span class="p">()</span>
+
+<span class="n">logger</span><span class="p">:</span> <span class="n">CustomLogger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+<span class="n">DEFAULT_API_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OSIR_API_URL&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../../src.osir_client.osir_client.html#src.osir_client.osir_client.OsirClient.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Command-line tool to interact with the OSIR API.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Global - now optional if set in .env</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-u&quot;</span><span class="p">,</span> <span class="s2">&quot;--api-url&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_API_URL</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;OSIR API URL (e.g., http://127.0.0.1:8502). Can also be set via OSIR_API_URL in .env&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;command&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># --- CASE ---</span>
+    <span class="n">case_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;case&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manage cases&quot;</span><span class="p">)</span>
+    <span class="n">case_sub</span> <span class="o">=</span> <span class="n">case_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">case_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List all cases&quot;</span><span class="p">)</span>
+
+    <span class="n">case_create</span> <span class="o">=</span> <span class="n">case_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;create&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Create a new case&quot;</span><span class="p">)</span>
+    <span class="n">case_create</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--case-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the case to create&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- MODULE ---</span>
+    <span class="n">module_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;module&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manage and run modules&quot;</span><span class="p">)</span>
+    <span class="n">module_sub</span> <span class="o">=</span> <span class="n">module_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">module_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List all available modules&quot;</span><span class="p">)</span>
+
+    <span class="n">module_list_cat</span> <span class="o">=</span> <span class="n">module_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;list-category&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List modules for a specific category&quot;</span><span class="p">)</span>
+    <span class="n">module_list_cat</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-cat&quot;</span><span class="p">,</span> <span class="s2">&quot;--category&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Category (e.g., windows, unix, splunk)&quot;</span><span class="p">)</span>
+    <span class="n">module_list_cat</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-sub&quot;</span><span class="p">,</span> <span class="s2">&quot;--subcategory&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Subcategory (e.g., live_response, dissect)&quot;</span><span class="p">)</span>
+    <span class="n">module_list_cat</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-subsub&quot;</span><span class="p">,</span> <span class="s2">&quot;--subsubcategory&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Sub-subcategory (e.g., packages, storage, process, network, hardware, system)&quot;</span><span class="p">)</span>
+
+    <span class="n">module_exists</span> <span class="o">=</span> <span class="n">module_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;exists&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Check if a module exists&quot;</span><span class="p">)</span>
+    <span class="n">module_exists</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--module-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Module name to check&quot;</span><span class="p">)</span>
+
+    <span class="n">module_run</span> <span class="o">=</span> <span class="n">module_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run a module against a case&quot;</span><span class="p">)</span>
+    <span class="n">module_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--case-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Case name&quot;</span><span class="p">)</span>
+    <span class="n">module_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;--module-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Module file to run (e.g., bodyfile.yml)&quot;</span><span class="p">)</span>
+    <span class="n">module_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--input-path&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Optional path to input file to upload.&quot;</span><span class="p">)</span>
+    <span class="n">module_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--wait&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Wait for completion&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- PROFILE ---</span>
+    <span class="n">profile_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;profile&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manage and run profiles&quot;</span><span class="p">)</span>
+    <span class="n">profile_sub</span> <span class="o">=</span> <span class="n">profile_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">profile_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List all available profiles&quot;</span><span class="p">)</span>
+
+    <span class="n">profile_exists</span> <span class="o">=</span> <span class="n">profile_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;exists&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Check if a profile exists&quot;</span><span class="p">)</span>
+    <span class="n">profile_exists</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--profile-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Profile name to check&quot;</span><span class="p">)</span>
+
+    <span class="n">profile_run</span> <span class="o">=</span> <span class="n">profile_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Run a profile against a case&quot;</span><span class="p">)</span>
+    <span class="n">profile_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--case-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Case name&quot;</span><span class="p">)</span>
+    <span class="n">profile_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--profile-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Profile name to run&quot;</span><span class="p">)</span>
+    <span class="n">profile_run</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--wait&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Wait for completion&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- HANDLER ---</span>
+    <span class="n">handler_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;handler&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manage handlers&quot;</span><span class="p">)</span>
+    <span class="n">handler_sub</span> <span class="o">=</span> <span class="n">handler_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">handler_list</span> <span class="o">=</span> <span class="n">handler_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List handlers for a case&quot;</span><span class="p">)</span>
+    <span class="n">handler_list</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--case-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Case name&quot;</span><span class="p">)</span>
+
+    <span class="n">handler_status</span> <span class="o">=</span> <span class="n">handler_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get handler status&quot;</span><span class="p">)</span>
+    <span class="n">handler_status</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--handler-id&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Handler UUID&quot;</span><span class="p">)</span>
+    <span class="n">handler_status</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-w&quot;</span><span class="p">,</span> <span class="s2">&quot;--wait&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Wait for completion&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- TASK ---</span>
+    <span class="n">task_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;task&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manage tasks&quot;</span><span class="p">)</span>
+    <span class="n">task_sub</span> <span class="o">=</span> <span class="n">task_parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">task_list</span> <span class="o">=</span> <span class="n">task_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;List all tasks&quot;</span><span class="p">)</span>
+    <span class="n">task_list</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="s2">&quot;--case-name&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Case name&quot;</span><span class="p">)</span>
+
+    <span class="n">task_info</span> <span class="o">=</span> <span class="n">task_sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Get task info&quot;</span><span class="p">)</span>
+    <span class="n">task_info</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--task-id&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Task UUID&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">api_url</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;API URL is required. Set OSIR_API_URL in your .env file or use --api-url.&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">osir</span> <span class="o">=</span> <span class="n">OsirClient</span><span class="p">(</span><span class="n">api_url</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">api_url</span><span class="p">)</span>
+
+        <span class="c1"># --- CASE ---</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;case&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;create&quot;</span><span class="p">:</span>
+                <span class="n">case</span> <span class="o">=</span> <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Case &#39;</span><span class="si">{</span><span class="n">case</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; created with UUID: </span><span class="si">{</span><span class="n">case</span><span class="o">.</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># --- MODULE ---</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;module&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;list-category&quot;</span><span class="p">:</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="nb">print</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">category</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">category</span>
+                <span class="n">subcategory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;subcategory&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">subsubcategory</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;subsubcategory&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+                <span class="n">group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Category &#39;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">&#39; not found. Available: windows, unix, splunk, scan, network, pre_process, test&quot;</span><span class="p">)</span>
+                    <span class="k">return</span>
+
+                <span class="k">if</span> <span class="n">subcategory</span><span class="p">:</span>
+                    <span class="n">group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">subcategory</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subcategory &#39;</span><span class="si">{</span><span class="n">subcategory</span><span class="si">}</span><span class="s2">&#39; not found in &#39;</span><span class="si">{</span><span class="n">category</span><span class="si">}</span><span class="s2">&#39;. Available: live_response, dissect&quot;</span><span class="p">)</span>
+                        <span class="k">return</span>
+
+                    <span class="k">if</span> <span class="n">subsubcategory</span><span class="p">:</span>
+                        <span class="n">group</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">subsubcategory</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sub-subcategory &#39;</span><span class="si">{</span><span class="n">subsubcategory</span><span class="si">}</span><span class="s2">&#39; not found. Available: packages, storage, process, network, hardware, system&quot;</span><span class="p">)</span>
+                            <span class="k">return</span>
+
+                <span class="n">OsirCliDisplay</span><span class="o">.</span><span class="n">modules_flat</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">subcategory</span><span class="p">,</span> <span class="n">subsubcategory</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;exists&quot;</span><span class="p">:</span>
+                <span class="n">module</span> <span class="o">=</span> <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">module_name</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module info: </span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span>
+                <span class="n">handler</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">osir</span><span class="o">.</span><span class="n">cases</span>
+                    <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">modules</span>
+                    <span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                        <span class="n">args</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span>
+                        <span class="n">input_path</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;input_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;input_path&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                    <span class="n">OsirCliDisplay</span><span class="o">.</span><span class="n">task_info</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">handler</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">wait_end</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">wait</span><span class="p">)</span>
+
+        <span class="c1"># --- PROFILE ---</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;profile&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="n">profiles</span> <span class="o">=</span> <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available profiles: </span><span class="si">{</span><span class="n">profiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;exists&quot;</span><span class="p">:</span>
+                <span class="n">profile</span> <span class="o">=</span> <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">profiles</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">profile_name</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Profile info: </span><span class="si">{</span><span class="n">profile</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;run&quot;</span><span class="p">:</span>
+                <span class="n">handler</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">osir</span><span class="o">.</span><span class="n">cases</span>
+                    <span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">profiles</span>
+                    <span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">profile_name</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">wait_end</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">wait</span><span class="p">)</span>
+
+        <span class="c1"># --- HANDLER ---</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;handler&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span><span class="o">.</span><span class="n">handlers</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">osir_client.client.OsirCliHandler</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirCliHandler</span>
+                <span class="n">handler</span> <span class="o">=</span> <span class="n">OsirCliHandler</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">handler_id</span><span class="p">)</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">osir</span>
+                <span class="n">handler</span><span class="o">.</span><span class="n">status</span><span class="p">(</span><span class="n">wait_end</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">wait</span><span class="p">)</span>
+
+        <span class="c1"># --- TASK ---</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;task&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+    
+            <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;info&quot;</span><span class="p">:</span>
+                <span class="n">task</span> <span class="o">=</span> <span class="n">osir</span><span class="o">.</span><span class="n">cases</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">get_task_info</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task info: </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;An error occurred: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OSIR_HOME&quot;</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;OSIR_HOME env var not set default is /OSIR !&quot;</span><span class="p">)</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

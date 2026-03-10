@@ -18,21 +18,21 @@ class TaskService:
 
     @staticmethod
     def get_task_name(module: OsirModuleModel):
-        if "internal" in module.processor_type:
+        if "internal" in module.configuration.processor_type:
             return "internal_processor_task"
         else:
             return "external_processor_task"
 
     @staticmethod
     def get_queue_name(module: OsirModuleModel):
-        if module.disk_only and module.no_multithread:
-            return f"{module.processor_os}_no_multithread_disk_only"
-        elif module.disk_only:
-            return f"{module.processor_os}_multithread_disk_only"
-        elif module.no_multithread:
-            return f"{module.processor_os}_no_multithread"
+        if module.configuration.disk_only and module.configuration.no_multithread:
+            return f"{module.configuration.processor_os}_no_multithread_disk_only"
+        elif module.configuration.disk_only:
+            return f"{module.configuration.processor_os}_multithread_disk_only"
+        elif module.configuration.no_multithread:
+            return f"{module.configuration.processor_os}_no_multithread"
         else:
-            return f"{module.processor_os}_multithread"
+            return f"{module.configuration.processor_os}_multithread"
 
     @staticmethod
     def push_task(case_path, module_instance: OsirModuleModel, case_uuid, handler_uuid=None):
@@ -90,7 +90,7 @@ class TaskService:
         logger.info(f"""Task Pushed : \n
                     Task Name : {module_instance.module_name} \n
                     Task ID : {result.id} \n
-                    Task Type : {module_instance.processor_type} \n
+                    Task Type : {module_instance.configuration.processor_type} \n
                     Case Path : {case_path} \n
                     Input : {module_instance.input.match} \n
                     Case UUID : {case_uuid} \n""")

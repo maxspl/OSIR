@@ -17,6 +17,8 @@ documentation for details.
 
    getting_started
    extracted_module_info
+   web_usage
+   api_cli_usage
    
 .. toctree::
    :maxdepth: 2

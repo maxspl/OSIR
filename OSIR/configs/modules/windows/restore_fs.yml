@@ -1,25 +1,36 @@
-version: 1.0
-author: maxspl
-module: restore_fs
-description: Restore original filesystem structure from DFIR ORC triage
-os: windows
-type: process
-disk_only: True
-no_multithread: True
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Restore original filesystem structure from DFIR ORC triage
+  os: windows
+
+configuration:
+  module: restore_fs
+  type: process
+  disk_only: true
+  no_multithread: true
+  processor_type:
   - external
-processor_os: unix
-env: 
-  - RUST_LOG=info
+  processor_os: unix
+
 tool: 
   path: Restore_FS
   cmd: -i {input_dir} -o {output_dir} -e {endpoint_name}
   source: https://github.com/maxspl/Restore_FS/releases/download/1.2/Restore_FS
   version: 1.6
+
+env: 
+  - RUST_LOG=info
+
 input:
   type: dir
   path: extracted_files
+
 output:
   type: multiple_files
   format: raw
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"

@@ -1,22 +1,32 @@
-version: 1.0
-author: maxspl
-module: wer
-description: Parse .wer files
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse .wer files
+  os: windows
+
+configuration:
+  module: wer
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: dir
   path: ProgramData/Microsoft/Windows/WER/
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "restore_fs\/(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+  default: "UNKNOWN"
+
 splunk:
   'windows:wer':
     name_rex: --wer\.jsonl$

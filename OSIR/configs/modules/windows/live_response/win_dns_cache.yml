@@ -1,27 +1,40 @@
-version: 1.0
-author: maxspl
-module: win_dns_cache
-alt_module: live_response_dispatcher
-description: Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fields lang depends on the system lang
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command).
+    Output fields lang depends on the system lang
+  os: windows
+
+configuration:
+  module: win_dns_cache
+  alt_module: live_response_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: file
   paths: 
     - "**/extracted_files/General/dns_cache.txt"
     - r"netstat_.*\.txt$"
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
+
 optional:
   parser: dns_cache
+
 splunk:
   'windows:live_response:dns_cache':
     name_rex: --win_dns_cache\.jsonl$

@@ -4,8 +4,7 @@ import yaml
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.logger import AppLogger
 
-logger = AppLogger(__name__).get_logger()
-
+logger = AppLogger().get_logger()
 
 class FileManager:
 

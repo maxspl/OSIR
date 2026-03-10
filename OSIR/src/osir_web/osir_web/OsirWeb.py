@@ -52,44 +52,12 @@ class OsirWeb:
             ]
         }
         pg = st.navigation(navigation)
-        
-        # For widget persistence, we need always copy the session state to itself, being careful with widgets that cannot be persisted, like st.data_editor() (where we use the "__do_not_persist" suffix to avoid persisting it)
-        for key in st.session_state.keys():
-            if not key.endswith('__do_not_persist'):
-                st.session_state[key] = st.session_state[key]
 
-        # This is needed for the st.dataframe_editor() class (https://github.com/andrew-weisman/streamlit-dataframe-editor) but is useful for seeing where we are and where we've been
-        st.session_state['url_path'] = pg.url_path if pg.url_path != '' else 'Home'
-        if 'url_path_prev' not in st.session_state:
-            st.session_state['url_path_prev'] = st.session_state['url_path']
-
-        # On every page, display its title
-        # st.title(pg.title)
-
-        # Render the select page
-        
         pg.run()
-
+        
         OsirWebSidebar.sidebar()
-
-        # Update the previous page location
-        st.session_state['url_path_prev'] = st.session_state['url_path']
 
 
 if __name__ == "__main__":
     app = OsirWeb()
     app.render()
-
-# if __name__ == "__main__":
-#     app = ConfigurationApp()
-#     st.set_page_config(
-#         page_title="OSIR",
-#         layout="wide",
-#         initial_sidebar_state="expanded",
-#         menu_items={
-#             "Get help": "https://github.com/maxspl/OSIR",
-#             "Report a bug": "https://github.com/maxspl/OSIR",
-#             "About": "OSIR"
-#         }
-#     )
-#     app.run()

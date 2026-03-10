@@ -175,11 +175,11 @@ class CeleryWorker:
 
                 with OsirDb() as db:
                     if module_instance.output.type == 'multiple_files':
-                        output_path = module_instance.output.dir
+                        output_path = module_instance.output.output_dir_without_suffix
                     elif module_instance.output.type != 'None':
-                        output_path = module_instance.output.file
+                        output_path = module_instance.output.output_file_without_suffix
                     else:
-                        output_path = "N/A"
+                        output_path = "Module without Output"
 
                     self._is_item_in_use(case_uuid, module_instance, db)
                     db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name, output=output_path)

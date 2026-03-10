@@ -1,9 +1,10 @@
 import pandas as pd
+from osir_web.pages.OsirWebFile import OsirWebFile
 import streamlit as st
 
 from osir_web.pages.OsirWebUtils import OsirWebUtils
 from osir_web.pages.OsirWebHeader import OsirWebHeader
-
+from osir_web.pages.OsirWebMonitoring import OsirWebMonitoring
 from osir_service.postgres.OsirDb import OsirDb
 
 from osir_lib.logger import AppLogger
@@ -16,14 +17,10 @@ class OsirWebTask:
     @staticmethod
     def _init_session_state():
         """Initialize session state variables if they don't exist."""
-        if "switch_count" not in st.session_state:
-            st.session_state.switch_count = 0
         if "selected_task_id" not in st.session_state:
             st.session_state.selected_task_id = ""
-        if "selected_handler_id" not in st.session_state:
-            st.session_state.selected_handler_id = ""
-        if "selected_case_name" not in st.session_state:
-            st.session_state.selected_case_name = ""
+        if "monitoring_task_switch" not in st.session_state:
+            st.session_state.monitoring_task_switch = False
 
     @staticmethod
     def render():
@@ -31,6 +28,7 @@ class OsirWebTask:
             title="Status - Task On-Going",
             subtitle="Find and monitor your on going tasks",
         )
+        OsirWebTask._init_session_state()
         OsirWebUtils.center_tabs()
 
         tab1 = st.tabs(["Tasks On-Going"])
@@ -53,7 +51,28 @@ class OsirWebTask:
                     df.drop(columns=['agent'], inplace=True)
                 
                 styled_df = df.style.apply(OsirWebUtils.color_rows, axis=1)
-                st.dataframe(styled_df, width='stretch')
+
+                event = st.dataframe(
+                    styled_df, 
+                    on_select="rerun",
+                    selection_mode="single-cell",  # Allows clicking a line
+                    width='stretch')
+
+                # Check if a cell was clicked
+                if event.selection.cells:
+                    selected_cell = event.selection.cells[0]
+                    selected_row_index = selected_cell[0]
+
+                    selected_row = df.iloc[selected_row_index]
+
+                    previous_selected_task = st.session_state.selected_task_id
+                    st.session_state.selected_task_id = selected_row["task_id"]
+
+                    if previous_selected_task != selected_row["task_id"]:
+                        st.session_state.monitoring_task_switch = True
+                        st.switch_page(
+                            st.Page(OsirWebMonitoring.render, title="Orchestration Monitoring", url_path='OsirWebMonitoring')
+                        ) 
             else:
                 st.info("No task Found")
     

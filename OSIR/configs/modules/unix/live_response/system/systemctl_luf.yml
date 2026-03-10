@@ -1,28 +1,39 @@
-version: 1.0
-author: Kelly Brazil
-module: systemctl_luf
-description: Kelly Brazil - JsonConverter - Parsing the output of the command systemctl list-unit-files
-os: unix
-type: process
-requirements:
-disk_only: false
-no_multithread: false
-processor_type: 
+metadata:
+  version: "2.0"
+  author: Kelly Brazil
+  description: Kelly Brazil - JsonConverter - Parsing the output of the command systemctl
+    list-unit-files
+  os: unix
+
+configuration:
+  module: systemctl_luf
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - external
-processor_os: unix
+  processor_os: unix
+
 tool: 
   path: cat
   cmd: "{input_file} | jc --systemctl-luf | jq -c '.[]' > {output_file}"
+
 input:
   type: file
   paths:
     - r"systemctl_list-unit-files.txt$"
+
 output:
   type: single_file
   format: jsonl
   output_dir: "{case_path}/live_response/system"
   output_file: "{endpoint_name}--{input_file}.jsonl"
-endpoint: "extract_uac\/(.*?)\/"
+
+endpoint: 
+  patterns:
+    - r"extract_uac\/(.*?)\/"
+  default: "UNKNOWN"
+
 splunk:
   'linux:live_response:systemctl':
     name_rex: \.jsonl$

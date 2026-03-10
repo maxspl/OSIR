@@ -8,10 +8,12 @@ from pydantic import BaseModel, PrivateAttr, ValidationError
 
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_lib.core.model.LiteralModel import MODULE_TYPE, OS_TYPE, PROCESSOR_OS, PROCESSOR_TYPE
+from osir_lib.core.model.OsirEndpointModel import OsirEndpointModel
 from osir_lib.core.model.OsirInputModel import OsirInputModel
 from osir_lib.core.model.OsirOutputModel import OsirOutputModel
 from osir_lib.core.model.OsirToolModel import OsirToolModel
+from osir_lib.core.model.OsirMetadataModel import OsirMetadataModel
+from osir_lib.core.model.OsirConfigurationModel import OsirConfigurationModel
 from osir_lib.core.model.connector.OsirConnectorModel import OsirConnectorModel
 from osir_lib.logger import AppLogger
 
@@ -27,23 +29,14 @@ class OsirModuleModel(BaseModel):
         processor type), and the core components of the task (tool, 
         input, output, and connectors).
     """
-    version: float | str
-    author: str
-    module: str
-    description: str
-    os: OS_TYPE
-    type: MODULE_TYPE
-    disk_only: bool
-    no_multithread: bool
-    processor_type: list[PROCESSOR_TYPE]
-    processor_os: PROCESSOR_OS
+    metadata: OsirMetadataModel
+    configuration: OsirConfigurationModel
     optional: Optional[dict] = None
-    alt_module: Optional[str] = None
     env: Optional[list[str]] = None
     tool: Optional[OsirToolModel] = None
     input: OsirInputModel
     output: OsirOutputModel
-    endpoint: Optional[Pattern] = None
+    endpoint: Optional[OsirEndpointModel] = None
     connector: Optional[OsirConnectorModel] = None
     
     # TODO: REMOVE LEGACY
@@ -115,7 +108,7 @@ class OsirModuleModel(BaseModel):
 
     @property
     def module_name(self):
-        return self.module
+        return self.configuration.module
 
     def find_and_load_internal_module(self, alt_module=None) -> Optional[Callable]:
         """

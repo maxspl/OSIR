@@ -1,27 +1,38 @@
-version: 1.0
-author: maxspl
-module: win_routes
-alt_module: live_response_dispatcher
-description: Parse routes.txt from DFIR ORC (route.exe PRINT command)
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse routes.txt from DFIR ORC (route.exe PRINT command)
+  os: windows
+
+configuration:
+  module: win_routes
+  alt_module: live_response_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: file
   paths: 
     - "**/extracted_files/General/routes.txt"
-    - r"route_.*\.txt$" 
+    - r"route_.*\.txt$"
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 optional:
   parser: routes
+
 splunk:
   'windows:live_response:routes':
     name_rex: --win_routes\.jsonl$

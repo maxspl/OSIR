@@ -1,27 +1,39 @@
-version: 1.0
-author: maxspl
-module: win_bits
-alt_module: live_response_dispatcher
-description: Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose command)
-os: windows
-type: process
-disk_only: False
-no_multithread: False
-processor_type: 
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose
+    command)
+  os: windows
+
+configuration:
+  module: win_bits
+  alt_module: live_response_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
   - internal
-processor_os: unix
+  processor_os: unix
+
 input:
   type: file
   paths: 
     - "**/extracted_files/General/BITS_jobs.txt"
-    - r"bitsjobs_.*\.txt$" 
+    - r"bitsjobs_.*\.txt$"
+
 output:
   type: single_file
   format: jsonl
   output_file: "{endpoint_name}--{module}.jsonl"
-endpoint: "/Endpoint_(.*?)/"
+
+endpoint: 
+  patterns:
+    - r"/Endpoint_(.*?)/"
+  default: "UNKNOWN"
+
 optional:
   parser: bits_jobs
+
 splunk:
   'windows:live_response:bits':
     name_rex: --win_bits\.jsonl$

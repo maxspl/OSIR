@@ -1,8 +1,14 @@
+import os
+from pathlib import Path
+import re
 import pandas as pd
 import streamlit as st
 from osir_web.pages.OsirWebHeader import OsirWebHeader
 from osir_web.pages.OsirWebUtils import OsirWebUtils
 from osir_service.postgres.OsirDb import OsirDb
+from osir_service.orchestration.TaskService import TaskService
+from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -42,6 +48,11 @@ class OsirWebMonitoring:
         OsirWebMonitoring.tab1_handler_by_case(tab1)
         OsirWebMonitoring.tab2_tasks_by_case(tab2)
         OsirWebMonitoring.tab3_task_log(tab3)
+
+        if "monitoring_task_switch" in st.session_state:
+            if st.session_state.monitoring_task_switch:
+                st.session_state.monitoring_task_switch = False
+                OsirWebUtils.switch(2)
 
     @staticmethod
     def tab1_handler_by_case(tab):
@@ -130,8 +141,6 @@ class OsirWebMonitoring:
 
                     previous_handler_id = st.session_state.selected_handler_id
 
-                    # Save values to session state for Tab 2
-                    logger.info(selected_row["case_name"])
                     st.session_state.selected_case_name = str(selected_row["case_name"])
                     st.session_state.selected_handler_id = str(selected_row["handler_id"])
                     event = pd.DataFrame()
@@ -151,6 +160,8 @@ class OsirWebMonitoring:
                     if st.button("❌ Clear all tables for this case", type="primary", disabled=not confirm_delete):
                         with st.spinner(f"Deleting entries for case: {filters.case_name}..."):
                             OsirWebUtils.delete_handler_task(filters.case_name)
+                            st.session_state.selected_task_id = ""
+                            st.session_state.selected_handler_id = ""
                         st.success(f"✅ All data related to case '{filters.case_name}' was deleted from the database.")
     
     @staticmethod
@@ -263,56 +274,191 @@ class OsirWebMonitoring:
     def tab3_task_log(tab):
         with tab:
             passed_task_id = st.session_state.get('selected_task_id', "")
+            if not passed_task_id:
+                st.info("No Task ID Entered.")
+                return
 
-            if passed_task_id: 
-                with OsirDb() as db:
-                    task_info = db.task.get(task_id=passed_task_id)
+            with OsirDb() as db:
+                task_info = db.task.get(task_id=passed_task_id)
+            trace = task_info.trace
 
-                trace = task_info.trace
+            status_map = {
+                "processing_done":    ("✅ SUCCESS",    "green",  "normal"),
+                "processing_failed":  ("❌ FAILED",     "red",    "inverse"),
+                "processing_started": ("⏳ PROCESSING", "blue",   "normal"),
+                "task_created":       ("🆕 CREATED",    "gray",   "off"),
+            }
+            status_text, status_color, status_delta = status_map.get(
+                task_info.processing_status, ("Unknown", "gray", "off")
+            )
 
-                st.markdown(f"### 🛠️ Task: `{task_info.task_id}`")
-
-                m1, m2 = st.columns([2, 1])
-                with m1:
+            left, right = st.columns([3, 1])
+            with left:
+                with st.container(border=True):
+                    st.caption("### 🛠️ Task")
+                    st.code(task_info.task_id, language=None)
+                    st.caption(
+                        f"🕐 Created: {task_info.timestamp} · "
+                        f"🏁 Finished: {trace.get('end_time', 'N/A')}"
+                    )
+            with right:
+                    with st.container(border=True):
+                        title, btn = st.columns([4, 1])
+                        with title:
+                            st.caption("#### 📡 Status")
+                        with btn:
+                            if st.button("🔄", key="refresh_status_btn"):
+                                st.rerun()
+                        st.code(status_text, language=None)
+                        st.caption(task_info.processing_status)
+            with st.container(border=True):
+                st.caption("### ℹ️ Information")
+                c1, c2, c3, c4 = st.columns(4)
+                with c1:
                     st.caption("CASE UUID")
-                    st.text(task_info.case_uuid)
-                with m2:
+                    st.code(task_info.case_uuid, language=None)
+                with c2:
                     st.caption("AGENT")
-                    st.text(task_info.agent if task_info.agent != 'Null' else "N/A")
+                    st.code(task_info.agent if task_info.agent != 'Null' else "N/A", language=None)
+                with c3:
+                    st.caption("MODULE")
+                    st.code(task_info.module, language=None)
+                with c4:
+                    st.caption("FUNCTION")
+                    st.code(trace.get('function', 'N/A'), language=None)
 
-                st.divider()
+            with st.container(border=True):
+                st.caption("### 📊 Metrics")
+                m1, m2, m3 = st.columns(3)
+                with m1:
+                    title_col, btn_col = st.columns([6, 1])
+                    with title_col:
+                        st.caption("#### ⏱️ Duration")
+                    with btn_col:
+                        st.button("", key="empty_btn", type="tertiary")
+                    st.code(f"{trace.get('duration_seconds', 0):.3f}s", language=None)
+                with m2:
+                    title_col, btn_col = st.columns([6, 1])
+                    with title_col:
+                        st.caption("#### 📥 Input Path")
+                    with btn_col:
+                        if st.button("👁️", key="preview_input_btn", help="Preview file"):
+                            st.session_state["preview_input"] = not st.session_state.get("preview_input", False)
+                            st.session_state["preview_output"] = False
+                    st.code(task_info.input, language=None)
 
-                status_map = {
-                    "processing_done": ("✅ SUCCESS", "green"),
-                    "processing_failed": ("❌ FAILED", "red"),
-                    "processing_started": ("⏳ PROCESSING", "blue"),
-                    "task_created": ("🆕 CREATED", "gray")
-                }
-                status_text, status_color = status_map.get(task_info.processing_status, ("Unknown", "gray"))
+                with m3:
+                    title_col, btn_col = st.columns([6, 1])
+                    with title_col:
+                        st.caption("#### 📤 Output Path")
+                    with btn_col:
+                        if st.button("👁️", key="preview_output_btn", help="Preview file"):
+                            st.session_state["preview_output"] = not st.session_state.get("preview_output", False)
+                            st.session_state["preview_input"] = False
+                    st.code(task_info.output, language=None)  # close the other one
 
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    st.metric("Module", task_info.module)
-                with col2:
-                    st.metric("Duration", f"{trace.get('duration_seconds', 0):.3f}s")
-                with col3:
-                    st.metric("Function", trace.get('function', 'N/A'))
-                with col4:
-                    st.markdown(f"**Status**\n\n:{status_color}[{status_text}]")
+            # Preview container — shown below Metrics, outside the Metrics box
+            if st.session_state.get("preview_input", False):
+                with st.container(border=True):
+                    st.caption("### 🔍 File Preview — Input")
+                    OsirWebMonitoring._render_file_preview(task_info.input, key="input")
 
-                st.write("#### 📂 Context")
-                st.info(f"**Input Path:**\n\n`{task_info.input}`")
-                st.info(f"**Output Path:**\n\n`{task_info.output}`")
+            if st.session_state.get("preview_output", False):
+                with st.container(border=True):
+                    st.caption("### 🔍 File Preview — Output")
+                    OsirWebMonitoring._render_file_preview(task_info.output, key="output")
 
-                st.write("#### 📜 Execution Traces")
+            with st.container(border=True):
                 logs = trace.get('logs', [])
+                log_content = "\n".join(logs) if logs else ""
+
+                title, _, btn = st.columns([4, 2, 1])
+                with title:
+                    st.caption("### 📜 Execution Traces")
+                with btn:
+                    st.download_button(
+                        label="⬇️",
+                        data=log_content,
+                        file_name=f"task_{passed_task_id}_logs.txt",
+                        mime="text/plain",
+                        disabled=not logs,
+                        use_container_width=True,
+                    )
 
                 if logs:
-                    log_content = "\n".join(logs)
-                    st.code(log_content, language="log", line_numbers=True)
+                    log_levels = ["ALL", "DEBUG", "INFO", "WARNING", "ERROR"]
+                    selected_level = st.pills(
+                        "Filter logs",
+                        log_levels,
+                        default="ALL",
+                        key="log_filter",
+                    )
+
+                    filtered_logs = (
+                        logs if selected_level == "ALL"
+                        else [l for l in logs if selected_level in l.upper()]
+                    )
+
+                    st.caption(f"Showing {len(filtered_logs)} / {len(logs)} log lines")
+                    st.code("\n".join(filtered_logs), language="log", line_numbers=True)
                 else:
                     st.warning("No execution logs available for this task.")
 
-                st.caption(f"Task created: {task_info.timestamp} | Finished: {trace.get('end_time', 'N/A')}")
-            else:
-                st.info("No Task ID Entered.")
+            with st.container(border=True):
+                st.caption("### ⚡ Actions")
+                if st.button("🔁 Rerun Task", key="rerun_task_btn"):
+                    with st.spinner("Resubmitting task..."):
+                        try:
+                            module_model = OsirModuleModel.from_name(task_info.module)
+                            module_model.input.match = task_info.input
+                            case_path = re.match(r'^(.*?/cases/[^/]+)', task_info.input).group(1)
+                            TaskService.push_task(case_path=case_path, module_instance=module_model, case_uuid=task_info.case_uuid)
+                            OsirWebUtils.toast(
+                                txt="Task started ! Follow the progression in 'Task On Going' or in 'Orchestration Monitoring'",
+                                background="#28a745",
+                                icon="🎉")
+                        except Exception as e:
+                            OsirWebUtils.toast(
+                                txt="An error occured report it in 'Report & Github'",
+                                background="#dc2626",
+                                icon="🚨")
+                            logger.error_handler(e)
+
+                    st.success(f"Task has been successfully resubmitted.")
+
+    @staticmethod
+    def _render_file_preview(path: str, key: str, max_chars: int = 2000):
+        """Read the first max_chars characters of a file and display them in a code block."""
+        if not path or path == "N/A":
+            st.warning("No path available.")
+            return
+
+        try:
+            with open(path, "r", errors="replace") as f:
+                content = f.read(max_chars)
+
+            suffix = Path(path).suffix.lower()
+            lang_map = {
+                ".py": "python", ".js": "javascript", ".ts": "typescript",
+                ".sh": "bash", ".json": "json", ".yaml": "yaml", ".yml": "yaml",
+                ".toml": "toml", ".csv": "text", ".log": "log", ".xml": "xml",
+            }
+            lang = lang_map.get(suffix, "text")
+
+            truncated = len(content) == max_chars
+            st.caption(f"📄 `{path}`" + (f" — first {max_chars} characters" if truncated else ""))
+            st.code(content, language=lang, line_numbers=True)
+            if truncated:
+                st.caption(f"_Preview limited to {max_chars} characters._")
+
+        except IsADirectoryError:
+            try:
+                entries = os.listdir(path)
+                st.caption(f"📁 `{path}` — {len(entries)} item(s)")
+                st.code("\n".join(sorted(entries)), language="text")
+            except Exception as e:
+                st.error(f"Cannot read directory: {e}")
+        except FileNotFoundError:
+            st.error(f"File not found: `{path}`")
+        except Exception as e:
+            st.error(f"Error reading file: {e}")

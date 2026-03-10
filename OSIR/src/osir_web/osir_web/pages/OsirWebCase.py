@@ -88,8 +88,8 @@ class OsirWebCase:
                         module_rows.append({
                             "module_path": mod,
                             "module": module.filename,
-                            "description": module.description,
-                            "processor_type": ", ".join(module.processor_type)
+                            "description": module.metadata.description,
+                            "processor_type": ", ".join(module.configuration.processor_type)
                         })
                     except Exception as e:
                         module_rows.append({

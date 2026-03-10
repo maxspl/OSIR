@@ -43,6 +43,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../getting_started.html">OSIR basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -114,7 +116,7 @@
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskService.TaskService.get_task_name">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_task_name</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s2">&quot;internal&quot;</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">processor_type</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;internal&quot;</span> <span class="ow">in</span> <span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_type</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;internal_processor_task&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;external_processor_task&quot;</span></div>
@@ -124,14 +126,14 @@
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskService.TaskService.get_queue_name">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_queue_name</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">disk_only</span> <span class="ow">and</span> <span class="n">module</span><span class="o">.</span><span class="n">no_multithread</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_no_multithread_disk_only&quot;</span>
-        <span class="k">elif</span> <span class="n">module</span><span class="o">.</span><span class="n">disk_only</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_multithread_disk_only&quot;</span>
-        <span class="k">elif</span> <span class="n">module</span><span class="o">.</span><span class="n">no_multithread</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_no_multithread&quot;</span>
+        <span class="k">if</span> <span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">disk_only</span> <span class="ow">and</span> <span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">no_multithread</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_no_multithread_disk_only&quot;</span>
+        <span class="k">elif</span> <span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">disk_only</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_multithread_disk_only&quot;</span>
+        <span class="k">elif</span> <span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">no_multithread</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_no_multithread&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_multithread&quot;</span></div>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_multithread&quot;</span></div>
 
 
 <div class="viewcode-block" id="TaskService.push_task">
@@ -192,7 +194,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Task Pushed : </span><span class="se">\n</span>
 <span class="s2">                    Task Name : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
 <span class="s2">                    Task ID : </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    Task Type : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">processor_type</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
+<span class="s2">                    Task Type : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_type</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
 <span class="s2">                    Case Path : </span><span class="si">{</span><span class="n">case_path</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
 <span class="s2">                    Input : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
 <span class="s2">                    Case UUID : </span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
