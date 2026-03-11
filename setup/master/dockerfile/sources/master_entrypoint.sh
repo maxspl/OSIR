@@ -2,7 +2,7 @@
 
 # install quietly and only report on failure
 safe_install() {
-    if ! pip install -e "$1" --break-system-packages --ignore-installed > /dev/null 2>&1; then
+    if ! pip install --no-build-isolation -e "$1" --break-system-packages --ignore-installed > /dev/null 2>&1; then
         echo "ERROR: Failed to install $1"
         exit 1
     fi
