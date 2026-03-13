@@ -73,8 +73,10 @@ class InternalProcessor:
         # target_file = next(modules_directory.rglob(f"{self._module_instance.module_name}.py"), None)
 
         # 1. Determine which module name to look for (alt_module takes priority)
-        target_name = getattr(self._module_instance, 'alt_module', None) or self._module_instance.module_name
-        
+        target_name = (
+            getattr(self._module_instance.configuration, "alt_module", None)
+            or self._module_instance.module_name
+        )        
         # 2. Search for the .py file
         target_file = next(modules_directory.rglob(f"{target_name}.py"), None)
 
