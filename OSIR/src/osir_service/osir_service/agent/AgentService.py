@@ -79,6 +79,57 @@ class CeleryWorker:
                 time.sleep(3)
                 file_opened = db.task.check_input(case_uuid, module_instance.input.match)
 
+    def _compute_parallel_capacity(self, standalone: bool, windows_cores: int):
+        """
+            Compute a safe global parallel budget based on available CPU resources,
+            then split it across the different processing queues.
+
+            Args:
+                standalone (bool): Indicates whether standalone mode is enabled.
+                windows_cores (int): The number of cores allocated to Windows processing.
+
+            Returns:
+                dict: A dictionary containing the computed capacities for:
+                    - unix_parallel
+                    - windows_parallel
+                    - unix_disk_parallel
+        """
+        total_cores = max(1, cpu_count() or 1)
+
+        reserve_serial_slots = 2          # unix_no_multithread + windows_no_multithread
+        if standalone:
+            reserve_serial_slots += 1     # unix_no_multithread_disk_only
+
+        # CPU-based upper bound
+        cpu_parallel_budget = max(1, total_cores - reserve_serial_slots)
+
+        # Split budget between queues
+        # Priority: unix multithread gets most of the budget, windows keeps a smaller controlled share.
+        windows_parallel = min(max(1, windows_cores), max(1, cpu_parallel_budget // 3))
+        remaining = max(1, cpu_parallel_budget - windows_parallel)
+
+        if standalone:
+            unix_parallel = max(1, int(remaining * 0.6))
+            unix_disk_parallel = max(1, remaining - unix_parallel)
+        else:
+            unix_parallel = remaining
+            unix_disk_parallel = 0
+
+        logger.info(
+            f"Worker capacity computed from host resources: "
+            f"cores={total_cores}, "
+            f"cpu_parallel_budget={cpu_parallel_budget}, "
+            f"unix_parallel={unix_parallel}, "
+            f"windows_parallel={windows_parallel}, "
+            f"unix_disk_parallel={unix_disk_parallel}"
+        )
+
+        return {
+            "unix_parallel": unix_parallel,
+            "windows_parallel": windows_parallel,
+            "unix_disk_parallel": unix_disk_parallel,
+        }
+
     def _is_file_being_written(self, module_instance, check_interval=0.5):
         """
             Check if a file is being written to by monitoring its size and modification time.
@@ -232,28 +283,34 @@ class CeleryWorker:
             logger.error(exc)
 
         host_hostname = os.getenv('HOST_HOSTNAME', '%h')  # Default to '%h' if the env var is not set
-
+        capacity = self._compute_parallel_capacity(
+            standalone=self.agent_config.standalone,
+            windows_cores=windows_cores
+        )
         # Define the arguments for the required workers
         worker_configs = [
             {
                 'hostname': f'unix_worker_no_multithread@{host_hostname}',
                 'queue': 'unix_no_multithread',
-                'autoscale': '1'  # Max 1 worker
+                'autoscale': '1,1'  # Max 1 worker
             },
             {
                 'hostname': f'unix_worker_multithread@{host_hostname}',
                 'queue': 'unix_multithread',
-                'autoscale': f'{total_cores},1'  # Max total_cores workers, min 2 workers
+                # 'autoscale': f'{total_cores},1'  # Max total_cores workers, min 2 workers
+                'autoscale': f'{capacity["unix_parallel"]},1'
+
             },
             {
                 'hostname': f'windows_worker_no_multithread@{host_hostname}',
                 'queue': 'windows_no_multithread',
-                'autoscale': '1'  # Max 1 worker
+                'autoscale': '1,1'
             },
             {
                 'hostname': f'windows_worker_multithread@{host_hostname}',
                 'queue': 'windows_multithread',
-                'autoscale': f'{windows_cores},1'  # Dynamic max workers based on env, min 1 worker
+                'autoscale': f'{capacity["windows_parallel"]},1'
+                # 'autoscale': f'{windows_cores},1'  # Dynamic max workers based on env, min 1 worker
             }
         ]
 
@@ -262,12 +319,13 @@ class CeleryWorker:
                 {
                     'hostname': f'unix_worker_no_multithread_disk_only@{host_hostname}',
                     'queue': 'unix_no_multithread_disk_only',
-                    'autoscale': '1'  # Max 1 worker
+                    'autoscale': '1,1'  # Max 1 worker
                 },
                 {
                     'hostname': f'unix_worker_multithread_disk_only@{host_hostname}',
                     'queue': 'unix_multithread_disk_only',
-                    'autoscale': f'{total_cores},2'  # Max total_cores workers, min 2 workers
+                    'autoscale': f'{capacity["unix_disk_parallel"]},1'
+                    # 'autoscale': f'{total_cores},2'  # Max total_cores workers, min 2 workers
                 }
             ])
 
