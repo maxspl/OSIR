@@ -267,7 +267,7 @@ class ModuleHandler(FileSystemEventHandler):
                         if self._is_duplicate_by_prefix_hash(
                             module_name=module.module_name,
                             file_path=event.src_path,
-                            prefix_size=8192
+                            prefix_size=81920
                         ):
                             logger.info(f"{module.module_name} - Skipping duplicate (prefix xxh3_128): {event.src_path}")
                             return
