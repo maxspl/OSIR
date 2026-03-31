@@ -35,10 +35,10 @@ endpoint:
   default: "UNKNOWN"
 
 splunk:
-  'thor:files':
+  'thor:memory':
     name_rex: \.jsonl$
     path_suffix: 'thor_orc_ram'
-    sourcetype: 'thor:files'
+    sourcetype: 'thor:memory'
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "time"
