@@ -197,7 +197,11 @@ class CeleryWorker:
                     time.sleep(0.1)
                     file_written = self._is_file_being_written(module_instance)
                 if processor.available:
-                    logger.debug(f"Running internal module {module_instance.module_name}.py")
+                    impl_name = getattr(module_instance.configuration, "alt_module", None) or module_instance.module_name
+                    logger.debug(
+                        f"Running internal module '{module_instance.module_name}' "
+                        f"using implementation '{impl_name}.py'"
+                    )
                     processor.run_module()
             except Exception as exc:
                 db = OsirDb()
