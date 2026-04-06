@@ -1,0 +1,202 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: Zeek Conn | Osir Transform description to normalize Zeek conn.log file.
+
+pipeline:
+  - name: set_timestamp
+  - name: set_event
+  - name: set_source
+  - name: set_destination
+  - name: set_network
+  - name: del_zeek
+
+stages:
+
+  set_timestamp:
+    actions:
+      - set:
+          "@timestamp": v'parse_timestamp(.ts, "%s") ?? .ts'
+
+  set_event:
+    actions:
+      - set:
+          event.kind:     "event"
+          event.category: ["network"]
+          event.type:     ["connection"]
+          event.dataset:  "zeek.conn"
+          event.module:   "zeek"
+          event.id:       v'to_string!(.uid)'
+          event.duration: v'to_int!(float!(.duration))'
+
+      - translate:
+          mapping:
+            .conn_state: event.action
+          dictionary:
+            S0:     "connection_attempt_no_reply"
+            S1:     "connection_established"
+            SF:     "connection_closed_normally"
+            REJ:    "connection_rejected"
+            S2:     "connection_closed_originator"
+            S3:     "connection_closed_responder"
+            RSTO:   "connection_reset_originator"
+            RSTR:   "connection_reset_responder"
+            RSTOS0: "originator_reset_attempt"
+            RSTRH:  "responder_reset_attempt"
+            SH:     "fin_originator_no_reply"
+            SHR:    "fin_responder_no_reply"
+            OTH:    "no_syn_seen"
+          fallback: "unknown"
+
+  set_source:
+    actions:
+      - set:
+          source.ip:       v'to_string!(.id.orig_h)'
+          source.port:     v'to_int!(.id.orig_p)'
+          source.bytes:    v'to_int!(.orig_bytes)'
+          source.packets:  v'to_int!(.orig_pkts)'
+          source.ip_bytes: v'to_int!(.orig_ip_bytes)'
+
+      - set:
+          source.internal: true
+        filter: v'starts_with!(to_string!(.id.orig_h), "192.168.") || starts_with!(to_string!(.id.orig_h), "10.") || starts_with!(to_string!(.id.orig_h), "172.16.")'
+
+  set_destination:
+    actions:
+      - set:
+          destination.ip:       v'to_string!(.id.resp_h)'
+          destination.port:     v'to_int!(.id.resp_p)'
+          destination.bytes:    v'to_int!(.resp_bytes)'
+          destination.packets:  v'to_int!(.resp_pkts)'
+          destination.ip_bytes: v'to_int!(.resp_ip_bytes)'
+
+  set_network:
+    actions:
+      - set:
+          network.transport: v'downcase!(to_string!(.proto))'
+          network.protocol:  v'downcase!(to_string!(.service))'
+          network.bytes:     v'to_int!(.orig_bytes) + to_int!(.resp_bytes)'
+          network.packets:   v'to_int!(.orig_pkts)  + to_int!(.resp_pkts)'
+          network.history:   v'to_string!(.history)'
+          network.ip_proto:  v'to_int!(.ip_proto)'
+      - custom:
+          event.status: v|
+              if .EventID == 4624 {
+                .event.status = "success"
+              } else if .EventID == 4625 {
+                .event.status = "failure"
+              } else {
+                .event.status = "unknown"
+              }
+
+  del_zeek:
+    actions:
+      - delete:
+          - ts
+          - uid
+          - id.orig_h
+          - id.orig_p
+          - id.resp_h
+          - id.resp_p
+          - proto
+          - ip_proto
+          - service
+          - duration
+          - orig_bytes
+          - resp_bytes
+          - orig_pkts
+          - resp_pkts
+          - orig_ip_bytes
+          - resp_ip_bytes
+          - missed_bytes
+          - conn_state
+          - history
+
+descriptions:
+
+  - message: "Connection {event.action} from {source.ip}:{source.port} to {destination.ip}:{destination.port}"
+    conditions: []
+
+  - message: "Connection {event.action} from {source.ip}:{source.port} to {destination.ip}:{destination.port} via {network.protocol}"
+    conditions:
+      - field: network.protocol
+
+  - message: "{source.ip}:{source.port} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes"
+    conditions:
+      - field: network.bytes
+
+  - message: "Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.protocol}) {network.bytes} bytes"
+    relationships:
+      - source: source.ip
+        target: destination.ip
+        type:   connected to
+    conditions:
+      - field: source.internal
+        value: true
+      - field: network.protocol
+      - field: network.bytes
+
+  - message: "Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes"
+    relationships:
+      - source: source.ip
+        target: destination.ip
+        type:   connected to
+    conditions:
+      - field: source.internal
+        value: true
+      - field: network.bytes
+
+  - message: "{source.ip}:{source.port} -> {destination.ip}:{destination.port} — connection rejected"
+    relationships:
+      - source: source.ip
+        target: destination.ip
+        type:   attempted to connect to
+    conditions:
+      - field: event.action
+        value: "connection_rejected"
+
+  - message: "{source.ip}:{source.port} -> {destination.ip}:{destination.port} — no reply ({network.transport})"
+    relationships:
+      - source: source.ip
+        target: destination.ip
+        type:   attempted to connect to
+    conditions:
+      - field: event.action
+        value: "connection_attempt_no_reply"
+
+fields:
+  - name: source.bytes
+    description: "Total number of payload bytes sent from the source to the destination, excluding packet headers."
+    type: number
+
+  - name: source.packets
+    description: "Total number of packets sent from the source to the destination."
+    type: number
+
+  - name: source.ip_bytes
+    description: "Total number of IP-level bytes (including headers) sent from the source to the destination."
+    type: number
+
+  - name: destination.bytes
+    description: "Total number of payload bytes sent from the destination to the source, excluding packet headers."
+    type: number
+
+  - name: destination.packets
+    description: "Total number of packets sent from the destination to the source."
+    type: number
+
+  - name: destination.ip_bytes
+    description: "Total number of IP-level bytes (including headers) sent from the destination to the source."
+    type: number
+
+  - name: network.history
+    description: "The state history of the connection as a string of state transitions observed."
+    type: keyword
+
+  - name: network.missed_bytes
+    description: "Number of payload bytes missed in content gaps."
+    type: number
+
+  - name: network.ip_proto
+    description: "The IP protocol number (e.g., 6 for TCP, 17 for UDP)."
+    type: number

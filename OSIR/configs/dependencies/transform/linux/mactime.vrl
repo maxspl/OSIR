@@ -1,0 +1,94 @@
+
+
+# -----------------------------------------------------------------------------
+# set_timestamp
+# -----------------------------------------------------------------------------
+if exists(.Date) {
+  .timestamp = to_string!(.Date)
+}
+
+# -----------------------------------------------------------------------------
+# set_file
+# -----------------------------------------------------------------------------
+if exists(.Size) {
+  .file.size = to_int!(.Size)
+}
+if exists(.Mode) {
+  .file.mode = to_string!(.Mode)
+}
+if exists(.UID) {
+  .file.uid = to_int!(.UID)
+}
+if exists(.GID) {
+  .file.gid = to_int!(.GID)
+}
+.file.name = get!(., path: ["File Name"])
+if exists(.Meta) {
+  .file.meta = to_string!(.Meta)
+}
+
+# -----------------------------------------------------------------------------
+# set_message
+# -----------------------------------------------------------------------------
+.event.action = get(value: {
+  "...b": "Created",
+  ".a.b": "Created",
+  ".acb": "Created",
+  ".ab.": "Created",
+  "m..b": "Created",
+  "ma.b": "Created",
+  "macb": "Created",
+  "m.cb": "Created",
+  "..cb": "Created",
+  "..c.": "Created",
+  ".ac.": "Created",
+  "m.c.": "Created",
+  "mac.": "Created",
+  "m...": "Modified",
+  "ma..": "Modified",
+  ".a..": "Accessed",
+  "....": "No activity recorded",
+}, path: [.Type]) ?? "Unknown"
+
+# -----------------------------------------------------------------------------
+# del_raw
+# -----------------------------------------------------------------------------
+del(.Date)
+del(.Size)
+del(.Type)
+del(.Mode)
+del(.UID)
+del(.GID)
+del(.Meta)
+del(."File Name")
+
+# -----------------------------------------------------------------------------
+# descriptions
+# -----------------------------------------------------------------------------
+if exists(.file.name) && exists(.event.action) {
+  .message = to_string!(.file.name) + " — " + to_string!(.event.action)
+}
+if exists(.file.size) && exists(.file.name) && exists(.event.action) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes) — " + to_string!(.event.action)
+}
+if .event.action == "No activity recorded" && exists(.file.name) {
+  .message = to_string!(.file.name) + " — No activity recorded"
+}
+if exists(.file.size) && exists(.file.mode) && .event.action == "Created" && exists(.file.name) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Created"
+}
+if exists(.file.size) && exists(.file.mode) && .event.action == "Modified" && exists(.file.name) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Modified"
+}
+if exists(.file.size) && exists(.file.mode) && .event.action == "Accessed" && exists(.file.name) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Accessed"
+}
+if exists(.file.size) && exists(.file.mode) && exists(.file.uid) && .event.action == "Created" && exists(.file.name) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Created by " + to_string!(.file.uid)
+}
+if exists(.file.size) && exists(.file.mode) && exists(.file.uid) && .event.action == "Modified" && exists(.file.name) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Modified by " + to_string!(.file.uid)
+}
+if exists(.file.size) && exists(.file.mode) && exists(.file.uid) && .event.action == "Accessed" && exists(.file.name) {
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Accessed by " + to_string!(.file.uid)
+}

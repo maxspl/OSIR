@@ -1,11 +1,11 @@
 metadata:
   version: "2.0"
   author: Typ
-  description: Parsing logs from '/var/log/audit'
+  description: Parsing logs from Zeek
   os: unix
 
 configuration:
-  module: audit
+  module: zeek_log
   type: process
   disk_only: true
   no_multithread: true
@@ -15,13 +15,13 @@ configuration:
 
 input:
   type: file
-  name: (?:auth\.log)
-  path: var/log/
+  paths:
+    - r"conn\.log$"
 
 output:
   type: single_file
   format: json
-  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+  output_file: "{endpoint_name}--{input_file}.jsonl"
 
 endpoint: 
   patterns:
@@ -29,9 +29,9 @@ endpoint:
   default: "UNKNOWN"
 
 splunk:
-  'linux:audit':
+  'linux:network:zeek':
     name_rex: \.jsonl$
-    sourcetype: 'linux:audit'
+    sourcetype: 'linux:network:zeek'
     host_rex: "\/Endpoint_(.*?)\/"
     timestamp_path: 
         - "_time"
