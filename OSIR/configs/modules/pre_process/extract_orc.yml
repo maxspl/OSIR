@@ -21,7 +21,8 @@ tool:
   cmd: x -o{m_output_dir} -y {m_input_file} -p"{optional_password}"
 input:
   type: file
-  name: ^DFIR-ORC_(?:Server|WorkStation|DomainController)_((?:\w|-|\.)+)_(\w+)\.7z$
+  paths:
+    - r"DFIR-ORC(?:-\w+)?_(?:Server|WorkStation|DomainController)_([\w.\-]+?)(?:_\w+)*\.(?:7z|json|log)$"
 output:
   type: multiple_files
   format: raw
