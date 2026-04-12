@@ -1,0 +1,36 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Process DFIR ORC outcome and outline json files.
+  os: windows
+
+configuration:
+  module: orc_outcome
+  type: process
+  disk_only: true
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool: 
+  path: python
+  cmd: /OSIR/OSIR/bin/orc_outcome.py --input-dir {input_dir} --output-dir {output_dir}
+  source:
+  version: 2026.04.12
+
+
+input:
+  type: dir
+  paths:
+    - extract_orc/*
+
+output:
+  type: multiple_files
+  format: raw
+
+splunk:
+  'windows:orc_outcome':
+    name_rex: \.jsonl$
+    path_suffix: orc_outcome
+    host_rex: orc_outcome_([^_]+)_\d{8}_\d{6}\.jsonl$
