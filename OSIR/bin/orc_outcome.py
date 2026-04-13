@@ -596,28 +596,6 @@ def xml_local_name(tag: str) -> str:
     return tag
 
 
-def find_xml_candidates_from_outcome(outcome: dict, logger: logging.Logger) -> list[dict]:
-    candidates = []
-
-    for cs in outcome.get("command_set", []):
-        archive_keyword = cs.get("name")
-        for f in cs.get("archive", {}).get("files", []):
-            name = f.get("name", "")
-            lname = name.lower()
-            if lname == "config.xml" or lname.endswith("_cli_config.xml"):
-                candidates.append(
-                    {
-                        "archive_keyword": archive_keyword,
-                        "xml_name": name,
-                        "xml_name_lower": lname,
-                        "size_outcome": f.get("size"),
-                    }
-                )
-
-    logger.info(f"Found {len(candidates)} XML candidates from outcome inventory")
-    return candidates
-
-
 def resolve_xml_path(
     extracted_root: Path,
     archive_keyword: str,
@@ -805,7 +783,7 @@ def parse_command_log_observations(log_path: Path, logger: logging.Logger) -> di
 
 def is_config_file_name(name: str) -> bool:
     lname = (name or "").lower()
-    return lname == "config.xml" or lname.endswith("_cli_config.xml")
+    return lname == "config.xml" or "_cli_config.xml" in lname
 
 
 def output_role(name: str, source: str | None) -> str:
@@ -892,22 +870,18 @@ def resolve_extracted_artifact_path(
     expected_name = normalize_filename(output_name_raw, computer_name)
     expected_stem = Path(expected_name).stem.lower()
 
-    # 1) Exact file match
     for p in archive_dir.rglob("*"):
         if p.is_file() and p.name.lower() == expected_name:
             return p
 
-    # 2) Exact directory match for extracted container content
     for p in archive_dir.rglob("*"):
         if p.is_dir() and p.name.lower() == expected_stem:
             return p
 
-    # 3) Exact file stem match
     for p in archive_dir.rglob("*"):
         if p.is_file() and p.stem.lower() == expected_stem:
             return p
 
-    # 4) Prefix fallback
     prefix_matches = []
     for p in archive_dir.rglob("*"):
         name_l = p.name.lower()
@@ -999,18 +973,6 @@ def evaluate_limits(
         elif observed_duration_seconds >= limit_timeout_seconds:
             triggered_limits.append("timeout")
 
-    if limit_max_file_count is not None:
-        if observed_file_count is None:
-            reasons.append("missing observed file count for max file count evaluation")
-        elif observed_file_count >= limit_max_file_count:
-            triggered_limits.append("max_file_count")
-
-    if limit_max_file_size_bytes is not None:
-        if observed_max_file_size_bytes is None:
-            reasons.append("missing observed file sizes for max file size evaluation")
-        elif observed_max_file_size_bytes >= limit_max_file_size_bytes:
-            triggered_limits.append("max_file_size")
-
     if limit_max_total_size_bytes is not None:
         if observed_total_size_bytes is None:
             reasons.append("missing observed total size for max total size evaluation")
@@ -1027,6 +989,109 @@ def reason_join(parts: list[str]) -> str | None:
     return "; ".join(parts)
 
 
+def normalize_match_token(value: str) -> str:
+    value = (value or "").lower()
+    value = value.replace("{fullcomputername}", "")
+    value = value.replace("{computername}", "")
+    value = re.sub(r"_cli_config\.xml$", "", value)
+    value = re.sub(r"\.(7z|log|err|getthis|out|csv|json|txt|xml)$", "", value)
+    value = re.sub(r"[^a-z0-9]+", "", value)
+    return value
+
+
+def get_global_config_file_entry(command_set: dict) -> dict | None:
+    for f in command_set.get("archive", {}).get("files", []):
+        name = f.get("name", "")
+        if name.lower() == "config.xml":
+            return f
+    return None
+
+
+def get_cli_xml_file_entries(command_set: dict) -> list[dict]:
+    result = []
+    for f in command_set.get("archive", {}).get("files", []):
+        name = f.get("name", "")
+        lname = name.lower()
+        if lname != "config.xml" and "_cli_config.xml" in lname:
+            result.append(f)
+    return result
+
+
+def resolve_cli_xml_entry_for_command(
+    command_set: dict,
+    outline_command: dict,
+    outcome_command: dict | None,
+) -> dict | None:
+    cli_xmls = get_cli_xml_file_entries(command_set)
+    if not cli_xmls:
+        return None
+
+    candidate_tokens = []
+
+    def add_candidate(value: str | None):
+        token = normalize_match_token(value or "")
+        if token and token not in candidate_tokens:
+            candidate_tokens.append(token)
+
+    add_candidate(outline_command.get("name"))
+    add_candidate(outline_command.get("keyword"))
+
+    for out in outline_command.get("output", []):
+        add_candidate(out.get("name"))
+
+    if outcome_command:
+        add_candidate(outcome_command.get("name"))
+        for out in outcome_command.get("output", []):
+            add_candidate(out.get("name"))
+
+    xml_entries = []
+    for f in cli_xmls:
+        xml_name = f.get("name", "")
+        xml_token = normalize_match_token(xml_name)
+        xml_entries.append(
+            {
+                "entry": f,
+                "xml_token": xml_token,
+            }
+        )
+
+    for candidate in candidate_tokens:
+        for xml in xml_entries:
+            if candidate == xml["xml_token"]:
+                return xml["entry"]
+
+    for candidate in candidate_tokens:
+        for xml in xml_entries:
+            xml_token = xml["xml_token"]
+            if candidate.startswith(xml_token) or xml_token.startswith(candidate):
+                return xml["entry"]
+
+    if len(cli_xmls) == 1:
+        return cli_xmls[0]
+
+    return None
+
+
+def parse_xml_file_cached(
+    xml_path: Path,
+    xml_cache: dict[str, tuple[ET.Element | None, str | None]],
+    logger: logging.Logger,
+) -> tuple[ET.Element | None, str | None]:
+    cache_key = str(xml_path)
+    if cache_key in xml_cache:
+        return xml_cache[cache_key]
+
+    try:
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        xml_cache[cache_key] = (root, None)
+        return root, None
+    except Exception as exc:
+        logger.exception(f"Failed to parse XML: {xml_path}")
+        xml_cache[cache_key] = (None, str(exc))
+        return None, str(exc)
+
+
 def parse_orc_artifact_evaluations(
     outline: dict,
     outcome: dict,
@@ -1041,115 +1106,20 @@ def parse_orc_artifact_evaluations(
     logger.info("Building ORC collected artifact evaluation events")
 
     extracted_root = run_dir / "extracted_files"
-    candidates = find_xml_candidates_from_outcome(outcome, logger)
-    outcome_file_index, _, command_index = build_outcome_inventory(outcome, logger)
+    outcome_file_index, archive_index, command_index = build_outcome_inventory(outcome, logger)
     command_name_to_config_keyword = map_outline_command_to_config_keyword(outline)
+    xml_cache: dict[str, tuple[ET.Element | None, str | None]] = {}
 
-    config_limits_by_archive_command = {}
-    config_outputs_by_archive_command = defaultdict(list)
-    cli_limits_by_archive = {}
-    cli_limits_by_archive_command = {}
-
-    # Parse XML files referenced by outcome
-    for candidate in candidates:
-        archive_keyword = candidate["archive_keyword"]
-        xml_name = candidate["xml_name"]
-        xml_path = resolve_xml_path(extracted_root, archive_keyword, xml_name, logger)
-
-        if not xml_path:
-            issues.append(
-                {
-                    **base,
-                    "event_type": "orc_validation_issue",
-                    "archive_keyword": archive_keyword,
-                    "expected_file_name": xml_name,
-                    "severity": "warning",
-                    "issue_code": "xml_file_missing_on_disk",
-                    "status": "warning",
-                    "status_code": 1,
-                }
-            )
-            continue
-
-        try:
-            tree = ET.parse(xml_path)
-            root = tree.getroot()
-        except Exception as exc:
-            logger.exception(f"Failed to parse XML: {xml_path}")
-            issues.append(
-                {
-                    **base,
-                    "event_type": "orc_validation_issue",
-                    "archive_keyword": archive_keyword,
-                    "expected_file_name": xml_name,
-                    "severity": "error",
-                    "issue_code": "xml_parse_error",
-                    "xml_error": str(exc),
-                    "status": "error",
-                    "status_code": 2,
-                }
-            )
-            continue
-
-        lname = xml_name.lower()
-
-        # Use the first global Config.xml as authoritative source for outputs and archive restrictions
-        if lname == "config.xml":
-            if config_outputs_by_archive_command:
-                continue
-
-            outputs_map = parse_command_outputs_from_config(root)
-            for key, value in outputs_map.items():
-                config_outputs_by_archive_command[key].extend(value)
-
-            for archive in root.findall(".//archive"):
-                archive_kw = (archive.attrib.get("keyword") or "").lower()
-                limits = parse_config_xml_limits(archive)
-
-                for command in archive.findall("./command"):
-                    cmd_kw = (command.attrib.get("keyword") or "").lower()
-                    if archive_kw and cmd_kw:
-                        config_limits_by_archive_command[(archive_kw, cmd_kw)] = limits.copy()
-
-        elif lname.endswith("_cli_config.xml"):
-            limits = parse_config_xml_limits(root)
-            cli_limits_by_archive.setdefault(archive_keyword.lower(), []).append(
-                {
-                    "xml_name": xml_name,
-                    "xml_path": str(xml_path),
-                    "limits": limits,
-                }
-            )
+    global_config_outputs_by_archive_command = defaultdict(list)
+    global_config_limits_by_archive_command = {}
+    global_config_parsed_archives = set()
 
     computer_name = outcome.get("computer_name") or outline.get("computer_name") or ""
 
-    # Associate CLI XMLs to outline commands by matching declared output names
     for archive in outline.get("archives", []):
         archive_keyword = archive.get("keyword")
         archive_kw_lower = (archive_keyword or "").lower()
-
-        for cmd in archive.get("commands", []):
-            outline_command_name = cmd.get("name")
-            outline_command_name_lower = (outline_command_name or "").lower()
-
-            for out in cmd.get("output", []):
-                out_name_raw = out.get("name", "")
-                normalized_expected = normalize_filename(out_name_raw, computer_name)
-
-                for cli_entry in cli_limits_by_archive.get(archive_kw_lower, []):
-                    xml_name = cli_entry["xml_name"]
-                    xml_lname = xml_name.lower()
-
-                    if normalized_expected and normalized_expected in xml_lname:
-                        cli_limits_by_archive_command[(archive_kw_lower, outline_command_name_lower)] = {
-                            "xml_name": xml_name,
-                            "xml_path": cli_entry["xml_path"],
-                            **cli_entry["limits"],
-                        }
-
-    for archive in outline.get("archives", []):
-        archive_keyword = archive.get("keyword")
-        archive_kw_lower = (archive_keyword or "").lower()
+        command_set = archive_index.get(archive_keyword)
 
         outer_archive_name = archive.get("file")
         outer_archive_present_on_disk = None
@@ -1161,10 +1131,59 @@ def parse_orc_artifact_evaluations(
             outer_archive_present_on_disk = outer_archive_path.exists()
             outer_archive_size_disk = outer_archive_path.stat().st_size if outer_archive_present_on_disk else None
 
-        for cs in outcome.get("command_set", []):
-            if cs.get("name") == archive_keyword:
-                outer_archive_size_outcome = cs.get("archive", {}).get("size")
-                break
+        if command_set:
+            outer_archive_size_outcome = command_set.get("archive", {}).get("size")
+
+        if archive_kw_lower not in global_config_parsed_archives and command_set:
+            global_config_parsed_archives.add(archive_kw_lower)
+            global_cfg_entry = get_global_config_file_entry(command_set)
+
+            if global_cfg_entry:
+                xml_name = global_cfg_entry.get("name")
+                xml_path = resolve_xml_path(extracted_root, archive_keyword, xml_name, logger)
+
+                if not xml_path:
+                    issues.append(
+                        {
+                            **base,
+                            "event_type": "orc_validation_issue",
+                            "archive_keyword": archive_keyword,
+                            "expected_file_name": xml_name,
+                            "severity": "warning",
+                            "issue_code": "xml_file_missing_on_disk",
+                            "status": "warning",
+                            "status_code": 1,
+                        }
+                    )
+                else:
+                    root, xml_error = parse_xml_file_cached(xml_path, xml_cache, logger)
+                    if root is None:
+                        issues.append(
+                            {
+                                **base,
+                                "event_type": "orc_validation_issue",
+                                "archive_keyword": archive_keyword,
+                                "expected_file_name": xml_name,
+                                "severity": "error",
+                                "issue_code": "xml_parse_error",
+                                "xml_error": xml_error,
+                                "status": "error",
+                                "status_code": 2,
+                            }
+                        )
+                    else:
+                        outputs_map = parse_command_outputs_from_config(root)
+                        for key, value in outputs_map.items():
+                            global_config_outputs_by_archive_command[key].extend(value)
+
+                        for archive_elem in root.findall(".//archive"):
+                            cfg_archive_kw = (archive_elem.attrib.get("keyword") or "").lower()
+                            limits = parse_config_xml_limits(archive_elem)
+
+                            for command_elem in archive_elem.findall("./command"):
+                                cmd_kw = (command_elem.attrib.get("keyword") or "").lower()
+                                if cfg_archive_kw and cmd_kw:
+                                    global_config_limits_by_archive_command[(cfg_archive_kw, cmd_kw)] = limits.copy()
 
         for cmd in archive.get("commands", []):
             command_name = cmd.get("name")
@@ -1175,8 +1194,9 @@ def parse_orc_artifact_evaluations(
                 command_name_lower,
             )
 
-            # Prefer outputs declared in Config.xml, fallback to outline outputs
-            command_outputs = config_outputs_by_archive_command.get(
+            outcome_cmd = command_index.get((archive_keyword, command_name))
+
+            command_outputs = global_config_outputs_by_archive_command.get(
                 (archive_kw_lower, config_command_keyword_lower),
                 [],
             )
@@ -1189,7 +1209,15 @@ def parse_orc_artifact_evaluations(
                     for out in cmd.get("output", [])
                 ]
 
-            # Use Config.xml source + output name to determine collected artifacts.
+            if not command_outputs and outcome_cmd:
+                command_outputs = [
+                    {
+                        "name_raw": out.get("name", ""),
+                        "source": out.get("source"),
+                    }
+                    for out in outcome_cmd.get("output", [])
+                ]
+
             collected_outputs = [
                 {
                     "name_raw": out.get("name_raw"),
@@ -1223,11 +1251,53 @@ def parse_orc_artifact_evaluations(
                     collected_present_in_outcome = True
                     collected_size_outcome = outcome_hits[0].get("size")
 
-            config_limits = config_limits_by_archive_command.get(
+            config_limits = global_config_limits_by_archive_command.get(
                 (archive_kw_lower, config_command_keyword_lower),
                 {}
             )
-            cli_limits = cli_limits_by_archive_command.get((archive_kw_lower, command_name_lower), {})
+
+            cli_limits = {}
+            cli_xml_name = None
+
+            if command_set:
+                cli_xml_entry = resolve_cli_xml_entry_for_command(command_set, cmd, outcome_cmd)
+                if cli_xml_entry:
+                    cli_xml_name = cli_xml_entry.get("name")
+                    cli_xml_path = resolve_xml_path(extracted_root, archive_keyword, cli_xml_name, logger)
+
+                    if not cli_xml_path:
+                        issues.append(
+                            {
+                                **base,
+                                "event_type": "orc_validation_issue",
+                                "archive_keyword": archive_keyword,
+                                "command_name": command_name,
+                                "expected_file_name": cli_xml_name,
+                                "severity": "warning",
+                                "issue_code": "xml_file_missing_on_disk",
+                                "status": "warning",
+                                "status_code": 1,
+                            }
+                        )
+                    else:
+                        root, xml_error = parse_xml_file_cached(cli_xml_path, xml_cache, logger)
+                        if root is None:
+                            issues.append(
+                                {
+                                    **base,
+                                    "event_type": "orc_validation_issue",
+                                    "archive_keyword": archive_keyword,
+                                    "command_name": command_name,
+                                    "expected_file_name": cli_xml_name,
+                                    "severity": "error",
+                                    "issue_code": "xml_parse_error",
+                                    "xml_error": xml_error,
+                                    "status": "error",
+                                    "status_code": 2,
+                                }
+                            )
+                        else:
+                            cli_limits = parse_config_xml_limits(root)
 
             limit_timeout_seconds = cli_limits.get("limit_timeout_seconds")
             if limit_timeout_seconds is None:
@@ -1245,11 +1315,10 @@ def parse_orc_artifact_evaluations(
             if limit_max_total_size_bytes is None:
                 limit_max_total_size_bytes = config_limits.get("limit_max_total_size_bytes")
 
-            config_source = cli_limits.get("xml_name")
+            config_source = cli_xml_name
             if not config_source and config_limits:
                 config_source = "Config.xml"
 
-            outcome_cmd = command_index.get((archive_keyword, command_name))
             observed_duration_seconds = None
             if outcome_cmd:
                 observed_duration_seconds = duration_seconds(
@@ -1260,11 +1329,19 @@ def parse_orc_artifact_evaluations(
             log_source = None
             log_observations = None
 
-            # Find one support log for extra observations
             possible_logs = []
             for out in support_outputs:
                 expected_name = normalize_filename(out.get("name_raw", ""), computer_name)
                 possible_logs.append(expected_name)
+
+            if outcome_cmd:
+                for out in outcome_cmd.get("output", []):
+                    out_name = out.get("name", "")
+                    out_source = out.get("source")
+                    if output_role(out_name, out_source) == "support":
+                        expected_name = normalize_filename(out_name, computer_name)
+                        if expected_name not in possible_logs:
+                            possible_logs.append(expected_name)
 
             for log_name in possible_logs:
                 hits_log = disk_index.get(log_name, [])
@@ -1274,7 +1351,11 @@ def parse_orc_artifact_evaluations(
                     log_observations = parse_command_log_observations(log_path, logger)
                     break
 
-            if observed_duration_seconds is None and log_observations and log_observations.get("observed_duration_seconds") is not None:
+            if (
+                observed_duration_seconds is None
+                and log_observations
+                and log_observations.get("observed_duration_seconds") is not None
+            ):
                 observed_duration_seconds = log_observations["observed_duration_seconds"]
 
             no_limits = log_observations.get("no_limits") if log_observations else None
@@ -1300,14 +1381,25 @@ def parse_orc_artifact_evaluations(
             observed_total_size_bytes = disk_metrics["disk_collected_total_size"]
             observed_max_file_size_bytes = disk_metrics["disk_collected_max_file_size"]
 
-            # Fallback to log-derived observations only if main disk metrics are absent
-            if observed_file_count is None and log_observations and log_observations.get("observed_file_count") is not None:
+            if (
+                observed_file_count is None
+                and log_observations
+                and log_observations.get("observed_file_count") is not None
+            ):
                 observed_file_count = log_observations["observed_file_count"]
 
-            if observed_max_file_size_bytes is None and log_observations and log_observations.get("observed_max_file_size_bytes") is not None:
+            if (
+                observed_max_file_size_bytes is None
+                and log_observations
+                and log_observations.get("observed_max_file_size_bytes") is not None
+            ):
                 observed_max_file_size_bytes = log_observations["observed_max_file_size_bytes"]
 
-            if observed_total_size_bytes is None and log_observations and log_observations.get("observed_total_size_bytes") is not None:
+            if (
+                observed_total_size_bytes is None
+                and log_observations
+                and log_observations.get("observed_total_size_bytes") is not None
+            ):
                 observed_total_size_bytes = log_observations["observed_total_size_bytes"]
 
             triggered_limits, eval_reasons = evaluate_limits(
@@ -1333,10 +1425,9 @@ def parse_orc_artifact_evaluations(
                 status = "warning"
                 reason_parts.append("collected artifact missing on disk")
             elif eval_reasons and any(
-                v is not None for v in [
+                v is not None
+                for v in [
                     limit_timeout_seconds,
-                    limit_max_file_count,
-                    limit_max_file_size_bytes,
                     limit_max_total_size_bytes,
                 ]
             ):
