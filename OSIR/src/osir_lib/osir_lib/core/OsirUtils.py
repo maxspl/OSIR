@@ -136,3 +136,27 @@ def compute_file_xxh3_128_prefix(path, prefix_size: int = 8192) -> str:
     with p.open("rb") as f:
         h.update(f.read(prefix_size))
     return h.hexdigest()
+
+
+def compute_file_xxh3_128_full(path, chunk_size: int = 1024 * 1024) -> str:
+    """
+    Computes xxh3_128 on the whole file.
+
+    Args:
+        path (str | Path): Path to the file.
+        chunk_size (int): Read size per chunk.
+
+    Returns:
+        str: Hex digest of xxh3_128 over the full file.
+    """
+    p = _Path(path)
+    h = xxhash.xxh3_128()
+
+    with p.open("rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            h.update(chunk)
+
+    return h.hexdigest()
