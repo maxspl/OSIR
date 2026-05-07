@@ -159,7 +159,7 @@ if exists(.Attributes) {
 if exists(.CreationDate) {
   cd_raw = to_string!(del(.CreationDate))
   if cd_raw != "" {
-    cd = parse_timestamp(cd_raw, "%F %T%.f") ?? parse_timestamp(cd_raw, "%F %T") ?? null
+    cd = parse_timestamp(cd_raw, "%F %T%.f", "UTC") ?? parse_timestamp(cd_raw, "%F %T", "UTC") ?? null
     if cd != null {
       .file.ctime = cd
     } else {
@@ -172,7 +172,7 @@ if exists(.CreationDate) {
 if exists(.LastModificationDate) {
   lmd_raw = to_string!(del(.LastModificationDate))
   if lmd_raw != "" {
-    lmd = parse_timestamp(lmd_raw, "%F %T%.f") ?? parse_timestamp(lmd_raw, "%F %T") ?? null
+    lmd = parse_timestamp(lmd_raw, "%F %T%.f", "UTC") ?? parse_timestamp(lmd_raw, "%F %T", "UTC") ?? null
     if lmd != null {
       .file.mtime = lmd
     } else {
@@ -185,7 +185,7 @@ if exists(.LastModificationDate) {
 if exists(.LastAccessDate) {
   lad_raw = to_string!(del(.LastAccessDate))
   if lad_raw != "" {
-    lad = parse_timestamp(lad_raw, "%F %T%.f") ?? parse_timestamp(lad_raw, "%F %T") ?? null
+    lad = parse_timestamp(lad_raw, "%F %T%.f", "UTC") ?? parse_timestamp(lad_raw, "%F %T", "UTC") ?? null
     if lad != null {
       .file.atime = lad
     } else {
@@ -198,7 +198,7 @@ if exists(.LastAccessDate) {
 if exists(.LastAttrChangeDate) {
   lac_raw = to_string!(del(.LastAttrChangeDate))
   if lac_raw != "" {
-    lac = parse_timestamp(lac_raw, "%F %T%.f") ?? parse_timestamp(lac_raw, "%F %T") ?? null
+    lac = parse_timestamp(lac_raw, "%F %T%.f", "UTC") ?? parse_timestamp(lac_raw, "%F %T", "UTC") ?? null
     if lac != null {
       .file.Ext.ntfs.last_attr_change = lac
     } else {
@@ -214,7 +214,7 @@ if exists(.LastAttrChangeDate) {
 if exists(.FileNameCreationDate) {
   fnc_raw = to_string!(del(.FileNameCreationDate))
   if fnc_raw != "" {
-    fnc = parse_timestamp(fnc_raw, "%F %T%.f") ?? parse_timestamp(fnc_raw, "%F %T") ?? null
+    fnc = parse_timestamp(fnc_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnc_raw, "%F %T", "UTC") ?? null
     if fnc != null {
       .file.Ext.ntfs.fn_creation = fnc
     } else {
@@ -226,7 +226,7 @@ if exists(.FileNameCreationDate) {
 if exists(.FileNameLastModificationDate) {
   fnlm_raw = to_string!(del(.FileNameLastModificationDate))
   if fnlm_raw != "" {
-    fnlm = parse_timestamp(fnlm_raw, "%F %T%.f") ?? parse_timestamp(fnlm_raw, "%F %T") ?? null
+    fnlm = parse_timestamp(fnlm_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnlm_raw, "%F %T", "UTC") ?? null
     if fnlm != null {
       .file.Ext.ntfs.fn_last_modification = fnlm
     } else {
@@ -238,7 +238,7 @@ if exists(.FileNameLastModificationDate) {
 if exists(.FileNameLastAccessDate) {
   fnla_raw = to_string!(del(.FileNameLastAccessDate))
   if fnla_raw != "" {
-    fnla = parse_timestamp(fnla_raw, "%F %T%.f") ?? parse_timestamp(fnla_raw, "%F %T") ?? null
+    fnla = parse_timestamp(fnla_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnla_raw, "%F %T", "UTC") ?? null
     if fnla != null {
       .file.Ext.ntfs.fn_last_access = fnla
     } else {
@@ -250,7 +250,7 @@ if exists(.FileNameLastAccessDate) {
 if exists(.FileNameLastAttrModificationDate) {
   fnlac_raw = to_string!(del(.FileNameLastAttrModificationDate))
   if fnlac_raw != "" {
-    fnlac = parse_timestamp(fnlac_raw, "%F %T%.f") ?? parse_timestamp(fnlac_raw, "%F %T") ?? null
+    fnlac = parse_timestamp(fnlac_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnlac_raw, "%F %T", "UTC") ?? null
     if fnlac != null {
       .file.Ext.ntfs.fn_last_attr_change = fnlac
     } else {

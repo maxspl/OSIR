@@ -694,7 +694,7 @@ if !exists(.event.sequence) && exists(.CacheEntryPosition) {
 if exists(.Timestamp) && !exists(.event.created) {
   ts_raw = to_string!(del(.Timestamp))
   if ts_raw != "" {
-    ts_val = parse_timestamp(ts_raw, "%F %T%.f") ?? parse_timestamp(ts_raw, "%F %T") ?? null
+    ts_val = parse_timestamp(ts_raw, "%F %T%.f", "UTC") ?? parse_timestamp(ts_raw, "%F %T", "UTC") ?? null
     if ts_val != null {
       .event.created = ts_val
     } else {
@@ -808,7 +808,7 @@ if exists(.event.created) {
 if ts_value == null && exists(.event.timestamp_raw) {
   raw = to_string!(.event.timestamp_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.timestamp_raw"
@@ -819,7 +819,7 @@ if ts_value == null && exists(.event.timestamp_raw) {
 if ts_value == null && exists(.event.created_on_raw) {
   raw = to_string!(.event.created_on_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.created_on_raw"
@@ -830,7 +830,7 @@ if ts_value == null && exists(.event.created_on_raw) {
 if ts_value == null && exists(.event.executed_on_raw) {
   raw = to_string!(.event.executed_on_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.executed_on_raw"
@@ -841,7 +841,7 @@ if ts_value == null && exists(.event.executed_on_raw) {
 if ts_value == null && exists(.event.execution_time_raw) {
   raw = to_string!(.event.execution_time_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.execution_time_raw"
@@ -852,7 +852,7 @@ if ts_value == null && exists(.event.execution_time_raw) {
 if ts_value == null && exists(.event.expires_on_raw) {
   raw = to_string!(.event.expires_on_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.expires_on_raw"
@@ -863,7 +863,7 @@ if ts_value == null && exists(.event.expires_on_raw) {
 if ts_value == null && exists(.event.install_date_raw) {
   raw = to_string!(.event.install_date_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.install_date_raw"
@@ -874,7 +874,7 @@ if ts_value == null && exists(.event.install_date_raw) {
 if ts_value == null && exists(.event.install_time_raw) {
   raw = to_string!(.event.install_time_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.install_time_raw"
@@ -885,7 +885,7 @@ if ts_value == null && exists(.event.install_time_raw) {
 if ts_value == null && exists(.event.initial_timestamp_raw) {
   raw = to_string!(.event.initial_timestamp_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.initial_timestamp_raw"
@@ -896,7 +896,7 @@ if ts_value == null && exists(.event.initial_timestamp_raw) {
 if ts_value == null && exists(.event.installed_raw) {
   raw = to_string!(.event.installed_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.installed_raw"
@@ -907,7 +907,7 @@ if ts_value == null && exists(.event.installed_raw) {
 if ts_value == null && exists(.event.first_installed_raw) {
   raw = to_string!(.event.first_installed_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.first_installed_raw"
@@ -918,7 +918,7 @@ if ts_value == null && exists(.event.first_installed_raw) {
 if ts_value == null && exists(.event.first_connect_local_raw) {
   raw = to_string!(.event.first_connect_local_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.first_connect_local_raw"
@@ -929,7 +929,7 @@ if ts_value == null && exists(.event.first_connect_local_raw) {
 if ts_value == null && exists(.event.last_connected_local_raw) {
   raw = to_string!(.event.last_connected_local_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_connected_local_raw"
@@ -940,7 +940,7 @@ if ts_value == null && exists(.event.last_connected_local_raw) {
 if ts_value == null && exists(.event.last_closed_raw) {
   raw = to_string!(.event.last_closed_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_closed_raw"
@@ -951,7 +951,7 @@ if ts_value == null && exists(.event.last_closed_raw) {
 if ts_value == null && exists(.event.last_connected_raw) {
   raw = to_string!(.event.last_connected_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_connected_raw"
@@ -962,7 +962,7 @@ if ts_value == null && exists(.event.last_connected_raw) {
 if ts_value == null && exists(.event.last_removed_raw) {
   raw = to_string!(.event.last_removed_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_removed_raw"
@@ -973,7 +973,7 @@ if ts_value == null && exists(.event.last_removed_raw) {
 if ts_value == null && exists(.event.last_seen_raw) {
   raw = to_string!(.event.last_seen_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_seen_raw"
@@ -984,7 +984,7 @@ if ts_value == null && exists(.event.last_seen_raw) {
 if ts_value == null && exists(.event.last_start_raw) {
   raw = to_string!(.event.last_start_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_start_raw"
@@ -995,7 +995,7 @@ if ts_value == null && exists(.event.last_start_raw) {
 if ts_value == null && exists(.event.last_stop_raw) {
   raw = to_string!(.event.last_stop_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_stop_raw"
@@ -1006,7 +1006,7 @@ if ts_value == null && exists(.event.last_stop_raw) {
 if ts_value == null && exists(.event.last_write_timestamp_raw) {
   raw = to_string!(.event.last_write_timestamp_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_write_timestamp_raw"
@@ -1017,7 +1017,7 @@ if ts_value == null && exists(.event.last_write_timestamp_raw) {
 if ts_value == null && exists(.event.last_modified_raw) {
   raw = to_string!(.event.last_modified_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_modified_raw"
@@ -1028,7 +1028,7 @@ if ts_value == null && exists(.event.last_modified_raw) {
 if ts_value == null && exists(.event.last_detection_time_raw) {
   raw = to_string!(.event.last_detection_time_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_detection_time_raw"
@@ -1039,7 +1039,7 @@ if ts_value == null && exists(.event.last_detection_time_raw) {
 if ts_value == null && exists(.event.last_executed_raw) {
   raw = to_string!(.event.last_executed_raw)
   if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+    v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
     if v != null {
       ts_value = v
       ts_source = "event.last_executed_raw"
