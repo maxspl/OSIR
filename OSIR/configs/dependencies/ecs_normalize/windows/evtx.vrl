@@ -161,15 +161,15 @@ if !exists(.destination.domain) {
     }
 }
 
-# Source domain: SourceHostname > WorkstationName (non-empty)
-if !exists(.source.domain) {
-    source_domain_candidates = compact([
+# Source hostname: SourceHostname > WorkstationName (non-empty)
+if !exists(.source.hostname) {
+    source_hostname_candidates = compact([
         .Event.EventData.SourceHostname,
         .Event.EventData.WorkstationName
     ])
 
-    if length(source_domain_candidates) > 0 {
-        .source.domain = get!(source_domain_candidates, [0])
+    if length(source_hostname_candidates) > 0 {
+        .source.hostname = get!(source_hostname_candidates, [0])
     }
 }
 
