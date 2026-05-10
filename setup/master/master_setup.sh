@@ -249,7 +249,7 @@ manual_install(){
     fi
     
     # Ask user : remote Splunk password
-    default_password="DFIR"
+    default_password="DFIR_passwd"
     read -p "$(echo -n >&2 "${USERINPUT} Enter the Splunk password. [Default is: $default_password]: ")" splunk_password
     if [[ -z "$splunk_password" ]]; then
         splunk_password="$default_password"
