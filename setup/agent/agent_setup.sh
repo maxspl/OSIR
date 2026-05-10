@@ -252,8 +252,10 @@ remote_installation(){
 }
 setup_dockur_win(){
     # Define the directories
-    ISO_URL="https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso" 
+    # ISO_URL="https://archive.org/download/tiny-10-23-h2/tiny10%20x64%2023h2.iso"
+    ISO_URL="https://pub-2516ea9875c74b88850201441d64571b.r2.dev/osir/tiny10_x64_23h2.iso"
     ISO_NAME="tiny10_x64_23h2.iso"
+    ISO_SHA256="a11116c0645d892d6a5a7c585ecc1fa13aa66f8c7cc6b03bf1f27bd16860cc35"
     ISO_DIR="$MASTER_DIR/../windows_setup/src/win_iso"
     DOCKUR_STORAGE_DIR="$MASTER_DIR/../windows_setup/src/dockur_storage"
     CUSTOM_ISO_NAME="custom.iso"
@@ -272,6 +274,15 @@ setup_dockur_win(){
         # Verify the download was successful
         if [ $? -eq 0 ]; then
             (echo >&2 "${GOODTOGO} Download successful.")
+            
+            (echo >&2 "${INFO} Verifying SHA256...")
+            ACTUAL_HASH=$(sha256sum "$ISO_DIR/$ISO_NAME" | awk '{print $1}')
+            if [ "$ACTUAL_HASH" != "$ISO_SHA256" ]; then
+                (echo >&2 "${ERROR} Hash mismatch! expected=$ISO_SHA256 got=$ACTUAL_HASH")
+                rm -f "$ISO_DIR/$ISO_NAME"
+                exit 1
+            fi
+            (echo >&2 "${GOODTOGO} Hash verified.")
             
             # Copy the ISO to dockur_storage with the name custom.iso
             cp "$ISO_DIR/$ISO_NAME" "$DOCKUR_STORAGE_DIR/$CUSTOM_ISO_NAME"
