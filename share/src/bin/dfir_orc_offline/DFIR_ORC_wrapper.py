@@ -9,7 +9,7 @@ import argparse
 import logging
 
 
-ORC_BINARY_NAME = "DFIR-ORC.exe"
+ORC_BINARY_NAME = "DFIR-Orc_x64.exe"
 
 # Function to download a file (atomic via temp + rename, so concurrent
 # script instances using --online cannot read a half-written binary).
