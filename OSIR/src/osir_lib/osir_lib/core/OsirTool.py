@@ -186,7 +186,7 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
             logger.error(f"Unidentified error: Error : {str(e)}")
             raise
 
-    def run_local(self, is_agent=False, timeout=3600) -> bool:
+    def run_local(self, is_agent=False, timeout=36000) -> bool:
         """
             Spawns a local subprocess to run the tool directly on the current host.
 

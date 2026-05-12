@@ -27,7 +27,13 @@ class ORC_Extractor():
         self._cmd = self.module.tool.cmd  # Save cmd with place holders for further interations
         self._case_path = case_path  # Base directory for operations
         self._file_to_process = module.input.match
-        self._name_rex = self.module.input.name
+        self._name_rex = getattr(module.input, 'name', None)
+        if not self._name_rex and hasattr(module.input, 'paths'):
+            for p in module.input.paths:
+                clean = p[2:-1] if p.startswith(('r"', "r'")) else p
+                if '(' in clean:  # has capture groups
+                    self._name_rex = clean
+                    break
 
     def __call__(self) -> bool:
         """
@@ -63,16 +69,23 @@ class ORC_Extractor():
         Moves the specified archive to a new location and extracts its contents, preserving the original directory structure.
         This method handles file matching, directory creation, and manages extraction for both top-level and nested archives.
         """
-        pattern = re.compile(self._name_rex)
-
-        match = pattern.match(os.path.basename(self._file_to_process))
-        endpoint_name, archive_name = match.groups()
-        archive_path = self._file_to_process
+        match = re.search(self._name_rex, str(self._file_to_process))
+        file_path = str(self._file_to_process)
+        basename = os.path.basename(file_path)
+        endpoint_name = match.group(1).lower()
         archive_path = self._file_to_process
         endpoint_dir = os.path.join(self._case_path, self.module.get_module_name(), "Endpoint_" + endpoint_name)
         os.makedirs(endpoint_dir, exist_ok=True)
+
+        # move json outcome/outline and log files
+        if basename.endswith(('.json', '.log')):
+            shutil.move(file_path, os.path.join(endpoint_dir, basename))
+            logger.debug(f"Moved {basename} to {endpoint_dir}")
+            return
+
         moved_archive_path = os.path.join(endpoint_dir, os.path.basename(self._file_to_process))
         shutil.move(archive_path, moved_archive_path)
+        archive_name = os.path.splitext(basename)[0].rsplit('_', 1)[-1]
         extraction_dir = os.path.join(endpoint_dir, "extracted_files", archive_name)
         os.makedirs(extraction_dir, exist_ok=True)
         try:

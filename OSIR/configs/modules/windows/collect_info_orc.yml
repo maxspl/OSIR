@@ -15,13 +15,13 @@ configuration:
 
 tool: 
   path: /usr/bin/find
-  cmd:  -P {input_dir} -name "DFIR-ORC_*.7z" -exec sh -c
-    'sha1=$(sha1sum "$1" | awk "{print \$1}");
-    birth=$(stat -c %W "$1");
-    [ "$birth" = "-1" ] && birth=$(stat -c %Y "$1");
-    jq -n -c --arg sha1 "$sha1" --arg date "$birth" --arg name "$(basename "$1")" "{sha1:\$sha1,date:\$date,name:\$name}"' sh {} \;
-    > {output_file}
-
+  cmd: >-
+    -P {input_dir} -name "DFIR-ORC_*.7z" -exec sh -c 'sha1=$(sha1sum "$1" | awk
+    "{print \$1}"); birth=$(stat -c %W "$1"); [ "$birth" = "-1" ] && birth=$(stat
+    -c %Y "$1"); size=$(stat -c %s "$1"); jq -n -c --arg sha1 "$sha1" --arg date
+    "$birth" --arg name "$(basename "$1")" --arg size "$size"
+    "{sha1:\$sha1,date:\$date,name:\$name,size:(\$size|tonumber)}"' sh {} \; >
+    {output_file}
 input:
   type: dir
   path: extract_orc/*

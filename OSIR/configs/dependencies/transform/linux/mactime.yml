@@ -1,0 +1,134 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: osir-mactime | Osir Transform description to normalize Mactime log file.
+
+pipeline:
+  - name: set_timestamp
+  - name: set_file
+  - name: set_message
+  - name: del_raw
+
+stages:
+
+  set_timestamp:
+    actions:
+      - set:
+          timestamp: v'to_string!(.Date)'
+
+  set_file:
+    actions:
+      - set:
+          file.size: v'to_int!(.Size)'
+          file.mode: v'to_string!(.Mode)'
+          file.uid: v'to_int!(.UID)'
+          file.gid: v'to_int!(.GID)'
+          file.name: "v'get!(., path: [\"File Name\"])'"
+          file.meta: v'to_string!(.Meta)'
+  
+  set_message:
+    actions:
+      - translate:
+          mapping:
+            event.action: .Type
+          dictionary:
+            "...b": "Created"
+            ".a.b": "Created"
+            ".acb": "Created"
+            ".ab.": "Created"
+            "m..b": "Created"
+            "ma.b": "Created"
+            "macb": "Created"
+            "m.cb": "Created"
+            "..cb": "Created"
+
+            # ── c présent sans b = Created ───────────────────────────────
+            "..c.": "Created"
+            ".ac.": "Created"
+            "m.c.": "Created"
+            "mac.": "Created"
+
+            # ── m présent sans b ni c = Modified ────────────────────────
+            "m...": "Modified"
+            "ma..": "Modified"
+
+            # ── ni m ni b ni c = Accessed ────────────────────────────────
+            ".a..": "Accessed"
+
+            # ── aucune activité ──────────────────────────────────────────
+            "....": "No activity recorded"
+          fallback: "Unknown"
+  del_raw:
+    actions:
+      - delete:
+          - Date
+          - Size
+          - Type
+          - Mode
+          - UID
+          - GID
+          - Meta
+          - "File Name"
+
+descriptions:
+
+  - message: "{file.name} — {event.action}"
+    conditions: []
+
+  - message: "{file.name} ({file.size} bytes) — {event.action}"
+    conditions:
+      - field: file.size
+
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Created"
+    conditions:
+      - field: file.size
+      - field: file.mode
+      - field: event.action
+        value: "Created"
+
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Created by {file.uid}"
+    conditions:
+      - field: file.size
+      - field: file.mode
+      - field: file.uid
+      - field: event.action
+        value: "Created"
+
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Modified"
+    conditions:
+      - field: file.size
+      - field: file.mode
+      - field: event.action
+        value: "Modified"
+
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Modified by {file.uid}"
+    conditions:
+      - field: file.size
+      - field: file.mode
+      - field: file.uid
+      - field: event.action
+        value: "Modified"
+
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Accessed"
+    conditions:
+      - field: file.size
+      - field: file.mode
+      - field: event.action
+        value: "Accessed"
+
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Accessed by {file.uid}"
+    conditions:
+      - field: file.size
+      - field: file.mode
+      - field: file.uid
+      - field: event.action
+        value: "Accessed"
+
+  - message: "{file.name} — No activity recorded"
+    conditions:
+      - field: event.action
+        value: "No activity recorded"
+
+fields:
+  - name: file.meta
+    type: keyword

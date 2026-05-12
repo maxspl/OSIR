@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from osir_lib.core.model.LiteralModel import OS_TYPE
 from osir_lib.logger import AppLogger
@@ -12,5 +13,5 @@ class OsirMetadataModel(BaseModel):
     version: str
     author: str
     description: str
-    os: OS_TYPE
+    os: Optional[OS_TYPE] = None
     

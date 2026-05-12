@@ -30,7 +30,7 @@ endpoint:
 
 splunk:
   'linux:audit':
-    name_rex: ^audit\.log.*\.jsonl$
+    name_rex: \.jsonl$
     sourcetype: 'linux:audit'
     host_rex: "\/Endpoint_(.*?)\/"
     timestamp_path: 
