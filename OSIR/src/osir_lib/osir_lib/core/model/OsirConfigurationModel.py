@@ -18,4 +18,4 @@ class OsirConfigurationModel(BaseModel):
     processor_type: list[PROCESSOR_TYPE]
     processor_os: PROCESSOR_OS
     alt_module: Optional[str] = None
-    
+    hold_consumers: Optional[bool] = False
