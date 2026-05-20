@@ -212,7 +212,9 @@ class ModuleHandler(FileSystemEventHandler):
             return {ext} if ext else {last_seg}
 
         if last_seg.startswith('*.') and last_seg.count('*') == 1 and '?' not in last_seg:
-            return {last_seg[1:]}
+            # Indexer sur l'extension FINALE (semantique os.path.splitext).
+            final_ext = '.' + last_seg[1:].rsplit('.', 1)[-1]
+            return {final_ext} if len(final_ext) > 1 else set()
 
         return set()
 
@@ -254,18 +256,60 @@ class ModuleHandler(FileSystemEventHandler):
         return re.compile('(?:^|/)' + body + '$')
 
     @staticmethod
+    def _has_top_level_alternation(pattern: str) -> bool:
+        """True if a '|' exists outside of any group (...) or character class [...]."""
+        depth = 0
+        in_class = False
+        i = 0
+        n = len(pattern)
+        while i < n:
+            c = pattern[i]
+            if c == '\\':
+                i += 2
+                continue
+            if in_class:
+                if c == ']':
+                    in_class = False
+            elif c == '[':
+                in_class = True
+            elif c == '(':
+                depth += 1
+            elif c == ')':
+                if depth > 0:
+                    depth -= 1
+            elif c == '|' and depth == 0:
+                return True
+            i += 1
+        return False
+
+    @staticmethod
     def _extract_regex_anchors(pattern: str) -> set[str]:
-        """Extract literal extension anchors from a regex pattern."""
-        m = re.search(r'\\\.([a-zA-Z0-9]+)\b', pattern)
+        """Extract literal extension anchors from a regex pattern.
+
+        The file index is keyed on os.path.splitext()[1], so only the LAST
+        extension (the one anchored at the end of the pattern) is usable.
+        r"\\.7z\\.p7b$" must be anchored on '.p7b', never on '.7z'.
+
+        Returns set() when the final extension cannot be determined with
+        certainty: the rule then falls back to the unindexed list (correct).
+        """
+        # A top-level alternation means branches may have different suffixes
+        # => cannot anchor safely.
+        if ModuleHandler._has_top_level_alternation(pattern):
+            return set()
+
+        # Final literal extension: ...\.ext  (optionally followed by $)
+        m = re.search(r'\\\.([a-zA-Z0-9]+)\$?$', pattern)
         if m:
             return {'.' + m.group(1).lower()}
 
-        m = re.search(r'\\\.\(([a-zA-Z0-9|]+)\)', pattern)
+        # Final alternation of extensions: ...\.(ext1|ext2)$
+        m = re.search(r'\\\.\(([a-zA-Z0-9|]+)\)\$?$', pattern)
         if m:
-            return {'.' + ext.lower() for ext in m.group(1).split('|')}
+            return {'.' + e.lower() for e in m.group(1).split('|') if e}
 
         return set()
-
+        
     @staticmethod
     def _is_under_or_equal(path: str, root: str | None) -> bool:
         """
