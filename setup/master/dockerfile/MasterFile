@@ -30,8 +30,12 @@ RUN set -eux; \
         smbclient \
         cifs-utils \
         libfuse2 \
-        wget; \
+        wget \
+        curl; \
     \
+    # --- Node.js 22 LTS via NodeSource ---
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs; \
     # add Deadsnakes PPA for Python 3.12
     add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update -y && \
@@ -58,4 +62,4 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Can be replaced in docker-compose to start container without starting OSIR
-CMD ["OSIR.py", "--web"]
+CMD ["OSIR.py", "--master"]

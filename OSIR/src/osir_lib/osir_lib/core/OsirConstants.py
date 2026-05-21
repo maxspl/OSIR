@@ -16,7 +16,7 @@ class Osir(BaseModel):
         """
             Returns the current version of the OSIR framework.
         """
-        return 1.0
+        return 2.1
 
 
 @singleton

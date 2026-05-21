@@ -1,0 +1,150 @@
+/* VueFinder layers declared first = lowest priority, never override Tailwind/Nuxt UI */
+@layer vf-theme, vf-base, vf-properties, vf-utilities;
+
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* @theme static {
+  --font-sans: 'Public Sans', sans-serif;
+} */
+@theme {
+  --font-sans: 'Poppins', sans-serif;
+}
+
+/* ── VueFinder theme override ─────────────────────────────────────────────── */
+/*
+ * VueFinder root element: <div class="vuefinder vuefinder__main vuefinder__themer" data-theme="silver">
+ * Default vars are defined on .vuefinder__themer[data-theme=silver] — specificity (0,2,0).
+ * We use `html .vuefinder__themer[data-theme]` → (0,2,1) to always win.
+ * Dark mode uses `.dark .vuefinder__themer[data-theme]` → (0,3,0) which beats both.
+ */
+
+html .vuefinder__themer[data-theme] {
+  /* backgrounds */
+  --vf-bg-primary:    var(--color-white);
+  --vf-bg-secondary:  var(--ui-color-neutral-100);
+  --vf-bg-tertiary:   var(--ui-color-neutral-200);
+  --vf-bg-hover:      var(--ui-color-neutral-100);
+  --vf-bg-selected:   var(--color-primary-50);
+  --vf-bg-disabled:   var(--ui-color-neutral-100);
+
+  /* text */
+  --vf-text-primary:   var(--ui-color-neutral-900);
+  --vf-text-secondary: var(--ui-color-neutral-500);
+  --vf-text-tertiary:  var(--ui-color-neutral-400);
+  --vf-text-disabled:  var(--ui-color-neutral-300);
+  --vf-text-inverse:   var(--color-white);
+
+  /* borders */
+  --vf-border-primary:   var(--ui-color-neutral-200);
+  --vf-border-secondary: var(--ui-color-neutral-100);
+  --vf-border-focus:     var(--color-primary-500);
+  --vf-border-error:     var(--color-red-500);
+  --vf-border-disabled:  var(--ui-color-neutral-200);
+
+  /* accent / primary */
+  --vf-accent-primary:       var(--color-primary-600);
+  --vf-accent-primary-hover: var(--color-primary-700);
+  --vf-accent-secondary:     var(--ui-color-neutral-500);
+  --vf-accent-tertiary:      var(--ui-color-neutral-400);
+  --vf-accent-text:          var(--color-white);
+  --vf-accent-color:         var(--color-primary-600);
+  --vf-accent-color-hover:   var(--color-primary-700);
+  --vf-accent-color-light:   var(--color-primary-100);
+  --vf-accent-error:         var(--color-red-500);
+  --vf-accent-success:       var(--color-green-500);
+  --vf-accent-warning:       var(--color-amber-500);
+
+  /* dropdown */
+  --vf-dropdown-bg:     var(--color-white);
+  --vf-dropdown-border: var(--ui-color-neutral-200);
+  --vf-dropdown-hover:  var(--ui-color-neutral-100);
+  --vf-dropdown-text:   var(--ui-color-neutral-900);
+
+  /* overlay / modal */
+  --vf-overlay-bg:     oklch(0% 0 0 / 40%);
+  --vf-overlay-border: var(--ui-color-neutral-400);
+  --vf-overlay-text:   var(--ui-color-neutral-900);
+
+  /* interactive states */
+  --vf-interactive-hover:  var(--ui-color-neutral-100);
+  --vf-interactive-focus:  var(--color-primary-50);
+  --vf-interactive-active: var(--color-primary-100);
+
+  /* selection box */
+  --vf-selection-bg:     var(--color-primary-100);
+  --vf-selection-border: var(--color-primary-400);
+
+  /* scrollbar */
+  --vf-scrollbar-handle:        var(--ui-color-neutral-300);
+  --vf-scrollbar-handle-hover:  var(--ui-color-neutral-400);
+  --vf-scrollbar-handle-active: var(--ui-color-neutral-500);
+}
+
+/* Police — .vuefinder__menubar a une font-family hardcodée, on l'écrase explicitement */
+html .vuefinder__menubar,
+html .vuefinder__menubar * {
+  font-family: 'Public Sans', sans-serif;
+}
+
+/* Dark mode — Nuxt UI applique la classe .dark sur <html> */
+.dark .vuefinder__themer[data-theme] {
+  --vf-bg-primary:    var(--ui-color-neutral-900);
+  --vf-bg-secondary:  var(--ui-color-neutral-800);
+  --vf-bg-tertiary:   var(--ui-color-neutral-700);
+  --vf-bg-hover:      var(--ui-color-neutral-700);
+  --vf-bg-selected:   var(--ui-color-neutral-700);
+  --vf-bg-disabled:   var(--ui-color-neutral-800);
+
+  --vf-text-primary:   var(--ui-color-neutral-50);
+  --vf-text-secondary: var(--ui-color-neutral-400);
+  --vf-text-tertiary:  var(--ui-color-neutral-500);
+  --vf-text-disabled:  var(--ui-color-neutral-600);
+  --vf-text-inverse:   var(--ui-color-neutral-900);
+
+  --vf-border-primary:   var(--ui-color-neutral-700);
+  --vf-border-secondary: var(--ui-color-neutral-800);
+  --vf-border-focus:     var(--color-primary-400);
+  --vf-border-disabled:  var(--ui-color-neutral-700);
+
+  --vf-accent-primary:       var(--color-primary-400);
+  --vf-accent-primary-hover: var(--color-primary-300);
+  --vf-accent-color:         var(--color-primary-400);
+  --vf-accent-color-hover:   var(--color-primary-300);
+  --vf-accent-color-light:   var(--color-primary-900);
+  --vf-accent-secondary:     var(--ui-color-neutral-400);
+  --vf-accent-tertiary:      var(--ui-color-neutral-500);
+  --vf-accent-text:          var(--ui-color-neutral-900);
+
+  --vf-dropdown-bg:     var(--ui-color-neutral-800);
+  --vf-dropdown-border: var(--ui-color-neutral-700);
+  --vf-dropdown-hover:  var(--ui-color-neutral-700);
+  --vf-dropdown-text:   var(--ui-color-neutral-50);
+
+  --vf-overlay-bg:     oklch(0% 0 0 / 60%);
+  --vf-overlay-border: var(--ui-color-neutral-600);
+  --vf-overlay-text:   var(--ui-color-neutral-50);
+
+  --vf-interactive-hover:  var(--ui-color-neutral-700);
+  --vf-interactive-focus:  var(--ui-color-neutral-700);
+  --vf-interactive-active: var(--ui-color-neutral-600);
+
+  --vf-selection-bg:     var(--color-primary-900);
+  --vf-selection-border: var(--color-primary-500);
+
+  --vf-scrollbar-handle:        var(--ui-color-neutral-600);
+  --vf-scrollbar-handle-hover:  var(--ui-color-neutral-500);
+  --vf-scrollbar-handle-active: var(--ui-color-neutral-400);
+}
+
+.font-syne {
+  font-family: 'Poppins';
+  letter-spacing: 0.05em;
+}
+
+/* highlight.js — transparent bg so our container controls it */
+.hljs { background: transparent !important; }
+
+html .mx-1\.5 {
+  margin-inline:calc(var(--spacing,.25rem)*1.5);
+}

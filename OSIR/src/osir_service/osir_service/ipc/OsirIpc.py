@@ -89,7 +89,9 @@ class OsirIpc(BaseModel):
 
     def start(self):
         """Launches the IPC listener in a dedicated background thread."""
-        threading.Thread(target=self.listen, daemon=True).start()
+        thread = threading.Thread(target=self.listen, daemon=True)
+        thread.start()
+        return thread
 
     def action(self, request: dict):
         """

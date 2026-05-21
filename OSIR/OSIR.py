@@ -13,8 +13,6 @@ from osir_service.ipc.OsirIpc import OsirIpc
 import osir_service.watchdog.MonitorCase as MonitorCase
 import osir_service.smb.SMBService as SmbMounter
 
-from streamlit.web import cli
-
 logger = AppLogger(__name__).get_logger()
 
 
@@ -49,7 +47,7 @@ def parse_args():
     parser.add_argument('--module_remove', type=comma_separated_strings, default=[], help='Remove specific modules from the list.')
     parser.add_argument('--agent', action='store_true', help='Launch the agent and wait for processing tasks from master.')
     parser.add_argument('--case', type=str, help='Name of the case in /OSIR/share/cases directory.')
-    parser.add_argument('--web', action='store_true', help='Launch the web app.')
+    parser.add_argument('--master', action='store_true', help='Launch the master IPC.')
 
     args = parser.parse_args()
 
@@ -66,7 +64,7 @@ def parse_args():
 
     # Ensure --agent is used alone if used
     if args.agent:
-        if args.profile or args.module or args.module_add or args.module_remove or args.case or args.web:
+        if args.profile or args.module or args.module_add or args.module_remove or args.case:
             logger.error("--agent can only be used alone.")
             sys.exit(1)
 
@@ -98,46 +96,49 @@ def main():
         worker = tasks.CeleryWorker()
         worker.start_worker()
 
-    if args.web:
+    if args.master:
         logger.info("Launching IPC Service")
-        OsirIpc(host='0.0.0.0', port=8989).start()
+        osir_ipc = OsirIpc(host='0.0.0.0', port=8989).start()
+        try:
+            # Wait for the _setup_handler() thread to finish before exiting the code
+            osir_ipc.join()
+        except KeyboardInterrupt:
+            logger.info("Keyboard interrupt received. Stopping...")
 
-        logger.info("Launching web app...")
-        cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/OsirWeb.py"])
+    if args.case:
+        case_path = os.path.join("/OSIR/share/cases", args.case)
+        if not os.path.isdir(case_path):
+            logger.error(f"You selected a case that does not exist. Verify that {case_path} is the right path to process")
+            exit()
 
-    case_path = os.path.join("/OSIR/share/cases", args.case)
-    if not os.path.isdir(case_path):
-        logger.error(f"You selected a case that does not exist. Verify that {case_path} is the right path to process")
-        exit()
+        # Create an instance of the profile class
+        # profile_instance = task_manager.profile(args.profile) if args.profile else None
 
-    # Create an instance of the profile class
-    # profile_instance = task_manager.profile(args.profile) if args.profile else None
+        # Initialize module lists based on command-line arguments
+        selected_modules = args.module if args.module else []
+        modules_to_add = args.module_add if args.module_add else []
+        modules_to_remove = args.module_remove if args.module_remove else []
 
-    # Initialize module lists based on command-line arguments
-    selected_modules = args.module if args.module else []
-    modules_to_add = args.module_add if args.module_add else []
-    modules_to_remove = args.module_remove if args.module_remove else []
+        # Get the modules to process
+        profile = OsirProfileModel(modules=selected_modules)
+        profile.remove_modules(modules_to_remove)
+        profile.add_modules(modules_to_add)
+        modules = profile.modules
 
-    # Get the modules to process
-    profile = OsirProfileModel(modules=selected_modules)
-    profile.remove_modules(modules_to_remove)
-    profile.add_modules(modules_to_add)
-    modules = profile.modules
+        monitor_case = MonitorCase.MonitorCase(case_path, modules)
 
-    monitor_case = MonitorCase.MonitorCase(case_path, modules)
+        # Start monitoring the case directory  in a separate thread
+        setup_thread = threading.Thread(target=monitor_case.setup_handler)
+        setup_thread.start()
 
-    # Start monitoring the case directory  in a separate thread
-    setup_thread = threading.Thread(target=monitor_case.setup_handler)
-    setup_thread.start()
-
-    # Wait for the _setup_handler() thread to finish before exiting the code
-    try:
         # Wait for the _setup_handler() thread to finish before exiting the code
-        setup_thread.join()
-    except KeyboardInterrupt:
-        logger.info("Keyboard interrupt received. Stopping...")
-        monitor_case.stop_event.set()
-        setup_thread.join()
+        try:
+            # Wait for the _setup_handler() thread to finish before exiting the code
+            setup_thread.join()
+        except KeyboardInterrupt:
+            logger.info("Keyboard interrupt received. Stopping...")
+            monitor_case.stop_event.set()
+            setup_thread.join()
 
 
 if __name__ == "__main__":
