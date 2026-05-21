@@ -847,7 +847,7 @@ class Component:
         running = bool(info.get("running", False))
 
         if cfg.debug_shell:
-            manual = "--web" if self.key == "master" else "--agent"
+            manual = "--master" if self.key == "master" else "--agent"
             self.ui.box(
                 f"{self.label} - DEBUG SHELL",
                 "Container started with bash as entrypoint.\n\n"
@@ -1006,7 +1006,7 @@ class Launcher:
             key="master",
             label="MASTER",
             container="master-master",
-            expected_process="OSIR.py --web",
+            expected_process="OSIR.py --master",
             setup_script=self.repo_root / "setup" / "master" / "master_setup.sh",
             uninstall_script=self.repo_root / "setup" / "master" / "master_uninstall.sh",
             docker=self.docker,
@@ -1353,13 +1353,13 @@ class Launcher:
         """
         verbose = getattr(args, "verbose", False)
 
-        m_ok, m_detail = self.docker.container_has_process("master-master", "OSIR.py --web")
+        m_ok, m_detail = self.docker.container_has_process("master-master", "OSIR.py --master")
         a_ok, a_detail = self.docker.container_has_process("agent-agent", "OSIR.py --agent")
 
         m_status = (
-            "UP ✅ (OSIR.py --web running)"
+            "UP ✅ (OSIR.py --master running)"
             if m_ok
-            else f"DOWN ❌ ({m_detail or 'start master using OSIR.py --web inside master-master container'})"
+            else f"DOWN ❌ ({m_detail or 'start master using OSIR.py --master inside master-master container'})"
         )
         a_status = (
             "UP ✅ (OSIR.py --agent running)"
@@ -1372,7 +1372,7 @@ class Launcher:
         
         body = (
             "Expected processes inside containers:\n"
-            "  • master-master : OSIR.py --web\n"
+            "  • master-master : OSIR.py --master\n"
             "  • agent-agent   : OSIR.py --agent\n\n"
             f"Master process check : {m_status}\n"
             f"Agent process check  : {a_status}\n\n"
