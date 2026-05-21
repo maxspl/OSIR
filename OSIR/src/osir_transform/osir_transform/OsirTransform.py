@@ -61,7 +61,10 @@ class OsirTransform(BaseModel):
             return ""
         lines = [f"\n{_HR}\n# normalize dotted fields\n{_HR}"]
         for field in fields:
-            lines.append(f'if exists(."{field}") {{ .{field} = get!(., path: ["{field}"]) }}')
+            field_without_quote = field
+            if '"' in field:
+                field_without_quote = field.replace('"',"")
+            lines.append(f'if exists(."{field_without_quote}") {{ .{field} = get!(., path: ["{field_without_quote}"]) }}')
         return "\n".join(lines)
 
     # ── VRL rendering ──────────────────────────────────────────────────────────

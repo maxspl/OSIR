@@ -14,7 +14,6 @@ from osir_lib.core.model.OsirOutputModel import OsirOutputModel
 from osir_lib.core.model.OsirToolModel import OsirToolModel
 from osir_lib.core.model.OsirMetadataModel import OsirMetadataModel
 from osir_lib.core.model.OsirConfigurationModel import OsirConfigurationModel
-from osir_lib.core.model.connector.OsirConnectorModel import OsirConnectorModel
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -27,7 +26,7 @@ class OsirModuleModel(BaseModel):
         This model serves as the blueprint for all modules within the framework. 
         It validates metadata (author, version), execution requirements (OS, 
         processor type), and the core components of the task (tool, 
-        input, output, and connectors).
+        input, output).
     """
     metadata: OsirMetadataModel
     configuration: OsirConfigurationModel
@@ -37,7 +36,6 @@ class OsirModuleModel(BaseModel):
     input: OsirInputModel
     output: OsirOutputModel
     endpoint: Optional[OsirEndpointModel] = None
-    connector: Optional[OsirConnectorModel] = None
     
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None

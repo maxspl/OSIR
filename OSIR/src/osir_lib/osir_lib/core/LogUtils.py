@@ -4,6 +4,7 @@ import json
 import queue
 import re
 import threading
+import lzma
 
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.OsirDecorator import timeit
@@ -66,34 +67,30 @@ class LogUtils:
 
     def get_log(self):
         """
-        Generates each line from a log file, handling .gz compressed files if needed.
-
+        Generates each line from a log file, handling .gz and .xz compressed files if needed.
         Test multiple encodings :
             'utf-8', 'latin1', 'iso-8859-1', 'windows-1252'
-
         Yields:
             str: A single log line.
         """
         encodings = ['utf-8', 'latin1', 'iso-8859-1', 'windows-1252']
-
-        if self.ctx.input.match.suffix == ".gz":
-            for encoding in encodings:
-                try:
-                    with gzip.open(self.ctx.input.match, 'rt', encoding=encoding) as input_file:
-                        for line in input_file:
-                            yield line
-                    break  # Exit the loop if successful
-                except (UnicodeDecodeError, OSError) as e:
-                    print(f"Error reading gzip file with encoding {encoding}: {e}")
+        suffix = self.ctx.input.match.suffix
+    
+        if suffix == ".gz":
+            opener = lambda encoding: gzip.open(self.ctx.input.match, 'rt', encoding=encoding)
+        elif suffix == ".xz":
+            opener = lambda encoding: lzma.open(self.ctx.input.match, 'rt', encoding=encoding)
         else:
-            for encoding in encodings:
-                try:
-                    with open(self.ctx.input.match, 'r', encoding=encoding) as input_file:
-                        for line in input_file:
-                            yield line
-                    break  # Exit the loop if successful
-                except (UnicodeDecodeError, OSError) as e:
-                    print(f"Error reading file with encoding {encoding}: {e}")
+            opener = lambda encoding: open(self.ctx.input.match, 'r', encoding=encoding)
+    
+        for encoding in encodings:
+            try:
+                with opener(encoding) as input_file:
+                    for line in input_file:
+                        yield line
+                break  # Exit the loop if successful
+            except (UnicodeDecodeError, OSError) as e:
+                print(f"Error reading file with encoding {encoding}: {e}")
 
     @staticmethod
     def date_format(log_line):
@@ -166,19 +163,17 @@ class LogUtils:
             if not output_path:
                 output_path = self.ctx.output.output_file
 
-            while True:
-                data = queue.get()
-                if data is None:
-                    queue.task_done()
-                    break
-
-                try:
-                    with open(output_path, "a", encoding='utf-8') as file:
+            with open(output_path, "a", encoding='utf-8') as file:  # ouvert une seule fois
+                while True:
+                    data = queue.get()
+                    if data is None:
+                        queue.task_done()
+                        break
+                    try:
                         json.dump(data, file)
                         file.write('\n')
-                        file.flush()  # Force l'écriture sur le disque
-                finally:
-                    queue.task_done()
+                    finally:
+                        queue.task_done()
 
         except Exception as exc:
             logger.error_handler(exc)

@@ -5,12 +5,13 @@ from osir_api.api.OsirApiResponse import handle_response
 from osir_api.api.OsirApiExceptions import UnexpectedException, UnexpectedExceptionResponse
 from osir_api.api.model.OsirApiProfileModel import GetProfileListResponse, GetProfileInfoResponse, PostProfileRunResponse, PostProfileRunRequest
 from osir_lib.logger.logger import CustomLogger
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.logger import AppLogger
+from osir_api.api.OsirIpcCall import OsirIpcCall
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
@@ -69,18 +70,11 @@ def profile_exists(profile_name: str):
              responses={500: {"model": UnexpectedExceptionResponse}})
 def run_profile(request: PostProfileRunRequest, profile_name: str):
     try:
-        from osir_service.ipc.OsirIpcModel import OsirIpcModel
-        from osir_service.ipc.OsirIpcClient import OsirIpcClient
-
         profile_path = FileManager.get_profile_path(profile_name)
         if not profile_path.exists():
             raise UnexpectedException(profile_name)
 
-        client = OsirIpcClient()
-        action = OsirIpcModel(action="exec_profile", profile=profile_name, case_name=request.case_name)
-
-        response = OsirIpcResponse.model_validate_json(client.send(action))
-        return handle_response(response)
+        return OsirIpcCall("exec_profile", params={"profile": profile_name, "case_name": request.case_name}) 
 
     except Exception as e:
         logger.error_handler(e)

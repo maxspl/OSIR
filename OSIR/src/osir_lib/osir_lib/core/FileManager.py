@@ -124,7 +124,7 @@ class FileManager:
         return yaml_files
 
     @staticmethod
-    def get_cases(directory):
+    def get_subdirectories(directory: Path):
         """
         Get a list of subdirectories in a given directory.
 
@@ -136,6 +136,21 @@ class FileManager:
         """
         return [d for d in os.listdir(directory) if os.path.isdir(os.path.join(directory, d))]
 
+    @staticmethod
+    def get_subfiles(directory: Path) -> list[Path]:
+        """
+        Get a list of subfiles in a given directory.
+
+        Args:
+            directory (Path): The directory to search.
+
+        Returns:
+            list[Path]: A list of subfile Path objects.
+        """
+        if not directory.is_dir():
+            return []
+        return [entry for entry in directory.iterdir() if entry.is_file()]
+    
     @staticmethod
     def get_cases_path(case_name: str) -> Path | None:
         case_path = OSIR_PATHS.CASES_DIR / case_name
@@ -186,4 +201,4 @@ class FileManager:
         return FileManager.get_yaml_files(OSIR_PATHS.MODULES_DIR, relative=relative)
     
     def all_cases():
-        return FileManager.get_cases(OSIR_PATHS.CASES_DIR)
+        return FileManager.get_subdirectories(OSIR_PATHS.CASES_DIR)

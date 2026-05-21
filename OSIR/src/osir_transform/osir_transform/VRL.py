@@ -23,9 +23,15 @@ def parse_vrl_tag(value: Any) -> Any:
 
 
 def extract_vrl_fields(expr: str) -> list[str]:
-    """Return deduplicated .field references from a VRL expression, ignoring string literals."""
-    cleaned = re.sub(r'"[^"]*"', '""', expr)
-    fields  = re.findall(r'(\.[a-zA-Z_@][a-zA-Z0-9_.]*)', cleaned)
+    """Return deduplicated .field references from a VRL expression, ignoring string literals.
+
+    Supports plain fields (.foo.bar), quoted segments (."#text"), and mixed chains
+    (.Event.System.EventID."#text").
+    """
+    # One segment: either .<ident> or ."<any chars>"
+    _SEG = r'(?:\.[a-zA-Z_@][a-zA-Z0-9_]*|\.\"[^\"]+\")'
+    # A field path is one or more segments
+    fields = re.findall(r'(' + _SEG + r'(?:' + _SEG + r')*)', expr)
     return list(dict.fromkeys(fields))
 
 

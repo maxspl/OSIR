@@ -7,7 +7,7 @@ class OsirDbHandlerModel(BaseModel):
     handler_id: UUID
     case_uuid: UUID
     modules: List[str]
-    task_id: List[UUID]
+    task_id: Optional[List[UUID]] = []
     processing_status: str
     created_at: Optional[datetime] = None
 

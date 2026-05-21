@@ -84,11 +84,11 @@ if exists(.file.size) && exists(.file.mode) && .event.action == "Accessed" && ex
   .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Accessed"
 }
 if exists(.file.size) && exists(.file.mode) && exists(.file.uid) && .event.action == "Created" && exists(.file.name) {
-  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Created by " + to_string!(.file.uid)
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Created by uid " + to_string!(.file.uid)
 }
 if exists(.file.size) && exists(.file.mode) && exists(.file.uid) && .event.action == "Modified" && exists(.file.name) {
-  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Modified by " + to_string!(.file.uid)
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Modified by uid " + to_string!(.file.uid)
 }
 if exists(.file.size) && exists(.file.mode) && exists(.file.uid) && .event.action == "Accessed" && exists(.file.name) {
-  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Accessed by " + to_string!(.file.uid)
+  .message = to_string!(.file.name) + " (" + to_string!(.file.size) + " bytes, mode " + to_string!(.file.mode) + ") — Accessed by uid " + to_string!(.file.uid)
 }

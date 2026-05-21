@@ -1,5 +1,5 @@
 from typing import List, Union
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 

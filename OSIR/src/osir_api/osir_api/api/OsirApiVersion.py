@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_api.api.OsirApiMetadata import API_VERSION
 from osir_api.api.OsirApiExceptions import UnexpectedExceptionResponse
 

@@ -134,14 +134,18 @@ class OsirWebCase:
 
         if st.button("Submit"):
             logger.debug("Module ADD" + str(module_add))
-            OsirWebCase.process_submission(
-                profile_instance,
-                selected_modules,
-                module_add,
-                module_remove,
-                selected_case,
-                reprocess_case
-            )
+            try:
+                OsirWebCase.process_submission(
+                    profile_instance,
+                    selected_modules,
+                    module_add,
+                    module_remove,
+                    selected_case,
+                    reprocess_case
+                )
+            except Exception as e:
+                st.error(f"Error: {e}")
+            
 
     @staticmethod
     def tab1_module_editor(selected_modules: list[str]):
@@ -311,8 +315,9 @@ class OsirWebCase:
             profile_instance = OsirProfileModel(modules=selected_modules)
 
         logger.debug(f"Case path: {case_path}")
-     
-        monitor_case = MonitorCase(case_path, profile_instance.modules, reprocess_case)
+
+        with st.spinner("Settings Up Handler... If you see this message it's likely that you have made a mistake in agent.yml configuration, the master can't reach the DB."):
+            monitor_case = MonitorCase(case_path, profile_instance.modules, reprocess_case)
 
         if OsirWebCase._override_module_instances(monitor_case):
             monitor_case.start()

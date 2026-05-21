@@ -86,7 +86,7 @@ descriptions:
       - field: event.action
         value: "Created"
 
-  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Created by {file.uid}"
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Created by uid {file.uid}"
     conditions:
       - field: file.size
       - field: file.mode
@@ -101,7 +101,7 @@ descriptions:
       - field: event.action
         value: "Modified"
 
-  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Modified by {file.uid}"
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Modified by uid {file.uid}"
     conditions:
       - field: file.size
       - field: file.mode
@@ -116,7 +116,7 @@ descriptions:
       - field: event.action
         value: "Accessed"
 
-  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Accessed by {file.uid}"
+  - message: "{file.name} ({file.size} bytes, mode {file.mode}) — Accessed by uid {file.uid}"
     conditions:
       - field: file.size
       - field: file.mode
@@ -131,4 +131,5 @@ descriptions:
 
 fields:
   - name: file.meta
+    description: "ffefefeaeaef"
     type: keyword

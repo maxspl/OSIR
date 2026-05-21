@@ -8,6 +8,9 @@ import concurrent
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
 from osir_lib.logger.logger import CustomLogger
+from osir_lib.core.OsirUtils import normalize_osir_path
+
+from osir_service.orchestration.TaskService import TaskService
 from osir_service.postgres.OsirDb import OsirDb
 from osir_service.watchdog.WatchdogService import ModuleHandler
 
@@ -47,6 +50,20 @@ class MonitorCase:
     def on_inactivity(self):
         """Method to be called when inactivity is detected."""
         logger.debug("Updated Handler status to processing_done due to inactivity.")
+
+    def run_task(self, module_instance: OsirModuleModel, handler_uuid = None):
+        """
+            Pushes a task to the task queue for processing, without seting up the handler, based on the current module configuration.
+
+            Args:
+                module_instance: The module instance to be processed.
+        """
+        self.handler_uuid = handler_uuid if handler_uuid else self.handler_uuid
+        handler = ModuleHandler(Path(self.case_path), self.cooldown_period, self.module_instances, self.case_uuid, self.handler_uuid)
+        task_params = (normalize_osir_path(self.case_path), module_instance, self.case_uuid, self.handler_uuid)
+        TaskService.push_task(*task_params)
+
+        return self.handler_uuid
 
     def setup_handler(self):
         """

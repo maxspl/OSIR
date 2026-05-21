@@ -1,0 +1,361 @@
+
+
+# -----------------------------------------------------------------------------
+# set_timestamp
+# -----------------------------------------------------------------------------
+if exists(._time) && !is_empty(to_string(._time) ?? "") {
+  .timestamp = from_unix_timestamp!(to_int!(._time))
+}
+
+# -----------------------------------------------------------------------------
+# set_event
+# -----------------------------------------------------------------------------
+if exists(.type) && !is_empty(to_string(.type) ?? "") {
+  .event.kind = to_string!(.type)
+}
+if exists(.res) && !is_empty(to_string(.res) ?? "") {
+  .event.outcome = to_string!(.res)
+}
+if exists(._raw) && !is_empty(to_string(._raw) ?? "") {
+  .event.original = to_string!(._raw)
+}
+.event.category = get(value: {
+  "SYSCALL": "process",
+  "LOGIN": "authentication",
+  "USER_AUTH": "authentication",
+  "USER_LOGIN": "authentication",
+  "USER_LOGOUT": "authentication",
+  "AVC": "intrusion_detection",
+  "CONFIG_CHANGE": "configuration",
+  "SERVICE_START": "process",
+  "SERVICE_STOP": "process",
+  "SOFTWARE_UPDATE": "package",
+  "SYSTEM_BOOT": "host",
+  "SYSTEM_SHUTDOWN": "host",
+}, path: [.type]) ?? "other"
+.event.type = get(value: {
+  "SYSCALL": "access",
+  "LOGIN": "start",
+  "USER_AUTH": "authentication",
+  "USER_LOGIN": "start",
+  "USER_LOGOUT": "end",
+  "AVC": "denied",
+  "CONFIG_CHANGE": "change",
+  "SERVICE_START": "start",
+  "SERVICE_STOP": "end",
+  "SOFTWARE_UPDATE": "change",
+  "SYSTEM_BOOT": "start",
+  "SYSTEM_SHUTDOWN": "end",
+}, path: [.type]) ?? "info"
+.event.action = get(value: {
+  "ADD_USER": "user-add",
+  "ADD_GROUP": "group-add",
+  "CRED_ACQ": "credential-acquire",
+  "CRED_DISP": "credential-dispose",
+  "CRED_REFR": "credential-refresh",
+  "USER_CMD": "command-execution",
+}, path: [.type]) ?? "not-found"
+
+# -----------------------------------------------------------------------------
+# set_process
+# -----------------------------------------------------------------------------
+if exists(.pid) && !is_empty(to_string(.pid) ?? "") {
+  .process.pid = to_string!(.pid)
+}
+if exists(.ppid) && !is_empty(to_string(.ppid) ?? "") {
+  .process.ppid = to_string!(.ppid)
+}
+if exists(.comm) && !is_empty(to_string(.comm) ?? "") {
+  .process.name = to_string!(.comm)
+}
+if exists(.exe) && !is_empty(to_string(.exe) ?? "") {
+  .process.executable = to_string!(.exe)
+}
+if exists(.command_line) && !is_empty(to_string(.command_line) ?? "") {
+  .process.command_line = to_string!(.command_line)
+}
+if exists(.cwd) && !is_empty(to_string(.cwd) ?? "") {
+  .process.working_directory = to_string!(.cwd)
+}
+if exists(.spid) && !is_empty(to_string(.spid) ?? "") {
+  .process.thread.id = to_string!(.spid)
+}
+
+# -----------------------------------------------------------------------------
+# set_user
+# -----------------------------------------------------------------------------
+if exists(.uid) && !is_empty(to_string(.uid) ?? "") {
+  .user.id = to_string!(.uid)
+}
+if exists(.acct) && !is_empty(to_string(.acct) ?? "") {
+  .user.name = to_string!(.acct)
+}
+if exists(.euid) && !is_empty(to_string(.euid) ?? "") {
+  .user.effective.id = to_string!(.euid)
+}
+if exists(.acct) && !is_empty(to_string(.acct) ?? "") {
+  .user.effective.name = to_string!(.acct)
+}
+if exists(.suid) && !is_empty(to_string(.suid) ?? "") {
+  .user.target.id = to_string!(.suid)
+}
+if exists(.acct) && !is_empty(to_string(.acct) ?? "") {
+  .user.target.name = to_string!(.acct)
+}
+if exists(.gid) && !is_empty(to_string(.gid) ?? "") {
+  .user.group.id = to_string!(.gid)
+}
+if exists(.group) && !is_empty(to_string(.group) ?? "") {
+  .user.group.name = to_string!(.group)
+}
+if exists(.auid) && !is_empty(to_string(.auid) ?? "") {
+  .user.audit.id = to_string!(.auid)
+}
+if exists(.ses) && !is_empty(to_string(.ses) ?? "") {
+  .user.session.id = to_string!(.ses)
+}
+
+# -----------------------------------------------------------------------------
+# set_host
+# -----------------------------------------------------------------------------
+if exists(.hostname) && !is_empty(to_string(.hostname) ?? "") {
+  .host.name = to_string!(.hostname)
+}
+if exists(.addr) && !is_empty(to_string(.addr) ?? "") {
+  .host.ip = to_string!(.addr)
+}
+
+# -----------------------------------------------------------------------------
+# set_audit
+# -----------------------------------------------------------------------------
+if exists(.ses) && !is_empty(to_string(.ses) ?? "") {
+  .audit.session = to_string!(.ses)
+}
+if exists(.auid) && !is_empty(to_string(.auid) ?? "") {
+  .audit.id = to_string!(.auid)
+}
+if exists(.res) && !is_empty(to_string(.res) ?? "") {
+  .audit.result = to_string!(.res)
+}
+if exists(.msg) && !is_empty(to_string(.msg) ?? "") {
+  .audit.message = to_string!(.msg)
+}
+if exists(.tag) && !is_empty(to_string(.tag) ?? "") {
+  .audit.tag = to_string!(.tag)
+}
+if exists(.key) && !is_empty(to_string(.key) ?? "") {
+  .audit.key = to_string!(.key)
+}
+
+# -----------------------------------------------------------------------------
+# set_network
+# -----------------------------------------------------------------------------
+if exists(.direction) && !is_empty(to_string(.direction) ?? "") {
+  .network.direction = to_string!(.direction)
+}
+if exists(.addr) && !is_empty(to_string(.addr) ?? "") {
+  .source.ip = to_string!(.addr)
+}
+if exists(.rport) && !is_empty(to_string(.rport) ?? "") {
+  .source.port = to_string!(.rport)
+}
+if exists(.laddr) && !is_empty(to_string(.laddr) ?? "") {
+  .destination.ip = to_string!(.laddr)
+}
+if exists(.lport) && !is_empty(to_string(.lport) ?? "") {
+  .destination.port = to_string!(.lport)
+}
+
+# -----------------------------------------------------------------------------
+# set_file
+# -----------------------------------------------------------------------------
+if exists(.name) && !is_empty(to_string(.name) ?? "") {
+  .file.name = to_string!(.name)
+}
+if exists(.path) && !is_empty(to_string(.path) ?? "") {
+  .file.path = to_string!(.path)
+}
+if exists(.dev) && !is_empty(to_string(.dev) ?? "") {
+  .file.device = to_string!(.dev)
+}
+if exists(.ino) && !is_empty(to_string(.ino) ?? "") {
+  .file.inode = to_string!(.ino)
+}
+if exists(.root_dir) && !is_empty(to_string(.root_dir) ?? "") {
+  .file.directory = to_string!(.root_dir)
+}
+
+# -----------------------------------------------------------------------------
+# set_system
+# -----------------------------------------------------------------------------
+if exists(.auid) && !is_empty(to_string(.auid) ?? "") {
+  .system.audit.id = to_string!(.auid)
+}
+if exists(.ses) && !is_empty(to_string(.ses) ?? "") {
+  .system.audit.session = to_string!(.ses)
+}
+if exists(.proctitle) && !is_empty(to_string(.proctitle) ?? "") {
+  .system.audit.command = to_string!(.proctitle)
+}
+if exists(.tty) && !is_empty(to_string(.tty) ?? "") {
+  .system.audit.tty = to_string!(.tty)
+}
+if exists(.terminal) && !is_empty(to_string(.terminal) ?? "") {
+  .system.audit.terminal = to_string!(.terminal)
+}
+if exists(.level) && !is_empty(to_string(.level) ?? "") {
+  .system.audit.runlevel = to_string!(.level)
+}
+
+# -----------------------------------------------------------------------------
+# del_raw
+# -----------------------------------------------------------------------------
+del(._raw)
+del(._time)
+del(.type)
+del(.acct)
+del(.addr)
+del(.auid)
+del(.comm)
+del(.exe)
+del(.hostname)
+del(.msg)
+del(.pid)
+del(.res)
+del(.ses)
+del(.subj)
+del(.tag)
+del(.terminal)
+del(.uid)
+del(.ppid)
+del(.command_line)
+del(.cwd)
+del(.spid)
+del(.gid)
+del(.group)
+del(.suid)
+del(.tty)
+del(.level)
+del(.key)
+del(.name)
+del(.path)
+del(.dev)
+del(.ino)
+del(.root_dir)
+del(.direction)
+del(.laddr)
+del(.lport)
+del(.rport)
+del(.proctitle)
+del(.grantors)
+del(.id)
+del(.old)
+del(.family)
+del(.table)
+del(.entries)
+del(.cipher)
+del(.ksize)
+del(.mac)
+del(.pfs)
+del(.fp)
+del(.sauid)
+del(.scontext)
+del(.tcontext)
+del(.tclass)
+del(.seqno)
+del(.a0)
+del(.a1)
+del(.a2)
+del(.a3)
+del(.arch)
+del(.egid)
+del(.euid)
+del(.exit)
+del(.fsgid)
+del(.fsuid)
+del(.items)
+del(.sgid)
+del(.success)
+del(.syscall)
+del(.ver)
+del(.kernel)
+del(.format)
+del(.op)
+del(.state)
+del(.context)
+del(.sw_type)
+del(.gpg_res)
+del(.key_enforce)
+
+# -----------------------------------------------------------------------------
+# descriptions
+# -----------------------------------------------------------------------------
+if exists(.event.kind) && exists(.host.name) {
+  .message = "Audit event of type " + to_string!(.event.kind) + " occurred on " + to_string!(.host.name)
+}
+if .event.kind == "ADD_GROUP" && exists(.host.name) {
+  .message = "Group was added on " + to_string!(.host.name)
+}
+if .event.kind == "SOFTWARE_UPDATE" && exists(.host.name) {
+  .message = "Software update performed on " + to_string!(.host.name)
+}
+if .event.kind == "SYSTEM_BOOT" && exists(.host.name) {
+  .message = "System booted on " + to_string!(.host.name)
+}
+if .event.kind == "SYSTEM_SHUTDOWN" && exists(.host.name) {
+  .message = "System shutdown initiated on " + to_string!(.host.name)
+}
+if .event.kind == "DAEMON_START" && exists(.process.pid) && exists(.host.name) {
+  .message = "Audit daemon started (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "DAEMON_END" && exists(.process.pid) && exists(.host.name) {
+  .message = "Audit daemon stopped (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "ADD_USER" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "User " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") was added on " + to_string!(.host.name)
+}
+if .event.kind == "CONFIG_CHANGE" && exists(.audit.message) && exists(.audit.old) && exists(.host.name) {
+  .message = "Audit configuration changed: " + to_string!(.audit.message) + " (old=" + to_string!(.audit.old) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "CRED_ACQ" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "Credentials acquired by user " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "CRED_DISP" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "Credentials disposed by user " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "CRED_REFR" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "Credentials refreshed by user " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "CRYPTO_KEY_USER" && exists(.process.executable) && exists(.process.pid) && exists(.host.name) {
+  .message = "Crypto key used by process " + to_string!(.process.executable) + " (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "CRYPTO_SESSION" && exists(.process.executable) && exists(.process.pid) && exists(.host.name) {
+  .message = "Crypto session established by process " + to_string!(.process.executable) + " (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "LOGIN" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "User " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") logged in on " + to_string!(.host.name)
+}
+if .event.kind == "USER_AUTH" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "User " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") authenticated on " + to_string!(.host.name)
+}
+if .event.kind == "USER_LOGIN" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "User " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") logged in on " + to_string!(.host.name)
+}
+if .event.kind == "USER_LOGOUT" && exists(.user.name) && exists(.user.id) && exists(.host.name) {
+  .message = "User " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ") logged out from " + to_string!(.host.name)
+}
+if .event.kind == "USER_CMD" && exists(.process.command_line) && exists(.user.name) && exists(.user.id) {
+  .message = "Command " + to_string!(.process.command_line) + " executed by user " + to_string!(.user.name) + " (UID: " + to_string!(.user.id) + ")"
+}
+if .event.kind == "SERVICE_START" && exists(.process.name) && exists(.process.pid) && exists(.host.name) {
+  .message = "Service " + to_string!(.process.name) + " started (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "SERVICE_STOP" && exists(.process.name) && exists(.process.pid) && exists(.host.name) {
+  .message = "Service " + to_string!(.process.name) + " stopped (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "SYSCALL" && exists(.event.action) && exists(.process.name) && exists(.process.pid) && exists(.host.name) {
+  .message = "Syscall " + to_string!(.event.action) + " executed by process " + to_string!(.process.name) + " (PID: " + to_string!(.process.pid) + ") on " + to_string!(.host.name)
+}
+if .event.kind == "AVC" && exists(.audit.message) && exists(.audit.scontext) && exists(.audit.tcontext) && exists(.audit.tclass) && exists(.host.name) {
+  .message = "AVC denial: " + to_string!(.audit.message) + " (scontext=" + to_string!(.audit.scontext) + ", tcontext=" + to_string!(.audit.tcontext) + ", tclass=" + to_string!(.audit.tclass) + ") on " + to_string!(.host.name)
+}

@@ -8,12 +8,9 @@ from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.core.model.OsirOutputModel import OsirOutputModel
 from osir_lib.core.model.OsirInputModel import OsirInputModel
 from osir_lib.core.model.OsirToolModel import OsirToolModel
-from osir_lib.core.model.connector.OsirConnectorModel import OsirConnectorModel
-
 from osir_lib.core.OsirInput import OsirInput
 from osir_lib.core.OsirOutput import OsirOutput
 from osir_lib.core.OsirTool import OsirTool
-from osir_lib.core.OsirConnector import OsirConnector
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -35,7 +32,6 @@ class OsirModule(OsirModuleModel):
     tool: Optional[OsirTool] = None
     input: Optional[OsirInput] = None
     output: Optional[OsirOutput] = None
-    connector: Optional[OsirConnector] = None
     endpoint_name: Optional[str] = None
 
     def __init__(self, **data):
@@ -54,8 +50,6 @@ class OsirModule(OsirModuleModel):
             self.tool.init_tool(self.configuration.processor_os)
         if isinstance(self.input, OsirInputModel):
             self.input = OsirInput(**self.input.model_dump())
-        if isinstance(self.connector, OsirConnectorModel):
-            self.connector = OsirConnector(**self.connector.model_dump())
 
     @model_validator(mode='after')
     def link_and_update(self) -> 'OsirModule':
