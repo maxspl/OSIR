@@ -15,7 +15,7 @@ useHead({
 })
 
 const title = 'OSIR'
-const description = 'Open Source Incident Response — Orchestration & Monitoring platform.'
+const description = 'Open Software for Incident Response — Orchestration & Monitoring platform.'
 
 useSeoMeta({
   title,
