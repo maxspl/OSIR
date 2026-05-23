@@ -73,13 +73,13 @@ class DissectDispatcher():
             iterator = getattr(t, plugin_name)()
         except UnsupportedPluginError as e:
             msg = e.root_cause_str() if hasattr(e, "root_cause_str") else str(e)
-            logger.error(f"[i] 'activitiescache' plugin not supported for this target: {msg}")
+            logger.info(f"[i] '{plugin_name}' plugin not supported for this target: {msg}")
             return True
         except PluginNotFoundError as e:
-            logger.error(f"[i] 'activitiescache' plugin not available in this dissect install: {e}")
+            logger.info(f"[i] '{plugin_name}' plugin not available in this dissect install: {e}")
             return True
         except Exception as e:
-            logger.error(f"[!] Error initialising 'activitiescache' plugin: {e}")
+            logger.error(f"[!] Error initialising '{plugin_name}' plugin: {e}")
             return False
 
         # Construct output file
