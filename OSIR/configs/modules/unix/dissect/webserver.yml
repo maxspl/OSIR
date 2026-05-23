@@ -1,11 +1,11 @@
 metadata:
   version: "2.0"
   author: Typ
-  description: Parse auth log from UAC [root] using Dissect plugin
-  os: unix
+  description: Parse webserver access,certificates,error,hosts,logs from UAC [root] using Dissect plugin
+  os: windows
 
 configuration:
-  module: authlog
+  module: webserver
   alt_module: dissect_dispatcher
   type: process
   disk_only: false
@@ -30,14 +30,14 @@ endpoint:
   default: "UNKNOWN"
 
 optional:
-  plugin: authlog
+  plugin: webserver
 
 splunk:
-  'linux:auth':
+  'linux:webserver':
     name_rex: \.jsonl$
-    sourcetype: 'linux:auth'
+    sourcetype: 'linux:webserver'
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
-    artifact: "auth"
+    artifact: "webserver"

@@ -32,7 +32,7 @@ splunk:
   'linux:utmp':
     name_rex: ^(utmp|btmp|wtmp)(\.\d+)?.*?\.jsonl$
     sourcetype: 'linux:utmp'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "tv_sec"
     timestamp_format: "%Y/%m/%d %H:%M:%S"

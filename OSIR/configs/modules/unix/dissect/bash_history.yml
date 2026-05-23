@@ -2,7 +2,7 @@ metadata:
   version: "2.0"
   author: Typ
   description: Parse bash history from UAC [root] using Dissect plugin
-  os: windows
+  os: unix
 
 configuration:
   module: bash_history
@@ -31,3 +31,13 @@ endpoint:
 
 optional:
   plugin: bashhistory
+
+splunk:
+  'linux:bash_history':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:bash_history'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "bash_history"

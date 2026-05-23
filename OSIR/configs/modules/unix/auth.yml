@@ -27,3 +27,13 @@ endpoint:
   patterns:
     - r"extract_uac\/(.*?)\/"
   default: "UNKNOWN"
+
+splunk:
+  'linux:auth':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:auth'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%s"
+    artifact: "auth"

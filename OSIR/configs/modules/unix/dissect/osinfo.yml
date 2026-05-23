@@ -1,11 +1,11 @@
 metadata:
   version: "2.0"
   author: Typ
-  description: Parse auth log from UAC [root] using Dissect plugin
+  description: Parse osinfo from UAC [root] using Dissect plugin
   os: unix
 
 configuration:
-  module: authlog
+  module: osinfo
   alt_module: dissect_dispatcher
   type: process
   disk_only: false
@@ -30,14 +30,14 @@ endpoint:
   default: "UNKNOWN"
 
 optional:
-  plugin: authlog
+  plugin: osinfo
 
 splunk:
-  'linux:auth':
+  'linux:osinfo':
     name_rex: \.jsonl$
-    sourcetype: 'linux:auth'
+    sourcetype: 'linux:osinfo'
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
-    artifact: "auth"
+    artifact: "osinfo"

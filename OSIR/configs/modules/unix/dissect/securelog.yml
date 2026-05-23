@@ -1,11 +1,11 @@
 metadata:
   version: "2.0"
   author: Typ
-  description: Parse auth log from UAC [root] using Dissect plugin
+  description: Parse auth/secure log from UAC [root] using Dissect plugin
   os: unix
 
 configuration:
-  module: authlog
+  module: securelog
   alt_module: dissect_dispatcher
   type: process
   disk_only: false
@@ -30,7 +30,7 @@ endpoint:
   default: "UNKNOWN"
 
 optional:
-  plugin: authlog
+  plugin: securelog
 
 splunk:
   'linux:auth':

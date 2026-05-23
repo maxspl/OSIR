@@ -27,3 +27,13 @@ endpoint:
   patterns:
     - r"extract_uac\/(.*?)\/"
   default: "UNKNOWN"
+
+splunk:
+  'linux:postgres':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:postgres'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%s"
+    artifact: "postgres"
