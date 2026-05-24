@@ -1,11 +1,11 @@
 metadata:
-  version: "2.0"
-  author: Typ
+  version: "1.0"
+  author: maxspl
   description: Scan of collected file using Thor Lite.
   os: generic
 
 configuration:
-  module: thor_lite
+  module: thor_lite_orc
   type: process
   disk_only: false
   no_multithread: true
@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: thor-lite/thor-lite-linux-64
-  cmd: -a Filescan --intense --norescontrol --cross-platform -p {input_dir} --nocsv --silent --nolog --jsonfile {output_file} 
+  cmd: -a Filescan --intense --norescontrol --cross-platform -p {input_dir} --nocsv --silent --nolog --jsonfile {output_file} --threads 4
   source: https://www.nextron-systems.com/thor-lite/
   version: 1.0
 
@@ -36,10 +36,12 @@ endpoint:
 splunk:
   'thor:files':
     name_rex: \.jsonl$
-    path_suffix: 'thor_lite'
+    path_suffix: 'thor_lite_orc'
     sourcetype: 'thor:files'
     host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "time"
+    timestamp_path:
+      - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "Thor"
+    normalize:
+      - ecs_normalize/scan/thor.vrl

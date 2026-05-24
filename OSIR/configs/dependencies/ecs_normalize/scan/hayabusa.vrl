@@ -1,0 +1,258 @@
+###########################
+# HAYABUSA COMMON MAPPING #
+###########################
+
+# Keep original payload first
+if !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+# Timestamp
+if exists(.Timestamp) {
+    ts = to_string!(del(.Timestamp))
+    parsed_ts = parse_timestamp!(ts, format: "%Y-%m-%d %H:%M:%S%.f %:z")
+    .timestamp = format_timestamp!(parsed_ts, format: "%Y-%m-%dT%H:%M:%SZ")
+}
+
+# Generic ECS
+.event.kind = "event"
+.event.module = "hayabusa"
+.agent.type = "hayabusa"
+
+# Rule / detection title
+if exists(.RuleTitle) {
+    .rule.name = del(.RuleTitle)
+    .event.reason = .rule.name
+}
+
+# Level
+if exists(.Level) {
+    lvl = downcase(string!(del(.Level)))
+    .log.level = lvl
+    .hayabusa.level = lvl
+
+    if lvl == "crit" || lvl == "critical" {
+        .event.severity = 90
+    } else if lvl == "high" {
+        .event.severity = 75
+    } else if lvl == "med" || lvl == "medium" {
+        .event.severity = 50
+    } else if lvl == "low" {
+        .event.severity = 25
+    }
+}
+
+# Host
+if exists(.Computer) {
+    .host.name = del(.Computer)
+}
+
+# Channel
+if exists(.Channel) {
+    ch = del(.Channel)
+    .hayabusa.channel = ch
+    .winlog.channel = ch
+
+    ch_lower = downcase(string!(ch))
+    if ch_lower == "sec" {
+        .event.dataset = "windows.security"
+    } else if ch_lower == "sys" {
+        .event.dataset = "windows.system"
+    } else if ch_lower == "defender" {
+        .event.dataset = "windows.defender"
+    } else {
+        .event.dataset = "hayabusa." + ch_lower
+    }
+}
+
+# Event ID / Record ID
+if exists(.EventID) {
+    eid = to_string!(del(.EventID))
+    .event.code = eid
+    .winlog.event_id = eid
+}
+
+if exists(.RecordID) {
+    .winlog.record_id = to_string!(del(.RecordID))
+}
+
+# Preserve raw Hayabusa sections
+if exists(.Details) {
+    .hayabusa.details = del(.Details)
+}
+if exists(.ExtraFieldInfo) {
+    .hayabusa.extra = del(.ExtraFieldInfo)
+}
+
+#####################################
+# GENERIC DETAILS / EXTRA MAPPINGS  #
+#####################################
+
+# Subject user
+if exists(.hayabusa.extra.SubjectUserName) {
+    .user.name = .hayabusa.extra.SubjectUserName
+}
+if exists(.hayabusa.extra.SubjectDomainName) {
+    .user.domain = .hayabusa.extra.SubjectDomainName
+}
+if exists(.hayabusa.extra.SubjectUserSid) {
+    .user.id = .hayabusa.extra.SubjectUserSid
+}
+if exists(.hayabusa.extra.SubjectLogonId) {
+    .winlog.subject.logon_id = .hayabusa.extra.SubjectLogonId
+}
+
+# Target user
+if exists(.hayabusa.details.TgtUser) {
+    .user.target.name = .hayabusa.details.TgtUser
+}
+if exists(.hayabusa.extra.TargetUserName) {
+    .user.target.name = .hayabusa.extra.TargetUserName
+}
+if exists(.hayabusa.extra.TargetDomainName) {
+    .user.target.domain = .hayabusa.extra.TargetDomainName
+}
+if exists(.hayabusa.extra.TargetUserSid) {
+    .user.target.id = .hayabusa.extra.TargetUserSid
+}
+if exists(.hayabusa.extra.TargetSid) {
+    .user.target.id = .hayabusa.extra.TargetSid
+}
+
+# Source system / IP
+if exists(.hayabusa.details.SrcComp) {
+    .source.domain = .hayabusa.details.SrcComp
+}
+if exists(.hayabusa.details.SrcIP) {
+    .source.ip = .hayabusa.details.SrcIP
+}
+if exists(.hayabusa.extra.IpPort) {
+    .source.port = to_string!(.hayabusa.extra.IpPort)
+}
+
+# Auth / logon
+if exists(.hayabusa.details.AuthPkg) {
+    .winlog.logon.authentication_package = .hayabusa.details.AuthPkg
+}
+if exists(.hayabusa.details.Type) {
+    .winlog.logon.type = .hayabusa.details.Type
+}
+if exists(.hayabusa.extra.LogonProcessName) {
+    .winlog.logon.process.name = .hayabusa.extra.LogonProcessName
+}
+if exists(.hayabusa.extra.KeyLength) {
+    .winlog.logon.key_length = .hayabusa.extra.KeyLength
+}
+
+# Process / file path
+if exists(.hayabusa.details.Path) {
+    .process.executable = .hayabusa.details.Path
+    .file.path = .hayabusa.details.Path
+    .file.name = basename!(.hayabusa.details.Path)
+}
+if exists(.hayabusa.details.Proc) && .hayabusa.details.Proc != "-" {
+    .process.executable = .hayabusa.details.Proc
+}
+if exists(.hayabusa.extra.ProcessId) {
+    pid = to_int(.hayabusa.extra.ProcessId) ?? null
+    if pid != null && pid != 0 {
+        .process.pid = pid
+    }
+}
+
+# Service info
+if exists(.hayabusa.details.Svc) {
+    .service.display_name = .hayabusa.details.Svc
+}
+if exists(.hayabusa.details.Acct) {
+    .service.account = .hayabusa.details.Acct
+}
+if exists(.hayabusa.details.StartType) {
+    .service.start_type = .hayabusa.details.StartType
+}
+if exists(.hayabusa.extra.ServiceType) {
+    .service.type = .hayabusa.extra.ServiceType
+}
+
+# Defender extra info
+if exists(.hayabusa.extra."Product Name") {
+    .observer.product = .hayabusa.extra."Product Name"
+}
+if exists(.hayabusa.extra."Product Version") {
+    .observer.version = .hayabusa.extra."Product Version"
+}
+
+# Status / failure
+if exists(.hayabusa.extra.FailureReason) {
+    .error.message = .hayabusa.extra.FailureReason
+}
+if exists(.hayabusa.extra.Status) {
+    .winlog.status = .hayabusa.extra.Status
+}
+if exists(.hayabusa.extra.SubStatus) {
+    .winlog.sub_status = .hayabusa.extra.SubStatus
+}
+
+#####################################
+# EVENT-SPECIFIC MAPPINGS           #
+#####################################
+
+# 4625 - Failed logon
+if exists(.event.code) && .event.code == "4625" {
+    .event.category = ["authentication"]
+    .event.type = ["start", "denied"]
+    .event.action = "logon_failed"
+    .event.outcome = "failure"
+
+    if exists(.source.ip) {
+        .related.ip = [ .source.ip ]
+    }
+
+    if exists(.user.target.name) && !exists(.user.name) {
+        .user.name = .user.target.name
+    }
+
+    if exists(.user.name) {
+        .related.user = [ .user.name ]
+    }
+}
+
+# 4724 - Password reset by admin
+if exists(.event.code) && .event.code == "4724" {
+    .event.category = ["iam"]
+    .event.type = ["change"]
+    .event.action = "password_reset_attempt"
+
+    if exists(.user.target.name) {
+        .related.user = [ .user.target.name ]
+    }
+}
+
+# 7045 - Service installation
+if exists(.event.code) && .event.code == "7045" {
+    .event.category = ["process", "persistence"]
+    .event.type = ["creation", "start"]
+    .event.action = "service_installed"
+
+    if exists(.process.executable) && !exists(.file.name) {
+        .file.name = basename!(.process.executable)
+    }
+
+    if exists(.file.path) {
+        .related.files = [ .file.path ]
+    }
+}
+
+# 5010 - Defender malware / PUA scanning disabled
+if exists(.event.code) && .event.code == "5010" {
+    .event.category = ["malware", "configuration"]
+    .event.type = ["change"]
+    .event.action = "defender_scanning_disabled"
+}
+
+# 6038 - NTLMv1 logon between client and server
+if exists(.event.code) && .event.code == "6038" {
+    .event.category = ["authentication"]
+    .event.type = ["protocol"]
+    .event.action = "ntlmv1_authentication_detected"
+}
