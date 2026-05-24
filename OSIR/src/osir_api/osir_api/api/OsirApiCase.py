@@ -5,15 +5,13 @@ from fastapi import (
     UploadFile,
     Form,
 )
-from osir_service.ipc.OsirIpcClient import OsirIpcClient
-from osir_service.ipc.OsirIpcModel import OsirIpcModel, OsirIpcResponse
-
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_api.api.OsirApiExceptions import UnexpectedException, UnexpectedExceptionResponse
 from osir_api.api.OsirApiResponse import handle_response
 from osir_api.api.model.OsirApiCaseModel import GetCaseListResponse, PostCaseCreateResponse, GetCaseHandlerResponse
 from osir_api.api.OsirApiMetadata import API_VERSION
 from osir_api.api.model.OsirApiTaskModel import GetTasksListResponse
-
+from osir_api.api.OsirIpcCall import OsirIpcCall
 from osir_lib.core.FileManager import FileManager
 
 router = APIRouter()
@@ -23,41 +21,27 @@ router = APIRouter()
             response_model=GetCaseListResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
 def get_case():
-    try:
-        client = OsirIpcClient()
-        action = OsirIpcModel(action="get_cases")
-        response = OsirIpcResponse.model_validate_json(client.send(action))
-        return handle_response(response)
-
-    except Exception as e:
-        raise UnexpectedException(str(e))
+    return OsirIpcCall("get_cases")
 
 
 @router.post("/case/{case_name}",
              response_model=PostCaseCreateResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})
 def create_case(case_name: str):
-    try:
-        client = OsirIpcClient()
-        action = OsirIpcModel(action="create_case", case_name=case_name)
-        response = OsirIpcResponse.model_validate_json(client.send(action))
-        return handle_response(response)
-    except Exception as e:
-        raise UnexpectedException(str(e))
+    return OsirIpcCall("create_case", params={"case_name": case_name})
 
 
 @router.post("/case/{case_name}/handler",
              response_model=GetCaseHandlerResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})
 def retrieved_case_handler(case_name: str):
-    try:
-        client = OsirIpcClient()
-        action = OsirIpcModel(action="get_case_handler", case_name=case_name)
-        response = OsirIpcResponse.model_validate_json(client.send(action))
-        return handle_response(response)
-    except Exception as e:
-        raise UnexpectedException(str(e))
+    return OsirIpcCall("get_case_handler", params={"case_name": case_name})
 
+@router.post("/case/{case_name}/handler/run",
+             response_model=GetCaseHandlerResponse,
+             responses={500: {"model": UnexpectedExceptionResponse}})
+def start_case_handler(case_name: str):
+    return OsirIpcCall("get_case_handler", params={"case_name": case_name})
 
 # Endpoint for file uploads
 @router.post("/case/{case_name}/uploads")
@@ -137,10 +121,5 @@ async def upload_file(
             response_model=GetTasksListResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
 def get_tasks(case_name: str):
-    try:
-        client = OsirIpcClient()
-        action = OsirIpcModel(action="get_tasks", case_name=case_name)
-        response = OsirIpcResponse.model_validate_json(client.send(action))
-        return handle_response(response)
-    except Exception as e:
-        raise UnexpectedException(str(e))
+    return OsirIpcCall("get_tasks", params={"case_name": case_name})
+

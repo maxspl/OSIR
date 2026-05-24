@@ -1,5 +1,5 @@
 metadata:
-  version: "2.0"
+  version: "3.0"
   author: maxspl
   description: Used to execute internal pre-processing for DFIR-ORC capture
   os: windows
@@ -9,6 +9,7 @@ configuration:
   type: pre-process
   disk_only: true
   no_multithread: true
+  hold_consumers: true
   processor_type:
   - internal
   - external

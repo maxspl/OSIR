@@ -45,7 +45,7 @@ class OsirDbSnapshot:
         try:
             rows = self.db.execute_query(query, (case_path,), fetch="fetchall")
             logger.debug(f"Retrieved {len(rows)} entries for case_path: {case_path}")
-            return [(row[0], row[1]) for row in rows]
+            return [(row['path'], row['entry_type']) for row in rows]
         except Exception as e:
             logger.error(f"Error fetching entries for case_path {case_path}: {str(e)}")
             return []

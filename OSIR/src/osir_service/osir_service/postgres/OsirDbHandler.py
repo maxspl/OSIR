@@ -2,6 +2,7 @@ import uuid
 from typing import Union, Optional, List
 from osir_lib.logger import AppLogger
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
+from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 
 logger = AppLogger().get_logger()
 
@@ -54,8 +55,20 @@ class OsirDbHandler:
                 str: The unique handler_id.
         """
         try:
+            
+            
             if not handler_id:
                 handler_id = uuid.uuid4()
+            else:
+                existing_handler = self.db.execute_query(
+                    "SELECT handler_id, case_uuid, modules, task_id, processing_status, created_at FROM osir_handlers WHERE handler_id = %s",
+                    (handler_id,),
+                    fetch="fetchone"
+                )
+
+                if existing_handler:
+                    return OsirDbHandlerModel.model_validate(existing_handler)
+            
             self.db.execute_query("""
                 INSERT INTO osir_handlers (
                     handler_id,
@@ -271,3 +284,42 @@ class OsirDbHandler:
         except Exception as e:
             logger.error(f"Erreur lors de la vérification de l'input: {e}")
             raise
+    
+    def get_all_task_logs(self, handler_uuid: str) -> List[OsirDbTaskModel]:
+        """
+            Retrieves all tasks associated with a specific handler.
+
+            Args:
+                handler_uuid (str): The UUID of the handler to filter by.
+
+            Returns:
+                list[OsirDbTask]: List of tasks associated with the handler.
+
+            Raises:
+                Exception: If the query fails.
+        """
+        try:
+            tasks = self.db.execute_query("""
+                SELECT
+                    t.task_id,
+                    t.case_uuid,
+                    t.agent,
+                    t.module,
+                    t.input,
+                    t.output,
+                    t.processing_status,
+                    t.timestamp,
+                    t.trace
+                FROM
+                    osir_tasks t
+                LEFT JOIN
+                    osir_handlers h ON t.task_id = ANY(h.task_id)
+                WHERE
+                    h.handler_id = %s
+            """, (str(handler_uuid),), fetch="fetchall")
+
+            return [OsirDbTaskModel.model_validate(x) for x in tasks]
+        except Exception as e:
+            logger.error(f"Erreur lors de la récupération des logs des tâches: {e}")
+            raise
+            

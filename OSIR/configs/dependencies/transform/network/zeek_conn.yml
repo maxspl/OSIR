@@ -16,7 +16,7 @@ stages:
   set_timestamp:
     actions:
       - set:
-          "@timestamp": v'parse_timestamp(.ts, "%s") ?? .ts'
+          "timestamp": v'parse_timestamp(.ts, "%s") ?? .ts'
 
   set_event:
     actions:

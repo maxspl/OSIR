@@ -6,13 +6,21 @@ from osir_api.api.OsirApiExceptions import (
     UnexpectedException,
     unexpected_error_handler
 )
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(
     title="OSIR API",
     description="OSIR API",
     version="1.0"
 )
-
+app.add_middleware(                                                                                                                   
+    CORSMiddleware,                                                                                                                   
+    allow_origins=["http://localhost:3000"],  # your Nuxt dev URL
+    allow_credentials=True,                                                                                                             
+    allow_methods=["*"],
+    allow_headers=["*"],                                                                                                                
+)   
 app.add_exception_handler(UnexpectedException, unexpected_error_handler)
 
 
@@ -93,7 +101,6 @@ for file in API_FOLDER.glob("*.py"):
     if file.name == "__init__.py":
         continue
     module_name = f"api.{file.stem}"
-
     spec = importlib.util.spec_from_file_location(module_name, file)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

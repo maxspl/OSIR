@@ -1,0 +1,426 @@
+metadata:
+  version: "1.0"
+  author: jerego
+  description: osir-audit | Osir Transform description to normalize audit log file.
+
+pipeline:
+  - name: set_timestamp
+  - name: set_event
+  - name: set_process
+  - name: set_user
+  - name: set_host
+  - name: set_audit
+  - name: set_network
+  - name: set_file
+  - name: set_system
+  - name: set_message
+  - name: del_raw
+
+stages:
+
+  set_timestamp:
+    actions:
+      - set:
+          "timestamp": v'from_unix_timestamp!(to_int!(._time))'
+
+  set_event:
+    actions:
+      - set:
+          event.kind: v'to_string!(.type)'
+          event.outcome: v'to_string!(.res)'
+          event.original: v'to_string!(._raw)'
+      - translate:
+          mapping:
+            event.category: .type
+          dictionary:
+            "SYSCALL": "process"
+            "LOGIN": "authentication"
+            "USER_AUTH": "authentication"
+            "USER_LOGIN": "authentication"
+            "USER_LOGOUT": "authentication"
+            "AVC": "intrusion_detection"
+            "CONFIG_CHANGE": "configuration"
+            "SERVICE_START": "process"
+            "SERVICE_STOP": "process"
+            "SOFTWARE_UPDATE": "package"
+            "SYSTEM_BOOT": "host"
+            "SYSTEM_SHUTDOWN": "host"
+          fallback: "other"
+
+      - translate:
+          mapping:
+            event.type: .type
+          dictionary:
+            "SYSCALL": "access"
+            "LOGIN": "start"
+            "USER_AUTH": "authentication"
+            "USER_LOGIN": "start"
+            "USER_LOGOUT": "end"
+            "AVC": "denied"
+            "CONFIG_CHANGE": "change"
+            "SERVICE_START": "start"
+            "SERVICE_STOP": "end"
+            "SOFTWARE_UPDATE": "change"
+            "SYSTEM_BOOT": "start"
+            "SYSTEM_SHUTDOWN": "end"
+          fallback: "info"
+
+      - translate:
+          mapping:
+            event.action: .type
+          dictionary:
+            "ADD_USER": "user-add"
+            "ADD_GROUP": "group-add"
+            "CRED_ACQ": "credential-acquire"
+            "CRED_DISP": "credential-dispose"
+            "CRED_REFR": "credential-refresh"
+            "USER_CMD": "command-execution"
+          fallback: "not-found"
+  set_process:
+    actions:
+      - set:
+          process.pid: v'to_string!(.pid)'
+          process.ppid: v'to_string!(.ppid)'
+          process.name: v'to_string!(.comm)'
+          process.executable: v'to_string!(.exe)'
+          process.command_line: v'to_string!(.command_line)'
+          process.working_directory: v'to_string!(.cwd)'
+          process.thread.id: v'to_string!(.spid)'
+
+  set_user:
+    actions:
+      - set:
+          user.id: v'to_string!(.uid)'
+          user.name: v'to_string!(.acct)'
+          user.effective.id: v'to_string!(.euid)'
+          user.effective.name: v'to_string!(.acct)'
+          user.target.id: v'to_string!(.suid)'
+          user.target.name: v'to_string!(.acct)'
+          user.group.id: v'to_string!(.gid)'
+          user.group.name: v'to_string!(.group)'
+          user.audit.id: v'to_string!(.auid)'
+          user.session.id: v'to_string!(.ses)'
+
+  set_host:
+    actions:
+      - set:
+          host.name: v'to_string!(.hostname)'
+          host.ip: v'to_string!(.addr)'
+
+  set_audit:
+    actions:
+      - set:
+          audit.session: v'to_string!(.ses)'
+          audit.id: v'to_string!(.auid)'
+          audit.result: v'to_string!(.res)'
+          audit.message: v'to_string!(.msg)'
+          audit.tag: v'to_string!(.tag)'
+          audit.key: v'to_string!(.key)'
+
+  set_network:
+    actions:
+      - set:
+          network.direction: v'to_string!(.direction)'
+          source.ip: v'to_string!(.addr)'
+          source.port: v'to_string!(.rport)'
+          destination.ip: v'to_string!(.laddr)'
+          destination.port: v'to_string!(.lport)'
+
+  set_file:
+    actions:
+      - set:
+          file.name: v'to_string!(.name)'
+          file.path: v'to_string!(.path)'
+          file.device: v'to_string!(.dev)'
+          file.inode: v'to_string!(.ino)'
+          file.directory: v'to_string!(.root_dir)'
+
+  set_system:
+    actions:
+      - set:
+          system.audit.id: v'to_string!(.auid)'
+          system.audit.session: v'to_string!(.ses)'
+          system.audit.command: v'to_string!(.proctitle)'
+          system.audit.tty: v'to_string!(.tty)'
+          system.audit.terminal: v'to_string!(.terminal)'
+          system.audit.runlevel: v'to_string!(.level)'
+
+  del_raw:
+    actions:
+      - delete:
+          - _raw
+          - _time
+          - type
+          - acct
+          - addr
+          - auid
+          - comm
+          - exe
+          - hostname
+          - msg
+          - pid
+          - res
+          - ses
+          - subj
+          - tag
+          - terminal
+          - uid
+          - ppid
+          - command_line
+          - cwd
+          - spid
+          - gid
+          - group
+          - suid
+          - tty
+          - level
+          - key
+          - name
+          - path
+          - dev
+          - ino
+          - root_dir
+          - direction
+          - laddr
+          - lport
+          - rport
+          - proctitle
+          - grantors
+          - id
+          - old
+          - family
+          - table
+          - entries
+          - cipher
+          - ksize
+          - mac
+          - pfs
+          - fp
+          - sauid
+          - scontext
+          - tcontext
+          - tclass
+          - seqno
+          - a0
+          - a1
+          - a2
+          - a3
+          - arch
+          - egid
+          - euid
+          - exit
+          - fsgid
+          - fsuid
+          - items
+          - sgid
+          - success
+          - syscall
+          - ver
+          - kernel
+          - format
+          - op
+          - state
+          - context
+          - sw_type
+          - gpg_res
+          - key_enforce
+ 
+descriptions:
+  # Message générique pour tout autre événement
+  - message: "Audit event of type {event.kind} occurred on {host.name}"
+    conditions:
+      - field: event.kind
+      - field: host.name
+
+  # Ajout d'un utilisateur
+  - message: "User {user.name} (UID: {user.id}) was added on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "ADD_USER"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Ajout d'un groupe
+  - message: "Group was added on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "ADD_GROUP"
+      - field: host.name
+
+  # AVC Denial
+  - message: "AVC denial: {audit.message} (scontext={audit.scontext}, tcontext={audit.tcontext}, tclass={audit.tclass}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "AVC"
+      - field: audit.message
+      - field: audit.scontext
+      - field: audit.tcontext
+      - field: audit.tclass
+      - field: host.name
+
+  # Changement de configuration audit
+  - message: "Audit configuration changed: {audit.message} (old={audit.old}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "CONFIG_CHANGE"
+      - field: audit.message
+      - field: audit.old
+      - field: host.name
+
+  # Acquisition de credentials
+  - message: "Credentials acquired by user {user.name} (UID: {user.id}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "CRED_ACQ"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Disposition de credentials
+  - message: "Credentials disposed by user {user.name} (UID: {user.id}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "CRED_DISP"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Rafraîchissement de credentials
+  - message: "Credentials refreshed by user {user.name} (UID: {user.id}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "CRED_REFR"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Utilisation de clé crypto
+  - message: "Crypto key used by process {process.executable} (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "CRYPTO_KEY_USER"
+      - field: process.executable
+      - field: process.pid
+      - field: host.name
+
+  # Session crypto établie
+  - message: "Crypto session established by process {process.executable} (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "CRYPTO_SESSION"
+      - field: process.executable
+      - field: process.pid
+      - field: host.name
+
+  # Démarrage du démon audit
+  - message: "Audit daemon started (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "DAEMON_START"
+      - field: process.pid
+      - field: host.name
+
+  # Arrêt du démon audit
+  - message: "Audit daemon stopped (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "DAEMON_END"
+      - field: process.pid
+      - field: host.name
+
+  # Connexion utilisateur
+  - message: "User {user.name} (UID: {user.id}) logged in on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "LOGIN"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Authentification utilisateur
+  - message: "User {user.name} (UID: {user.id}) authenticated on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "USER_AUTH"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Connexion utilisateur
+  - message: "User {user.name} (UID: {user.id}) logged in on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "USER_LOGIN"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Déconnexion utilisateur
+  - message: "User {user.name} (UID: {user.id}) logged out from {host.name}"
+    conditions:
+      - field: event.kind
+        value: "USER_LOGOUT"
+      - field: user.name
+      - field: user.id
+      - field: host.name
+
+  # Exécution de commande utilisateur
+  - message: "Command {process.command_line} executed by user {user.name} (UID: {user.id})"
+    conditions:
+      - field: event.kind
+        value: "USER_CMD"
+      - field: process.command_line
+      - field: user.name
+      - field: user.id
+
+  # Appel système
+  - message: "Syscall {event.action} executed by process {process.name} (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "SYSCALL"
+      - field: event.action
+      - field: process.name
+      - field: process.pid
+      - field: host.name
+
+  # Démarrage de service
+  - message: "Service {process.name} started (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "SERVICE_START"
+      - field: process.name
+      - field: process.pid
+      - field: host.name
+
+  # Arrêt de service
+  - message: "Service {process.name} stopped (PID: {process.pid}) on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "SERVICE_STOP"
+      - field: process.name
+      - field: process.pid
+      - field: host.name
+
+  # Mise à jour logicielle
+  - message: "Software update performed on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "SOFTWARE_UPDATE"
+      - field: host.name
+
+  # Démarrage système
+  - message: "System booted on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "SYSTEM_BOOT"
+      - field: host.name
+
+  # Arrêt système
+  - message: "System shutdown initiated on {host.name}"
+    conditions:
+      - field: event.kind
+        value: "SYSTEM_SHUTDOWN"
+      - field: host.name
+
+  

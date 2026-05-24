@@ -9,7 +9,7 @@ from osir_lib.logger import AppLogger
 
 # TOREMOVE
 import osir_service.agent.AgentService as tasks
-from osir_service.ipc.IpcService import IpcService
+from osir_service.ipc.OsirIpc import OsirIpc
 import osir_service.watchdog.MonitorCase as MonitorCase
 import osir_service.smb.SMBService as SmbMounter
 
@@ -100,7 +100,7 @@ def main():
 
     if args.web:
         logger.info("Launching IPC Service")
-        IpcService(host='0.0.0.0', port=8989).start()
+        OsirIpc(host='0.0.0.0', port=8989).start()
 
         logger.info("Launching web app...")
         cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/OsirWeb.py"])

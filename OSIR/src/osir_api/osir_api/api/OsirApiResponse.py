@@ -1,9 +1,12 @@
 from fastapi import HTTPException
 
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 
+from osir_lib.logger import AppLogger
 
-def handle_response(response: OsirIpcResponse):
+logger = AppLogger(__name__).get_logger()
+
+def handle_response(response: OsirIpcResponse, response_only: bool = False):
     if not response.message:
         response.message = "Everything is working as it should!"
 
@@ -13,4 +16,8 @@ def handle_response(response: OsirIpcResponse):
             status_code=response.status,
             detail=response.response["error"]
         )
+    
+    if response_only:
+        return response.response
+
     return response.model_dump()

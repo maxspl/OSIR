@@ -170,6 +170,9 @@ class ModuleHandler(FileSystemEventHandler):
         self.active_timers: set = set()
         self.timers_lock = threading.Lock()
 
+        # Directory events deferred behind a hold_consumers barrier.
+        self._deferred: dict = {}
+
         self._virtual_dir = (Path(case_path) / 'virtual').resolve()
         self._virtual_dir_str = os.path.abspath(str(Path(case_path) / 'virtual'))
 
@@ -334,11 +337,74 @@ class ModuleHandler(FileSystemEventHandler):
             self._tasks_pushed_by_module.clear()
             return counters
 
+    def _is_barrier_consumer(self, src_abs: str, module_instance: OsirModuleModel) -> bool:
+        """
+        True when this is a directory-input module whose input directory lies
+        under the output directory of a hold_consumers barrier producer.
+        """
+        if module_instance.input.type != "dir":
+            return False
+        if getattr(module_instance.configuration, 'hold_consumers', False):
+            return False
+        for barrier_dir in self._barrier_output_dirs:
+            if self._is_under_or_equal(src_abs, barrier_dir):
+                return True
+        return False
+
+    def _barriers_pending(self) -> bool:
+        """
+        True while at least one hold_consumers barrier producer still has a
+        task in a non-terminal state for this case.
+        """
+        if not self._barrier_modules:
+            return False
+
+        with OsirDb() as db:
+            row = db.execute_query(
+                """
+                SELECT COUNT(*) AS pending_count
+                FROM osir_tasks
+                WHERE case_uuid = %s
+                AND module = ANY(%s)
+                AND processing_status IN ('task_created', 'processing_started')
+                """,
+                (str(self.case_uuid), self._barrier_modules),
+                fetch="fetchone",
+            )
+
+        if not row:
+            return False
+
+        try:
+            pending_count = int(row.get("pending_count", 0)) if isinstance(row, dict) else int(row[0] or 0)
+
+            logger.debug(
+                f"hold_consumers barrier status: "
+                f"{pending_count} pending producer task(s) "
+                f"for modules={self._barrier_modules}"
+            )
+
+            return pending_count > 0
+
+        except Exception as e:
+            logger.warning(f"Unable to parse hold_consumers barrier status: row={row!r}, error={e}")
+            return False
+
     def _compile_rules(self, case_path: Path, module_instances: list[OsirModuleModel]):
         """
         Pre-compile all module rules once at startup.
         """
         case_path_str = str(case_path)
+
+        # hold_consumers barriers: their output dir + module name.
+        self._barrier_modules: list[str] = []
+        self._barrier_output_dirs: list[str] = []
+        for module in module_instances:
+            if getattr(module.configuration, 'hold_consumers', False):
+                self._barrier_modules.append(module.module_name)
+                self._barrier_output_dirs.append(
+                    os.path.abspath(os.path.join(case_path_str, module.module_name))
+                )
 
         for module in module_instances:
             if not (hasattr(module.input, 'paths') and module.input.paths):
@@ -510,7 +576,7 @@ class ModuleHandler(FileSystemEventHandler):
                 with OsirDb() as db:
                     if not db.handler.is_processing_active(self.handler_uuid):
                         with self.timers_lock:
-                            if not self.active_timers:
+                            if not self._deferred and not self.active_timers:
                                 logger.debug("Case snapshot is being saved before exiting...")
                                 db.snapshot.store_case_snapshot(
                                     self.case_uuid,
@@ -524,6 +590,17 @@ class ModuleHandler(FileSystemEventHandler):
                                     db.handler.update(self.handler_uuid, "processing_done")
 
                                 exit()
+
+            # Release directory events deferred behind a hold_consumers
+            # barrier, once every barrier producer task has finished.
+            if self._deferred and not self._barriers_pending():
+                for key, (d_event, d_module) in list(self._deferred.items()):
+                    del self._deferred[key]
+                    logger.debug(
+                        f"{d_module.module_name} hold_consumers barrier cleared, "
+                        f"releasing deferred directory '{d_event.src_path}'"
+                    )
+                    self.handle_directory_event(d_event, d_module)
 
             iteration_duration = time.time() - iteration_start_time
 
@@ -750,6 +827,15 @@ class ModuleHandler(FileSystemEventHandler):
         """
         Processes directory events that match configured patterns and sets up checks for idleness.
         """
+        src_abs = os.path.abspath(event.src_path)
+        if self._is_barrier_consumer(src_abs, module_instance) and self._barriers_pending():
+            self._deferred[(event.src_path, module_instance.module_name)] = (event, module_instance)
+            logger.debug(
+                f"{module_instance.module_name} Directory '{event.src_path}' deferred: "
+                f"hold_consumers barrier still active"
+            )
+            return
+
         self.last_modified_times[event.src_path] = time.time()
         self.last_mtime[event.src_path] = self._get_directory_mtime(event.src_path)
 

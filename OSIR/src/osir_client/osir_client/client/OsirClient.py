@@ -5,7 +5,7 @@ from pydantic import BaseModel, PrivateAttr
 from osir_client.client.OsirCliCase import OsirCliCase
 from osir_lib.logger import AppLogger
 from osir_lib.logger.logger import CustomLogger
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 
 logger: CustomLogger = AppLogger(__name__).get_logger()
 

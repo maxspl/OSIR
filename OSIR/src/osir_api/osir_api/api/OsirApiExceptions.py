@@ -3,9 +3,9 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from osir_api.api.OsirApiMetadata import API_VERSION
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 
-UNEXPECTED_ERROR = "UNEXPECTED ERROR: {error}"
+UNEXPECTED_ERROR = "API - UNEXPECTED ERROR: {error}"
 
 
 class UnexpectedExceptionResponseCore(BaseModel):

@@ -55,57 +55,6 @@ def normalize_osir_path(input_path: str) -> str:
 
     return input_path
 
-
-def get_latest_log_by_task_id(target_task_id: str, file_path: str = "/OSIR/share/log/task_traces.jsonl"):
-    """
-        Retrieves the most recent log trace for a specific Task ID by reading the log file in reverse.
-
-        Args:
-            target_task_id (str): The unique identifier of the forensic task.
-            file_path (str): The path to the JSONL trace file.
-
-        Returns:
-            dict: The parsed JSON trace object if found, None otherwise.
-    """
-    if not os.path.exists(file_path):
-        return None
-
-    with open(file_path, 'rb') as f:
-        try:
-            # Move the pointer to the very end of the file
-            f.seek(0, os.SEEK_END)
-            pointer = f.tell()
-            buffer = bytearray()
-
-            while pointer > 0:
-                pointer -= 1
-                f.seek(pointer)
-                char = f.read(1)
-
-                # Check if we hit a newline or the start of the file
-                if char == b'\n' and buffer:
-                    # Decode and validate the JSON line
-                    line = buffer[::-1].decode('utf-8')
-                    trace = json.loads(line)
-                    if trace.get("task_id") == target_task_id:
-                        return trace  # Found the most recent entry, stop search
-                    buffer = bytearray()
-                elif char != b'\n':
-                    buffer.extend(char)
-
-            # Verification for the first line of the file (no leading newline)
-            if buffer:
-                line = buffer[::-1].decode('utf-8')
-                trace = json.loads(line)
-                if trace.get("task_id") == target_task_id:
-                    return trace
-
-        except Exception as e:
-            logger.error(f"Reverse log read error: {e}")
-
-    return None
-
-
 def remove_placeholders(text: str) -> str:
     """
     Replaces all placeholders {key} with an empty string.

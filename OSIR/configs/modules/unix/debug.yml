@@ -28,3 +28,12 @@ endpoint:
     - r"extract_uac\/(.*?)\/"
   default: "UNKNOWN"
 
+splunk:
+  'linux:debug':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:debug'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%b %d %H:%M:%S"
+    artifact: "debug"

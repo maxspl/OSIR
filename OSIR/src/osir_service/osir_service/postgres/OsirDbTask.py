@@ -162,7 +162,7 @@ class OsirDbTask:
         case_uuid: Optional[str] = None,
         processing_status: Optional[Union[str, List[str]]] = None,
         exclude_status: Optional[Union[str, List[str]]] = None
-    ) -> List:
+    ) -> List[OsirDbTaskModel]:
         """
         Lists tasks based on filtering criteria such as case UUID or status.
 
@@ -187,7 +187,7 @@ class OsirDbTask:
                 exclude_status = to_list(exclude_status)
 
             query = """
-                SELECT task_id, case_uuid, agent, module, input, output, processing_status, timestamp 
+                SELECT task_id, case_uuid, agent, module, input, output, processing_status, timestamp
                 FROM osir_tasks
             """
             conditions = []
@@ -210,6 +210,7 @@ class OsirDbTask:
             if conditions:
                 query += " WHERE " + " AND ".join(conditions)
 
+            query += " ORDER BY timestamp DESC LIMIT 200"
             rows = self.db.execute_query(query, params, fetch="fetchall")
 
             return [OsirDbTaskModel.model_validate(x) for x in rows]

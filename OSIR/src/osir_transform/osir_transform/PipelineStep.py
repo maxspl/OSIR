@@ -26,9 +26,10 @@ class Stage(BaseModel):
                     mapping=t.get("mapping", {}),
                     dictionary=t.get("dictionary", {}),
                     fallback=t.get("fallback"),
+                    filter=raw.get("filter")
                 ))
             elif "delete" in raw:
-                result.append(DeleteAction(delete=raw["delete"]))
+                result.append(DeleteAction(delete=raw["delete"],filter=raw.get("filter")))
             elif "custom" in raw:
-                result.append(CustomAction(custom=raw["custom"]))
+                result.append(CustomAction(custom=raw["custom"],filter=raw.get("filter")))
         return result

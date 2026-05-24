@@ -41,9 +41,9 @@ The `CeleryWorker` class manages distributed forensic task execution:
 - `windows_worker_multithread`: Multi-threaded Windows workers
 - `*_disk_only`: Workers for disk-intensive operations (standalone mode only)
 
-### 2. IPC Service (`ipc/IpcService.py`)
+### 2. IPC Service (`ipc/OsirIpc.py`)
 
-The `IpcService` class provides JSON-based inter-process communication:
+The `OsirIpc` class provides JSON-based inter-process communication:
 
 **Supported Actions:**
 - `socket_on`: Test connection readiness
@@ -58,9 +58,9 @@ The `IpcService` class provides JSON-based inter-process communication:
 
 **Usage:**
 ```python
-from osir_service.ipc.IpcService import IpcService
+from osir_service.ipc.OsirIpc import OsirIpc
 
-ipc = IpcService(host="localhost", port=5000)
+ipc = OsirIpc(host="localhost", port=5000)
 ipc.start()  # Starts listener in background thread
 ```
 
@@ -128,11 +128,11 @@ task_id = TaskService.push_task(
 ### Using IPC Service
 
 ```python
-from osir_service.ipc.IpcService import IpcService
+from osir_service.ipc.OsirIpc import OsirIpc
 from osir_service.ipc.OsirIpc import OsirIpc
 
 # Create IPC service
-ipc = IpcService(host="localhost", port=5000)
+ipc = OsirIpc(host="localhost", port=5000)
 ipc.start()
 
 # Create request

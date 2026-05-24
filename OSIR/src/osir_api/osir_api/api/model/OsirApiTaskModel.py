@@ -1,5 +1,5 @@
 from typing import List
-from osir_service.ipc.OsirIpcModel import OsirIpcResponse
+from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 
 """ 

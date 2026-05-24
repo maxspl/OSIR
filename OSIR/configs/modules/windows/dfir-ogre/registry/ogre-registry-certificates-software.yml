@@ -1,0 +1,54 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parsing of x509_cert - using ANSSI DFIR OGRE
+  os: windows
+
+configuration:
+  module: ogre-registry-certificates-software
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+    - external
+  processor_os: unix
+
+tool: 
+  path: /app/ogre-venv/bin/dfir-ogre
+  cmd: >-
+    plugin
+    --filename "{input_file}"
+    --computer_name "{endpoint_name}"
+    --output_folder "{output_dir}"
+    --plugin_config "/ogre/dfir-ogre-plugin-windows/configuration/registry/certificates_software.xml"
+    --output_format jsonl
+    --output_date_format iso_utc
+  source: https://github.com/ANSSI-FR/dfir-ogre
+  version: 2.0.0-beta1
+
+input:
+  type: file
+  paths:
+    - r".*/SOFTWARE$"
+
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+    - r"\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'windows:ogre:registry_certificates_software':
+    name_rex: '\.jsonl$'
+    path_suffix: 'ogre-registry-certificates-software'
+    sourcetype: 'windows:ogre:registry_certificates_software'
+    host_rex: ([\w\.-]+)--
+    artifact: "hive"
+    timestamp_path:
+      - "not_valid_before" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

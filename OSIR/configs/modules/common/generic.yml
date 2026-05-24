@@ -1,0 +1,29 @@
+metadata:
+  version: "2.0"
+  author: Typ
+  description: Parsing Generic Log File linux into JSONL
+  os: unix
+
+configuration:
+  module: generic
+  type: process
+  disk_only: true
+  no_multithread: true
+  processor_type:
+  - internal
+  processor_os: unix
+
+input:
+  type: file
+  name: (?:auth\.log)
+  path: var/log/
+
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+
+endpoint: 
+  patterns:
+    - r"extract_uac\/(.*?)\/"
+  default: "UNKNOWN"

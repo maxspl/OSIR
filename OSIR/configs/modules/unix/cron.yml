@@ -32,7 +32,7 @@ splunk:
   'linux:cron':
     name_rex: ^cron.*?\.jsonl$
     sourcetype: 'linux:cron'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "_time"
     timestamp_format: "%b %d %H:%M:%S"

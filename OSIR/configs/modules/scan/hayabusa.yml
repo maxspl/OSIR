@@ -21,7 +21,7 @@ tool:
 
 input:
   type: dir
-  path: C/Windows/System32/winevt/Logs/
+  path: Windows/System32/winevt/Logs/
 
 output:
   type: single_file
@@ -37,9 +37,11 @@ splunk:
   'hayabusa':
     name_rex: \.jsonl$
     path_suffix: 'hayabusa'
-    sourcetype: '_json'
-    host_path: "Computer"
-    timestamp_path: 
-        - "Timestamp"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f %z"
+    sourcetype: 'hayabusa'
+    host_rex: ([\w\.-]+)--
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "hayabusa"
+    normalize:
+      - ecs_normalize/scan/hayabusa.vrl

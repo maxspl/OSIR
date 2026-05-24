@@ -1,0 +1,59 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parsing of browser_download_history - using ANSSI DFIR OGRE
+  os: windows
+
+configuration:
+  module: ogre-firefox-download-history
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+    - external
+  processor_os: unix
+
+tool: 
+  path: /app/ogre-venv/bin/dfir-ogre
+  cmd: >-
+    plugin
+    --filename "{input_file}"
+    --computer_name "{endpoint_name}"
+    --output_folder "{output_dir}"
+    --plugin_config "/ogre/dfir-ogre-plugin-windows/configuration/firefox_download_history.xml"
+    --output_format jsonl
+    --output_date_format iso_utc
+  source: https://github.com/ANSSI-FR/dfir-ogre
+  version: 2.0.0-beta1
+
+input:
+  type: file
+  paths:
+    - r"(?i).*/firefox/.*/places\.sqlite$"
+
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}-{user_name}--{module}-"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+    - r"\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+user: 
+  patterns:
+    - r"Users\/([^\/]+)"
+  default: "UNKNOWN"
+
+splunk:
+  'windows:ogre:firefox_download_history':
+    name_rex: '\.jsonl$'
+    path_suffix: 'ogre-firefox-download-history'
+    sourcetype: 'windows:ogre:firefox_download_history'
+    host_rex: ([\w\.-]+)--
+    artifact: "firefox"
+    timestamp_path:
+      - "start_time" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

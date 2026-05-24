@@ -38,7 +38,8 @@ RUN set -eux; \
         graphviz \
         git \
         age \
-        software-properties-common; \
+        software-properties-common \
+        pkg-config; \
     \
     # add Deadsnakes PPA for Python 3.12
     add-apt-repository -y ppa:deadsnakes/ppa && \
@@ -73,6 +74,15 @@ RUN set -eux; \
     wget -qO /tmp/libssl1.1.deb \
         http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
     dpkg -i /tmp/libssl1.1.deb && rm /tmp/libssl1.1.deb
+
+# - Install DFIR-OGRE
+RUN set -eux; \
+    mkdir -p /ogre; \
+    git clone --depth 1 https://github.com/ANSSI-FR/dfir-ogre.git /ogre/dfir-ogre; \
+    git clone --depth 1 https://github.com/ANSSI-FR/dfir-ogre-plugin-windows.git /ogre/dfir-ogre-plugin-windows; \
+    curl https://sh.rustup.rs -sSf | sh -s -- -y; \
+    uv venv /app/ogre-venv; \
+    uv pip install --python /app/ogre-venv/bin/python --no-cache /ogre/dfir-ogre;
 
 # - Copy entry point that install python libs from mounted volume
 COPY sources/agent_entrypoint.sh /usr/local/bin/entrypoint.sh

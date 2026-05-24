@@ -1,0 +1,54 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parsing of antifishing_file - using ANSSI DFIR OGRE
+  os: windows
+
+configuration:
+  module: ogre-registry-antifishing-file
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+    - external
+  processor_os: unix
+
+tool: 
+  path: /app/ogre-venv/bin/dfir-ogre
+  cmd: >-
+    plugin
+    --filename "{input_file}"
+    --computer_name "{endpoint_name}"
+    --output_folder "{output_dir}"
+    --plugin_config "/ogre/dfir-ogre-plugin-windows/configuration/registry/antifishing_file.xml"
+    --output_format jsonl
+    --output_date_format iso_utc
+  source: https://github.com/ANSSI-FR/dfir-ogre
+  version: 2.0.0-beta1
+
+input:
+  type: file
+  paths:
+    - r".*/Amcache\.hve$"
+    
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+    - r"\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'windows:ogre:registry_antifishing_file':
+    name_rex: '\.jsonl$'
+    path_suffix: 'ogre-registry-antifishing-file'
+    sourcetype: 'windows:ogre:registry_antifishing_file'
+    host_rex: ([\w\.-]+)--
+    artifact: "hive"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
