@@ -1,0 +1,51 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parsing of listdlls - using ANSSI DFIR OGRE
+  os: windows
+
+configuration:
+  module: ogre-list-dll
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+    - external
+  processor_os: unix
+
+tool: 
+  path: /app/ogre-venv/bin/dfir-ogre
+  cmd: >-
+    plugin
+    --filename "{input_file}"
+    --computer_name "{endpoint_name}"
+    --output_folder "{output_dir}"
+    --plugin_config "/ogre/dfir-ogre-plugin-windows/configuration/list_dll.xml"
+    --output_format jsonl
+    --output_date_format iso_utc
+  source: https://github.com/ANSSI-FR/dfir-ogre
+  version: 2.0.0-beta1
+
+input:
+  type: file
+  paths:
+    - r"(?i)Listdlls.*txt$"
+
+output:
+  type: multiple_files
+  format: jsonl
+  output_prefix: "{endpoint_name}--{module}-"
+
+endpoint: 
+  patterns:
+    - r"restore_fs\/(.*?)\/"
+    - r"\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'windows:ogre:list_dll':
+    name_rex: '\.jsonl$'
+    path_suffix: 'ogre-list-dll'
+    sourcetype: 'windows:ogre:list_dll'
+    host_rex: ([\w\.-]+)--
+    artifact: "dll"
