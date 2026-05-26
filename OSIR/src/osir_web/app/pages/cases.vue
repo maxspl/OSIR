@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { TableRow } from '@nuxt/ui'
-import { useOsirApi } from '~/api'
 import { useCaseStore } from '~/stores/case'
 import { useModuleStore } from '~/stores/module'
 import { useProfileStore } from '~/stores/profile'
@@ -11,15 +10,12 @@ import OrchestrationFooter from '~/components/orchestration/OrchestrationFooter.
 
 useSeoMeta({ title: 'OSIR — Profile & Modules' })
 
-// ── Stores & API ──────────────────────────────────────────────────────────────
-const api = useOsirApi()
+// ── Stores ────────────────────────────────────────────────────────────────────
 const caseStore = useCaseStore()
 const moduleStore = useModuleStore()
 const profileStore = useProfileStore()
 
 // ── Initial data fetch ────────────────────────────────────────────────────────
-const { data: casesData } = await useAsyncData('cases', () => api.case.list())
-
 await Promise.all([
   caseStore.fetchCases(),
   moduleStore.fetchModules(),
@@ -27,8 +23,14 @@ await Promise.all([
 ])
 moduleStore.fetchModuleInfos()
 
-onMounted(() => moduleStore.startPolling(50000))
-onUnmounted(() => moduleStore.stopPolling())
+onMounted(() => {
+  caseStore.startPolling(50000)
+  moduleStore.startPolling(50000)
+})
+onUnmounted(() => {
+  caseStore.stopPolling()
+  moduleStore.stopPolling()
+})
 
 // ── State ─────────────────────────────────────────────────────────────────────
 const selectedCase = ref<string | undefined>()
@@ -40,10 +42,6 @@ const reprocessFile = ref(false)
 const rowSelection = ref<Record<string, boolean>>({})
 
 // ── Options ───────────────────────────────────────────────────────────────────
-const caseOptions = computed(() =>
-  (casesData.value?.response ?? []).map(c => ({ label: c.name, value: c.name }))
-)
-
 const profileOptions = computed(() => [...profileStore.profileOptions])
 
 function getBasename(modulePath: string): string {
@@ -156,7 +154,6 @@ const { isSubmitting, handleSubmit } = useOrchestrationSubmit(
         v-model:selected-modules="selectedModules"
         v-model:modules-to-add="modulesToAdd"
         v-model:modules-to-remove="modulesToRemove"
-        :case-options="caseOptions"
         :profile-options="profileOptions"
         :module-options="moduleStore.moduleOptions"
         :non-profile-module-options="nonProfileModuleOptions"

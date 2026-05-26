@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import { useCaseStore } from '~/stores/case'
+
 interface Option {
   label: string
   value: string
 }
 
 const props = defineProps<{
-  caseOptions: Option[]
   profileOptions: Option[]
   moduleOptions: Option[]
   nonProfileModuleOptions: Option[]
   inProfileModuleOptions: Option[]
 }>()
+
+const caseStore = useCaseStore()
 
 const selectedCase = defineModel<string | undefined>('selectedCase')
 const selectedProfile = defineModel<string | null>('selectedProfile')
@@ -44,12 +47,13 @@ const emit = defineEmits<{
         </div>
         <USelectMenu
           v-model="selectedCase"
-          :items="caseOptions"
+          :items="caseStore.caseOptions"
           value-key="value"
           label-key="label"
           placeholder="Select a case…"
           size="xl"
           class="w-full"
+          :loading="caseStore.isLoading"
         />
       </div>
     </div>

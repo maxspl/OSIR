@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import argparse
+from pathlib import Path
+import subprocess
 import sys
 import threading
 import os
@@ -47,7 +49,7 @@ def parse_args():
     parser.add_argument('--module_remove', type=comma_separated_strings, default=[], help='Remove specific modules from the list.')
     parser.add_argument('--agent', action='store_true', help='Launch the agent and wait for processing tasks from master.')
     parser.add_argument('--case', type=str, help='Name of the case in /OSIR/share/cases directory.')
-    parser.add_argument('--master', action='store_true', help='Launch the master IPC.')
+    parser.add_argument('--web', action='store_true', help='Launch the master IPC.')
 
     args = parser.parse_args()
 
@@ -96,11 +98,31 @@ def main():
         worker = tasks.CeleryWorker()
         worker.start_worker()
 
-    if args.master:
+    if args.web:
         logger.info("Launching IPC Service")
         osir_ipc = OsirIpc(host='0.0.0.0', port=8989).start()
         try:
-            # Wait for the _setup_handler() thread to finish before exiting the code
+            NUXT_DIR = "/OSIR/OSIR/src/osir_web/"
+
+            if os.path.isdir(NUXT_DIR):
+                logger.info("Installing Nuxt dependencies...")
+
+                node_modules_path = os.path.join(NUXT_DIR, "node_modules")
+                if not os.path.isdir(node_modules_path):
+                    subprocess.run(["npm", "install", "--prefer-offline"], cwd=NUXT_DIR, check=True)
+
+                build_path = os.path.join(NUXT_DIR, ".output/server/index.mjs")
+                if not os.path.isfile(build_path):
+                    logger.info("Building Nuxt app...")
+                    subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                else:
+                    logger.info("Nuxt app already built, skipping build.")
+
+                logger.info("Starting Nuxt server (background)...")
+                nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR)
+            else:
+                logger.warning(f"{NUXT_DIR} not found, skipping Nuxt.")
+
             osir_ipc.join()
         except KeyboardInterrupt:
             logger.info("Keyboard interrupt received. Stopping...")

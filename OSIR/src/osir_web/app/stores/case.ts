@@ -8,6 +8,7 @@ export interface CaseState {
   currentCase: OsirDbCaseModel | null
   isLoading: boolean
   error: string | null
+  pollInterval: ReturnType<typeof setInterval> | null
 }
 
 export const useCaseStore = defineStore('case', {
@@ -16,11 +17,12 @@ export const useCaseStore = defineStore('case', {
     currentCase: null,
     isLoading: false,
     error: null,
+    pollInterval: null,
   }),
 
   getters: {
     caseOptions: (state): SelectMenuItem[] =>
-      state.cases.map(c => ({ label: c.name, value: c.case_uuid })),
+      state.cases.map(c => ({ label: c.name, value: c.name })),
   },
 
   actions: {
@@ -52,6 +54,24 @@ export const useCaseStore = defineStore('case', {
         this.setError('Failed to fetch cases')
       } finally {
         this.setLoading(false)
+      }
+    },
+
+    async refresh() {
+      this.setCases([])
+      await this.fetchCases()
+    },
+
+    startPolling(ms = 5000) {
+      this.refresh()
+      this.stopPolling()
+      this.pollInterval = setInterval(() => this.refresh(), ms)
+    },
+
+    stopPolling() {
+      if (this.pollInterval) {
+        clearInterval(this.pollInterval)
+        this.pollInterval = null
       }
     },
   },
