@@ -1,7 +1,7 @@
 export class OsirClient {
   readonly baseURL: string
 
-  constructor(baseURL = 'http://master-api:8502') {
+  constructor(baseURL = '/proxy') {
     this.baseURL = baseURL
   }
 

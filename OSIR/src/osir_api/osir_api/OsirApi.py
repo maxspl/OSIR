@@ -14,13 +14,12 @@ app = FastAPI(
     description="OSIR API",
     version="1.0"
 )
-app.add_middleware(                                                                                                                   
-    CORSMiddleware,                                                                                                                   
+app.add_middleware(
+    CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,                                                                                                             
     allow_methods=["*"],
-    allow_headers=["*"],                                                                                                                
-)   
+    allow_headers=["*"],
+)
 app.add_exception_handler(UnexpectedException, unexpected_error_handler)
 
 

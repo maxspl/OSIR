@@ -115,7 +115,7 @@ function updateSelectedItems(selected: any[]) {
 }
 
 const driver = new RemoteDriver({
-  baseURL: 'http://localhost:8502/api/files',
+  baseURL: '/proxy/api/files',
   url: {
     list: '/',
     upload: '/upload',

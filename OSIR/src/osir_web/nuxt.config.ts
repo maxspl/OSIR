@@ -27,7 +27,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css', 'highlight.js/styles/atom-one-dark.css'],
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/proxy/**': { proxy: 'http://master-api:8502/**' },
+    '/flower/**': { proxy: 'http://master-flower:5555/**' }
   },
 
   compatibilityDate: '2025-01-15',

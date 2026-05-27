@@ -42,7 +42,7 @@ const workerColumns = [
   { accessorKey: 'heartbeat',       header: 'Last Heartbeat' },
 ]
 
-const flowerUrl = 'http://localhost:5555'
+const flowerUrl = '/flower'
 
 // Helper to get workers from store
 const workers = computed(() => flowerStore.workers)

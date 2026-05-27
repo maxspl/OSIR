@@ -129,15 +129,26 @@ def main():
                 if os.path.isfile(build_path):
                     if source_version != output_version:
                         logger.info(f"Version mismatch: source={source_version}, output={output_version}. Rebuilding...")
-                        subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                        try:
+                            subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                        except subprocess.CalledProcessError as e:
+                            logger.error(f"Nuxt build failed: {e}. Starting with existing build.")
                     else:
                         logger.info("Nuxt app version is up to date, skipping build.")
                 else:
                     logger.info("No existing build found, building Nuxt app...")
-                    subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                    try:
+                        subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                    except subprocess.CalledProcessError as e:
+                        logger.error(f"Nuxt build failed: {e}. IPC service will remain available.")
+                        osir_ipc.join()
+                        return
 
-                logger.info("Starting Nuxt server (background)...")
-                nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR)
+                if os.path.isfile(build_path):
+                    logger.info("Starting Nuxt server (background)...")
+                    nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR)
+                else:
+                    logger.warning("No Nuxt build available, skipping Nuxt server start.")
             else:
                 logger.warning(f"{NUXT_DIR} not found, skipping Nuxt.")
 

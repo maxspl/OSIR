@@ -19,7 +19,7 @@ export class OsirApi {
   readonly module: ModuleApi
   readonly system: SystemApi
 
-  constructor(baseURL = 'http://localhost:8502') {
+  constructor(baseURL = '/proxy') {
     const client = new OsirClient(baseURL)
     this.profile = new ProfileApi(client)
     this.case = new CaseApi(client)
@@ -33,7 +33,7 @@ export class OsirApi {
 
 let _instance: OsirApi | null = null
 
-export function useOsirApi(baseURL = 'http://localhost:8502'): OsirApi {
+export function useOsirApi(baseURL = '/proxy'): OsirApi {
   if (!_instance) _instance = new OsirApi(baseURL)
   return _instance
 }

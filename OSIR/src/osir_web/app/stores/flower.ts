@@ -8,12 +8,12 @@ export interface FlowerWorker {
   active: number
   processed: number
   loadavg: number[]
-  swIdent: string
-  swVer: string
-  swSys: string
+  'sw_ident': string
+  'sw_ver': string
+  'sw_sys': string
   status: boolean
-  workerOnline: number
-  workerHeartbeat: number
+  'worker-online': number
+  'worker-heartbeat': number
   heartbeats: number[]
 }
 
@@ -35,9 +35,7 @@ export interface FlowerWorkerRow {
 
 function mapStatus(worker: FlowerWorker): 'Online' | 'Offline' | 'Heartbeat' {
   if (!worker.status) return 'Offline'
-  // worker-heartbeat is the time since last heartbeat in seconds
-  // If > 60 seconds, it's a heartbeat issue
-  if (worker.workerHeartbeat > 60) return 'Heartbeat'
+  if (worker['worker-heartbeat'] > 60) return 'Heartbeat'
   return 'Online'
 }
 
@@ -66,9 +64,9 @@ function toWorkerRow(worker: FlowerWorker): FlowerWorkerRow {
     heartbeat: formatHeartbeat(lastHeartbeat),
     pid: worker.pid,
     freq: worker.freq.toFixed(1),
-    swIdent: worker.swIdent,
-    swVer: worker.swVer,
-    swSys: worker.swSys,
+    swIdent: worker['sw_ident'],
+    swVer: worker['sw_ver'],
+    swSys: worker['sw_sys'],
     clock: worker.clock,
   }
 }
@@ -93,7 +91,7 @@ export const useFlowerStore = defineStore('flower', {
       this.isLoading = true
       this.error = null
       try {
-        const response = await $fetch<{ data: FlowerWorker[] }>('http://localhost:5555/workers?json=1')
+        const response = await $fetch<{ data: FlowerWorker[] }>('/flower/workers?json=1')
         this.workers = response.data.map(toWorkerRow)
       } catch (e) {
         this.error = 'Failed to fetch workers from Flower API'
