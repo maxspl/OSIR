@@ -27,19 +27,19 @@ output:
   type: single_file
   format: jsonl
   output_dir: "{case_path}/live_response/process"
-  output_file: "{endpoint_name}--{input_file}.jsonl"
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
 splunk:
   'linux:live_response:top':
-    name_rex: \.jsonl$
-    path_suffix: top
+    name_rex: top.*\.jsonl$
+    path_suffix: process
     sourcetype: 'linux:live_response:top'
-    host_rex: _([\w\.-]+)--
+    host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "time"
     timestamp_format: "%H:%M:%S"
