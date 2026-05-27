@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { useCaseStore } from '~/stores/case'
-
-interface Option {
-  label: string
-  value: string
-}
-
-const props = defineProps<{
-  profileOptions: Option[]
-  moduleOptions: Option[]
-  nonProfileModuleOptions: Option[]
-  inProfileModuleOptions: Option[]
-}>()
+import { useProfileStore } from '~/stores/profile'
+import { useModuleStore } from '~/stores/module'
 
 const caseStore = useCaseStore()
+const profileStore = useProfileStore()
+const moduleStore = useModuleStore()
 
 const selectedCase = defineModel<string | undefined>('selectedCase')
 const selectedProfile = defineModel<string | null>('selectedProfile')
@@ -21,9 +13,17 @@ const selectedModules = defineModel<string[]>('selectedModules')
 const modulesToAdd = defineModel<string[]>('modulesToAdd')
 const modulesToRemove = defineModel<string[]>('modulesToRemove')
 
-function getBasename(modulePath: string): string {
-  return modulePath.split('/').pop() || modulePath
-}
+const profileModules = computed(() =>
+  selectedProfile.value ? (profileStore.profileInfoMap[selectedProfile.value]?.modules ?? []) : []
+)
+
+const nonProfileModuleOptions = computed(() =>
+  moduleStore.getNonProfileModuleOptions(profileModules.value)
+)
+
+const inProfileModuleOptions = computed(() =>
+  moduleStore.getInProfileModuleOptions(profileModules.value)
+)
 
 function onModulesUpdate(val: string[]) {
   selectedModules.value = val
@@ -69,7 +69,7 @@ const emit = defineEmits<{
         </div>
         <USelectMenu
           v-model="selectedProfile"
-          :items="profileOptions"
+          :items="profileStore.profileOptions"
           value-key="value"
           label-key="label"
           placeholder="Select a profile…"
@@ -77,6 +77,7 @@ const emit = defineEmits<{
           class="w-full"
           clear
           clear-icon="i-lucide-trash"
+          :loading="profileStore.isLoading"
         />
       </div>
     </div>
@@ -98,13 +99,14 @@ const emit = defineEmits<{
           </div>
           <USelectMenu
             :model-value="selectedModules"
-            :items="moduleOptions"
+            :items="moduleStore.moduleOptions"
             value-key="value"
             label-key="label"
             multiple
             placeholder="Select modules…"
             size="xl"
             class="w-full"
+            :loading="moduleStore.isLoading"
             @update:model-value="onModulesUpdate"
           >
             <template #default="{ modelValue }">
@@ -112,7 +114,7 @@ const emit = defineEmits<{
                 <UBadge
                   v-for="v in (modelValue as string[]).slice(0, 5)"
                   :key="v"
-                  :label="getBasename(v)"
+                  :label="moduleStore.getBasename(v)"
                   color="primary"
                   variant="solid"
                   size="md"
@@ -160,13 +162,14 @@ const emit = defineEmits<{
               placeholder="Select modules to add…"
               size="lg"
               class="w-full"
+              :loading="moduleStore.isLoading"
             >
               <template #default="{ modelValue }">
                 <div v-if="modelValue?.length" class="flex items-center gap-1 flex-wrap">
                   <UBadge
                     v-for="v in (modelValue as string[]).slice(0, 5)"
                     :key="v"
-                    :label="getBasename(v)"
+                    :label="moduleStore.getBasename(v)"
                     color="primary"
                     variant="solid"
                     size="md"
@@ -203,13 +206,14 @@ const emit = defineEmits<{
               placeholder="Select modules to remove…"
               size="lg"
               class="w-full"
+              :loading="moduleStore.isLoading"
             >
               <template #default="{ modelValue }">
                 <div v-if="modelValue?.length" class="flex items-center gap-1 flex-wrap">
                   <UBadge
                     v-for="v in (modelValue as string[]).slice(0, 5)"
                     :key="v"
-                    :label="getBasename(v)"
+                    :label="moduleStore.getBasename(v)"
                     color="primary"
                     variant="solid"
                     size="md"

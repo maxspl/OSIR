@@ -26,10 +26,12 @@ moduleStore.fetchModuleInfos()
 onMounted(() => {
   caseStore.startPolling(50000)
   moduleStore.startPolling(50000)
+  profileStore.startPolling(50000)
 })
 onUnmounted(() => {
   caseStore.stopPolling()
   moduleStore.stopPolling()
+  profileStore.stopPolling()
 })
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -41,13 +43,6 @@ const modulesToRemove = ref<string[]>([])
 const reprocessFile = ref(false)
 const rowSelection = ref<Record<string, boolean>>({})
 
-// ── Options ───────────────────────────────────────────────────────────────────
-const profileOptions = computed(() => [...profileStore.profileOptions])
-
-function getBasename(modulePath: string): string {
-  return modulePath.split('/').pop() || modulePath
-}
-
 type ModuleModel = { module_path: string; description: string; processor: string }
 
 const tableRows = computed<ModuleModel[]>(() =>
@@ -58,23 +53,7 @@ const tableRows = computed<ModuleModel[]>(() =>
   }))
 )
 
-const profileModules = computed(() =>
-  selectedProfile.value ? (profileStore.profileInfoMap[selectedProfile.value]?.modules ?? []) : []
-)
 
-const nonProfileModuleOptions = computed(() => {
-  const profileBasenames = new Set(profileModules.value.map(getBasename))
-  return moduleStore.modules
-    .filter(m => !profileBasenames.has(getBasename(m)))
-    .map(m => ({ label: m, value: m }))
-})
-
-const inProfileModuleOptions = computed(() => {
-  const profileBasenames = new Set(profileModules.value.map(getBasename))
-  return moduleStore.modules
-    .filter(m => profileBasenames.has(getBasename(m)))
-    .map(m => ({ label: m, value: m }))
-})
 
 // ── Profile watch ─────────────────────────────────────────────────────────────
 watch(selectedProfile, async (name) => {
@@ -86,8 +65,7 @@ watch(selectedProfile, async (name) => {
     return
   }
   await profileStore.fetchProfileInfo(name)
-  const profileBasenames = new Set((profileStore.profileInfoMap[name]?.modules ?? []).map(getBasename))
-  selectedModules.value = moduleStore.modules.filter(m => profileBasenames.has(getBasename(m)))
+  selectedModules.value = moduleStore.getInProfileModuleOptions(profileStore.profileInfoMap[name]?.modules ?? []).map(o => o.value)
   modulesToAdd.value = []
   modulesToRemove.value = []
   selectByPath(selectedModules.value)
@@ -154,10 +132,6 @@ const { isSubmitting, handleSubmit } = useOrchestrationSubmit(
         v-model:selected-modules="selectedModules"
         v-model:modules-to-add="modulesToAdd"
         v-model:modules-to-remove="modulesToRemove"
-        :profile-options="profileOptions"
-        :module-options="moduleStore.moduleOptions"
-        :non-profile-module-options="nonProfileModuleOptions"
-        :in-profile-module-options="inProfileModuleOptions"
         @select-by-path="selectByPath"
       />
 

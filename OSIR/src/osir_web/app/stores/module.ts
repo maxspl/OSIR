@@ -28,6 +28,24 @@ export const useModuleStore = defineStore('module', {
   },
 
   actions: {
+    getBasename(modulePath: string): string {
+      return modulePath.split('/').pop() || modulePath
+    },
+
+    getNonProfileModuleOptions(profileModules: string[]): SelectMenuItem[] {
+      const profileBasenames = new Set(profileModules.map(this.getBasename))
+      return this.modules
+        .filter(m => !profileBasenames.has(this.getBasename(m)))
+        .map(m => ({ label: m, value: m }))
+    },
+
+    getInProfileModuleOptions(profileModules: string[]): SelectMenuItem[] {
+      const profileBasenames = new Set(profileModules.map(this.getBasename))
+      return this.modules
+        .filter(m => profileBasenames.has(this.getBasename(m)))
+        .map(m => ({ label: m, value: m }))
+    },
+
     setLoading(loading: boolean) {
       this.isLoading = loading
     },
