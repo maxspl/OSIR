@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import json
 from pathlib import Path
 import subprocess
 import sys
@@ -99,6 +100,14 @@ def main():
         worker.start_worker()
 
     if args.web:
+        def get_version_from_package_json(path):
+            """Lit la version dans un fichier package.json."""
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f).get("version", "0.0.0")
+            except (FileNotFoundError, json.JSONDecodeError):
+                return None
+
         logger.info("Launching IPC Service")
         osir_ipc = OsirIpc(host='0.0.0.0', port=8989).start()
         try:
@@ -112,11 +121,20 @@ def main():
                     subprocess.run(["npm", "install", "--prefer-offline"], cwd=NUXT_DIR, check=True)
 
                 build_path = os.path.join(NUXT_DIR, ".output/server/index.mjs")
-                if not os.path.isfile(build_path):
-                    logger.info("Building Nuxt app...")
-                    subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                source_package_json = os.path.join(NUXT_DIR, "package.json")
+                output_package_json = os.path.join(NUXT_DIR, ".output/server/package.json")
+                source_version = get_version_from_package_json(source_package_json)
+                output_version = get_version_from_package_json(output_package_json)
+
+                if os.path.isfile(build_path):
+                    if source_version != output_version:
+                        logger.info(f"Version mismatch: source={source_version}, output={output_version}. Rebuilding...")
+                        subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
+                    else:
+                        logger.info("Nuxt app version is up to date, skipping build.")
                 else:
-                    logger.info("Nuxt app already built, skipping build.")
+                    logger.info("No existing build found, building Nuxt app...")
+                    subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
 
                 logger.info("Starting Nuxt server (background)...")
                 nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR)
