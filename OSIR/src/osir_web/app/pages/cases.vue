@@ -40,7 +40,7 @@ const selectedProfile = ref<string | null>(null)
 const selectedModules = ref<string[]>([])
 const modulesToAdd = ref<string[]>([])
 const modulesToRemove = ref<string[]>([])
-const reprocessFile = ref(false)
+const reprocessFile = ref(true)
 const rowSelection = ref<Record<string, boolean>>({})
 
 type ModuleModel = { module_path: string; description: string; processor: string }
