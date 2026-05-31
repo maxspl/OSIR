@@ -191,20 +191,21 @@ function onSelectedChange(val: TreeItem[]) {
     <div
       ref="dropdownRef"
       v-if="isOpen"
-      class="absolute z-50 bg-(--ui-bg-elevated) border border-(--ui-border) rounded-lg shadow-lg max-h-[300px] overflow-y-auto"
+      class="absolute z-50 bg-default border border-default rounded-lg shadow-lg max-h-[300px] overflow-y-auto divide-y divide-default"
       :class="dropdownDirection === 'bottom' ? 'mt-1' : 'bottom-full mb-1'"
       :style="{ width: triggerWidth ? `${triggerWidth}px` : undefined }"
     >
 
       <!-- Search input -->
-      <div class="px-3 py-2 border-b border-(--ui-border)">
-        <UInput
+      <div class="relative w-full border-b border-default">
+        <input
           v-model="searchQuery"
-          placeholder="Search..."
-          size="sm"
-          class="w-full"
+          type="text"
+          placeholder="Search…"
+          autocomplete="off"
           autofocus
-          :loading="loading"
+          class="w-full rounded-md border-0 appearance-none placeholder:(--ui-text-dimmed) focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-(--ui-text-highlighted) bg-transparent"
+          :disabled="loading"
         />
       </div>
 
