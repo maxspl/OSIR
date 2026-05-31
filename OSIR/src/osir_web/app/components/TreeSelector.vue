@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import type { TreeItemSelectEvent } from 'reka-ui'
 import type { TreeItem } from '@nuxt/ui'
 
@@ -17,9 +17,25 @@ const emit = defineEmits<{
 // ── State ────────────────────────────────────────────────────────────────────
 const isOpen = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
+const containerRef = ref<HTMLElement | null>(null)
 const triggerWidth = ref(200)
 const searchQuery = ref('')
 const expandedKeys = ref<string[]>([])
+
+// ── Click outside handler ────────────────────────────────────────────────────
+function handleClickOutside(event: MouseEvent) {
+  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 // ── Computed ─────────────────────────────────────────────────────────────────
 function findSelectedItems(items: TreeItem[], values: string[]): TreeItem[] {
@@ -104,7 +120,7 @@ function onSelectedChange(val: TreeItem[]) {
 </script>
 
 <template>
-  <div class="relative w-full flex-1 min-w-0">
+  <div ref="containerRef" class="relative w-full flex-1 min-w-0">
     <!-- Trigger -->
     <button
       ref="triggerRef"
@@ -171,6 +187,7 @@ function onSelectedChange(val: TreeItem[]) {
           :model-value="selected"
           :items="filteredItems"
           :expanded="expandedKeys"
+          size="xl"
           multiple
           bubble-select
           propagate-select
