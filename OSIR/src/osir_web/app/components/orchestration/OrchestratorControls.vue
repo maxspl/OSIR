@@ -1,11 +1,95 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+import type { TreeItem } from '@nuxt/ui'
 import { useCaseStore } from '~/stores/case'
 import { useProfileStore } from '~/stores/profile'
 import { useModuleStore } from '~/stores/module'
+import TreeSelector from '~/components/TreeSelector.vue'
 
 const caseStore = useCaseStore()
 const profileStore = useProfileStore()
 const moduleStore = useModuleStore()
+
+// ── Helper: Build tree from module paths ────────────────────────────────
+function buildTreeFromPaths(paths: string[]): TreeItem[] {
+  const categorizedPaths = paths.filter(p => p.includes('/'))
+  const basicPaths = paths.filter(p => !p.includes('/'))
+
+  // Track all labels globally across the entire tree to detect duplicates
+  const allLabels = new Set<string>()
+
+  // Build categorized tree
+  const categorized: TreeItem[] = []
+  if (categorizedPaths.length > 0) {
+    const root: TreeItem = { label: 'main', value: 'root', children: [] }
+
+    for (const path of categorizedPaths) {
+      const parts = path.split('/')
+      let current = root
+
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i]
+        
+        const existing = current.children?.find(c => c.label === part)
+
+        if (existing) {
+          current = existing
+        } else {
+          const isLeaf = i === parts.length - 1
+          let finalLabel = part
+          
+          // Check if this label already exists anywhere in the tree
+          if (allLabels.has(part)) {
+            // Append parent name in parentheses
+            finalLabel = `${part} (${current.label})`
+          }
+          
+          allLabels.add(part)
+          
+          const node: TreeItem = {
+            label: finalLabel,
+            value: path,
+            children: isLeaf ? undefined : [],
+          }
+          // Vérifier que finalLabel n'existe pas déjà comme enfant de current
+          const finalLabelExists = current.children?.some(c => c.label === finalLabel)
+          if (!finalLabelExists) {
+            if (current.children) {
+              current.children.push(node)
+            } else {
+              current.children = [node]
+            }
+            current = node
+          } else {
+            // Si finalLabel existe déjà, utiliser le nœud existant
+            current = current.children!.find(c => c.label === finalLabel)!
+          }
+        }
+      }
+    }
+
+    if (root.children) {
+      categorized.push(...root.children)
+    }
+  }
+
+  // Build Basic category
+  const basic: TreeItem[] = []
+  if (basicPaths.length > 0) {
+    basic.push({
+      label: 'Basic',
+      value: 'basic',
+      children: basicPaths.map(p => ({
+        label: p,
+        value: p,
+      })),
+    })
+  }
+
+  return [...basic, ...categorized]
+}
+
+const treeItems = computed<TreeItem[]>(() => buildTreeFromPaths(moduleStore.modules))
 
 const selectedCase = defineModel<string | undefined>('selectedCase')
 const selectedProfile = defineModel<string | null>('selectedProfile')
@@ -97,40 +181,13 @@ const emit = defineEmits<{
             <UIcon name="i-lucide-list-checks" class="text-primary w-4 h-4 shrink-0" />
             <span class="text-sm font-semibold text-muted tracking-wide uppercase">Modules</span>
           </div>
-          <USelectMenu
-            :model-value="selectedModules"
-            :items="moduleStore.moduleOptions"
-            value-key="value"
-            label-key="label"
-            multiple
-            placeholder="Select modules…"
-            size="xl"
-            class="w-full"
+          <TreeSelector
+            v-model="selectedModules"
+            :items="treeItems"
             :loading="moduleStore.isLoading"
+            placeholder="Select modules…"
             @update:model-value="onModulesUpdate"
-          >
-            <template #default="{ modelValue }">
-              <div v-if="modelValue?.length" class="flex items-center gap-1 flex-wrap">
-                <UBadge
-                  v-for="v in (modelValue as string[]).slice(0, 5)"
-                  :key="v"
-                  :label="moduleStore.getBasename(v)"
-                  color="primary"
-                  variant="solid"
-                  size="md"
-                  class="rounded-full"
-                />
-                <UBadge
-                  v-if="(modelValue as string[]).length > 5"
-                  :label="`+${(modelValue as string[]).length - 5}`"
-                  color="primary"
-                  variant="subtle"
-                  size="md"
-                  class="rounded-full"
-                />
-              </div>
-            </template>
-          </USelectMenu>
+          />
         </div>
       </div>
     </Transition>
