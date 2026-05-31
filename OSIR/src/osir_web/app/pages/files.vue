@@ -6,6 +6,8 @@ import { useModuleStore } from '~/stores/module'
 import { useProfileStore } from '~/stores/profile'
 import { useHandlerStore } from '~/stores/handler'
 import type { PostHandlerAdvancedCreateRequest } from '~/api/types'
+import TreeSelector from '~/components/TreeSelector.vue'
+import { buildTreeFromPaths } from '~/utils/tree'
 
 useSeoMeta({ title: 'OSIR — Files' })
 
@@ -40,20 +42,28 @@ moduleStore.fetchModuleInfos()
 
 const selectedExpanded = ref(false)
 
-const fileAction = ref<string>()
-const folderAction = ref<string>()
-const folderAllFilesAction = ref<string>()
+const fileAction = ref<string[]>([])
+const folderAction = ref<string[]>([])
+const folderAllFilesAction = ref<string[]>([])
 
+const fileModules = computed(() =>
+  moduleStore.modules.filter(m => moduleStore.moduleInfoMap[m]?.input?.type === 'file')
+)
+
+const dirModules = computed(() =>
+  moduleStore.modules.filter(m => moduleStore.moduleInfoMap[m]?.input?.type === 'dir')
+)
+
+const fileModuleTree = computed<TreeItem[]>(() => buildTreeFromPaths(fileModules.value))
+const dirModuleTree = computed<TreeItem[]>(() => buildTreeFromPaths(dirModules.value))
+
+// Keep old options for compatibility if needed
 const fileModuleOptions = computed(() =>
-  moduleStore.modules
-    .filter(m => moduleStore.moduleInfoMap[m]?.input?.type === 'file')
-    .map(m => ({ label: m, value: m }))
+  fileModules.value.map(m => ({ label: m, value: m }))
 )
 
 const dirModuleOptions = computed(() =>
-  moduleStore.modules
-    .filter(m => moduleStore.moduleInfoMap[m]?.input?.type === 'dir')
-    .map(m => ({ label: m, value: m }))
+  dirModules.value.map(m => ({ label: m, value: m }))
 )
 const hostname = ref('UNKNOWN')
 
@@ -74,10 +84,10 @@ async function handleRunOrchestration() {
 
   const request: PostHandlerAdvancedCreateRequest = {
     case_name: selectedCase.value !== 'all' ? selectedCase.value : null,
-    files_modules: fileAction.value != undefined ? fileAction.value : null,
+    files_modules: fileAction.value.length > 0 ? fileAction.value[0] : null,
     files_input: files.length > 0 ? files : null,
-    folders_modules: folderAction.value != undefined ? folderAction.value : null,
-    files_in_folder_modules: folderAllFilesAction.value != undefined ? folderAllFilesAction.value : null,
+    folders_modules: folderAction.value.length > 0 ? folderAction.value[0] : null,
+    files_in_folder_modules: folderAllFilesAction.value.length > 0 ? folderAllFilesAction.value[0] : null,
     folders_input: folders.length > 0 ? folders : null,
     endpoint_name: hostname.value !== 'UNKNOWN' ? hostname.value : null,
   }
@@ -342,21 +352,14 @@ const handlePathChange = (path: string) => {
                     <USeparator />
                     <div class="flex items-center gap-3 px-4 py-3">
                       <span class="text-sm font-medium text-muted shrink-0 w-32">Run on files</span>
-                      <USelectMenu
+                      <TreeSelector
                         v-model="fileAction"
-                        :items="fileModuleOptions"
-                        value-key="value"
-                        label-key="label"
+                        :items="fileModuleTree"
                         placeholder="Module…"
                         size="xl"
                         class="w-full"
-                        clear clear-icon="i-lucide-trash"
-                      >
-                        <template #default="{ modelValue }">
-                          <UBadge v-if="modelValue" :key="modelValue" :label="getBasename(modelValue)" color="primary" variant="solid" size="md" class="rounded-full" />
-                          <span v-else class="text-muted truncate">Module…</span>
-                        </template>
-                      </USelectMenu>
+                        :loading="moduleStore.isLoading"
+                      />
                     </div>
                   </div>
 
@@ -372,39 +375,25 @@ const handlePathChange = (path: string) => {
                     <div class="flex flex-col gap-3 px-4 py-3">
                       <div class="flex items-center gap-3">
                         <span class="text-sm font-medium text-muted shrink-0 w-32">Only on Folder</span>
-                        <USelectMenu
+                        <TreeSelector
                           v-model="folderAction"
-                          :items="dirModuleOptions"
-                          value-key="value"
-                          label-key="label"
+                          :items="dirModuleTree"
                           placeholder="Module…"
                           size="xl"
                           class="w-full"
-                          clear clear-icon="i-lucide-trash"
-                        >
-                          <template #default="{ modelValue }">
-                            <UBadge v-if="modelValue" :key="modelValue" :label="getBasename(modelValue)" color="primary" variant="solid" size="md" class="rounded-full" />
-                            <span v-else class="text-muted truncate">Module…</span>
-                          </template>
-                        </USelectMenu>
+                          :loading="moduleStore.isLoading"
+                        />
                       </div>
                       <div class="flex items-center gap-3">
                         <span class="text-sm font-medium text-muted shrink-0 w-32">All files in folder</span>
-                        <USelectMenu
+                        <TreeSelector
                           v-model="folderAllFilesAction"
-                          :items="fileModuleOptions"
-                          value-key="value"
-                          label-key="label"
+                          :items="fileModuleTree"
                           placeholder="Module…"
                           size="xl"
                           class="w-full"
-                          clear clear-icon="i-lucide-trash"
-                        >
-                          <template #default="{ modelValue }">
-                            <UBadge v-if="modelValue" :key="modelValue" :label="getBasename(modelValue)" color="primary" variant="solid" size="md" class="rounded-full" />
-                            <span v-else class="text-muted truncate">Module…</span>
-                          </template>
-                        </USelectMenu>
+                          :loading="moduleStore.isLoading"
+                        />
                       </div>
                     </div>
                   </div>
@@ -414,7 +403,7 @@ const handlePathChange = (path: string) => {
                       label="Run Orchestration"
                       icon="i-lucide-play"
                       size="xl"
-                      :disabled="selectedItems.length === 0 || (fileAction == undefined && folderAction == undefined && folderAllFilesAction == undefined)"
+                      :disabled="selectedItems.length === 0 || (fileAction.length === 0 && folderAction.length === 0 && folderAllFilesAction.length === 0)"
                       :loading="handlerStore.isLoading"
                       @click="handleRunOrchestration"
                     />
