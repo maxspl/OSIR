@@ -18,9 +18,11 @@ const emit = defineEmits<{
 const isOpen = ref(false)
 const triggerRef = ref<HTMLElement | null>(null)
 const containerRef = ref<HTMLElement | null>(null)
+const dropdownRef = ref<HTMLElement | null>(null)
 const triggerWidth = ref(200)
 const searchQuery = ref('')
 const expandedKeys = ref<string[]>([])
+const dropdownDirection = ref<'top' | 'bottom'>('bottom')
 
 // ── Click outside handler ────────────────────────────────────────────────────
 function handleClickOutside(event: MouseEvent) {
@@ -29,12 +31,44 @@ function handleClickOutside(event: MouseEvent) {
   }
 }
 
+// ── Dropdown position ────────────────────────────────────────────────────────
+function updateDropdownPosition() {
+  if (!triggerRef.value) return
+  
+  const triggerRect = triggerRef.value.getBoundingClientRect()
+  const viewportHeight = window.innerHeight
+  
+  // Space available below and above the trigger
+  const spaceBelow = viewportHeight - triggerRect.bottom
+  const spaceAbove = triggerRect.top
+  
+  // Estimated dropdown height (search bar + tree content)
+  const estimatedDropdownHeight = 300
+  
+  // Open upwards if there's not enough space below
+  dropdownDirection.value = spaceBelow >= estimatedDropdownHeight ? 'bottom' : 'top'
+}
+
+watch(isOpen, (val) => {
+  if (val) {
+    updateDropdownPosition()
+    if (triggerRef.value) {
+      triggerWidth.value = triggerRef.value.getBoundingClientRect().width - 20
+    }
+  }
+  if (!val) {
+    searchQuery.value = ''
+  }
+})
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  window.addEventListener('resize', updateDropdownPosition)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('resize', updateDropdownPosition)
 })
 
 // ── Computed ─────────────────────────────────────────────────────────────────
@@ -86,15 +120,6 @@ function filterTreeItems(items: TreeItem[], query: string): TreeItem[] {
 const filteredItems = computed(() => filterTreeItems(props.items, searchQuery.value))
 
 // ── Reset search when dropdown closes ────────────────────────────────────────
-watch(isOpen, (val) => {
-  if (val && triggerRef.value) {
-    triggerWidth.value = triggerRef.value.getBoundingClientRect().width - 20
-  }
-  if (!val) {
-    searchQuery.value = ''
-  }
-})
-
 watch(searchQuery, () => {
   expandedKeys.value = []
 })
@@ -164,8 +189,10 @@ function onSelectedChange(val: TreeItem[]) {
 
     <!-- Dropdown content -->
     <div
+      ref="dropdownRef"
       v-if="isOpen"
-      class="absolute z-50 mt-1 bg-(--ui-bg-elevated) border border-(--ui-border) rounded-lg shadow-lg max-h-96 overflow-y-auto"
+      class="absolute z-50 bg-(--ui-bg-elevated) border border-(--ui-border) rounded-lg shadow-lg max-h-[300px] overflow-y-auto"
+      :class="dropdownDirection === 'bottom' ? 'mt-1' : 'bottom-full mb-1'"
       :style="{ width: triggerWidth ? `${triggerWidth}px` : undefined }"
     >
 
