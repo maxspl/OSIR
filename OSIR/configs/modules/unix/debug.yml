@@ -25,6 +25,15 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
+splunk:
+  'linux:debug':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:debug'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "_time"
+    timestamp_format: "%b %d %H:%M:%S"
+    artifact: "debug"

@@ -36,6 +36,7 @@ class OsirModuleModel(BaseModel):
     input: OsirInputModel
     output: OsirOutputModel
     endpoint: Optional[OsirEndpointModel] = None
+    user: Optional[OsirEndpointModel] = None
     
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None

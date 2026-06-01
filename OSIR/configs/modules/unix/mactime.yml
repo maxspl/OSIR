@@ -1,6 +1,6 @@
 metadata:
-  version: "2.0"
-  author: Typ
+  version: "3.0"
+  author: Typ,maxspl
   description: Parsing logs from '/bodyfile' in UAC collect
   os: unix
 
@@ -14,8 +14,8 @@ configuration:
   processor_os: unix
 
 tool: 
-  path: mactime
-  cmd: "-b {input_file} -d -y  > {output_file}"
+  path: TurboLP
+  cmd: run --module mactime --input "{input_file}" --output {output_file}
 
 input:
   type: file
@@ -26,8 +26,8 @@ input:
 
 output:
   type: single_file
-  format: csv
-  output_file: "{endpoint_name}--{module}-{input_file}.csv"
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
 
 endpoint: 
   patterns:
@@ -36,12 +36,13 @@ endpoint:
 
 splunk:
   'linux:files:bodyfile':
-    name_rex: bodyfile.*\.csv$
+    name_rex: bodyfile.*\.jsonl$
     sourcetype: 'linux:files:bodyfile'
     host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "timestamp"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "bodyfile"
-    normalize:
-      - transform/linux/mactime.vrl
+    normalize: 
+      # - transform/linux/mactime.vrl
+      - ecs_normalize/linux/mactime.vrl

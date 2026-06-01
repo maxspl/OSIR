@@ -1,0 +1,43 @@
+metadata:
+  version: "2.0"
+  author: Typ
+  description: Parse webserver access,certificates,error,hosts,logs from UAC [root] using Dissect plugin
+  os: windows
+
+configuration:
+  module: webserver
+  alt_module: dissect_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - internal
+  processor_os: unix
+
+input:
+  type: dir
+  paths:
+    - r"extract_uac.*\/\[root\]$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+
+endpoint: 
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+optional:
+  plugin: webserver
+
+splunk:
+  'linux:webserver':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:webserver'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "webserver"

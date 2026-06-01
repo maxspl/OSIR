@@ -65,6 +65,7 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
 
             replacements = {
                 "endpoint_name": ctx.endpoint_name,
+                "user_name": ctx.user_name,
                 "module": ctx.module,
                 "input_file": ctx.input.get_input_name_safe(),
                 "input_path_hash": self._hash_path(str(ctx.input.match)),
@@ -95,8 +96,10 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
 
             # Handle Naming Prefixes for recursive organization
             if self.output_prefix:
-                self.output_prefix_no_endpoint = self.safe_format(self.output_prefix,
-                                                                  **{k: v for k, v in replacements.items() if k != 'endpoint_name'})
+                self.output_prefix_no_endpoint = self.safe_format(
+                    self.output_prefix,
+                    **{k: v for k, v in replacements.items() if k not in ('endpoint_name', 'user_name')}
+                )
                 self.output_prefix = self.safe_format(self.output_prefix, **replacements)
 
             self.updated = True
@@ -118,8 +121,12 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
         prefix = os.path.basename(self._context.output.output_prefix)
 
         # Build regex to avoid double-renaming items that already have a valid prefix
-        prefix_extented = re.compile("^" + self._context.output.output_prefix_no_endpoint.replace("{endpoint_name}", ".*"))
-
+        prefix_extented = re.compile(
+            "^"
+            + self._context.output.output_prefix_no_endpoint
+            .replace("{endpoint_name}", ".*")
+            .replace("{user_name}", ".*")
+        )
         for root, dirs, files in os.walk(self._context.output.output_dir, topdown=True):
             # Process files within the current directory
             for file in files:

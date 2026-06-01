@@ -1,5 +1,5 @@
 metadata:
-  version: "2.0"
+  version: "3.0"
   author: maxspl
   description: Parsing web access logs
   os: unix
@@ -15,11 +15,12 @@ configuration:
 
 tool: 
   path: TurboLP
-  cmd: run --module web-access --input {input_file} --output  {output_file}
-
+  cmd: run --module web-access --input "{input_file}" --output "{output_file}" --prefix-input-hash
 input:
   type: file
-  name: (?:access_log|access\.log)
+  paths:
+    - r"var\/log\/apache2"
+    - r"access.*log"
 
 output:
   type: single_file
@@ -28,5 +29,16 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
+
+splunk:
+  'linux:web_access':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:web_access'
+    host_rex: -([\w\.-]+)--
+    timestamp_path: 
+    - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "web_access"
+

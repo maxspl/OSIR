@@ -31,3 +31,13 @@ endpoint:
 
 optional:
   plugin: authlog
+
+splunk:
+  'linux:auth':
+    name_rex: \.jsonl$
+    sourcetype: 'linux:auth'
+    host_rex: ([\w\.-]+)--
+    timestamp_path: 
+        - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "auth"

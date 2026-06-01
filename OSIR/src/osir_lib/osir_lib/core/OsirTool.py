@@ -103,6 +103,7 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
                 "case_name": ctx.case_name,
                 "master_host": agent_config.smb_host,
                 "endpoint_name": ctx.endpoint_name,
+                "user_name": ctx.user_name,
                 "case_path": ctx.case_path
             }
 

@@ -25,14 +25,14 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
 splunk:
   'linux:syslog':
     name_rex: syslog.*\.jsonl$
     sourcetype: 'linux:syslog'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: ([\w\.-]+)--
     timestamp_path: 
     - "_time"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

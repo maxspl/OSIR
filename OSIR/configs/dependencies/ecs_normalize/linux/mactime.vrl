@@ -1,82 +1,218 @@
-# OSIR - MacTime log normalizer
-# 
-# Schema:
-#   Source :
-#     [
-#         {
-#            "Date": "2024-01-10T12:34:56Z",
-#            "Size": "0",
-#            "Type": "...b",
-#            "Mode": "drwxr-xr-x",
-#            "UID": "0",
-#            "GID": "0",
-#            "Meta": "1",
-#            "File Name": "/dev/pts"
-#         }
-#         ...
-#     ]
-# 
-# Destination:
+# OSIR - MacTime JSONL normalizer to Elastic Common Schema
 #
-# [
-#     {
-#         "timestamp": <Datetime>,   # Event date and time
-#         "file.size": <Integer>,    # File size in bytes
-#         "message": <String>,     # 
-#         "file.mode": <Integer>,    # File permissions (e.g. 0644)
-#         "file.uid": <Integer>,     # File owner user ID
-#         "file.gid": <Integer>,     # File owner group ID
-#         "file.name": <String>,     # File name
-#         "file.meta": <Object>,     # Additional meta
-#     },
-#     ...
-# ]
+# Source example:
+# {
+#   "md5": "0",
+#   "path": "/bin/netstat",
+#   "inode": 109,
+#   "mode": "-rwxr-xr-x",
+#   "uid": 0,
+#   "gid": 0,
+#   "size": 155288,
+#   "atime": "2026-05-21T15:36:19Z",
+#   "mtime": "2024-08-19T14:30:00Z",
+#   "ctime": "2024-12-04T14:46:29Z",
+#   "crtime": "2024-12-04T14:46:29Z"
+# }
+#
+# ECS output:
+#   timestamp       = file.mtime
+#   file.accessed   = atime
+#   file.mtime      = mtime
+#   file.ctime      = ctime
+#   file.created    = crtime
+#   file.path       = path
+#   file.name       = basename(path)
+#   file.directory  = dirname(path)
+#   file.mode       = octal mode, e.g. 0755
+#   file.uid        = uid as keyword/string
+#   file.gid        = gid as keyword/string
+#   file.inode      = inode as keyword/string
+#   file.size       = size as integer
+#   file.hash.md5   = md5 only when valid-looking
 
+.event.kind = "event"
+.event.category = ["file"]
+.event.type = ["change"]
+.event.action = "file_mtime"
+.event.dataset = "mactime"
 
-if exists(.Date) {
-    .timestamp = del(.Date)
-}
+# Path / name / directory
+if exists(.path) {
+    path = to_string(.path) ?? null
 
-if exists(.Size) {
-    .file.size = del(.Size)
-}
+    if path != null && path != "" {
+        .file.path = path
 
-if exists(.Type) {
-    .type_details = []
-    
-    if contains(string!(.Type), "m") {
-        .type_details = push(.type_details, "Last Modified")
+        name = basename(path) ?? null
+        if name != null {
+            .file.name = name
+        }
+
+        directory = dirname(path) ?? null
+        if directory != null {
+            .file.directory = directory
+        }
+
+        .message = "File modified: " + path
     }
-    if contains(string!(.Type), "a") {
-        .type_details = push(.type_details, "Last Accessed")
-    }
-    if contains(string!(.Type), "c") {
-        .type_details = push(.type_details, "Last Changed OR Last MFT Modified")
-    }
-    if contains(string!(.Type), "b") {
-        .type_details = push(.type_details, "Created")
-    }
 
-    if length(.type_details) > 0 {
-        .message = join!(.type_details, " | ")
-    }
+    del(.path)
 }
 
-if exists(.Mode) {
-    .file.mode = del(.Mode)
+# Size
+if exists(.size) {
+    size, err = to_int(.size)
+    if err == null {
+        .file.size = size
+    }
+    del(.size)
 }
 
-if exists(.UID) {
-    .file.uid = del(.UID)
+# UID / GID are ECS keywords, so keep them as strings
+if exists(.uid) {
+    uid = to_string(.uid) ?? null
+    if uid != null {
+        .file.uid = uid
+    }
+    del(.uid)
 }
 
-if exists(.GID) {
-    .file.guid = del(.GID)
+if exists(.gid) {
+    gid = to_string(.gid) ?? null
+    if gid != null {
+        .file.gid = gid
+    }
+    del(.gid)
 }
 
-.file.name = get!(., path: ["File Name"])
-remove!(., path: ["File Name"])
+# Inode is ECS keyword
+if exists(.inode) {
+    inode = to_string(.inode) ?? null
+    if inode != null {
+        .file.inode = inode
+    }
+    del(.inode)
+}
 
-if exists(.Meta) {
-    .file.meta = del(.Meta)
+# Convert symbolic mode to ECS octal file.mode when possible.
+# Keep original symbolic mode under osir.mactime.mode.
+if exists(.mode) {
+    mode = to_string(.mode) ?? null
+
+    if mode != null {
+        .osir.mactime.mode = mode
+
+        if starts_with(mode, "d") {
+            .file.type = "dir"
+        } else if starts_with(mode, "-") {
+            .file.type = "file"
+        } else if starts_with(mode, "l") {
+            .file.type = "symlink"
+        } else {
+            .osir.mactime.file_type_char = slice(mode, 0, 1)
+        }
+
+        if length(mode) >= 10 {
+            perm = 0
+
+            # user read/write/execute
+            if slice(mode, 1, 2) == "r" { perm = perm + 256 }
+            if slice(mode, 2, 3) == "w" { perm = perm + 128 }
+
+            u_exec = slice(mode, 3, 4)
+            if u_exec == "x" || u_exec == "s" { perm = perm + 64 }
+            if u_exec == "s" || u_exec == "S" { perm = perm + 2048 }
+
+            # group read/write/execute
+            if slice(mode, 4, 5) == "r" { perm = perm + 32 }
+            if slice(mode, 5, 6) == "w" { perm = perm + 16 }
+
+            g_exec = slice(mode, 6, 7)
+            if g_exec == "x" || g_exec == "s" { perm = perm + 8 }
+            if g_exec == "s" || g_exec == "S" { perm = perm + 1024 }
+
+            # other read/write/execute
+            if slice(mode, 7, 8) == "r" { perm = perm + 4 }
+            if slice(mode, 8, 9) == "w" { perm = perm + 2 }
+
+            o_exec = slice(mode, 9, 10)
+            if o_exec == "x" || o_exec == "t" { perm = perm + 1 }
+            if o_exec == "t" || o_exec == "T" { perm = perm + 512 }
+
+            octal = format_int!(perm, 8)
+
+            if length(octal) == 1 {
+                .file.mode = "000" + octal
+            } else if length(octal) == 2 {
+                .file.mode = "00" + octal
+            } else if length(octal) == 3 {
+                .file.mode = "0" + octal
+            } else {
+                .file.mode = octal
+            }
+        }
+    }
+
+    del(.mode)
+}
+
+# atime -> file.accessed
+if exists(.atime) {
+    atime, err = parse_timestamp(.atime, format: "%+")
+    if err == null {
+        .file.accessed = atime
+    } else {
+        .mactime.atime_raw = .atime
+    }
+    del(.atime)
+}
+
+# mtime -> timestamp + file.mtime
+if exists(.mtime) {
+    mtime, err = parse_timestamp(.mtime, format: "%+")
+    if err == null {
+        ."timestamp" = mtime
+        .file.mtime = mtime
+    } else {
+        .error.type = "parse_timestamp"
+        .error.message = "failed to parse mtime"
+        .mactime.mtime_raw = .mtime
+    }
+    del(.mtime)
+}
+
+# ctime -> file.ctime
+if exists(.ctime) {
+    ctime, err = parse_timestamp(.ctime, format: "%+")
+    if err == null {
+        .file.ctime = ctime
+    } else {
+        .mactime.ctime_raw = .ctime
+    }
+    del(.ctime)
+}
+
+# crtime -> file.created
+if exists(.crtime) {
+    crtime, err = parse_timestamp(.crtime, format: "%+")
+    if err == null {
+        .file.created = crtime
+    } else {
+        .mactime.crtime_raw = .crtime
+    }
+    del(.crtime)
+}
+
+# md5: mactime often uses "0" as a placeholder; don't store that as ECS hash.
+if exists(.md5) {
+    md5 = to_string(.md5) ?? ""
+
+    if length(md5) == 32 && md5 != "00000000000000000000000000000000" {
+        .file.hash.md5 = downcase(md5)
+    } else if md5 != "" && md5 != "0" {
+        .mactime.md5_raw = md5
+    }
+
+    del(.md5)
 }

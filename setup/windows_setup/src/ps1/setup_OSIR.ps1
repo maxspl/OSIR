@@ -75,7 +75,7 @@ Log "Copying tools from $bin_dir_src to $bin_dir."
 Copy-Item -Path $bin_dir_src -Destination $bin_dir -Recurse 2>&1 | Out-File -FilePath $logFile -Append
 
 # Download and extract EZ tools
-$zipUrl = "https://f001.backblazeb2.com/file/EricZimmermanTools/Get-ZimmermanTools.zip"
+$zipUrl = "https://download.ericzimmermanstools.com/Get-ZimmermanTools.zip
 Log "Downloading EZ tools from $zipUrl."
 Invoke-WebRequest -Uri $zipUrl -OutFile "$env:TEMP\Get-ZimmermanTools.zip" 2>&1 | Out-File -FilePath $logFile -Append
 Log "Extracting EZ tools to $bin_dir."

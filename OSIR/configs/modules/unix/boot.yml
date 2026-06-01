@@ -25,12 +25,12 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
 splunk:
   'linux:boot':
     name_rex: boot.*\.jsonl$
     sourcetype: 'linux:boot'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: ([\w\.-]+)--
     artifact: "boot"

@@ -31,14 +31,14 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
 splunk:
   'linux:live_response:dpkg':
     name_rex: snap.*\.jsonl$
     sourcetype: 'linux:live_response:packages:snap'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "_time"
     timestamp_format: "%Y-%m-%d %H:%M:%S"
