@@ -126,17 +126,23 @@ watch(searchQuery, () => {
 
 // ── Handle selection ─────────────────────────────────────────────────────────
 function onSelect(e: TreeItemSelectEvent<TreeItem>) {
-  if (e.detail.originalEvent.type === 'click') {
-    e.preventDefault()
+  const item = e.detail.value
+  if (!item) return
+  
+  // If item has children, handle expansion/collapse and prevent default selection
+  if (item.children && item.children.length > 0) {
+    if (e.detail.originalEvent.type === 'click') {
+      e.preventDefault()
+    }
+    const label = item.label
+    const index = expandedKeys.value.indexOf(label)
+    if (index === -1) {
+      expandedKeys.value = [...expandedKeys.value, label]
+    } else {
+      expandedKeys.value = expandedKeys.value.filter(l => l !== label)
+    }
   }
-  const label = e.detail.value?.label
-  if (!label) return
-  const index = expandedKeys.value.indexOf(label)
-  if (index === -1) {
-    expandedKeys.value = [...expandedKeys.value, label]
-  } else {
-    expandedKeys.value = expandedKeys.value.filter(l => l !== label)
-  }
+  // If item has no children, allow default selection behavior
 }
 
 function onSelectedChange(val: TreeItem[]) {
