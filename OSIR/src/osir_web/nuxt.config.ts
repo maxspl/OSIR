@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@pinia/nuxt',
+    'nuxt-monaco-editor',
   ],
 
   devtools: {

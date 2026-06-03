@@ -97,9 +97,10 @@ async function handleRunOrchestration() {
     if (handler) {
       toast.add({
         title: 'Handler created',
-        description: `Handler created successfully`,
+        description: 'Handler created successfully',
         color: 'success',
         icon: 'i-lucide-check-circle',
+        position: 'top-right',
         actions: [{
           label: 'View in Monitoring',
           onClick: async () => {
@@ -108,10 +109,16 @@ async function handleRunOrchestration() {
         }],
       })
     } else {
-      toast.add({ title: 'Error', description: 'Failed to create handler', color: 'error' })
+    toast.add({ title: 'Error', description: 'Failed to create handler', color: 'error' , position: 'top-right'})
     }
   } catch (e) {
-    toast.add({ title: 'Error', description: 'Failed to create handler', color: 'error' })
+    const errorMessage = typeof e === 'object' && e !== null && 'response' in e
+      ? (e as { response: { error?: string } }).response?.error
+      : e instanceof Error
+        ? e.message
+        : 'Failed to create handler'
+    console.log(e)
+    toast.add({ title: 'Error', description: errorMessage, color: 'error', position: 'top-right' })
   }
 }
 

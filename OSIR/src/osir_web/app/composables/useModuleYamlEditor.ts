@@ -33,7 +33,6 @@ export function useModuleYamlEditor(
       hljs.registerLanguage('yaml', yamlLang)
     })
     const content = moduleYamlMap.value[modulePath] ?? ''
-    // Lazy import — hljs should already be registered by the page
     try {
       const hljs = (globalThis as any).__hljs
       if (hljs) return wrapLines(hljs.highlight(content, { language: 'yaml' }).value)
@@ -56,11 +55,14 @@ export function useModuleYamlEditor(
     moduleEditMode.value[modulePath] = false
   }
 
-  function onYamlInput(modulePath: string) {
-    const content = moduleYamlMap.value[modulePath]
-    if (!content) return
+  // Reçoit la nouvelle valeur directement depuis YamlEditor — évite de lire
+  // depuis moduleYamlMap qui est une prop dans le composant enfant et ne peut
+  // pas être mutée par lui.
+  function onYamlInput(modulePath: string, value: string) {
+    moduleYamlMap.value[modulePath] = value
+    if (!value) return
     try {
-      yamlParse(content)
+      yamlParse(value)
       delete yamlErrors.value[modulePath]
     } catch (e) {
       yamlErrors.value[modulePath] = (e as Error).message

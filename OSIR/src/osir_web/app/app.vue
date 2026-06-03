@@ -1,4 +1,6 @@
 <script setup>
+import pkg from '../package.json'
+
 useHead({
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
@@ -24,15 +26,17 @@ useSeoMeta({
   ogDescription: description,
   twitterCard: 'summary_large_image'
 })
+
+const toaster = { position: 'top-right', max:"5" }
 </script>
 
 <template>
-  <UApp>
+  <UApp :toaster="toaster">
     <UHeader>
       <template #left>
         <NuxtLink to="/" class="flex items-center gap-2 shrink-0">
           <span class="text-3xl font-extrabold tracking-tight font-syne"><span class="text-primary dark:text-white">O</span><span class="text-primary dark:text-white">S</span><span class="text-primary">I</span><span class="text-primary">R</span></span>
-          <UBadge label="v1.0.1" color="primary" variant="subtle" size="md" class="rounded-full" />
+          <UBadge :label="`v${pkg.version}`" color="primary" variant="subtle" size="md" class="rounded-full" />
         </NuxtLink>
       </template>
 

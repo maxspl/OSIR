@@ -51,6 +51,7 @@ def parse_args():
     parser.add_argument('--agent', action='store_true', help='Launch the agent and wait for processing tasks from master.')
     parser.add_argument('--case', type=str, help='Name of the case in /OSIR/share/cases directory.')
     parser.add_argument('--web', action='store_true', help='Launch the master IPC.')
+    parser.add_argument('--dev', action='store_true', help='Launch the Nuxt development server.')
 
     args = parser.parse_args()
 
@@ -99,7 +100,7 @@ def main():
         worker = tasks.CeleryWorker()
         worker.start_worker()
 
-    if args.web:
+    if args.web or args.dev:
         def get_version_from_package_json(path):
             """Lit la version dans un fichier package.json."""
             try:
@@ -107,12 +108,17 @@ def main():
                     return json.load(f).get("version", "0.0.0")
             except (FileNotFoundError, json.JSONDecodeError):
                 return None
-
+        
         logger.info("Launching IPC Service")
         osir_ipc = OsirIpc(host='0.0.0.0', port=8989).start()
-        try:
-            NUXT_DIR = "/OSIR/OSIR/src/osir_web/"
 
+        NUXT_DIR = "/OSIR/OSIR/src/osir_web/"
+
+        if args.dev:
+            subprocess.run(["npm", "run", "dev"], cwd=NUXT_DIR, check=True)
+
+        try:
+            
             if os.path.isdir(NUXT_DIR):
                 logger.info("Installing Nuxt dependencies...")
 
@@ -155,6 +161,7 @@ def main():
             osir_ipc.join()
         except KeyboardInterrupt:
             logger.info("Keyboard interrupt received. Stopping...")
+
 
     if args.case:
         case_path = os.path.join("/OSIR/share/cases", args.case)
