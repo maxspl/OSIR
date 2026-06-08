@@ -14,6 +14,9 @@ function isolateVueFinderLayers(css: string): string {
 }
 
 export default defineNuxtConfig({
+  devServer: {
+    port: 8501
+  },
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
