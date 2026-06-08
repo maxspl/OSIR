@@ -25,29 +25,29 @@ class BoxDetails(BaseModel):
             password (str): Password for authentication.
             custom_mountpoint (str): The drive letter or path (default 'C') to be used during tasks.
     """
-    host: str
-    user: str
-    password: str
-    custom_mountpoint: str = Field(default='C')
+    host: Optional[str] = None
+    user: Optional[str] = None
+    password: Optional[str] = None
+    custom_mountpoint: Optional[str] = None
 
 
 class WindowsBoxConfig(BaseModel):
     """
         Defines the execution environment for Windows-based forensic modules.
 
-        In the OSIR workflow, 'location' determines if the tools run locally, in a 
-        Docker container (dockur), or on a remote machine. This model also allows 
-        for resource allocation by specifying CPU cores, ensuring that heavy forensic 
+        In the OSIR workflow, 'location' determines if the tools run locally, in a
+        Docker container (dockur), or on a remote machine. This model also allows
+        for resource allocation by specifying CPU cores, ensuring that heavy forensic
         parsing doesn't overwhelm the host system.
 
         Args:
             location (str): The deployment type (e.g., 'local', 'remote', 'dockur').
             cores (int, optional): The number of CPU cores allocated to the forensic tasks.
-            remote_box (BoxDetails): Nested connection details for remote execution.
+            remote_box (BoxDetails, optional): Nested connection details for remote execution.
     """
     location: str
-    cores: Optional[int] = None  # Ajout de cores, rendu optionnel
-    remote_box: BoxDetails
+    cores: Optional[int] = None
+    remote_box: Optional[BoxDetails] = None
 
 
 class MasterConfig(BaseModel):
@@ -159,6 +159,10 @@ class OsirAgentConfig:
     @property
     def windows_location(self) -> str:
         return self.config_data.windows_box.location
+
+    @property
+    def windows_configured(self) -> bool:
+        return self.config_data.windows_box.location != "none"
 
     @property
     def windows_user(self) -> str:

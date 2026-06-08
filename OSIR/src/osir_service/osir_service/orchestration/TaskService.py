@@ -8,6 +8,7 @@ from celery import signature
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_lib.logger import AppLogger
 from osir_service.postgres.OsirDb import OsirDb
+from osir_service.postgres.OsirDbConstants import ProcessingStatus
 
 logger = AppLogger(__name__).get_logger()
 
@@ -55,6 +56,36 @@ class TaskService:
                 module_instance.input.match = module_instance.input.file
             else:
                 module_instance.input.match = module_instance.input.dir
+
+        # Fail Windows tasks immediately if no Windows machine is configured on this agent
+        if module_instance.configuration.processor_os == 'windows':
+            try:
+                from osir_lib.core.OsirAgentConfig import OsirAgentConfig
+                if not OsirAgentConfig().windows_configured:
+                    custom_task_id = str(uuid.uuid4())
+                    with OsirDb() as db:
+                        db.task.create(
+                            task_id=custom_task_id,
+                            case_uuid=case_uuid,
+                            agent="Null",
+                            module=module_instance.module_name,
+                            input=module_instance.input.match
+                        )
+                        if handler_uuid:
+                            db.handler.append_task_ids(handler_id=handler_uuid, new_task_ids=[custom_task_id])
+                        trace = {"logs": [
+                            f"Windows module '{module_instance.module_name}' cannot run: "
+                            "Windows machine is not configured on this agent. "
+                            "Re-run agent setup and configure a Windows machine."
+                        ]}
+                        db.task.update(custom_task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace)
+                    logger.warning(
+                        f"Task '{module_instance.module_name}' immediately failed: "
+                        "Windows machine not configured."
+                    )
+                    return custom_task_id
+            except Exception:
+                pass  # Config not accessible; dispatch to queue as usual
 
         RABBITMQ_USER = os.getenv('RABBITMQ_DEFAULT_USER', 'missing RABBITMQ_DEFAULT_USER env var')
         RABBITMQ_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS', 'missing RABBITMQ_DEFAULT_PASS env var')
