@@ -69,6 +69,11 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
             case 'unix':
                 self.run_local()
             case 'windows':
+                if not OsirAgentConfig().windows_configured:
+                    raise RuntimeError(
+                        f"Windows module '{self._context.module_name}' cannot run: "
+                        "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
+                    )
                 if self._context.is_wsl:  # Change to adapt to remote master
                     self.run_wsl()
                 else:

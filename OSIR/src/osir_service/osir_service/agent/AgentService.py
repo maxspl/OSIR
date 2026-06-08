@@ -176,6 +176,15 @@ class CeleryWorker:
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
 
+                if module_instance.configuration.processor_os == 'windows' and not OsirAgentConfig().windows_configured:
+                    with OsirDb() as db:
+                        trace = {"logs": [
+                            f"Windows module '{module_instance.module_name}' cannot run on this agent: "
+                            "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
+                        ]}
+                        db.task.update(task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace, agent=worker_name)
+                    return "windows_not_configured"
+
                 processor = InternalProcessor(case_path, module_instance, task_id=task_id, agent_name=worker_name)
                 logger.debug("Check if input files/foles of module is in use...")
 
@@ -224,6 +233,16 @@ class CeleryWorker:
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
+
+                if module_instance.configuration.processor_os == 'windows' and not OsirAgentConfig().windows_configured:
+                    with OsirDb() as db:
+                        trace = {"logs": [
+                            f"Windows module '{module_instance.module_name}' cannot run on this agent: "
+                            "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
+                        ]}
+                        db.task.update(task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace, agent=worker_name)
+                    return "windows_not_configured"
+
                 processor = ExternalProcessor(case_path, module_instance, task_id=task_id, agent_name=worker_name)
 
                 logger.debug(f"Check if input of {module_instance.module_name} is in use...")
@@ -305,18 +324,24 @@ class CeleryWorker:
                 'autoscale': f'{capacity["unix_parallel"]},1'
 
             },
-            {
-                'hostname': f'windows_worker_no_multithread@{host_hostname}',
-                'queue': 'windows_no_multithread',
-                'autoscale': '1,1'
-            },
-            {
-                'hostname': f'windows_worker_multithread@{host_hostname}',
-                'queue': 'windows_multithread',
-                'autoscale': f'{capacity["windows_parallel"]},1'
-                # 'autoscale': f'{windows_cores},1'  # Dynamic max workers based on env, min 1 worker
-            }
         ]
+
+        if self.agent_config.windows_configured:
+            worker_configs.extend([
+                {
+                    'hostname': f'windows_worker_no_multithread@{host_hostname}',
+                    'queue': 'windows_no_multithread',
+                    'autoscale': '1,1'
+                },
+                {
+                    'hostname': f'windows_worker_multithread@{host_hostname}',
+                    'queue': 'windows_multithread',
+                    'autoscale': f'{capacity["windows_parallel"]},1'
+                    # 'autoscale': f'{windows_cores},1'  # Dynamic max workers based on env, min 1 worker
+                }
+            ])
+        else:
+            logger.warning("Windows machine not configured — Windows workers will not be started on this agent.")
 
         if self.agent_config.standalone:
             worker_configs.extend([
