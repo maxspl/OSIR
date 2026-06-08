@@ -152,7 +152,7 @@ def main():
 
                 if os.path.isfile(build_path):
                     logger.info("Starting Nuxt server (background)...")
-                    nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR)
+                    nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR, env={**os.environ, "PORT": "8501"})
                 else:
                     logger.warning("No Nuxt build available, skipping Nuxt server start.")
             else:
