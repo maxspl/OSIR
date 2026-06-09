@@ -91,16 +91,17 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
         """
         ctx = self._context
         agent_config = OsirAgentConfig()
+        drive = f"{agent_config.windows_mnt_point}:" if agent_config.windows_mnt_point else ""
 
         if self.path:
             self.path = self.safe_format(
                 self.path,
-                drive=agent_config.windows_mnt_point + ":"
+                drive = drive
             )
 
         if self.cmd:
             replacements = {
-                "drive": agent_config.windows_mnt_point + ":",
+                "drive": drive,
                 "input_file": str(ctx.input.match_updated),
                 "input_dir": str(ctx.input.match_updated),
                 "output_dir": str(ctx.output.output_dir),

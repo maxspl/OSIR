@@ -34,7 +34,7 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}-{user_name}--{module}-"
+  output_prefix: "{endpoint_name}--{user_name}--{module}-"
 
 endpoint: 
   patterns:
@@ -52,7 +52,7 @@ splunk:
     name_rex: '\.jsonl$'
     path_suffix: 'ogre-firefox-history'
     sourcetype: 'windows:ogre:firefox_history'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: "firefox"
     timestamp_path:
       - "install_date" 

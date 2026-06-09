@@ -44,6 +44,7 @@ class OsirDbTask:
                 CREATE TABLE IF NOT EXISTS osir_tasks (
                     task_id UUID PRIMARY KEY,
                     case_uuid UUID,
+                    handler_id UUID,
                     agent TEXT,
                     module TEXT,
                     input TEXT,
@@ -53,11 +54,20 @@ class OsirDbTask:
                     trace JSONB DEFAULT '{}'::jsonb
                 )
             """)
+
+            # Add handler_id (link task -> handler) on older tables, and index it.
+            self.db.execute_query(
+                "ALTER TABLE osir_tasks ADD COLUMN IF NOT EXISTS handler_id UUID"
+            )
+            self.db.execute_query(
+                "CREATE INDEX IF NOT EXISTS idx_osir_tasks_handler_id "
+                "ON osir_tasks (handler_id, processing_status)"
+            )
         except Exception as e:
             logger.error(f"Error creating table: {e}")
             raise
 
-    def create(self, case_uuid: str, agent: str, module: str, input: str, output: str = 'N/A', task_id: Optional[str] = None) -> str:
+    def create(self, case_uuid: str, agent: str, module: str, input: str, output: str = 'N/A', task_id: Optional[str] = None, handler_id: Optional[str] = None) -> str:        
         """
             Inserts a new task into the database.
 
@@ -68,7 +78,8 @@ class OsirDbTask:
                 input (str): The input data or configuration for the task.
                 output (str): The output path of the module
                 task_id (str, optional): A specific UUID for the task. If None, a new UUID is generated.
-
+                handler_id (str, optional): The handler this task belongs to. Stored on the task row so handler -> tasks lookups are simple indexed queries.
+ 
             Returns:
                 str: The UUID of the created task.
 
@@ -83,14 +94,16 @@ class OsirDbTask:
                 INSERT INTO osir_tasks (
                     task_id,
                     case_uuid,
+                    handler_id,
                     agent,
                     module,
                     input,
                     output,
                     processing_status
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, 'task_created')
-            """, (task_id, case_uuid, agent, module, input, output))
+
+                VALUES (%s, %s, %s, %s, %s, %s, %s, 'task_created')
+            """, (task_id, case_uuid, handler_id, agent, module, input, output))
 
             logger.debug(f"Task created successfully with task_id: {task_id}")
             return task_id
@@ -356,11 +369,7 @@ class OsirDbTask:
             elif handler_id:
                 self.db.execute_query("""
                     DELETE FROM osir_tasks
-                    WHERE task_id = ANY(
-                        SELECT unnest(task_id)
-                        FROM osir_handlers
-                        WHERE handler_id = %s
-                    )
+                    WHERE handler_id = %s
                 """, (handler_id,))
                 logger.debug(f"Tâches associées au handler {handler_id} supprimées.")
 
