@@ -13,7 +13,6 @@ from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from watchdog.events import DirCreatedEvent, FileCreatedEvent
 from watchdog.events import FileSystemEventHandler
 from osir_lib.core.OsirUtils import remove_placeholders
-from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.postgres.OsirDb import OsirDb
 from osir_lib.logger import AppLogger
@@ -152,8 +151,6 @@ class ModuleHandler(FileSystemEventHandler):
 
         self.last_mtime: dict[str, float] = {}
         self.last_processed: set = set()
-
-        self.agent_config = OsirAgentConfig()
 
         self._task_counter_lock = threading.Lock()
         self._tasks_pushed_by_module = defaultdict(int)
