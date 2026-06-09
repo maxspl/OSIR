@@ -67,12 +67,11 @@ class TaskService:
                         db.task.create(
                             task_id=custom_task_id,
                             case_uuid=case_uuid,
+                            handler_id=handler_uuid,
                             agent="Null",
                             module=module_instance.module_name,
                             input=module_instance.input.match
                         )
-                        if handler_uuid:
-                            db.handler.append_task_ids(handler_id=handler_uuid, new_task_ids=[custom_task_id])
                         trace = {"logs": [
                             f"Windows module '{module_instance.module_name}' cannot run: "
                             "Windows machine is not configured on this agent. "
@@ -106,15 +105,11 @@ class TaskService:
             db.task.create(
                 task_id=custom_task_id,
                 case_uuid=case_uuid,
+                handler_id=handler_uuid,
                 agent="Null",
                 module=module_instance.module_name,
                 input=module_instance.input.match
             )
-            if handler_uuid:
-                db.handler.append_task_ids(
-                    handler_id=handler_uuid,
-                    new_task_ids=[custom_task_id]
-                )
 
         result = task_signature.apply_async(task_id=custom_task_id)
 
