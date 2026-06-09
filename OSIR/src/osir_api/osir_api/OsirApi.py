@@ -8,7 +8,6 @@ from osir_api.api.OsirApiExceptions import (
 )
 from fastapi.middleware.cors import CORSMiddleware
 
-
 app = FastAPI(
     title="OSIR API",
     description="OSIR API",
@@ -21,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_exception_handler(UnexpectedException, unexpected_error_handler)
-
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def root():

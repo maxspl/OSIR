@@ -10,14 +10,18 @@ def handle_response(response: OsirIpcResponse, response_only: bool = False):
     if not response.message:
         response.message = "Everything is working as it should!"
 
-    if response.status != 200:
-        response.message = "Oups... Something went wrong !"
+    if not (200 <= response.status < 300):
+        response.message = "Oups... Something went wrong!"
         raise HTTPException(
             status_code=response.status,
-            detail=response.response["error"]
+            detail=response.response.get("error", "Unknown error")
         )
     
     if response_only:
         return response.response
 
-    return response.model_dump()
+    result = response.model_dump()
+    if isinstance(response.response, dict) and "headers" in response.response:
+        result["headers"] = response.response["headers"]
+    
+    return result

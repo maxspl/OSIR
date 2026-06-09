@@ -105,6 +105,6 @@ export function buildTreeFromPaths(paths: string[]): TreeItem[] {
   // Sort all tree nodes: children with their own children come first
   const sortedBasic = sortTreeNodes(basic)
   const sortedCategorized = sortTreeNodes(categorized)
-  console.log(sortedCategorized)
+  // console.log(sortedCategorized)
   return [...(sortedBasic || []), ...(sortedCategorized || [])]
 }

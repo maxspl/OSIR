@@ -37,7 +37,9 @@ const emit = defineEmits<{
       <UTable
         :data="moduleTasks.filter(t => filterTaskStatus === 'all' || t.processing_status === filterTaskStatus)"
         :columns="taskColumns"
-        class="clickable-rows"
+        class="clickable-rows max-h-100"
+        virtualize
+        sticky
         @select="(e, row) => emit('select-task', e, row)"
       >
         <template #task_id-cell="{ row }">

@@ -34,15 +34,6 @@ class OsirIpcFiles:
             return OsirException.FILE_OPERATION_ERROR(str(e), "list")
     
     @staticmethod
-    def handle_files_upload(req: OsirIpcRequest, resp: OsirIpcResponse = None) -> OsirIpcResponse:
-        """Handler for file upload."""
-        return OsirIpcResponse(
-            status=501,
-            message="Not implemented",
-            response={"error": "Not implemented"}
-        )
-    
-    @staticmethod
     def handle_files_delete(req: OsirIpcRequest, resp: OsirIpcResponse = None) -> OsirIpcResponse:
         """Handler for deleting files/directories."""
         body = req.params.get('body', {})

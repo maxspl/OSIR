@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+from osir_service.ipc.OsirIpcTus import OsirIpcTus
 from osir_service.ipc.model.OsirExceptions import OsirException
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.ipc.model.OsirIpcRequest import OsirIpcRequest
@@ -38,6 +39,7 @@ class OsirIpc(BaseModel):
     port: int
     
     _files_handler: OsirIpcFiles = OsirIpcFiles()
+    _tus_handler: OsirIpcTus = OsirIpcTus()
 
     def listen(self):
         """
@@ -63,9 +65,11 @@ class OsirIpc(BaseModel):
         while True:
             try:
                 conn, addr = s.accept()
-                logger.info(f"Connected by {addr}")
-                with conn:
-                    self._request_loop(conn)
+                threading.Thread(target=self._request_loop, args=(conn,)).start()
+                
+                # logger.info(f"Connected by {addr}")
+                # with conn:
+                #     self._request_loop(conn)
             except Exception as e:
                 logger.error(f"Error accepting connection: {e}")
                 continue
@@ -81,10 +85,10 @@ class OsirIpc(BaseModel):
                     OsirSocket.send_json(conn, response, pydantic=True)
                 
             except ConnectionError:
-                logger.debug("Client disconnected.")
+                # logger.debug("Client disconnected.")
                 break
             except Exception as e:
-                logger.error(f"Error handling request: {e}")
+                logger.error_handler(f"Error handling request: {e}")
                 break
 
     def start(self):
@@ -415,6 +419,10 @@ class OsirIpc(BaseModel):
                 return resp
             resp.message = "Handlers retrieved"
             resp.response = db.handler.get(case_uuid=case_uuid)
+
+            if not isinstance(resp.response, list):
+                resp.response = [resp.response]
+
         return resp
 
     @register_action('get_handler_task_info')
@@ -458,10 +466,6 @@ class OsirIpc(BaseModel):
     def _handle_files_list(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._files_handler.handle_files_list(req, resp)
 
-    @register_action('files_upload', required_fields=['path'])
-    def _handle_files_upload(self, req: OsirIpcRequest, resp: OsirIpcResponse):
-        return self._files_handler.handle_files_upload(req, resp)
-
     @register_action('files_delete', required_fields=['body'])
     def _handle_files_delete(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._files_handler.handle_files_delete(req, resp)
@@ -486,10 +490,6 @@ class OsirIpc(BaseModel):
     def _handle_files_unarchive(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._files_handler.handle_files_unarchive(req, resp)
 
-    @register_action('files_create_file', required_fields=['body'])
-    def _handle_files_create_file(self, req: OsirIpcRequest, resp: OsirIpcResponse):
-        return self._files_handler.handle_files_create_file(req, resp)
-
     @register_action('files_create_folder', required_fields=['body'])
     def _handle_files_create_folder(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._files_handler.handle_files_create_folder(req, resp)
@@ -501,3 +501,16 @@ class OsirIpc(BaseModel):
     @register_action('files_search', required_fields=['path'])
     def _handle_files_search(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._files_handler.handle_files_search(req, resp)
+
+    @register_action('tus_upload_options')
+    def _handle_tus_upload_options(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        return self._tus_handler.handle_tus_upload_options(req, resp)
+    
+    @register_action('tus_upload_post')
+    def _handle_tus_upload_post(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        return self._tus_handler.handle_tus_upload_post(req, resp)
+    
+    @register_action('tus_upload_patch')
+    def _handle_tus_upload_patch(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        return self._tus_handler.handle_tus_upload_patch(req, resp)
+

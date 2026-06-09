@@ -136,6 +136,7 @@ def main():
                     if source_version != output_version:
                         logger.info(f"Version mismatch: source={source_version}, output={output_version}. Rebuilding...")
                         try:
+                            subprocess.run(["npm", "install"], cwd=NUXT_DIR, check=True)
                             subprocess.run(["npm", "run", "build"], cwd=NUXT_DIR, check=True)
                         except subprocess.CalledProcessError as e:
                             logger.error(f"Nuxt build failed: {e}. Starting with existing build.")

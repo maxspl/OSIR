@@ -69,7 +69,7 @@ export const useTaskStore = defineStore('task', {
         for (const result of results) {
           if (result.status === 'fulfilled') {
             for (const t of result.value.tasks) {
-              console.log(t)
+              // console.log(t)
               rows.push({
                 task_id:          t.task_id,
                 case_name:        result.value.name,

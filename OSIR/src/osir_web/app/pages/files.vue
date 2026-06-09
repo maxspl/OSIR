@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RemoteDriver } from 'vuefinder'
+import Tus from '@uppy/tus'
 import { useOsirApi } from '~/api'
 import { useCaseStore } from '~/stores/case'
 import { useModuleStore } from '~/stores/module'
@@ -117,7 +118,7 @@ async function handleRunOrchestration() {
       : e instanceof Error
         ? e.message
         : 'Failed to create handler'
-    console.log(e)
+    // console.log(e)
     toast.add({ title: 'Error', description: errorMessage, color: 'error', position: 'top-right' })
   }
 }
@@ -155,6 +156,7 @@ const finderConfig = computed(() => ({
   initialPath: selectedCase.value !== 'all' ? `${selectedCase.value}://` : 'ROOT/OSIR://',
   persist: false,
   showMenuBar: false,
+  maxFileSize: 10 * 1024 * 1024 * 1024, // 10GB
 }))
 
 const handlePathChange = (path: string) => {
@@ -164,6 +166,25 @@ const handlePathChange = (path: string) => {
   if (selectedCase.value !== caseName) {
     selectedCase.value = caseName
   }
+}
+
+function configureUploader(uppy: any, context: { getTargetPath: () => string }) {
+  const targetPath = context.getTargetPath()
+  uppy.use(Tus, {
+    endpoint: `/proxy/api/files/upload`,
+    chunkSize: 5 * 1024 * 1024,
+    allowedMetaFields: ['name', 'path'], 
+    retryDelays: [0, 1000, 3000, 5000],
+    headers: {
+      'Upload-Metadata': `path ${btoa(targetPath)}`
+    },
+  })
+
+  uppy.on('upload', () => {
+    uppy.getFiles().forEach((file: any) => {
+      uppy.setFileMeta(file.id, { path: targetPath })
+    })
+  })
 }
 </script>
 
@@ -233,6 +254,7 @@ const handlePathChange = (path: string) => {
           id="large-dataset-example"
           :driver="driver"
           :config="finderConfig"
+          :custom-uploader="configureUploader"
           style="height: 100%;"
           @path-change="handlePathChange"
           @update:selected="updateSelectedItems"
@@ -256,6 +278,7 @@ const handlePathChange = (path: string) => {
             theme: false,
             pinned: true
           }"
+          
         >
           <template #status-bar="{ selected, count }">
             <UDrawer direction="right" :ui="{ content: 'w-[780px]' }" @open="updateSelectedItems(selected)">

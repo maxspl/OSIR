@@ -35,13 +35,13 @@ def list_files(path: str = Query(..., description="Directory path (including sto
     return OsirIpcCall("files_list", params={"path": path}, response_only=True)
 
 
-@router.post("/files/upload",
-             responses={400: {}, 403: {}, 413: {}, 500: {"model": UnexpectedExceptionResponse}})
-async def upload_files(
-    path: str = Form(..., description="Target directory path (including storage prefix)"),
-    file: UploadFile = File(...),
-):
-    return OsirIpcCall("files_upload", params={"path": path}, response_only=True)
+# @router.post("/files/upload",
+#              responses={400: {}, 403: {}, 413: {}, 500: {"model": UnexpectedExceptionResponse}})
+# async def upload_files(
+#     path: str = Form(..., description="Target directory path (including storage prefix)"),
+#     file: UploadFile = File(...),
+# ):
+#     return OsirIpcCall("files_upload", params={"path": path}, response_only=True)
 
 
 @router.post("/files/delete",

@@ -1,5 +1,8 @@
-from typing import List, Literal, Optional, Tuple, Dict, Any
-from pydantic import BaseModel
+from datetime import datetime
+from typing import BinaryIO, List, Literal, Optional, Tuple, Dict, Any
+import uuid
+# from filelock import FileLock
+from pydantic import BaseModel, Field
 from osir_service.ipc.OsirIpc import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS, Path
 from pathlib import Path
@@ -27,6 +30,7 @@ class DirEntry(BaseModel):
     mime_type: Optional[str] = None
     read_only: Optional[bool] = None
     previewUrl: Optional[str] = None
+    _uuid: Optional[str] = uuid.uuid4()
 
     @staticmethod
     def get_virt_path(case_name: str, path: Path):
@@ -38,34 +42,91 @@ class DirEntry(BaseModel):
 
     @classmethod
     def from_path(cls, path: Path, case_name: str) -> "DirEntry":
-        mimetypes.init()
         virt_path = DirEntry.get_virt_path(case_name, path)
         parent_virt_path = ""
 
-        if not path.parent.samefile(OSIR_PATHS.CASES_DIR):
-            parent_virt_path = DirEntry.get_virt_path(case_name, path.parent)
+        path_parent = path.parent
+        path_name = path.name
+        is_file = path.is_file()
+        exists = path.exists()
+
+        if not path_parent.samefile(OSIR_PATHS.CASES_DIR):
+            parent_virt_path = DirEntry.get_virt_path(case_name, path_parent)
 
         if not virt_path:
-            if path.is_file():
-                virt_path = f"{case_name}://{path.name}"
-            else:
-                virt_path = f"{path.name}://"
-                case_name = path.name
-    
+            virt_path = f"{case_name}://{path_name}" if is_file else f"{path_name}://"
+            if not is_file:
+                case_name = path_name
+
+        stat = path.stat() if exists else None
+        st_size = stat.st_size if stat and is_file else None
+        st_mtime = int(stat.st_mtime) if stat else None
+
+        mime_type = None
+        if is_file and exists:
+            extension = path.suffix.lower()
+            mime_type = {
+                '.txt': 'text/plain',
+                '.csv': 'text/csv',
+                '.json': 'application/json',
+                '.xml': 'application/xml',
+                '.pdf': 'application/pdf',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg',
+                '.png': 'image/png',
+                '.gif': 'image/gif',
+                '.html': 'text/html',
+                '.htm': 'text/html',
+                '.css': 'text/css',
+                '.js': 'application/javascript',
+                '.zip': 'application/zip',
+                '.tar': 'application/x-tar',
+                '.gz': 'application/gzip',
+                '.mp3': 'audio/mpeg',
+                '.mp4': 'video/mp4',
+                '.avi': 'video/x-msvideo',
+                '.doc': 'application/msword',
+                '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                '.xls': 'application/vnd.ms-excel',
+                '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                '.ppt': 'application/vnd.ms-powerpoint',
+                '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            }.get(extension, 'application/octet-stream')
+
+        read_only = not os.access(path, os.W_OK) if exists else False
+
         return cls(
             dir=parent_virt_path,
-            basename=path.name,
+            basename=path_name,
             extension=path.suffix,
             path=virt_path,
             storage=case_name,
-            type="file" if path.is_file() else "dir",
+            type="file" if is_file else "dir",
             visibility="public",
-            file_size=path.stat().st_size if path.is_file() else None,
-            last_modified=int(path.stat().st_mtime) if path.exists() else None,
-            mime_type=mimetypes.guess_type(str(path))[0] if path.is_file() else None,
-            read_only=not os.access(path, os.W_OK) if path.exists() else False,
+            file_size=st_size,
+            last_modified=st_mtime,
+            mime_type=mime_type,
+            read_only=read_only,
             previewUrl=None
         )
+    
+    def exist(self):
+        return os.path.exists(self.osir_path)
+    
+    @property
+    def osir_path(self):
+        return FsData.get_path(FsData.get_real_path(self.path))
+    
+    def create_bin(self):
+        open(self.osir_path, "a+").close()
+
+    def open(self, mode="ab") -> BinaryIO:
+        fs = open(self.osir_path, mode)
+        return fs
+    
+    # def new_lock(self) -> FileLock:
+    #     return FileLock(os.path.join(self.osir_path, f".lock"), 10)
+    
 
 class FsData(BaseModel):
     storages: List[str]
@@ -438,3 +499,93 @@ class FsData(BaseModel):
                 results.append(entry)
 
         return results
+    
+class FileInfo(BaseModel):
+    uuid: str
+    offset: int = 0 # upload file current offset
+    size: int | None # upload file total size in expected
+    is_size_deferred: bool = False # indicates whether the total expected file size is deferred
+    metadata: dict[str, str] = {} # upload file metadata from client, `filename`, `filetype`,...etc may be contained
+    is_partial: bool = False # indicates this is a partial upload which will later be used to form a final upload by concatenation
+    is_final: bool = True # indicates this is final upload
+    partial_uploads: List[str] = [] # If the upload is a final one (see IsFinal) this will be a non-empty ordered slice containing the ids of the uploads for concatenation
+    expires: str | None
+    storage: dict[str, str] = {} # information about where the file is stored, like, a file path
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+    
+
+class FileStore():
+    path: str
+
+    def __init__(self, path: str, **kwargs) -> None:
+        self._cache: dict[str, FileInfo] = {}
+        
+        if os.path.isfile(path):
+            print(
+                f"ERROR: The path[{path}] is not a valid folder. Please use a valid folder instead!"
+            )
+
+            # Exit to cancel project
+            sys.exit(1)
+
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+        self.path = path
+        
+        atexit.register(self.exit_handler)
+    
+    def exit_handler(self):
+        print('My application is ending!')
+    
+    def is_existed(self, uuid: str) -> bool:
+        if os.path.exists(self.file_bin_path(uuid)) or os.path.exists(
+            self.file_info_path(uuid)
+        ):
+            return True
+        else:
+            return False
+
+    def new_file_bin(self, uuid: str):
+        # Create the empty file
+        open(self.file_bin_path(uuid=uuid), "a").close()
+            
+    def file_bin_path(self, uuid: str) -> str:
+        return os.path.join(self.path, uuid)
+
+    def open(self, uuid: str, mode="ab") -> BinaryIO:
+        fs = open(self.file_bin_path(uuid=uuid), mode)
+        return fs
+    
+    def file_info_path(self, uuid: str) -> str:
+        return os.path.join(self.path, f"{uuid}.info")
+
+    def read_file_info(self, uuid: str) -> FileInfo:
+        # cache
+        cached_info = self._cache.get(uuid)
+        if cached_info:
+            return cached_info
+
+        fpath = self.file_info_path(uuid)
+        if os.path.exists(fpath):
+            with open(fpath, "r") as f:
+                cached_info = FileInfo(**json.load(f))
+                # cache
+                self._cache[uuid] = cached_info
+                return cached_info
+        else:
+            return None
+
+    def write_file_info(self, info: FileInfo):
+        fpath = self.file_info_path(info.uuid)
+        info.storage = {"type": "filestore", "path": self.file_bin_path(info.uuid)}
+
+        with open(fpath, "w") as f:
+            f.write(info.model_dump_json(indent=2))
+
+        # cache
+        self._cache[info.uuid] = info
+            
+    def new_lock(self, uuid: str) -> FileLock:
+        return FileLock(os.path.join(self.path, f"{uuid}.lock"), 10)

@@ -201,7 +201,7 @@ function openTaskInfo(_e: Event, row: unknown) {
       </div>
 
       <!-- Table -->
-      <UTable :data="filteredTasks" :columns="columns" :loading="taskStore.isLoading && !taskStore.tasks.length" class="clickable-rows" @select="openTaskInfo">
+      <UTable virtualize :data="filteredTasks" :columns="columns" :loading="taskStore.isLoading && !taskStore.tasks.length" class="clickable-rows max-h-100" @select="openTaskInfo">
         <!-- ID cell -->
         <template #task_id-cell="{ row }">
           <span class="font-mono text-xs text-muted" :title="row.original.task_id">
