@@ -298,7 +298,7 @@ class OsirDbHandler:
                     timestamp,
                     trace
                 FROM
-                    osir_task
+                    osir_tasks
                 WHERE
                     handler_id = %s::uuid
             """, (str(handler_uuid),), fetch="fetchall")
