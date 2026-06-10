@@ -97,6 +97,11 @@ def main():
 
         worker = tasks.CeleryWorker()
         worker.start_worker()
+        logger.error(
+            "All Celery workers exited unexpectedly. "
+            "Check the celery log file for the startup error."
+        )
+        exit(1)
 
     if args.web:
         logger.info("Launching IPC Service")
@@ -104,6 +109,10 @@ def main():
 
         logger.info("Launching web app...")
         cli.main_run(["/OSIR/OSIR/src/osir_web/osir_web/OsirWeb.py"])
+
+    if not args.case:
+        logger.error("No case selected: --case is required when not running in agent mode.")
+        exit(1)
 
     case_path = os.path.join("/OSIR/share/cases", args.case)
     if not os.path.isdir(case_path):
