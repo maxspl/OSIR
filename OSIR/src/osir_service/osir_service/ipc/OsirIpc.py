@@ -387,6 +387,21 @@ class OsirIpc(BaseModel):
             resp.response = db.task.list(case_uuid=case_uuid)
         return resp
 
+    @register_action('get_task_stats')
+    def _handle_get_task_stats(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        with OsirDb() as db:
+            handler_id = req.params.get('handler_id')
+            case_uuid = req.params.get('case_uuid')
+            if not handler_id and not case_uuid and req.params.get('case_name'):
+                case = db.case.get(name=req.params['case_name'])
+                if not case:
+                    resp.response = "ERROR: CASE NOT FOUND"
+                    return resp
+                case_uuid = case.case_uuid
+            resp.message = "Task stats retrieved"
+            resp.response = db.task.stats(handler_id=handler_id, case_uuid=case_uuid)
+        return resp
+
     @register_action('get_task_log', required_fields=['task_id'])
     def _handle_get_task_log(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         with OsirDb() as db:

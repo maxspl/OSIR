@@ -15,6 +15,17 @@ logger = AppLogger().get_logger()
 # status there, and its 'task_created' default is exactly the right answer
 # for tasks Celery has not reported yet (PENDING tasks have no row).
 # ----------------------------------------------------------------------
+# Mapping from Celery task states (celery_taskmeta, the source of truth) to
+# the OSIR processing statuses, with fallback on the legacy column for
+# pre-migration rows ('task_created' default == pending for new rows).
+STATUS_CASE_SQL = """CASE
+            WHEN m.status = 'SUCCESS'                         THEN 'processing_done'
+            WHEN m.status IN ('FAILURE', 'REVOKED')           THEN 'processing_failed'
+            WHEN m.status IN ('STARTED', 'RETRY', 'RECEIVED') THEN 'processing_started'
+            WHEN m.status IS NOT NULL                         THEN 'task_created'
+            ELSE t.processing_status::text
+        END"""
+
 TASK_VIEW_SELECT = """
     SELECT
         t.task_id,
@@ -24,13 +35,7 @@ TASK_VIEW_SELECT = """
         t.module,
         t.input,
         t.output,
-        CASE
-            WHEN m.status = 'SUCCESS'                         THEN 'processing_done'
-            WHEN m.status IN ('FAILURE', 'REVOKED')           THEN 'processing_failed'
-            WHEN m.status IN ('STARTED', 'RETRY', 'RECEIVED') THEN 'processing_started'
-            WHEN m.status IS NOT NULL                         THEN 'task_created'
-            ELSE t.processing_status::text
-        END AS processing_status,
+        """ + STATUS_CASE_SQL + """ AS processing_status,
         t.timestamp,
         CASE
             WHEN t.trace IS NOT NULL AND t.trace <> '{}'::jsonb THEN t.trace
@@ -470,6 +475,116 @@ class OsirDbTask:
             return False
 
         return result["count"] > 0
+
+    def stats(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> dict:
+        """
+            Aggregated task statistics for a handler or a whole case, computed
+            in SQL on the effective (celery-joined) statuses.
+
+            Args:
+                handler_id (str, optional): Scope to a single handler.
+                case_uuid (str, optional): Scope to a whole case (used when
+                    handler_id is not provided).
+
+            Returns:
+                dict: {
+                    total, by_status {status: count},
+                    by_module {module: {status: count, total}},
+                    done_last_min, failed_last_min,
+                    first_task_at, last_finished_at, progress_pct
+                }
+        """
+        if not handler_id and not case_uuid:
+            raise ValueError("stats() requires handler_id or case_uuid")
+
+        if handler_id:
+            cond, params = "t.handler_id = %s::uuid", (str(handler_id),)
+        else:
+            cond, params = "t.case_uuid = %s::uuid", (str(case_uuid),)
+
+        all_statuses = ["task_created", "processing_started", "processing_done", "processing_failed"]
+
+        try:
+            rows = self.db.execute_query(f"""
+                SELECT t.module AS module, {STATUS_CASE_SQL} AS status, COUNT(*) AS count
+                FROM osir_tasks t
+                LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                WHERE {cond}
+                GROUP BY t.module, 2
+            """, params, fetch="fetchall")
+
+            extras = self.db.execute_query(f"""
+                SELECT
+                    COUNT(*) FILTER (
+                        WHERE m.status = 'SUCCESS'
+                          AND m.date_done >= (now() AT TIME ZONE 'utc') - interval '60 seconds'
+                    ) AS done_last_min,
+                    COUNT(*) FILTER (
+                        WHERE m.status IN ('FAILURE', 'REVOKED')
+                          AND m.date_done >= (now() AT TIME ZONE 'utc') - interval '60 seconds'
+                    ) AS failed_last_min,
+                    -- t.timestamp is timestamptz, celery's date_done is a naive
+                    -- UTC timestamp: normalize everything to naive UTC so the
+                    -- duration math is correct regardless of server timezone.
+                    MIN(t.timestamp AT TIME ZONE 'utc') AS first_task_at,
+                    MAX(m.date_done) FILTER (
+                        WHERE m.status IN ('SUCCESS', 'FAILURE', 'REVOKED')
+                    ) AS last_finished_at,
+                    EXTRACT(EPOCH FROM (
+                        (now() AT TIME ZONE 'utc') - MIN(t.timestamp AT TIME ZONE 'utc')
+                    )) AS elapsed_seconds
+                FROM osir_tasks t
+                LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                WHERE {cond}
+            """, params, fetch="fetchone")
+        except Exception as e:
+            logger.error(f"Error computing task stats: {e}")
+            raise
+
+        by_status = {s: 0 for s in all_statuses}
+        by_module: dict = {}
+        for row in rows:
+            module, status, count = row["module"], row["status"], row["count"]
+            by_status[status] = by_status.get(status, 0) + count
+            mod = by_module.setdefault(module, {s: 0 for s in all_statuses} | {"total": 0})
+            mod[status] = mod.get(status, 0) + count
+            mod["total"] += count
+
+        total = sum(by_status.values())
+        finished = by_status["processing_done"] + by_status["processing_failed"]
+        pending = by_status["task_created"] + by_status["processing_started"]
+        running = total > 0 and pending > 0
+
+        first_task_at = extras["first_task_at"] if extras else None
+        last_finished_at = extras["last_finished_at"] if extras else None
+
+        # Duration of the run: while tasks are still pending/running it is the
+        # elapsed time since the first task was created; once everything is
+        # finished it is frozen at (last task finished - first task created).
+        duration_seconds = None
+        if total:
+            if running:
+                duration_seconds = float(extras["elapsed_seconds"]) if extras and extras["elapsed_seconds"] is not None else None
+            elif first_task_at is not None and last_finished_at is not None:
+                duration_seconds = max((last_finished_at - first_task_at).total_seconds(), 0.0)
+
+        def _iso(value):
+            return value.isoformat() if value is not None else None
+
+        return {
+            "scope": {"handler_id": str(handler_id) if handler_id else None,
+                      "case_uuid": str(case_uuid) if case_uuid else None},
+            "total": total,
+            "by_status": by_status,
+            "by_module": by_module,
+            "done_last_min": extras["done_last_min"] if extras else 0,
+            "failed_last_min": extras["failed_last_min"] if extras else 0,
+            "first_task_at": _iso(first_task_at),
+            "last_finished_at": _iso(last_finished_at),
+            "running": running,
+            "duration_seconds": round(duration_seconds, 1) if duration_seconds is not None else None,
+            "progress_pct": round(100.0 * finished / total, 1) if total else 0.0,
+        }
 
     def delete(self, task_id: Optional[str] = None, case_uuid: Optional[str] = None, handler_id: Optional[str] = None) -> bool:
         """

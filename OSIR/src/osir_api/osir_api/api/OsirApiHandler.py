@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from osir_api.api.model.OsirApiTaskModel import GetTaskStatsResponse
 from osir_api.api.model.OsirApiHandlerModel import GetHandlerTaskLogsResponse, PostHandlerAdvancedCreateRequest, GetHandlerStatusResponse, PostHandlerCreateRequest, PostHandlerCreateResponse, PostHandlerDeleteRequest, PostHandlerDeleteResponse
 from osir_api.api.OsirApiExceptions import UnexpectedExceptionResponse
 
@@ -41,6 +42,12 @@ def create_handler_advanced(request: PostHandlerAdvancedCreateRequest):
              responses={500: {"model": UnexpectedExceptionResponse}})
 def status_handler(handler_id: str):
     return OsirIpcCall("get_handler_status", params={"handler_id": handler_id})
+
+@router.post("/handler/{handler_id}/stats",
+             response_model=GetTaskStatsResponse,
+             responses={500: {"model": UnexpectedExceptionResponse}})
+def stats_handler(handler_id: str):
+    return OsirIpcCall("get_task_stats", params={"handler_id": handler_id})
 
 @router.post("/handler/{handler_id}/task_info",
              response_model=GetHandlerTaskLogsResponse,

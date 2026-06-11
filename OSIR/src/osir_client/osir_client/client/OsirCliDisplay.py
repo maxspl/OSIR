@@ -5,7 +5,7 @@ from rich import box
 from typing import Optional
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 
-from osir_api.api.model.OsirApiModuleModel import OsirModuleTreeModel, OsirModuleOsGroupModel, OsirModuleSubGroupModel
+from osir_api.api.model.OsirApiModuleModel import OsirModuleGroupModel
 
 console = Console()
 
@@ -30,6 +30,102 @@ def _status_text(status: Optional[str]) -> Text:
 
 
 class OsirCliDisplay:
+
+    @staticmethod
+    def task_stats(stats: dict, title: str = "Task statistics") -> None:
+        """Render the aggregated stats payload returned by /stats endpoints."""
+        total = stats.get("total", 0)
+        by_status = stats.get("by_status", {})
+        by_module = stats.get("by_module", {})
+
+        # --- global summary with bars ---
+        summary = Table(
+            title=f"📊 {title}",
+            box=box.ROUNDED,
+            title_style="bold cyan",
+        )
+        summary.add_column("Status")
+        summary.add_column("Count", justify="right", style="bold white")
+        summary.add_column("%", justify="right")
+        summary.add_column("", min_width=32)
+
+        for status in ("task_created", "processing_started", "processing_done", "processing_failed"):
+            count = by_status.get(status, 0)
+            pct = (100.0 * count / total) if total else 0.0
+            bar = Text("█" * int(round(pct * 0.3)), style=STATUS_COLORS.get(status, "white"))
+            summary.add_row(_status_text(status), str(count), f"{pct:5.1f}%", bar)
+
+        summary.add_section()
+        summary.add_row(Text("total", style="bold"), str(total), "", "")
+        console.print(summary)
+
+        # --- timing line ---
+        def _fmt_duration(seconds) -> str:
+            seconds = int(seconds)
+            h, rem = divmod(seconds, 3600)
+            m, s = divmod(rem, 60)
+            if h:
+                return f"{h}h {m:02d}m {s:02d}s"
+            if m:
+                return f"{m}m {s:02d}s"
+            return f"{s}s"
+
+        timing = Text()
+        if stats.get("first_task_at"):
+            timing.append(f"⏱ started: {stats['first_task_at'][:19]} UTC", style="bold")
+        if stats.get("duration_seconds") is not None:
+            state = "running" if stats.get("running") else "finished"
+            style = "yellow" if stats.get("running") else "green"
+            timing.append(f"  duration: {_fmt_duration(stats['duration_seconds'])} ", style="bold")
+            timing.append(f"({state})", style=style)
+            if not stats.get("running") and stats.get("last_finished_at"):
+                timing.append(f"  ended: {stats['last_finished_at'][:19]} UTC", style="dim")
+        if timing.plain:
+            console.print(timing)
+
+        # --- progress / throughput line ---
+        done_min = stats.get("done_last_min", 0)
+        failed_min = stats.get("failed_last_min", 0)
+        pending = by_status.get("task_created", 0) + by_status.get("processing_started", 0)
+        line = Text()
+        line.append(f"progress: {stats.get('progress_pct', 0.0):.1f}%  ", style="bold green")
+        line.append(f"throughput: {done_min}/min", style="cyan")
+        if failed_min:
+            line.append(f" (+{failed_min} failed/min)", style="red")
+        if done_min and pending:
+            eta_min = pending / done_min
+            line.append(f"  ETA: ~{int(eta_min)} min", style="magenta")
+        console.print(line)
+
+        # --- per module breakdown ---
+        if by_module:
+            modules = Table(
+                title="🧩 Per module",
+                box=box.SIMPLE_HEAVY,
+                title_style="bold cyan",
+            )
+            modules.add_column("Module", style="magenta")
+            modules.add_column("⏳ created", justify="right", style="cyan")
+            modules.add_column("🔄 started", justify="right", style="yellow")
+            modules.add_column("✅ done", justify="right", style="green")
+            modules.add_column("❌ failed", justify="right", style="red")
+            modules.add_column("Total", justify="right", style="bold white")
+
+            def _sort_key(item):
+                _, c = item
+                running = c.get("processing_started", 0) + c.get("task_created", 0)
+                return (-running, -c.get("processing_failed", 0), -c.get("total", 0))
+
+            for module, counts in sorted(by_module.items(), key=_sort_key):
+                modules.add_row(
+                    module,
+                    str(counts.get("task_created", 0)),
+                    str(counts.get("processing_started", 0)),
+                    str(counts.get("processing_done", 0)),
+                    str(counts.get("processing_failed", 0)),
+                    str(counts.get("total", 0)),
+                )
+            console.print(modules)
 
     @staticmethod
     def cases(cases: list) -> None:
@@ -98,83 +194,27 @@ class OsirCliDisplay:
         console.print(table)
 
     @staticmethod
-    def modules(tree: OsirModuleTreeModel) -> None:
-
-        def _add_modules(table: Table, category: str, subcategory: str, modules: list[str]) -> None:
-            for module in modules:
-                table.add_row(category, subcategory, module)
-
-        def _render_os_group(table: Table, category: str, group: OsirModuleOsGroupModel) -> None:
-            # Top-level OS modules
-            _add_modules(table, category, "—", group.modules)
-
-            # dissect subgroup
-            if getattr(group, "dissect", None):
-                _add_modules(table, category, "dissect", group.dissect.modules)
-
-            # live_response subgroup
-            if getattr(group, "live_response", None):
-                lr = group.live_response
-                _add_modules(table, category, "live_response", lr.modules)
-
-                # live_response nested subgroups (unix only)
-                for subgroup_name in ["packages", "storage", "process", "network", "hardware", "system"]:
-                    subgroup = getattr(lr, subgroup_name, None)
-                    if subgroup:
-                        _add_modules(table, category, f"live_response / {subgroup_name}", subgroup.modules)
-
-        def _render_flat_group(table: Table, category: str, group: OsirModuleSubGroupModel) -> None:
-            _add_modules(table, category, "—", group.modules)
-
+    def modules(tree: "OsirModuleGroupModel", title: str = "Modules") -> None:
+        """Renders a module tree node recursively. Generic: the category
+        column is the directory path, whatever the tree looks like."""
         table = Table(
-            title="🧩 Modules",
+            title=f"🧩 {title}",
             box=box.ROUNDED,
             show_lines=True,
             title_style="bold cyan"
         )
         table.add_column("Category", style="bold cyan", no_wrap=True)
-        table.add_column("Subcategory", style="magenta")
         table.add_column("Module", style="white")
 
-        # Top-level ungrouped modules
-        _add_modules(table, "—", "—", tree.modules)
+        def _walk(group: "OsirModuleGroupModel", prefix: str) -> None:
+            for module in group.modules:
+                table.add_row(prefix or "—", module)
+            for name in sorted(group.groups):
+                _walk(group.groups[name], f"{prefix} / {name}" if prefix else name)
 
-        # OS groups (windows / unix)
-        for os_name in ["windows", "unix"]:
-            group = getattr(tree, os_name, None)
-            if group:
-                _render_os_group(table, os_name, group)
-
-        # Flat groups
-        for category_name in ["splunk", "scan", "network", "pre_process", "test"]:
-            group = getattr(tree, category_name, None)
-            if group:
-                _render_flat_group(table, category_name, group)
-
+        _walk(tree, "")
         console.print(table)
 
-    @staticmethod
-    def modules_flat(
-            modules: list[str],
-            category: str,
-            subcategory: Optional[str] = None,
-            subsubcategory: Optional[str] = None
-    ) -> None:
-        parts = [p for p in [category, subcategory, subsubcategory] if p]
-        title = " / ".join(parts)
-
-        table = Table(
-            title=f"🧩 Modules — {title}",
-            box=box.ROUNDED,
-            show_lines=True,
-            title_style="bold cyan"
-        )
-        table.add_column("Module", style="white")
-
-        for module in modules:
-            table.add_row(module)
-
-        console.print(table)
 
     @staticmethod
     def profiles(profiles: list) -> None:
