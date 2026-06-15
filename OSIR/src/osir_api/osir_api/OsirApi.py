@@ -3,15 +3,17 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from osir_api.api.OsirApiExceptions import (
+    HTTPExceptionCustom,
     UnexpectedException,
+    http_error_handler,
     unexpected_error_handler
 )
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="OSIR API",
+    title="OSIR API@1.0.1",
     description="OSIR API",
-    version="1.0"
+    version="1.0.1"
 )
 app.add_middleware(
     CORSMiddleware,
@@ -20,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_exception_handler(UnexpectedException, unexpected_error_handler)
+app.add_exception_handler(HTTPExceptionCustom, http_error_handler)
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def root():

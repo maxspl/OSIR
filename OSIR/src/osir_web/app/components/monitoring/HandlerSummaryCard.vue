@@ -3,16 +3,39 @@ import type { HandlerRow } from '~/stores/handler'
 import type { ProcessingStatus } from '~/stores/handler'
 import { getStatusCfg, statusStripeClass, short } from '~/utils/monitoring'
 
-defineProps<{
+const props = defineProps<{
   handler: HandlerRow
   startTime: string | null
   endTime: string | null
+  taskStatusCount: Record<string, number>
 }>()
 
 const emit = defineEmits<{
   'stop': []
   'rerun': []
 }>()
+console.log(props.taskStatusCount)
+
+const statusLabels: Record<string, string> = {
+  'task_created': 'Created',
+  'processing_started': 'Processing',
+  'processing_done': 'Success',
+  'processing_failed': 'Failed',
+}
+
+const statusIcons: Record<string, string> = {
+  'task_created': 'i-lucide-clock',
+  'processing_started': 'i-lucide-loader-circle',
+  'processing_done': 'i-lucide-check-circle-2',
+  'processing_failed': 'i-lucide-x-circle',
+}
+
+const statusColors: Record<string, string> = {
+  'task_created': 'text-neutral-400',
+  'processing_started': 'text-amber-400',
+  'processing_done': 'text-green-500',
+  'processing_failed': 'text-red-500',
+}
 </script>
 
 <template>
@@ -33,6 +56,18 @@ const emit = defineEmits<{
         <div class="flex-1 min-w-0">
           <p class="text-xs text-muted uppercase tracking-wide font-medium">Handler</p>
           <p class="font-mono text-xs font-medium break-all">{{ handler.handler_id }}</p>
+          <!-- Task status summary -->
+          <div v-if="Object.keys(taskStatusCount).length > 0" class="flex items-center gap-2 mt-1">
+            <span
+              v-for="(count, status) in taskStatusCount"
+              :key="status"
+              class="flex items-center gap-1 text-xs"
+              :class="statusColors[status]"
+            >
+              <UIcon :name="statusIcons[status]" class="w-3 h-3" />
+              <span>{{ statusLabels[status] }}: {{ count }}</span>
+            </span>
+          </div>
         </div>
         <div class="flex items-center gap-4 text-xs text-muted shrink-0">
           <span class="flex items-center gap-1">

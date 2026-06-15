@@ -1,28 +1,9 @@
-# from enum import Enum
 import base64
-
-from fastapi import FastAPI, Header, Request, HTTPException, params
-# from fastapi.routing import APIRoute, APIRouter
-# from starlette.requests import ClientDisconnect
-from fastapi.responses import HTMLResponse, JSONResponse, Response, StreamingResponse
-# from typing import Annotated, Union, Any, Hashable
-# import base64
-# import hashlib
-# from uuid import uuid4
-# from datetime import datetime, timedelta
-# import os
-
-# from typing import Dict, List, Optional, Union, Sequence
-
-# from .filestore import FileInfo, FileStore
-
-
+from fastapi import Header, Request
+from fastapi.responses import JSONResponse, Response
 from fastapi import APIRouter
 
-from osir_api.api.model.OsirApiTaskModel import GetTaskInfoResponse
-from osir_api.api.OsirApiExceptions import UnexpectedExceptionResponse
-from osir_api.api.OsirIpcCall import OsirIpcCall
-from fastapi import status
+from osir_api.api.OsirIpcCall import OsirIpcCall, OsirIpcRequest, OsirIpcResponse, OsirSocket, handle_response
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -44,10 +25,7 @@ async def post_file(
     content_length: int = Header(None),
     content_type: str = Header(None),
 ):
-    # Read the body as bytes
     body_bytes = await request.body()
-
-    # Encode the body in base64 for JSON serialization
     body_encoded = base64.b64encode(body_bytes).decode("utf-8")
 
     return OsirIpcCall(
@@ -62,6 +40,14 @@ async def post_file(
         }
     )
 
+@router.head("/files/upload/{uuid}")
+async def upload_head(uuid: str):
+    return OsirIpcCall(
+        "tus_upload_head", 
+        params={
+            "uuid": uuid
+        })
+
 @router.patch("/files/upload/{uuid}")
 async def patch_file(
     request: Request,
@@ -73,21 +59,30 @@ async def patch_file(
     upload_offset: int = Header(None),
     upload_length: int = Header(None),
 ):
-    # Read the body as bytes
-    body_bytes = await request.body()
+    last_call = None
+    with OsirSocket() as client:
+        async for chunk in request.stream():
+            chunk_encoded = base64.b64encode(chunk).decode("utf-8")
+            request = OsirIpcRequest(action="tus_upload_patch", params={
+                "chunk": chunk_encoded,
+                "uuid": uuid,
+                "tus_resumable": tus_resumable,
+                "content_length": len(chunk),
+                "content_type": content_type,
+                "upload_offset": upload_offset,
+                "upload_length": upload_length,
+            })
+            last_call = OsirIpcResponse.model_validate_json(client.send(request))
 
-    # Encode the body in base64 for JSON serialization
-    body_encoded = base64.b64encode(body_bytes).decode("utf-8")
+            if not "headers" in last_call.response or not "Upload-Offset" in last_call.response["headers"]:
+                break
 
-    return OsirIpcCall(
-        "tus_upload_patch",
-        params={
-            "req": body_encoded,
-            "uuid": uuid,
-            "tus_resumable": tus_resumable,
-            "content_length": content_length,
-            "content_type": content_type,
-            "upload_offset": upload_offset,
-            "upload_length": upload_length,
-        }
-    )
+            upload_offset = last_call.response["headers"]['Upload-Offset']
+
+    result = handle_response(last_call)
+            
+    if isinstance(result, dict) and "headers" in result:
+        headers = result.pop("headers")
+        return JSONResponse(content=result, headers=headers)
+    
+    return result

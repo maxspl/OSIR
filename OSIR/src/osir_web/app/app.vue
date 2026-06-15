@@ -46,13 +46,27 @@ const toaster = { position: 'top-right', max:"5" }
         <UColorModeButton />
 
         <UButton
-          to="https://github.com"
+          to="https://github.com/maxspl/OSIR"
           target="_blank"
           icon="i-simple-icons-github"
           aria-label="GitHub"
           color="neutral"
           variant="ghost"
         />
+        <!-- TODO: Change for the docker IP -->
+        <UButton
+          to="https://localhost:8000"
+          target="_blank"
+          aria-label="GitHub"
+          color="neutral"
+          variant="ghost"
+        >
+            <img
+              src="~/assets/Splunk-Symbol.png"
+              alt="GitHub"
+              class="h-5"
+            >
+        </UButton>
 
         <!-- <UDropdownMenu
           :items="[[

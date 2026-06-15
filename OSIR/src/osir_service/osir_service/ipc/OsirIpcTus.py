@@ -4,19 +4,37 @@ IPC handlers for uploads operations in OSIR.
 
 import base64
 from datetime import datetime, timedelta
-from uuid import uuid4
+from pathlib import Path
+from typing import List
+from uuid import UUID, uuid4
 
-from osir_service.ipc.model.OsirFileModel import FileInfo, FsData
+from osir_service.ipc.model.OsirFileModel import DirEntry, FsData
 from osir_service.ipc.model.OsirIpcRequest import OsirIpcRequest
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.ipc.model.OsirExceptions import OsirException
-from osir_lib.core.OsirConstants import OSIR
+from osir_lib.core.OsirConstants import OSIR, OSIR_PATHS
 
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+class OsirTusFile(BaseModel):
+    uuid: str
+    offset: int = 0 
+    size: int | None 
+    is_size_deferred: bool = False 
+    metadata: dict[str, str] = {} 
+    is_partial: bool = False
+    is_final: bool = True 
+    partial_uploads: List[str] = [] 
+    expires: str | None
+    storage_path: str = ""
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    entry: DirEntry = None
+
+FILESTORE: dict[UUID, OsirTusFile] = {}
 
 class TusConfig:
     tus_version: str = "1.0.0"
@@ -24,7 +42,7 @@ class TusConfig:
     tus_checksum_algorithm: str = "md5,sha1,crc32"
     tus_max_size: int = 10 * 1024 * 1024 * 1024  # 10GB
     tus_extension: str = "creation,creation-defer-length,creation-with-upload,expiration,termination"
-    location: str = "proxy/api/files/upload"  # Chemin de base pour les uploads
+    location: str = "proxy/api/files/upload"
 
 class OsirIpcTus:
 
@@ -43,15 +61,45 @@ class OsirIpcTus:
         )
 
     @staticmethod
+    def handle_tus_upload_head(req: OsirIpcRequest, resp: OsirIpcResponse):
+        uuid = req.params.get("uuid")
+        info = FILESTORE.get(uuid)
+
+        if info is None:
+            return OsirIpcResponse(
+                status=404,
+                response={"error": "File not found"}
+            )
+
+        headers = {
+            "Tus-Resumable": TusConfig.tus_version,
+            "Upload-Length": str(info.size),
+            "Upload-Offset": str(info.offset),
+            "Cache-Control": "no-store",
+        }
+
+        if info.is_size_deferred:
+            headers["Upload-Defer-Length"] = str(1)
+
+        if info.metadata:
+            metadata_base64 = ",".join(
+                f"{key} {base64.b64encode(bytes(value, 'utf-8')).decode('utf-8')}"
+                for key, value in info.metadata.items()
+            )
+            headers["Upload-Metadata"] = metadata_base64
+
+        return OsirIpcResponse(
+            response={"headers": headers}
+        )
+
+    @staticmethod
     def handle_tus_upload_post(req: OsirIpcRequest, resp: OsirIpcResponse):
-        # Récupération des paramètres depuis req.params
         upload_metadata = req.params.get("upload_metadata")
-        upload_length = req.params.get("upload_length")
+        upload_length = int(req.params.get("upload_length"))
         upload_defer_length = req.params.get("upload_defer_length")
-        content_length = req.params.get("content_length")
+        content_length = int(req.params.get("content_length"))
         content_type = req.params.get("content_type")
 
-        # Validation des paramètres
         if upload_defer_length is not None and upload_defer_length != 1:
             return OsirIpcResponse(
                 status=400,
@@ -66,7 +114,6 @@ class OsirIpcTus:
 
         is_size_deferred = upload_length is None or upload_length <= 0
 
-        # Parsing des métadonnées
         metadata = {}
         if upload_metadata and upload_metadata != "":
             for kv in upload_metadata.split(","):
@@ -74,26 +121,44 @@ class OsirIpcTus:
                 decoded_value = base64.b64decode(value.strip()).decode("utf-8")
                 metadata[key.strip()] = decoded_value
 
-        # Génération d'un UUID pour le fichier
-        uuid = str(uuid4().hex)
+        if not "path" in metadata or not "name" in metadata:
+            return OsirIpcResponse(
+                status=400,
+                response={"error": "Path not specified, are you using vue-finder ?"}
+            )
 
-        # Création de l'objet FileInfo
-        info = FileInfo(
-            uuid=uuid,
+        storage_path: str = metadata["path"]
+        if not storage_path.endswith("//"):
+            storage_path += '/'
+
+        case_name, path = FsData.get_real_path(storage_path + metadata['name'])
+        case_candidate = Path(OSIR_PATHS.CASES_DIR / case_name).resolve()
+        path_canditate = case_candidate / path
+
+        if not FsData.is_secure(path_canditate, case_candidate):
+            return OsirIpcResponse(
+                status=400,
+                response={"error": "Path is not secure, must be in OSIR/share/cases !"}
+            )
+
+        upload_uuid = str(uuid4().hex)
+        file = OsirTusFile(
+            uuid=upload_uuid,
             offset=0,
             size=upload_length,
             is_size_deferred=is_size_deferred,
-            storage={},
+            storage_path=str(path_canditate),
             metadata=metadata,
             expires=None,
+            entry=DirEntry.from_path(path_canditate, case_name)
         )
 
-        # Écriture des infos dans le datastore
-        # req.instance.datastore.write_file_info(info)
-        # req.instance.datastore.new_file_bin(uuid=uuid)
-        logger.info(info)
-        logger.info(req.params)
-
+        if not file.entry.create_bin():
+            return OsirIpcResponse(
+                status=400,
+                response={"error": "A file with this name already exists !"}
+            )
+        
         if content_length and upload_length and not is_size_deferred:
             if content_type != "application/offset+octet-stream":
                 return OsirIpcResponse(
@@ -101,8 +166,9 @@ class OsirIpcTus:
                     response={"error": "Content-Type Must be application/offset+octet-stream!"}
                 )
 
-            info = OsirIpcTus._write_chunk(req, info)
-            if not info:
+            file = OsirIpcTus._write_chunk(req, file)
+            
+            if not file:
                 return OsirIpcResponse(
                     status=412,
                     response={
@@ -112,29 +178,30 @@ class OsirIpcTus:
                     }
                 )
 
+            
             date_expiry = datetime.now() + timedelta(days=1)
-            info.expires = str(date_expiry.isoformat())
-            # req.instance.datastore.write_file_info(info)
-
+            file.expires = str(date_expiry.isoformat())
+            FILESTORE[upload_uuid] = file
+            
             return OsirIpcResponse(
                 status=204,
                 response={
                     "headers": {
-                        "Location": f"{TusConfig.location}/{uuid}",
+                        "Location": f"{TusConfig.location}/{upload_uuid}",
                         "Tus-Resumable": TusConfig.tus_resumable,
-                        "Upload-Offset": str(info.offset),
-                        "Upload-Expires": str(info.expires),
+                        "Upload-Offset": str(file.offset),
+                        "Upload-Expires": str(file.expires),
                     }
                 }
             )
 
-        # Cas 2 : Création sans upload (Upload-Length non fourni ou égal à 0)
         else:
+            FILESTORE[upload_uuid] = file
             return OsirIpcResponse(
                 status=201,
                 response={
                     "headers": {
-                        "Location": f"{TusConfig.location}/{uuid}",
+                        "Location": f"{TusConfig.location}/{upload_uuid}",
                         "Tus-Resumable": TusConfig.tus_resumable,
                     }
                 }
@@ -142,7 +209,6 @@ class OsirIpcTus:
 
     @staticmethod
     def handle_tus_upload_patch(req: OsirIpcRequest, resp: OsirIpcResponse):
-        # Récupération des paramètres
         uuid = req.params.get("uuid")
         tus_resumable = req.params.get("tus_resumable")
         content_length = req.params.get("content_length")
@@ -150,10 +216,6 @@ class OsirIpcTus:
         upload_offset = req.params.get("upload_offset")
         upload_length = req.params.get("upload_length")
 
-        # logger.info(info)
-        logger.info(req.params)
-
-        # Validation des headers
         if tus_resumable != TusConfig.tus_version:
             return OsirIpcResponse(
                 status=400,
@@ -166,9 +228,7 @@ class OsirIpcTus:
                 response={"error": "Invalid Content-Type!"}
             )
 
-        # Vérification de l'existence du fichier
-        info = req.instance.datastore.read_file_info(uuid)
-        if info is None:
+        if uuid not in FILESTORE:
             return OsirIpcResponse(
                 status=404,
                 response={
@@ -177,9 +237,10 @@ class OsirIpcTus:
                     }
                 }
             )
+        
+        file = FILESTORE[uuid]
 
-        # Gestion de la taille différée
-        if info.is_size_deferred:
+        if file.is_size_deferred:
             if upload_length is None:
                 return OsirIpcResponse(
                     status=412,
@@ -190,14 +251,13 @@ class OsirIpcTus:
                     }
                 )
 
-            if not info.size and upload_length:
-                info.size = upload_length
-                req.instance.datastore.write_file_info(info)
+            if not file.size and upload_length:
+                file.size = upload_length
 
-        # Vérification du verrou et de l'offset
-        lock = req.instance.datastore.new_lock(uuid)
+        lock = file.entry.new_lock()
         with lock:
-            if upload_offset != info.offset:
+            if int(upload_offset) != file.offset:
+                logger.info(f"{upload_offset} upload, file offset {file.offset}")
                 return OsirIpcResponse(
                     status=409,
                     response={
@@ -207,11 +267,9 @@ class OsirIpcTus:
                     }
                 )
 
-            # Simulation de l'écriture du chunk
-            info = OsirIpcTus._write_chunk(req, info)
+            file = OsirIpcTus._write_chunk(req, file)
 
-        # Vérification de la taille réelle du fichier
-        if upload_offset + content_length != info.offset:
+        if int(upload_offset) + int(content_length) != file.offset:
             return OsirIpcResponse(
                 status=460,
                 response={
@@ -221,17 +279,14 @@ class OsirIpcTus:
                 }
             )
 
-        # Mise à jour de l'expiration
         date_expiry = datetime.now() + timedelta(days=1)
-        info.expires = str(date_expiry.isoformat())
-        req.instance.datastore.write_file_info(info)
+        file.expires = str(date_expiry.isoformat())
 
-        # Réponse finale
         headers = {
             "Location": f"{TusConfig.location}/{uuid}",
             "Tus-Resumable": TusConfig.tus_resumable,
-            "Upload-Offset": str(info.offset),
-            "Upload-Expires": str(info.expires),
+            "Upload-Offset": str(file.offset),
+            "Upload-Expires": str(file.expires),
         }
 
         return OsirIpcResponse(
@@ -239,21 +294,17 @@ class OsirIpcTus:
             response={"headers": headers}
         )
 
-    # @staticmethod
-    # async def _write_chunk(request: Request, info: FileInfo) -> FileInfo:
-    #     f = self.datastore.open(info.uuid)
+    @staticmethod
+    def _write_chunk(req: OsirIpcRequest, info: OsirTusFile) -> OsirTusFile:
+        f = info.entry.open()
 
-    #     try:
-    #         async for chunk in request.stream():
-    #             chunk_size = len(chunk)
-    #             f.write(chunk)
-    #             info.offset += chunk_size
-    #             # info.chunk_size = chunk_size
-    #             # info.part += 1
-    #     except ClientDisconnect as e:
-    #         print(f"Client disconnected: {e}")
-    #     finally:
-    #         self.datastore.write_file_info(info)
-    #         f.close()
+        try:
+            chunk_encoded = req.params.get("chunk")
+            chunk = base64.b64decode(chunk_encoded)
+            chunk_size = len(chunk)
+            f.write(chunk)
+            info.offset += chunk_size
+        finally:
+            f.close()
 
-    #     return info
+        return info

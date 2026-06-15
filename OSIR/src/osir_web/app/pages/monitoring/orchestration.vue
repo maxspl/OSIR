@@ -131,7 +131,7 @@ async function deleteAllHandlers() {
 }
 
 // ── Handler summary ───────────────────────────────────────────────────────────
-const { handlerTasksByModule, handlerModuleSummary, handlerSummary } = useHandlerSummary(selectedHandler)
+const { handlerTasksByModule, handlerModuleSummary, handlerSummary, taskStatusCount } = useHandlerSummary(selectedHandler)
 
 // ── FilterBar definitions ─────────────────────────────────────────────────────
 const view1Filters = computed(() => [[
@@ -216,6 +216,7 @@ const view2Filters = computed(() => [
             :handler="selectedHandler"
             :start-time="handlerSummary?.startTime ?? null"
             :end-time="handlerSummary?.endTime ?? null"
+            :task-status-count="taskStatusCount"
             @stop="() => {}"
             @rerun="() => {}"
           />

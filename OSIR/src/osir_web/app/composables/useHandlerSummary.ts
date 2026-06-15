@@ -57,5 +57,15 @@ export function useHandlerSummary(selectedHandler: Ref<HandlerRow | null>) {
     }
   })
 
-  return { handlerTasksByModule, handlerModuleSummary, handlerSummary }
+  const taskStatusCount = computed(() => {
+    if (!selectedHandler.value) return {}
+    const tasks = handlerStore.tasksByHandler[selectedHandler.value.handler_id] ?? []
+    const counts: Record<string, number> = {}
+    tasks.forEach(t => {
+      counts[t.processing_status] = (counts[t.processing_status] || 0) + 1
+    })
+    return counts
+  })
+
+  return { handlerTasksByModule, handlerModuleSummary, handlerSummary, taskStatusCount }
 }

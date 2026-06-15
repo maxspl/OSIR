@@ -1,17 +1,16 @@
-from datetime import datetime
-from typing import BinaryIO, List, Literal, Optional, Tuple, Dict, Any
-import uuid
-# from filelock import FileLock
-from pydantic import BaseModel, Field
-from osir_service.ipc.OsirIpc import FileManager
-from osir_lib.core.OsirConstants import OSIR_PATHS, Path
-from pathlib import Path
-import mimetypes
 import os
 import tarfile
 import zipfile
-import glob
 import shutil
+import mimetypes
+
+from typing import BinaryIO, List, Literal, Optional, Tuple, Dict
+from filelock import FileLock
+from pydantic import BaseModel 
+from pathlib import Path
+
+from osir_service.ipc.OsirIpc import FileManager
+from osir_lib.core.OsirConstants import OSIR_PATHS, Path
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -30,7 +29,6 @@ class DirEntry(BaseModel):
     mime_type: Optional[str] = None
     read_only: Optional[bool] = None
     previewUrl: Optional[str] = None
-    _uuid: Optional[str] = uuid.uuid4()
 
     @staticmethod
     def get_virt_path(case_name: str, path: Path):
@@ -115,17 +113,22 @@ class DirEntry(BaseModel):
     
     @property
     def osir_path(self):
-        return FsData.get_path(FsData.get_real_path(self.path))
+        case_name, path = FsData.get_real_path(self.path)
+        return Path(OSIR_PATHS.CASES_DIR / case_name / path).resolve() 
     
     def create_bin(self):
+        if self.osir_path.exists():
+            return False
+        
         open(self.osir_path, "a+").close()
-
+        return True
+    
     def open(self, mode="ab") -> BinaryIO:
         fs = open(self.osir_path, mode)
         return fs
     
-    # def new_lock(self) -> FileLock:
-    #     return FileLock(os.path.join(self.osir_path, f".lock"), 10)
+    def new_lock(self) -> FileLock:
+        return FileLock(Path(str(self.osir_path) + ".lock"), 10)
     
 
 class FsData(BaseModel):
@@ -499,93 +502,3 @@ class FsData(BaseModel):
                 results.append(entry)
 
         return results
-    
-class FileInfo(BaseModel):
-    uuid: str
-    offset: int = 0 # upload file current offset
-    size: int | None # upload file total size in expected
-    is_size_deferred: bool = False # indicates whether the total expected file size is deferred
-    metadata: dict[str, str] = {} # upload file metadata from client, `filename`, `filetype`,...etc may be contained
-    is_partial: bool = False # indicates this is a partial upload which will later be used to form a final upload by concatenation
-    is_final: bool = True # indicates this is final upload
-    partial_uploads: List[str] = [] # If the upload is a final one (see IsFinal) this will be a non-empty ordered slice containing the ids of the uploads for concatenation
-    expires: str | None
-    storage: dict[str, str] = {} # information about where the file is stored, like, a file path
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    
-
-class FileStore():
-    path: str
-
-    def __init__(self, path: str, **kwargs) -> None:
-        self._cache: dict[str, FileInfo] = {}
-        
-        if os.path.isfile(path):
-            print(
-                f"ERROR: The path[{path}] is not a valid folder. Please use a valid folder instead!"
-            )
-
-            # Exit to cancel project
-            sys.exit(1)
-
-        if not os.path.exists(path):
-            os.mkdir(path)
-
-        self.path = path
-        
-        atexit.register(self.exit_handler)
-    
-    def exit_handler(self):
-        print('My application is ending!')
-    
-    def is_existed(self, uuid: str) -> bool:
-        if os.path.exists(self.file_bin_path(uuid)) or os.path.exists(
-            self.file_info_path(uuid)
-        ):
-            return True
-        else:
-            return False
-
-    def new_file_bin(self, uuid: str):
-        # Create the empty file
-        open(self.file_bin_path(uuid=uuid), "a").close()
-            
-    def file_bin_path(self, uuid: str) -> str:
-        return os.path.join(self.path, uuid)
-
-    def open(self, uuid: str, mode="ab") -> BinaryIO:
-        fs = open(self.file_bin_path(uuid=uuid), mode)
-        return fs
-    
-    def file_info_path(self, uuid: str) -> str:
-        return os.path.join(self.path, f"{uuid}.info")
-
-    def read_file_info(self, uuid: str) -> FileInfo:
-        # cache
-        cached_info = self._cache.get(uuid)
-        if cached_info:
-            return cached_info
-
-        fpath = self.file_info_path(uuid)
-        if os.path.exists(fpath):
-            with open(fpath, "r") as f:
-                cached_info = FileInfo(**json.load(f))
-                # cache
-                self._cache[uuid] = cached_info
-                return cached_info
-        else:
-            return None
-
-    def write_file_info(self, info: FileInfo):
-        fpath = self.file_info_path(info.uuid)
-        info.storage = {"type": "filestore", "path": self.file_bin_path(info.uuid)}
-
-        with open(fpath, "w") as f:
-            f.write(info.model_dump_json(indent=2))
-
-        # cache
-        self._cache[info.uuid] = info
-            
-    def new_lock(self, uuid: str) -> FileLock:
-        return FileLock(os.path.join(self.path, f"{uuid}.lock"), 10)

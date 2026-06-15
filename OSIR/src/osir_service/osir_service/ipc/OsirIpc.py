@@ -18,13 +18,10 @@ from osir_service.ipc.OsirSocket import OsirSocket
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.ipc.model.OsirFileModel import FsData
-
-from osir_lib.core.OsirConstants import OSIR, OSIR_PATHS
 from osir_service.ipc.model.OsirAction import OSIR_ACTIONS, register_action
-from osir_lib.logger import AppLogger
-
-# Import external handler classes
 from osir_service.ipc.OsirIpcFiles import OsirIpcFiles
+
+from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
 
@@ -85,7 +82,6 @@ class OsirIpc(BaseModel):
                     OsirSocket.send_json(conn, response, pydantic=True)
                 
             except ConnectionError:
-                # logger.debug("Client disconnected.")
                 break
             except Exception as e:
                 logger.error_handler(f"Error handling request: {e}")
@@ -459,9 +455,6 @@ class OsirIpc(BaseModel):
         resp.response = result
         return resp
 
-    # ==================== FILES HANDLERS ====================
-    # These handlers delegate to OsirIpcFiles instance
-
     @register_action('files_list')
     def _handle_files_list(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._files_handler.handle_files_list(req, resp)
@@ -514,3 +507,6 @@ class OsirIpc(BaseModel):
     def _handle_tus_upload_patch(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         return self._tus_handler.handle_tus_upload_patch(req, resp)
 
+    @register_action('tus_upload_head', required_fields=['uuid'])
+    def _handle_tus_upload_head(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        return self._tus_handler.handle_tus_upload_head(req, resp)
