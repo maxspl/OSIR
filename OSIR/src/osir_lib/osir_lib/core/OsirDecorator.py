@@ -4,6 +4,7 @@ import inspect
 from io import StringIO
 import io
 import logging
+import threading
 import time
 from typing import Any, Optional
 from osir_lib.logger import AppLogger
@@ -180,20 +181,19 @@ def trace_func():
 
 def finalize_task(status, task_id, func_name, start, end, logs):
     """
-        Updates the PostgreSQL database with the final results and logs of a task.
+        Stores the execution trace of a module run so the enclosing Celery
+        task can return it (the Celery result backend then persists it in
+        celery_taskmeta.result). No direct database write happens here:
+        task state transitions are owned by the Celery result backend.
 
         Args:
             status (ProcessingStatus): The final status (DONE or FAILED).
-            task_id (int): The unique ID of the task in the database.
+            task_id (str): The Celery task id.
             func_name (str): The name of the module/function that executed.
             start (datetime): Execution start timestamp.
             end (datetime): Execution end timestamp.
             logs (str): The raw log output captured during execution.
     """
-    from osir_service.postgres.OsirDb import OsirDb
-
-    db = OsirDb()
-
     log_blob = {
         "function": func_name,
         "duration_seconds": (end - start).total_seconds(),
@@ -202,10 +202,19 @@ def finalize_task(status, task_id, func_name, start, end, logs):
         "logs": logs.strip().split('\n')
     }
 
-    db.task.update(
-        task_id=task_id,
-        processing_status=status,
-        trace_data=log_blob
-    )
+    with _task_traces_lock:
+        _task_traces[str(task_id)] = (status, log_blob)
 
-    db.close()
+
+# Per-process registry of module traces, keyed by celery task id. Written by
+# finalize_task at the end of a module run, consumed (popped) by the celery
+# task function to build its return value. In prefork workers the decorator
+# and the task body run in the same child process.
+_task_traces: dict = {}
+_task_traces_lock = threading.Lock()
+
+
+def pop_task_trace(task_id):
+    """Returns (status, log_blob) recorded for this task id, or (None, None)."""
+    with _task_traces_lock:
+        return _task_traces.pop(str(task_id), (None, None))

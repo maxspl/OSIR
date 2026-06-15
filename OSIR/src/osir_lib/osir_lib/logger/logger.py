@@ -159,21 +159,57 @@ class AppLogger:
         }
         console_handler = LevelBasedHandler(console_level_formatter_map)
 
-        log_directory = OSIR_PATHS.LOG_DIR
+        log_directory = self._resolve_log_directory()
 
-        if not os.path.exists(log_directory):
-            os.makedirs(log_directory)
-
-        log_file = os.path.join(OSIR_PATHS.LOG_DIR, log_file)
+        log_file = os.path.join(log_directory, log_file)
 
         # Create custom handlers for file logging
-        file_handler = logging.FileHandler(log_file)
+        try:
+            file_handler = logging.FileHandler(log_file)
+        except (PermissionError, OSError):
+            # Log file exists but is not writable by this user (e.g. created
+            # root-owned by a container on a shared appliance): fall back to
+            # the per-user directory.
+            fallback_dir = self._user_log_directory()
+            os.makedirs(fallback_dir, exist_ok=True)
+            file_handler = logging.FileHandler(os.path.join(fallback_dir, os.path.basename(log_file)))
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(file_debug_formatter)  # Default formatter for all levels
 
         # Add handlers to the logger
         self.logger.addHandler(console_handler)
         self.logger.addHandler(file_handler)
+
+    @staticmethod
+    def _user_log_directory() -> str:
+        """Per-user fallback log directory for out-of-appliance usage."""
+        return os.path.join(os.path.expanduser("~"), ".osir", "log")
+
+    def _resolve_log_directory(self) -> str:
+        """
+            Picks the log directory in order of preference:
+            1. OSIR_LOG_DIR environment variable, if set;
+            2. the appliance path (OSIR_PATHS.LOG_DIR, /OSIR/share/log),
+               valid inside containers and on the master;
+            3. ~/.osir/log as a per-user fallback, so tools like osir_client
+               can run on any workstation without the appliance layout.
+        """
+        candidates = []
+        env_dir = os.environ.get("OSIR_LOG_DIR")
+        if env_dir:
+            candidates.append(env_dir)
+        candidates.append(str(OSIR_PATHS.LOG_DIR))
+        candidates.append(self._user_log_directory())
+
+        for directory in candidates:
+            try:
+                os.makedirs(directory, exist_ok=True)
+                if os.access(directory, os.W_OK):
+                    return directory
+            except (PermissionError, OSError):
+                continue
+        # Last resort: current directory (always lets the logger come up).
+        return os.getcwd()
 
     def get_logger(self):
         return self.logger

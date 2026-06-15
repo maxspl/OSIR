@@ -99,6 +99,11 @@ def main():
 
         worker = tasks.CeleryWorker()
         worker.start_worker()
+        logger.error(
+            "All Celery workers exited unexpectedly. "
+            "Check the celery log file for the startup error."
+        )
+        exit(1)
 
     if args.web or args.dev:
         def get_version_from_package_json(path):

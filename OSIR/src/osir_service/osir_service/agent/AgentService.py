@@ -13,6 +13,7 @@ from osir_lib.logger import AppLogger
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 from osir_lib.core.OsirUtils import capture_log_output
+from osir_lib.core.OsirDecorator import pop_task_trace
 from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
 from osir_service.postgres.OsirDbConstants import ProcessingStatus
@@ -41,9 +42,14 @@ class CeleryWorker:
 
         RABBITMQ_USER = os.getenv('RABBITMQ_DEFAULT_USER', 'missing RABBITMQ_DEFAULT_USER env var')
         RABBITMQ_PASSWORD = os.getenv('RABBITMQ_DEFAULT_PASS', 'missing RABBITMQ_DEFAULT_PASS env var')
+        POSTGRES_USER = os.getenv('POSTGRES_USER', 'missing POSTGRES_USER env var')
+        POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD', 'missing POSTGRES_PASSWORD env var')
 
         self.CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{self.master_host}:5672//')
-        self.CELERY_RESULT_BACKEND = environ.get('CELERY_RESULT_BACKEND', f'redis://{self.master_host}:6379/0')
+        self.CELERY_RESULT_BACKEND = environ.get(
+            'CELERY_RESULT_BACKEND',
+            f'db+postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{self.master_host}:5432/OSIR_db'
+        )
 
         self.app = Celery(name='OSIR', backend=self.CELERY_RESULT_BACKEND)
         self.app.conf.update(
@@ -52,32 +58,36 @@ class CeleryWorker:
             resultrepr_maxsize=5000000,
             result_extended=True,
             task_track_started=True,  # Enable tracking
-            task_send_sent_event=True  # Enable events
-
+            task_send_sent_event=True,  # Enable events
+            result_expires=None,  # No TTL purge: results are cleaned per-case
+            database_short_lived_sessions=True,
         )
         self.app.amqp.argsrepr_maxsize = 10000
 
         self._register_tasks()
         self._local_count = 0
 
-    def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: OsirDb):
+    def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: OsirDb, exclude_task_id=None):
         """
             Wait until the input file or directory is free to use, i.e., not being used by another module.
 
             Args:
                 case_uuid (str): The UUID of the case.
                 module_instance: The module instance containing the input to be checked.
+                exclude_task_id (str, optional): The current task's id. With the
+                    Celery result backend, the current task is already STARTED
+                    when this runs, so it must be excluded from the check.
 
             Returns:
                 None
         """
         if module_instance.input.match:
             # file_opened = self._is_file_opened(module_instance.input.file)
-            file_opened = db.task.check_input(case_uuid, module_instance.input.match)
+            file_opened = db.task.check_input(case_uuid, module_instance.input.match, exclude_task_id=exclude_task_id)
             while file_opened:
                 logger.debug(f"{module_instance.module_name} - input {module_instance.input.match} is opened by another module. Waiting...")
                 time.sleep(3)
-                file_opened = db.task.check_input(case_uuid, module_instance.input.match)
+                file_opened = db.task.check_input(case_uuid, module_instance.input.match, exclude_task_id=exclude_task_id)
 
     def _compute_parallel_capacity(self, standalone: bool, windows_cores: int):
         """
@@ -130,35 +140,60 @@ class CeleryWorker:
             "unix_disk_parallel": unix_disk_parallel,
         }
 
-    def _is_file_being_written(self, module_instance, check_interval=0.5):
+    def _wait_for_input_stable(self, module_instance):
+        """Wait only when a file input looks too recent or still changing.
+
+        Watchdog already does a check for file in use but safety is kept here
+        manually/API tasks.
         """
-            Check if a file is being written to by monitoring its size and modification time.
+        if module_instance.input.type != "file":
+            return
 
-            Args:
-                module_instance: The module instance containing the file to be checked.
-                check_interval (float, optional): The interval in seconds to wait between checks. Default is 0.5 seconds.
+        file_path = module_instance.input.match
+        stability_window = float(os.getenv("OSIR_FILE_STABILITY_WINDOW", "1.0"))
+        check_interval = float(os.getenv("OSIR_FILE_STABILITY_CHECK_INTERVAL", "0.2"))
+        max_wait = float(os.getenv("OSIR_FILE_STABILITY_MAX_WAIT", "300"))
+        deadline = time.monotonic() + max_wait
 
-            Returns:
-                bool: True if the file size or modification time has changed, indicating it is being written to. False otherwise.
-        """
-        if module_instance.input.type == "file":
-            file_path = module_instance.input.match
-            # Get the initial size and modification time of the file
-            initial_size = os.path.getsize(file_path)
-            initial_mtime = os.path.getmtime(file_path)
+        last_signature = None
+        stable_since = None
 
-            # Wait for the specified interval
-            time.sleep(check_interval)
+        while True:
+            try:
+                st = os.stat(file_path)
+            except FileNotFoundError:
+                # Let the processor fail with its normal error path if the file
+                # disappeared between task creation and execution.
+                return
 
-            # Get the size and modification time of the file again
-            final_size = os.path.getsize(file_path)
-            final_mtime = os.path.getmtime(file_path)
+            size = int(st.st_size)
+            mtime_ns = int(getattr(st, "st_mtime_ns", int(st.st_mtime * 1_000_000_000)))
+            signature = (size, mtime_ns)
+            now = time.monotonic()
 
-            # Determine if the file size or modification time has changed
-            if initial_size != final_size or initial_mtime != final_mtime:
-                return True
+            # Fast path: no sleep for files that are already older than the
+            # stability window.
+            if time.time() - st.st_mtime >= stability_window:
+                return
+
+            if signature == last_signature:
+                if stable_since is not None and now - stable_since >= stability_window:
+                    return
             else:
-                return False
+                last_signature = signature
+                stable_since = now
+
+            if now >= deadline:
+                logger.warning(
+                    f"{module_instance.module_name} - file '{file_path}' did not become stable "
+                    f"within {max_wait:.0f}s; processing anyway"
+                )
+                return
+
+            logger.debug(
+                f"{module_instance.module_name} - file '{file_path}' still looks recent/changing. Waiting..."
+            )
+            time.sleep(check_interval)
 
     def _register_tasks(self):
         """
@@ -166,24 +201,26 @@ class CeleryWorker:
         """
         @self.app.task(name="internal_processor_task")
         def task_internal_processor(input_dir, case_path, module_bytes, case_uuid):
-            """ celery task - internal_processor  """
-            try:
-                task_id = current_task.request.id
-                worker_name = current_task.request.hostname
+            """ celery task - internal_processor
 
+                Task state lives in the Celery result backend: SUCCESS/FAILURE
+                are reported by returning or raising, STARTED by
+                task_track_started.
+            """
+            task_id = current_task.request.id
+            worker_name = current_task.request.hostname
+
+            try:
                 # logger.debug(f"Task ID inside the task: {task_id}")
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
 
                 if module_instance.configuration.processor_os == 'windows' and not OsirAgentConfig().windows_configured:
-                    with OsirDb() as db:
-                        trace = {"logs": [
-                            f"Windows module '{module_instance.module_name}' cannot run on this agent: "
-                            "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
-                        ]}
-                        db.task.update(task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace, agent=worker_name)
-                    return "windows_not_configured"
+                    raise RuntimeError(
+                        f"Windows module '{module_instance.module_name}' cannot run on this agent: "
+                        "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
+                    )
 
                 processor = InternalProcessor(case_path, module_instance, task_id=task_id, agent_name=worker_name)
                 logger.debug("Check if input files/foles of module is in use...")
@@ -196,15 +233,13 @@ class CeleryWorker:
                     else:
                         output_path = "N/A"
 
-                    self._is_item_in_use(case_uuid, module_instance, db)
-                    db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name, output=output_path)
+                    self._is_item_in_use(case_uuid, module_instance, db, exclude_task_id=task_id)
+                    db.task.set_runtime_info(task_id, agent=worker_name, output=output_path)
 
-                # Wait if file is currently beeing written
-                file_written = self._is_file_being_written(module_instance)
-                while file_written:
-                    logger.debug(f"{module_instance.module_name} - file {module_instance.input.file} is opened. Waiting...")
-                    time.sleep(0.1)
-                    file_written = self._is_file_being_written(module_instance)
+                # Safety net for manually/API-pushed file tasks. The normal
+                # watchdog path already delays unstable files before task push.
+                self._wait_for_input_stable(module_instance)
+
                 if processor.available:
                     impl_name = getattr(module_instance.configuration, "alt_module", None) or module_instance.module_name
                     logger.debug(
@@ -213,35 +248,42 @@ class CeleryWorker:
                     )
                     processor.run_module()
             except Exception as exc:
-                db = OsirDb()
                 with capture_log_output(logger) as log_buffer:
                     logger.error_handler(exc)
                     captured_trace = log_buffer.getvalue()
-                trace = {"logs": captured_trace.strip().split('\n')}
-                db.task.update(task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace)
-                db.close()
-            else:
-                return "internal_processor done"
+                _, trace = pop_task_trace(task_id)
+                module_logs = "\n".join(trace["logs"]) if trace else captured_trace.strip()
+                # Re-raise so Celery records FAILURE + traceback (module logs
+                # are chained into the stored traceback through the message).
+                raise RuntimeError(f"internal_processor failed:\n{module_logs}") from exc
+
+            status, trace = pop_task_trace(task_id)
+            if status is ProcessingStatus.PROCESSING_FAILED:
+                module_logs = "\n".join(trace["logs"]) if trace else "module returned False"
+                raise RuntimeError(f"internal_processor failed:\n{module_logs}")
+            return trace or "internal_processor done"
 
         @self.app.task(name="external_processor_task")
         def task_external_processor(input_dir, case_path, module_bytes, case_uuid):
-            """ celery task - external_processor  """
+            """ celery task - external_processor
+
+                The only direct DB write is set_runtime_info (output path + worker name).
+                Other status updates done by Celery.
+            """
+            task_id = current_task.request.id
+            worker_name = current_task.request.hostname
+
             try:
-                task_id = current_task.request.id
-                worker_name = current_task.request.hostname
                 logger.debug(f"This task is running on worker: {task_id}")
                 module_dict = json.loads(module_bytes)
                 module_dict['case_path'] = case_path
                 module_instance = OsirModule.model_validate(module_dict)
 
                 if module_instance.configuration.processor_os == 'windows' and not OsirAgentConfig().windows_configured:
-                    with OsirDb() as db:
-                        trace = {"logs": [
-                            f"Windows module '{module_instance.module_name}' cannot run on this agent: "
-                            "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
-                        ]}
-                        db.task.update(task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace, agent=worker_name)
-                    return "windows_not_configured"
+                    raise RuntimeError(
+                        f"Windows module '{module_instance.module_name}' cannot run on this agent: "
+                        "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
+                    )
 
                 processor = ExternalProcessor(case_path, module_instance, task_id=task_id, agent_name=worker_name)
 
@@ -255,26 +297,27 @@ class CeleryWorker:
                     else:
                         output_path = "Module without Output"
 
-                    self._is_item_in_use(case_uuid, module_instance, db)
-                    db.task.update(task_id, ProcessingStatus.PROCESSING_STARTED, agent=worker_name, output=output_path)
+                    self._is_item_in_use(case_uuid, module_instance, db, exclude_task_id=task_id)
+                    db.task.set_runtime_info(task_id, agent=worker_name, output=output_path)
 
-                file_written = self._is_file_being_written(module_instance)
-                while file_written:
-                    logger.debug(f"{module_instance.module_name} - file {module_instance.input.file} is opened. Waiting...")
-                    time.sleep(0.1)
-                    file_written = self._is_file_being_written(module_instance)
+                # Safety net for manually/API file tasks. The normal
+                # watchdog path already delays unstable files before task push
+                self._wait_for_input_stable(module_instance)
 
                 processor.run_module()
             except Exception as exc:
-                db = OsirDb()
                 with capture_log_output(logger) as log_buffer:
                     logger.error_handler(exc)
                     captured_trace = log_buffer.getvalue()
-                trace = {"logs": captured_trace.strip().split('\n')}
-                db.task.update(task_id, ProcessingStatus.PROCESSING_FAILED, trace_data=trace, agent=worker_name)
-                db.close()
-            else:
-                return "external_processor done"
+                _, trace = pop_task_trace(task_id)
+                module_logs = "\n".join(trace["logs"]) if trace else captured_trace.strip()
+                raise RuntimeError(f"external_processor failed:\n{module_logs}") from exc
+
+            status, trace = pop_task_trace(task_id)
+            if status is ProcessingStatus.PROCESSING_FAILED:
+                module_logs = "\n".join(trace["logs"]) if trace else "module returned False"
+                raise RuntimeError(f"external_processor failed:\n{module_logs}")
+            return trace or "external_processor done"
 
     def _start_single_worker(self, argv):
         """

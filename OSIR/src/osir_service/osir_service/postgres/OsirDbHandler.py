@@ -231,46 +231,48 @@ class OsirDbHandler:
 
     def check_handler_failure(self, handler_id: str) -> bool:
         """
-        Aggregates task health: returns True if any associated task has failed.
+        Returns True if any task associated with the handler failed.
+
+        Celery task state is the only source of truth.
         """
         query = """
             SELECT EXISTS (
                 SELECT 1
-                FROM osir_tasks
-                WHERE handler_id = %s::uuid
-                AND processing_status = 'processing_failed'
+                FROM osir_tasks t
+                JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                WHERE t.handler_id = %s::uuid
+                AND m.status IN ('FAILURE', 'REVOKED')
             );
         """
-        result = self.db.execute_query(query, (handler_id,), fetch="fetchone")
-        return result['exists']
+        result = self.db.execute_query(query, (str(handler_id),), fetch="fetchone")
+        return result["exists"]
 
     def is_processing_active(self, handler_uuid: str) -> bool:
         """
-            Checks if any tasks associated with a specific handler are still in a 
-            pending or active state.
+        Checks if any task associated with a handler is still active.
 
-            Args:
-                handler_uuid (str): The UUID of the handler to check.
+        Celery's result backend is the source of truth for task state.
+        Final states are SUCCESS, FAILURE and REVOKED.
 
-            Returns:
-                bool: True if any associated tasks are 'task_created' or 'processing_started'.
-
-            Raises:
-                Exception: If the join query between handlers and tasks fails.
+        A task present in osir_tasks but missing from celery_taskmeta is treated
+        as PENDING/active, because Celery may not have written a result row yet.
         """
         try:
-            count = self.db.execute_query("""
-                SELECT COUNT(*)
-                FROM osir_tasks
-                WHERE handler_id = %s::uuid
-                  AND processing_status IN ('processing_started', 'task_created');
-            """, (str(handler_uuid),), fetch="fetchone")['count']
+            result = self.db.execute_query("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM osir_tasks t
+                    LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                    WHERE t.handler_id = %s::uuid
+                    AND COALESCE(m.status, 'PENDING') NOT IN ('SUCCESS', 'FAILURE', 'REVOKED')
+                );
+            """, (str(handler_uuid),), fetch="fetchone")
 
-            return count > 0
+            return result['exists']
         except Exception as e:
-            logger.error(f"Erreur lors de la vérification de l'input: {e}")
+            logger.error(f"Erreur lors de la vérification du handler actif: {e}")
             raise
-    
+        
     def get_all_task_logs(self, handler_uuid: str) -> List[OsirDbTaskModel]:
         """
             Retrieves all tasks associated with a specific handler.
@@ -285,25 +287,13 @@ class OsirDbHandler:
                 Exception: If the query fails.
         """
         try:
-            tasks = self.db.execute_query("""
-                SELECT
-                    task_id,
-                    case_uuid,
-                    handler_id,
-                    agent,
-                    module,
-                    input,
-                    output,
-                    processing_status,
-                    timestamp,
-                    trace
-                FROM
-                    osir_task
-                WHERE
-                    handler_id = %s::uuid
-            """, (str(handler_uuid),), fetch="fetchall")
+            from osir_service.postgres.OsirDbTask import TASK_VIEW_SELECT, _decode_result_trace
+            tasks = self.db.execute_query(
+                TASK_VIEW_SELECT + " WHERE t.handler_id = %s::uuid",
+                (str(handler_uuid),), fetch="fetchall"
+            )
 
-            return [OsirDbTaskModel.model_validate(x) for x in tasks]
+            return [OsirDbTaskModel.model_validate(_decode_result_trace(dict(x))) for x in tasks]
         except Exception as e:
             logger.error(f"Erreur lors de la récupération des logs des tâches: {e}")
             raise
