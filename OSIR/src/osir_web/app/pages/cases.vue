@@ -46,7 +46,7 @@ const rowSelection = ref<Record<string, boolean>>({})
 type ModuleModel = { module_path: string; description: string; processor: string }
 
 const tableRows = computed<ModuleModel[]>(() =>
-  moduleStore.modules.map(m => ({
+  (moduleStore.modules || []).map(m => ({
     module_path: m,
     description: moduleStore.moduleInfoMap[m]?.metadata?.description ?? '—',
     processor: (moduleStore.moduleInfoMap[m]?.configuration?.processor_type ?? []).join(' / ') || '—',

@@ -73,7 +73,7 @@ export const useModuleStore = defineStore('module', {
       try {
         const api = useOsirApi()
         const data = await api.module.list()
-        this.setModules(data.response ?? [])
+        this.setModules(Array.isArray(data.response) ? data.response : [])
       } catch (e) {
         this.setError('Failed to fetch modules')
       } finally {
