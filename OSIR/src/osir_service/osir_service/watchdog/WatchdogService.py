@@ -28,6 +28,8 @@ from collections import defaultdict
 logger = AppLogger(__name__).get_logger()
 
 
+HASH_DEDUP_ENABLED = False # manual switch to disable xxh3_128 hash of input files to detect duplicates
+
 class _CompiledRule:
     """Pre-compiled module rule for O(1) hot-path dispatch."""
     __slots__ = (
@@ -1407,32 +1409,37 @@ class ModuleHandler(FileSystemEventHandler):
         AMQP producer). Returns the number of tasks pushed."""
         flush_start = time.time()
 
-        # 1) Hashing is I/O + C-extension bound: parallelize it.
-        with ThreadPoolExecutor(max_workers=self._hash_workers) as pool:
-            hashed = list(pool.map(self._hash_for_dedup, pending, chunksize=8))
-
-        hash_duration = time.time() - flush_start
-
-        # 2) Serial dedup against the shared cache.
-        to_push = []
         duplicates = 0
         duplicates_by_module: dict[str, int] = {}
 
-        with self._seen_prefix_lock:
-            for path, rule, file_size, hash_mode, file_hash in hashed:
-                if file_hash is None:
-                    to_push.append((path, rule))
-                    continue
+        if not HASH_DEDUP_ENABLED:
+            hash_duration = 0.0
+            to_push = list(pending)
+        else:
+            # 1) Hashing is I/O + C-extension bound: parallelize it.
+            with ThreadPoolExecutor(max_workers=self._hash_workers) as pool:
+                hashed = list(pool.map(self._hash_for_dedup, pending, chunksize=8))
 
-                key = (rule.module_name, file_size, hash_mode, file_hash)
-                duplicate_of = self._seen_prefix.get(key)
+            hash_duration = time.time() - flush_start
 
-                if duplicate_of is not None:
-                    duplicates += 1
-                    duplicates_by_module[rule.module_name] = duplicates_by_module.get(rule.module_name, 0) + 1
-                else:
-                    self._seen_prefix[key] = path
-                    to_push.append((path, rule))
+            # 2) Serial dedup against the shared cache.
+            to_push = []
+
+            with self._seen_prefix_lock:
+                for path, rule, file_size, hash_mode, file_hash in hashed:
+                    if file_hash is None:
+                        to_push.append((path, rule))
+                        continue
+
+                    key = (rule.module_name, file_size, hash_mode, file_hash)
+                    duplicate_of = self._seen_prefix.get(key)
+
+                    if duplicate_of is not None:
+                        duplicates += 1
+                        duplicates_by_module[rule.module_name] = duplicates_by_module.get(rule.module_name, 0) + 1
+                    else:
+                        self._seen_prefix[key] = path
+                        to_push.append((path, rule))
 
         # 3) Build payloads from the precompiled dump (no pydantic
         #    deepcopy/serialization on the hot path).
