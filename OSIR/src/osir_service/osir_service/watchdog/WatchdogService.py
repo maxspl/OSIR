@@ -1416,6 +1416,7 @@ class ModuleHandler(FileSystemEventHandler):
         # 2) Serial dedup against the shared cache.
         to_push = []
         duplicates = 0
+        duplicates_by_module: dict[str, int] = {}
 
         with self._seen_prefix_lock:
             for path, rule, file_size, hash_mode, file_hash in hashed:
@@ -1428,12 +1429,7 @@ class ModuleHandler(FileSystemEventHandler):
 
                 if duplicate_of is not None:
                     duplicates += 1
-                    logger.debug(
-                        f"{rule.module_name} - Skipping duplicate file: "
-                        f"skipped_file='{path}' | same_hash_as='{duplicate_of}' | "
-                        f"hash_mode='{hash_mode}' | size={file_size} | "
-                        f"xxh3_128='{file_hash}'"
-                    )
+                    duplicates_by_module[rule.module_name] = duplicates_by_module.get(rule.module_name, 0) + 1
                 else:
                     self._seen_prefix[key] = path
                     to_push.append((path, rule))
@@ -1468,8 +1464,12 @@ class ModuleHandler(FileSystemEventHandler):
             for it in items:
                 self._tasks_pushed_by_module[it["module_name"]] += 1
 
+        duplicates_detail = ", ".join(
+            f"{m}: {n}" for m, n in sorted(duplicates_by_module.items())
+        ) or "none"
         logger.info(
-            f"Batch flush: {len(items)} task(s) pushed, {duplicates} duplicate(s) skipped, "
+            f"Batch flush: {len(items)} task(s) pushed, {duplicates} duplicate(s) skipped "
+            f"({duplicates_detail}), "
             f"{len(pending)} candidate(s) in {time.time() - flush_start:.2f}s "
             f"(hashing: {hash_duration:.2f}s, workers: {self._hash_workers})"
         )

@@ -254,9 +254,9 @@ class TaskService:
                     queue=it["queue"],
                     producer=producer,
                 )
-                logger.debug(
-                    f"Task pushed (bulk): module={it['module_name']} "
-                    f"task_id={it['task_id']} input='{it['match']}'"
-                )
+
+        # One summary line per batch: per-task logging at this rate costs
+        # more than the AMQP publish itself (console + file handler I/O).
+        logger.debug(f"Bulk push: {len(dispatchable)} task(s) published to broker")
 
         return [it["task_id"] for it in dispatchable]
