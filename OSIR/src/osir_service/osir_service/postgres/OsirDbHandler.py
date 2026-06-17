@@ -178,7 +178,7 @@ class OsirDbHandler:
                 raise ValueError("Must provide either `handler_id` or `case_uuid`.")
 
             if not rows:
-                return {"case_uuid": case_uuid, "handler_id": handler_id, "modules": None, "task_ids": None, "processing_status": None}
+                return None if handler_id else []
 
             if handler_id:
                 model = OsirDbHandlerModel.model_validate(rows[0])

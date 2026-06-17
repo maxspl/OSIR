@@ -129,10 +129,10 @@ export const useHandlerStore = defineStore('handler', {
                 case_name:         result.value.case_name,
                 case_uuid:         h.case_uuid,
                 modules:           h.modules,
-                task_ids:          h.task_id,
+                task_ids:          h.task_id ?? [],
                 processing_status: h.processing_status as ProcessingStatus,
                 created_at:        h.created_at ?? null,
-                task_count:        h.task_id.length,
+                task_count:        (h.task_id ?? []).length,
               })
             }
           }
@@ -146,7 +146,7 @@ export const useHandlerStore = defineStore('handler', {
     },
 
     async fetchTasksForHandler(handler: HandlerRow) {
-      if (!handler.task_ids.length) {
+      if (!handler.task_ids?.length) {
         this.tasksByHandler[handler.handler_id] = []
         return
       }

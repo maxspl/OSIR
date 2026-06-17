@@ -431,7 +431,9 @@ class OsirIpc(BaseModel):
             resp.message = "Handlers retrieved"
             resp.response = db.handler.get(case_uuid=case_uuid)
 
-            if not isinstance(resp.response, list):
+            if resp.response is None:
+                resp.response = []
+            elif not isinstance(resp.response, list):
                 resp.response = [resp.response]
 
         return resp

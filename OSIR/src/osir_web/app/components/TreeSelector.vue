@@ -49,12 +49,17 @@ function updateDropdownPosition() {
   dropdownDirection.value = spaceBelow >= estimatedDropdownHeight ? 'bottom' : 'top'
 }
 
+const searchInputRef = ref<HTMLInputElement | null>(null)
+
 watch(isOpen, (val) => {
   if (val) {
     updateDropdownPosition()
     if (triggerRef.value) {
       triggerWidth.value = triggerRef.value.getBoundingClientRect().width - 20
     }
+    nextTick(() => {
+      searchInputRef.value?.focus()
+    })
   }
   if (!val) {
     searchQuery.value = ''
@@ -205,6 +210,7 @@ function onSelectedChange(val: TreeItem[]) {
       <!-- Search input -->
       <div class="relative w-full border-b border-default">
         <input
+          ref="searchInputRef"
           v-model="searchQuery"
           type="text"
           placeholder="Search…"
