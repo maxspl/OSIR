@@ -25,12 +25,29 @@ export function useMonitoringFilters(selectedHandler: Ref<HandlerRow | null>) {
   })
 
   const moduleOptions = computed(() => {
-    const source = filterHandlerId.value
-      ? (handlerStore.tasksByHandler[filterHandlerId.value] ?? [])
-      : Object.values(handlerStore.tasksByHandler).flat()
+    // Use modules from selected handler, or from all handlers' stats
+    const handler = selectedHandler.value
+    if (handler) {
+      const stats = handlerStore.statsByHandler[handler.handler_id]
+      if (stats && Array.isArray(stats.modules)) {
+        const executedModules = stats.modules.map(m => m.module)
+        const notLaunched = stats.not_launched_modules ?? []
+        const modules = [...new Set([...executedModules, ...notLaunched])]
+        return [
+          { label: 'All modules', value: 'all' },
+          ...modules.map(m => ({ label: m, value: m })),
+        ]
+      }
+      // Fallback to handler.modules
+      return [
+        { label: 'All modules', value: 'all' },
+        ...handler.modules.map(m => ({ label: m, value: m })),
+      ]
+    }
+    // If no handler selected, get modules from all handlers
     return [
       { label: 'All modules', value: 'all' },
-      ...[...new Set(source.map(t => t.module))].map(m => ({ label: m, value: m })),
+      ...[...new Set(handlerStore.handlers.flatMap(h => h.modules))].map(m => ({ label: m, value: m })),
     ]
   })
 
@@ -45,27 +62,6 @@ export function useMonitoringFilters(selectedHandler: Ref<HandlerRow | null>) {
       if (!dateA || !dateB) return 0
       return new Date(dateB).getTime() - new Date(dateA).getTime()
     })
-  })
-
-  const allTasks = computed(() => {
-    const tasks = Object.values(handlerStore.tasksByHandler).flat()
-    return [...tasks].sort((a, b) => {
-      const dateA = a.start_time || ''
-      const dateB = b.start_time || ''
-      if (!dateA || !dateB) return 0
-      return new Date(dateB).getTime() - new Date(dateA).getTime()
-    })
-  })
-
-  const currentTasks = computed(() => {
-    const source = filterHandlerId.value
-      ? (handlerStore.tasksByHandler[filterHandlerId.value] ?? [])
-      : allTasks.value
-    return source.filter(t =>
-      (filterTaskStatus.value === 'all' || t.processing_status === filterTaskStatus.value)
-      && (filterModule.value === 'all' || t.module === filterModule.value)
-      && (filterTaskCaseName.value === 'all' || t.case_name === filterTaskCaseName.value),
-    )
   })
 
   function onCaseChange(val: string) {
@@ -84,8 +80,9 @@ export function useMonitoringFilters(selectedHandler: Ref<HandlerRow | null>) {
       selectedHandler.value = h
       filterHandlerId.value = id
       filterTaskCaseName.value = h?.case_name ?? 'all'
-      if (h && !handlerStore.tasksByHandler[id]) {
-        await handlerStore.fetchTasksForHandler(h)
+      // Fetch stats for the selected handler
+      if (h) {
+        await handlerStore.fetchStatsForHandler(h.handler_id)
       }
     }
   }
@@ -108,7 +105,6 @@ export function useMonitoringFilters(selectedHandler: Ref<HandlerRow | null>) {
     handlerOptions,
     moduleOptions,
     filteredHandlers,
-    currentTasks,
     onCaseChange,
     selectHandlerById,
     applyHandlerFilters,

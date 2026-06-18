@@ -92,6 +92,28 @@ export interface GetTaskInfoResponse extends OsirIpcResponse<OsirDbTaskModel> {}
 
 export interface GetHandlerStatusResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
 export interface GetHandlerTaskInfoResponse extends OsirIpcResponse<OsirDbTaskModel[]> {}
+export interface GetHandlerTasksPaginatedResponse extends OsirIpcResponse<PaginatedTaskResponse> {}
+
+export interface HandlerModuleStats {
+  module: string
+  task_count: number
+  status_counts: Record<string, number>
+  has_failed: boolean
+  has_started: boolean
+}
+
+export interface HandlerStatsResponse {
+  total_tasks: number
+  status_counts: Record<string, number>
+  modules: HandlerModuleStats[]
+  not_launched_modules: string[]
+  executed_modules: string[]
+  failed_modules: string[]
+  start_time?: string | null
+  end_time?: string | null
+}
+
+export interface GetHandlerStatsResponse extends OsirIpcResponse<HandlerStatsResponse> {}
 
 // ── Module ────────────────────────────────────────────────────────────────────
 

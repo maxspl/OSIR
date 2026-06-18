@@ -382,11 +382,17 @@ class OsirIpc(BaseModel):
     @register_action('get_tasks')
     def _handle_get_tasks(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         with OsirDb() as db:
+            # Get handler_id for handler-specific filtering
+            handler_id = req.params.get('handler_id')
+            
             # Get case_name(s) - can be a single name or a list
             case_name = req.params.get('case_name')
             case_names = req.params.get('case_names')  # List of case names
             case_uuid = req.params.get('case_uuid')
             case_uuids = req.params.get('case_uuids')  # List of case UUIDs
+            
+            # Get module filter
+            module_filter = req.params.get('module')
             
             # Determine which cases to query
             resolved_case_uuids = None
@@ -426,9 +432,11 @@ class OsirIpc(BaseModel):
                 page_size = 20
             
             tasks, total = db.task.list(
+                handler_id=handler_id,
                 case_uuid=resolved_case_uuids,
                 processing_status=processing_status_list or processing_status,
                 input_filter=input_filter,
+                module=module_filter,
                 page=page,
                 page_size=page_size
             )

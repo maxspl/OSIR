@@ -69,7 +69,9 @@ export const useTaskStore = defineStore('task', {
       status: string | null = null,
       input: string | null = null,
       page: number = 1,
-      pageSize: number = 20
+      pageSize: number = 20,
+      handlerId: string | null = null,
+      module: string | null = null
     ) {
       this.isLoading = true
       this.error = null
@@ -83,8 +85,16 @@ export const useTaskStore = defineStore('task', {
           caseUuidToName.set(c.case_uuid, c.name)
         }
         
-        // Single API call for all tasks with pagination and filters
-        const result = await api.case.tasksAll(caseNames, status, input, page, pageSize)
+        let result: { response: PaginatedTaskResponse }
+        
+        // If handlerId is provided, fetch tasks for that specific handler
+        if (handlerId) {
+          result = await api.handler.get_tasks(handlerId, page, pageSize, status, module)
+        } else {
+          // Single API call for all tasks with pagination and filters
+          result = await api.case.tasksAll(caseNames, status, input, page, pageSize)
+        }
+        
         const paginatedData: PaginatedTaskResponse = result.response
         
         const rows: TaskRow[] = []
@@ -132,12 +142,14 @@ export const useTaskStore = defineStore('task', {
       input: string | null = null,
       page: number = 1,
       pageSize: number = 20,
-      ms = 10000
+      ms = 10000,
+      handlerId: string | null = null,
+      module: string | null = null
     ) {
-      this.fetchTasks(caseNames, status, input, page, pageSize)
+      this.fetchTasks(caseNames, status, input, page, pageSize, handlerId, module)
       this.stopPolling()
       this.pollInterval = setInterval(() => 
-        this.fetchTasks(caseNames, status, input, page, pageSize), ms)
+        this.fetchTasks(caseNames, status, input, page, pageSize, handlerId, module), ms)
     },
 
     stopPolling() {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { useOsirApi } from '~/api'
-import type { OsirDbTaskModel, OsirDbHandlerModel, PostHandlerCreateRequest, PostHandlerCreateResponse, PostHandlerAdvancedCreateRequest } from '~/api/types'
+import type { OsirDbTaskModel, OsirDbHandlerModel, PostHandlerCreateRequest, PostHandlerCreateResponse, PostHandlerAdvancedCreateRequest, HandlerStatsResponse } from '~/api/types'
 
 export type ProcessingStatus = 'task_created' | 'processing_started' | 'processing_done' | 'processing_failed'
 
@@ -85,8 +85,10 @@ function toTaskDetail(t: OsirDbTaskModel, handlerId: string, caseName: string): 
 interface HandlerState {
   handlers:        HandlerRow[]
   tasksByHandler:  Record<string, TaskDetail[]>
+  statsByHandler:  Record<string, HandlerStatsResponse>
   isLoading:       boolean
   isLoadingTasks:  boolean
+  isLoadingStats:  boolean
   error:           string | null
   pollInterval:   NodeJS.Timeout | null
 }
@@ -95,8 +97,10 @@ export const useHandlerStore = defineStore('handler', {
   state: (): HandlerState => ({
     handlers:       [],
     tasksByHandler: {},
+    statsByHandler: {},
     isLoading:      false,
     isLoadingTasks: false,
+    isLoadingStats: false,
     error:          null,
     pollInterval:  null,
   }),
@@ -164,6 +168,24 @@ export const useHandlerStore = defineStore('handler', {
         this.error = 'Failed to fetch tasks for handler'
       } finally {
         this.isLoadingTasks = false
+      }
+    },
+
+    async fetchStatsForHandler(handlerId: string): Promise<HandlerStatsResponse | null> {
+      this.isLoadingStats = true
+      try {
+        const api = useOsirApi()
+        const result = await api.handler.stats(handlerId)
+        if (result.response) {
+          this.statsByHandler[handlerId] = result.response
+          return result.response
+        }
+        return null
+      } catch {
+        this.error = 'Failed to fetch handler stats'
+        return null
+      } finally {
+        this.isLoadingStats = false
       }
     },
 

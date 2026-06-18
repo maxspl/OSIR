@@ -319,26 +319,25 @@ class OsirDbTask:
     def list(
         self,
         case_uuid: Optional[Union[str, List[str]]] = None,
+        handler_id: Optional[str] = None,
         processing_status: Optional[Union[str, List[str]]] = None,
         exclude_status: Optional[Union[str, List[str]]] = None,
         input_filter: Optional[str] = None,
+        module: Optional[str] = None,
         page: int = 1,
         page_size: int = 20
     ) -> tuple[List[OsirDbTaskModel], int]:
         """
-        Lists tasks based on filtering criteria such as case UUID, status, or input.
-        Supports server-side pagination.
-        
-        When case_uuid is None, returns tasks from ALL cases.
-        When case_uuid is a list, returns tasks from those specific cases.
-
+        When handler_id is provided, returns only tasks from that specific handler.
             Args:
                 case_uuid (str or List[str], optional): Filter tasks by a specific case UUID or list of UUIDs.
                     If None, returns tasks from all cases.
+                handler_id (str, optional): Filter tasks by a specific handler ID.
                 processing_status (Union[str, List[str]], optional): Include only tasks with these statuses.
                 exclude_status (Union[str, List[str]], optional): Exclude tasks with these statuses.
                 input_filter (str, optional): Filter tasks by input path (LIKE pattern).
                 page (int): Page number for pagination (1-indexed).
+                module (str, optional): Filter tasks by module name.
                 page_size (int): Number of items per page.
 
             Returns:
@@ -366,6 +365,10 @@ class OsirDbTask:
             conditions = []
             params = []
 
+            if handler_id:
+                conditions.append("v.handler_id = %s::uuid")
+                params.append(str(handler_id))
+
             if case_uuids:
                 placeholders = ", ".join(["%s"] * len(case_uuids))
                 conditions.append(f"v.case_uuid IN ({placeholders})")
@@ -384,6 +387,10 @@ class OsirDbTask:
             if input_filter:
                 conditions.append("v.input ILIKE %s")
                 params.append(f"%{input_filter}%")
+
+            if module:
+                conditions.append("v.module = %s")
+                params.append(module)
 
             if conditions:
                 query += " WHERE " + " AND ".join(conditions)

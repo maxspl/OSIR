@@ -1,11 +1,14 @@
 from fastapi import APIRouter
+from typing import Optional
 
-from osir_api.api.model.OsirApiTaskModel import GetTaskStatsResponse
+from osir_api.api.model.OsirApiTaskModel import GetTaskStatsResponse, PaginatedTaskResponse, GetTasksListResponse
 from osir_api.api.model.OsirApiHandlerModel import GetHandlerTaskLogsResponse, PostHandlerAdvancedCreateRequest, GetHandlerStatusResponse, PostHandlerCreateRequest, PostHandlerCreateResponse, PostHandlerDeleteRequest, PostHandlerDeleteResponse
 from osir_api.api.OsirApiExceptions import UnexpectedExceptionResponse
 
 from osir_api.api.OsirIpcCall import OsirIpcCall
+from osir_lib.logger import AppLogger
 
+logger = AppLogger(__name__).get_logger()
 router = APIRouter()
 
 
@@ -54,6 +57,33 @@ def stats_handler(handler_id: str):
              responses={500: {"model": UnexpectedExceptionResponse}})
 def status_handler(handler_id: str):
     return OsirIpcCall("get_handler_task_info", params={"handler_id": handler_id})
+
+@router.get("/handler/{handler_id}/tasks",
+            response_model=GetTasksListResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
+def get_handler_tasks(
+    handler_id: str,
+    page: int = 1,
+    page_size: int = 20,
+    status: Optional[str] = None,
+    module: Optional[str] = None
+):
+    """
+    Get paginated tasks for a specific handler.
+    
+    Args:
+        handler_id: The handler UUID
+        page: Page number (default: 1)
+        page_size: Number of items per page (default: 20)
+        status: Filter by processing status (optional)
+        module: Filter by module name (optional)
+    """
+    params: dict = {"handler_id": handler_id, "page": page, "page_size": page_size}
+    if status:
+        params["processing_status"] = status
+    if module:
+        params["module"] = module
+    return OsirIpcCall("get_tasks", params=params)
 
 @router.post("/handler/delete",
              response_model=PostHandlerDeleteResponse,

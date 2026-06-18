@@ -5,6 +5,8 @@ import type {
   PostHandlerCreateResponse,
   PostHandlerAdvancedCreateRequest,
   GetHandlerTaskInfoResponse,
+  GetHandlerTasksPaginatedResponse,
+  GetHandlerStatsResponse,
   PostHandlerDeleteResponse,
 } from './types'
 
@@ -27,8 +29,29 @@ export class HandlerApi {
     return this.client.post(`/api/handler/${handlerId}/task_info`)
   }
 
+  get_tasks(
+    handlerId: string,
+    page: number = 1,
+    pageSize: number = 20,
+    status?: string | null,
+    module?: string | null
+  ): Promise<GetHandlerTasksPaginatedResponse> {
+    const params: Record<string, unknown> = { page, page_size: pageSize }
+    if (status) {
+      params.status = status
+    }
+    if (module) {
+      params.module = module
+    }
+    return this.client.get(`/api/handler/${handlerId}/tasks`, params)
+  }
+
   delete(handlerUuid: string): Promise<PostHandlerDeleteResponse> {
     return this.client.post('/api/handler/delete', { handler_uuid: handlerUuid })
+  }
+
+  stats(handlerId: string): Promise<GetHandlerStatsResponse> {
+    return this.client.post(`/api/handler/${handlerId}/stats`)
   }
 
 }

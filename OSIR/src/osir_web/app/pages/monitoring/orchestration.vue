@@ -6,7 +6,8 @@ import { useOsirApi } from '~/api'
 import  FilterBar  from '~/components/monitoring/FilterBar.vue'
 import HandlerTable from '~/components/monitoring/HandlerTable.vue'
 import HandlerSummaryCard from '~/components/monitoring/HandlerSummaryCard.vue'
-import HandlerTasksByModule from '~/components/monitoring/HandlerTasksByModule.vue'
+import HandlerModulesSummaryTable from '~/components/monitoring/HandlerModulesSummaryTable.vue'
+import TasksTable from '~/components/monitoring/TasksTable.vue'
 import DangerZone from '~/components/monitoring/DangerZone.vue'
 import HandlerModuleStatus from '~/components/monitoring/HandlerModuleStatus.vue'
 import TaskInfoCard from '~/components/monitoring/TaskInfoCard.vue'
@@ -47,7 +48,6 @@ const {
   handlerOptions,
   moduleOptions,
   filteredHandlers,
-  currentTasks,
   onCaseChange,
   selectHandlerById,
   applyHandlerFilters,
@@ -90,9 +90,6 @@ const { activeView, selectedHandler, selectedTask, selectHandler, selectTask } =
     filterValues.filterTaskCaseName = handler.case_name ?? 'all'
     filterValues.filterTaskStatus = 'all'
     filterValues.filterModule = 'all'
-    if (!handlerStore.tasksByHandler[handler.handler_id]) {
-      await handlerStore.fetchTasksForHandler(handler)
-    }
   })
 
 // ── Polling ───────────────────────────────────────────────────────────────────
@@ -131,7 +128,32 @@ async function deleteAllHandlers() {
 }
 
 // ── Handler summary ───────────────────────────────────────────────────────────
-const { handlerTasksByModule, handlerModuleSummary, handlerSummary, taskStatusCount } = useHandlerSummary(selectedHandler)
+const { handlerTasksByModule, handlerModuleSummary, handlerSummary, taskStatusCount, moduleStats } = useHandlerSummary(selectedHandler)
+
+// ── Module view state ─────────────────────────────────────────────────────────
+// When a module filter is applied (either via click or dropdown), show single module view
+const selectedModuleForDetail = ref<string | null>(null)
+
+// Watch filterModule changes to update view state
+watch(() => filterValues.filterModule, (newVal) => {
+  if (newVal === 'all') {
+    selectedModuleForDetail.value = null
+  } else if (newVal !== selectedModuleForDetail.value) {
+    selectedModuleForDetail.value = newVal
+  }
+})
+
+function selectModule(module: string) {
+  // Set filter to show only this module's tasks (watch will update selectedModuleForDetail)
+  filterValues.filterModule = module
+}
+
+function resetModuleFilter() {
+  filterValues.filterModule = 'all'
+}
+
+// Check if we're in single module view
+const showSingleModuleView = computed(() => filterValues.filterModule !== 'all')
 
 // ── FilterBar definitions ─────────────────────────────────────────────────────
 const view1Filters = computed(() => [[
@@ -227,10 +249,34 @@ const view2Filters = computed(() => [
             :failed="handlerModuleSummary.failed"
           />
 
-          <HandlerTasksByModule
-            :tasks-by-module="handlerTasksByModule"
+          <!-- Back button when viewing a single module -->
+          <div v-if="showSingleModuleView" class="flex items-center gap-2 mb-4">
+            <UButton
+              icon="i-lucide-arrow-left"
+              label="Back to all modules"
+              variant="ghost"
+              @click="resetModuleFilter"
+            />
+          </div>
+
+          <!-- Module summary table (shows all modules) -->
+          <HandlerModulesSummaryTable
+            v-if="!showSingleModuleView"
+            :module-stats="moduleStats"
             :filter-task-status="filterValues.filterTaskStatus"
             :filter-module="filterValues.filterModule"
+            @select-module="selectModule"
+          />
+
+          <!-- Module tasks table (shows tasks for selected module) -->
+          <TasksTable
+            v-else
+            :use-lazy-loading="true"
+            :show-input-filter="true"
+            :show-pagination="true"
+            :handler-id="selectedHandler?.handler_id ?? null"
+            :status="filterValues.filterTaskStatus !== 'all' ? filterValues.filterTaskStatus : null"
+            :module-filter="filterValues.filterModule"
             @select-task="selectTask"
           />
 

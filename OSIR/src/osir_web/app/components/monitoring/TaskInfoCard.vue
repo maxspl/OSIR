@@ -127,7 +127,7 @@ const infoRows = computed(() => [
         <div class="flex items-center gap-2">
           <UIcon name="i-lucide-terminal" class="w-4 h-4 text-green-400" />
           <span class="text-xs font-semibold text-highlighted uppercase tracking-wide">Execution Traces</span>
-          <UBadge :label="`${filteredLogs.length} / ${task.logs.length}`" color="neutral" variant="subtle" size="xs" />
+          <UBadge :label="`${filteredLogs.length} / ${(task.logs ?? []).length}`" color="neutral" variant="subtle" size="xs" />
         </div>
         <UInput v-model="logSearch" placeholder="Filter logs…" icon="i-lucide-search" size="xs" class="w-44" />
       </div>

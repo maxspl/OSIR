@@ -10,12 +10,13 @@ const props = defineProps<{
   taskStatusCount: Record<string, number>
 }>()
 
+// Ensure taskStatusCount is never undefined
+const safeTaskStatusCount = computed(() => props.taskStatusCount || {})
+
 const emit = defineEmits<{
   'stop': []
   'rerun': []
 }>()
-console.log(props.taskStatusCount)
-
 const statusLabels: Record<string, string> = {
   'task_created': 'Created',
   'processing_started': 'Processing',
@@ -57,9 +58,9 @@ const statusColors: Record<string, string> = {
           <p class="text-xs text-muted uppercase tracking-wide font-medium">Handler</p>
           <p class="font-mono text-xs font-medium break-all">{{ handler.handler_id }}</p>
           <!-- Task status summary -->
-          <div v-if="Object.keys(taskStatusCount).length > 0" class="flex items-center gap-2 mt-1">
+          <div v-if="Object.keys(safeTaskStatusCount).length > 0" class="flex items-center gap-2 mt-1">
             <span
-              v-for="(count, status) in taskStatusCount"
+              v-for="(count, status) in safeTaskStatusCount"
               :key="status"
               class="flex items-center gap-1 text-xs"
               :class="statusColors[status]"
