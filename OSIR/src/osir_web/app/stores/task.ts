@@ -3,14 +3,14 @@ import type { SelectMenuItem } from '@nuxt/ui'
 import { useOsirApi } from '~/api'
 import type { OsirDbStatusModel, PaginatedTaskResponse } from '~/api/types'
 
-export type TaskStatus = 'task_created' | 'processing_started' | 'processing_done' | 'processing_failed'
+export type TaskStatus = OsirDbStatusModel
 
 export interface TaskRow {
   task_id: string
   case_name: string
   agent: string
   module: string
-  status: TaskStatus
+  status: OsirDbStatusModel
   timestamp: string
   start_time: string | null
   duration_seconds: number | null
@@ -28,15 +28,7 @@ function ensureNumber(value: unknown): number {
   return typeof value === 'number' ? value : Number(value) || 0
 }
 
-function mapStatus(s?: OsirDbStatusModel | null): TaskStatus {
-  switch (s) {
-    case 'task_created':       return 'task_created'
-    case 'processing_started': return 'processing_started'
-    case 'processing_done':    return 'processing_done'
-    case 'processing_failed':  return 'processing_failed'
-    default:                   return 'task_created'
-  }
-}
+
 
 interface TaskState {
   tasks: TaskRow[]
@@ -83,12 +75,11 @@ export const useTaskStore = defineStore('task', {
       this.error = null
       try {
         const api = useOsirApi()
+        const caseStore = useCaseStore()
         
-        // Fetch cases first to create UUID to name mapping
-        const casesResponse = await api.case.list()
-        const allCases = casesResponse.response || []
+        // Use case store to create UUID to name mapping
         const caseUuidToName = new Map<string, string>()
-        for (const c of allCases) {
+        for (const c of caseStore.cases) {
           caseUuidToName.set(c.case_uuid, c.name)
         }
         
@@ -103,7 +94,7 @@ export const useTaskStore = defineStore('task', {
             case_name:        caseUuidToName.get(String(t.case_uuid)) || 'Unknown',
             agent:            t.agent,
             module:           t.module,
-            status:           mapStatus(t.processing_status),
+            status:           t.processing_status!,
             timestamp:        t.timestamp,
             start_time:       t.trace?.start_time ?? null,
             duration_seconds: t.trace?.duration_seconds ?? null,

@@ -2,27 +2,24 @@
 import { useTaskStore } from '~/stores/task'
 import type { TaskStatus } from '~/stores/task'
 import { useCaseStore } from '~/stores/case'
+import { statusOptions } from '~/utils/monitoring'
+import FilterBar from '~/components/monitoring/FilterBar.vue'
 
 useSeoMeta({ title: 'Status — Task On-Going' })
-
-type Filter = 'all' | 'ongoing' | 'past'
-
-const filterStatus = ref<Filter>('all')
-const filterCase   = ref('all')
-const filterModule = ref('all')
-const filterInput = ref<string>('')
-
-function extractVal(val: unknown): string {
-  if (val === null || val === undefined) return 'all'
-  if (typeof val === 'object' && 'value' in (val as object)) return (val as { value: string }).value
-  return String(val)
-}
 
 const taskStore = useTaskStore()
 const caseStore = useCaseStore()
 
 const page = ref<number>(1)
 const pageSize = ref<number>(10)
+
+// Filter values
+const filterValues = reactive({
+  filterCase:   'all',
+  filterModule: 'all',
+  filterInput:  '',
+  filterStatus: 'all',
+})
 
 // Sync page and pageSize from store on initial load
 const syncPage = () => {
@@ -33,14 +30,6 @@ const syncPage = () => {
 // Initialize from store
 syncPage()
 
-// Map UI filter to API status values
-const getStatusFilters = () => {
-  if (filterStatus.value === 'all') return null
-  if (filterStatus.value === 'ongoing') return 'processing_started,task_created'
-  if (filterStatus.value === 'past') return 'processing_done,processing_failed'
-  return filterStatus.value
-}
-
 // Build filter params for API call
 const buildFilterParams = () => {
   const params: { status: string | null, input: string | null, caseNames: string[] | null } = {
@@ -49,27 +38,23 @@ const buildFilterParams = () => {
     caseNames: null
   }
   
-  // Map filter status to API statuses
-  const statusFilter = getStatusFilters()
-  if (statusFilter) {
-    params.status = statusFilter
+  if (filterValues.filterStatus !== 'all') {
+    params.status = filterValues.filterStatus
   }
   
-  if (filterInput.value) {
-    params.input = filterInput.value
+  if (filterValues.filterInput) {
+    params.input = filterValues.filterInput
   }
   
-  if (filterCase.value !== 'all') {
-    params.caseNames = [filterCase.value]
+  if (filterValues.filterCase !== 'all') {
+    params.caseNames = [filterValues.filterCase]
   }
-  
-  // Note: module filter is applied client-side in filteredTasks computed
   
   return params
 }
 
-// Watch local page/pageSize changes to trigger refetch
-const refetchTasks = () => {
+// Fetch tasks with current filters
+const fetchTasks = () => {
   const { status, input, caseNames } = buildFilterParams()
   taskStore.fetchTasks(
     caseNames,
@@ -80,66 +65,71 @@ const refetchTasks = () => {
   )
 }
 
+// Restart polling with current filters
+const restartPolling = () => {
+  const { status, input, caseNames } = buildFilterParams()
+  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
+}
+
 // Watch local page/pageSize changes to update store and refetch
 watch([page, pageSize], () => {
   taskStore.setPage(page.value)
   taskStore.setPageSize(pageSize.value)
-  refetchTasks()
-  // Restart polling with new pagination
-  const { status, input, caseNames } = buildFilterParams()
-  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
+  fetchTasks()
+  restartPolling()
 })
 
 // Debounced refetch for input filter
 let inputDebounce: ReturnType<typeof setTimeout>
 
-watch(filterInput, () => {
-  page.value = 1
-  clearTimeout(inputDebounce)
-  inputDebounce = setTimeout(() => {
-    refetchTasks()
-    // Restart polling with new input filter
-    const { status, input, caseNames } = buildFilterParams()
-    taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
-  }, 500)
-})
+function onFilterUpdate(key: string, value: string) {
+  if (key === 'filterInput') {
+    page.value = 1
+    clearTimeout(inputDebounce)
+    inputDebounce = setTimeout(() => {
+      fetchTasks()
+      restartPolling()
+    }, 500)
+  } else {
+    page.value = 1
+    fetchTasks()
+    restartPolling()
+  }
+  // Update the filter value
+  (filterValues as any)[key] = value
+}
 
-// Refetch when other filters change (reset to page 1)
-watch([filterStatus, filterCase, filterModule], () => {
-  page.value = 1
-  refetchTasks()
-  // Restart polling with new filters
-  const { status, input, caseNames } = buildFilterParams()
-  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
-})
+// Compute filter bar definition
+const filterBarConfig = computed(() => [
+  [
+    { icon: 'i-lucide-folder-open', label: 'Case', modelKey: 'filterCase', options: taskStore.caseOptions, placeholder: 'All cases…' },
+    { icon: 'i-lucide-package', label: 'Module', modelKey: 'filterModule', options: taskStore.moduleOptions, placeholder: 'All modules…' },
+  ],
+  [
+    { icon: 'i-lucide-search', label: 'Input', modelKey: 'filterInput', type: 'input' as const, placeholder: 'Search by input path…' },
+    { icon: 'i-lucide-activity', label: 'Status', modelKey: 'filterStatus', options: statusOptions, placeholder: 'All statuses…' },
+  ],
+])
 
-onMounted(() => {
-  // Initial fetch with pagination
-  refetchTasks()
-  // Start polling with all current filter parameters
-  const { status, input, caseNames } = buildFilterParams()
-  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
-})
-onUnmounted(() => {
-  taskStore.stopPolling()
-})
-
-const caseOptions   = computed(() => taskStore.caseOptions)
-const moduleOptions = computed(() => taskStore.moduleOptions)
-
-// Since status, case, and input filters are server-side, we only apply module filter client-side
+// Filtered tasks (module filter is applied client-side)
 const filteredTasks = computed(() =>
   taskStore.tasks.filter(t => {
-    // Status is filtered server-side, but we also filter here for consistency
-    const statusFilter = getStatusFilters()
-    const matchStatus = !statusFilter || statusFilter.split(',').includes(t.status)
-    const matchCase = filterCase.value === 'all' || t.case_name === filterCase.value
-    const matchInput = !filterInput.value || t.input.toLowerCase().includes(filterInput.value.toLowerCase())
-    const matchModule = filterModule.value === 'all' || t.module === filterModule.value
+    const matchStatus = filterValues.filterStatus === 'all' || t.status === filterValues.filterStatus
+    const matchCase = filterValues.filterCase === 'all' || t.case_name === filterValues.filterCase
+    const matchInput = !filterValues.filterInput || t.input.toLowerCase().includes(filterValues.filterInput.toLowerCase())
+    const matchModule = filterValues.filterModule === 'all' || t.module === filterValues.filterModule
     return matchStatus && matchCase && matchInput && matchModule
   })
 )
 
+onMounted(() => {
+  fetchTasks()
+  restartPolling()
+})
+
+onUnmounted(() => {
+  taskStore.stopPolling()
+})
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -178,20 +168,6 @@ const statusConfig: Record<TaskStatus, StatusCfg> = {
   processing_failed:  { color: 'error',    icon: 'i-lucide-x-circle',         label: 'Failed' },
 }
 
-const filters: { label: string, value: Filter }[] = [
-  { label: 'All',      value: 'all' },
-  { label: 'On-Going', value: 'ongoing' },
-  { label: 'Past',     value: 'past' },
-]
-
-const counts = computed(() => ({
-  all:     taskStore.pagination.total,
-  task_created: taskStore.tasks.filter(t => t.status === 'task_created').length,
-  processing_started: taskStore.tasks.filter(t => t.status === 'processing_started').length,
-  processing_done: taskStore.tasks.filter(t => t.status === 'processing_done').length,
-  processing_failed: taskStore.tasks.filter(t => t.status === 'processing_failed').length,
-}))
-
 const router = useRouter()
 
 function openTaskInfo(_e: Event, row: unknown) {
@@ -212,144 +188,17 @@ function openTaskInfo(_e: Event, row: unknown) {
             TASK ON-GOING 
           </h1>
         </div>
-        
         <div />
       </div>
 
       <USeparator />
 
       <!-- Filters -->
-      <div class="rounded-lg bg-(--ui-bg-elevated) border border-(--ui-border)">
-        <div class="grid grid-cols-2 divide-x divide-(--ui-border)">
-          <!-- Case -->
-          <div class="flex items-center gap-3 px-4 py-3">
-            <UIcon name="i-lucide-folder-open" class="text-primary w-4 h-4 shrink-0" />
-            <span class="text-xs font-medium text-muted shrink-0">Case</span>
-            <USelectMenu
-              :model-value="filterCase"
-              :items="caseOptions"
-              value-key="value"
-              label-key="label"
-              placeholder="All cases…"
-              class="w-full"
-              @update:model-value="filterCase = extractVal($event)"
-            />
-            <Transition
-              enter-active-class="transition duration-150 ease-out"
-              enter-from-class="opacity-0 scale-90"
-              enter-to-class="opacity-100 scale-100"
-              leave-active-class="transition duration-100 ease-in"
-              leave-from-class="opacity-100 scale-100"
-              leave-to-class="opacity-0 scale-90"
-            >
-              <UButton
-                v-if="filterCase !== 'all'"
-                icon="i-lucide-x"
-                size="sm"
-                variant="ghost"
-                color="neutral"
-                @click="filterCase = 'all'"
-              />
-            </Transition>
-          </div>
-
-          <!-- Module -->
-          <div class="flex items-center gap-3 px-4 py-3">
-            <UIcon name="i-lucide-package" class="text-primary w-4 h-4 shrink-0" />
-            <span class="text-xs font-medium text-muted shrink-0">Module</span>
-            <USelectMenu
-              :model-value="filterModule"
-              :items="moduleOptions"
-              value-key="value"
-              label-key="label"
-              placeholder="All modules…"
-              class="w-full"
-              @update:model-value="filterModule = extractVal($event)"
-            />
-            <Transition
-              enter-active-class="transition duration-150 ease-out"
-              enter-from-class="opacity-0 scale-90"
-              enter-to-class="opacity-100 scale-100"
-              leave-active-class="transition duration-100 ease-in"
-              leave-from-class="opacity-100 scale-100"
-              leave-to-class="opacity-0 scale-90"
-            >
-              <UButton
-                v-if="filterModule !== 'all'"
-                icon="i-lucide-x"
-                size="sm"
-                variant="ghost"
-                color="neutral"
-                @click="filterModule = 'all'"
-              />
-            </Transition>
-          </div>
-        </div>
-        <div class="border-t border-(--ui-border)"></div>
-        <div class="grid grid-cols-2 divide-x divide-(--ui-border)">
-          <!-- Input -->
-          <div class="flex items-center gap-3 px-4 py-3">
-            <UIcon name="i-lucide-search" class="text-primary w-4 h-4 shrink-0" />
-            <span class="text-xs font-medium text-muted shrink-0">Input</span>
-            <UInput
-              v-model="filterInput"
-              placeholder="Search by input path..."
-              size="sm"
-              class="w-full"
-              :ui="{ icon: { trailing: { pointer: '' } } }"
-            />
-            <Transition
-              enter-active-class="transition duration-150 ease-out"
-              enter-from-class="opacity-0 scale-90"
-              enter-to-class="opacity-100 scale-100"
-              leave-active-class="transition duration-100 ease-in"
-              leave-from-class="opacity-100 scale-100"
-              leave-to-class="opacity-0 scale-90"
-            >
-              <UButton
-                v-if="filterInput"
-                icon="i-lucide-x"
-                size="sm"
-                variant="ghost"
-                color="neutral"
-                @click="filterInput = ''"
-              />
-            </Transition>
-          </div>
-
-          <!-- Status -->
-          <div class="flex items-center gap-3 px-4 py-3">
-            <UIcon name="i-lucide-list-checks" class="text-primary w-4 h-4 shrink-0" />
-            <span class="text-xs font-medium text-muted shrink-0">Status</span>
-            <USelectMenu
-              :model-value="filterStatus"
-              :items="filters"
-              value-key="value"
-              label-key="label"
-              placeholder="All statuses…"
-              class="w-full"
-              @update:model-value="filterStatus = extractVal($event)"
-            />
-            <Transition
-              enter-active-class="transition duration-150 ease-out"
-              enter-from-class="opacity-0 scale-90"
-              enter-to-class="opacity-100 scale-100"
-              leave-active-class="transition duration-100 ease-in"
-              leave-from-class="opacity-100 scale-100"
-              leave-to-class="opacity-0 scale-90"
-            >
-              <UButton
-                v-if="filterStatus !== 'all'"
-                icon="i-lucide-x"
-                size="sm"
-                variant="ghost"
-                color="neutral"
-                @click="filterStatus = 'all'"
-              />
-            </Transition>
-          </div>
-        </div>
-      </div>
+      <FilterBar
+        :filters="filterBarConfig"
+        :model-values="filterValues"
+        @update="onFilterUpdate"
+      />
 
       <!-- Table -->
       <UTable

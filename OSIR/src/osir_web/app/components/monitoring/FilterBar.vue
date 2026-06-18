@@ -3,11 +3,14 @@ import { extractVal } from '~/utils/monitoring'
 
 interface Option { label: string; value: string }
 
+type FilterType = 'select' | 'input'
+
 interface FilterDef {
   icon: string
   label: string
   modelKey: string
-  options: Option[]
+  type?: FilterType
+  options?: Option[]
   placeholder?: string
   disabled?: boolean
   badge?: { label: string; color: string; variant: string }
@@ -46,7 +49,10 @@ function update(key: string, val: unknown) {
       >
         <UIcon :name="f.icon" class="text-primary w-4 h-4 shrink-0" />
         <span class="text-xs font-medium text-muted shrink-0">{{ f.label }}</span>
+        
+        <!-- Select input -->
         <USelectMenu
+          v-if="f.type !== 'input'"
           :model-value="modelValues?.[f.modelKey]"
           :items="f.options"
           value-key="value"
@@ -55,6 +61,18 @@ function update(key: string, val: unknown) {
           class="w-full"
           @update:model-value="update(f.modelKey, $event)"
         />
+        
+        <!-- Text input -->
+        <UInput
+          v-else
+          :model-value="modelValues?.[f.modelKey]"
+          :placeholder="f.placeholder ?? 'Search…'"
+          size="sm"
+          class="w-full"
+          :ui="{ icon: { trailing: { pointer: '' } } }"
+          @update:model-value="update(f.modelKey, $event)"
+        />
+        
         <Transition
           enter-active-class="transition duration-150 ease-out"
           enter-from-class="opacity-0 scale-90"
