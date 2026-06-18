@@ -74,7 +74,15 @@ export interface PostProfileRunResponse extends OsirIpcResponse<OsirDbHandlerMod
 export interface GetCaseListResponse extends OsirIpcResponse<OsirDbCaseModel[]> {}
 export interface PostCaseCreateResponse extends OsirIpcResponse<OsirDbCaseModel> {}
 export interface GetCaseHandlerResponse extends OsirIpcResponse<OsirDbHandlerModel[]> {}
-export interface GetTasksListResponse extends OsirIpcResponse<OsirDbTaskModel[]> {}
+export interface PaginatedTaskResponse {
+  tasks: OsirDbTaskModel[]
+  total: number
+  page: number
+  page_size: number
+  total_pages: number
+}
+
+export interface GetTasksListResponse extends OsirIpcResponse<PaginatedTaskResponse> {}
 
 // ── Task ──────────────────────────────────────────────────────────────────────
 

@@ -7,9 +7,10 @@ useSeoMeta({ title: 'Status — Task On-Going' })
 
 type Filter = 'all' | 'ongoing' | 'past'
 
-const filter = ref<Filter>('all')
+const filterStatus = ref<Filter>('all')
 const filterCase   = ref('all')
 const filterModule = ref('all')
+const filterInput = ref<string>('')
 
 function extractVal(val: unknown): string {
   if (val === null || val === undefined) return 'all'
@@ -20,10 +21,104 @@ function extractVal(val: unknown): string {
 const taskStore = useTaskStore()
 const caseStore = useCaseStore()
 
-await caseStore.fetchCases()
+const page = ref<number>(1)
+const pageSize = ref<number>(10)
+
+// Sync page and pageSize from store on initial load
+const syncPage = () => {
+  page.value = taskStore.pagination.page
+  pageSize.value = taskStore.pagination.pageSize
+}
+
+// Initialize from store
+syncPage()
+
+// Map UI filter to API status values
+const getStatusFilters = () => {
+  if (filterStatus.value === 'all') return null
+  if (filterStatus.value === 'ongoing') return 'processing_started,task_created'
+  if (filterStatus.value === 'past') return 'processing_done,processing_failed'
+  return filterStatus.value
+}
+
+// Build filter params for API call
+const buildFilterParams = () => {
+  const params: { status: string | null, input: string | null, caseNames: string[] | null } = {
+    status: null,
+    input: null,
+    caseNames: null
+  }
+  
+  // Map filter status to API statuses
+  const statusFilter = getStatusFilters()
+  if (statusFilter) {
+    params.status = statusFilter
+  }
+  
+  if (filterInput.value) {
+    params.input = filterInput.value
+  }
+  
+  if (filterCase.value !== 'all') {
+    params.caseNames = [filterCase.value]
+  }
+  
+  // Note: module filter is applied client-side in filteredTasks computed
+  
+  return params
+}
+
+// Watch local page/pageSize changes to trigger refetch
+const refetchTasks = () => {
+  const { status, input, caseNames } = buildFilterParams()
+  taskStore.fetchTasks(
+    caseNames,
+    status,
+    input,
+    page.value,
+    pageSize.value
+  )
+}
+
+// Watch local page/pageSize changes to update store and refetch
+watch([page, pageSize], () => {
+  taskStore.setPage(page.value)
+  taskStore.setPageSize(pageSize.value)
+  refetchTasks()
+  // Restart polling with new pagination
+  const { status, input, caseNames } = buildFilterParams()
+  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
+})
+
+// Debounced refetch for input filter
+let inputDebounce: ReturnType<typeof setTimeout>
+
+watch(filterInput, () => {
+  page.value = 1
+  clearTimeout(inputDebounce)
+  inputDebounce = setTimeout(() => {
+    refetchTasks()
+    // Restart polling with new input filter
+    const { status, input, caseNames } = buildFilterParams()
+    taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
+  }, 500)
+})
+
+// Refetch when other filters change (reset to page 1)
+watch([filterStatus, filterCase, filterModule], () => {
+  page.value = 1
+  refetchTasks()
+  // Restart polling with new filters
+  const { status, input, caseNames } = buildFilterParams()
+  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
+})
 
 onMounted(() => {
-  taskStore.startPolling(caseStore.cases.map(c => c.name), 10000)
+  // Initial fetch with pagination
+  refetchTasks()
+  // Start polling with all current filter parameters
+  const { status, input, caseNames } = buildFilterParams()
+  taskStore.startPolling(caseNames, status, input, page.value, pageSize.value, 10000)
 })
 onUnmounted(() => {
   taskStore.stopPolling()
@@ -32,14 +127,16 @@ onUnmounted(() => {
 const caseOptions   = computed(() => taskStore.caseOptions)
 const moduleOptions = computed(() => taskStore.moduleOptions)
 
+// Since status, case, and input filters are server-side, we only apply module filter client-side
 const filteredTasks = computed(() =>
   taskStore.tasks.filter(t => {
-    const matchStatus = filter.value === 'all'
-      || (filter.value === 'ongoing' && (t.status === 'processing_started' || t.status === 'task_created'))
-      || (filter.value === 'past'    && (t.status === 'processing_done' || t.status === 'processing_failed'))
-    return matchStatus
-      && (filterCase.value   === 'all' || t.case_name === filterCase.value)
-      && (filterModule.value === 'all' || t.module    === filterModule.value)
+    // Status is filtered server-side, but we also filter here for consistency
+    const statusFilter = getStatusFilters()
+    const matchStatus = !statusFilter || statusFilter.split(',').includes(t.status)
+    const matchCase = filterCase.value === 'all' || t.case_name === filterCase.value
+    const matchInput = !filterInput.value || t.input.toLowerCase().includes(filterInput.value.toLowerCase())
+    const matchModule = filterModule.value === 'all' || t.module === filterModule.value
+    return matchStatus && matchCase && matchInput && matchModule
   })
 )
 
@@ -88,9 +185,11 @@ const filters: { label: string, value: Filter }[] = [
 ]
 
 const counts = computed(() => ({
-  all:     taskStore.tasks.length,
-  ongoing: taskStore.tasks.filter(t => t.status === 'processing_started' || t.status === 'task_created').length,
-  past:    taskStore.tasks.filter(t => t.status === 'processing_done' || t.status === 'processing_failed').length,
+  all:     taskStore.pagination.total,
+  task_created: taskStore.tasks.filter(t => t.status === 'task_created').length,
+  processing_started: taskStore.tasks.filter(t => t.status === 'processing_started').length,
+  processing_done: taskStore.tasks.filter(t => t.status === 'processing_done').length,
+  processing_failed: taskStore.tasks.filter(t => t.status === 'processing_failed').length,
 }))
 
 const router = useRouter()
@@ -112,21 +211,9 @@ function openTaskInfo(_e: Event, row: unknown) {
           <h1 class="text-2xl font-bold text-primary uppercase leading-tight font-syne">
             TASK ON-GOING 
           </h1>
-          <p class="text-sm text-muted">Find and monitor your on-going tasks. - <UBadge>Last 200 By Case</UBadge></p> 
         </div>
         
-        <!-- Filter -->
-        <div class="flex items-center gap-1 p-1 rounded-lg bg-(--ui-bg-elevated) border border-(--ui-border) shrink-0 mt-1">
-          <UButton
-            v-for="f in filters"
-            :key="f.value"
-            :label="`${f.label} (${counts[f.value]})`"
-            size="sm"
-            :variant="filter === f.value ? 'solid' : 'ghost'"
-            :color="filter === f.value ? 'primary' : 'neutral'"
-            @click="filter = f.value"
-          />
-        </div>
+        <div />
       </div>
 
       <USeparator />
@@ -198,10 +285,80 @@ function openTaskInfo(_e: Event, row: unknown) {
             </Transition>
           </div>
         </div>
+        <div class="border-t border-(--ui-border)"></div>
+        <div class="grid grid-cols-2 divide-x divide-(--ui-border)">
+          <!-- Input -->
+          <div class="flex items-center gap-3 px-4 py-3">
+            <UIcon name="i-lucide-search" class="text-primary w-4 h-4 shrink-0" />
+            <span class="text-xs font-medium text-muted shrink-0">Input</span>
+            <UInput
+              v-model="filterInput"
+              placeholder="Search by input path..."
+              size="sm"
+              class="w-full"
+              :ui="{ icon: { trailing: { pointer: '' } } }"
+            />
+            <Transition
+              enter-active-class="transition duration-150 ease-out"
+              enter-from-class="opacity-0 scale-90"
+              enter-to-class="opacity-100 scale-100"
+              leave-active-class="transition duration-100 ease-in"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-90"
+            >
+              <UButton
+                v-if="filterInput"
+                icon="i-lucide-x"
+                size="sm"
+                variant="ghost"
+                color="neutral"
+                @click="filterInput = ''"
+              />
+            </Transition>
+          </div>
+
+          <!-- Status -->
+          <div class="flex items-center gap-3 px-4 py-3">
+            <UIcon name="i-lucide-list-checks" class="text-primary w-4 h-4 shrink-0" />
+            <span class="text-xs font-medium text-muted shrink-0">Status</span>
+            <USelectMenu
+              :model-value="filterStatus"
+              :items="filters"
+              value-key="value"
+              label-key="label"
+              placeholder="All statuses…"
+              class="w-full"
+              @update:model-value="filterStatus = extractVal($event)"
+            />
+            <Transition
+              enter-active-class="transition duration-150 ease-out"
+              enter-from-class="opacity-0 scale-90"
+              enter-to-class="opacity-100 scale-100"
+              leave-active-class="transition duration-100 ease-in"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-90"
+            >
+              <UButton
+                v-if="filterStatus !== 'all'"
+                icon="i-lucide-x"
+                size="sm"
+                variant="ghost"
+                color="neutral"
+                @click="filterStatus = 'all'"
+              />
+            </Transition>
+          </div>
+        </div>
       </div>
 
       <!-- Table -->
-      <UTable virtualize :data="filteredTasks" :columns="columns" :loading="taskStore.isLoading && !taskStore.tasks.length" class="clickable-rows max-h-100" @select="openTaskInfo">
+      <UTable
+        :data="filteredTasks"
+        :columns="columns"
+        :loading="taskStore.isLoading && !taskStore.tasks.length"
+        class="clickable-rows"
+        @select="openTaskInfo"
+      >
         <!-- ID cell -->
         <template #task_id-cell="{ row }">
           <span class="font-mono text-xs text-muted" :title="row.original.task_id">
@@ -247,11 +404,34 @@ function openTaskInfo(_e: Event, row: unknown) {
         </template>
       </UTable>
 
+      <!-- Pagination -->
+      <div v-if="taskStore.pagination.total > 0" class="flex items-center justify-between gap-4 py-4 flex-wrap">
+        <div class="flex items-center gap-2 text-sm text-muted">
+          <span>Showing {{ (page - 1) * pageSize + 1 }}-{{ Math.min(page * pageSize, taskStore.pagination.total) }} of {{ taskStore.pagination.total }}</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <UPagination
+            v-model:page="page"
+            :total="taskStore.pagination.total"
+            :items-per-page="pageSize"
+            show-first
+            show-last
+          />
+          <USelectMenu
+            v-model="pageSize"
+            :items="[10, 20, 50, 100]"
+            placeholder="Items per page"
+            size="sm"
+            class="w-32"
+          />
+        </div>
+      </div>
+
     </div>
   </UPage>
 </template>
 
 <style scoped>
-:deep(.clickable-rows tbody tr) { cursor: pointer; }
+:deep(.clickable-rows tbody tr) { cursor: pointer;}
 :deep(.clickable-rows tbody tr:hover) { background-color: var(--ui-bg-elevated); }
 </style>

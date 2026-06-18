@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import type { SelectMenuItem } from '@nuxt/ui'
 import { useOsirApi } from '~/api'
-import type { OsirDbStatusModel } from '~/api/types'
+import type { OsirDbStatusModel, PaginatedTaskResponse } from '~/api/types'
 
 export type TaskStatus = 'task_created' | 'processing_started' | 'processing_done' | 'processing_failed'
 
@@ -15,6 +15,17 @@ export interface TaskRow {
   start_time: string | null
   duration_seconds: number | null
   input: string
+}
+
+export interface PaginationState {
+  page: number
+  pageSize: number
+  total: number
+  totalPages: number
+}
+
+function ensureNumber(value: unknown): number {
+  return typeof value === 'number' ? value : Number(value) || 0
 }
 
 function mapStatus(s?: OsirDbStatusModel | null): TaskStatus {
@@ -32,6 +43,7 @@ interface TaskState {
   isLoading: boolean
   error: string | null
   pollInterval: ReturnType<typeof setInterval> | null
+  pagination: PaginationState
 }
 
 export const useTaskStore = defineStore('task', {
@@ -40,6 +52,12 @@ export const useTaskStore = defineStore('task', {
     isLoading: false,
     error: null,
     pollInterval: null,
+    pagination: {
+      page: 1,
+      pageSize: 20,
+      total: 0,
+      totalPages: 0
+    }
   }),
 
   getters: {
@@ -54,48 +72,81 @@ export const useTaskStore = defineStore('task', {
   },
 
   actions: {
-    async fetchTasks(caseNames: string[]) {
-      if (!caseNames.length) return
+    async fetchTasks(
+      caseNames: string[] | null = null,
+      status: string | null = null,
+      input: string | null = null,
+      page: number = 1,
+      pageSize: number = 20
+    ) {
       this.isLoading = true
       this.error = null
       try {
         const api = useOsirApi()
-        const results = await Promise.allSettled(
-          caseNames.map(name =>
-            api.case.tasks(name).then(r => ({ name, tasks: r.response ?? [] }))
-          )
-        )
-        const rows: TaskRow[] = []
-        for (const result of results) {
-          if (result.status === 'fulfilled') {
-            for (const t of result.value.tasks) {
-              // console.log(t)
-              rows.push({
-                task_id:          t.task_id,
-                case_name:        result.value.name,
-                agent:            t.agent,
-                module:           t.module,
-                status:           mapStatus(t.processing_status),
-                timestamp:        t.timestamp,
-                start_time:       t.trace?.start_time ?? null,
-                duration_seconds: t.trace?.duration_seconds ?? null,
-                input:            t.input,
-              })
-            }
-          }
+        
+        // Fetch cases first to create UUID to name mapping
+        const casesResponse = await api.case.list()
+        const allCases = casesResponse.response || []
+        const caseUuidToName = new Map<string, string>()
+        for (const c of allCases) {
+          caseUuidToName.set(c.case_uuid, c.name)
         }
+        
+        // Single API call for all tasks with pagination and filters
+        const result = await api.case.tasksAll(caseNames, status, input, page, pageSize)
+        const paginatedData: PaginatedTaskResponse = result.response
+        
+        const rows: TaskRow[] = []
+        for (const t of paginatedData.tasks) {
+          rows.push({
+            task_id:          t.task_id,
+            case_name:        caseUuidToName.get(String(t.case_uuid)) || 'Unknown',
+            agent:            t.agent,
+            module:           t.module,
+            status:           mapStatus(t.processing_status),
+            timestamp:        t.timestamp,
+            start_time:       t.trace?.start_time ?? null,
+            duration_seconds: t.trace?.duration_seconds ?? null,
+            input:            t.input,
+          })
+        }
+        
         this.tasks = rows
+        this.pagination = {
+          page,
+          pageSize,
+          total: ensureNumber(paginatedData.total),
+          totalPages: ensureNumber(paginatedData.total_pages)
+        }
       } catch (e) {
         this.error = 'Failed to fetch tasks'
+        console.error('Error fetching tasks:', e)
       } finally {
         this.isLoading = false
       }
     },
 
-    startPolling(caseNames: string[], ms = 10000) {
-      this.fetchTasks(caseNames)
+    setPage(page: number) {
+      this.pagination.page = page
+    },
+
+    setPageSize(pageSize: number) {
+      this.pagination.pageSize = pageSize
+      this.pagination.page = 1
+    },
+
+    startPolling(
+      caseNames: string[] | null = null,
+      status: string | null = null,
+      input: string | null = null,
+      page: number = 1,
+      pageSize: number = 20,
+      ms = 10000
+    ) {
+      this.fetchTasks(caseNames, status, input, page, pageSize)
       this.stopPolling()
-      this.pollInterval = setInterval(() => this.fetchTasks(caseNames), ms)
+      this.pollInterval = setInterval(() => 
+        this.fetchTasks(caseNames, status, input, page, pageSize), ms)
     },
 
     stopPolling() {

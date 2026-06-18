@@ -126,6 +126,33 @@ async def upload_file(
 @router.get("/case/{case_name}/tasks",
             response_model=GetTasksListResponse,
             responses={500: {"model": UnexpectedExceptionResponse}})
-def get_tasks(case_name: str):
-    return OsirIpcCall("get_tasks", params={"case_name": case_name})
+def get_case_tasks(case_name: str, page: int = 1, page_size: int = 20):
+    return OsirIpcCall("get_tasks", params={"case_name": case_name, "page": page, "page_size": page_size})
+
+
+@router.get("/tasks",
+            response_model=GetTasksListResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
+def get_all_tasks(
+    case_names: str = None,  # Comma-separated list of case names
+    status: str = None,  # Comma-separated list of statuses
+    input: str = None,  # Input path filter (LIKE pattern)
+    page: int = 1,
+    page_size: int = 20
+):
+    """
+    Get paginated tasks from all cases or specific cases with filters.
+    If case_names is not provided, returns tasks from all cases.
+    If case_names is provided, it should be a comma-separated list of case names.
+    If status is provided, it should be a comma-separated list of statuses.
+    If input is provided, filters tasks by input path (contains match).
+    """
+    params: dict = {"page": page, "page_size": page_size}
+    if case_names:
+        params["case_names"] = [name.strip() for name in case_names.split(",") if name.strip()]
+    if status:
+        params["processing_status_list"] = [s.strip() for s in status.split(",") if s.strip()]
+    if input:
+        params["input"] = input
+    return OsirIpcCall("get_tasks", params=params)
 

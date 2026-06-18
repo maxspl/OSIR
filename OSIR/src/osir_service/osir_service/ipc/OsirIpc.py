@@ -379,14 +379,68 @@ class OsirIpc(BaseModel):
             resp.response = all_cases_in_db
         return resp
 
-    @register_action('get_tasks', required_fields=['case_name'])
+    @register_action('get_tasks')
     def _handle_get_tasks(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         with OsirDb() as db:
+            # Get case_name(s) - can be a single name or a list
+            case_name = req.params.get('case_name')
+            case_names = req.params.get('case_names')  # List of case names
             case_uuid = req.params.get('case_uuid')
-            if not case_uuid:
-                case_uuid = db.case.get(name=req.params['case_name']).case_uuid
+            case_uuids = req.params.get('case_uuids')  # List of case UUIDs
+            
+            # Determine which cases to query
+            resolved_case_uuids = None
+            
+            if case_uuid:
+                resolved_case_uuids = [case_uuid]
+            elif case_uuids:
+                resolved_case_uuids = case_uuids
+            elif case_name:
+                # Single case name - get its UUID
+                case_obj = db.case.get(name=case_name)
+                resolved_case_uuids = [case_obj.case_uuid] if case_obj else []
+            elif case_names:
+                # Multiple case names - get their UUIDs
+                resolved_case_uuids = []
+                for name in case_names:
+                    case_obj = db.case.get(name=name)
+                    if case_obj:
+                        resolved_case_uuids.append(case_obj.case_uuid)
+            # If no case specified, resolved_case_uuids remains None = all cases
+            
+            # Get filter parameters
+            processing_status = req.params.get('processing_status')
+            processing_status_list = req.params.get('processing_status_list')
+            input_filter = req.params.get('input')
+            
+            # Get pagination parameters
+            page = req.params.get('page', 1)
+            page_size = req.params.get('page_size', 20)
+            
+            # Convert to int if they are strings
+            try:
+                page = int(page) if page else 1
+                page_size = int(page_size) if page_size else 20
+            except (ValueError, TypeError):
+                page = 1
+                page_size = 20
+            
+            tasks, total = db.task.list(
+                case_uuid=resolved_case_uuids,
+                processing_status=processing_status_list or processing_status,
+                input_filter=input_filter,
+                page=page,
+                page_size=page_size
+            )
+            
             resp.message = "Tasks retrieved"
-            resp.response = db.task.list(case_uuid=case_uuid)
+            resp.response = {
+                "tasks": tasks,
+                "total": total,
+                "page": page,
+                "page_size": page_size,
+                "total_pages": (total + page_size - 1) // page_size if total > 0 else 0
+            }
         return resp
 
     @register_action('get_task_stats')

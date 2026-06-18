@@ -1,6 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Union
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
+from pydantic import BaseModel
 
 """ 
 ==========================================
@@ -38,8 +39,17 @@ Response model:
 """
 
 
+class PaginatedTaskResponse(BaseModel):
+    """Pagination metadata and task data."""
+    tasks: List[OsirDbTaskModel]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+
 class GetTasksListResponse(OsirIpcResponse):
-    response: List[OsirDbTaskModel]
+    response: PaginatedTaskResponse
 
 
 """ 

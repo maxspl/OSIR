@@ -318,20 +318,32 @@ class OsirDbTask:
 
     def list(
         self,
-        case_uuid: Optional[str] = None,
+        case_uuid: Optional[Union[str, List[str]]] = None,
         processing_status: Optional[Union[str, List[str]]] = None,
-        exclude_status: Optional[Union[str, List[str]]] = None
-    ) -> List[OsirDbTaskModel]:
+        exclude_status: Optional[Union[str, List[str]]] = None,
+        input_filter: Optional[str] = None,
+        page: int = 1,
+        page_size: int = 20
+    ) -> tuple[List[OsirDbTaskModel], int]:
         """
-        Lists tasks based on filtering criteria such as case UUID or status.
+        Lists tasks based on filtering criteria such as case UUID, status, or input.
+        Supports server-side pagination.
+        
+        When case_uuid is None, returns tasks from ALL cases.
+        When case_uuid is a list, returns tasks from those specific cases.
 
             Args:
-                case_uuid (str, optional): Filter tasks by a specific case UUID.
+                case_uuid (str or List[str], optional): Filter tasks by a specific case UUID or list of UUIDs.
+                    If None, returns tasks from all cases.
                 processing_status (Union[str, List[str]], optional): Include only tasks with these statuses.
                 exclude_status (Union[str, List[str]], optional): Exclude tasks with these statuses.
+                input_filter (str, optional): Filter tasks by input path (LIKE pattern).
+                page (int): Page number for pagination (1-indexed).
+                page_size (int): Number of items per page.
 
             Returns:
-                list: A list of dictionaries, each representing a task.
+                tuple: (list of tasks, total count) - A list of dictionaries, each representing a task,
+                       and the total count of tasks matching the filters (for pagination).
 
             Raises:
                 Exception: If the database query fails.
@@ -344,14 +356,20 @@ class OsirDbTask:
                 processing_status = to_list(processing_status)
             if exclude_status:
                 exclude_status = to_list(exclude_status)
+            
+            # Convert case_uuid to list if it's a string
+            case_uuids = to_list(case_uuid) if case_uuid else None
 
+            # Build base query for counting and fetching
             query = f"SELECT * FROM ({TASK_VIEW_SELECT}) v"
+            count_query = f"SELECT COUNT(*) FROM ({TASK_VIEW_SELECT}) v"
             conditions = []
             params = []
 
-            if case_uuid:
-                conditions.append("v.case_uuid = %s")
-                params.append(case_uuid)
+            if case_uuids:
+                placeholders = ", ".join(["%s"] * len(case_uuids))
+                conditions.append(f"v.case_uuid IN ({placeholders})")
+                params.extend(case_uuids)
 
             if processing_status:
                 placeholders = ", ".join(["%s"] * len(processing_status))
@@ -363,13 +381,27 @@ class OsirDbTask:
                 conditions.append(f"v.processing_status NOT IN ({placeholders})")
                 params.extend(exclude_status)
 
+            if input_filter:
+                conditions.append("v.input ILIKE %s")
+                params.append(f"%{input_filter}%")
+
             if conditions:
                 query += " WHERE " + " AND ".join(conditions)
+                count_query += " WHERE " + " AND ".join(conditions)
 
-            query += " ORDER BY v.timestamp DESC LIMIT 200"
+            # Get total count for pagination
+            total_count = self.db.execute_query(count_query, params, fetch="fetchone")
+            total = total_count["count"] if total_count else 0
+
+            # Apply sorting and pagination
+            query += " ORDER BY v.timestamp DESC"
+            offset = (page - 1) * page_size
+            query += " LIMIT %s OFFSET %s"
+            params.extend([page_size, offset])
+
             rows = self.db.execute_query(query, params, fetch="fetchall")
 
-            return [OsirDbTaskModel.model_validate(_decode_result_trace(dict(x))) for x in rows]
+            return [OsirDbTaskModel.model_validate(_decode_result_trace(dict(x))) for x in rows], total
         except Exception as e:
             logger.error(f"Error listing tasks: {e}")
             raise
