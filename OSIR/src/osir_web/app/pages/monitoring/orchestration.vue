@@ -110,6 +110,40 @@ async function deleteHandler() {
   }
 }
 
+async function handleRefreshTask() {
+  if (!selectedTask.value) return
+  try {
+    const freshTask = await handlerStore.fetchTaskInfo(selectedTask.value.task_id)
+    if (freshTask) {
+      selectedTask.value = freshTask
+    }
+  } catch (error) {
+    toast.add({ title: 'Error', description: 'Failed to refresh task info', color: 'error' })
+    console.error('Failed to refresh task:', error)
+    throw error
+  }
+}
+
+async function handleRerunTask() {
+  if (!selectedTask.value) return
+  try {
+    const result = await api.tasks.restart(selectedTask.value.task_id)
+    if (result.response) {
+      toast.add({ title: 'Success', description: 'Task restarted successfully', color: 'success' })
+      // Refresh the task info to get the new task data
+      const freshTask = await handlerStore.fetchTaskInfo(selectedTask.value.task_id)
+      if (freshTask) {
+        selectedTask.value = freshTask
+      }
+    } else {
+      toast.add({ title: 'Error', description: 'Failed to restart task: no response', color: 'error' })
+    }
+  } catch (error) {
+    toast.add({ title: 'Error', description: 'Failed to restart task', color: 'error' })
+    console.error('Failed to restart task:', error)
+  }
+}
+
 async function deleteAllHandlers() {
   const caseName = filterValues.filterCaseName
   if (caseName === 'all') return
@@ -303,7 +337,8 @@ const view2Filters = computed(() => [
           v-else
           :task="selectedTask"
           @stop="() => {}"
-          @rerun="() => {}"
+          @rerun="handleRerunTask"
+          @refresh="handleRefreshTask"
           @back="activeView = 'task-by-handler'"
         />
       </template>

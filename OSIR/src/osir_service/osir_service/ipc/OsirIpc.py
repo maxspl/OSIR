@@ -4,6 +4,7 @@ import threading
 import time
 import re
 import os
+from celery.result import AsyncResult
 from pydantic import BaseModel
 
 from osir_lib.core.FileManager import FileManager
@@ -16,11 +17,10 @@ from osir_service.postgres.OsirDb import OsirDb
 from osir_service.watchdog.MonitorCase import MonitorCase
 from osir_service.ipc.OsirSocket import OsirSocket
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
-from osir_service.orchestration.TaskService import TaskService
+from osir_service.orchestration.TaskService import TaskService, _get_celery_app
 from osir_service.ipc.model.OsirFileModel import FsData
 from osir_service.ipc.model.OsirAction import OSIR_ACTIONS, register_action
 from osir_service.ipc.OsirIpcFiles import OsirIpcFiles
-
 from osir_lib.logger import AppLogger
 
 logger = AppLogger(__name__).get_logger()
@@ -361,6 +361,35 @@ class OsirIpc(BaseModel):
         resp.response = to_delete
         return resp
     
+    @register_action('restart_task', required_fields=['task_id'])
+    def _handle_create_case(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        # TODO: Maybe Wrap this in TaskService ?
+        app = _get_celery_app() 
+
+        task = AsyncResult(req.params['task_id'], app=app)
+        if not task:
+            raise ValueError(f"Task IDs not found")
+        
+        with OsirDb() as db:            
+            db.task.set_status(req.params['task_id'], "PENDING")
+            
+        input_dir, case_path, module_bytes, case_uuid = task.args
+        module_instance = OsirModuleModel.model_validate(json.loads(module_bytes))
+        
+        app.send_task(
+                    TaskService.get_task_name(module_instance),
+                    args=(str(module_instance.input.match), str(case_path), module_instance.model_dump_json(), case_uuid),
+                    task_id=req.params['task_id'],
+                    queue=TaskService.get_queue_name(module_instance),
+                )
+            
+        resp.message = "Task restart successfully"
+        resp.response = {
+            "task_id": req.params['task_id'],
+        }
+
+        return resp
+
     @register_action('create_case', required_fields=['case_name'])
     def _handle_create_case(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         with OsirDb() as db:

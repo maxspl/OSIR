@@ -1,4 +1,5 @@
 import type { HandlerRow, TaskDetail } from '~/stores/handler'
+import type { TaskRow } from '~/stores/task'
 import { useHandlerStore } from '~/stores/handler'
 
 export type View = 'handler-by-case' | 'task-by-handler' | 'task-info'
@@ -112,9 +113,18 @@ export function useMonitoringNavigation(
     await onHandlerSelected(h)
   }
 
-  function selectTask(_e: Event, row: unknown) {
-    const t = (row as { original: TaskDetail }).original
-    selectedTask.value = t
+  async function selectTask(_e: Event, row: unknown) {
+    const taskRow = (row as { original: TaskRow | TaskDetail }).original
+    // Si c'est déjà un TaskDetail (avec logs), on l'utilise directement
+    if ('logs' in taskRow) {
+      selectedTask.value = taskRow as TaskDetail
+    } else {
+      // Sinon, on fetch les détails complets avec les logs
+      const taskDetail = await handlerStore.fetchTaskInfo(taskRow.task_id)
+      if (taskDetail) {
+        selectedTask.value = taskDetail
+      }
+    }
     activeView.value = 'task-info'
   }
 

@@ -265,13 +265,6 @@ function handleSelect(e: Event, row: unknown) {
         <span class="text-xs text-muted">{{ timeAgo(row.original.start_time || row.original.timestamp) }}</span>
       </template>
 
-      <!-- Input Path cell -->
-      <template #input-cell="{ row }">
-        <span class="max-w-xs block" :title="row.original.input">
-          {{ row.original.input?.replace(/\/?OSIR\/share\/cases\//, '') }}
-        </span>
-      </template>
-
       <!-- Empty state -->
       <template #empty>
         <div class="flex flex-col items-center gap-2 py-10 text-center">

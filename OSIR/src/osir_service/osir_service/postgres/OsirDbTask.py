@@ -1,10 +1,12 @@
 import uuid
 from typing import List, Union, Optional
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
+from celery.backends.database.models import TaskExtended
+from celery.states import PENDING, STARTED, SUCCESS, FAILURE, REVOKED
+
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
-
 
 # ----------------------------------------------------------------------
 # Effective task view.
@@ -314,6 +316,27 @@ class OsirDbTask:
             return OsirDbTaskModel.model_validate(_decode_result_trace(dict(row)))
         except Exception as e:
             logger.error(f"Error fetching task by output {output}: {e}")
+            raise
+
+    def set_status(self, task_id: str, state: str) -> None:
+        """
+            Sets the celery_taskmeta status to the specified state.
+
+            Args:
+                task_id (str): The UUID of the task.
+                state (str): The new status to set.
+
+            Raises:
+                Exception: If the database query fails.
+        """
+        try:
+            self.db.execute_query(
+                """UPDATE celery_taskmeta SET status = %s WHERE task_id = %s""",
+                (state, str(task_id))
+            )
+            logger.debug(f"Task {task_id} status set to {state}")
+        except Exception as e:
+            logger.error(f"Error setting status for task {task_id}: {e}")
             raise
 
     def list(

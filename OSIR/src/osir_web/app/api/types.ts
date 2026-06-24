@@ -87,6 +87,7 @@ export interface GetTasksListResponse extends OsirIpcResponse<PaginatedTaskRespo
 // ── Task ──────────────────────────────────────────────────────────────────────
 
 export interface GetTaskInfoResponse extends OsirIpcResponse<OsirDbTaskModel> {}
+export interface GetRestartTaskResponse extends OsirIpcResponse<Record<string, unknown>> {}
 
 // ── Handler ───────────────────────────────────────────────────────────────────
 

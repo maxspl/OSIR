@@ -5,6 +5,25 @@ from pydantic import BaseModel
 
 """ 
 ==========================================
+API Endpoint: GET /task/{task_id}/restart
+==========================================
+Description: Restart a task
+
+Request model:
+  - PARAMS: task_id
+
+Response model:
+  - GetRestartTask
+
+==========================================
+"""
+
+
+class GetRestartTaskResponse(OsirIpcResponse):
+    response: dict
+
+""" 
+==========================================
 API Endpoint: GET /task/{task_id}/info
 ==========================================
 Description: Get task info from OSIR DB

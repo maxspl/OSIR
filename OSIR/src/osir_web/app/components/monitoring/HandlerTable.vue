@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HandlerRow } from '~/stores/handler'
-import { handlerColumns, getStatusCfg, short } from '~/utils/monitoring'
+import { handlerColumns, getStatusCfg, short, timeAgo } from '~/utils/monitoring'
 
 defineProps<{
   handlers: HandlerRow[]
@@ -32,6 +32,9 @@ const emit = defineEmits<{
           variant="subtle"
           size="sm"
         />
+      </template>
+      <template #created_at-cell="{ row }">
+        <span class="text-xs text-muted">{{ timeAgo(row.original.created_at) }}</span>
       </template>
       <template #task_count-cell="{ row }">
         <UBadge :label="String(row.original.task_count)" color="neutral" variant="subtle" size="sm" />

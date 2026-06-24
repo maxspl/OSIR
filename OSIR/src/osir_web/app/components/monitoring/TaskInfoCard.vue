@@ -13,10 +13,25 @@ const props = defineProps<{
 const emit = defineEmits<{
   'stop': []
   'rerun': []
+  'refresh': []
   'back': []
 }>()
 
 const logSearch = ref('')
+const refreshLoading = ref(false)
+const refreshSuccess = ref(false)
+
+async function handleRefresh() {
+  refreshLoading.value = true
+  refreshSuccess.value = false
+  try {
+    await emit('refresh')
+    refreshSuccess.value = true
+    setTimeout(() => { refreshSuccess.value = false }, 2000)
+  } finally {
+    refreshLoading.value = false
+  }
+}
 
 const filteredLogs = computed(() =>
   (props.task.logs ?? []).filter(l =>
@@ -70,6 +85,15 @@ const infoRows = computed(() => [
               variant="subtle"
               size="sm"
               @click="emit('stop')"
+            />
+            <UButton
+              label="Refresh"
+              :icon="refreshSuccess ? 'i-lucide-check' : 'i-lucide-refresh-cw'"
+              :color="refreshSuccess ? 'success' : 'neutral'"
+              :loading="refreshLoading"
+              variant="subtle"
+              size="sm"
+              @click="handleRefresh"
             />
             <UButton
               v-if="task.processing_status === 'processing_done' || task.processing_status === 'processing_failed'"

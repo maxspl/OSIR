@@ -129,7 +129,7 @@ class TaskService:
         return custom_task_id
 
     @staticmethod
-    def push_task(case_path, module_instance: OsirModuleModel, case_uuid, handler_uuid=None):
+    def push_task(case_path, module_instance: OsirModuleModel, case_uuid, handler_uuid=None, task_uuid=None):
         """
             Submits a task for asynchronous execution using Celery, specifying the task's parameters and execution queue.
 
@@ -158,17 +158,20 @@ class TaskService:
                 )
 
         app = _get_celery_app()
-        custom_task_id = str(uuid.uuid4())
+        custom_task_id = task_uuid if task_uuid else str(uuid.uuid4()) 
 
         with OsirDb() as db:
-            db.task.create(
-                task_id=custom_task_id,
-                case_uuid=case_uuid,
-                handler_id=handler_uuid,
-                agent="Null",
-                module=module_instance.module_name,
-                input=module_instance.input.match
-            )
+            if task_uuid:
+                pass
+            else:
+                db.task.create(
+                    task_id=custom_task_id,
+                    case_uuid=case_uuid,
+                    handler_id=handler_uuid,
+                    agent="Null",
+                    module=module_instance.module_name,
+                    input=module_instance.input.match
+                )
 
         app.send_task(
             TaskService.get_task_name(module_instance),
