@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -118,10 +119,10 @@
 <span class="sd">            password (str): Password for authentication.</span>
 <span class="sd">            custom_mountpoint (str): The drive letter or path (default &#39;C&#39;) to be used during tasks.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">user</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">password</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">custom_mountpoint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s1">&#39;C&#39;</span><span class="p">)</span></div>
+    <span class="n">host</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">password</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">custom_mountpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -131,19 +132,19 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Defines the execution environment for Windows-based forensic modules.</span>
 
-<span class="sd">        In the OSIR workflow, &#39;location&#39; determines if the tools run locally, in a </span>
-<span class="sd">        Docker container (dockur), or on a remote machine. This model also allows </span>
-<span class="sd">        for resource allocation by specifying CPU cores, ensuring that heavy forensic </span>
+<span class="sd">        In the OSIR workflow, &#39;location&#39; determines if the tools run locally, in a</span>
+<span class="sd">        Docker container (dockur), or on a remote machine. This model also allows</span>
+<span class="sd">        for resource allocation by specifying CPU cores, ensuring that heavy forensic</span>
 <span class="sd">        parsing doesn&#39;t overwhelm the host system.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            location (str): The deployment type (e.g., &#39;local&#39;, &#39;remote&#39;, &#39;dockur&#39;).</span>
 <span class="sd">            cores (int, optional): The number of CPU cores allocated to the forensic tasks.</span>
-<span class="sd">            remote_box (BoxDetails): Nested connection details for remote execution.</span>
+<span class="sd">            remote_box (BoxDetails, optional): Nested connection details for remote execution.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">cores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Ajout de cores, rendu optionnel</span>
-    <span class="n">remote_box</span><span class="p">:</span> <span class="n">BoxDetails</span></div>
+    <span class="n">cores</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">remote_box</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BoxDetails</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -265,6 +266,10 @@
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">windows_location</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="o">.</span><span class="n">windows_box</span><span class="o">.</span><span class="n">location</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">windows_configured</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_data</span><span class="o">.</span><span class="n">windows_box</span><span class="o">.</span><span class="n">location</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">windows_user</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

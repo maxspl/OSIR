@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -213,16 +214,50 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>case_path</strong> (<em>str</em>) – The base directory path where the case files are stored and operations will be performed.</p></li>
-<li><p><strong>module_data</strong> (<em>bytes</em>) – Serialized data of the module instance to be processed in the task.</p></li>
-<li><p><strong>task</strong> (<em>str</em>) – The name of the task function to execute.</p></li>
-<li><p><strong>queue</strong> (<em>str</em>) – The name of the Celery queue in which the task should be enqueued.</p></li>
+<li><p><strong>module_instance</strong> (<a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel"><em>OsirModuleModel</em></a>) – The module instance to be processed in the task.</p></li>
 <li><p><strong>case_uuid</strong> (<em>str</em>) – A unique identifier for the case associated with the task.</p></li>
+<li><p><strong>handler_uuid</strong> – Handler this task belongs to.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="simple">
 <dt>Environment Variables:</dt><dd><p>CELERY_BROKER_URL (str): The URL of the Celery message broker.
 CELERY_RESULT_BACKEND (str): The URL of the backend used to store task results.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.orchestration.TaskService.TaskService.push_tasks_bulk">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">push_tasks_bulk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler_uuid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/orchestration/TaskService.html#TaskService.push_tasks_bulk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.orchestration.TaskService.TaskService.push_tasks_bulk" title="Link to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Submits many tasks at once:</dt><dd><ul class="simple">
+<li><p>one bulk INSERT (execute_values) for all task rows,</p></li>
+<li><p>one AMQP producer (single connection/channel) reused for all
+celery publishes.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>case_path</strong> – normalized case path (same value passed to push_task).</p></li>
+<li><p><strong>case_uuid</strong> – case UUID.</p></li>
+<li><p><strong>handler_uuid</strong> – handler UUID.</p></li>
+<li><p><strong>items</strong> – list of dicts with keys:
+task_name     -&gt; celery task name
+queue         -&gt; celery queue name
+module_name   -&gt; module name
+match         -&gt; input.match (file path)
+payload_json  -&gt; serialized OsirModuleModel JSON
+processor_os  -&gt; module processor_os (‘linux’/’windows’/…)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>task ids of the dispatched (non-failed) tasks.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
 </dd>
 </dl>
 </dd></dl>

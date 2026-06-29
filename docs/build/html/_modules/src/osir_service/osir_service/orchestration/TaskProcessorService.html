@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -180,8 +181,10 @@
         <span class="c1"># target_file = next(modules_directory.rglob(f&quot;{self._module_instance.module_name}.py&quot;), None)</span>
 
         <span class="c1"># 1. Determine which module name to look for (alt_module takes priority)</span>
-        <span class="n">target_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_module_instance</span><span class="p">,</span> <span class="s1">&#39;alt_module&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_instance</span><span class="o">.</span><span class="n">module_name</span>
-        
+        <span class="n">target_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;alt_module&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_module_instance</span><span class="o">.</span><span class="n">module_name</span>
+        <span class="p">)</span>        
         <span class="c1"># 2. Search for the .py file</span>
         <span class="n">target_file</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">modules_directory</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
 

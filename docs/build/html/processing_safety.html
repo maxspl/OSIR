@@ -1,0 +1,225 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Processing safety &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Master setup in details" href="setup_details.html" />
+    <link rel="prev" title="API &amp; Client Usage" href="api_cli_usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Processing safety</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#file-stability-safety">File stability safety</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#agent-side-stability-check">Agent-side stability check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#directory-idle-detection">Directory idle detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parent-directory-protection">Parent directory protection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#input-in-use-check">Input in-use check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hold-consumers-barrier"><code class="docutils literal notranslate"><span class="pre">hold_consumers</span></code> barrier</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#task-batching-and-delayed-flush">Task batching and delayed flush</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Processing safety</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/processing_safety.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="processing-safety">
+<h1>Processing safety<a class="headerlink" href="#processing-safety" title="Link to this heading"></a></h1>
+<p>OSIR monitors case directories and creates processing tasks when files or directories match module inputs.
+Some artifacts are produced progressively by previous modules, uploads, archive extraction, or external tools.
+To avoid processing incomplete inputs, OSIR applies several safeguards before task execution.</p>
+<section id="file-stability-safety">
+<h2>File stability safety<a class="headerlink" href="#file-stability-safety" title="Link to this heading"></a></h2>
+<p>For file inputs discovered by the watcher, OSIR does not immediately push a task as soon as a matching path appears.</p>
+<p>A file is considered stable when one of the following conditions is true:</p>
+<ul class="simple">
+<li><p>its modification time is older than <code class="docutils literal notranslate"><span class="pre">OSIR_FILE_STABILITY_WINDOW</span></code>;</p></li>
+<li><p>its size and modification time remain unchanged for <code class="docutils literal notranslate"><span class="pre">OSIR_FILE_STABILITY_WINDOW</span></code>.</p></li>
+</ul>
+<p>Unstable files are kept in a delayed queue and retried by the monitoring loop. Once stable, the task is released and pushed to the task queue.</p>
+<p>Default environment variables:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">OSIR_FILE_STABILITY_WINDOW</span><span class="o">=</span><span class="m">1</span>.0
+</pre></div>
+</div>
+</section>
+<section id="agent-side-stability-check">
+<h2>Agent-side stability check<a class="headerlink" href="#agent-side-stability-check" title="Link to this heading"></a></h2>
+<p>The watcher stability safety covers the normal monitored-path workflow.</p>
+<p>For manually pushed tasks or API-created tasks, the agent keeps an additional safety check before processing file inputs. It waits until the file looks stable, using:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">OSIR_FILE_STABILITY_WINDOW</span><span class="o">=</span><span class="m">1</span>.0
+<span class="nv">OSIR_FILE_STABILITY_CHECK_INTERVAL</span><span class="o">=</span><span class="m">0</span>.2
+<span class="nv">OSIR_FILE_STABILITY_MAX_WAIT</span><span class="o">=</span><span class="m">300</span>
+</pre></div>
+</div>
+<p>If the file is still changing after <code class="docutils literal notranslate"><span class="pre">OSIR_FILE_STABILITY_MAX_WAIT</span></code>, OSIR logs a warning and starts the task anyway to avoid blocking the worker indefinitely.
+This fallback mainly protects manual or API-created tasks that may not have gone through the watchdog stability delay.</p>
+</section>
+<section id="directory-idle-detection">
+<h2>Directory idle detection<a class="headerlink" href="#directory-idle-detection" title="Link to this heading"></a></h2>
+<p>For directory inputs, OSIR does not process a directory immediately after it appears.</p>
+<p>A timer is started when a matching directory is detected. The directory is processed only when its modification time remains unchanged for the configured cooldown period.</p>
+<p>If the directory is still changing, the idle check is rescheduled.</p>
+<p>This protects directory-based modules against incomplete extraction or copy operations.</p>
+</section>
+<section id="parent-directory-protection">
+<h2>Parent directory protection<a class="headerlink" href="#parent-directory-protection" title="Link to this heading"></a></h2>
+<p>Before processing a directory, OSIR checks whether it is the parent of another directory still waiting for idle processing.</p>
+<p>If it is a parent of another pending idle directory, OSIR skips the parent execution to avoid processing a broader directory while a more specific child directory is still being stabilized.</p>
+</section>
+<section id="input-in-use-check">
+<h2>Input in-use check<a class="headerlink" href="#input-in-use-check" title="Link to this heading"></a></h2>
+<p>Before a worker executes a task, OSIR checks whether the same input is already used by another active task in the same case.</p>
+<p>If another task is still using the input, the worker waits and retries before executing the module.</p>
+<p>This prevents concurrent modules from reading or processing the same input while another module is still operating on it.</p>
+</section>
+<section id="hold-consumers-barrier">
+<h2><code class="docutils literal notranslate"><span class="pre">hold_consumers</span></code> barrier<a class="headerlink" href="#hold-consumers-barrier" title="Link to this heading"></a></h2>
+<p>Some producer modules create directories that are consumed by downstream modules.
+For these modules, <code class="docutils literal notranslate"><span class="pre">hold_consumers</span></code> can be enabled in the module configuration.</p>
+<p>Example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">configuration</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">module</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">extract_orc</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pre-process</span>
+<span class="w">  </span><span class="nt">disk_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">no_multithread</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">hold_consumers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">hold_consumers</span></code> is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>:</p>
+<ul class="simple">
+<li><p>OSIR tracks the producer module output directory</p></li>
+<li><p>matching consumer directory tasks under this output are deferred</p></li>
+<li><p>consumers are released only when all producer tasks for the case are finished</p></li>
+</ul>
+<p>This is useful for modules such as archive extraction, where downstream modules must not consume partially extracted folders.</p>
+</section>
+<section id="task-batching-and-delayed-flush">
+<h2>Task batching and delayed flush<a class="headerlink" href="#task-batching-and-delayed-flush" title="Link to this heading"></a></h2>
+<p>File tasks matched by compiled watcher rules are buffered and pushed in batches.</p>
+<p>The batch flush performs:</p>
+<ul class="simple">
+<li><p>bulk database task creation;</p></li>
+<li><p>bulk Celery task publication using a reused producer connection.</p></li>
+</ul>
+<p>Before a handler exits, OSIR waits for:</p>
+<ul class="simple">
+<li><p>pending file batches;</p></li>
+<li><p>delayed unstable file tasks;</p></li>
+<li><p>deferred <code class="docutils literal notranslate"><span class="pre">hold_consumers</span></code> directory tasks;</p></li>
+<li><p>active directory idle timers;</p></li>
+<li><p>active processing tasks.</p></li>
+</ul>
+<p>This prevents the handler from being marked as completed while work is still buffered or delayed.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api_cli_usage.html" class="btn btn-neutral float-left" title="API &amp; Client Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="setup_details.html" class="btn btn-neutral float-right" title="Master setup in details" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

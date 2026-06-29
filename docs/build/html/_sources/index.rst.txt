@@ -19,6 +19,7 @@ documentation for details.
    extracted_module_info
    web_usage
    api_cli_usage
+   processing_safety
    
 .. toctree::
    :maxdepth: 2

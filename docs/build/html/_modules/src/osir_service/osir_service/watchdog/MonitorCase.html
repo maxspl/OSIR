@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -99,6 +100,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomLogger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_osir_path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.WatchdogService</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleHandler</span>
 
@@ -145,6 +149,23 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">on_inactivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to be called when inactivity is detected.&quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updated Handler status to processing_done due to inactivity.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="MonitorCase.run_task">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.run_task">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">,</span> <span class="n">handler_uuid</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Pushes a task to the task queue for processing, without seting up the handler, based on the current module configuration.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                module_instance: The module instance to be processed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">handler_uuid</span> <span class="k">if</span> <span class="n">handler_uuid</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler_uuid</span>
+        <span class="n">handler</span> <span class="o">=</span> <span class="n">ModuleHandler</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cooldown_period</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">module_instances</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">)</span>
+        <span class="n">task_params</span> <span class="o">=</span> <span class="p">(</span><span class="n">normalize_osir_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">),</span> <span class="n">module_instance</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_uuid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">)</span>
+        <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="o">*</span><span class="n">task_params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler_uuid</span></div>
 
 
 <div class="viewcode-block" id="MonitorCase.setup_handler">
