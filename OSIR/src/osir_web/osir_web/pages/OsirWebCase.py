@@ -7,10 +7,9 @@ from typing import List
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
-from osir_lib.core.OsirAgentConfig import OsirAgentConfig
-
 from osir_service.watchdog.MonitorCase import MonitorCase
 from osir_web.pages.OsirWebHeader import OsirWebHeader
+from osir_web.pages.OsirWebFlower import OsirWebFlower
 
 from code_editor import code_editor
 from osir_lib.logger import AppLogger
@@ -324,10 +323,13 @@ class OsirWebCase:
 
             st.info(f"Modules selected:\n\n{"\n".join([f"- {module._rel_path}" for module in monitor_case.module_instances])}")
             st.success("Processing started.")
-            agent_config = OsirAgentConfig()
 
-            st.page_link(f"http://{agent_config.master_host}:8501/OsirWebFlower", label="You can follow the status of your task in Status !", icon="📡")
-    
+            st.page_link(
+                st.Page(OsirWebFlower.render, title="Flower Monitoring", url_path="OsirWebFlower"),
+                label="You can follow the status of your task in Status !",
+                icon="📡",
+            )
+
     @staticmethod
     def _override_module_instances(monitor_case: MonitorCase):
         """

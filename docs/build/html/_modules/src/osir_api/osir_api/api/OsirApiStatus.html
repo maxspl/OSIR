@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -90,11 +91,11 @@
              
   <h1>Source code for src.osir_api.osir_api.api.OsirApiStatus</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_response</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnexpectedException</span><span class="p">,</span> <span class="n">UnexpectedExceptionResponse</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcModel</span><span class="p">,</span> <span class="n">OsirIpcResponse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcClient</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnexpectedExceptionResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirIpcCall</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcCall</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
 
 <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
 
@@ -105,13 +106,7 @@
             <span class="n">response_model</span><span class="o">=</span><span class="n">OsirIpcResponse</span><span class="p">,</span>
             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">osir_is_active</span><span class="p">():</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;socket_on&quot;</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;socket_on&quot;</span><span class="p">)</span> </div>
 
 </pre></div>
 

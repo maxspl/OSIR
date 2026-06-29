@@ -159,6 +159,50 @@ Task Commands
     # Get task information
     OsirClient.py task info -i "task-uuid-here"
 
+Stats commands
+--------------
+
+The client provides task statistics views for cases and handlers.
+
+Interactive mode:
+
+.. code-block:: bash
+
+   OsirClient.py stats
+
+Whole-case statistics:
+
+.. code-block:: bash
+
+   OsirClient.py stats -c "my_case"
+
+Handler statistics:
+
+.. code-block:: bash
+
+   OsirClient.py stats -H "handler-uuid"
+
+Watch mode:
+
+.. code-block:: bash
+
+   OsirClient.py stats -c "my_case" -w 5
+   OsirClient.py stats -H "handler-uuid" -w 5
+
+The stats view displays aggregated task information such as:
+
+- task status counts
+- per-module breakdown
+- throughput
+- estimated remaining processing time when available
+
+Related API endpoints:
+
+.. code-block:: text
+
+   GET  /api/case/{case_name}/stats
+   POST /api/handler/{handler_id}/stats
+
 ----
 
 Complete Workflow Examples

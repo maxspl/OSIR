@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -95,6 +96,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringIO</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
@@ -285,20 +287,19 @@
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirDecorator.finalize_task">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">finalize_task</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">task_id</span><span class="p">,</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">logs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Updates the PostgreSQL database with the final results and logs of a task.</span>
+<span class="sd">        Stores the execution trace of a module run so the enclosing Celery</span>
+<span class="sd">        task can return it (the Celery result backend then persists it in</span>
+<span class="sd">        celery_taskmeta.result). No direct database write happens here:</span>
+<span class="sd">        task state transitions are owned by the Celery result backend.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            status (ProcessingStatus): The final status (DONE or FAILED).</span>
-<span class="sd">            task_id (int): The unique ID of the task in the database.</span>
+<span class="sd">            task_id (str): The Celery task id.</span>
 <span class="sd">            func_name (str): The name of the module/function that executed.</span>
 <span class="sd">            start (datetime): Execution start timestamp.</span>
 <span class="sd">            end (datetime): Execution end timestamp.</span>
 <span class="sd">            logs (str): The raw log output captured during execution.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
-
-    <span class="n">db</span> <span class="o">=</span> <span class="n">OsirDb</span><span class="p">()</span>
-
     <span class="n">log_blob</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;function&quot;</span><span class="p">:</span> <span class="n">func_name</span><span class="p">,</span>
         <span class="s2">&quot;duration_seconds&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span>
@@ -307,13 +308,25 @@
         <span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="n">logs</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="p">}</span>
 
-    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">,</span>
-        <span class="n">processing_status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span>
-        <span class="n">trace_data</span><span class="o">=</span><span class="n">log_blob</span>
-    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">_task_traces_lock</span><span class="p">:</span>
+        <span class="n">_task_traces</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">task_id</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">log_blob</span><span class="p">)</span></div>
 
-    <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1"># Per-process registry of module traces, keyed by celery task id. Written by</span>
+<span class="c1"># finalize_task at the end of a module run, consumed (popped) by the celery</span>
+<span class="c1"># task function to build its return value. In prefork workers the decorator</span>
+<span class="c1"># and the task body run in the same child process.</span>
+<span class="n">_task_traces</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_task_traces_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="pop_task_trace">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirDecorator.pop_task_trace">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns (status, log_blob) recorded for this task id, or (None, None).&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">_task_traces_lock</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_task_traces</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">task_id</span><span class="p">),</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span></div>
 
 </pre></div>
 

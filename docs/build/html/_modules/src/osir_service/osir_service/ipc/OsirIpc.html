@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -89,78 +90,531 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.osir_service.osir_service.ipc.OsirIpc</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_validator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirProfileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirProfileModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcRequest</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcRequest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.MonitorCase</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitorCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirSocket</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirSocket</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirFileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">FsData</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirAction</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_ACTIONS</span><span class="p">,</span> <span class="n">register_action</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+
+<span class="c1"># Import external handler classes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcFiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcFiles</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="OsirIpc">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OsirIpc</span><span class="p">(</span><span class="n">OsirIpcModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OsirIpc</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Functional implementation of an IPC request within the OSIR IPC service.</span>
-
-<span class="sd">        Attributes:</span>
-<span class="sd">            modules_instance (Optional[list[OsirModuleModel]]): A list of forensic modules model.</span>
-<span class="sd">            profile (Optional[OsirProfileModel]): The validated profile object </span>
-<span class="sd">                if a profile-based execution was requested.</span>
-<span class="sd">            case_path (Optional[Path]): The resolved absolute path to the </span>
-<span class="sd">                investigation case directory.</span>
+<span class="sd">    Core IPC (Inter-Process Communication) service for the OSIR framework.</span>
+<span class="sd">    Listens on a TCP socket and dispatches JSON requests to registered action handlers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">modules_instance</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">OsirModuleModel</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">profile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirProfileModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">case_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="OsirIpc.transform_input_data">
-<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.transform_input_data">[docs]</a>
-    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;before&#39;</span><span class="p">)</span>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform_input_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">host</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">port</span><span class="p">:</span> <span class="nb">int</span>
+    
+    <span class="n">_files_handler</span><span class="p">:</span> <span class="n">OsirIpcFiles</span> <span class="o">=</span> <span class="n">OsirIpcFiles</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OsirIpc.listen">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.listen">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Pre-validation hook to transform input strings into complex models.</span>
+<span class="sd">        Main server loop that maintains the TCP socket.</span>
+
+<span class="sd">        Handles incoming connections and ensures the server automatically</span>
+<span class="sd">        restarts in case of a critical failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+                    <span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">()</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Listening on </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_accept_loop</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Server crashed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Restarting in 5 seconds...&quot;</span><span class="p">)</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_accept_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Accepts and handles incoming client connections.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected by </span><span class="si">{</span><span class="n">addr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">conn</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_request_loop</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error accepting connection: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_request_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Processes incoming requests on an established connection.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">request</span> <span class="o">=</span> <span class="n">OsirSocket</span><span class="o">.</span><span class="n">recv_json</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">OsirSocket</span><span class="o">.</span><span class="n">send_json</span><span class="p">(</span><span class="n">conn</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">pydantic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                
+            <span class="k">except</span> <span class="ne">ConnectionError</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Client disconnected.&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error handling request: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">break</span>
+
+<div class="viewcode-block" id="OsirIpc.start">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.start">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Launches the IPC listener in a dedicated background thread.&quot;&quot;&quot;</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">listen</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="OsirIpc.action">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.action">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Dispatches incoming JSON requests to the appropriate registered handler.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data (dict): The raw input dictionary before Pydantic validation.</span>
+<span class="sd">            request (dict): The raw JSON request from the IPC client.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            dict: The transformed data dictionary.</span>
+<span class="sd">            OsirIpcResponse: A standardized response object or an OsirException.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Resolve Profile: string name -&gt; OsirProfileModel instance</span>
-        <span class="n">profile_value</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;profile&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile_value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;profile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">OsirProfileModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">profile_value</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            
+            <span class="n">osir_ipc_request</span> <span class="o">=</span> <span class="n">OsirIpcRequest</span><span class="p">(</span><span class="o">**</span><span class="n">request</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">data</span></div>
+            <span class="n">osir_ipc_response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span><span class="n">response</span><span class="o">=</span><span class="p">{})</span>
+            
+            <span class="n">osir_action</span> <span class="o">=</span> <span class="n">OSIR_ACTIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">osir_action</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">UNKNOWN_ACTION</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+
+            <span class="n">params</span> <span class="o">=</span> <span class="n">osir_ipc_request</span><span class="o">.</span><span class="n">params</span> <span class="ow">or</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">osir_action</span><span class="p">[</span><span class="s2">&quot;required_fields&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MISSING_PARAMETER</span><span class="p">(</span><span class="n">parameter_name</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+
+            <span class="n">result</span> <span class="o">=</span> <span class="n">osir_action</span><span class="p">[</span><span class="s2">&quot;handler&quot;</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">osir_ipc_request</span><span class="p">,</span> <span class="n">osir_ipc_response</span><span class="p">)</span>
+            <span class="c1"># If handler returns a response, use it. Otherwise fall back to the default response.</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">osir_ipc_response</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Error while processing IPC request:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">UNEXPECTED_ERROR</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">osir_ipc_response</span></div>
 
 
-<div class="viewcode-block" id="OsirIpc.__init__">
-<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initializes the IPC request and hydrates nested forensic components.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
+    <span class="c1"># TODO: Remove this to handle this logique inside MonitorCase </span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_start_background_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monitor</span><span class="p">:</span> <span class="n">MonitorCase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Starts a MonitorCase handler in a background thread and returns (handler_uuid, case_uuid).&quot;&quot;&quot;</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">monitor</span><span class="o">.</span><span class="n">setup_handler</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">monitor</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">,</span> <span class="n">monitor</span><span class="o">.</span><span class="n">case_uuid</span>
 
-        <span class="c1"># Ensure profile hydration if it remained a string</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">profile</span> <span class="o">=</span> <span class="n">OsirProfileModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profile</span><span class="p">)</span>
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;socket_on&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_socket_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;SOCKET READY&quot;</span>
+        <span class="k">return</span> <span class="n">resp</span>
 
-        <span class="c1"># Load each individual module YAML into a validated Module Model</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">modules_instance</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OsirModuleModel</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">FileManager</span><span class="o">.</span><span class="n">get_module_path</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>
-                <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modules</span>
-            <span class="p">]</span>
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;exec_module&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">,</span> <span class="s1">&#39;case_path&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exec_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;input_path&#39;</span><span class="p">):</span>
+            <span class="c1"># TODO: Security check on input file</span>
+            <span class="n">module_model</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">module_model</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;input_path&#39;</span><span class="p">]</span>
+            <span class="n">case_path</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(.*?/cases/[^/]+)&#39;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;input_path&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c1"># Map the case name to its storage location on the Master node</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">case_name</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span></div>
-</div>
+            <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">case_path</span><span class="p">))</span><span class="o">.</span><span class="n">case_uuid</span>
+            
+            <span class="n">task_id</span> <span class="o">=</span> <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">=</span><span class="n">module_model</span><span class="p">,</span> <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+            
+            <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module execution started&quot;</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">monitor</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;case_path&#39;</span><span class="p">],</span> <span class="n">modules</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">],</span> <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">case_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_background_handler</span><span class="p">(</span><span class="n">monitor</span><span class="p">)</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module execution started&quot;</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">OsirDbHandlerModel</span><span class="p">(</span>
+                <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
+                <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">,</span>
+                <span class="n">task_id</span><span class="o">=</span><span class="p">[],</span>
+                <span class="n">modules</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">],</span>
+                <span class="n">processing_status</span><span class="o">=</span><span class="s1">&#39;processing_started&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;exec_profile&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;profile&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exec_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="n">profile_data</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirProfileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirProfileModel</span>
+            <span class="n">profile_data</span> <span class="o">=</span> <span class="n">OsirProfileModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">profile_data</span><span class="p">)</span>
+        <span class="n">monitor</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_path&#39;</span><span class="p">),</span> <span class="n">modules</span><span class="o">=</span><span class="n">profile_data</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">case_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_background_handler</span><span class="p">(</span><span class="n">monitor</span><span class="p">)</span>
+
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Profile execution started&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">OsirDbHandlerModel</span><span class="p">(</span>
+            <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
+            <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">,</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">modules</span><span class="o">=</span><span class="n">profile_data</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span>
+            <span class="n">processing_status</span><span class="o">=</span><span class="s1">&#39;processing_started&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;create_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a handler with profile/modules validation and start processing.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirProfileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirProfileModel</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">profile_instance</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">selected_modules</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;modules&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">modules_to_add</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile_module_to_add&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">modules_to_remove</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile_module_to_remove&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">selected_case</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">reprocess_case</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;reprocess&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">modified_modules</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;modified_modules&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1"># Validate inputs</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">profile_instance</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">selected_modules</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">PROFILE_OR_MODULE_REQUIRED</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">modules_to_add</span> <span class="ow">or</span> <span class="n">modules_to_remove</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">profile_instance</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">PROFILE_REQUIRED_FOR_MODULE_OPERATIONS</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">profile_instance</span> <span class="ow">or</span> <span class="n">selected_modules</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">selected_case</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">CASE_REQUIRED</span><span class="p">()</span>
+
+        <span class="c1"># Get case path and validate it exists</span>
+        <span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">selected_case</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">case_path</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">case_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">CASE_NOT_FOUND</span><span class="p">(</span><span class="n">selected_case</span><span class="p">)</span>
+
+        <span class="c1"># Load or create profile instance</span>
+        <span class="k">if</span> <span class="n">profile_instance</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile_instance</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">profile_instance</span> <span class="o">=</span> <span class="n">OsirProfileModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">profile_instance</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MODULE_LOAD_ERROR</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="c1"># Apply module modifications</span>
+            <span class="n">profile_instance</span><span class="o">.</span><span class="n">remove_modules</span><span class="p">(</span><span class="n">modules_to_remove</span><span class="p">)</span>
+            <span class="n">profile_instance</span><span class="o">.</span><span class="n">add_modules</span><span class="p">(</span><span class="n">modules_to_add</span><span class="p">)</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="n">profile_instance</span><span class="o">.</span><span class="n">modules</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">modules</span> <span class="o">=</span> <span class="n">selected_modules</span>
+
+        <span class="c1"># Setup the monitor case</span>
+        <span class="n">monitor_case</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="o">=</span><span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="o">=</span><span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="o">=</span><span class="n">reprocess_case</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">modified_modules</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modified_modules</span><span class="p">:</span>
+                <span class="n">module_model</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="p">(</span><span class="o">**</span><span class="n">module</span><span class="p">)</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module_model</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">instance</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">monitor_case</span><span class="o">.</span><span class="n">module_instances</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                            <span class="n">monitor_case</span><span class="o">.</span><span class="n">module_instances</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">module_model</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">UNEXPECTED_ERROR</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">case_uuid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_start_background_handler</span><span class="p">(</span><span class="n">monitor_case</span><span class="p">)</span>
+
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler created successfully&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="n">handler_uuid</span><span class="p">,</span>
+            <span class="s2">&quot;case_uuid&quot;</span><span class="p">:</span> <span class="n">case_uuid</span><span class="p">,</span>
+            <span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">selected_case</span><span class="p">,</span>
+            <span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="n">modules</span><span class="p">,</span>
+            <span class="s2">&quot;processing_status&quot;</span><span class="p">:</span> <span class="s2">&quot;processing_started&quot;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;create_advanced_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_advanced_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">files_module</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files_modules&#39;</span><span class="p">)</span>
+        <span class="n">files_input</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files_input&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">folders_modules</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;folders_modules&#39;</span><span class="p">)</span>
+        <span class="n">folders_input</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;folders_input&#39;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">files_in_folder_modules</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files_in_folder_modules&#39;</span><span class="p">)</span>
+        <span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;endpoint_name&#39;</span><span class="p">)</span>
+        <span class="n">case_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_name&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">files_input</span><span class="p">,</span> <span class="n">folders_input</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">FILES_OR_FOLDERS_REQUIRED</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">case_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">CASE_NAME_REQUIRED</span><span class="p">()</span>
+
+        <span class="n">handler_uuid</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">files_input</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">files_module</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MODULE_REQUIRED_FOR_FILES</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files_input</span><span class="p">:</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">FsData</span><span class="o">.</span><span class="n">get_absolute_path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">case_name</span><span class="p">,</span> <span class="n">virt_path</span> <span class="o">=</span> <span class="n">FsData</span><span class="o">.</span><span class="n">get_real_path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">module_instance</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">files_module</span><span class="p">)</span>
+                <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">endpoint_name</span><span class="p">:</span>
+                    <span class="n">module_instance</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">endpoint_name</span>
+                <span class="n">monitor_case</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span>
+                    <span class="n">case_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">case_name</span><span class="p">)),</span>
+                    <span class="n">modules</span><span class="o">=</span><span class="p">[],</span>
+                    <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">monitor_case</span><span class="o">.</span><span class="n">case_uuid</span>
+                <span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">monitor_case</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">folders_input</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">folders_modules</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">files_in_folder_modules</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">OsirException</span><span class="o">.</span><span class="n">MODULE_REQUIRED_FOR_FOLDERS</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders_input</span><span class="p">:</span>
+                <span class="n">folder_path</span> <span class="o">=</span> <span class="n">FsData</span><span class="o">.</span><span class="n">get_absolute_path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+                <span class="n">case_name</span><span class="p">,</span> <span class="n">virt_path</span> <span class="o">=</span> <span class="n">FsData</span><span class="o">.</span><span class="n">get_real_path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">folders_modules</span><span class="p">:</span>
+                    <span class="n">module_instance</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">folders_modules</span><span class="p">)</span>
+                    <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">endpoint_name</span><span class="p">:</span>
+                        <span class="n">module_instance</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">endpoint_name</span>
+                    <span class="n">monitor_case</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span>
+                        <span class="n">case_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">case_name</span><span class="p">)),</span>
+                        <span class="n">modules</span><span class="o">=</span><span class="p">[],</span>
+                        <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span>
+                    <span class="p">)</span>
+                    <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">monitor_case</span><span class="o">.</span><span class="n">case_uuid</span>
+                    <span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">monitor_case</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">files_in_folder_modules</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_subfiles</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+                        <span class="n">module_instance</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">files_in_folder_modules</span><span class="p">)</span>
+                        <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">endpoint_name</span><span class="p">:</span>
+                            <span class="n">module_instance</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">endpoint_name</span>
+                        <span class="n">monitor_case</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span>
+                            <span class="n">case_path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">case_name</span><span class="p">)),</span>
+                            <span class="n">modules</span><span class="o">=</span><span class="p">[],</span>
+                            <span class="n">reprocess_case</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="p">)</span>
+                        <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">monitor_case</span><span class="o">.</span><span class="n">case_uuid</span>
+                        <span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">monitor_case</span><span class="o">.</span><span class="n">run_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">)</span>
+
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler created successfully&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="n">handler_uuid</span><span class="p">,</span>
+            <span class="s2">&quot;case_uuid&quot;</span><span class="p">:</span> <span class="n">case_uuid</span><span class="p">,</span>
+            <span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">,</span>
+            <span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">module</span> <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="p">[</span><span class="n">files_in_folder_modules</span><span class="p">,</span> <span class="n">folders_modules</span><span class="p">,</span> <span class="n">files_module</span><span class="p">]</span> <span class="k">if</span> <span class="n">module</span><span class="p">],</span>
+            <span class="s2">&quot;processing_status&quot;</span><span class="p">:</span> <span class="s2">&quot;processing_started&quot;</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;delete_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;handler_uuid&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_delete_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        
+        <span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;handler_uuid&quot;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">to_delete</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">to_delete</span><span class="p">:</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">)</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">)</span>
+
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">to_delete</span>
+        <span class="k">return</span> <span class="n">resp</span>
+    
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;create_case&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_cases&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">all_cases_in_db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">case</span> <span class="ow">in</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">all_cases</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">case</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">all_cases_in_db</span><span class="p">]:</span>
+                    <span class="n">all_cases_in_db</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">case</span><span class="p">))</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">all_cases_in_db</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_tasks&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">case_uuid</span><span class="p">:</span>
+                <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">case_uuid</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Tasks retrieved&quot;</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_task_stats&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_task_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">handler_id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;handler_id&#39;</span><span class="p">)</span>
+            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">handler_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">case_uuid</span> <span class="ow">and</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_name&#39;</span><span class="p">):</span>
+                <span class="n">case</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">case</span><span class="p">:</span>
+                    <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="s2">&quot;ERROR: CASE NOT FOUND&quot;</span>
+                    <span class="k">return</span> <span class="n">resp</span>
+                <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">case</span><span class="o">.</span><span class="n">case_uuid</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Task stats retrieved&quot;</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">stats</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">handler_id</span><span class="p">,</span> <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_task_log&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_task_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">])</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Task log retrieved&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">result</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="p">{</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">]}</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_handler_status&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;handler_id&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_handler_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler Status retrieved&quot;</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;handler_id&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_case_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_case_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">case_uuid</span><span class="p">:</span>
+                <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">case_uuid</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">case_uuid</span><span class="p">:</span>
+                <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="s2">&quot;ERROR: CASE NOT FOUND&quot;</span>
+                <span class="k">return</span> <span class="n">resp</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handlers retrieved&quot;</span>
+            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_handler_task_info&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_handler_task_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get_all_task_logs</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;handler_id&#39;</span><span class="p">])</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler Task log retrieved&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">result</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_modules&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Modules retrieved&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">all_modules</span><span class="p">(</span><span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_module_info&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_module_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;keys&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">model_data</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+                <span class="k">if</span> <span class="s2">&quot;all&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                    <span class="n">filtered_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">model_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">filtered_data</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">result</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_data</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading module </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module Info Retrieved.&quot;</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="s2">&quot;No modules found.&quot;</span>
+        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="c1"># ==================== FILES HANDLERS ====================</span>
+    <span class="c1"># These handlers delegate to OsirIpcFiles instance</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_list&#39;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_list</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_upload&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_upload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_upload</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_delete&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_delete</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_rename&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_rename</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_copy&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_copy</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_move&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_move</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_archive&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_archive</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_unarchive&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_unarchive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_unarchive</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_create_file&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_create_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_create_file</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_create_folder&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_create_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_create_folder</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_download&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_download</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
+
+    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_search&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_search</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span></div>
 
 </pre></div>
 

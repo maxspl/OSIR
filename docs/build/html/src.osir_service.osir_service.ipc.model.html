@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>src.osir_service.osir_service.ipc.model package &mdash; OSIR 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=d45e8c67"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            OSIR
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">First steps:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">OSIR basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="web_usage.html">Web Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processing_safety.html">Processing safety</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html">Master setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#agent-setup-in-details">Agent setup in details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#developer-mode-module-development">Developer mode (Module development)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup_details.html#air-gap-setup">Air Gap setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Profiles and modules:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html">Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#modules">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modules_and_profiles.html#exposed-variables">Exposed variables</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OSIR</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">src.osir_service.osir_service.ipc.model package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/src.osir_service.osir_service.ipc.model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="src-osir-service-osir-service-ipc-model-package">
+<h1>src.osir_service.osir_service.ipc.model package<a class="headerlink" href="#src-osir-service-osir-service-ipc-model-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-src.osir_service.osir_service.ipc.model.OsirAction">
+<span id="src-osir-service-osir-service-ipc-model-osiraction-module"></span><h2>src.osir_service.osir_service.ipc.model.OsirAction module<a class="headerlink" href="#module-src.osir_service.osir_service.ipc.model.OsirAction" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirAction.register_action">
+<span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.ipc.model.OsirAction.</span></span><span class="sig-name descname"><span class="pre">register_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">action_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirAction.html#register_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirAction.register_action" title="Link to this definition"></a></dt>
+<dd><p>Decorator that registers a method as a handler for one or more IPC action names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*action_names</strong> – One or more action name strings to bind to this handler.</p></li>
+<li><p><strong>required_fields</strong> – List of OsirIpcRequest fields that must be present and non-empty.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-src.osir_service.osir_service.ipc.model.OsirExceptions">
+<span id="src-osir-service-osir-service-ipc-model-osirexceptions-module"></span><h2>src.osir_service.osir_service.ipc.model.OsirExceptions module<a class="headerlink" href="#module-src.osir_service.osir_service.ipc.model.OsirExceptions" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.ipc.model.OsirExceptions.</span></span><span class="sig-name descname"><span class="pre">OsirException</span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.CASE_NAME_REQUIRED">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CASE_NAME_REQUIRED</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.CASE_NAME_REQUIRED"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.CASE_NAME_REQUIRED" title="Link to this definition"></a></dt>
+<dd><p>case_name is required for advanced handler creation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.CASE_NOT_FOUND">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CASE_NOT_FOUND</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.CASE_NOT_FOUND"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.CASE_NOT_FOUND" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.CASE_REQUIRED">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">CASE_REQUIRED</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.CASE_REQUIRED"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.CASE_REQUIRED" title="Link to this definition"></a></dt>
+<dd><p>case_name is required when using profile or modules.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.FILES_OR_FOLDERS_REQUIRED">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FILES_OR_FOLDERS_REQUIRED</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.FILES_OR_FOLDERS_REQUIRED"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.FILES_OR_FOLDERS_REQUIRED" title="Link to this definition"></a></dt>
+<dd><p>At least one of files_input or folders_input must be specified.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.FILE_NOT_FOUND">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FILE_NOT_FOUND</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.FILE_NOT_FOUND"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.FILE_NOT_FOUND" title="Link to this definition"></a></dt>
+<dd><p>File or directory not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.FILE_OPERATION_ERROR">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">FILE_OPERATION_ERROR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'file</span> <span class="pre">operation'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.FILE_OPERATION_ERROR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.FILE_OPERATION_ERROR" title="Link to this definition"></a></dt>
+<dd><p>Error during file operations.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.IO_ERROR">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">IO_ERROR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.IO_ERROR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.IO_ERROR" title="Link to this definition"></a></dt>
+<dd><p>I/O error during file operations.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MISSING_PARAMETER">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MISSING_PARAMETER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameter_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.MISSING_PARAMETER"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MISSING_PARAMETER" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_LOAD_ERROR">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MODULE_LOAD_ERROR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.MODULE_LOAD_ERROR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_LOAD_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_NOT_FOUND">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MODULE_NOT_FOUND</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.MODULE_NOT_FOUND"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_NOT_FOUND" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_REQUIRED_FOR_FILES">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MODULE_REQUIRED_FOR_FILES</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.MODULE_REQUIRED_FOR_FILES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_REQUIRED_FOR_FILES" title="Link to this definition"></a></dt>
+<dd><p>files_module is required when processing files_input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_REQUIRED_FOR_FOLDERS">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MODULE_REQUIRED_FOR_FOLDERS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.MODULE_REQUIRED_FOR_FOLDERS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_REQUIRED_FOR_FOLDERS" title="Link to this definition"></a></dt>
+<dd><p>Either folders_modules or files_in_folder_modules is required when processing folders_input.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_VALIDATION_ERROR">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MODULE_VALIDATION_ERROR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.MODULE_VALIDATION_ERROR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_VALIDATION_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.PROFILE_OR_MODULE_REQUIRED">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PROFILE_OR_MODULE_REQUIRED</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.PROFILE_OR_MODULE_REQUIRED"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.PROFILE_OR_MODULE_REQUIRED" title="Link to this definition"></a></dt>
+<dd><p>At least one of profile or modules must be specified.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.PROFILE_REQUIRED_FOR_MODULE_OPERATIONS">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PROFILE_REQUIRED_FOR_MODULE_OPERATIONS</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.PROFILE_REQUIRED_FOR_MODULE_OPERATIONS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.PROFILE_REQUIRED_FOR_MODULE_OPERATIONS" title="Link to this definition"></a></dt>
+<dd><p>modules_to_add or modules_to_remove can only be used when a profile is specified.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.UNEXPECTED_ERROR">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UNEXPECTED_ERROR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.UNEXPECTED_ERROR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.UNEXPECTED_ERROR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.UNKNOWN_ACTION">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">UNKNOWN_ACTION</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.UNKNOWN_ACTION"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.UNKNOWN_ACTION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.VALIDATION_ERROR">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">VALIDATION_ERROR</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">details</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse"><span class="pre">OsirIpcResponse</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirExceptions.html#OsirException.VALIDATION_ERROR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.VALIDATION_ERROR" title="Link to this definition"></a></dt>
+<dd><p>Generic validation error.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_service.osir_service.ipc.model.OsirFileModel">
+<span id="src-osir-service-osir-service-ipc-model-osirfilemodel-module"></span><h2>src.osir_service.osir_service.ipc.model.OsirFileModel module<a class="headerlink" href="#module-src.osir_service.osir_service.ipc.model.OsirFileModel" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.ipc.model.OsirFileModel.</span></span><span class="sig-name descname"><span class="pre">DirEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'file'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dir'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visibility</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_modified</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mime_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previewUrl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#DirEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.basename">
+<span class="sig-name descname"><span class="pre">basename</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.basename" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.dir">
+<span class="sig-name descname"><span class="pre">dir</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.dir" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.extension">
+<span class="sig-name descname"><span class="pre">extension</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.extension" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.file_size">
+<span class="sig-name descname"><span class="pre">file_size</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.file_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.from_path">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#DirEntry.from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.from_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.get_virt_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_virt_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#DirEntry.get_virt_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.get_virt_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.last_modified">
+<span class="sig-name descname"><span class="pre">last_modified</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.last_modified" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.mime_type">
+<span class="sig-name descname"><span class="pre">mime_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.mime_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.path">
+<span class="sig-name descname"><span class="pre">path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.previewUrl">
+<span class="sig-name descname"><span class="pre">previewUrl</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.previewUrl" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.read_only">
+<span class="sig-name descname"><span class="pre">read_only</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.read_only" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.storage">
+<span class="sig-name descname"><span class="pre">storage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.storage" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'file'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dir'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.visibility">
+<span class="sig-name descname"><span class="pre">visibility</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.visibility" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.ipc.model.OsirFileModel.</span></span><span class="sig-name descname"><span class="pre">FsData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">storages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dirname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_only</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.archive_items">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">archive_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">archive_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.archive_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.archive_items" title="Link to this definition"></a></dt>
+<dd><p>Create an archive (tar.gz) containing the specified items.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.copy_items">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">copy_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.copy_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.copy_items" title="Link to this definition"></a></dt>
+<dd><p>Copy items to a destination directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.create_folder">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">create_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.create_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.create_folder" title="Link to this definition"></a></dt>
+<dd><p>Create a new directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.delete_item">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">delete_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.delete_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.delete_item" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.dirname">
+<span class="sig-name descname"><span class="pre">dirname</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.dirname" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.download_file">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.download_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.download_file" title="Link to this definition"></a></dt>
+<dd><p>Download a file and return its content and mime type.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.files">
+<span class="sig-name descname"><span class="pre">files</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.from_path">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData" title="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData"><span class="pre">FsData</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.from_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.from_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_absolute_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_absolute_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.get_absolute_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_absolute_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_files">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">virt_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.get_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_files" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">virt_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.get_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_real_path">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_real_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.get_real_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.get_real_path" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.is_secure">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_secure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.is_secure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.is_secure" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.move_items">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">move_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.move_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.move_items" title="Link to this definition"></a></dt>
+<dd><p>Move items to a destination directory.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.read_only">
+<span class="sig-name descname"><span class="pre">read_only</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.read_only" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.rename_item">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rename_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.rename_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.rename_item" title="Link to this definition"></a></dt>
+<dd><p>Rename an item in a directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.search_files">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">search_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storage_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_expr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.search_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.search_files" title="Link to this definition"></a></dt>
+<dd><p>Search for files in a directory.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.storages">
+<span class="sig-name descname"><span class="pre">storages</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.storages" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.unarchive_item">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">unarchive_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry" title="src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry"><span class="pre">DirEntry</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirFileModel.html#FsData.unarchive_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.unarchive_item" title="Link to this definition"></a></dt>
+<dd><p>Extract an archive to a target directory.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_service.osir_service.ipc.model.OsirIpcRequest">
+<span id="src-osir-service-osir-service-ipc-model-osiripcrequest-module"></span><h2>src.osir_service.osir_service.ipc.model.OsirIpcRequest module<a class="headerlink" href="#module-src.osir_service.osir_service.ipc.model.OsirIpcRequest" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.ipc.model.OsirIpcRequest.</span></span><span class="sig-name descname"><span class="pre">OsirIpcRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirIpcRequest.html#OsirIpcRequest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Standard data model for IPC requests within the OSIR service.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.action">
+<span class="sig-name descname"><span class="pre">action</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.action" title="Link to this definition"></a></dt>
+<dd><p>The command to execute (e.g., ‘exec_module’, ‘create_case’, ‘get_task_log’).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.params">
+<span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.params" title="Link to this definition"></a></dt>
+<dd><p>Dictionary containing all parameters for the action.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict, <a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional">optional</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">action</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">params</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_service.osir_service.ipc.model.OsirIpcResponse">
+<span id="src-osir-service-osir-service-ipc-model-osiripcresponse-module"></span><h2>src.osir_service.osir_service.ipc.model.OsirIpcResponse module<a class="headerlink" href="#module-src.osir_service.osir_service.ipc.model.OsirIpcResponse" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.ipc.model.OsirIpcResponse.</span></span><span class="sig-name descname"><span class="pre">OsirIpcResponse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">response</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/ipc/model/OsirIpcResponse.html#OsirIpcResponse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Standardized response envelope returned by the OSIR Master service.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.version">
+<span class="sig-name descname"><span class="pre">version</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.version" title="Link to this definition"></a></dt>
+<dd><p>The current version of the OSIR framework for compatibility checks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.status">
+<span class="sig-name descname"><span class="pre">status</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.status" title="Link to this definition"></a></dt>
+<dd><p>The HTTP-style status code (e.g., 200 for success, 400+ for errors).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.message">
+<span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.message" title="Link to this definition"></a></dt>
+<dd><p>A descriptive summary of the operation result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str, <a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional">optional</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.response">
+<span class="sig-name descname"><span class="pre">response</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.response" title="Link to this definition"></a></dt>
+<dd><p>A container for the actual data payload (e.g., log traces,
+handler IDs, or case metadata).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict, <a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional">optional</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">message</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span><a class="headerlink" href="#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.model_config" title="Link to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">response</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">status</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#id4" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">version</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#id5" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-src.osir_service.osir_service.ipc.model">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-src.osir_service.osir_service.ipc.model" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, maxspl - Typ.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

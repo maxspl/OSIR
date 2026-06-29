@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -98,10 +99,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirProfileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirProfileModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.MonitorCase</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonitorCase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_web.pages.OsirWebHeader</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirWebHeader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_web.pages.OsirWebFlower</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirWebFlower</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">code_editor</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_editor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
@@ -232,15 +232,19 @@
 
         <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;Submit&quot;</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Module ADD&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">module_add</span><span class="p">))</span>
-            <span class="n">OsirWebCase</span><span class="o">.</span><span class="n">process_submission</span><span class="p">(</span>
-                <span class="n">profile_instance</span><span class="p">,</span>
-                <span class="n">selected_modules</span><span class="p">,</span>
-                <span class="n">module_add</span><span class="p">,</span>
-                <span class="n">module_remove</span><span class="p">,</span>
-                <span class="n">selected_case</span><span class="p">,</span>
-                <span class="n">reprocess_case</span>
-            <span class="p">)</span></div>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">OsirWebCase</span><span class="o">.</span><span class="n">process_submission</span><span class="p">(</span>
+                    <span class="n">profile_instance</span><span class="p">,</span>
+                    <span class="n">selected_modules</span><span class="p">,</span>
+                    <span class="n">module_add</span><span class="p">,</span>
+                    <span class="n">module_remove</span><span class="p">,</span>
+                    <span class="n">selected_case</span><span class="p">,</span>
+                    <span class="n">reprocess_case</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
+            
 
 <div class="viewcode-block" id="OsirWebCase.tab1_module_editor">
 <a class="viewcode-back" href="../../../../../src.osir_web.osir_web.pages.html#src.osir_web.osir_web.pages.OsirWebCase.OsirWebCase.tab1_module_editor">[docs]</a>
@@ -415,19 +419,23 @@
             <span class="n">profile_instance</span> <span class="o">=</span> <span class="n">OsirProfileModel</span><span class="p">(</span><span class="n">modules</span><span class="o">=</span><span class="n">selected_modules</span><span class="p">)</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Case path: </span><span class="si">{</span><span class="n">case_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-     
-        <span class="n">monitor_case</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">profile_instance</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">spinner</span><span class="p">(</span><span class="s2">&quot;Settings Up Handler... If you see this message it&#39;s likely that you have made a mistake in agent.yml configuration, the master can&#39;t reach the DB.&quot;</span><span class="p">):</span>
+            <span class="n">monitor_case</span> <span class="o">=</span> <span class="n">MonitorCase</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">profile_instance</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">OsirWebCase</span><span class="o">.</span><span class="n">_override_module_instances</span><span class="p">(</span><span class="n">monitor_case</span><span class="p">):</span>
             <span class="n">monitor_case</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
             <span class="n">st</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Modules selected:</span><span class="se">\n\n</span><span class="si">{</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">_rel_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">module</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">monitor_case</span><span class="o">.</span><span class="n">module_instances</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="s2">&quot;Processing started.&quot;</span><span class="p">)</span>
-            <span class="n">agent_config</span> <span class="o">=</span> <span class="n">OsirAgentConfig</span><span class="p">()</span>
 
-            <span class="n">st</span><span class="o">.</span><span class="n">page_link</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;http://</span><span class="si">{</span><span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s2">:8501/OsirWebFlower&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;You can follow the status of your task in Status !&quot;</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;📡&quot;</span><span class="p">)</span></div>
+            <span class="n">st</span><span class="o">.</span><span class="n">page_link</span><span class="p">(</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">Page</span><span class="p">(</span><span class="n">OsirWebFlower</span><span class="o">.</span><span class="n">render</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Flower Monitoring&quot;</span><span class="p">,</span> <span class="n">url_path</span><span class="o">=</span><span class="s2">&quot;OsirWebFlower&quot;</span><span class="p">),</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;You can follow the status of your task in Status !&quot;</span><span class="p">,</span>
+                <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;📡&quot;</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
-    
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_override_module_instances</span><span class="p">(</span><span class="n">monitor_case</span><span class="p">:</span> <span class="n">MonitorCase</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

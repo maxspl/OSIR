@@ -92,6 +92,40 @@ function check_localhost {
     return 1
 }
 
+no_windows_installation(){
+    # Launch Docker only — no Windows machine setup
+    if $offline_mode; then
+        if is_wsl; then
+            export COMPOSE_PROFILES="wsl,agent-offline"
+        else
+            export COMPOSE_PROFILES="agent-offline"
+        fi
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
+    else
+        if is_wsl; then
+            export COMPOSE_PROFILES="wsl"
+        else
+            export COMPOSE_PROFILES="default"
+        fi
+        export DOCKER_CONTAINERS=$(bash "$SETUP_SCRIPT_PATH/parse_docker_compose.sh" agent)
+        if $debug_mode; then
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent
+        else
+            $SETUP_SCRIPT_PATH/setup_docker.sh agent > /dev/null
+        fi
+    fi
+
+    if [ $? -eq 1 ]; then
+        (echo >&2 "${ERROR} Failed to launch docker requirements.")
+        exit 1
+    fi
+}
+
 local_installation(){
     # Launch Docker
     # OFFLINE MODE: decide which Docker Compose profile/service to use
@@ -429,6 +463,9 @@ install_from_conf(){
         windows_mountpoint="$windows_mountpoint:"
         # Start setup with a remote box
         remote_installation $windows_host $windows_user $windows_password $windows_mountpoint
+    elif [ "$windows_location" = "none" ] ; then
+        no_windows_installation
+        (echo >&2 "${INFO} Windows setup skipped.")
     else
         (echo >&2 "${ERROR} Wrong location. Needs to be local or remote.")
         exit 0
@@ -455,6 +492,14 @@ manual_install(){
     # Setup Master host in env
     export MASTER_IP=$master_host
 
+    # Ask user : Windows machine setup
+    default_setup_windows="yes"
+    read -p "$(echo -n >&2 "${USERINPUT} Do you want to setup a Windows machine ? [Default is: $default_setup_windows] [options: yes/no]: ")" setup_windows
+    if [[ -z "$setup_windows" ]]; then
+        setup_windows="$default_setup_windows"
+    fi
+
+    if [ "$setup_windows" = "yes" ] ; then
     # Ask user : local or remote Windows box
     default_location="dockur"
     if is_wsl; then
@@ -571,6 +616,15 @@ manual_install(){
         (echo >&2 "${ERROR} Please select local or remote")
         exit 0
     fi
+    else
+        location_type="none"
+        win_cores="0"
+        export WINDOWS_CORES=$win_cores
+        host=""
+        user=""
+        password=""
+        mount_point=""
+    fi
 
     # Ask user : connect agent to Splunk server
     default_connect_splunk="yes"
@@ -660,6 +714,9 @@ manual_install(){
         dockur_win_installation $host
     elif [ "$location_type" = "remote" ] ; then
         remote_installation $host $user $password $remote_installation_args_mount_point
+    elif [ "$location_type" = "none" ] ; then
+        no_windows_installation
+        (echo >&2 "${INFO} Windows setup skipped.")
     else
         echo $location_type
         (echo >&2 "${ERROR} Please select local or remote")

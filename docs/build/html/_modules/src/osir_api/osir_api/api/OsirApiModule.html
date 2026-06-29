@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -90,55 +91,16 @@
              
   <h1>Source code for src.osir_api.osir_api.api.OsirApiModule</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcModel</span><span class="p">,</span> <span class="n">OsirIpcResponse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcClient</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcClient</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnexpectedException</span><span class="p">,</span> <span class="n">UnexpectedExceptionResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_response</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiMetadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">API_VERSION</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetModuleListResponse</span><span class="p">,</span> <span class="n">GetModuleExistsResponse</span><span class="p">,</span> <span class="n">PostModuleRunRequest</span><span class="p">,</span> <span class="n">PostModuleRunResponse</span><span class="p">,</span> <span class="n">PostModuleRunOnFileResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetModuleListResponse</span><span class="p">,</span> <span class="n">GetModuleExistsResponse</span><span class="p">,</span> <span class="n">PostModuleRunRequest</span><span class="p">,</span> <span class="n">PostModuleInfoRequest</span><span class="p">,</span> <span class="n">PostModuleRunResponse</span><span class="p">,</span> <span class="n">PostModuleRunOnFileResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirIpcCall</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcCall</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
-<span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
-
-
-<div class="viewcode-block" id="module_instance">
-<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.module_instance">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">module_instance</span><span class="p">(</span><span class="n">module_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="c1"># GLOB PATTERN ?</span>
-    <span class="n">yaml_files</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_yaml_files</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span><span class="p">)</span>
-    <span class="n">modules</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">resolve_modules_parent_dir</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">module_path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.yml&#39;</span><span class="p">):</span>
-        <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.yml&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-
-    <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
-    <span class="n">module_path</span> <span class="o">=</span> <span class="n">module_path</span> <span class="o">+</span> <span class="s1">&#39;.yml&#39;</span>
-
-    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="n">module_path</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="o">==</span> <span class="n">module_path</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">FileManager</span><span class="o">.</span><span class="n">get_module_path</span><span class="p">(</span><span class="n">module</span><span class="p">))</span>  <span class="c1"># ou le vrai chemin</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">e</span></div>
-
-
-
-<div class="viewcode-block" id="make_node">
-<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.make_node">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_node</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a normalized node structure.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">make_node</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="p">[]})</span></div>
-
 
 
 <div class="viewcode-block" id="get_modules">
@@ -147,106 +109,42 @@
             <span class="n">response_model</span><span class="o">=</span><span class="n">GetModuleListResponse</span><span class="p">,</span>
             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_modules</span><span class="p">():</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">yaml_files</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_yaml_files</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">MODULES_DIR</span><span class="p">)</span>
-        <span class="n">modules</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">resolve_modules_parent_dir</span><span class="p">(</span><span class="n">yaml_files</span><span class="p">)</span>
-
-        <span class="n">structured_modules</span> <span class="o">=</span> <span class="n">make_node</span><span class="p">()</span>
-
-        <span class="k">for</span> <span class="n">module_path</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">module_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
-            <span class="n">path_parts</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">module_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">path_parts</span><span class="p">:</span>
-                <span class="n">structured_modules</span><span class="p">[</span><span class="s2">&quot;other&quot;</span><span class="p">][</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-                <span class="k">continue</span>
-
-            <span class="n">current</span> <span class="o">=</span> <span class="n">structured_modules</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">path_parts</span><span class="p">):</span>
-                <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
-
-            <span class="n">current</span><span class="p">[</span><span class="s2">&quot;modules&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-
-        <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot;Convert nested defaultdicts to dicts recursively.&quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">d</span>
-            <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">convert</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span>
-            <span class="n">version</span><span class="o">=</span><span class="n">API_VERSION</span><span class="p">,</span>
-            <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-            <span class="n">response</span><span class="o">=</span><span class="n">convert</span><span class="p">(</span><span class="n">structured_modules</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_modules&quot;</span><span class="p">)</span></div>
 
 
 
-<div class="viewcode-block" id="module_exists">
-<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.module_exists">[docs]</a>
-<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/module/</span><span class="si">{module_name}</span><span class="s2">/info&quot;</span><span class="p">,</span>
+<div class="viewcode-block" id="module_info">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.module_info">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/module/info&quot;</span><span class="p">,</span>
             <span class="n">response_model</span><span class="o">=</span><span class="n">GetModuleExistsResponse</span><span class="p">,</span>
             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">module_exists</span><span class="p">(</span><span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">module_info</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostModuleInfoRequest</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_module_info&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span> <span class="s2">&quot;keys&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">keys</span><span class="p">})</span></div>
 
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">module_model</span><span class="p">:</span> <span class="n">OsirModuleModel</span> <span class="o">=</span> <span class="n">module_instance</span><span class="p">(</span><span class="n">module_path</span><span class="o">=</span><span class="n">module_name</span><span class="p">)</span>
-
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span>
-            <span class="n">version</span><span class="o">=</span><span class="n">API_VERSION</span><span class="p">,</span>
-            <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-        <span class="p">)</span>
-       
-        <span class="k">if</span> <span class="n">module_model</span><span class="p">:</span>
-            <span class="n">response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module Info Retrieved.&quot;</span>
-            <span class="n">response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">module_model</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Module not found.&quot;</span>
-            <span class="n">response</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
-
-
-
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/module/</span><span class="si">{module_name}</span><span class="s2">/run&quot;</span><span class="p">,</span>
-             <span class="n">response_model</span><span class="o">=</span><span class="n">PostModuleRunResponse</span><span class="p">,</span>
-             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">run_module</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostModuleRunRequest</span><span class="p">,</span> <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span>
-            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;exec_module&quot;</span><span class="p">,</span> 
-            <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">module_name</span><span class="p">],</span>
-            <span class="n">case_name</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="run_module">
 <a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.run_module">[docs]</a>
-<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/module/</span><span class="si">{module_name}</span><span class="s2">/run/file&quot;</span><span class="p">,</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/module/run&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">PostModuleRunResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_module</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostModuleRunRequest</span><span class="p">):</span>
+    <span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;exec_module&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">module_name</span><span class="p">],</span> <span class="s2">&quot;case_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">case_path</span><span class="p">)})</span></div>
+
+
+
+<div class="viewcode-block" id="run_module_on_file">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.run_module_on_file">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/module/run_on_file&quot;</span><span class="p">,</span>
              <span class="n">response_model</span><span class="o">=</span><span class="n">PostModuleRunOnFileResponse</span><span class="p">,</span>
              <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">run_module</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostModuleRunRequest</span><span class="p">,</span> <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>        <span class="c1"># noqa: F811</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span>
-            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;exec_module&quot;</span><span class="p">,</span> 
-            <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="n">module_name</span><span class="p">],</span>
-            <span class="n">case_name</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">case_name</span><span class="p">,</span>
-            <span class="n">input_path</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_module_on_file</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostModuleRunRequest</span><span class="p">):</span>
+    <span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">case_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;exec_module&quot;</span><span class="p">,</span> 
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">request</span><span class="o">.</span><span class="n">module_name</span><span class="p">],</span>
+                   <span class="s2">&quot;case_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">case_path</span><span class="p">),</span>
+                   <span class="s2">&quot;input_path&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">input_path</span><span class="p">})</span></div>
 
 </pre></div>
 

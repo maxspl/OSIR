@@ -10,7 +10,7 @@ from osir_api.api.OsirApiExceptions import UnexpectedException, UnexpectedExcept
 from osir_api.api.OsirApiResponse import handle_response
 from osir_api.api.model.OsirApiCaseModel import GetCaseListResponse, PostCaseCreateResponse, GetCaseHandlerResponse
 from osir_api.api.OsirApiMetadata import API_VERSION
-from osir_api.api.model.OsirApiTaskModel import GetTasksListResponse
+from osir_api.api.model.OsirApiTaskModel import GetTasksListResponse, GetTaskStatsResponse
 from osir_api.api.OsirIpcCall import OsirIpcCall
 from osir_lib.core.FileManager import FileManager
 
@@ -36,6 +36,12 @@ def create_case(case_name: str):
              responses={500: {"model": UnexpectedExceptionResponse}})
 def retrieved_case_handler(case_name: str):
     return OsirIpcCall("get_case_handler", params={"case_name": case_name})
+
+@router.get("/case/{case_name}/stats",
+            response_model=GetTaskStatsResponse,
+            responses={500: {"model": UnexpectedExceptionResponse}})
+def stats_case(case_name: str):
+    return OsirIpcCall("get_task_stats", params={"case_name": case_name})
 
 @router.post("/case/{case_name}/handler/run",
              response_model=GetCaseHandlerResponse,

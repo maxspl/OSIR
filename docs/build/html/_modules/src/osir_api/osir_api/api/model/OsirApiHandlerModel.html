@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -89,8 +90,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.osir_api.osir_api.api.model.OsirApiHandlerModel</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbTaskModel</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
 <span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">==========================================</span>
@@ -112,6 +118,75 @@
 <a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerStatusResponse">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GetHandlerStatusResponse</span><span class="p">(</span><span class="n">OsirIpcResponse</span><span class="p">):</span>
     <span class="n">response</span><span class="p">:</span> <span class="n">OsirDbHandlerModel</span></div>
+
+
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">==========================================</span>
+<span class="sd">API Endpoint: POST /api/handler/create</span>
+<span class="sd">==========================================</span>
+<span class="sd">Description: Create a new OSIR Handler.</span>
+
+<span class="sd">Request model:</span>
+<span class="sd">  - PostHandlerCreateRequest</span>
+
+<span class="sd">Response model:</span>
+<span class="sd">  - PostHandlerCreateResponse</span>
+
+<span class="sd">==========================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="PostHandlerCreateRequest">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PostHandlerCreateRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">profile</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">profile_module_to_add</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">profile_module_to_remove</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">modules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reprocess</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">modified_modules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">OsirModuleModel</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="PostHandlerCreateResponse">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateResponse">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PostHandlerCreateResponse</span><span class="p">(</span><span class="n">OsirIpcResponse</span><span class="p">):</span>
+    <span class="n">response</span><span class="p">:</span> <span class="n">OsirDbHandlerModel</span></div>
+
+
+<div class="viewcode-block" id="PostHandlerAdvancedCreateRequest">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerAdvancedCreateRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PostHandlerAdvancedCreateRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">files_modules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">files_input</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">folders_modules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">files_in_folder_modules</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">folders_input</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">endpoint_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">case_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="PostHandlerDeleteRequest">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PostHandlerDeleteRequest</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">handler_uuid</span><span class="p">:</span> <span class="nb">str</span></div>
+
+
+<div class="viewcode-block" id="PostHandlerDeleteResponse">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteResponse">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PostHandlerDeleteResponse</span><span class="p">(</span><span class="n">OsirIpcResponse</span><span class="p">):</span>
+    <span class="n">response</span><span class="p">:</span> <span class="n">OsirDbHandlerModel</span></div>
+
+
+
+
+
+<div class="viewcode-block" id="GetHandlerTaskLogsResponse">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerTaskLogsResponse">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetHandlerTaskLogsResponse</span><span class="p">(</span><span class="n">OsirIpcResponse</span><span class="p">):</span>
+    <span class="n">response</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="p">]</span></div>
 
 </pre></div>
 

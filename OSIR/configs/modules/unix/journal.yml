@@ -29,7 +29,7 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
 splunk:
@@ -37,7 +37,7 @@ splunk:
     name_rex: \.jsonl$
     path_suffix: journal
     sourcetype: 'linux:journal'
-    host_rex: _([\w\.-]+)--
+    host_rex: ([\w\.-]+)--
     timestamp_path: 
         - "__REALTIME_TIMESTAMP"
     artifact: "journal"

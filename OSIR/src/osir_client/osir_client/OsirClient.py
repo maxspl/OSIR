@@ -89,6 +89,16 @@ def main():
     task_info = task_sub.add_parser("info", help="Get task info")
     task_info.add_argument("-i", "--task-id", required=True, help="Task UUID")
 
+    # --- STATS ---
+    stats_parser = subparsers.add_parser(
+        "stats",
+        help="Task statistics (interactive when no scope is given)"
+    )
+    stats_parser.add_argument("-c", "--case-name", required=False, help="Case name (whole-case stats)")
+    stats_parser.add_argument("-H", "--handler-id", required=False, help="Handler UUID (handler stats)")
+    stats_parser.add_argument("-w", "--watch", type=int, metavar="SECONDS", required=False,
+                              help="Refresh the view every N seconds")
+
     args = parser.parse_args()
 
     if not args.api_url:
@@ -114,28 +124,25 @@ def main():
             elif args.action == "list-category":
                 tree = osir.cases.modules.list(print=False)
 
-                category = args.category
-                subcategory = getattr(args, "subcategory", None)
-                subsubcategory = getattr(args, "subsubcategory", None)
+                path_parts = [p for p in [
+                    args.category,
+                    getattr(args, "subcategory", None),
+                    getattr(args, "subsubcategory", None),
+                ] if p]
 
-                group = getattr(tree, category, None)
-                if group is None:
-                    logger.error(f"Category '{category}' not found. Available: windows, unix, splunk, scan, network, pre_process, test")
-                    return
-
-                if subcategory:
-                    group = getattr(group, subcategory, None)
-                    if group is None:
-                        logger.error(f"Subcategory '{subcategory}' not found in '{category}'. Available: live_response, dissect")
+                node = tree
+                for depth, part in enumerate(path_parts):
+                    child = node.groups.get(part)
+                    if child is None:
+                        available = ", ".join(sorted(node.groups)) or "none"
+                        logger.error(
+                            f"Group '{'/'.join(path_parts[:depth + 1])}' not found. "
+                            f"Available here: {available}"
+                        )
                         return
+                    node = child
 
-                    if subsubcategory:
-                        group = getattr(group, subsubcategory, None)
-                        if group is None:
-                            logger.error(f"Sub-subcategory '{subsubcategory}' not found. Available: packages, storage, process, network, hardware, system")
-                            return
-
-                OsirCliDisplay.modules_flat(group.modules, category, subcategory, subsubcategory)
+                OsirCliDisplay.modules(node, title=" / ".join(path_parts))
 
             elif args.action == "exists":
                 module = osir.cases.modules.exists(args.module_name)
@@ -195,6 +202,19 @@ def main():
             elif args.action == "info":
                 task = osir.cases.tasks.get_task_info(args.task_id)
                 logger.info(f"Task info: {task}")
+
+        # --- STATS ---
+        elif args.command == "stats":
+            from osir_client.client.OsirCliStats import OsirCliStats
+            stats = OsirCliStats(osir)
+            if args.handler_id or args.case_name:
+                stats.show(
+                    case_name=args.case_name,
+                    handler_id=args.handler_id,
+                    watch=args.watch,
+                )
+            else:
+                stats.run_interactive()
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")

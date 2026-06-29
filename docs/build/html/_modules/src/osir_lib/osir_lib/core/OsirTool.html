@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -167,6 +168,11 @@
             <span class="k">case</span> <span class="s1">&#39;unix&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">run_local</span><span class="p">()</span>
             <span class="k">case</span> <span class="s1">&#39;windows&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">OsirAgentConfig</span><span class="p">()</span><span class="o">.</span><span class="n">windows_configured</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Windows module &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; cannot run: &quot;</span>
+                        <span class="s2">&quot;Windows machine is not configured. Re-run agent setup and configure a Windows machine.&quot;</span>
+                    <span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">is_wsl</span><span class="p">:</span>  <span class="c1"># Change to adapt to remote master</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">run_wsl</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -187,16 +193,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ctx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span>
         <span class="n">agent_config</span> <span class="o">=</span> <span class="n">OsirAgentConfig</span><span class="p">()</span>
+        <span class="n">drive</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">agent_config</span><span class="o">.</span><span class="n">windows_mnt_point</span><span class="si">}</span><span class="s2">:&quot;</span> <span class="k">if</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">windows_mnt_point</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-                <span class="n">drive</span><span class="o">=</span><span class="n">agent_config</span><span class="o">.</span><span class="n">windows_mnt_point</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
+                <span class="n">drive</span> <span class="o">=</span> <span class="n">drive</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd</span><span class="p">:</span>
             <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">windows_mnt_point</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="n">drive</span><span class="p">,</span>
                 <span class="s2">&quot;input_file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match_updated</span><span class="p">),</span>
                 <span class="s2">&quot;input_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match_updated</span><span class="p">),</span>
                 <span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">),</span>
@@ -204,6 +211,7 @@
                 <span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">case_name</span><span class="p">,</span>
                 <span class="s2">&quot;master_host&quot;</span><span class="p">:</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">smb_host</span><span class="p">,</span>
                 <span class="s2">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">endpoint_name</span><span class="p">,</span>
+                <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">user_name</span><span class="p">,</span>
                 <span class="s2">&quot;case_path&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">case_path</span>
             <span class="p">}</span>
 
@@ -296,7 +304,7 @@
 
 <div class="viewcode-block" id="OsirTool.run_local">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_local">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">run_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_agent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">3600</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_local</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_agent</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">36000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Spawns a local subprocess to run the tool directly on the current host.</span>
 

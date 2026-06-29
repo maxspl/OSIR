@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -89,14 +90,82 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.osir_service.osir_service.postgres.OsirDbTask</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDbConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingStatus</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbTaskModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="c1"># Effective task view.</span>
+<span class="c1">#</span>
+<span class="c1"># celery_taskmeta (written by the Celery database result backend) is the</span>
+<span class="c1"># source of truth for task state. The legacy processing_status column on</span>
+<span class="c1"># osir_tasks only acts as a fallback: pre-migration rows keep their final</span>
+<span class="c1"># status there, and its &#39;task_created&#39; default is exactly the right answer</span>
+<span class="c1"># for tasks Celery has not reported yet (PENDING tasks have no row).</span>
+<span class="c1"># ----------------------------------------------------------------------</span>
+<span class="c1"># Mapping from Celery task states (celery_taskmeta, the source of truth) to</span>
+<span class="c1"># the OSIR processing statuses, with fallback on the legacy column for</span>
+<span class="c1"># pre-migration rows (&#39;task_created&#39; default == pending for new rows).</span>
+<span class="n">STATUS_CASE_SQL</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;CASE</span>
+<span class="s2">            WHEN m.status = &#39;SUCCESS&#39;                         THEN &#39;processing_done&#39;</span>
+<span class="s2">            WHEN m.status IN (&#39;FAILURE&#39;, &#39;REVOKED&#39;)           THEN &#39;processing_failed&#39;</span>
+<span class="s2">            WHEN m.status IN (&#39;STARTED&#39;, &#39;RETRY&#39;, &#39;RECEIVED&#39;) THEN &#39;processing_started&#39;</span>
+<span class="s2">            WHEN m.status IS NOT NULL                         THEN &#39;task_created&#39;</span>
+<span class="s2">            ELSE t.processing_status::text</span>
+<span class="s2">        END&quot;&quot;&quot;</span>
+
+<span class="n">TASK_VIEW_SELECT</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    SELECT</span>
+<span class="s2">        t.task_id,</span>
+<span class="s2">        t.case_uuid,</span>
+<span class="s2">        t.handler_id,</span>
+<span class="s2">        COALESCE(NULLIF(t.agent, &#39;Null&#39;), m.worker, &#39;Null&#39;) AS agent,</span>
+<span class="s2">        t.module,</span>
+<span class="s2">        t.input,</span>
+<span class="s2">        t.output,</span>
+<span class="s2">        &quot;&quot;&quot;</span> <span class="o">+</span> <span class="n">STATUS_CASE_SQL</span> <span class="o">+</span> <span class="s2">&quot;&quot;&quot; AS processing_status,</span>
+<span class="s2">        t.timestamp,</span>
+<span class="s2">        CASE</span>
+<span class="s2">            WHEN t.trace IS NOT NULL AND t.trace &lt;&gt; &#39;</span><span class="si">{}</span><span class="s2">&#39;::jsonb THEN t.trace</span>
+<span class="s2">            WHEN m.traceback IS NOT NULL THEN</span>
+<span class="s2">                jsonb_build_object(&#39;logs&#39;, to_jsonb(string_to_array(m.traceback, chr(10))))</span>
+<span class="s2">            ELSE &#39;</span><span class="si">{}</span><span class="s2">&#39;::jsonb</span>
+<span class="s2">        END AS trace,</span>
+<span class="s2">        m.result AS celery_result</span>
+<span class="s2">    FROM osir_tasks t</span>
+<span class="s2">    LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1"># Celery states meaning &quot;this task is over&quot;.</span>
+<span class="n">CELERY_DONE_STATES</span> <span class="o">=</span> <span class="s2">&quot;(&#39;SUCCESS&#39;, &#39;FAILURE&#39;, &#39;REVOKED&#39;)&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decode_result_trace</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Overlay the module trace stored in the (pickled) celery result onto</span>
+<span class="sd">    the trace field for detail views. Successful tasks return their log</span>
+<span class="sd">    blob as the task result; failures are covered by celery&#39;s traceback</span>
+<span class="sd">    (or by the pickled exception when no traceback string was stored).&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;celery_result&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blob</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;trace&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{}):</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+            <span class="n">decoded</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">blob</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;logs&quot;</span> <span class="ow">in</span> <span class="n">decoded</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">decoded</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="ne">BaseException</span><span class="p">):</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">decoded</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]}</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">decoded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;exc_message&quot;</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">decoded</span><span class="p">[</span><span class="s2">&quot;exc_message&quot;</span><span class="p">]</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">msg</span><span class="p">]</span>
+                <span class="n">row</span><span class="p">[</span><span class="s2">&quot;trace&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">decoded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;exc_type&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Error&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">msg</span><span class="p">]}</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">row</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;celery_result&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">row</span>
 
 
 <div class="viewcode-block" id="OsirDbTask">
@@ -142,6 +211,7 @@
 <span class="s2">                CREATE TABLE IF NOT EXISTS osir_tasks (</span>
 <span class="s2">                    task_id UUID PRIMARY KEY,</span>
 <span class="s2">                    case_uuid UUID,</span>
+<span class="s2">                    handler_id UUID,</span>
 <span class="s2">                    agent TEXT,</span>
 <span class="s2">                    module TEXT,</span>
 <span class="s2">                    input TEXT,</span>
@@ -151,14 +221,65 @@
 <span class="s2">                    trace JSONB DEFAULT &#39;</span><span class="si">{}</span><span class="s2">&#39;::jsonb</span>
 <span class="s2">                )</span>
 <span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Add handler_id (link task -&gt; handler) on older tables, and index it.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                <span class="s2">&quot;ALTER TABLE osir_tasks ADD COLUMN IF NOT EXISTS handler_id UUID&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                <span class="s2">&quot;CREATE INDEX IF NOT EXISTS idx_osir_tasks_handler_id &quot;</span>
+                <span class="s2">&quot;ON osir_tasks (handler_id, processing_status)&quot;</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error creating table: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
 
 
+<div class="viewcode-block" id="OsirDbTask.create_celery_tables">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.create_celery_tables">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_celery_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Creates the Celery database result-backend tables if they do not</span>
+<span class="sd">            exist yet, with a schema identical to the one Celery&#39;s SQLAlchemy</span>
+<span class="sd">            backend would create (so SQLAlchemy&#39;s checkfirst create_all is a</span>
+<span class="sd">            no-op). Doing it here guarantees the JOIN queries work on a fresh</span>
+<span class="sd">            database even before any worker reported a result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;CREATE SEQUENCE IF NOT EXISTS task_id_sequence&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                CREATE TABLE IF NOT EXISTS celery_taskmeta (</span>
+<span class="s2">                    id INTEGER NOT NULL DEFAULT nextval(&#39;task_id_sequence&#39;) PRIMARY KEY,</span>
+<span class="s2">                    task_id VARCHAR(155) UNIQUE,</span>
+<span class="s2">                    status VARCHAR(50),</span>
+<span class="s2">                    result BYTEA,</span>
+<span class="s2">                    date_done TIMESTAMP WITHOUT TIME ZONE,</span>
+<span class="s2">                    traceback TEXT,</span>
+<span class="s2">                    name VARCHAR(155),</span>
+<span class="s2">                    args BYTEA,</span>
+<span class="s2">                    kwargs BYTEA,</span>
+<span class="s2">                    worker VARCHAR(155),</span>
+<span class="s2">                    retries INTEGER,</span>
+<span class="s2">                    queue VARCHAR(155)</span>
+<span class="s2">                )</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;CREATE SEQUENCE IF NOT EXISTS taskset_id_sequence&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                CREATE TABLE IF NOT EXISTS celery_tasksetmeta (</span>
+<span class="s2">                    id INTEGER NOT NULL DEFAULT nextval(&#39;taskset_id_sequence&#39;) PRIMARY KEY,</span>
+<span class="s2">                    taskset_id VARCHAR(155) UNIQUE,</span>
+<span class="s2">                    result BYTEA,</span>
+<span class="s2">                    date_done TIMESTAMP WITHOUT TIME ZONE</span>
+<span class="s2">                )</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error creating celery result tables: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
 <div class="viewcode-block" id="OsirDbTask.create">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.create">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N/A&#39;</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N/A&#39;</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>        
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Inserts a new task into the database.</span>
 
@@ -169,7 +290,8 @@
 <span class="sd">                input (str): The input data or configuration for the task.</span>
 <span class="sd">                output (str): The output path of the module</span>
 <span class="sd">                task_id (str, optional): A specific UUID for the task. If None, a new UUID is generated.</span>
-
+<span class="sd">                handler_id (str, optional): The handler this task belongs to. Stored on the task row so handler -&gt; tasks lookups are simple indexed queries.</span>
+<span class="sd"> </span>
 <span class="sd">            Returns:</span>
 <span class="sd">                str: The UUID of the created task.</span>
 
@@ -184,20 +306,66 @@
 <span class="s2">                INSERT INTO osir_tasks (</span>
 <span class="s2">                    task_id,</span>
 <span class="s2">                    case_uuid,</span>
+<span class="s2">                    handler_id,</span>
 <span class="s2">                    agent,</span>
 <span class="s2">                    module,</span>
 <span class="s2">                    input,</span>
 <span class="s2">                    output,</span>
 <span class="s2">                    processing_status</span>
 <span class="s2">                )</span>
-<span class="s2">                VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, &#39;task_created&#39;)</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+
+<span class="s2">                VALUES (</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, &#39;task_created&#39;)</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task created successfully with task_id: </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">task_id</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error creating task: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+
+<div class="viewcode-block" id="OsirDbTask.create_bulk">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.create_bulk">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_bulk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Inserts many tasks in a single round trip (execute_values).</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                rows: list of tuples</span>
+<span class="sd">                    (task_id, case_uuid, handler_id, agent, module, input)</span>
+
+<span class="sd">                &#39;output&#39; defaults to &#39;N/A&#39; and &#39;processing_status&#39; to</span>
+<span class="sd">                &#39;task_created&#39;, matching create().</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                int: number of rows inserted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_values_query</span><span class="p">(</span>
+<span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                INSERT INTO osir_tasks (</span>
+<span class="sd">                    task_id,</span>
+<span class="sd">                    case_uuid,</span>
+<span class="sd">                    handler_id,</span>
+<span class="sd">                    agent,</span>
+<span class="sd">                    module,</span>
+<span class="sd">                    input,</span>
+<span class="sd">                    output,</span>
+<span class="sd">                    processing_status</span>
+<span class="sd">                )</span>
+<span class="sd">                VALUES %s</span>
+<span class="sd">                &quot;&quot;&quot;</span><span class="p">,</span>
+                <span class="n">rows</span><span class="p">,</span>
+                <span class="n">template</span><span class="o">=</span><span class="s2">&quot;(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, &#39;N/A&#39;, &#39;task_created&#39;)&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bulk task insert: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s2"> row(s)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error bulk-creating tasks: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
 
 
@@ -221,16 +389,15 @@
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                SELECT * </span>
-<span class="s2">                FROM osir_tasks</span>
-<span class="s2">                WHERE task_id = </span><span class="si">%s</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                <span class="n">TASK_VIEW_SELECT</span> <span class="o">+</span> <span class="s2">&quot; WHERE t.task_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">task_id</span><span class="p">,),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span>
+            <span class="p">)</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
-            
-            <span class="k">return</span> <span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_decode_result_trace</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
@@ -252,14 +419,13 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;get_by_output called with empty output, skipping query.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                SELECT * </span>
-<span class="s2">                FROM osir_tasks</span>
-<span class="s2">                WHERE output = </span><span class="si">%s</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">output</span><span class="p">,),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                <span class="n">TASK_VIEW_SELECT</span> <span class="o">+</span> <span class="s2">&quot; WHERE t.output = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="n">output</span><span class="p">,),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span>
+            <span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span>
-            <span class="k">return</span> <span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_decode_result_trace</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">row</span><span class="p">)))</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching task by output </span><span class="si">{</span><span class="n">output</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
@@ -272,7 +438,7 @@
         <span class="n">case_uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">processing_status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exclude_status</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Lists tasks based on filtering criteria such as case UUID or status.</span>
 
@@ -296,143 +462,255 @@
             <span class="k">if</span> <span class="n">exclude_status</span><span class="p">:</span>
                 <span class="n">exclude_status</span> <span class="o">=</span> <span class="n">to_list</span><span class="p">(</span><span class="n">exclude_status</span><span class="p">)</span>
 
-            <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                SELECT task_id, case_uuid, agent, module, input, output, processing_status, timestamp </span>
-<span class="s2">                FROM osir_tasks</span>
-<span class="s2">            &quot;&quot;&quot;</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT * FROM (</span><span class="si">{</span><span class="n">TASK_VIEW_SELECT</span><span class="si">}</span><span class="s2">) v&quot;</span>
             <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">if</span> <span class="n">case_uuid</span><span class="p">:</span>
-                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;case_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;v.case_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">processing_status</span><span class="p">:</span>
                 <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">processing_status</span><span class="p">))</span>
-                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;processing_status IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v.processing_status IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                 <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">processing_status</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">exclude_status</span><span class="p">:</span>
                 <span class="n">placeholders</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">exclude_status</span><span class="p">))</span>
-                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;processing_status NOT IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v.processing_status NOT IN (</span><span class="si">{</span><span class="n">placeholders</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                 <span class="n">params</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">exclude_status</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">conditions</span><span class="p">:</span>
                 <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; WHERE &quot;</span> <span class="o">+</span> <span class="s2">&quot; AND &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conditions</span><span class="p">)</span>
 
+            <span class="n">query</span> <span class="o">+=</span> <span class="s2">&quot; ORDER BY v.timestamp DESC LIMIT 200&quot;</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchall&quot;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_decode_result_trace</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error listing tasks: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
 
 
-<div class="viewcode-block" id="OsirDbTask.update">
-<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.update">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">processing_status</span><span class="p">:</span> <span class="n">ProcessingStatus</span><span class="p">,</span>
-        <span class="n">trace_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">agent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>  <span class="c1"># Changed return type hint as you return the row</span>
+<div class="viewcode-block" id="OsirDbTask.set_runtime_info">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.set_runtime_info">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_runtime_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Updates the status, trace data, or agent of an existing task.</span>
+<span class="sd">            Records runtime metadata that only the worker knows (the resolved</span>
+<span class="sd">            output path and the worker name). This is the single per-task</span>
+<span class="sd">            write left outside the Celery result backend: status transitions</span>
+<span class="sd">            and tracebacks live in celery_taskmeta.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                task_id (str): The UUID of the task to update.</span>
-<span class="sd">                processing_status (ProcessingStatus): The new status from the ProcessingStatus enum.</span>
-<span class="sd">                trace_data (dict, optional): JSON-compatible dictionary to merge into the trace column.</span>
-<span class="sd">                agent (str, optional): New agent name to update.</span>
-
-<span class="sd">            Returns:</span>
-<span class="sd">                Optional[dict]: The updated row data (depends on the database driver&#39;s return behavior).</span>
-
-<span class="sd">            Raises:</span>
-<span class="sd">                Exception: If the update query fails.</span>
+<span class="sd">                task_id (str): The UUID of the task.</span>
+<span class="sd">                agent (str, optional): Worker name executing the task.</span>
+<span class="sd">                output (str, optional): Resolved output path of the module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">agent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;agent = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;output = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">updates</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># 1. Prepare fields and parameters dynamically</span>
-            <span class="n">updates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;processing_status = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">]</span>
-            <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">processing_status</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="n">agent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;agent = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
-
-            <span class="c1"># Handle trace: Use COALESCE to keep old trace if new trace is None</span>
-            <span class="n">trace_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">trace_data</span><span class="p">)</span> <span class="k">if</span> <span class="n">trace_data</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;trace = COALESCE(</span><span class="si">%s</span><span class="s2">, trace)&quot;</span><span class="p">)</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trace_json</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">output</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">updates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;output = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-
-            <span class="c1"># Issue with threaded request</span>
-            <span class="n">fix_thread</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">if</span> <span class="n">processing_status</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">:</span>
-                <span class="n">fix_thread</span> <span class="o">=</span> <span class="s2">&quot;AND processing_status != &#39;processing_done&#39; AND processing_status != &#39;processing_failed&#39;&quot;</span>
-            <span class="c1"># 2. Build the final query</span>
-            <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                UPDATE osir_tasks </span>
-<span class="s2">                SET </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span><span class="si">}</span><span class="s2"> </span>
-<span class="s2">                WHERE task_id = %s </span><span class="si">{</span><span class="n">fix_thread</span><span class="si">}</span>
-<span class="s2">            &quot;&quot;&quot;</span>
-            <span class="n">params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
-
-            <span class="c1"># 3. Execute</span>
-            <span class="n">updated_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
-
-            <span class="k">return</span> <span class="n">updated_row</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;UPDATE osir_tasks SET </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">updates</span><span class="p">)</span><span class="si">}</span><span class="s2"> WHERE task_id = %s&quot;</span><span class="p">,</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error during update for task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error setting runtime info for task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
 
 
 <div class="viewcode-block" id="OsirDbTask.check_input">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.check_input">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Checks if there is currently an active task (status &#39;processing_started&#39;) </span>
-<span class="sd">            with the same input for a specific case.</span>
+<span class="sd">            Checks if the input is already used by another active task.</span>
+
+<span class="sd">            When called from inside a Celery task, several tasks with the same</span>
+<span class="sd">            input can already be marked STARTED at the same time. Blocking on</span>
+<span class="sd">            any other STARTED task creates a deadlock: task A waits for task B,</span>
+<span class="sd">            while task B waits for task A.</span>
+
+<span class="sd">            To avoid this, the task currently running only waits for older</span>
+<span class="sd">            active tasks with the same input. The oldest task is allowed to run,</span>
+<span class="sd">            then younger tasks are released one by one.</span>
 
 <span class="sd">            Args:</span>
 <span class="sd">                case_uuid (str): The UUID of the case.</span>
 <span class="sd">                input (str): The input string to check for duplicates.</span>
+<span class="sd">                exclude_task_id (str, optional): Current task UUID. When set,</span>
+<span class="sd">                    it is used both to exclude the current task and to apply a</span>
+<span class="sd">                    deterministic ordering between active tasks.</span>
 
 <span class="sd">            Returns:</span>
-<span class="sd">                bool: True if a matching active task is found, False otherwise.</span>
+<span class="sd">                bool: True if an older matching active task is found, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">input_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            SELECT COUNT(*)</span>
-<span class="s2">            FROM osir_tasks</span>
-<span class="s2">            WHERE case_uuid = </span><span class="si">%s</span>
-<span class="s2">            AND input = </span><span class="si">%s</span>
-<span class="s2">            AND processing_status = &#39;processing_started&#39;</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_str</span><span class="p">),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
-
-        <span class="c1"># VALIDATION: Result must be a tuple with exactly 1 item</span>
-        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">exclude_task_id</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    WITH current_task AS (</span>
+<span class="s2">                        SELECT task_id, timestamp</span>
+<span class="s2">                        FROM osir_tasks</span>
+<span class="s2">                        WHERE task_id = </span><span class="si">%s</span><span class="s2">::uuid</span>
+<span class="s2">                    )</span>
+<span class="s2">                    SELECT COUNT(*) AS count</span>
+<span class="s2">                    FROM osir_tasks t</span>
+<span class="s2">                    JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">                    CROSS JOIN current_task ct</span>
+<span class="s2">                    WHERE t.case_uuid = </span><span class="si">%s</span>
+<span class="s2">                      AND t.input = </span><span class="si">%s</span>
+<span class="s2">                      AND m.status IN (&#39;STARTED&#39;, &#39;RETRY&#39;)</span>
+<span class="s2">                      AND t.task_id &lt;&gt; ct.task_id</span>
+<span class="s2">                      AND (</span>
+<span class="s2">                          t.timestamp &lt; ct.timestamp</span>
+<span class="s2">                          OR (</span>
+<span class="s2">                              t.timestamp = ct.timestamp</span>
+<span class="s2">                              AND t.task_id::text &lt; ct.task_id::text</span>
+<span class="s2">                          )</span>
+<span class="s2">                      )</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">exclude_task_id</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_str</span><span class="p">),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                    SELECT COUNT(*) AS count</span>
+<span class="s2">                    FROM osir_tasks t</span>
+<span class="s2">                    JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">                    WHERE t.case_uuid = </span><span class="si">%s</span>
+<span class="s2">                      AND t.input = </span><span class="si">%s</span>
+<span class="s2">                      AND m.status IN (&#39;STARTED&#39;, &#39;RETRY&#39;)</span>
+<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">input_str</span><span class="p">),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error checking active input usage: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Integrity Error: Expected 1 column (count), got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s2">. Value: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span> <span class="ow">or</span> <span class="s2">&quot;count&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="n">count</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
-        <span class="c1"># If count is a UUID (string) instead of an int, the reset logic failed</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Type Error: Count is </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">count</span><span class="p">)</span><span class="si">}</span><span class="s2"> (Value: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">). Resetting connection state recommended.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+<div class="viewcode-block" id="OsirDbTask.stats">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.stats">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Aggregated task statistics for a handler or a whole case, computed</span>
+<span class="sd">            in SQL on the effective (celery-joined) statuses.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                handler_id (str, optional): Scope to a single handler.</span>
+<span class="sd">                case_uuid (str, optional): Scope to a whole case (used when</span>
+<span class="sd">                    handler_id is not provided).</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                dict: {</span>
+<span class="sd">                    total, by_status {status: count},</span>
+<span class="sd">                    by_module {module: {status: count, total}},</span>
+<span class="sd">                    done_last_min, failed_last_min,</span>
+<span class="sd">                    first_task_at, last_finished_at, progress_pct</span>
+<span class="sd">                }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">handler_id</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">case_uuid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;stats() requires handler_id or case_uuid&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">handler_id</span><span class="p">:</span>
+            <span class="n">cond</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s2">&quot;t.handler_id = </span><span class="si">%s</span><span class="s2">::uuid&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">handler_id</span><span class="p">),)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cond</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s2">&quot;t.case_uuid = </span><span class="si">%s</span><span class="s2">::uuid&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">),)</span>
+
+        <span class="n">all_statuses</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;task_created&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_started&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_done&quot;</span><span class="p">,</span> <span class="s2">&quot;processing_failed&quot;</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT t.module AS module, </span><span class="si">{</span><span class="n">STATUS_CASE_SQL</span><span class="si">}</span><span class="s2"> AS status, COUNT(*) AS count</span>
+<span class="s2">                FROM osir_tasks t</span>
+<span class="s2">                LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">                WHERE </span><span class="si">{</span><span class="n">cond</span><span class="si">}</span>
+<span class="s2">                GROUP BY t.module, 2</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchall&quot;</span><span class="p">)</span>
+
+            <span class="n">extras</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT</span>
+<span class="s2">                    COUNT(*) FILTER (</span>
+<span class="s2">                        WHERE m.status = &#39;SUCCESS&#39;</span>
+<span class="s2">                          AND m.date_done &gt;= (now() AT TIME ZONE &#39;utc&#39;) - interval &#39;60 seconds&#39;</span>
+<span class="s2">                    ) AS done_last_min,</span>
+<span class="s2">                    COUNT(*) FILTER (</span>
+<span class="s2">                        WHERE m.status IN (&#39;FAILURE&#39;, &#39;REVOKED&#39;)</span>
+<span class="s2">                          AND m.date_done &gt;= (now() AT TIME ZONE &#39;utc&#39;) - interval &#39;60 seconds&#39;</span>
+<span class="s2">                    ) AS failed_last_min,</span>
+<span class="s2">                    -- t.timestamp is timestamptz, celery&#39;s date_done is a naive</span>
+<span class="s2">                    -- UTC timestamp: normalize everything to naive UTC so the</span>
+<span class="s2">                    -- duration math is correct regardless of server timezone.</span>
+<span class="s2">                    MIN(t.timestamp AT TIME ZONE &#39;utc&#39;) AS first_task_at,</span>
+<span class="s2">                    MAX(m.date_done) FILTER (</span>
+<span class="s2">                        WHERE m.status IN (&#39;SUCCESS&#39;, &#39;FAILURE&#39;, &#39;REVOKED&#39;)</span>
+<span class="s2">                    ) AS last_finished_at,</span>
+<span class="s2">                    EXTRACT(EPOCH FROM (</span>
+<span class="s2">                        (now() AT TIME ZONE &#39;utc&#39;) - MIN(t.timestamp AT TIME ZONE &#39;utc&#39;)</span>
+<span class="s2">                    )) AS elapsed_seconds</span>
+<span class="s2">                FROM osir_tasks t</span>
+<span class="s2">                LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">                WHERE </span><span class="si">{</span><span class="n">cond</span><span class="si">}</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error computing task stats: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+        <span class="n">by_status</span> <span class="o">=</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_statuses</span><span class="p">}</span>
+        <span class="n">by_module</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+            <span class="n">module</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span>
+            <span class="n">by_status</span><span class="p">[</span><span class="n">status</span><span class="p">]</span> <span class="o">=</span> <span class="n">by_status</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">count</span>
+            <span class="n">mod</span> <span class="o">=</span> <span class="n">by_module</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="p">{</span><span class="n">s</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">all_statuses</span><span class="p">}</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+            <span class="n">mod</span><span class="p">[</span><span class="n">status</span><span class="p">]</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">count</span>
+            <span class="n">mod</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">count</span>
+
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">by_status</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">finished</span> <span class="o">=</span> <span class="n">by_status</span><span class="p">[</span><span class="s2">&quot;processing_done&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">by_status</span><span class="p">[</span><span class="s2">&quot;processing_failed&quot;</span><span class="p">]</span>
+        <span class="n">pending</span> <span class="o">=</span> <span class="n">by_status</span><span class="p">[</span><span class="s2">&quot;task_created&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">by_status</span><span class="p">[</span><span class="s2">&quot;processing_started&quot;</span><span class="p">]</span>
+        <span class="n">running</span> <span class="o">=</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">pending</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="n">first_task_at</span> <span class="o">=</span> <span class="n">extras</span><span class="p">[</span><span class="s2">&quot;first_task_at&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">extras</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">last_finished_at</span> <span class="o">=</span> <span class="n">extras</span><span class="p">[</span><span class="s2">&quot;last_finished_at&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">extras</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># Duration of the run: while tasks are still pending/running it is the</span>
+        <span class="c1"># elapsed time since the first task was created; once everything is</span>
+        <span class="c1"># finished it is frozen at (last task finished - first task created).</span>
+        <span class="n">duration_seconds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">total</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">running</span><span class="p">:</span>
+                <span class="n">duration_seconds</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">extras</span><span class="p">[</span><span class="s2">&quot;elapsed_seconds&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">extras</span> <span class="ow">and</span> <span class="n">extras</span><span class="p">[</span><span class="s2">&quot;elapsed_seconds&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">elif</span> <span class="n">first_task_at</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">last_finished_at</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">duration_seconds</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">last_finished_at</span> <span class="o">-</span> <span class="n">first_task_at</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span> <span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_iso</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;scope&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">handler_id</span><span class="p">)</span> <span class="k">if</span> <span class="n">handler_id</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                      <span class="s2">&quot;case_uuid&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">)</span> <span class="k">if</span> <span class="n">case_uuid</span> <span class="k">else</span> <span class="kc">None</span><span class="p">},</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total</span><span class="p">,</span>
+            <span class="s2">&quot;by_status&quot;</span><span class="p">:</span> <span class="n">by_status</span><span class="p">,</span>
+            <span class="s2">&quot;by_module&quot;</span><span class="p">:</span> <span class="n">by_module</span><span class="p">,</span>
+            <span class="s2">&quot;done_last_min&quot;</span><span class="p">:</span> <span class="n">extras</span><span class="p">[</span><span class="s2">&quot;done_last_min&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">extras</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;failed_last_min&quot;</span><span class="p">:</span> <span class="n">extras</span><span class="p">[</span><span class="s2">&quot;failed_last_min&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">extras</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;first_task_at&quot;</span><span class="p">:</span> <span class="n">_iso</span><span class="p">(</span><span class="n">first_task_at</span><span class="p">),</span>
+            <span class="s2">&quot;last_finished_at&quot;</span><span class="p">:</span> <span class="n">_iso</span><span class="p">(</span><span class="n">last_finished_at</span><span class="p">),</span>
+            <span class="s2">&quot;running&quot;</span><span class="p">:</span> <span class="n">running</span><span class="p">,</span>
+            <span class="s2">&quot;duration_seconds&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">duration_seconds</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">duration_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;progress_pct&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mf">100.0</span> <span class="o">*</span> <span class="n">finished</span> <span class="o">/</span> <span class="n">total</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">total</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="OsirDbTask.delete">
@@ -458,29 +736,25 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Au moins un paramètre (task_id, case_uuid ou handler_id) doit être fourni.&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">task_id</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                    DELETE FROM osir_tasks</span>
-<span class="s2">                    WHERE task_id = </span><span class="si">%s</span>
-<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tâche avec l&#39;ID </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2"> supprimée.&quot;</span><span class="p">)</span>
-
+                <span class="n">cond</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s2">&quot;task_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,)</span>
+                <span class="n">log_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Tâche avec l&#39;ID </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2"> supprimée.&quot;</span>
             <span class="k">elif</span> <span class="n">case_uuid</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                    DELETE FROM osir_tasks</span>
-<span class="s2">                    WHERE case_uuid = </span><span class="si">%s</span>
-<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tâches associées au cas </span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2"> supprimées.&quot;</span><span class="p">)</span>
+                <span class="n">cond</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s2">&quot;case_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,)</span>
+                <span class="n">log_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Tâches associées au cas </span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2"> supprimées.&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cond</span><span class="p">,</span> <span class="n">params</span> <span class="o">=</span> <span class="s2">&quot;handler_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">handler_id</span><span class="p">,)</span>
+                <span class="n">log_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Tâches associées au handler </span><span class="si">{</span><span class="n">handler_id</span><span class="si">}</span><span class="s2"> supprimées.&quot;</span>
 
-            <span class="k">elif</span> <span class="n">handler_id</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                    DELETE FROM osir_tasks</span>
-<span class="s2">                    WHERE task_id = ANY(</span>
-<span class="s2">                        SELECT unnest(task_id)</span>
-<span class="s2">                        FROM osir_handlers</span>
-<span class="s2">                        WHERE handler_id = </span><span class="si">%s</span>
-<span class="s2">                    )</span>
-<span class="s2">                &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">handler_id</span><span class="p">,))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tâches associées au handler </span><span class="si">{</span><span class="n">handler_id</span><span class="si">}</span><span class="s2"> supprimées.&quot;</span><span class="p">)</span>
+            <span class="c1"># Purge the matching Celery result rows first (they reference</span>
+            <span class="c1"># osir_tasks by task_id), then the task rows themselves.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                DELETE FROM celery_taskmeta</span>
+<span class="s2">                WHERE task_id IN (</span>
+<span class="s2">                    SELECT task_id::text FROM osir_tasks WHERE </span><span class="si">{</span><span class="n">cond</span><span class="si">}</span>
+<span class="s2">                )</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DELETE FROM osir_tasks WHERE </span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">log_msg</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="kc">True</span>
 

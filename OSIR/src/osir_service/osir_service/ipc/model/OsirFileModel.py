@@ -1,13 +1,11 @@
-from typing import List, Literal, Optional, Tuple, Dict, Any
+from typing import List, Literal, Optional, Tuple, Dict
 from pydantic import BaseModel
 from osir_service.ipc.OsirIpc import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS, Path
-from pathlib import Path
 import mimetypes
 import os
 import tarfile
 import zipfile
-import glob
 import shutil
 from osir_lib.logger import AppLogger
 
@@ -66,6 +64,7 @@ class DirEntry(BaseModel):
             read_only=not os.access(path, os.W_OK) if path.exists() else False,
             previewUrl=None
         )
+
 
 class FsData(BaseModel):
     storages: List[str]

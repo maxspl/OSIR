@@ -69,6 +69,11 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
             case 'unix':
                 self.run_local()
             case 'windows':
+                if not OsirAgentConfig().windows_configured:
+                    raise RuntimeError(
+                        f"Windows module '{self._context.module_name}' cannot run: "
+                        "Windows machine is not configured. Re-run agent setup and configure a Windows machine."
+                    )
                 if self._context.is_wsl:  # Change to adapt to remote master
                     self.run_wsl()
                 else:
@@ -86,16 +91,17 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
         """
         ctx = self._context
         agent_config = OsirAgentConfig()
+        drive = f"{agent_config.windows_mnt_point}:" if agent_config.windows_mnt_point else ""
 
         if self.path:
             self.path = self.safe_format(
                 self.path,
-                drive=agent_config.windows_mnt_point + ":"
+                drive = drive
             )
 
         if self.cmd:
             replacements = {
-                "drive": agent_config.windows_mnt_point + ":",
+                "drive": drive,
                 "input_file": str(ctx.input.match_updated),
                 "input_dir": str(ctx.input.match_updated),
                 "output_dir": str(ctx.output.output_dir),

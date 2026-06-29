@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 
@@ -40,3 +40,22 @@ Response model:
 
 class GetTasksListResponse(OsirIpcResponse):
     response: List[OsirDbTaskModel]
+
+
+""" 
+==========================================
+API Endpoints: POST /handler/{handler_id}/stats
+               GET  /case/{case_name}/stats
+==========================================
+Description: Aggregated task statistics (counts per status, per module,
+throughput) computed in SQL on the celery-joined effective statuses.
+
+Response model:
+  - GetTaskStatsResponse
+
+==========================================
+"""
+
+
+class GetTaskStatsResponse(OsirIpcResponse):
+    response: Dict[str, Any]

@@ -18,7 +18,6 @@ from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.ipc.model.OsirFileModel import FsData
 
-from osir_lib.core.OsirConstants import OSIR, OSIR_PATHS
 from osir_service.ipc.model.OsirAction import OSIR_ACTIONS, register_action
 from osir_lib.logger import AppLogger
 
@@ -367,7 +366,6 @@ class OsirIpc(BaseModel):
 
     @register_action('get_cases')
     def _handle_get_cases(self, req: OsirIpcRequest, resp: OsirIpcResponse):
-        from osir_service.postgres.model.OsirDbCaseModel import OsirDbCaseModel
 
         with OsirDb() as db:
             all_cases_in_db = db.case.list()
@@ -385,6 +383,21 @@ class OsirIpc(BaseModel):
                 case_uuid = db.case.get(name=req.params['case_name']).case_uuid
             resp.message = "Tasks retrieved"
             resp.response = db.task.list(case_uuid=case_uuid)
+        return resp
+
+    @register_action('get_task_stats')
+    def _handle_get_task_stats(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        with OsirDb() as db:
+            handler_id = req.params.get('handler_id')
+            case_uuid = req.params.get('case_uuid')
+            if not handler_id and not case_uuid and req.params.get('case_name'):
+                case = db.case.get(name=req.params['case_name'])
+                if not case:
+                    resp.response = "ERROR: CASE NOT FOUND"
+                    return resp
+                case_uuid = case.case_uuid
+            resp.message = "Task stats retrieved"
+            resp.response = db.task.stats(handler_id=handler_id, case_uuid=case_uuid)
         return resp
 
     @register_action('get_task_log', required_fields=['task_id'])

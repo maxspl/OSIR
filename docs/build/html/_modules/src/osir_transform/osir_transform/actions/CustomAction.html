@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>src.osir_lib.osir_lib.core.OsirConnector &mdash; OSIR 0.0.1 documentation</title>
+  <title>src.osir_transform.osir_transform.actions.CustomAction &mdash; OSIR 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
 
@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -79,7 +80,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">src.osir_lib.osir_lib.core.OsirConnector</li>
+      <li class="breadcrumb-item active">src.osir_transform.osir_transform.actions.CustomAction</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -88,14 +89,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for src.osir_lib.osir_lib.core.OsirConnector</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.connector.OsirConnectorModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConnectorModel</span>
+  <h1>Source code for src.osir_transform.osir_transform.actions.CustomAction</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..VRL</span><span class="w"> </span><span class="kn">import</span> <span class="n">VRL</span>
 
 
-<div class="viewcode-block" id="OsirConnector">
-<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirConnector.OsirConnector">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">OsirConnector</span><span class="p">(</span><span class="n">OsirConnectorModel</span><span class="p">):</span>
-    <span class="k">pass</span></div>
+<div class="viewcode-block" id="CustomAction">
+<a class="viewcode-back" href="../../../../../src.osir_transform.osir_transform.actions.html#src.osir_transform.osir_transform.CustomAction">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CustomAction</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">custom</span><span class="p">:</span>  <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="nb">filter</span><span class="p">:</span>  <span class="n">Optional</span><span class="p">[</span><span class="n">VRL</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;arbitrary_types_allowed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+
+<div class="viewcode-block" id="CustomAction.to_vrl">
+<a class="viewcode-back" href="../../../../../src.osir_transform.osir_transform.actions.html#src.osir_transform.osir_transform.CustomAction.to_vrl">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_vrl</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;if </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="si">}</span><span class="s2"> </span><span class="se">{{</span><span class="s2">&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">vrl_code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">vrl_code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;}&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">lines</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">vrl_code</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">custom</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">vrl_code</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">lines</span></div>
+</div>
 
 </pre></div>
 

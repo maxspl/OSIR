@@ -8,6 +8,7 @@ from osir_service.postgres.model.OsirDbStatusModel import OsirDbStatusModel
 class OsirDbTaskModel(BaseModel):
     task_id: UUID
     case_uuid: UUID
+    handler_id: Optional[UUID] = None
     agent: str
     module: str
     input: str

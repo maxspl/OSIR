@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -152,60 +153,6 @@
     <span class="k">return</span> <span class="n">input_path</span></div>
 
 
-
-<div class="viewcode-block" id="get_latest_log_by_task_id">
-<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirUtils.get_latest_log_by_task_id">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_latest_log_by_task_id</span><span class="p">(</span><span class="n">target_task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/OSIR/share/log/task_traces.jsonl&quot;</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieves the most recent log trace for a specific Task ID by reading the log file in reverse.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            target_task_id (str): The unique identifier of the forensic task.</span>
-<span class="sd">            file_path (str): The path to the JSONL trace file.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            dict: The parsed JSON trace object if found, None otherwise.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Move the pointer to the very end of the file</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">SEEK_END</span><span class="p">)</span>
-            <span class="n">pointer</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
-            <span class="n">buffer</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-
-            <span class="k">while</span> <span class="n">pointer</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">pointer</span> <span class="o">-=</span> <span class="mi">1</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pointer</span><span class="p">)</span>
-                <span class="n">char</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-                <span class="c1"># Check if we hit a newline or the start of the file</span>
-                <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="ow">and</span> <span class="n">buffer</span><span class="p">:</span>
-                    <span class="c1"># Decode and validate the JSON line</span>
-                    <span class="n">line</span> <span class="o">=</span> <span class="n">buffer</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-                    <span class="n">trace</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task_id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_task_id</span><span class="p">:</span>
-                        <span class="k">return</span> <span class="n">trace</span>  <span class="c1"># Found the most recent entry, stop search</span>
-                    <span class="n">buffer</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">()</span>
-                <span class="k">elif</span> <span class="n">char</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">:</span>
-                    <span class="n">buffer</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
-
-            <span class="c1"># Verification for the first line of the file (no leading newline)</span>
-            <span class="k">if</span> <span class="n">buffer</span><span class="p">:</span>
-                <span class="n">line</span> <span class="o">=</span> <span class="n">buffer</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-                <span class="n">trace</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;task_id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">target_task_id</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">trace</span>
-
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reverse log read error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="kc">None</span></div>
-
-
-
 <div class="viewcode-block" id="remove_placeholders">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirUtils.remove_placeholders">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">remove_placeholders</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -240,6 +187,33 @@
     <span class="n">h</span> <span class="o">=</span> <span class="n">xxhash</span><span class="o">.</span><span class="n">xxh3_128</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">prefix_size</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="compute_file_xxh3_128_full">
+<a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirUtils.compute_file_xxh3_128_full">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_file_xxh3_128_full</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes xxh3_128 on the whole file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str | Path): Path to the file.</span>
+<span class="sd">        chunk_size (int): Read size per chunk.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Hex digest of xxh3_128 over the full file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">_Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">xxhash</span><span class="o">.</span><span class="n">xxh3_128</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">p</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">chunk</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">chunk</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
 
 </pre></div>

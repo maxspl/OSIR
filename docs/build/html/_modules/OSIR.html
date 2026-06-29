@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -100,7 +101,7 @@
 
 <span class="c1"># TOREMOVE</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">osir_service.agent.AgentService</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tasks</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.IpcService</span><span class="w"> </span><span class="kn">import</span> <span class="n">IpcService</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">osir_service.watchdog.MonitorCase</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">MonitorCase</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">osir_service.smb.SMBService</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">SmbMounter</span>
 
@@ -196,13 +197,22 @@
 
         <span class="n">worker</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">CeleryWorker</span><span class="p">()</span>
         <span class="n">worker</span><span class="o">.</span><span class="n">start_worker</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">&quot;All Celery workers exited unexpectedly. &quot;</span>
+            <span class="s2">&quot;Check the celery log file for the startup error.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">web</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Launching IPC Service&quot;</span><span class="p">)</span>
-        <span class="n">IpcService</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8989</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">OsirIpc</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8989</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Launching web app...&quot;</span><span class="p">)</span>
         <span class="n">cli</span><span class="o">.</span><span class="n">main_run</span><span class="p">([</span><span class="s2">&quot;/OSIR/OSIR/src/osir_web/osir_web/OsirWeb.py&quot;</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">case</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No case selected: --case is required when not running in agent mode.&quot;</span><span class="p">)</span>
+        <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">case_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;/OSIR/share/cases&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">case</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">case_path</span><span class="p">):</span>

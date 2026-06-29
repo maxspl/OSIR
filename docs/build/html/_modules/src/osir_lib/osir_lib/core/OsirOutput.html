@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -160,6 +161,7 @@
 
             <span class="n">replacements</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">endpoint_name</span><span class="p">,</span>
+                <span class="s2">&quot;user_name&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">user_name</span><span class="p">,</span>
                 <span class="s2">&quot;module&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
                 <span class="s2">&quot;input_file&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get_input_name_safe</span><span class="p">(),</span>
                 <span class="s2">&quot;input_path_hash&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash_path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">)),</span>
@@ -190,8 +192,10 @@
 
             <span class="c1"># Handle Naming Prefixes for recursive organization</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">,</span>
-                                                                  <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;endpoint_name&#39;</span><span class="p">})</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">,</span>
+                    <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;endpoint_name&#39;</span><span class="p">,</span> <span class="s1">&#39;user_name&#39;</span><span class="p">)}</span>
+                <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">,</span> <span class="o">**</span><span class="n">replacements</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">updated</span> <span class="o">=</span> <span class="kc">True</span>
@@ -214,8 +218,12 @@
         <span class="n">prefix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix</span><span class="p">)</span>
 
         <span class="c1"># Build regex to avoid double-renaming items that already have a valid prefix</span>
-        <span class="n">prefix_extented</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;^&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.*&quot;</span><span class="p">))</span>
-
+        <span class="n">prefix_extented</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="s2">&quot;^&quot;</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_prefix_no_endpoint</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{endpoint_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.*&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{user_name}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;.*&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_context</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">topdown</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="c1"># Process files within the current directory</span>
             <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>

@@ -4,6 +4,7 @@ from osir_lib.logger import AppLogger
 from osir_lib.core.OsirAgentConfig import OsirAgentConfig
 import os
 import time
+import threading
 import psycopg2
 import psycopg2.extras
 
@@ -19,17 +20,33 @@ logger = AppLogger().get_logger()
 
 
 class OsirDb:
+    # Resolved once per process: avoids re-reading/parsing agent.yml on every
+    # OsirDb() instantiation (hot path: one instantiation per task push).
+    _default_host = None
+    _default_host_lock = threading.Lock()
+
+    # Schema DDL (CREATE TABLE IF NOT EXISTS, indexes, enum type) only needs to
+    # run once per (host, dbname) per process, not on every connection.
+    _schema_initialized: set = set()
+    _schema_lock = threading.Lock()
+
     def __init__(self, host=None, module_name=None, dbname='OSIR_db', port=5432):
         """"
             Central PostgreSQL service for the OSIR framework.
         """
         if host is None:
-            try:
-                agent_config = OsirAgentConfig()
-                host = "host.docker.internal" if agent_config.standalone else agent_config.master_host
-            except FileNotFoundError:
-                # agent.yml missing -> happens if master launched before agent is installed
-                host = "master-postgres"
+            if OsirDb._default_host is None:
+                with OsirDb._default_host_lock:
+                    if OsirDb._default_host is None:
+                        try:
+                            agent_config = OsirAgentConfig()
+                            OsirDb._default_host = (
+                                "host.docker.internal" if agent_config.standalone else agent_config.master_host
+                            )
+                        except FileNotFoundError:
+                            # agent.yml missing -> happens if master launched before agent is installed
+                            OsirDb._default_host = "master-postgres"
+            host = OsirDb._default_host
         self.host = host
         self.dbname = dbname
         self.port = port
@@ -46,10 +63,16 @@ class OsirDb:
         self.task = OsirDbTask(self)
         self.snapshot = OsirDbSnapshot(self)
 
-        self.snapshot.create_table()
-        self.task.create_table()
-        self.handler.create_table()
-        self.case.create_table()
+        schema_key = (self.host, self.dbname, self.port)
+        if schema_key not in OsirDb._schema_initialized:
+            with OsirDb._schema_lock:
+                if schema_key not in OsirDb._schema_initialized:
+                    self.snapshot.create_table()
+                    self.task.create_table()
+                    self.task.create_celery_tables()
+                    self.handler.create_table()
+                    self.case.create_table()
+                    OsirDb._schema_initialized.add(schema_key)
 
     def __enter__(self):
         return self
@@ -135,6 +158,50 @@ class OsirDb:
 
         # If we get here, all retries failed
         logger.error(f"Query permanently failed after {max_retries} attempts.")
+        raise last_exception
+
+    def execute_values_query(self, query, rows, template=None, page_size=1000, max_retries=5):
+        """Bulk INSERT via psycopg2.extras.execute_values, with the same
+        reconnection/retry semantics as execute_query.
+
+        Args:
+            query: e.g. "INSERT INTO t (a, b) VALUES %s"
+            rows: iterable of tuples
+            template: optional per-row template, e.g. "(%s, %s, 'constant')"
+        """
+        last_exception = None
+
+        for attempt in range(max_retries):
+            try:
+                conn = self._ensure_connection()
+                if not conn:
+                    raise OperationalError("Could not establish a database connection.")
+
+                with conn.cursor() as cur:
+                    psycopg2.extras.execute_values(
+                        cur, query, rows, template=template, page_size=page_size
+                    )
+                return True
+
+            except (OperationalError, InterfaceError) as e:
+                last_exception = e
+                logger.warning(f"Connection lost (Attempt {attempt + 1}/{max_retries}): {e}")
+
+                if self.conn:
+                    try:
+                        self.conn.close()
+                    except Exception as exc:
+                        logger.debug("Failed to close connection: %s", exc)
+                self.conn = None
+
+                time.sleep(2 ** attempt)
+                continue
+
+            except Exception as e:
+                logger.error(f"SQL Execution Error: {e}")
+                raise e
+
+        logger.error(f"Bulk query permanently failed after {max_retries} attempts.")
         raise last_exception
 
     def close(self):

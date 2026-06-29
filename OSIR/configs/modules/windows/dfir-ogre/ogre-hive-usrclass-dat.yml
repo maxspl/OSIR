@@ -35,7 +35,7 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}-{user_name}--{module}-"
+  output_prefix: "{endpoint_name}--{user_name}--{module}-"
 
 endpoint: 
   patterns:
@@ -53,7 +53,7 @@ splunk:
     name_rex: '\.jsonl$'
     path_suffix: 'ogre-hive-usrclass-dat'
     sourcetype: 'windows:ogre:hive_usrclass_dat'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: "Hive Usrclass Dat"
     timestamp_path:
       - "mtime" 

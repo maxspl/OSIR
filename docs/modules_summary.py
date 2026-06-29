@@ -12,22 +12,43 @@ data = []
 # Recursively scan the directory for .yml files
 for root, dirs, files in os.walk(directory_to_scan):
     for file in files:
-        if file.endswith(".yml"):
+        if file.endswith((".yml", ".yaml")):
             file_path = os.path.join(root, file)
-            with open(file_path, 'r') as yml_file:
-                try:
-                    content = yaml.safe_load(yml_file)
-                    # Extract the required fields
-                    filename = file
-                    description = content.get('description', '')
-                    author = content.get('author', '')
-                    version = content.get('version', '')
-                    processor_type = ', '.join(content.get('processor_type', []))
-                    tool_path = content.get('tool', {}).get('path', '')
-                    os_field = content.get('os', '')
 
-                    # Append the extracted data to the list
-                    data.append([os_field, filename, description, author, version, processor_type, tool_path])
+            with open(file_path, "r", encoding="utf-8") as yml_file:
+                try:
+                    content = yaml.safe_load(yml_file) or {}
+
+                    metadata = content.get("metadata", {}) or {}
+                    configuration = content.get("configuration", {}) or {}
+                    tool = content.get("tool", {}) or {}
+
+                    filename = file
+                    description = metadata.get("description", content.get("description", ""))
+                    author = metadata.get("author", content.get("author", ""))
+                    version = metadata.get("version", content.get("version", ""))
+                    os_field = metadata.get("os", content.get("os", ""))
+
+                    processor_type_raw = configuration.get("processor_type", content.get("processor_type", []))
+                    if processor_type_raw is None:
+                        processor_type = ""
+                    elif isinstance(processor_type_raw, list):
+                        processor_type = ", ".join(str(x) for x in processor_type_raw)
+                    else:
+                        processor_type = str(processor_type_raw)
+
+                    tool_path = tool.get("path", "")
+
+                    data.append([
+                        os_field,
+                        filename,
+                        description,
+                        author,
+                        version,
+                        processor_type,
+                        tool_path,
+                    ])
+
                 except yaml.YAMLError as exc:
                     print(f"Error parsing {file_path}: {exc}")
 

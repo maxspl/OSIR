@@ -29,14 +29,14 @@ output:
 
 endpoint: 
   patterns:
-    - r"extract_uac\/(.*?)\/"
+    - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
 
 splunk:
   'linux:web_access':
     name_rex: \.jsonl$
     sourcetype: 'linux:web_access'
-    host_rex: ([\w\.-]+)--
+    host_rex: -([\w\.-]+)--
     timestamp_path: 
     - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

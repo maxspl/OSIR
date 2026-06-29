@@ -147,6 +147,20 @@ class OsirDbHandler:
             logger.error(f"Error fetching handler list: {e}")
             raise
 
+    def _task_ids_for_handler(self, handler_id) -> List[uuid.UUID]:
+        """
+        Returns the task ids belonging to a handler from osir_tasks.
+
+        """
+        if not handler_id:
+            return []
+        rows = self.db.execute_query(
+            "SELECT task_id FROM osir_tasks WHERE handler_id = %s::uuid",
+            (str(handler_id),),
+            fetch="fetchall",
+        )
+        return [row["task_id"] for row in (rows or [])]
+
     def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[OsirDbHandlerModel, List[OsirDbHandlerModel], None]:
         """
         Retrieves one or more handlers by ID or Case UUID.
@@ -167,9 +181,14 @@ class OsirDbHandler:
                 return {"case_uuid": case_uuid, "handler_id": handler_id, "modules": None, "task_ids": None, "processing_status": None}
 
             if handler_id:
-                return OsirDbHandlerModel.model_validate(rows[0])
+                model = OsirDbHandlerModel.model_validate(rows[0])
+                model.task_id = self._task_ids_for_handler(model.handler_id)
+                return model
             else:
-                return [OsirDbHandlerModel.model_validate(x) for x in rows]
+                models = [OsirDbHandlerModel.model_validate(x) for x in rows]
+                for model in models:
+                    model.task_id = self._task_ids_for_handler(model.handler_id)
+                return models
         except Exception as e:
             logger.error(f"Error retrieving handlers: {e}")
             raise
@@ -182,31 +201,6 @@ class OsirDbHandler:
             return True
         except Exception as e:
             logger.error(f"Error updating handler {handler_id} status: {e}")
-            raise
-
-    def append_task_ids(self, handler_id: str, new_task_ids: List[str]) -> bool:
-        """
-        Dynamically adds new Celery task IDs to an existing handler.
-        Useful when a module discovery process triggers additional tasks.
-        """
-        try:
-            result = self.get(handler_id=handler_id) 
-            if result is None:
-                logger.error(f"No handler found with ID {handler_id}.")
-                return False
-
-            current_task_ids = result.task_id
-            if isinstance(current_task_ids, str):
-                current_task_ids = [current_task_ids]
-
-            # Normalize and deduplicate UUIDs
-            updated_task_ids = list(set([uuid.UUID(tid) if isinstance(tid, str) else tid for tid in (current_task_ids + new_task_ids)]))
-
-            self.db.execute_query("UPDATE osir_handlers SET task_id = %s WHERE handler_id = %s", (updated_task_ids, handler_id))
-            logger.debug(f"Task IDs for handler {handler_id} updated successfully.")
-            return True
-        except Exception as e:
-            logger.error(f"Error updating task IDs for handler {handler_id}: {e}")
             raise
 
     def delete(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None, task_id: Optional[str] = None) -> bool:
@@ -226,9 +220,10 @@ class OsirDbHandler:
                 self.db.execute_query("DELETE FROM osir_handlers WHERE case_uuid = %s", (case_uuid,))
                 logger.debug(f"All handlers for case {case_uuid} deleted.")
             elif task_id:
-                # Remove a single task ID from the array instead of deleting the row
-                self.db.execute_query("UPDATE osir_handlers SET task_id = array_remove(task_id, %s) WHERE %s = ANY(task_id)", (task_id, task_id))
-                logger.debug(f"Task ID {task_id} removed from handlers.")
+                # Unlink a single task from its handler. The relationship lives on
+                # the task row, so detaching = clearing osir_tasks.handler_id.
+                self.db.execute_query("UPDATE osir_tasks SET handler_id = NULL WHERE task_id = %s", (task_id,))
+                logger.debug(f"Task ID {task_id} unlinked from its handler.")
             return True
         except Exception as e:
             logger.error(f"Error during deletion: {e}")
@@ -236,55 +231,48 @@ class OsirDbHandler:
 
     def check_handler_failure(self, handler_id: str) -> bool:
         """
-        Aggregates task health: returns True if any associated task has failed.
+        Returns True if any task associated with the handler failed.
+
+        Celery task state is the only source of truth.
         """
         query = """
             SELECT EXISTS (
-                SELECT 1 
-                FROM osir_tasks 
-                WHERE task_id = ANY(
-                    SELECT unnest(task_id)
-                    FROM osir_handlers 
-                    WHERE handler_id = %s
-                )
-                AND processing_status = 'processing_failed'
+                SELECT 1
+                FROM osir_tasks t
+                JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                WHERE t.handler_id = %s::uuid
+                AND m.status IN ('FAILURE', 'REVOKED')
             );
         """
-        result = self.db.execute_query(query, (handler_id,), fetch="fetchone")
-        return result['exists']
+        result = self.db.execute_query(query, (str(handler_id),), fetch="fetchone")
+        return result["exists"]
 
     def is_processing_active(self, handler_uuid: str) -> bool:
         """
-            Checks if any tasks associated with a specific handler are still in a 
-            pending or active state.
+        Checks if any task associated with a handler is still active.
 
-            Args:
-                handler_uuid (str): The UUID of the handler to check.
+        Celery's result backend is the source of truth for task state.
+        Final states are SUCCESS, FAILURE and REVOKED.
 
-            Returns:
-                bool: True if any associated tasks are 'task_created' or 'processing_started'.
-
-            Raises:
-                Exception: If the join query between handlers and tasks fails.
+        A task present in osir_tasks but missing from celery_taskmeta is treated
+        as PENDING/active, because Celery may not have written a result row yet.
         """
         try:
-            count = self.db.execute_query("""
-                SELECT
-                    COUNT(t.task_id)
-                FROM
-                    osir_handlers h
-                JOIN
-                    unnest(h.task_id) AS task_id_unpacked ON TRUE
-                JOIN
-                    osir_tasks t ON t.task_id = task_id_unpacked
-                WHERE handler_id = %s AND t.processing_status IN ('processing_started', 'task_created');
-            """, (str(handler_uuid),), fetch="fetchone")['count']
+            result = self.db.execute_query("""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM osir_tasks t
+                    LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                    WHERE t.handler_id = %s::uuid
+                    AND COALESCE(m.status, 'PENDING') NOT IN ('SUCCESS', 'FAILURE', 'REVOKED')
+                );
+            """, (str(handler_uuid),), fetch="fetchone")
 
-            return count > 0
+            return result['exists']
         except Exception as e:
-            logger.error(f"Erreur lors de la vérification de l'input: {e}")
+            logger.error(f"Erreur lors de la vérification du handler actif: {e}")
             raise
-    
+        
     def get_all_task_logs(self, handler_uuid: str) -> List[OsirDbTaskModel]:
         """
             Retrieves all tasks associated with a specific handler.
@@ -299,26 +287,13 @@ class OsirDbHandler:
                 Exception: If the query fails.
         """
         try:
-            tasks = self.db.execute_query("""
-                SELECT
-                    t.task_id,
-                    t.case_uuid,
-                    t.agent,
-                    t.module,
-                    t.input,
-                    t.output,
-                    t.processing_status,
-                    t.timestamp,
-                    t.trace
-                FROM
-                    osir_tasks t
-                LEFT JOIN
-                    osir_handlers h ON t.task_id = ANY(h.task_id)
-                WHERE
-                    h.handler_id = %s
-            """, (str(handler_uuid),), fetch="fetchall")
+            from osir_service.postgres.OsirDbTask import TASK_VIEW_SELECT, _decode_result_trace
+            tasks = self.db.execute_query(
+                TASK_VIEW_SELECT + " WHERE t.handler_id = %s::uuid",
+                (str(handler_uuid),), fetch="fetchall"
+            )
 
-            return [OsirDbTaskModel.model_validate(x) for x in tasks]
+            return [OsirDbTaskModel.model_validate(_decode_result_trace(dict(x))) for x in tasks]
         except Exception as e:
             logger.error(f"Erreur lors de la récupération des logs des tâches: {e}")
             raise
