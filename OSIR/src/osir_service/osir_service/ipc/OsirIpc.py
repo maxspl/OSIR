@@ -18,7 +18,6 @@ from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.orchestration.TaskService import TaskService
 from osir_service.ipc.model.OsirFileModel import FsData
 
-from osir_lib.core.OsirConstants import OSIR, OSIR_PATHS
 from osir_service.ipc.model.OsirAction import OSIR_ACTIONS, register_action
 from osir_lib.logger import AppLogger
 
@@ -367,7 +366,6 @@ class OsirIpc(BaseModel):
 
     @register_action('get_cases')
     def _handle_get_cases(self, req: OsirIpcRequest, resp: OsirIpcResponse):
-        from osir_service.postgres.model.OsirDbCaseModel import OsirDbCaseModel
 
         with OsirDb() as db:
             all_cases_in_db = db.case.list()
