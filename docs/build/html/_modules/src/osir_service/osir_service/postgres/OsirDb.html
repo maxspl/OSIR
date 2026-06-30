@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -95,6 +96,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">psycopg2</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">psycopg2.extras</span>
 
@@ -112,6 +114,16 @@
 <div class="viewcode-block" id="OsirDb">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDb.OsirDb">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OsirDb</span><span class="p">:</span>
+    <span class="c1"># Resolved once per process: avoids re-reading/parsing agent.yml on every</span>
+    <span class="c1"># OsirDb() instantiation (hot path: one instantiation per task push).</span>
+    <span class="n">_default_host</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_default_host_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+    <span class="c1"># Schema DDL (CREATE TABLE IF NOT EXISTS, indexes, enum type) only needs to</span>
+    <span class="c1"># run once per (host, dbname) per process, not on every connection.</span>
+    <span class="n">_schema_initialized</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">_schema_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
 <div class="viewcode-block" id="OsirDb.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDb.OsirDb.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">module_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dbname</span><span class="o">=</span><span class="s1">&#39;OSIR_db&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5432</span><span class="p">):</span>
@@ -119,12 +131,18 @@
 <span class="sd">            Central PostgreSQL service for the OSIR framework.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">agent_config</span> <span class="o">=</span> <span class="n">OsirAgentConfig</span><span class="p">()</span>
-                <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;host.docker.internal&quot;</span> <span class="k">if</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span> <span class="k">else</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
-            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-                <span class="c1"># agent.yml missing -&gt; happens if master launched before agent is installed</span>
-                <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;master-postgres&quot;</span>
+            <span class="k">if</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_default_host</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_default_host_lock</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_default_host</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">agent_config</span> <span class="o">=</span> <span class="n">OsirAgentConfig</span><span class="p">()</span>
+                            <span class="n">OsirDb</span><span class="o">.</span><span class="n">_default_host</span> <span class="o">=</span> <span class="p">(</span>
+                                <span class="s2">&quot;host.docker.internal&quot;</span> <span class="k">if</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span> <span class="k">else</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
+                            <span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                            <span class="c1"># agent.yml missing -&gt; happens if master launched before agent is installed</span>
+                            <span class="n">OsirDb</span><span class="o">.</span><span class="n">_default_host</span> <span class="o">=</span> <span class="s2">&quot;master-postgres&quot;</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_default_host</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span> <span class="o">=</span> <span class="n">dbname</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
@@ -141,10 +159,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">task</span> <span class="o">=</span> <span class="n">OsirDbTask</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span> <span class="o">=</span> <span class="n">OsirDbSnapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span></div>
+        <span class="n">schema_key</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">schema_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_schema_initialized</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_schema_lock</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">schema_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">OsirDb</span><span class="o">.</span><span class="n">_schema_initialized</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">snapshot</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">create_celery_tables</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create_table</span><span class="p">()</span>
+                    <span class="n">OsirDb</span><span class="o">.</span><span class="n">_schema_initialized</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">schema_key</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -233,6 +257,53 @@
 
         <span class="c1"># If we get here, all retries failed</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Query permanently failed after </span><span class="si">{</span><span class="n">max_retries</span><span class="si">}</span><span class="s2"> attempts.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">last_exception</span></div>
+
+
+<div class="viewcode-block" id="OsirDb.execute_values_query">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDb.OsirDb.execute_values_query">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute_values_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bulk INSERT via psycopg2.extras.execute_values, with the same</span>
+<span class="sd">        reconnection/retry semantics as execute_query.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            query: e.g. &quot;INSERT INTO t (a, b) VALUES %s&quot;</span>
+<span class="sd">            rows: iterable of tuples</span>
+<span class="sd">            template: optional per-row template, e.g. &quot;(%s, %s, &#39;constant&#39;)&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">last_exception</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">attempt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_retries</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">conn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_connection</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">OperationalError</span><span class="p">(</span><span class="s2">&quot;Could not establish a database connection.&quot;</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cur</span><span class="p">:</span>
+                    <span class="n">psycopg2</span><span class="o">.</span><span class="n">extras</span><span class="o">.</span><span class="n">execute_values</span><span class="p">(</span>
+                        <span class="n">cur</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="n">page_size</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">except</span> <span class="p">(</span><span class="n">OperationalError</span><span class="p">,</span> <span class="n">InterfaceError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">last_exception</span> <span class="o">=</span> <span class="n">e</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connection lost (Attempt </span><span class="si">{</span><span class="n">attempt</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">max_retries</span><span class="si">}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Failed to close connection: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="kc">None</span>
+
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">attempt</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SQL Execution Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bulk query permanently failed after </span><span class="si">{</span><span class="n">max_retries</span><span class="si">}</span><span class="s2"> attempts.&quot;</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">last_exception</span></div>
 
 

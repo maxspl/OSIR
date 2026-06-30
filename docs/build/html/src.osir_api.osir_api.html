@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -120,6 +121,8 @@
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.get_case"><code class="docutils literal notranslate"><span class="pre">get_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.get_tasks"><code class="docutils literal notranslate"><span class="pre">get_tasks()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.retrieved_case_handler"><code class="docutils literal notranslate"><span class="pre">retrieved_case_handler()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.start_case_handler"><code class="docutils literal notranslate"><span class="pre">start_case_handler()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.stats_case"><code class="docutils literal notranslate"><span class="pre">stats_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.upload_file"><code class="docutils literal notranslate"><span class="pre">upload_file()</span></code></a></li>
 </ul>
 </li>
@@ -142,16 +145,18 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_api.osir_api.api.html#module-src.osir_api.osir_api.api.OsirApiHandler">src.osir_api.osir_api.api.OsirApiHandler module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.create_handler"><code class="docutils literal notranslate"><span class="pre">create_handler()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.create_handler_advanced"><code class="docutils literal notranslate"><span class="pre">create_handler_advanced()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.stats_handler"><code class="docutils literal notranslate"><span class="pre">stats_handler()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.status_handler"><code class="docutils literal notranslate"><span class="pre">status_handler()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_api.osir_api.api.html#module-src.osir_api.osir_api.api.OsirApiMetadata">src.osir_api.osir_api.api.OsirApiMetadata module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_api.osir_api.api.html#module-src.osir_api.osir_api.api.OsirApiModule">src.osir_api.osir_api.api.OsirApiModule module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.get_modules"><code class="docutils literal notranslate"><span class="pre">get_modules()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.make_node"><code class="docutils literal notranslate"><span class="pre">make_node()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.module_exists"><code class="docutils literal notranslate"><span class="pre">module_exists()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.module_instance"><code class="docutils literal notranslate"><span class="pre">module_instance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.module_info"><code class="docutils literal notranslate"><span class="pre">module_info()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.run_module"><code class="docutils literal notranslate"><span class="pre">run_module()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.run_module_on_file"><code class="docutils literal notranslate"><span class="pre">run_module_on_file()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_api.osir_api.api.html#module-src.osir_api.osir_api.api.OsirApiProfile">src.osir_api.osir_api.api.OsirApiProfile module</a><ul>

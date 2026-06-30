@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -90,17 +91,79 @@
              
   <h1>Source code for src.osir_service.osir_service.orchestration.TaskService</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">Celery</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">signature</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="c1"># Process-wide Celery app singleton.</span>
+<span class="c1"># Single app: the broker connection pool is created once and publishes</span>
+<span class="c1"># reuse persistent connections/channels</span>
+
+<span class="n">_celery_app</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">_celery_app_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+<span class="n">_windows_configured_cache</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_result_backend</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the PostgreSQL result-backend URL from the same configuration</span>
+<span class="sd">    sources as OsirDb (POSTGRES_* env vars + agent.yml host resolution).&quot;&quot;&quot;</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSTGRES_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;missing POSTGRES_USER env var&#39;</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSTGRES_PASSWORD&#39;</span><span class="p">,</span> <span class="s1">&#39;missing POSTGRES_PASSWORD env var&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
+        <span class="n">agent_config</span> <span class="o">=</span> <span class="n">OsirAgentConfig</span><span class="p">()</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;host.docker.internal&quot;</span> <span class="k">if</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span> <span class="k">else</span> <span class="n">agent_config</span><span class="o">.</span><span class="n">master_host</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="n">host</span> <span class="o">=</span> <span class="s2">&quot;master-postgres&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;db+postgresql://</span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s2">:5432/OSIR_db&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_celery_app</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Celery</span><span class="p">:</span>
+    <span class="k">global</span> <span class="n">_celery_app</span>
+    <span class="k">if</span> <span class="n">_celery_app</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">_celery_app_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_celery_app</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">rabbitmq_user</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;RABBITMQ_DEFAULT_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;missing RABBITMQ_DEFAULT_USER env var&#39;</span><span class="p">)</span>
+                <span class="n">rabbitmq_password</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;RABBITMQ_DEFAULT_PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;missing RABBITMQ_DEFAULT_PASS env var&#39;</span><span class="p">)</span>
+                <span class="n">broker_url</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s1">&#39;CELERY_BROKER_URL&#39;</span><span class="p">,</span>
+                    <span class="sa">f</span><span class="s1">&#39;pyamqp://</span><span class="si">{</span><span class="n">rabbitmq_user</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">rabbitmq_password</span><span class="si">}</span><span class="s1">@master-rabbitmq:5672//&#39;</span>
+                <span class="p">)</span>
+                <span class="n">result_backend</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_RESULT_BACKEND&#39;</span><span class="p">,</span> <span class="n">_default_result_backend</span><span class="p">())</span>
+
+                <span class="n">app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;OSIR&#39;</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="n">broker_url</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">result_backend</span><span class="p">)</span>
+                <span class="n">app</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">result_extended</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">task_track_started</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>            <span class="c1"># STARTED rows in celery_taskmeta</span>
+                    <span class="n">result_expires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>                <span class="c1"># no TTL purge: cleanup is per-case</span>
+                    <span class="n">database_short_lived_sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">_celery_app</span> <span class="o">=</span> <span class="n">app</span>
+    <span class="k">return</span> <span class="n">_celery_app</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_windows_configured</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cached check of agent.yml windows configuration (avoids re-parsing</span>
+<span class="sd">    the YAML config on every task push). Returns True on config errors so</span>
+<span class="sd">    tasks are dispatched to the queue as before.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_windows_configured_cache</span>
+    <span class="k">if</span> <span class="n">_windows_configured_cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
+            <span class="n">_windows_configured_cache</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">OsirAgentConfig</span><span class="p">()</span><span class="o">.</span><span class="n">windows_configured</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">_windows_configured_cache</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">_windows_configured_cache</span>
 
 
 <div class="viewcode-block" id="TaskService">
@@ -136,6 +199,38 @@
             <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span><span class="si">}</span><span class="s2">_multithread&quot;</span></div>
 
 
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fail_windows_task</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">input_match</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a task row and immediately mark it failed (through the</span>
+<span class="sd">        Celery result backend) because no Windows machine is configured.&quot;&quot;&quot;</span>
+        <span class="n">custom_task_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+        <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="n">custom_task_id</span><span class="p">,</span>
+            <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">,</span>
+            <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
+            <span class="n">agent</span><span class="o">=</span><span class="s2">&quot;Null&quot;</span><span class="p">,</span>
+            <span class="n">module</span><span class="o">=</span><span class="n">module_name</span><span class="p">,</span>
+            <span class="nb">input</span><span class="o">=</span><span class="n">input_match</span>
+        <span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Windows module &#39;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; cannot run: &quot;</span>
+            <span class="s2">&quot;Windows machine is not configured on this agent. &quot;</span>
+            <span class="s2">&quot;Re-run agent setup and configure a Windows machine.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># The task is never sent to the broker, so no worker will ever</span>
+            <span class="c1"># report it: write the FAILURE row in celery_taskmeta ourselves</span>
+            <span class="c1"># so handler aggregation sees the task as finished+failed.</span>
+            <span class="n">_get_celery_app</span><span class="p">()</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">mark_as_failure</span><span class="p">(</span>
+                <span class="n">custom_task_id</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">msg</span><span class="p">),</span> <span class="n">traceback</span><span class="o">=</span><span class="n">msg</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not mark task </span><span class="si">{</span><span class="n">custom_task_id</span><span class="si">}</span><span class="s2"> as failed in result backend: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Task &#39;</span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; immediately failed: Windows machine not configured.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">custom_task_id</span>
+
 <div class="viewcode-block" id="TaskService.push_task">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskService.TaskService.push_task">[docs]</a>
     <span class="nd">@staticmethod</span>
@@ -145,10 +240,9 @@
 
 <span class="sd">            Args:</span>
 <span class="sd">                case_path (str): The base directory path where the case files are stored and operations will be performed.</span>
-<span class="sd">                module_data (bytes): Serialized data of the module instance to be processed in the task.</span>
-<span class="sd">                task (str): The name of the task function to execute.</span>
-<span class="sd">                queue (str): The name of the Celery queue in which the task should be enqueued.</span>
+<span class="sd">                module_instance (OsirModuleModel): The module instance to be processed in the task.</span>
 <span class="sd">                case_uuid (str): A unique identifier for the case associated with the task.</span>
+<span class="sd">                handler_uuid: Handler this task belongs to.</span>
 
 <span class="sd">            Environment Variables:</span>
 <span class="sd">                CELERY_BROKER_URL (str): The URL of the Celery message broker.</span>
@@ -160,46 +254,120 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">dir</span>
 
-        <span class="n">RABBITMQ_USER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;RABBITMQ_DEFAULT_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;missing RABBITMQ_DEFAULT_USER env var&#39;</span><span class="p">)</span>
-        <span class="n">RABBITMQ_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;RABBITMQ_DEFAULT_PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;missing RABBITMQ_DEFAULT_PASS env var&#39;</span><span class="p">)</span>
-        <span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_BROKER_URL&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;pyamqp://</span><span class="si">{</span><span class="n">RABBITMQ_USER</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">RABBITMQ_PASSWORD</span><span class="si">}</span><span class="s1">@master-rabbitmq:5672//&#39;</span><span class="p">)</span>
-        <span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_RESULT_BACKEND&#39;</span><span class="p">,</span> <span class="s1">&#39;redis://master-redis:6379/0&#39;</span><span class="p">)</span>
+        <span class="c1"># Fail Windows tasks immediately if no Windows machine is configured on this agent</span>
+        <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span> <span class="o">==</span> <span class="s1">&#39;windows&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_windows_configured</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">TaskService</span><span class="o">.</span><span class="n">_fail_windows_task</span><span class="p">(</span>
+                    <span class="n">db</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">,</span>
+                    <span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span>
+                <span class="p">)</span>
 
-        <span class="n">Celery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;OSIR&#39;</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="n">CELERY_BROKER_URL</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">CELERY_RESULT_BACKEND</span><span class="p">)</span>
-
-        <span class="n">task_signature</span> <span class="o">=</span> <span class="n">signature</span><span class="p">(</span>
-            <span class="n">TaskService</span><span class="o">.</span><span class="n">get_task_name</span><span class="p">(</span><span class="n">module_instance</span><span class="p">),</span>
-            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(),</span> <span class="n">case_uuid</span><span class="p">),</span>
-            <span class="n">immutable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">queue</span><span class="o">=</span><span class="n">TaskService</span><span class="o">.</span><span class="n">get_queue_name</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">_get_celery_app</span><span class="p">()</span>
         <span class="n">custom_task_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
 
         <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
             <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
                 <span class="n">task_id</span><span class="o">=</span><span class="n">custom_task_id</span><span class="p">,</span>
                 <span class="n">case_uuid</span><span class="o">=</span><span class="n">case_uuid</span><span class="p">,</span>
+                <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
                 <span class="n">agent</span><span class="o">=</span><span class="s2">&quot;Null&quot;</span><span class="p">,</span>
                 <span class="n">module</span><span class="o">=</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="p">,</span>
                 <span class="nb">input</span><span class="o">=</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="n">handler_uuid</span><span class="p">:</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">append_task_ids</span><span class="p">(</span>
-                    <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_uuid</span><span class="p">,</span>
-                    <span class="n">new_task_ids</span><span class="o">=</span><span class="p">[</span><span class="n">custom_task_id</span><span class="p">]</span>
-                <span class="p">)</span>
 
-        <span class="n">result</span> <span class="o">=</span> <span class="n">task_signature</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">task_id</span><span class="o">=</span><span class="n">custom_task_id</span><span class="p">)</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">send_task</span><span class="p">(</span>
+            <span class="n">TaskService</span><span class="o">.</span><span class="n">get_task_name</span><span class="p">(</span><span class="n">module_instance</span><span class="p">),</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(),</span> <span class="n">case_uuid</span><span class="p">),</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="n">custom_task_id</span><span class="p">,</span>
+            <span class="n">queue</span><span class="o">=</span><span class="n">TaskService</span><span class="o">.</span><span class="n">get_queue_name</span><span class="p">(</span><span class="n">module_instance</span><span class="p">),</span>
+        <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Task Pushed : </span><span class="se">\n</span>
-<span class="s2">                    Task Name : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    Task ID : </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    Task Type : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_type</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    Case Path : </span><span class="si">{</span><span class="n">case_path</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    Input : </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span>
-<span class="s2">                    Case UUID : </span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Task pushed: module=</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;task_id=</span><span class="si">{</span><span class="n">custom_task_id</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;type=</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_type</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;input=&#39;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">custom_task_id</span></div>
+
+
+<div class="viewcode-block" id="TaskService.push_tasks_bulk">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskService.TaskService.push_tasks_bulk">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">push_tasks_bulk</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Submits many tasks at once:</span>
+<span class="sd">              - one bulk INSERT (execute_values) for all task rows,</span>
+<span class="sd">              - one AMQP producer (single connection/channel) reused for all</span>
+<span class="sd">                celery publishes.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                case_path: normalized case path (same value passed to push_task).</span>
+<span class="sd">                case_uuid: case UUID.</span>
+<span class="sd">                handler_uuid: handler UUID.</span>
+<span class="sd">                items: list of dicts with keys:</span>
+<span class="sd">                    task_name     -&gt; celery task name</span>
+<span class="sd">                    queue         -&gt; celery queue name</span>
+<span class="sd">                    module_name   -&gt; module name</span>
+<span class="sd">                    match         -&gt; input.match (file path)</span>
+<span class="sd">                    payload_json  -&gt; serialized OsirModuleModel JSON</span>
+<span class="sd">                    processor_os  -&gt; module processor_os (&#39;linux&#39;/&#39;windows&#39;/...)</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                list[str]: task ids of the dispatched (non-failed) tasks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">app</span> <span class="o">=</span> <span class="n">_get_celery_app</span><span class="p">()</span>
+
+        <span class="n">dispatchable</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">win_blocked</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processor_os&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;windows&quot;</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_windows_configured</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+                <span class="p">(</span><span class="n">win_blocked</span> <span class="k">if</span> <span class="n">it</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;processor_os&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;windows&quot;</span> <span class="k">else</span> <span class="n">dispatchable</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dispatchable</span> <span class="o">=</span> <span class="n">items</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">dispatchable</span><span class="p">:</span>
+            <span class="n">it</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">())</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">((</span>
+                <span class="n">it</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">],</span>
+                <span class="n">case_uuid</span><span class="p">,</span>
+                <span class="n">handler_uuid</span><span class="p">,</span>
+                <span class="s2">&quot;Null&quot;</span><span class="p">,</span>
+                <span class="n">it</span><span class="p">[</span><span class="s2">&quot;module_name&quot;</span><span class="p">],</span>
+                <span class="n">it</span><span class="p">[</span><span class="s2">&quot;match&quot;</span><span class="p">],</span>
+            <span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rows</span><span class="p">:</span>
+                <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">create_bulk</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">win_blocked</span><span class="p">:</span>
+                <span class="n">TaskService</span><span class="o">.</span><span class="n">_fail_windows_task</span><span class="p">(</span>
+                    <span class="n">db</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">it</span><span class="p">[</span><span class="s2">&quot;module_name&quot;</span><span class="p">],</span> <span class="n">it</span><span class="p">[</span><span class="s2">&quot;match&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Single producer =&gt; one connection/channel for the whole batch.</span>
+        <span class="k">with</span> <span class="n">app</span><span class="o">.</span><span class="n">producer_or_acquire</span><span class="p">()</span> <span class="k">as</span> <span class="n">producer</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">dispatchable</span><span class="p">:</span>
+                <span class="n">app</span><span class="o">.</span><span class="n">send_task</span><span class="p">(</span>
+                    <span class="n">it</span><span class="p">[</span><span class="s2">&quot;task_name&quot;</span><span class="p">],</span>
+                    <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">it</span><span class="p">[</span><span class="s2">&quot;match&quot;</span><span class="p">],</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">it</span><span class="p">[</span><span class="s2">&quot;payload_json&quot;</span><span class="p">],</span> <span class="n">case_uuid</span><span class="p">),</span>
+                    <span class="n">task_id</span><span class="o">=</span><span class="n">it</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">],</span>
+                    <span class="n">queue</span><span class="o">=</span><span class="n">it</span><span class="p">[</span><span class="s2">&quot;queue&quot;</span><span class="p">],</span>
+                    <span class="n">producer</span><span class="o">=</span><span class="n">producer</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># One summary line per batch: per-task logging at this rate costs</span>
+        <span class="c1"># more than the AMQP publish itself (console + file handler I/O).</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bulk push: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dispatchable</span><span class="p">)</span><span class="si">}</span><span class="s2"> task(s) published to broker&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">it</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">dispatchable</span><span class="p">]</span></div>
 </div>
 
 </pre></div>

@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -93,6 +94,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbTaskModel</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
@@ -155,8 +157,20 @@
 <span class="sd">                str: The unique handler_id.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
+            
+            
             <span class="k">if</span> <span class="ow">not</span> <span class="n">handler_id</span><span class="p">:</span>
                 <span class="n">handler_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">existing_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                    <span class="s2">&quot;SELECT handler_id, case_uuid, modules, task_id, processing_status, created_at FROM osir_handlers WHERE handler_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="p">(</span><span class="n">handler_id</span><span class="p">,),</span>
+                    <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">existing_handler</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">OsirDbHandlerModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">existing_handler</span><span class="p">)</span>
+            
             <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">                INSERT INTO osir_handlers (</span>
 <span class="s2">                    handler_id,</span>
@@ -239,6 +253,20 @@
             <span class="k">raise</span></div>
 
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_task_ids_for_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the task ids belonging to a handler from osir_tasks.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">handler_id</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+            <span class="s2">&quot;SELECT task_id FROM osir_tasks WHERE handler_id = </span><span class="si">%s</span><span class="s2">::uuid&quot;</span><span class="p">,</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">handler_id</span><span class="p">),),</span>
+            <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchall&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;task_id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="p">(</span><span class="n">rows</span> <span class="ow">or</span> <span class="p">[])]</span>
+
 <div class="viewcode-block" id="OsirDbHandler.get">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">OsirDbHandlerModel</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">OsirDbHandlerModel</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
@@ -261,9 +289,14 @@
                 <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;case_uuid&quot;</span><span class="p">:</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="n">handler_id</span><span class="p">,</span> <span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;task_ids&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;processing_status&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
             <span class="k">if</span> <span class="n">handler_id</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">OsirDbHandlerModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">model</span> <span class="o">=</span> <span class="n">OsirDbHandlerModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_ids_for_handler</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">handler_id</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">model</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="n">OsirDbHandlerModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+                <span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">OsirDbHandlerModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">:</span>
+                    <span class="n">model</span><span class="o">.</span><span class="n">task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_ids_for_handler</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">handler_id</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">models</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error retrieving handlers: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
@@ -279,34 +312,6 @@
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating handler </span><span class="si">{</span><span class="n">handler_id</span><span class="si">}</span><span class="s2"> status: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">raise</span></div>
-
-
-<div class="viewcode-block" id="OsirDbHandler.append_task_ids">
-<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler.append_task_ids">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">append_task_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_task_ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Dynamically adds new Celery task IDs to an existing handler.</span>
-<span class="sd">        Useful when a module discovery process triggers additional tasks.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">handler_id</span><span class="p">)</span> 
-            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No handler found with ID </span><span class="si">{</span><span class="n">handler_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="kc">False</span>
-
-            <span class="n">current_task_ids</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">task_id</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_task_ids</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">current_task_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">current_task_ids</span><span class="p">]</span>
-
-            <span class="c1"># Normalize and deduplicate UUIDs</span>
-            <span class="n">updated_task_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="n">tid</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">tid</span> <span class="k">for</span> <span class="n">tid</span> <span class="ow">in</span> <span class="p">(</span><span class="n">current_task_ids</span> <span class="o">+</span> <span class="n">new_task_ids</span><span class="p">)]))</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;UPDATE osir_handlers SET task_id = </span><span class="si">%s</span><span class="s2"> WHERE handler_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">updated_task_ids</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">))</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task IDs for handler </span><span class="si">{</span><span class="n">handler_id</span><span class="si">}</span><span class="s2"> updated successfully.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">True</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error updating task IDs for handler </span><span class="si">{</span><span class="n">handler_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
 
 
@@ -329,9 +334,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;DELETE FROM osir_handlers WHERE case_uuid = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">case_uuid</span><span class="p">,))</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;All handlers for case </span><span class="si">{</span><span class="n">case_uuid</span><span class="si">}</span><span class="s2"> deleted.&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">task_id</span><span class="p">:</span>
-                <span class="c1"># Remove a single task ID from the array instead of deleting the row</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;UPDATE osir_handlers SET task_id = array_remove(task_id, </span><span class="si">%s</span><span class="s2">) WHERE </span><span class="si">%s</span><span class="s2"> = ANY(task_id)&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">task_id</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task ID </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2"> removed from handlers.&quot;</span><span class="p">)</span>
+                <span class="c1"># Unlink a single task from its handler. The relationship lives on</span>
+                <span class="c1"># the task row, so detaching = clearing osir_tasks.handler_id.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;UPDATE osir_tasks SET handler_id = NULL WHERE task_id = </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">task_id</span><span class="p">,))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task ID </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2"> unlinked from its handler.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error during deletion: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -342,59 +348,81 @@
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler.check_handler_failure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_handler_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Aggregates task health: returns True if any associated task has failed.</span>
+<span class="sd">        Returns True if any task associated with the handler failed.</span>
+
+<span class="sd">        Celery task state is the only source of truth.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            SELECT EXISTS (</span>
-<span class="s2">                SELECT 1 </span>
-<span class="s2">                FROM osir_tasks </span>
-<span class="s2">                WHERE task_id = ANY(</span>
-<span class="s2">                    SELECT unnest(task_id)</span>
-<span class="s2">                    FROM osir_handlers </span>
-<span class="s2">                    WHERE handler_id = </span><span class="si">%s</span>
-<span class="s2">                )</span>
-<span class="s2">                AND processing_status = &#39;processing_failed&#39;</span>
+<span class="s2">                SELECT 1</span>
+<span class="s2">                FROM osir_tasks t</span>
+<span class="s2">                JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">                WHERE t.handler_id = </span><span class="si">%s</span><span class="s2">::uuid</span>
+<span class="s2">                AND m.status IN (&#39;FAILURE&#39;, &#39;REVOKED&#39;)</span>
 <span class="s2">            );</span>
 <span class="s2">        &quot;&quot;&quot;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">handler_id</span><span class="p">,),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span></div>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">handler_id</span><span class="p">),),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;exists&quot;</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="OsirDbHandler.is_processing_active">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler.is_processing_active">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_processing_active</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Checks if any tasks associated with a specific handler are still in a </span>
-<span class="sd">            pending or active state.</span>
+<span class="sd">        Checks if any task associated with a handler is still active.</span>
 
-<span class="sd">            Args:</span>
-<span class="sd">                handler_uuid (str): The UUID of the handler to check.</span>
+<span class="sd">        Celery&#39;s result backend is the source of truth for task state.</span>
+<span class="sd">        Final states are SUCCESS, FAILURE and REVOKED.</span>
 
-<span class="sd">            Returns:</span>
-<span class="sd">                bool: True if any associated tasks are &#39;task_created&#39; or &#39;processing_started&#39;.</span>
-
-<span class="sd">            Raises:</span>
-<span class="sd">                Exception: If the join query between handlers and tasks fails.</span>
+<span class="sd">        A task present in osir_tasks but missing from celery_taskmeta is treated</span>
+<span class="sd">        as PENDING/active, because Celery may not have written a result row yet.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">                SELECT</span>
-<span class="s2">                    COUNT(t.task_id)</span>
-<span class="s2">                FROM</span>
-<span class="s2">                    osir_handlers h</span>
-<span class="s2">                JOIN</span>
-<span class="s2">                    unnest(h.task_id) AS task_id_unpacked ON TRUE</span>
-<span class="s2">                JOIN</span>
-<span class="s2">                    osir_tasks t ON t.task_id = task_id_unpacked</span>
-<span class="s2">                WHERE handler_id = </span><span class="si">%s</span><span class="s2"> AND t.processing_status IN (&#39;processing_started&#39;, &#39;task_created&#39;);</span>
-<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">handler_uuid</span><span class="p">),),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                SELECT EXISTS (</span>
+<span class="s2">                    SELECT 1</span>
+<span class="s2">                    FROM osir_tasks t</span>
+<span class="s2">                    LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text</span>
+<span class="s2">                    WHERE t.handler_id = </span><span class="si">%s</span><span class="s2">::uuid</span>
+<span class="s2">                    AND COALESCE(m.status, &#39;PENDING&#39;) NOT IN (&#39;SUCCESS&#39;, &#39;FAILURE&#39;, &#39;REVOKED&#39;)</span>
+<span class="s2">                );</span>
+<span class="s2">            &quot;&quot;&quot;</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">handler_uuid</span><span class="p">),),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchone&quot;</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;exists&#39;</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur lors de la vérification de l&#39;input: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur lors de la vérification du handler actif: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+        
+<div class="viewcode-block" id="OsirDbHandler.get_all_task_logs">
+<a class="viewcode-back" href="../../../../../src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler.get_all_task_logs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_task_logs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Retrieves all tasks associated with a specific handler.</span>
+
+<span class="sd">            Args:</span>
+<span class="sd">                handler_uuid (str): The UUID of the handler to filter by.</span>
+
+<span class="sd">            Returns:</span>
+<span class="sd">                list[OsirDbTask]: List of tasks associated with the handler.</span>
+
+<span class="sd">            Raises:</span>
+<span class="sd">                Exception: If the query fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDbTask</span><span class="w"> </span><span class="kn">import</span> <span class="n">TASK_VIEW_SELECT</span><span class="p">,</span> <span class="n">_decode_result_trace</span>
+            <span class="n">tasks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">execute_query</span><span class="p">(</span>
+                <span class="n">TASK_VIEW_SELECT</span> <span class="o">+</span> <span class="s2">&quot; WHERE t.handler_id = </span><span class="si">%s</span><span class="s2">::uuid&quot;</span><span class="p">,</span>
+                <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">handler_uuid</span><span class="p">),),</span> <span class="n">fetch</span><span class="o">=</span><span class="s2">&quot;fetchall&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_decode_result_trace</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Erreur lors de la récupération des logs des tâches: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">raise</span></div>
 </div>
 
+            
 </pre></div>
 
            </div>

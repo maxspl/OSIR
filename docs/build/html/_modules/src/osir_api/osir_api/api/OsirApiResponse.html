@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -91,12 +92,15 @@
   <h1>Source code for src.osir_api.osir_api.api.OsirApiResponse</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPException</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
 <div class="viewcode-block" id="handle_response">
 <a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiResponse.handle_response">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">,</span> <span class="n">response_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">response</span><span class="o">.</span><span class="n">message</span><span class="p">:</span>
         <span class="n">response</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Everything is working as it should!&quot;</span>
 
@@ -106,6 +110,10 @@
             <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span>
             <span class="n">detail</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
         <span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">response_only</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">response</span>
+
     <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span></div>
 
 </pre></div>

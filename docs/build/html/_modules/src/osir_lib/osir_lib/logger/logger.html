@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -277,21 +278,57 @@
         <span class="p">}</span>
         <span class="n">console_handler</span> <span class="o">=</span> <span class="n">LevelBasedHandler</span><span class="p">(</span><span class="n">console_level_formatter_map</span><span class="p">)</span>
 
-        <span class="n">log_directory</span> <span class="o">=</span> <span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">LOG_DIR</span>
+        <span class="n">log_directory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_log_directory</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">log_directory</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">log_directory</span><span class="p">)</span>
-
-        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">LOG_DIR</span><span class="p">,</span> <span class="n">log_file</span><span class="p">)</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">log_directory</span><span class="p">,</span> <span class="n">log_file</span><span class="p">)</span>
 
         <span class="c1"># Create custom handlers for file logging</span>
-        <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">log_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="c1"># Log file exists but is not writable by this user (e.g. created</span>
+            <span class="c1"># root-owned by a container on a shared appliance): fall back to</span>
+            <span class="c1"># the per-user directory.</span>
+            <span class="n">fallback_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_log_directory</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">fallback_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">file_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fallback_dir</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">log_file</span><span class="p">)))</span>
         <span class="n">file_handler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
         <span class="n">file_handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">file_debug_formatter</span><span class="p">)</span>  <span class="c1"># Default formatter for all levels</span>
 
         <span class="c1"># Add handlers to the logger</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">console_handler</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_user_log_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Per-user fallback log directory for out-of-appliance usage.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.osir&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_log_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Picks the log directory in order of preference:</span>
+<span class="sd">            1. OSIR_LOG_DIR environment variable, if set;</span>
+<span class="sd">            2. the appliance path (OSIR_PATHS.LOG_DIR, /OSIR/share/log),</span>
+<span class="sd">               valid inside containers and on the master;</span>
+<span class="sd">            3. ~/.osir/log as a per-user fallback, so tools like osir_client</span>
+<span class="sd">               can run on any workstation without the appliance layout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">env_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OSIR_LOG_DIR&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">env_dir</span><span class="p">:</span>
+            <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">env_dir</span><span class="p">)</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">OSIR_PATHS</span><span class="o">.</span><span class="n">LOG_DIR</span><span class="p">))</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_user_log_directory</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">candidates</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">directory</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">PermissionError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+                <span class="k">continue</span>
+        <span class="c1"># Last resort: current directory (always lets the logger come up).</span>
+        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>

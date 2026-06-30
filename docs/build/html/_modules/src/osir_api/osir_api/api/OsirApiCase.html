@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -96,15 +97,13 @@
     <span class="n">UploadFile</span><span class="p">,</span>
     <span class="n">Form</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcClient</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcModel</span><span class="p">,</span> <span class="n">OsirIpcResponse</span>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnexpectedException</span><span class="p">,</span> <span class="n">UnexpectedExceptionResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_response</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiCaseModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetCaseListResponse</span><span class="p">,</span> <span class="n">PostCaseCreateResponse</span><span class="p">,</span> <span class="n">GetCaseHandlerResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiMetadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">API_VERSION</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetTasksListResponse</span>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetTasksListResponse</span><span class="p">,</span> <span class="n">GetTaskStatsResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirIpcCall</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcCall</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
 
 <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
@@ -116,14 +115,7 @@
             <span class="n">response_model</span><span class="o">=</span><span class="n">GetCaseListResponse</span><span class="p">,</span>
             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_case</span><span class="p">():</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;get_cases&quot;</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_cases&quot;</span><span class="p">)</span></div>
 
 
 
@@ -133,13 +125,7 @@
              <span class="n">response_model</span><span class="o">=</span><span class="n">PostCaseCreateResponse</span><span class="p">,</span>
              <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_case</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;create_case&quot;</span><span class="p">,</span> <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;create_case&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
 
 
 
@@ -149,14 +135,25 @@
              <span class="n">response_model</span><span class="o">=</span><span class="n">GetCaseHandlerResponse</span><span class="p">,</span>
              <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">retrieved_case_handler</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;get_case_handler&quot;</span><span class="p">,</span> <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_case_handler&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
 
+
+<div class="viewcode-block" id="stats_case">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.stats_case">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/stats&quot;</span><span class="p">,</span>
+            <span class="n">response_model</span><span class="o">=</span><span class="n">GetTaskStatsResponse</span><span class="p">,</span>
+            <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stats_case</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_task_stats&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="start_case_handler">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.start_case_handler">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/handler/run&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">GetCaseHandlerResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">start_case_handler</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_case_handler&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
 
 
 <span class="c1"># Endpoint for file uploads</span>
@@ -242,13 +239,8 @@
             <span class="n">response_model</span><span class="o">=</span><span class="n">GetTasksListResponse</span><span class="p">,</span>
             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_tasks</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;get_tasks&quot;</span><span class="p">,</span> <span class="n">case_name</span><span class="o">=</span><span class="n">case_name</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_tasks&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
+
 
 </pre></div>
 

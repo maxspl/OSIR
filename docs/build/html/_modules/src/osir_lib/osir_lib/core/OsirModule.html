@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -99,12 +100,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirOutputModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirOutputModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirInputModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirInputModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirToolModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirToolModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.connector.OsirConnectorModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConnectorModel</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirInput</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirInput</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirOutput</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirOutput</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirTool</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirTool</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConnector</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConnector</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
@@ -122,14 +120,15 @@
 <span class="sd">            input (OsirInput): The source file or data to be processed.</span>
 <span class="sd">            output (OsirOutput): The destination and formatting logic for results.</span>
 <span class="sd">            endpoint_name (str): The name of the workstation or source of the artifact.</span>
+<span class="sd">            user_name (str): Optional user extracted from input path/configured regex.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">case_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_module_filepath</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">tool</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirTool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirInput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirOutput</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">connector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirConnector</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">endpoint_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">user_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="OsirModule.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirModule.OsirModule.__init__">[docs]</a>
@@ -148,9 +147,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">tool</span><span class="o">.</span><span class="n">init_tool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">OsirInputModel</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">OsirInput</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="p">,</span> <span class="n">OsirConnectorModel</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">connector</span> <span class="o">=</span> <span class="n">OsirConnector</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">connector</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="n">OsirInput</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="OsirModule.link_and_update">
@@ -164,6 +161,7 @@
 <span class="sd">                OsirModule: The fully linked and updated module instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">endpoint_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_endpoint_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_user_name</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">child</span><span class="p">:</span>
@@ -287,7 +285,39 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoint</span><span class="o">.</span><span class="n">default</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;UNKNOWN&quot;</span></div>
+            <span class="k">return</span> <span class="s2">&quot;UNKNOWN&quot;</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_user_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Parse the input file path (or other match string) to extract the user</span>
+<span class="sd">            with the optional `user` YAML section.</span>
+
+<span class="sd">            This intentionally does not modify endpoint extraction behavior.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;UNKNOWN_USER&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">patterns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">default</span> <span class="ow">or</span> <span class="s1">&#39;UNKNOWN_USER&#39;</span>
+
+        <span class="n">input_match_str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">patterns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pattern</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s1">&#39;r&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;r&#39;&quot;</span><span class="p">)):</span>
+                    <span class="n">pattern</span> <span class="o">=</span> <span class="n">pattern</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="n">user_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">input_match_str</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">user_match</span> <span class="ow">and</span> <span class="n">user_match</span><span class="o">.</span><span class="n">groups</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="n">user_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error extracting user: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">return</span> <span class="s2">&quot;UNKNOWN_USER&quot;</span></div>
 
 </pre></div>
 

@@ -160,6 +160,28 @@ no_multithread: **Optional**
     - Default value is False.
     - Each tasks with this option will be processed sequentially on each agent.
 
+hold_consumers: **Optional**
+********************************
+
+Boolean indicating that downstream directory consumers must wait until this module has finished producing its output.
+
+Default value is ``False``.
+
+When enabled, OSIR defers matching directory-input modules located under the producer output directory until all pending tasks of the producer module are completed.
+
+This is useful for pre-processing modules that extract or generate a directory tree consumed by later modules.
+
+Example:
+
+.. code-block:: yaml
+
+   configuration:
+     module: extract_orc
+     type: pre-process
+     disk_only: true
+     no_multithread: true
+     hold_consumers: true
+
 processor_os: **Required**
 **************************
     - Operating system for the processor.
@@ -254,6 +276,15 @@ endpoint: **Optional**
         - Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.
     - default: **Optional** Name of the endpoint if patterns doesn't match
 
+user: **Optional**
+******************
+
+    - patterns: **Optional** List of regex patterns used to capture the user name from the input file or input directory path.
+        - Used in exposed variables to name the output. Useful when processing files from multiple users without overwriting output files.
+    - default: **Optional** User name used when no pattern matches.
+
+The extracted user value is available through the `{user_name}` placeholder.
+
 optional: **Optional**
 ***********************
     - List of <key: value> that will be used as exposed variables and can be referenced in the command line.
@@ -284,60 +315,41 @@ These variables are available in ``tool.cmd`` sections:
      - Description
      - Where It Can Be Used
    * - ``{drive}``
-     - Windows mount point with colon (e.g., ``C:``)
-     - ``tool.cmd``
+     - Windows mount point with colon (e.g., ``C:``).
+     - ``tool.path``, ``tool.cmd``
    * - ``{input_file}``
-     - Path of the input file that matched input options in module config file.
-     - ``tool.cmd``
+     - Input path in ``tool.cmd``. Input file name in ``output`` fields.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
    * - ``{input_dir}``
-     - Path of the input directory that matched input options in module config file.
+     - Path of the input directory that matched the module input options.
      - ``tool.cmd``
    * - ``{output_file}``
-     - Name of the output file, defined in output options in module config file.
+     - Resolved output file path.
      - ``tool.cmd``
    * - ``{output_dir}``
-     - Path of the output directory, default is the name of the module in the case.
+     - Resolved output directory path, default is the name of the module in the case.
      - ``tool.cmd``
    * - ``{case_name}``
      - Name of the case being processed.
      - ``tool.cmd``
    * - ``{case_path}``
      - Path of the case being processed.
-     - ``tool.cmd``
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
    * - ``{master_host}``
-     - SMB host for master server connection.
+     - SMB host used to access the master share.
      - ``tool.cmd``
    * - ``{endpoint_name}``
-     - Value extracted from pattern regex specified in endpoint option.
-     - ``tool.cmd``
+     - Value extracted from the ``endpoint`` regex section.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir`
+   * - ``{user_name}``
+     - Value extracted from the ``user`` regex section.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{module}``
+     - Current module name.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{input_path_hash}``
+     - MD5 hash of the input path, useful to avoid output name collisions.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
    * - ``{optional_*}``
      - Optional values, usage described in module documentation.
      - ``tool.cmd``
-
-Output Variables
---------------
-
-These variables are available in ``output.output_file`` and ``output.output_prefix`` sections:
-
-.. list-table:: Output Exposed Variables
-   :widths: 20 40 40
-   :header-rows: 1
-
-   * - Variable
-     - Description
-     - Where It Can Be Used
-   * - ``{endpoint_name}``
-     - Value extracted from pattern regex specified in endpoint option.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
-   * - ``{module}``
-     - Name of the module.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
-   * - ``{input_file}``
-     - Sanitized name of the input file that matched input options.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
-   * - ``{input_path_hash}``
-     - Hash of the input file path for unique identification.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
-   * - ``{case_path}``
-     - Path of the case being processed.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``

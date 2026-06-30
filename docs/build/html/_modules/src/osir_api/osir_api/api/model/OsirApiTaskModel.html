@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -89,8 +90,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.osir_api.osir_api.api.model.OsirApiTaskModel</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbTaskModel</span>
 
 <span class="sd">&quot;&quot;&quot; </span>
@@ -136,6 +137,28 @@
 <a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTasksListResponse">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GetTasksListResponse</span><span class="p">(</span><span class="n">OsirIpcResponse</span><span class="p">):</span>
     <span class="n">response</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">OsirDbTaskModel</span><span class="p">]</span></div>
+
+
+
+<span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">==========================================</span>
+<span class="sd">API Endpoints: POST /handler/{handler_id}/stats</span>
+<span class="sd">               GET  /case/{case_name}/stats</span>
+<span class="sd">==========================================</span>
+<span class="sd">Description: Aggregated task statistics (counts per status, per module,</span>
+<span class="sd">throughput) computed in SQL on the celery-joined effective statuses.</span>
+
+<span class="sd">Response model:</span>
+<span class="sd">  - GetTaskStatsResponse</span>
+
+<span class="sd">==========================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="GetTaskStatsResponse">
+<a class="viewcode-back" href="../../../../../../src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskStatsResponse">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GetTaskStatsResponse</span><span class="p">(</span><span class="n">OsirIpcResponse</span><span class="p">):</span>
+    <span class="n">response</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span></div>
 
 </pre></div>
 

@@ -21,7 +21,8 @@ tool:
 
 input:
   type: dir
-  path: extracted_files
+  paths: 
+    - "restore_fs/*"
 
 output:
   type: single_file
@@ -30,7 +31,7 @@ output:
 
 endpoint: 
   patterns:
-    - r"/Endpoint_(.*?)/"
+  - r"restore_fs\/(.*)"
   default: "UNKNOWN"
 
 splunk:

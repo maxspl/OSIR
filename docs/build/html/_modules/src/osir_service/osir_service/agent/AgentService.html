@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -104,6 +105,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">capture_log_output</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirDecorator</span><span class="w"> </span><span class="kn">import</span> <span class="n">pop_task_trace</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskProcessorService</span><span class="w"> </span><span class="kn">import</span> <span class="n">InternalProcessor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskProcessorService</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExternalProcessor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDbConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingStatus</span>
@@ -136,9 +138,14 @@
 
         <span class="n">RABBITMQ_USER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;RABBITMQ_DEFAULT_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;missing RABBITMQ_DEFAULT_USER env var&#39;</span><span class="p">)</span>
         <span class="n">RABBITMQ_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;RABBITMQ_DEFAULT_PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;missing RABBITMQ_DEFAULT_PASS env var&#39;</span><span class="p">)</span>
+        <span class="n">POSTGRES_USER</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSTGRES_USER&#39;</span><span class="p">,</span> <span class="s1">&#39;missing POSTGRES_USER env var&#39;</span><span class="p">)</span>
+        <span class="n">POSTGRES_PASSWORD</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;POSTGRES_PASSWORD&#39;</span><span class="p">,</span> <span class="s1">&#39;missing POSTGRES_PASSWORD env var&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_BROKER_URL&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;pyamqp://</span><span class="si">{</span><span class="n">RABBITMQ_USER</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">RABBITMQ_PASSWORD</span><span class="si">}</span><span class="s1">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:5672//&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_RESULT_BACKEND&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;redis://</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:6379/0&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s1">&#39;CELERY_RESULT_BACKEND&#39;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">&#39;db+postgresql://</span><span class="si">{</span><span class="n">POSTGRES_USER</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">POSTGRES_PASSWORD</span><span class="si">}</span><span class="s1">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:5432/OSIR_db&#39;</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;OSIR&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CELERY_RESULT_BACKEND</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
@@ -147,8 +154,9 @@
             <span class="n">resultrepr_maxsize</span><span class="o">=</span><span class="mi">5000000</span><span class="p">,</span>
             <span class="n">result_extended</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">task_track_started</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable tracking</span>
-            <span class="n">task_send_sent_event</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Enable events</span>
-
+            <span class="n">task_send_sent_event</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable events</span>
+            <span class="n">result_expires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># No TTL purge: results are cleaned per-case</span>
+            <span class="n">database_short_lived_sessions</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">amqp</span><span class="o">.</span><span class="n">argsrepr_maxsize</span> <span class="o">=</span> <span class="mi">10000</span>
 
@@ -156,54 +164,133 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_local_count</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">OsirDb</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">OsirDb</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">            Wait until the input file or directory is free to use, i.e., not being used by another module.</span>
 
 <span class="sd">            Args:</span>
 <span class="sd">                case_uuid (str): The UUID of the case.</span>
 <span class="sd">                module_instance: The module instance containing the input to be checked.</span>
+<span class="sd">                exclude_task_id (str, optional): The current task&#39;s id. With the</span>
+<span class="sd">                    Celery result backend, the current task is already STARTED</span>
+<span class="sd">                    when this runs, so it must be excluded from the check.</span>
 
 <span class="sd">            Returns:</span>
 <span class="sd">                None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">:</span>
             <span class="c1"># file_opened = self._is_file_opened(module_instance.input.file)</span>
-            <span class="n">file_opened</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">)</span>
+            <span class="n">file_opened</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="n">exclude_task_id</span><span class="p">)</span>
             <span class="k">while</span> <span class="n">file_opened</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - input </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="si">}</span><span class="s2"> is opened by another module. Waiting...&quot;</span><span class="p">)</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-                <span class="n">file_opened</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">)</span>
+                <span class="n">file_opened</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="n">exclude_task_id</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_is_file_being_written</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">check_interval</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_parallel_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standalone</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">windows_cores</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">            Check if a file is being written to by monitoring its size and modification time.</span>
+<span class="sd">            Compute a safe global parallel budget based on available CPU resources,</span>
+<span class="sd">            then split it across the different processing queues.</span>
 
 <span class="sd">            Args:</span>
-<span class="sd">                module_instance: The module instance containing the file to be checked.</span>
-<span class="sd">                check_interval (float, optional): The interval in seconds to wait between checks. Default is 0.5 seconds.</span>
+<span class="sd">                standalone (bool): Indicates whether standalone mode is enabled.</span>
+<span class="sd">                windows_cores (int): The number of cores allocated to Windows processing.</span>
 
 <span class="sd">            Returns:</span>
-<span class="sd">                bool: True if the file size or modification time has changed, indicating it is being written to. False otherwise.</span>
+<span class="sd">                dict: A dictionary containing the computed capacities for:</span>
+<span class="sd">                    - unix_parallel</span>
+<span class="sd">                    - windows_parallel</span>
+<span class="sd">                    - unix_disk_parallel</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
-            <span class="n">file_path</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span>
-            <span class="c1"># Get the initial size and modification time of the file</span>
-            <span class="n">initial_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-            <span class="n">initial_mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">total_cores</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
 
-            <span class="c1"># Wait for the specified interval</span>
-            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">check_interval</span><span class="p">)</span>
+        <span class="n">reserve_serial_slots</span> <span class="o">=</span> <span class="mi">2</span>          <span class="c1"># unix_no_multithread + windows_no_multithread</span>
+        <span class="k">if</span> <span class="n">standalone</span><span class="p">:</span>
+            <span class="n">reserve_serial_slots</span> <span class="o">+=</span> <span class="mi">1</span>     <span class="c1"># unix_no_multithread_disk_only</span>
 
-            <span class="c1"># Get the size and modification time of the file again</span>
-            <span class="n">final_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-            <span class="n">final_mtime</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="c1"># CPU-based upper bound</span>
+        <span class="n">cpu_parallel_budget</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_cores</span> <span class="o">-</span> <span class="n">reserve_serial_slots</span><span class="p">)</span>
 
-            <span class="c1"># Determine if the file size or modification time has changed</span>
-            <span class="k">if</span> <span class="n">initial_size</span> <span class="o">!=</span> <span class="n">final_size</span> <span class="ow">or</span> <span class="n">initial_mtime</span> <span class="o">!=</span> <span class="n">final_mtime</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># Split budget between queues</span>
+        <span class="c1"># Priority: unix multithread gets most of the budget, windows keeps a smaller controlled share.</span>
+        <span class="n">windows_parallel</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">windows_cores</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cpu_parallel_budget</span> <span class="o">//</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cpu_parallel_budget</span> <span class="o">-</span> <span class="n">windows_parallel</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">standalone</span><span class="p">:</span>
+            <span class="n">unix_parallel</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">remaining</span> <span class="o">*</span> <span class="mf">0.6</span><span class="p">))</span>
+            <span class="n">unix_disk_parallel</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">remaining</span> <span class="o">-</span> <span class="n">unix_parallel</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">unix_parallel</span> <span class="o">=</span> <span class="n">remaining</span>
+            <span class="n">unix_disk_parallel</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Worker capacity computed from host resources: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;cores=</span><span class="si">{</span><span class="n">total_cores</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;cpu_parallel_budget=</span><span class="si">{</span><span class="n">cpu_parallel_budget</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;unix_parallel=</span><span class="si">{</span><span class="n">unix_parallel</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;windows_parallel=</span><span class="si">{</span><span class="n">windows_parallel</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;unix_disk_parallel=</span><span class="si">{</span><span class="n">unix_disk_parallel</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;unix_parallel&quot;</span><span class="p">:</span> <span class="n">unix_parallel</span><span class="p">,</span>
+            <span class="s2">&quot;windows_parallel&quot;</span><span class="p">:</span> <span class="n">windows_parallel</span><span class="p">,</span>
+            <span class="s2">&quot;unix_disk_parallel&quot;</span><span class="p">:</span> <span class="n">unix_disk_parallel</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_input_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait only when a file input looks too recent or still changing.</span>
+
+<span class="sd">        Watchdog already does a check for file in use but safety is kept here</span>
+<span class="sd">        manually/API tasks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span>
+        <span class="n">stability_window</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OSIR_FILE_STABILITY_WINDOW&quot;</span><span class="p">,</span> <span class="s2">&quot;1.0&quot;</span><span class="p">))</span>
+        <span class="n">check_interval</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OSIR_FILE_STABILITY_CHECK_INTERVAL&quot;</span><span class="p">,</span> <span class="s2">&quot;0.2&quot;</span><span class="p">))</span>
+        <span class="n">max_wait</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OSIR_FILE_STABILITY_MAX_WAIT&quot;</span><span class="p">,</span> <span class="s2">&quot;300&quot;</span><span class="p">))</span>
+        <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">max_wait</span>
+
+        <span class="n">last_signature</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">stable_since</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="c1"># Let the processor fail with its normal error path if the file</span>
+                <span class="c1"># disappeared between task creation and execution.</span>
+                <span class="k">return</span>
+
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+            <span class="n">mtime_ns</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">st</span><span class="p">,</span> <span class="s2">&quot;st_mtime_ns&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">*</span> <span class="mi">1_000_000_000</span><span class="p">)))</span>
+            <span class="n">signature</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">mtime_ns</span><span class="p">)</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+
+            <span class="c1"># Fast path: no sleep for files that are already older than the</span>
+            <span class="c1"># stability window.</span>
+            <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">st</span><span class="o">.</span><span class="n">st_mtime</span> <span class="o">&gt;=</span> <span class="n">stability_window</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="n">signature</span> <span class="o">==</span> <span class="n">last_signature</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stable_since</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="n">stable_since</span> <span class="o">&gt;=</span> <span class="n">stability_window</span><span class="p">:</span>
+                    <span class="k">return</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">last_signature</span> <span class="o">=</span> <span class="n">signature</span>
+                <span class="n">stable_since</span> <span class="o">=</span> <span class="n">now</span>
+
+            <span class="k">if</span> <span class="n">now</span> <span class="o">&gt;=</span> <span class="n">deadline</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - file &#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&#39; did not become stable &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;within </span><span class="si">{</span><span class="n">max_wait</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s; processing anyway&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - file &#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&#39; still looks recent/changing. Waiting...&quot;</span>
+            <span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">check_interval</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_register_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -211,15 +298,26 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nd">@self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;internal_processor_task&quot;</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">task_internal_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - internal_processor  &quot;&quot;&quot;</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">task_id</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">id</span>
-                <span class="n">worker_name</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">hostname</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - internal_processor</span>
 
+<span class="sd">                Task state lives in the Celery result backend: SUCCESS/FAILURE</span>
+<span class="sd">                are reported by returning or raising, STARTED by</span>
+<span class="sd">                task_track_started.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">task_id</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">id</span>
+            <span class="n">worker_name</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">hostname</span>
+
+            <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># logger.debug(f&quot;Task ID inside the task: {task_id}&quot;)</span>
                 <span class="n">module_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">module_bytes</span><span class="p">)</span>
                 <span class="n">module_dict</span><span class="p">[</span><span class="s1">&#39;case_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">case_path</span>
                 <span class="n">module_instance</span> <span class="o">=</span> <span class="n">OsirModule</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">module_dict</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span> <span class="o">==</span> <span class="s1">&#39;windows&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">OsirAgentConfig</span><span class="p">()</span><span class="o">.</span><span class="n">windows_configured</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Windows module &#39;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; cannot run on this agent: &quot;</span>
+                        <span class="s2">&quot;Windows machine is not configured. Re-run agent setup and configure a Windows machine.&quot;</span>
+                    <span class="p">)</span>
 
                 <span class="n">processor</span> <span class="o">=</span> <span class="n">InternalProcessor</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">,</span> <span class="n">agent_name</span><span class="o">=</span><span class="n">worker_name</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Check if input files/foles of module is in use...&quot;</span><span class="p">)</span>
@@ -232,39 +330,58 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">output_path</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
 
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-                    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_STARTED</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">)</span>
+                    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">set_runtime_info</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
 
-                <span class="c1"># Wait if file is currently beeing written</span>
-                <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
-                <span class="k">while</span> <span class="n">file_written</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - file </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2"> is opened. Waiting...&quot;</span><span class="p">)</span>
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-                    <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
+                <span class="c1"># Safety net for manually/API-pushed file tasks. The normal</span>
+                <span class="c1"># watchdog path already delays unstable files before task push.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_input_stable</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
+
                 <span class="k">if</span> <span class="n">processor</span><span class="o">.</span><span class="n">available</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running internal module </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">.py&quot;</span><span class="p">)</span>
+                    <span class="n">impl_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="p">,</span> <span class="s2">&quot;alt_module&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Running internal module &#39;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;using implementation &#39;</span><span class="si">{</span><span class="n">impl_name</span><span class="si">}</span><span class="s2">.py&#39;&quot;</span>
+                    <span class="p">)</span>
                     <span class="n">processor</span><span class="o">.</span><span class="n">run_module</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">db</span> <span class="o">=</span> <span class="n">OsirDb</span><span class="p">()</span>
                 <span class="k">with</span> <span class="n">capture_log_output</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_buffer</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
                     <span class="n">captured_trace</span> <span class="o">=</span> <span class="n">log_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
-                <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="n">captured_trace</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)}</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_FAILED</span><span class="p">,</span> <span class="n">trace_data</span><span class="o">=</span><span class="n">trace</span><span class="p">)</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;internal_processor done&quot;</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+                <span class="n">module_logs</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">trace</span> <span class="k">else</span> <span class="n">captured_trace</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="c1"># Re-raise so Celery records FAILURE + traceback (module logs</span>
+                <span class="c1"># are chained into the stored traceback through the message).</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;internal_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+            <span class="n">status</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_FAILED</span><span class="p">:</span>
+                <span class="n">module_logs</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">trace</span> <span class="k">else</span> <span class="s2">&quot;module returned False&quot;</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;internal_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">trace</span> <span class="ow">or</span> <span class="s2">&quot;internal_processor done&quot;</span>
 
         <span class="nd">@self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;external_processor_task&quot;</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">task_external_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
-<span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - external_processor  &quot;&quot;&quot;</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - external_processor</span>
+
+<span class="sd">                The only direct DB write is set_runtime_info (output path + worker name).</span>
+<span class="sd">                Other status updates done by Celery.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">task_id</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">id</span>
+            <span class="n">worker_name</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">hostname</span>
+
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">task_id</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">id</span>
-                <span class="n">worker_name</span> <span class="o">=</span> <span class="n">current_task</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">hostname</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;This task is running on worker: </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">module_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">module_bytes</span><span class="p">)</span>
                 <span class="n">module_dict</span><span class="p">[</span><span class="s1">&#39;case_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">case_path</span>
                 <span class="n">module_instance</span> <span class="o">=</span> <span class="n">OsirModule</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">module_dict</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">configuration</span><span class="o">.</span><span class="n">processor_os</span> <span class="o">==</span> <span class="s1">&#39;windows&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">OsirAgentConfig</span><span class="p">()</span><span class="o">.</span><span class="n">windows_configured</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Windows module &#39;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2">&#39; cannot run on this agent: &quot;</span>
+                        <span class="s2">&quot;Windows machine is not configured. Re-run agent setup and configure a Windows machine.&quot;</span>
+                    <span class="p">)</span>
+
                 <span class="n">processor</span> <span class="o">=</span> <span class="n">ExternalProcessor</span><span class="p">(</span><span class="n">case_path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">,</span> <span class="n">agent_name</span><span class="o">=</span><span class="n">worker_name</span><span class="p">)</span>
 
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Check if input of </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> is in use...&quot;</span><span class="p">)</span>
@@ -277,26 +394,27 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">output_path</span> <span class="o">=</span> <span class="s2">&quot;Module without Output&quot;</span>
 
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">)</span>
-                    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_STARTED</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_is_item_in_use</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">,</span> <span class="n">db</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">)</span>
+                    <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">set_runtime_info</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output_path</span><span class="p">)</span>
 
-                <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
-                <span class="k">while</span> <span class="n">file_written</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - file </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2"> is opened. Waiting...&quot;</span><span class="p">)</span>
-                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-                    <span class="n">file_written</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_being_written</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
+                <span class="c1"># Safety net for manually/API file tasks. The normal</span>
+                <span class="c1"># watchdog path already delays unstable files before task push</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_wait_for_input_stable</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span>
 
                 <span class="n">processor</span><span class="o">.</span><span class="n">run_module</span><span class="p">()</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">db</span> <span class="o">=</span> <span class="n">OsirDb</span><span class="p">()</span>
                 <span class="k">with</span> <span class="n">capture_log_output</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span> <span class="k">as</span> <span class="n">log_buffer</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
                     <span class="n">captured_trace</span> <span class="o">=</span> <span class="n">log_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
-                <span class="n">trace</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;logs&quot;</span><span class="p">:</span> <span class="n">captured_trace</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)}</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_FAILED</span><span class="p">,</span> <span class="n">trace_data</span><span class="o">=</span><span class="n">trace</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="n">worker_name</span><span class="p">)</span>
-                <span class="n">db</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="s2">&quot;external_processor done&quot;</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+                <span class="n">module_logs</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">trace</span> <span class="k">else</span> <span class="n">captured_trace</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;external_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+            <span class="n">status</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_FAILED</span><span class="p">:</span>
+                <span class="n">module_logs</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">trace</span> <span class="k">else</span> <span class="s2">&quot;module returned False&quot;</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;external_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">trace</span> <span class="ow">or</span> <span class="s2">&quot;external_processor done&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_start_single_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -330,42 +448,55 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
 
         <span class="n">host_hostname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;HOST_HOSTNAME&#39;</span><span class="p">,</span> <span class="s1">&#39;%h&#39;</span><span class="p">)</span>  <span class="c1"># Default to &#39;%h&#39; if the env var is not set</span>
-
+        <span class="n">capacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_parallel_capacity</span><span class="p">(</span>
+            <span class="n">standalone</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span><span class="p">,</span>
+            <span class="n">windows_cores</span><span class="o">=</span><span class="n">windows_cores</span>
+        <span class="p">)</span>
         <span class="c1"># Define the arguments for the required workers</span>
         <span class="n">worker_configs</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;unix_worker_no_multithread@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;unix_no_multithread&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span>  <span class="c1"># Max 1 worker</span>
+                <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="s1">&#39;1,1&#39;</span>  <span class="c1"># Max 1 worker</span>
             <span class="p">},</span>
             <span class="p">{</span>
                 <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;unix_worker_multithread@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
                 <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;unix_multithread&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">total_cores</span><span class="si">}</span><span class="s1">,1&#39;</span>  <span class="c1"># Max total_cores workers, min 2 workers</span>
+                <span class="c1"># &#39;autoscale&#39;: f&#39;{total_cores},1&#39;  # Max total_cores workers, min 2 workers</span>
+                <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">capacity</span><span class="p">[</span><span class="s2">&quot;unix_parallel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">,1&#39;</span>
+
             <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;windows_worker_no_multithread@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;windows_no_multithread&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span>  <span class="c1"># Max 1 worker</span>
-            <span class="p">},</span>
-            <span class="p">{</span>
-                <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;windows_worker_multithread@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;windows_multithread&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">windows_cores</span><span class="si">}</span><span class="s1">,1&#39;</span>  <span class="c1"># Dynamic max workers based on env, min 1 worker</span>
-            <span class="p">}</span>
         <span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">windows_configured</span><span class="p">:</span>
+            <span class="n">worker_configs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;windows_worker_no_multithread@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;windows_no_multithread&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="s1">&#39;1,1&#39;</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;windows_worker_multithread@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;windows_multithread&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">capacity</span><span class="p">[</span><span class="s2">&quot;windows_parallel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">,1&#39;</span>
+                    <span class="c1"># &#39;autoscale&#39;: f&#39;{windows_cores},1&#39;  # Dynamic max workers based on env, min 1 worker</span>
+                <span class="p">}</span>
+            <span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Windows machine not configured — Windows workers will not be started on this agent.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agent_config</span><span class="o">.</span><span class="n">standalone</span><span class="p">:</span>
             <span class="n">worker_configs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
                 <span class="p">{</span>
                     <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;unix_worker_no_multithread_disk_only@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;unix_no_multithread_disk_only&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span>  <span class="c1"># Max 1 worker</span>
+                    <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="s1">&#39;1,1&#39;</span>  <span class="c1"># Max 1 worker</span>
                 <span class="p">},</span>
                 <span class="p">{</span>
                     <span class="s1">&#39;hostname&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;unix_worker_multithread_disk_only@</span><span class="si">{</span><span class="n">host_hostname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
                     <span class="s1">&#39;queue&#39;</span><span class="p">:</span> <span class="s1">&#39;unix_multithread_disk_only&#39;</span><span class="p">,</span>
-                    <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">total_cores</span><span class="si">}</span><span class="s1">,2&#39;</span>  <span class="c1"># Max total_cores workers, min 2 workers</span>
+                    <span class="s1">&#39;autoscale&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">capacity</span><span class="p">[</span><span class="s2">&quot;unix_disk_parallel&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">,1&#39;</span>
+                    <span class="c1"># &#39;autoscale&#39;: f&#39;{total_cores},2&#39;  # Max total_cores workers, min 2 workers</span>
                 <span class="p">}</span>
             <span class="p">])</span>
 

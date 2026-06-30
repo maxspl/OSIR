@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -97,13 +98,21 @@
     <span class="n">UnexpectedException</span><span class="p">,</span>
     <span class="n">unexpected_error_handler</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.middleware.cors</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORSMiddleware</span>
+
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;OSIR API&quot;</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s2">&quot;OSIR API&quot;</span><span class="p">,</span>
     <span class="n">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span>
 <span class="p">)</span>
-
+<span class="n">app</span><span class="o">.</span><span class="n">add_middleware</span><span class="p">(</span>                                                                                                                   
+    <span class="n">CORSMiddleware</span><span class="p">,</span>                                                                                                                   
+    <span class="n">allow_origins</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;http://localhost:3000&quot;</span><span class="p">],</span>  <span class="c1"># your Nuxt dev URL</span>
+    <span class="n">allow_credentials</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                                                                                                             
+    <span class="n">allow_methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+    <span class="n">allow_headers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">],</span>                                                                                                                
+<span class="p">)</span>   
 <span class="n">app</span><span class="o">.</span><span class="n">add_exception_handler</span><span class="p">(</span><span class="n">UnexpectedException</span><span class="p">,</span> <span class="n">unexpected_error_handler</span><span class="p">)</span>
 
 
@@ -187,7 +196,6 @@
     <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;__init__.py&quot;</span><span class="p">:</span>
         <span class="k">continue</span>
     <span class="n">module_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;api.</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">&quot;</span>
-
     <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
     <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
     <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>

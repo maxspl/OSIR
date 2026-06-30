@@ -19,7 +19,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Master setup in details" href="setup_details.html" />
+    <link rel="next" title="Processing safety" href="processing_safety.html" />
     <link rel="prev" title="Web Usage" href="web_usage.html" /> 
 </head>
 
@@ -62,6 +62,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#profile-commands">Profile Commands</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#handler-commands">Handler Commands</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#task-commands">Task Commands</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stats-commands">Stats commands</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#complete-workflow-examples">Complete Workflow Examples</a><ul>
@@ -77,6 +78,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -143,19 +145,20 @@ and how to use them through the OSIR client.</p>
 <li><p><a class="reference internal" href="#profile-commands" id="id10">Profile Commands</a></p></li>
 <li><p><a class="reference internal" href="#handler-commands" id="id11">Handler Commands</a></p></li>
 <li><p><a class="reference internal" href="#task-commands" id="id12">Task Commands</a></p></li>
+<li><p><a class="reference internal" href="#stats-commands" id="id13">Stats commands</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#complete-workflow-examples" id="id13">Complete Workflow Examples</a></p>
+<li><p><a class="reference internal" href="#complete-workflow-examples" id="id14">Complete Workflow Examples</a></p>
 <ul>
-<li><p><a class="reference internal" href="#basic-investigation" id="id14">Basic Investigation</a></p></li>
-<li><p><a class="reference internal" href="#profile-execution" id="id15">Profile Execution</a></p></li>
-<li><p><a class="reference internal" href="#cli-workflows" id="id16">CLI Workflows</a></p></li>
+<li><p><a class="reference internal" href="#basic-investigation" id="id15">Basic Investigation</a></p></li>
+<li><p><a class="reference internal" href="#profile-execution" id="id16">Profile Execution</a></p></li>
+<li><p><a class="reference internal" href="#cli-workflows" id="id17">CLI Workflows</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#advanced-usage" id="id17">Advanced Usage</a></p>
+<li><p><a class="reference internal" href="#advanced-usage" id="id18">Advanced Usage</a></p>
 <ul>
-<li><p><a class="reference internal" href="#batch-operations" id="id18">Batch Operations</a></p></li>
-<li><p><a class="reference internal" href="#multiple-cases" id="id19">Multiple Cases</a></p></li>
+<li><p><a class="reference internal" href="#batch-operations" id="id19">Batch Operations</a></p></li>
+<li><p><a class="reference internal" href="#multiple-cases" id="id20">Multiple Cases</a></p></li>
 </ul>
 </li>
 </ul>
@@ -291,6 +294,39 @@ OsirClient.py<span class="w"> </span>task<span class="w"> </span>info<span class
 </pre></div>
 </div>
 </section>
+<section id="stats-commands">
+<h3>Stats commands<a class="headerlink" href="#stats-commands" title="Link to this heading"></a></h3>
+<p>The client provides task statistics views for cases and handlers.</p>
+<p>Interactive mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OsirClient.py<span class="w"> </span>stats
+</pre></div>
+</div>
+<p>Whole-case statistics:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OsirClient.py<span class="w"> </span>stats<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;my_case&quot;</span>
+</pre></div>
+</div>
+<p>Handler statistics:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OsirClient.py<span class="w"> </span>stats<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;handler-uuid&quot;</span>
+</pre></div>
+</div>
+<p>Watch mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>OsirClient.py<span class="w"> </span>stats<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;my_case&quot;</span><span class="w"> </span>-w<span class="w"> </span><span class="m">5</span>
+OsirClient.py<span class="w"> </span>stats<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;handler-uuid&quot;</span><span class="w"> </span>-w<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+<p>The stats view displays aggregated task information such as:</p>
+<ul class="simple">
+<li><p>task status counts</p></li>
+<li><p>per-module breakdown</p></li>
+<li><p>throughput</p></li>
+<li><p>estimated remaining processing time when available</p></li>
+</ul>
+<p>Related API endpoints:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>GET  /api/case/{case_name}/stats
+POST /api/handler/{handler_id}/stats
+</pre></div>
+</div>
+</section>
 </section>
 <hr class="docutils" />
 <section id="complete-workflow-examples">
@@ -386,7 +422,7 @@ OsirClient.py<span class="w"> </span>profile<span class="w"> </span>run<span cla
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="web_usage.html" class="btn btn-neutral float-left" title="Web Usage" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="setup_details.html" class="btn btn-neutral float-right" title="Master setup in details" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="processing_safety.html" class="btn btn-neutral float-right" title="Processing safety" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

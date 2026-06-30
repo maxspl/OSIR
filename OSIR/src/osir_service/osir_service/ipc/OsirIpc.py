@@ -398,7 +398,6 @@ class OsirIpc(BaseModel):
 
     @register_action('get_cases')
     def _handle_get_cases(self, req: OsirIpcRequest, resp: OsirIpcResponse):
-        from osir_service.postgres.model.OsirDbCaseModel import OsirDbCaseModel
 
         with OsirDb() as db:
             all_cases_in_db = db.case.list()

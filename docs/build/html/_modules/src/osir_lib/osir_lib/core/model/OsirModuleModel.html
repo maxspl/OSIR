@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -105,7 +106,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirToolModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirToolModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirMetadataModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirMetadataModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirConfigurationModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConfigurationModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.connector.OsirConnectorModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirConnectorModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
@@ -120,7 +120,7 @@
 <span class="sd">        This model serves as the blueprint for all modules within the framework. </span>
 <span class="sd">        It validates metadata (author, version), execution requirements (OS, </span>
 <span class="sd">        processor type), and the core components of the task (tool, </span>
-<span class="sd">        input, output, and connectors).</span>
+<span class="sd">        input, output).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">metadata</span><span class="p">:</span> <span class="n">OsirMetadataModel</span>
     <span class="n">configuration</span><span class="p">:</span> <span class="n">OsirConfigurationModel</span>
@@ -130,7 +130,7 @@
     <span class="nb">input</span><span class="p">:</span> <span class="n">OsirInputModel</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">OsirOutputModel</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirEndpointModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">connector</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirConnectorModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OsirEndpointModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     
     <span class="c1"># TODO: REMOVE LEGACY</span>
     <span class="n">splunk</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>

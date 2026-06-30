@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -89,7 +90,9 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.osir_web.osir_web.pages.OsirWebMonitoring</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">streamlit</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">st</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">osir_web.pages.OsirWebHeader</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirWebHeader</span>
@@ -410,7 +413,7 @@
                     <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">container</span><span class="p">(</span><span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
                         <span class="n">title</span><span class="p">,</span> <span class="n">btn</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
                         <span class="k">with</span> <span class="n">title</span><span class="p">:</span>
-                            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;### 📡 Status&quot;</span><span class="p">)</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;#### 📡 Status&quot;</span><span class="p">)</span>
                         <span class="k">with</span> <span class="n">btn</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;🔄&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;refresh_status_btn&quot;</span><span class="p">):</span>
                                 <span class="n">st</span><span class="o">.</span><span class="n">rerun</span><span class="p">()</span>
@@ -436,14 +439,42 @@
                 <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;### 📊 Metrics&quot;</span><span class="p">)</span>
                 <span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">m3</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
                 <span class="k">with</span> <span class="n">m1</span><span class="p">:</span>
-                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;⏱️ DURATION&quot;</span><span class="p">)</span>
+                    <span class="n">title_col</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="k">with</span> <span class="n">title_col</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;#### ⏱️ Duration&quot;</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="n">btn_col</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;empty_btn&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;tertiary&quot;</span><span class="p">)</span>
                     <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration_seconds&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
                 <span class="k">with</span> <span class="n">m2</span><span class="p">:</span>
-                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;📥 INPUT PATH&quot;</span><span class="p">)</span>
+                    <span class="n">title_col</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="k">with</span> <span class="n">title_col</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;#### 📥 Input Path&quot;</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="n">btn_col</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;👁️&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;preview_input_btn&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Preview file&quot;</span><span class="p">):</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;preview_input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preview_input&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;preview_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">task_info</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
                 <span class="k">with</span> <span class="n">m3</span><span class="p">:</span>
-                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;📤 OUTPUT PATH&quot;</span><span class="p">)</span>
-                    <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">task_info</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                    <span class="n">title_col</span><span class="p">,</span> <span class="n">btn_col</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">columns</span><span class="p">([</span><span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="k">with</span> <span class="n">title_col</span><span class="p">:</span>
+                        <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;#### 📤 Output Path&quot;</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="n">btn_col</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;👁️&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;preview_output_btn&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Preview file&quot;</span><span class="p">):</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;preview_output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preview_output&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                            <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="p">[</span><span class="s2">&quot;preview_input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">task_info</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># close the other one</span>
+
+            <span class="c1"># Preview container — shown below Metrics, outside the Metrics box</span>
+            <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preview_input&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">container</span><span class="p">(</span><span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;### 🔍 File Preview — Input&quot;</span><span class="p">)</span>
+                    <span class="n">OsirWebMonitoring</span><span class="o">.</span><span class="n">_render_file_preview</span><span class="p">(</span><span class="n">task_info</span><span class="o">.</span><span class="n">input</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;input&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">session_state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;preview_output&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">container</span><span class="p">(</span><span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                    <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;### 🔍 File Preview — Output&quot;</span><span class="p">)</span>
+                    <span class="n">OsirWebMonitoring</span><span class="o">.</span><span class="n">_render_file_preview</span><span class="p">(</span><span class="n">task_info</span><span class="o">.</span><span class="n">output</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;output&quot;</span><span class="p">)</span>
 
             <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">container</span><span class="p">(</span><span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
                 <span class="n">logs</span> <span class="o">=</span> <span class="n">trace</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;logs&#39;</span><span class="p">,</span> <span class="p">[])</span>
@@ -480,7 +511,7 @@
                     <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">filtered_logs</span><span class="p">),</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No execution logs available for this task.&quot;</span><span class="p">)</span>
-            
+
             <span class="k">with</span> <span class="n">st</span><span class="o">.</span><span class="n">container</span><span class="p">(</span><span class="n">border</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
                 <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="s2">&quot;### ⚡ Actions&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">st</span><span class="o">.</span><span class="n">button</span><span class="p">(</span><span class="s2">&quot;🔁 Rerun Task&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;rerun_task_btn&quot;</span><span class="p">):</span>
@@ -500,9 +531,46 @@
                                 <span class="n">background</span><span class="o">=</span><span class="s2">&quot;#dc2626&quot;</span><span class="p">,</span>
                                 <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;🚨&quot;</span><span class="p">)</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
-                        
+
                     <span class="n">st</span><span class="o">.</span><span class="n">success</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task has been successfully resubmitted.&quot;</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_render_file_preview</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the first max_chars characters of a file and display them in a code block.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span> <span class="ow">or</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&quot;N/A&quot;</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No path available.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">max_chars</span><span class="p">)</span>
+
+            <span class="n">suffix</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">lang_map</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;.py&quot;</span><span class="p">:</span> <span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="s2">&quot;.js&quot;</span><span class="p">:</span> <span class="s2">&quot;javascript&quot;</span><span class="p">,</span> <span class="s2">&quot;.ts&quot;</span><span class="p">:</span> <span class="s2">&quot;typescript&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.sh&quot;</span><span class="p">:</span> <span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">:</span> <span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;.yml&quot;</span><span class="p">:</span> <span class="s2">&quot;yaml&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;.toml&quot;</span><span class="p">:</span> <span class="s2">&quot;toml&quot;</span><span class="p">,</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span> <span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;.log&quot;</span><span class="p">:</span> <span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;.xml&quot;</span><span class="p">:</span> <span class="s2">&quot;xml&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">lang</span> <span class="o">=</span> <span class="n">lang_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">suffix</span><span class="p">,</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span>
+
+            <span class="n">truncated</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">==</span> <span class="n">max_chars</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 `</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">`&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot; — first </span><span class="si">{</span><span class="n">max_chars</span><span class="si">}</span><span class="s2"> characters&quot;</span> <span class="k">if</span> <span class="n">truncated</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">lang</span><span class="p">,</span> <span class="n">line_numbers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">truncated</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;_Preview limited to </span><span class="si">{</span><span class="n">max_chars</span><span class="si">}</span><span class="s2"> characters._&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">IsADirectoryError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">entries</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">caption</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 `</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">` — </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">entries</span><span class="p">)</span><span class="si">}</span><span class="s2"> item(s)&quot;</span><span class="p">)</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">code</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">entries</span><span class="p">)),</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot read directory: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File not found: `</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">st</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error reading file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

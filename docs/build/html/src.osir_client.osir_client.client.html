@@ -48,6 +48,7 @@
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -173,7 +174,7 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.model_post_init">
 <span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.model_post_init" title="Link to this definition"></a></dt>
-<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -226,13 +227,10 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.modules">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.OsirModuleTreeModel" title="src.osir_api.osir_api.api.model.OsirApiModuleModel.OsirModuleTreeModel"><span class="pre">OsirModuleTreeModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_client/osir_client/client/OsirCliDisplay.html#OsirCliDisplay.modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.modules" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.modules_flat">
-<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modules_flat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subcategory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subsubcategory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_client/osir_client/client/OsirCliDisplay.html#OsirCliDisplay.modules_flat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.modules_flat" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modules</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.OsirModuleGroupModel" title="src.osir_api.osir_api.api.model.OsirApiModuleModel.OsirModuleGroupModel"><span class="pre">OsirModuleGroupModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Modules'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_client/osir_client/client/OsirCliDisplay.html#OsirCliDisplay.modules"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.modules" title="Link to this definition"></a></dt>
+<dd><p>Renders a module tree node recursively. Generic: the category
+column is the directory path, whatever the tree looks like.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.profiles">
@@ -243,6 +241,12 @@
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.task_info">
 <span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">task_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel" title="src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel"><span class="pre">OsirDbTaskModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_client/osir_client/client/OsirCliDisplay.html#OsirCliDisplay.task_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.task_info" title="Link to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.task_stats">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">task_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Task</span> <span class="pre">statistics'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_client/osir_client/client/OsirCliDisplay.html#OsirCliDisplay.task_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.task_stats" title="Link to this definition"></a></dt>
+<dd><p>Render the aggregated stats payload returned by /stats endpoints.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliDisplay.OsirCliDisplay.tasks">
@@ -279,7 +283,7 @@ POST /api/case/{case_name}/handler</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliHandler.OsirCliHandler.model_post_init">
 <span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliHandler.OsirCliHandler.model_post_init" title="Link to this definition"></a></dt>
-<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -349,7 +353,7 @@ GET /api/module</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliModule.OsirCliModule.model_post_init">
 <span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliModule.OsirCliModule.model_post_init" title="Link to this definition"></a></dt>
-<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -405,7 +409,7 @@ GET /api/profile</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliProfile.OsirCliProfile.model_post_init">
 <span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliProfile.OsirCliProfile.model_post_init" title="Link to this definition"></a></dt>
-<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -461,7 +465,7 @@ POST /api/case/{case_name}/tasks</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirCliTask.OsirCliTask.model_post_init">
 <span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_client.osir_client.client.OsirCliTask.OsirCliTask.model_post_init" title="Link to this definition"></a></dt>
-<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -513,7 +517,7 @@ GET /api/active</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_client.osir_client.client.OsirClient.OsirClient.model_post_init">
 <span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.osir_client.osir_client.client.OsirClient.OsirClient.model_post_init" title="Link to this definition"></a></dt>
-<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

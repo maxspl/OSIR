@@ -45,6 +45,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../web_usage.html">Web Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../api_cli_usage.html">API &amp; Client Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../processing_safety.html">Processing safety</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Setup in details:</span></p>
 <ul>
@@ -91,29 +92,80 @@
   <h1>Source code for src.osir_api.osir_api.api.OsirApiHandler</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIRouter</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcClient</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcClient</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcModel</span><span class="p">,</span> <span class="n">OsirIpcResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiTaskModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetTaskStatsResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetHandlerTaskLogsResponse</span><span class="p">,</span> <span class="n">PostHandlerAdvancedCreateRequest</span><span class="p">,</span> <span class="n">GetHandlerStatusResponse</span><span class="p">,</span> <span class="n">PostHandlerCreateRequest</span><span class="p">,</span> <span class="n">PostHandlerCreateResponse</span><span class="p">,</span> <span class="n">PostHandlerDeleteRequest</span><span class="p">,</span> <span class="n">PostHandlerDeleteResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnexpectedExceptionResponse</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.model.OsirApiHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">GetHandlerStatusResponse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnexpectedException</span><span class="p">,</span> <span class="n">UnexpectedExceptionResponse</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirApiResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_response</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">osir_api.api.OsirIpcCall</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcCall</span>
 
 <span class="n">router</span> <span class="o">=</span> <span class="n">APIRouter</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="status_handler">
-<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.status_handler">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/handler/create&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">PostHandlerCreateResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_handler</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostHandlerCreateRequest</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;create_handler&quot;</span><span class="p">,</span> 
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;profile&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">profile</span><span class="p">,</span>
+                <span class="s2">&quot;modules&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">modules</span><span class="p">,</span>
+                <span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">case_name</span><span class="p">,</span>
+                <span class="s2">&quot;reprocess&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">reprocess</span><span class="p">,</span>
+                <span class="s2">&quot;modified_modules&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">modified_modules</span>
+            <span class="p">})</span>
+
+<div class="viewcode-block" id="create_handler_advanced">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.create_handler_advanced">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/handler/advanced&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">PostHandlerCreateResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_handler_advanced</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostHandlerAdvancedCreateRequest</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;create_advanced_handler&quot;</span><span class="p">,</span> 
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;files_modules&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">files_modules</span><span class="p">,</span>
+                <span class="s2">&quot;files_input&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">files_input</span><span class="p">,</span>
+                <span class="s2">&quot;folders_modules&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">folders_modules</span><span class="p">,</span>
+                <span class="s2">&quot;folders_input&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">folders_input</span><span class="p">,</span>
+                <span class="s2">&quot;endpoint_name&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">endpoint_name</span><span class="p">,</span>
+                <span class="s2">&quot;files_in_folder_modules&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">files_in_folder_modules</span><span class="p">,</span>
+                <span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">case_name</span><span class="p">,</span>
+            <span class="p">})</span></div>
+
+
 <span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/handler/</span><span class="si">{handler_id}</span><span class="s2">/info&quot;</span><span class="p">,</span>
              <span class="n">response_model</span><span class="o">=</span><span class="n">GetHandlerStatusResponse</span><span class="p">,</span>
              <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">status_handler</span><span class="p">(</span><span class="n">handler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">OsirIpcClient</span><span class="p">()</span>
-        <span class="n">action</span> <span class="o">=</span> <span class="n">OsirIpcModel</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s2">&quot;get_handler_status&quot;</span><span class="p">,</span> <span class="n">handler_id</span><span class="o">=</span><span class="n">handler_id</span><span class="p">)</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">client</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">action</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_handler_status&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="n">handler_id</span><span class="p">})</span>
+
+<div class="viewcode-block" id="stats_handler">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.stats_handler">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/handler/</span><span class="si">{handler_id}</span><span class="s2">/stats&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">GetTaskStatsResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stats_handler</span><span class="p">(</span><span class="n">handler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_task_stats&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="n">handler_id</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="status_handler">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.status_handler">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/handler/</span><span class="si">{handler_id}</span><span class="s2">/task_info&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">GetHandlerTaskLogsResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">status_handler</span><span class="p">(</span><span class="n">handler_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_handler_task_info&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;handler_id&quot;</span><span class="p">:</span> <span class="n">handler_id</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="create_handler">
+<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiHandler.create_handler">[docs]</a>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/handler/delete&quot;</span><span class="p">,</span>
+             <span class="n">response_model</span><span class="o">=</span><span class="n">PostHandlerDeleteResponse</span><span class="p">,</span>
+             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_handler</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">PostHandlerDeleteRequest</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;delete_handler&quot;</span><span class="p">,</span> 
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;handler_uuid&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">handler_uuid</span><span class="p">,</span>
+            <span class="p">})</span></div>
 
 
 </pre></div>
