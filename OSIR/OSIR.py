@@ -119,18 +119,16 @@ def main():
 
         NUXT_DIR = "/OSIR/OSIR/src/osir_web/"
 
-        if args.dev:
-            subprocess.run(["npm", "run", "dev"], cwd=NUXT_DIR, check=True)
+        if os.path.isdir(NUXT_DIR):
+            logger.info("Installing Nuxt dependencies...")
 
-        try:
-            
-            if os.path.isdir(NUXT_DIR):
-                logger.info("Installing Nuxt dependencies...")
+            node_modules_path = os.path.join(NUXT_DIR, "node_modules")
+            if not os.path.isdir(node_modules_path):
+                subprocess.run(["npm", "install", "--prefer-offline"], cwd=NUXT_DIR, check=True)
+            if args.dev:
+                subprocess.run(["npm", "run", "dev"], cwd=NUXT_DIR, check=True)
 
-                node_modules_path = os.path.join(NUXT_DIR, "node_modules")
-                if not os.path.isdir(node_modules_path):
-                    subprocess.run(["npm", "install", "--prefer-offline"], cwd=NUXT_DIR, check=True)
-
+            try:
                 build_path = os.path.join(NUXT_DIR, ".output/server/index.mjs")
                 source_package_json = os.path.join(NUXT_DIR, "package.json")
                 output_package_json = os.path.join(NUXT_DIR, ".output/server/package.json")
@@ -161,13 +159,11 @@ def main():
                     nuxt_process = subprocess.Popen(["node", build_path], cwd=NUXT_DIR, env={**os.environ, "PORT": "8501"})
                 else:
                     logger.warning("No Nuxt build available, skipping Nuxt server start.")
-            else:
-                logger.warning(f"{NUXT_DIR} not found, skipping Nuxt.")
-
-            osir_ipc.join()
-        except KeyboardInterrupt:
-            logger.info("Keyboard interrupt received. Stopping...")
-
+                osir_ipc.join()
+            except KeyboardInterrupt:
+                logger.info("Keyboard interrupt received. Stopping...")
+        else:
+            logger.warning(f"{NUXT_DIR} not found, skipping Nuxt.")
 
     if args.case:
         case_path = os.path.join("/OSIR/share/cases", args.case)
