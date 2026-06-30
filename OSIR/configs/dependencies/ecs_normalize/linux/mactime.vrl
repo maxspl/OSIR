@@ -1,75 +1,142 @@
-# OSIR - MacTime JSONL normalizer to Elastic Common Schema
-#
-# Source example:
-# {
-#   "md5": "0",
-#   "path": "/bin/netstat",
-#   "inode": 109,
-#   "mode": "-rwxr-xr-x",
-#   "uid": 0,
-#   "gid": 0,
-#   "size": 155288,
-#   "atime": "2026-05-21T15:36:19Z",
-#   "mtime": "2024-08-19T14:30:00Z",
-#   "ctime": "2024-12-04T14:46:29Z",
-#   "crtime": "2024-12-04T14:46:29Z"
-# }
-#
-# ECS output:
-#   timestamp       = file.mtime
-#   file.accessed   = atime
-#   file.mtime      = mtime
-#   file.ctime      = ctime
-#   file.created    = crtime
-#   file.path       = path
-#   file.name       = basename(path)
-#   file.directory  = dirname(path)
-#   file.mode       = octal mode, e.g. 0755
-#   file.uid        = uid as keyword/string
-#   file.gid        = gid as keyword/string
-#   file.inode      = inode as keyword/string
-#   file.size       = size as integer
-#   file.hash.md5   = md5 only when valid-looking
-
-.event.kind = "event"
+.event.kind     = "event"
 .event.category = ["file"]
-.event.type = ["change"]
-.event.action = "file_mtime"
-.event.dataset = "mactime"
+.event.type     = ["change"]
+.event.action   = "file_mtime"
+.event.dataset  = "mactime"
 
-# Path / name / directory
+#############################################################################
+# mode -> file.type + file.mode (4-digit octal) ; keep symbolic mode.
+# Done BEFORE the path block so .file.type is available for symlink handling.
+#############################################################################
+if exists(.mode) {
+    mode = to_string(.mode) ?? ""
+
+    if mode != "" {
+        .osir.mactime.mode = mode
+
+        # ECS file.type only defines file / dir / symlink.
+        if starts_with(mode, "d") {
+            .file.type = "dir"
+        } else if starts_with(mode, "l") {
+            .file.type = "symlink"
+        } else if starts_with(mode, "-") {
+            .file.type = "file"
+        } else {
+            # socket(s) / block(b) / char(c) / fifo(p) / ...
+            .osir.mactime.file_type_char = slice!(mode, 0, 1)
+        }
+
+        # Symbolic rwx triplets -> octal. slice is fallible; the length guard
+        # makes the indices always valid, so slice! can never abort here.
+        if length(mode) >= 10 {
+            c1 = slice!(mode, 1, 2)   # user  read
+            c2 = slice!(mode, 2, 3)   # user  write
+            c3 = slice!(mode, 3, 4)   # user  exec / setuid (x|s|S)
+            c4 = slice!(mode, 4, 5)   # group read
+            c5 = slice!(mode, 5, 6)   # group write
+            c6 = slice!(mode, 6, 7)   # group exec / setgid (x|s|S)
+            c7 = slice!(mode, 7, 8)   # other read
+            c8 = slice!(mode, 8, 9)   # other write
+            c9 = slice!(mode, 9, 10)  # other exec / sticky (x|t|T)
+
+            perm = 0
+            if c1 == "r"               { perm = perm + 256 }
+            if c2 == "w"               { perm = perm + 128 }
+            if c3 == "x" || c3 == "s"  { perm = perm + 64 }
+            if c3 == "s" || c3 == "S"  { perm = perm + 2048 }
+            if c4 == "r"               { perm = perm + 32 }
+            if c5 == "w"               { perm = perm + 16 }
+            if c6 == "x" || c6 == "s"  { perm = perm + 8 }
+            if c6 == "s" || c6 == "S"  { perm = perm + 1024 }
+            if c7 == "r"               { perm = perm + 4 }
+            if c8 == "w"               { perm = perm + 2 }
+            if c9 == "x" || c9 == "t"  { perm = perm + 1 }
+            if c9 == "t" || c9 == "T"  { perm = perm + 512 }
+
+            # format_int with a literal base is INFALLIBLE -> no ! and no ??.
+            octal = to_string(format_int!(perm, 8))
+            if length(octal) == 1 {
+                .file.mode = "000" + octal
+            } else if length(octal) == 2 {
+                .file.mode = "00" + octal
+            } else if length(octal) == 3 {
+                .file.mode = "0" + octal
+            } else {
+                .file.mode = octal
+            }
+        }
+    }
+
+    del(.mode)
+}
+
+#############################################################################
+# path -> file.path / file.name / file.directory (+ file.target_path)
+#############################################################################
 if exists(.path) {
-    path = to_string(.path) ?? null
+    raw_path = to_string(.path) ?? ""
 
-    if path != null && path != "" {
-        .file.path = path
+    if raw_path != "" {
+        fpath = raw_path
 
-        name = basename(path) ?? null
-        if name != null {
+        # Symlinks come as "link -> target". Split only for symlink entries so a
+        # legitimate " -> " inside a regular filename is left untouched.
+        if .file.type == "symlink" && contains(raw_path, " -> ") {
+            arrow = split(raw_path, " -> ")
+
+            link_part = get(arrow, [0]) ?? raw_path
+            fpath     = to_string(link_part) ?? raw_path
+
+            n_arrow = length(arrow)
+            if n_arrow > 1 {
+                # Re-join in case the target itself contains " -> ".
+                rest        = slice(arrow, 1, n_arrow) ?? []
+                target_part = join(rest, " -> ") ?? ""
+                if target_part != "" {
+                    .file.target_path = target_part
+                }
+            }
+        }
+
+        .file.path = fpath
+
+        # basename / dirname without the (recent) builtins.
+        segs = split(fpath, "/")
+        idx  = length(segs) - 1
+
+        last = get(segs, [idx]) ?? ""
+        name = to_string(last) ?? ""
+        if name != "" {
             .file.name = name
         }
 
-        directory = dirname(path) ?? null
-        if directory != null {
+        if idx > 0 {
+            parent    = slice(segs, 0, idx) ?? []
+            directory = join(parent, "/") ?? ""
+            if directory == "" {
+                directory = "/"          # parent of "/etc" is "/"
+            }
             .file.directory = directory
         }
 
-        .message = "File modified: " + path
+        .message = "File event: " + fpath
     }
 
     del(.path)
 }
 
-# Size
+#############################################################################
+# size / uid / gid / inode
+#############################################################################
 if exists(.size) {
-    size, err = to_int(.size)
-    if err == null {
+    size = to_int(.size) ?? null
+    if size != null {
         .file.size = size
     }
     del(.size)
 }
 
-# UID / GID are ECS keywords, so keep them as strings
+# uid / gid / inode are ECS keywords -> keep them as strings.
 if exists(.uid) {
     uid = to_string(.uid) ?? null
     if uid != null {
@@ -86,7 +153,6 @@ if exists(.gid) {
     del(.gid)
 }
 
-# Inode is ECS keyword
 if exists(.inode) {
     inode = to_string(.inode) ?? null
     if inode != null {
@@ -95,124 +161,90 @@ if exists(.inode) {
     del(.inode)
 }
 
-# Convert symbolic mode to ECS octal file.mode when possible.
-# Keep original symbolic mode under osir.mactime.mode.
-if exists(.mode) {
-    mode = to_string(.mode) ?? null
-
-    if mode != null {
-        .osir.mactime.mode = mode
-
-        if starts_with(mode, "d") {
-            .file.type = "dir"
-        } else if starts_with(mode, "-") {
-            .file.type = "file"
-        } else if starts_with(mode, "l") {
-            .file.type = "symlink"
-        } else {
-            .osir.mactime.file_type_char = slice(mode, 0, 1)
-        }
-
-        if length(mode) >= 10 {
-            perm = 0
-
-            # user read/write/execute
-            if slice(mode, 1, 2) == "r" { perm = perm + 256 }
-            if slice(mode, 2, 3) == "w" { perm = perm + 128 }
-
-            u_exec = slice(mode, 3, 4)
-            if u_exec == "x" || u_exec == "s" { perm = perm + 64 }
-            if u_exec == "s" || u_exec == "S" { perm = perm + 2048 }
-
-            # group read/write/execute
-            if slice(mode, 4, 5) == "r" { perm = perm + 32 }
-            if slice(mode, 5, 6) == "w" { perm = perm + 16 }
-
-            g_exec = slice(mode, 6, 7)
-            if g_exec == "x" || g_exec == "s" { perm = perm + 8 }
-            if g_exec == "s" || g_exec == "S" { perm = perm + 1024 }
-
-            # other read/write/execute
-            if slice(mode, 7, 8) == "r" { perm = perm + 4 }
-            if slice(mode, 8, 9) == "w" { perm = perm + 2 }
-
-            o_exec = slice(mode, 9, 10)
-            if o_exec == "x" || o_exec == "t" { perm = perm + 1 }
-            if o_exec == "t" || o_exec == "T" { perm = perm + 512 }
-
-            octal = format_int!(perm, 8)
-
-            if length(octal) == 1 {
-                .file.mode = "000" + octal
-            } else if length(octal) == 2 {
-                .file.mode = "00" + octal
-            } else if length(octal) == 3 {
-                .file.mode = "0" + octal
-            } else {
-                .file.mode = octal
-            }
-        }
-    }
-
-    del(.mode)
-}
+#############################################################################
+# Timestamps. mactime emits RFC3339 (e.g. 2026-06-08T15:05:43Z).
+# "%+" parses RFC3339; the explicit format is a belt-and-suspenders fallback
+# for variants (fractional seconds, numeric offsets). The ?? chain keeps the
+# whole expression infallible and avoids nested-scope reassignment.
+#############################################################################
 
 # atime -> file.accessed
 if exists(.atime) {
-    atime, err = parse_timestamp(.atime, format: "%+")
-    if err == null {
-        .file.accessed = atime
-    } else {
-        .mactime.atime_raw = .atime
+    av = to_string(.atime) ?? ""
+    ts = parse_timestamp(av, "%+") ?? parse_timestamp(av, "%Y-%m-%dT%H:%M:%SZ") ?? null
+    if ts != null {
+        .file.accessed = ts
+    } else if av != "" {
+        .osir.mactime.atime_raw = av
     }
     del(.atime)
 }
 
-# mtime -> timestamp + file.mtime
+# mtime -> event timestamp + file.mtime  (the timeline pivot)
 if exists(.mtime) {
-    mtime, err = parse_timestamp(.mtime, format: "%+")
-    if err == null {
-        ."timestamp" = mtime
-        .file.mtime = mtime
+    mv = to_string(.mtime) ?? ""
+    ts = parse_timestamp(mv, "%+") ?? parse_timestamp(mv, "%Y-%m-%dT%H:%M:%SZ") ?? null
+    if ts != null {
+        .timestamp  = ts
+        .file.mtime = ts
     } else {
-        .error.type = "parse_timestamp"
-        .error.message = "failed to parse mtime"
-        .mactime.mtime_raw = .mtime
+        .error.type    = "parse_timestamp"
+        .error.message = "failed to parse mtime: " + mv
+        .osir.mactime.mtime_raw = mv
     }
     del(.mtime)
 }
 
 # ctime -> file.ctime
 if exists(.ctime) {
-    ctime, err = parse_timestamp(.ctime, format: "%+")
-    if err == null {
-        .file.ctime = ctime
-    } else {
-        .mactime.ctime_raw = .ctime
+    cv = to_string(.ctime) ?? ""
+    ts = parse_timestamp(cv, "%+") ?? parse_timestamp(cv, "%Y-%m-%dT%H:%M:%SZ") ?? null
+    if ts != null {
+        .file.ctime = ts
+    } else if cv != "" {
+        .osir.mactime.ctime_raw = cv
     }
     del(.ctime)
 }
 
 # crtime -> file.created
 if exists(.crtime) {
-    crtime, err = parse_timestamp(.crtime, format: "%+")
-    if err == null {
-        .file.created = crtime
-    } else {
-        .mactime.crtime_raw = .crtime
+    bv = to_string(.crtime) ?? ""
+    ts = parse_timestamp(bv, "%+") ?? parse_timestamp(bv, "%Y-%m-%dT%H:%M:%SZ") ?? null
+    if ts != null {
+        .file.created = ts
+    } else if bv != "" {
+        .osir.mactime.crtime_raw = bv
     }
     del(.crtime)
 }
 
-# md5: mactime often uses "0" as a placeholder; don't store that as ECS hash.
+# Fallback event timestamp if mtime is missing.
+# Keeps file_mtime action, but prevents Splunk from using ingest time.
+if !exists(.timestamp) {
+    if exists(.file.mtime) {
+        .timestamp = .file.mtime
+    } else if exists(.file.ctime) {
+        .timestamp = .file.ctime
+        .osir.mactime.timestamp_fallback = "ctime"
+    } else if exists(.file.created) {
+        .timestamp = .file.created
+        .osir.mactime.timestamp_fallback = "created"
+    } else if exists(.file.accessed) {
+        .timestamp = .file.accessed
+        .osir.mactime.timestamp_fallback = "accessed"
+    }
+}
+
+#############################################################################
+# md5  (mactime uses "0" as a placeholder -> never emit that as a hash)
+#############################################################################
 if exists(.md5) {
     md5 = to_string(.md5) ?? ""
-
     if length(md5) == 32 && md5 != "00000000000000000000000000000000" {
         .file.hash.md5 = downcase(md5)
     } else if md5 != "" && md5 != "0" {
-        .mactime.md5_raw = md5
+        .osir.mactime.md5_raw = md5
     }
-
     del(.md5)
 }
