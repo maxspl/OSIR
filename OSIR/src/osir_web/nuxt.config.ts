@@ -53,6 +53,11 @@ export default defineNuxtConfig({
         '@vue/devtools-core',
         '@vue/devtools-kit',
         'vuefinder',
+        'yaml',
+        'highlight.js/lib/core',
+        'highlight.js/lib/languages/yaml',
+        '@uppy/tus',
+        'nuxt-monaco-editor',
       ]
     },
     plugins: [

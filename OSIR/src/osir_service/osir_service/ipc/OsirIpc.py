@@ -18,11 +18,13 @@ from osir_service.watchdog.MonitorCase import MonitorCase
 from osir_service.ipc.OsirSocket import OsirSocket
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.orchestration.TaskService import TaskService, _get_celery_app
+from osir_service.watchdog.HandlerManager import HandlerManager
 from osir_service.ipc.model.OsirFileModel import FsData
 from osir_service.ipc.model.OsirAction import OSIR_ACTIONS, register_action
 from osir_service.ipc.OsirIpcFiles import OsirIpcFiles
 from osir_lib.logger import AppLogger
 
+handler_manager = HandlerManager()
 logger = AppLogger(__name__).get_logger()
 
 
@@ -179,9 +181,9 @@ class OsirIpc(BaseModel):
         if isinstance(profile_data, str):
             from osir_lib.core.model.OsirProfileModel import OsirProfileModel
             profile_data = OsirProfileModel.from_name(profile_data)
-        monitor = MonitorCase(case_path=req.params.get('case_path'), modules=profile_data.modules, reprocess_case=True)
         
-        handler_uuid, case_uuid = self._start_background_handler(monitor)
+        case_name = req.params.get('case_name')
+        handler_uuid, case_uuid = handler_manager.start(case_path=FileManager.get_cases_path(case_name), modules=profile_data.modules, reprocess_case=True)
 
         resp.message = "Profile execution started"
         resp.response = OsirDbHandlerModel(
