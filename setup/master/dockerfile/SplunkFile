@@ -1,4 +1,10 @@
 FROM splunk/splunk:9.4
 
+# Patch for Timeline-Explorer app
+USER root
+COPY sources/splunk_patch/ /opt/splunk/osir_patch/
+RUN chmod +x /opt/splunk/osir_patch/apply_patch.sh \
+    && /opt/splunk/osir_patch/apply_patch.sh
+
 ENTRYPOINT ["/sbin/entrypoint.sh"]
 CMD ["start-service"]
