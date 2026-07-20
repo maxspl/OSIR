@@ -1,6 +1,6 @@
 metadata:
-  version: "2.0"
-  author: Typ
+  version: "3.0"
+  author: Typ,maxspl
   description: Used to execute internal pre-processing for Unix Artefact Collector
     Capture
   os: unix
@@ -15,19 +15,25 @@ configuration:
   processor_os: unix
 
 tool: 
-  path: tar
-  version: 22.01
-  cmd: -xvf {input_file} -C {output_dir}
+  path: 7zz
+  version: 24.07
+  # {m_*} placeholders are resolved by the module itself
+  cmd: x -o{m_output_dir} -y {m_input_file} -p"{m_password}"
 
 input:
   type: file
   paths:
     - uac-*.tar.gz
+    - uac-*.zip
 
 output:
   type: multiple_files
   format: raw
-  output_dir: Endpoint_{endpoint_name}/extracted_files
+
+optional:
+  # Optional password for encrypted UAC zip archives
+  # Leave empty to let the module recover it from the sibling UAC .log file
+  password:
 
 endpoint: 
   patterns:
