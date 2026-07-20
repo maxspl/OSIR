@@ -298,6 +298,12 @@ setup_dockur_win(){
     mkdir -p "$ISO_DIR"
     mkdir -p "$DOCKUR_STORAGE_DIR"
 
+    # Offline/portable setup: custom.iso is already provided
+    if [ -f "$DOCKUR_STORAGE_DIR/$CUSTOM_ISO_NAME" ]; then
+        (echo >&2 "${INFO} custom.iso already exists in dockur_storage. Skipping ISO download.")
+        return 0
+    fi
+    
     # Check if the ISO already exists
     if [ ! -f "$ISO_DIR/$ISO_NAME" ]; then
         (echo >&2 "${INFO} ISO not found. Downloading...")
