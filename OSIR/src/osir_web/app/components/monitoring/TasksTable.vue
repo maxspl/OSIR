@@ -147,7 +147,7 @@ if (props.useLazyLoading && taskStore) {
     }, 500)
   })
 
-  watch(() => [props.caseNames, props.status, props.input, props.moduleFilter, props.handlerId], () => {
+  watch(() => [props.caseNames, props.status, props.input, props.moduleFilter, props.handlerId, lazyInputFilter], () => {
     lazyPage.value = 1
     fetchLazyTasks()
     startLazyPolling()
@@ -172,33 +172,6 @@ function handleSelect(e: Event, row: unknown) {
 
 <template>
   <div class="space-y-4">
-    <!-- Input filter (only for static mode) -->
-    <div v-if="!props.useLazyLoading && showInputFilter" class="rounded-lg bg-(--ui-bg-elevated) border border-(--ui-border) p-4">
-      <div class="flex items-center gap-3">
-        <UIcon name="i-lucide-search" class="text-primary w-4 h-4 shrink-0" />
-        <span class="text-xs font-medium text-muted shrink-0">Input</span>
-        <UInput
-          v-model="inputFilter"
-          placeholder="Search by input path..."
-          size="sm"
-          class="w-full"
-          :ui="{ icon: { trailing: { pointer: '' } } }"
-        >
-          <template #trailing>
-            <UButton
-              v-if="inputFilter"
-              icon="i-lucide-x"
-              size="sm"
-              variant="ghost"
-              color="neutral"
-              @click="inputFilter = ''"
-            />
-          </template>
-        </UInput>
-      </div>
-    </div>
-
-    <!-- Input filter for lazy mode (internal) -->
     <div v-if="props.useLazyLoading && showInputFilter" class="rounded-lg bg-(--ui-bg-elevated) border border-(--ui-border) p-4">
       <div class="flex items-center gap-3">
         <UIcon name="i-lucide-search" class="text-primary w-4 h-4 shrink-0" />

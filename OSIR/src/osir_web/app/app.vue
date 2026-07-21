@@ -27,7 +27,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image'
 })
 
-const toaster = { position: 'top-right', max:"5" }
+const toaster = { position: 'top-right', max:5 }
 </script>
 
 <template>

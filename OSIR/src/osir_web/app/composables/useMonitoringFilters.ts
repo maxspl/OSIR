@@ -11,6 +11,7 @@ export function useMonitoringFilters(selectedHandler: Ref<HandlerRow | null>) {
   const filterTaskStatus    = ref('all')
   const filterModule        = ref('all')
   const filterTaskCaseName  = ref('all')
+  const filterTaskInput     = ref('')
 
   const caseNameOptions = computed(() => handlerStore.caseOptions)
 
@@ -101,6 +102,7 @@ export function useMonitoringFilters(selectedHandler: Ref<HandlerRow | null>) {
     filterTaskStatus,
     filterModule,
     filterTaskCaseName,
+    filterTaskInput,
     caseNameOptions,
     handlerOptions,
     moduleOptions,

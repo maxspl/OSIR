@@ -14,7 +14,7 @@ from osir_service.ipc.model.OsirExceptions import OsirException
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.ipc.model.OsirIpcRequest import OsirIpcRequest
 from osir_service.postgres.OsirDb import OsirDb
-from osir_service.watchdog.MonitorCase import MonitorCase
+from osir_service.watchdog.HandlerService import HandlerService
 from osir_service.ipc.OsirSocket import OsirSocket
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.orchestration.TaskService import TaskService, _get_celery_app
@@ -135,12 +135,6 @@ class OsirIpc(BaseModel):
 
         return osir_ipc_response
 
-    # TODO: Remove this to handle this logique inside MonitorCase 
-    def _start_background_handler(self, monitor: MonitorCase) -> tuple:
-        """Starts a MonitorCase handler in a background thread and returns (handler_uuid, case_uuid)."""
-        threading.Thread(target=monitor.setup_handler, daemon=True).start()
-        return monitor.handler_uuid, monitor.case_uuid
-
     @register_action('socket_on')
     def _handle_socket_on(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         resp.message = "SOCKET READY"
@@ -163,8 +157,7 @@ class OsirIpc(BaseModel):
                 resp.message = "Module execution started"
                 resp.response = db.task.get(task_id=task_id)
         else:
-            monitor = MonitorCase(case_path=req.params['case_path'], modules=req.params['modules'], reprocess_case=True)
-            handler_uuid, case_uuid = self._start_background_handler(monitor)
+            handler_uuid, case_uuid = handler_manager.start(case_path=req.params['case_path'], modules=req.params['modules'], reprocess_case=True)
             resp.message = "Module execution started"
             resp.response = OsirDbHandlerModel(
                 handler_id=handler_uuid,
@@ -240,7 +233,7 @@ class OsirIpc(BaseModel):
             modules = selected_modules
 
         # Setup the monitor case
-        monitor_case = MonitorCase(case_path=case_path, modules=modules, reprocess_case=reprocess_case)
+        handler_service: HandlerService = handler_manager._create_handler(case_path=case_path, modules=modules, reprocess_case=reprocess_case)
         
         if modified_modules:
             for module in modified_modules:
@@ -248,14 +241,14 @@ class OsirIpc(BaseModel):
                 key = getattr(module_model, "filename", None)
                 if not key:
                     continue
-                for i, instance in enumerate(monitor_case.module_instances):
+                for i, instance in enumerate(handler_service.module_instances):
                     try:
                         if key == getattr(instance, "filename", None):
-                            monitor_case.module_instances[i] = module_model
+                            handler_service.module_instances[i] = module_model
                     except Exception as e:
                         return OsirException.UNEXPECTED_ERROR(str(e))
 
-        handler_uuid, case_uuid = self._start_background_handler(monitor_case)
+        handler_uuid, case_uuid = handler_manager.start(handler_service=handler_service)
 
         resp.message = "Handler created successfully"
         resp.response = {
@@ -298,7 +291,7 @@ class OsirIpc(BaseModel):
                 module_instance.input.match = str(file_path)
                 if endpoint_name:
                     module_instance.endpoint.default = endpoint_name
-                monitor_case = MonitorCase(
+                monitor_case = handler_manager._create_handler(
                     case_path=str(FileManager.get_cases_path(case_name)),
                     modules=[],
                     reprocess_case=True
@@ -317,7 +310,7 @@ class OsirIpc(BaseModel):
                     module_instance.input.match = str(folder_path)
                     if endpoint_name:
                         module_instance.endpoint.default = endpoint_name
-                    monitor_case = MonitorCase(
+                    monitor_case = handler_manager._create_handler(
                         case_path=str(FileManager.get_cases_path(case_name)),
                         modules=[],
                         reprocess_case=True
@@ -330,7 +323,7 @@ class OsirIpc(BaseModel):
                         module_instance.input.match = str(file)
                         if endpoint_name:
                             module_instance.endpoint.default = endpoint_name
-                        monitor_case = MonitorCase(
+                        monitor_case = handler_manager._create_handler(
                             case_path=str(FileManager.get_cases_path(case_name)),
                             modules=[],
                             reprocess_case=True

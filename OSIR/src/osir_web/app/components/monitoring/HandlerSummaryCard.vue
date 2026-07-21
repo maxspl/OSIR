@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HandlerRow } from '~/stores/handler'
 import type { ProcessingStatus } from '~/stores/handler'
-import { getStatusCfg, statusStripeClass, short } from '~/utils/monitoring'
+import { getStatusCfg, statusStripeClass, short, formatDateTime } from '~/utils/monitoring'
 
 const props = defineProps<{
   handler: HandlerRow
@@ -9,6 +9,10 @@ const props = defineProps<{
   endTime: string | null
   taskStatusCount: Record<string, number>
 }>()
+
+// Format the timestamps for display
+const formattedStartTime = computed(() => formatDateTime(props.startTime))
+const formattedEndTime = computed(() => formatDateTime(props.endTime))
 
 // Ensure taskStatusCount is never undefined
 const safeTaskStatusCount = computed(() => props.taskStatusCount || {})
@@ -74,11 +78,11 @@ const statusColors: Record<string, string> = {
           <span class="flex items-center gap-1">
             <UIcon name="i-lucide-folder-open" class="w-3 h-3" />{{ handler.case_name }}
           </span>
-          <span v-if="startTime" class="flex items-center gap-1">
-            <UIcon name="i-lucide-clock" class="w-3 h-3" />Started: {{ startTime }}
+          <span v-if="formattedStartTime" class="flex items-center gap-1">
+            <UIcon name="i-lucide-clock" class="w-3 h-3" />Started: {{ formattedStartTime }}
           </span>
-          <span v-if="endTime" class="flex items-center gap-1">
-            <UIcon name="i-lucide-flag" class="w-3 h-3" />Ended: {{ endTime }}
+          <span v-if="formattedEndTime" class="flex items-center gap-1">
+            <UIcon name="i-lucide-flag" class="w-3 h-3" />Ended: {{ formattedEndTime }}
           </span>
           <span v-else class="flex items-center gap-1">
             <UIcon name="i-lucide-clock" class="w-3 h-3" />Ongoing

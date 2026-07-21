@@ -1,3 +1,8 @@
+<!-- pages/index.vue -->
 <script setup>
-navigateTo('/cases', { replace: true })
+await navigateTo('/cases', { replace: true })
 </script>
+
+<template>
+  <div/>
+</template>
