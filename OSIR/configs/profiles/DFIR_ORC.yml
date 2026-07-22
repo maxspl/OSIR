@@ -3,21 +3,110 @@ author:
 description:
 os: windows
 modules:
+  # Pre-process
+  - age_decrypt.yml
+  - dfir_orc_decrypt.yml
+  - extract_orc.yml
+  # DFIR ORC
   - anssi_decode.yml
   - amcache.yml
   - browsers.yml
   - collect_info_orc.yml
   - evtx.yml
-  - extract_orc.yml
   - hayabusa.yml
   - hives_hkcu.yml
   - hives_hklm.yml
   - jump_list.yml
   - lnk.yml
+  - mft.yml
+  - orc_outcome.yml
+  - powershell_history.yml
   - prefetch.yml
+  - pstree_live_response.yml
+  - pstree_security.yml
+  - pstree_sysmon.yml
   - recycle_bin.yml
   - restore_fs.yml
   - shell_bags.yml
   - shimcache.yml
   - srum.yml
+  - wer.yml
+  - win_memory.yml
   - win_timeline.yml
+  # Dissect
+  - IIS.yml
+  - activities_cache.yml
+  # Live response
+  - win_arp_cache.yml
+  - win_bits.yml
+  - win_dns_cache.yml
+  - win_dns_records.yml
+  - win_enumlocs.yml
+  - win_handle.yml
+  - win_listdlls.yml
+  - win_netstat.yml
+  - win_routes.yml
+  - win_tcpvcon.yml
+  - win_wmi_eventconsumer.yml
+  # DFIR-OGRE (except evtx and lnk)
+  - ogre-activity-cache.yml
+  - ogre-autoruns.yml
+  - ogre-chrome-download-history.yml
+  - ogre-chrome-extension.yml
+  - ogre-chrome-history.yml
+  - ogre-evt.yml
+  - ogre-firefox-download-history.yml
+  - ogre-firefox-extension.yml
+  - ogre-firefox-history.yml
+  - ogre-hive-amcache-hve.yml
+  - ogre-hive-bcd-template.yml
+  - ogre-hive-components.yml
+  - ogre-hive-default.yml
+  - ogre-hive-elam.yml
+  - ogre-hive-ntuser-dat.yml
+  - ogre-hive-sam.yml
+  - ogre-hive-software.yml
+  - ogre-hive-system.yml
+  - ogre-hive-usrclass-dat.yml
+  - ogre-list-dll.yml
+  - ogre-pca-app-launch.yml
+  - ogre-pca-general-record.yml
+  - ogre-prefetch.yml
+  - ogre-recycle-bin.yml
+  - ogre-srum.yml
+  - ogre-system-info.yml
+  - ogre-tcp-connection.yml
+  - ogre-usn-info.yml
+  - ogre-volstat.yml
+  - ogre-vss-snapshot.yml
+  - ogre-wer.yml
+  # DFIR-OGRE registry
+  - ogre-registry-acmru.yml
+  - ogre-registry-amcache-driver.yml
+  - ogre-registry-amcache-files.yml
+  - ogre-registry-amcache-program.yml
+  - ogre-registry-antifishing-file.yml
+  - ogre-registry-app-compat-cache.yml
+  - ogre-registry-autoruns-software.yml
+  - ogre-registry-autoruns-system.yml
+  - ogre-registry-autoruns-user.yml
+  - ogre-registry-bamdam.yml
+  - ogre-registry-certificates-software.yml
+  - ogre-registry-certificates-users.yml
+  - ogre-registry-clsid-software.yml
+  - ogre-registry-clsid-users.yml
+  - ogre-registry-mass-storage-system.yml
+  - ogre-registry-mui-cache.yml
+  - ogre-registry-network-configuration.yml
+  - ogre-registry-pending-file-rename.yml
+  - ogre-registry-recent-app.yml
+  - ogre-registry-reg-system-info.yml
+  - ogre-registry-run-mru.yml
+  - ogre-registry-scheduled-task.yml
+  - ogre-registry-services-control-set.yml
+  - ogre-registry-shell-bag.yml
+  - ogre-registry-shim-database.yml
+  - ogre-registry-snapshot-exclude.yml
+  - ogre-registry-subject-interface-package.yml
+  - ogre-registry-user-assist.yml
+  - ogre-registry-user-profile.yml
