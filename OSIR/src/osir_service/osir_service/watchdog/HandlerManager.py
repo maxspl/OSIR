@@ -9,9 +9,12 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, ConfigDict, Field
 
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
+from osir_lib.core.OsirUtils import normalize_osir_path
 from osir_lib.logger import AppLogger
 from osir_lib.logger.logger import CustomLogger, singleton
 
+from osir_service.orchestration.TaskService import TaskService
+from osir_service.ipc.OsirIpc import FileManager
 from osir_service.postgres.OsirDb import OsirDb
 from osir_service.watchdog.WatchdogService import ModuleHandler
 
@@ -21,13 +24,13 @@ logger: CustomLogger = AppLogger(__name__).get_logger()
 class HandlerService(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     case_path: str
-    cooldown_period: int
     modules: List[str]
     module_instances: List[OsirModuleModel]
     case_uuid: UUID
     handler_uuid: UUID
     reprocess_case: bool
     stop_event: Event = Field(default_factory=Event)
+    cooldown_period: int = 20
 
 @singleton
 class HandlerManager:
@@ -39,13 +42,22 @@ class HandlerManager:
     def _create_handler(
         self,
         case_path: Path,
-        modules: List[str],
         reprocess_case: bool,
+        modules: Optional[List[str]] = None,
+        module_instances: Optional[list[OsirModuleModel]] = None,
         handler_uuid: Optional[UUID] = None,
     ) -> HandlerService:
+        
+        if modules is None and module_instances is None:
+            raise ValueError("Either modules or module_instances must be provided")
+
         handler_uuid = handler_uuid or uuid4()
-        module_instances = [OsirModuleModel.from_name(module) for module in modules]
-        cooldown_period = 20  # Cooldown period in seconds
+
+        if not module_instances:
+            module_instances = [OsirModuleModel.from_name(module) for module in modules]
+
+        if not modules:
+            modules = [module.configuration.module for module in module_instances]
 
         case_name = os.path.basename(str(case_path))
         with OsirDb() as db:
@@ -55,15 +67,28 @@ class HandlerManager:
             else:
                 case_uuid = case.case_uuid
 
-        return HandlerService(
+        handler = HandlerService(
             case_path=str(case_path),
-            cooldown_period=cooldown_period,
             modules=modules,
             module_instances=module_instances,
             case_uuid=case_uuid,
             handler_uuid=handler_uuid,
             reprocess_case=reprocess_case,
         )
+
+        with self.lock:
+            self.handlers[handler_uuid] = handler
+
+        with OsirDb() as db:
+            db.handler.create(
+                handler_id=handler.handler_uuid,
+                case_uuid=handler.case_uuid,
+                modules=handler.modules,
+                task_ids=[],
+            )
+
+        return handler
+        
 
     def _monitor_directory(
         self,
@@ -135,3 +160,35 @@ class HandlerManager:
     def shutdown(self) -> None:
         self.stop()
         logger.debug("HandlerManager shutdown complete.")
+
+    def run_task(self, module_instance: OsirModuleModel, case_name = None, case_uuid = None, handler_uuid = None):
+        """
+            Pushes a task to the task queue for processing, without seting up the handler, based on the current module configuration.
+
+            Args:
+                module_instance: The module instance to be processed.
+        """
+        if case_name is None and case_uuid is None:
+            raise ValueError("Either case_name or case_uuid must be provided")
+
+        if not case_uuid:
+            with OsirDb() as db:
+                case = db.case.get(name=case_name)
+                if not case:
+                    case_uuid = db.case.create(case_name).case_uuid
+                else:
+                    case_uuid = case.case_uuid
+
+        if handler_uuid:
+            handler = self.handlers[handler_uuid]
+        else:
+            handler = self._create_handler(
+                case_path=str(FileManager.get_cases_path(case_name)),
+                module_instances=[module_instance],
+                reprocess_case=False,
+            )
+
+        task_params = (handler.case_path, module_instance, handler.case_uuid, handler.handler_uuid)
+        TaskService.push_task(*task_params)
+
+        return handler.handler_uuid

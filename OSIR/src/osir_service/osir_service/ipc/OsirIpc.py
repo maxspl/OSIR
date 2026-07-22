@@ -14,7 +14,7 @@ from osir_service.ipc.model.OsirExceptions import OsirException
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
 from osir_service.ipc.model.OsirIpcRequest import OsirIpcRequest
 from osir_service.postgres.OsirDb import OsirDb
-from osir_service.watchdog.HandlerService import HandlerService
+from osir_service.watchdog.HandlerManager import HandlerService
 from osir_service.ipc.OsirSocket import OsirSocket
 from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
 from osir_service.orchestration.TaskService import TaskService, _get_celery_app
@@ -279,6 +279,13 @@ class OsirIpc(BaseModel):
         if not case_name:
             return OsirException.CASE_NAME_REQUIRED()
 
+        with OsirDb() as db:
+            case = db.case.get(name=case_name)
+            if not case:
+                case_uuid = db.case.create(case_name).case_uuid
+            else:
+                case_uuid = case.case_uuid
+
         handler_uuid = None
 
         if files_input:
@@ -291,13 +298,7 @@ class OsirIpc(BaseModel):
                 module_instance.input.match = str(file_path)
                 if endpoint_name:
                     module_instance.endpoint.default = endpoint_name
-                monitor_case = handler_manager._create_handler(
-                    case_path=str(FileManager.get_cases_path(case_name)),
-                    modules=[],
-                    reprocess_case=True
-                )
-                case_uuid = monitor_case.case_uuid
-                handler_uuid = monitor_case.run_task(module_instance, handler_uuid)
+                handler_uuid = handler_manager.run_task(module_instance, case_name=case_name, handler_uuid=handler_uuid)
 
         if folders_input:
             if not folders_modules and not files_in_folder_modules:
@@ -310,26 +311,14 @@ class OsirIpc(BaseModel):
                     module_instance.input.match = str(folder_path)
                     if endpoint_name:
                         module_instance.endpoint.default = endpoint_name
-                    monitor_case = handler_manager._create_handler(
-                        case_path=str(FileManager.get_cases_path(case_name)),
-                        modules=[],
-                        reprocess_case=True
-                    )
-                    case_uuid = monitor_case.case_uuid
-                    handler_uuid = monitor_case.run_task(module_instance, handler_uuid)
+                    handler_uuid = handler_manager.run_task(module_instance, case_name=case_name, handler_uuid=handler_uuid)
                 if files_in_folder_modules:
                     for file in FileManager.get_subfiles(folder_path):
                         module_instance = OsirModuleModel.from_name(files_in_folder_modules)
                         module_instance.input.match = str(file)
                         if endpoint_name:
                             module_instance.endpoint.default = endpoint_name
-                        monitor_case = handler_manager._create_handler(
-                            case_path=str(FileManager.get_cases_path(case_name)),
-                            modules=[],
-                            reprocess_case=True
-                        )
-                        case_uuid = monitor_case.case_uuid
-                        handler_uuid = monitor_case.run_task(module_instance, handler_uuid)
+                        handler_uuid = handler_manager.run_task(module_instance, case_name=case_name, handler_uuid=handler_uuid)
 
         # The 'advanced' flow forces the modules and watches no directory: no watchdog will
         # ever move this handler to 'processing_done'. So we start a lightweight thread that
