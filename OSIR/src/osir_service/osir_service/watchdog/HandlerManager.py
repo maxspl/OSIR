@@ -99,17 +99,22 @@ class HandlerManager:
 
     def start(
         self,
-        case_path: Path,
-        modules: List[str],
-        reprocess_case: bool,
-    ) -> UUID:
+        case_path: Optional[Path] = None,
+        modules: Optional[List[str]] = None,
+        reprocess_case: bool = False,
+        handler_service: Optional[HandlerService] = None,
+    ) -> tuple[UUID, UUID]:
+        if handler_service is None and (case_path is None or modules is None):
+            raise ValueError("Either handler_service or both case_path and modules must be provided")
+
+        handler = handler_service or self._create_handler(case_path, modules, reprocess_case)
+
         with self.lock:
-            handler = self._create_handler(case_path, modules, reprocess_case)
             handler_uuid = handler.handler_uuid
             self.handlers[handler_uuid] = handler
-            self._start_handler(handler, handler_uuid, reprocess_case)
+            self._start_handler(handler, handler_uuid, handler.reprocess_case)
             logger.debug(f"Handler {handler_uuid} started for case {handler.case_uuid}.")
-        return handler_uuid, handler.case_uuid
+            return handler_uuid, handler.case_uuid
 
     def stop(self, handler_uuid: Optional[UUID] = None) -> None:
         with self.lock:

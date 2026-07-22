@@ -120,7 +120,11 @@ function onRowSelect(_e: Event, row: { original: ModuleStats }) {
       <!-- Module name -->
       <template #module-cell="{ row }">
         <div class="flex items-center gap-2">
-          <UIcon name="i-lucide-package" class="w-4 h-4 text-primary shrink-0" />
+          <UIcon
+            name="i-lucide-package"
+            class="w-4 h-4 shrink-0"
+            :class="row.original.processing_failed > 0 ? 'text-red-500' : 'text-primary'"
+          />
           <span class="font-medium">{{ row.original.module }}</span>
         </div>
       </template>

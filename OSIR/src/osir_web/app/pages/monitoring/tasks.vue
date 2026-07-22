@@ -30,21 +30,10 @@ const filterBarConfig = computed(() => [
   ],
 ])
 
+// Update the filter value
 function onFilterUpdate(key: string, value: string) {
-  // Update the filter value
   (filterValues as any)[key] = value
 }
-
-// Filter tasks client-side for module (not supported by API)
-const filteredTasks = computed(() => {
-  return taskStore.tasks.filter(t => {
-    const matchStatus = filterValues.filterStatus === 'all' || t.status === filterValues.filterStatus
-    const matchCase = filterValues.filterCase === 'all' || t.case_name === filterValues.filterCase
-    const matchInput = !filterValues.filterInput || t.input.toLowerCase().includes(filterValues.filterInput.toLowerCase())
-    const matchModule = filterValues.filterModule === 'all' || t.module === filterValues.filterModule
-    return matchStatus && matchCase && matchInput && matchModule
-  })
-})
 
 const router = useRouter()
 
