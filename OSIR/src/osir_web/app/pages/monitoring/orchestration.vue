@@ -192,7 +192,7 @@ const showSingleModuleView = computed(() => filterValues.filterModule !== 'all')
 // ── FilterBar definitions ─────────────────────────────────────────────────────
 const view1Filters = computed(() => [[
   { icon: 'i-lucide-folder-open', label: 'Case',   modelKey: 'filterCaseName',      options: caseNameOptions.value, placeholder: 'All cases…' },
-  { icon: 'i-lucide-activity',    label: 'Status', modelKey: 'filterHandlerStatus', options: statusOptions,          placeholder: 'All statuses…' },
+  { icon: 'i-lucide-activity',    label: 'Status', modelKey: 'filterHandlerStatus', options: statusOptions,          placeholder: 'All…' },
 ]])
 
 const view2Filters = computed(() => [
@@ -211,7 +211,7 @@ const view2Filters = computed(() => [
     },
   ],
   [
-    { icon: 'i-lucide-activity', label: 'Status', modelKey: 'filterTaskStatus', options: statusOptions,       placeholder: 'All statuses…' },
+    { icon: 'i-lucide-activity', label: 'Status', modelKey: 'filterTaskStatus', options: statusOptions,       placeholder: 'All…' },
     { icon: 'i-lucide-package',  label: 'Module', modelKey: 'filterModule',     options: moduleOptions.value, placeholder: 'All modules…' },
   ],
 ])
@@ -336,9 +336,9 @@ const view2Filters = computed(() => [
         <TaskInfoCard
           v-else
           :task="selectedTask"
+          :refresh-handler="handleRefreshTask"
           @stop="() => {}"
           @rerun="handleRerunTask"
-          @refresh="handleRefreshTask"
           @back="activeView = 'task-by-handler'"
         />
       </template>

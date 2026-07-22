@@ -4,9 +4,6 @@ import { useHandlerStore } from '~/stores/handler'
 
 export type View = 'handler-by-case' | 'task-by-handler' | 'task-info'
 
-const PROCESSING_STATES = ['processing', 'processing_started']
-const POLL_INTERVAL_MS = 5_000
-
 export function useMonitoringNavigation(
   onHandlerSelected: (h: HandlerRow) => Promise<void>,
 ) {
@@ -17,73 +14,9 @@ export function useMonitoringNavigation(
   const selectedHandler = ref<HandlerRow | null>(null)
   const selectedTask    = ref<TaskDetail | null>(null)
 
-  // ── Polling ──────────────────────────────────────────────────────────────
-  let pollTimer: ReturnType<typeof setInterval> | null = null
-
-  function isProcessing(): boolean {
-    const handlerProcessing = selectedHandler.value
-      ? PROCESSING_STATES.includes(selectedHandler.value.processing_status)
-      : false
-
-    const taskProcessing = selectedTask.value
-      ? PROCESSING_STATES.includes(selectedTask.value.processing_status)
-      : false
-
-    return handlerProcessing || taskProcessing
-  }
-
-  async function pollRefresh() {
-    if (!isProcessing()) {
-      stopPolling()
-      return
-    }
-
-    // Refresh handler tasks si un handler est sélectionné
-    if (selectedHandler.value) {
-      await handlerStore.fetchTasksForHandler(selectedHandler.value)
-
-      // Sync selectedHandler avec les données fraîches du store
-      const fresh = handlerStore.handlers.find(
-        h => h.handler_id === selectedHandler.value!.handler_id,
-      )
-      if (fresh) selectedHandler.value = fresh
-    }
-
-    // Refresh task info si une task est sélectionnée
-    if (selectedTask.value) {
-      const freshTask = await handlerStore.fetchTaskInfo(selectedTask.value.task_id)
-      if (freshTask) selectedTask.value = freshTask
-    }
-
-    // Arrêt automatique si plus rien n'est en cours après le refresh
-    if (!isProcessing()) stopPolling()
-  }
-
-  function startPolling() {
-    if (pollTimer !== null) return
-    pollTimer = setInterval(pollRefresh, POLL_INTERVAL_MS)
-  }
-
-  function stopPolling() {
-    if (pollTimer !== null) {
-      clearInterval(pollTimer)
-      pollTimer = null
-    }
-  }
-
-  // Surveille les changements de statut pour démarrer/arrêter le polling
-  watch(
-    () => [selectedHandler.value?.processing_status, selectedTask.value?.processing_status],
-    () => {
-      if (isProcessing()) startPolling()
-      else stopPolling()
-    },
-  )
-
-  // Nettoyage à la destruction du composant
-  onUnmounted(() => stopPolling())
-
   // ── Navigation ────────────────────────────────────────────────────────────
+  // NB: live polling is entirely handled by useMonitoringPolling (single system).
+  // This composable ONLY manages navigation state (view + selection).
   onMounted(async () => {
     if (route.query.view === 'task-info') {
       const taskId = route.query.taskId as string | undefined
@@ -115,11 +48,11 @@ export function useMonitoringNavigation(
 
   async function selectTask(_e: Event, row: unknown) {
     const taskRow = (row as { original: TaskRow | TaskDetail }).original
-    // Si c'est déjà un TaskDetail (avec logs), on l'utilise directement
+    // If it's already a TaskDetail (with logs), use it directly
     if ('logs' in taskRow) {
       selectedTask.value = taskRow as TaskDetail
     } else {
-      // Sinon, on fetch les détails complets avec les logs
+      // Otherwise, fetch the full details with logs
       const taskDetail = await handlerStore.fetchTaskInfo(taskRow.task_id)
       if (taskDetail) {
         selectedTask.value = taskDetail
