@@ -279,6 +279,10 @@ class OsirIpcTus:
                 }
             )
 
+        # Upload finished: clean up the lock file (.lock) left next to the file.
+        if file.size is not None and file.offset >= file.size:
+            file.entry.remove_lock()
+
         date_expiry = datetime.now() + timedelta(days=1)
         file.expires = str(date_expiry.isoformat())
 

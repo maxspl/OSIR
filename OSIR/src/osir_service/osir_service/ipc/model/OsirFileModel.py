@@ -129,6 +129,13 @@ class DirEntry(BaseModel):
     
     def new_lock(self) -> FileLock:
         return FileLock(Path(str(self.osir_path) + ".lock"), 10)
+
+    def remove_lock(self) -> None:
+        """Remove the lock file (.lock) left next to the file once the upload is finished."""
+        try:
+            Path(str(self.osir_path) + ".lock").unlink(missing_ok=True)
+        except OSError:
+            pass
     
 
 
@@ -483,21 +490,21 @@ class FsData(BaseModel):
 
         if deep:
             for root, dirs, files in os.walk(base_path):
-                for file in files:
-                    file_path = Path(root) / file
-                    if filter_expr and not matches_filter(file_path, filter_expr):
+                # files AND directories (the size filter only applies to files)
+                for name in list(dirs) + list(files):
+                    item_path = Path(root) / name
+                    if filter_expr and not matches_filter(item_path, filter_expr):
                         continue
-                    if not matches_size(file_path, size_filter):
+                    if item_path.is_file() and not matches_size(item_path, size_filter):
                         continue
-                    entry = DirEntry.from_path(file_path, case_name)
+                    entry = DirEntry.from_path(item_path, case_name)
                     results.append(entry)
         else:
             for item in base_path.iterdir():
-                if not item.is_file():
-                    continue
+                # includes files AND directories
                 if filter_expr and not matches_filter(item, filter_expr):
                     continue
-                if not matches_size(item, size_filter):
+                if item.is_file() and not matches_size(item, size_filter):
                     continue
                 entry = DirEntry.from_path(item, case_name)
                 results.append(entry)

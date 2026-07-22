@@ -7,6 +7,7 @@ import { useModuleStore } from '~/stores/module'
 import { useProfileStore } from '~/stores/profile'
 import { useHandlerStore } from '~/stores/handler'
 import type { PostHandlerAdvancedCreateRequest } from '~/api/types'
+import type { TreeItem } from '@nuxt/ui'
 import TreeSelector from '~/components/TreeSelector.vue'
 import { buildTreeFromPaths } from '~/utils/tree'
 
@@ -26,12 +27,39 @@ onUnmounted(() => moduleStore.stopPolling())
 
 const toast = useToast()
 
-const { data: casesData } = await useAsyncData('cases', () => api.case.list())
+const { data: casesData, refresh: refreshCases } = await useAsyncData('cases', () => api.case.list())
 
 const caseOptions = computed(() => [
   { label: 'All cases', value: 'all' },
   ...(casesData.value?.response ?? []).map(c => ({ label: c.name, value: c.name })),
 ])
+
+// ── New case creation ────────────────────────────────────────────────────────
+const showNewCaseModal = ref(false)
+const newCaseName = ref('')
+const creatingCase = ref(false)
+
+async function createCase() {
+  const name = newCaseName.value.trim()
+  if (!name) {
+    toast.add({ title: 'Error', description: 'Case name is required', color: 'error', position: 'top-right' })
+    return
+  }
+  creatingCase.value = true
+  try {
+    await api.case.create(name)
+    await Promise.all([refreshCases(), caseStore.refresh()])
+    showNewCaseModal.value = false
+    newCaseName.value = ''
+    selectedCase.value = name
+    toast.add({ title: 'Case created', description: `Case "${name}" created successfully`, color: 'success', position: 'top-right' })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : 'Failed to create case'
+    toast.add({ title: 'Error', description: msg, color: 'error', position: 'top-right' })
+  } finally {
+    creatingCase.value = false
+  }
+}
 
 // Fetch initial data
 await Promise.all([
@@ -46,6 +74,12 @@ const selectedExpanded = ref(false)
 const fileAction = ref<string[]>([])
 const folderAction = ref<string[]>([])
 const folderAllFilesAction = ref<string[]>([])
+
+// The backend only applies ONE module per action → keep only the last selected one
+// (selecting a module replaces the previous one), without modifying the shared TreeSelector.
+watch(fileAction, (v) => { if (v.length > 1) fileAction.value = v.slice(-1) })
+watch(folderAction, (v) => { if (v.length > 1) folderAction.value = v.slice(-1) })
+watch(folderAllFilesAction, (v) => { if (v.length > 1) folderAllFilesAction.value = v.slice(-1) })
 
 const fileModules = computed(() =>
   moduleStore.modules.filter(m => moduleStore.moduleInfoMap[m]?.input?.type === 'file')
@@ -243,8 +277,38 @@ function configureUploader(uppy: any, context: { getTargetPath: () => string }) 
               @click="selectedCase = 'all'"
             />
           </Transition>
+          <UButton
+            icon="i-lucide-folder-plus"
+            label="New Case"
+            color="primary"
+            variant="subtle"
+            size="sm"
+            class="shrink-0 whitespace-nowrap"
+            @click="showNewCaseModal = true"
+          />
         </div>
       </div>
+
+      <!-- New case modal -->
+      <UModal v-model:open="showNewCaseModal" title="Create a new case">
+        <template #body>
+          <UFormField label="Case name">
+            <UInput
+              v-model="newCaseName"
+              placeholder="e.g. case_2026_001"
+              autofocus
+              class="w-full"
+              @keydown.enter="createCase"
+            />
+          </UFormField>
+        </template>
+        <template #footer>
+          <div class="flex justify-end gap-2 w-full">
+            <UButton label="Cancel" color="neutral" variant="ghost" @click="showNewCaseModal = false" />
+            <UButton label="Create" color="primary" icon="i-lucide-check" :loading="creatingCase" @click="createCase" />
+          </div>
+        </template>
+      </UModal>
 
       <!-- VueFinder -->
       <div class="rounded-lg border border-(--ui-border) overflow-hidden shadow-sm" style="height: 70vh; min-height: 500px;">
