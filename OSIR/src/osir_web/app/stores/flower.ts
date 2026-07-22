@@ -41,7 +41,7 @@ function mapStatus(worker: FlowerWorker): 'Online' | 'Offline' | 'Heartbeat' {
 
 function formatHeartbeat(timestamp: number): string {
   const date = new Date(timestamp * 1000)
-  return date.toISOString().replace('T', ' ').replace('\.\d+Z$', '')
+  return date.toISOString().replace('T', ' ').replace(/\.\d+Z$/, '')
 }
 
 function formatLoadAvg(loadavg: number[]): string {

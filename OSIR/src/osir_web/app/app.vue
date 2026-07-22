@@ -19,6 +19,10 @@ useHead({
 const title = 'OSIR'
 const description = 'Open Software for Incident Response — Orchestration & Monitoring platform.'
 
+// Splunk link based on the FQDN the user is on (instead of a hardcoded localhost).
+// useRequestURL() gives the request host on the server and window.location on the client.
+const splunkUrl = computed(() => `https://${useRequestURL().hostname}:8000`)
+
 useSeoMeta({
   title,
   description,
@@ -53,11 +57,10 @@ const toaster = { position: 'top-right', max:"5" }
           color="neutral"
           variant="ghost"
         />
-        <!-- TODO: Change for the docker IP -->
         <UButton
-          to="https://localhost:8000"
+          :to="splunkUrl"
           target="_blank"
-          aria-label="GitHub"
+          aria-label="Splunk"
           color="neutral"
           variant="ghost"
         >

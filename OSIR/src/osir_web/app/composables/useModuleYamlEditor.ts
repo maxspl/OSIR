@@ -23,23 +23,6 @@ export function useModuleYamlEditor(
     return modulePath.split('/').pop() || modulePath
   }
 
-  function wrapLines(html: string): string {
-    return html.split('\n').map(line => `<span class="hl-line">${line || '&ZeroWidthSpace;'}</span>`).join('')
-  }
-
-  function getHighlighted(modulePath: string): string {
-    import('highlight.js/lib/core').then(async ({ default: hljs }) => {
-      const { default: yamlLang } = await import('highlight.js/lib/languages/yaml')
-      hljs.registerLanguage('yaml', yamlLang)
-    })
-    const content = moduleYamlMap.value[modulePath] ?? ''
-    try {
-      const hljs = (globalThis as any).__hljs
-      if (hljs) return wrapLines(hljs.highlight(content, { language: 'yaml' }).value)
-    } catch {}
-    return wrapLines(content)
-  }
-
   function initModuleYaml(modulePath: string) {
     const info = moduleStore.moduleInfoMap[modulePath]
     if (info) {
@@ -132,7 +115,6 @@ export function useModuleYamlEditor(
     editorOpen,
     editableModules,
     getBasename,
-    getHighlighted,
     initModuleYaml,
     resetModule,
     onYamlInput,

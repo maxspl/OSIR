@@ -80,6 +80,11 @@ function selectByPath(paths: string[]) {
   })
 }
 
+// rowSelection is keyed by row index; whenever the order/content of tableRows changes
+// (e.g. the modules polling refresh), we re-align the selection from selectedModules
+// (source of truth, keyed by path) so the wrong rows don't get checked.
+watch(tableRows, () => selectByPath(selectedModules.value))
+
 function onTableSelect(event: Event, row: TableRow<ModuleModel>) {
   if (!row.getIsSelected()) {
     selectedModules.value.push(row.original.module_path)

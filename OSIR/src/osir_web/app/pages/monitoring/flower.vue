@@ -17,7 +17,7 @@ const menuItems = [
 
 // Fetch workers on component mount
 onMounted(() => {
-  flowerStore.fetchWorkers()
+  // startPolling() already does an immediate fetchWorkers()
   flowerStore.startPolling()
 })
 
