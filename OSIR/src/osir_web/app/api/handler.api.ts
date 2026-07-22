@@ -34,7 +34,8 @@ export class HandlerApi {
     page: number = 1,
     pageSize: number = 20,
     status?: string | null,
-    module?: string | null
+    module?: string | null,
+    input?: string | null
   ): Promise<GetHandlerTasksPaginatedResponse> {
     const params: Record<string, unknown> = { page, page_size: pageSize }
     if (status) {
@@ -42,6 +43,9 @@ export class HandlerApi {
     }
     if (module) {
       params.module = module
+    }
+    if (input) {
+      params.input = input
     }
     return this.client.get(`/api/handler/${handlerId}/tasks`, params)
   }

@@ -94,7 +94,7 @@ const filteredTasks = computed(() => {
   if (props.moduleFilter && props.moduleFilter !== 'all') {
     tasks = tasks.filter(t => t.module === props.moduleFilter)
   }
-  
+
   return tasks
 })
 
@@ -102,17 +102,15 @@ const filteredTasks = computed(() => {
 const buildLazyParams = () => ({
   caseNames: props.caseNames ?? null,
   status: props.status ?? null,
-  input: props.input ?? null,
+  // input: either the external filter (prop, e.g. tasks.vue page), or the internal
+  // search field (lazyInputFilter, used when show-input-filter is enabled).
+  input: (props.input ?? lazyInputFilter.value) || null,
   handlerId: props.handlerId ?? null,
   module: props.moduleFilter && props.moduleFilter !== 'all' ? props.moduleFilter : null,
 })
 
-const fetchLazyTasks = () => {
-  if (!props.useLazyLoading || !taskStore) return
-  const { caseNames, status, input, handlerId, module } = buildLazyParams()
-  taskStore.fetchTasks(caseNames, status, input, lazyPage.value, lazyPageSize.value, handlerId, module)
-}
-
+// startPolling() already does an immediate fetch (with the same params) before arming
+// the setInterval, so no separate fetch is needed (otherwise 2 identical requests).
 const startLazyPolling = () => {
   if (!props.useLazyLoading || !taskStore) return
   const { caseNames, status, input, handlerId, module } = buildLazyParams()
@@ -133,7 +131,6 @@ if (props.useLazyLoading && taskStore) {
   watch([lazyPage, lazyPageSize], () => {
     taskStore.setPage(lazyPage.value)
     taskStore.setPageSize(lazyPageSize.value)
-    fetchLazyTasks()
     startLazyPolling()
   })
 
@@ -142,19 +139,16 @@ if (props.useLazyLoading && taskStore) {
     lazyPage.value = 1
     clearTimeout(lazyInputDebounce)
     lazyInputDebounce = setTimeout(() => {
-      fetchLazyTasks()
       startLazyPolling()
     }, 500)
   })
 
   watch(() => [props.caseNames, props.status, props.input, props.moduleFilter, props.handlerId], () => {
     lazyPage.value = 1
-    fetchLazyTasks()
     startLazyPolling()
   }, { deep: true })
 
   onMounted(() => {
-    fetchLazyTasks()
     startLazyPolling()
   })
 
@@ -256,6 +250,7 @@ function handleSelect(e: Event, row: unknown) {
             :icon="statusCfg[row.original.processing_status].icon"
             variant="subtle"
             size="sm"
+            :ui="{ leadingIcon: row.original.processing_status === 'processing_started' ? 'animate-spin' : undefined }"
           />
         </div>
       </template>

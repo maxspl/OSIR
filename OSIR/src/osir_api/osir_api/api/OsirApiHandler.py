@@ -66,7 +66,8 @@ def get_handler_tasks(
     page: int = 1,
     page_size: int = 20,
     status: Optional[str] = None,
-    module: Optional[str] = None
+    module: Optional[str] = None,
+    input: Optional[str] = None
 ):
     """
     Get paginated tasks for a specific handler.
@@ -83,6 +84,8 @@ def get_handler_tasks(
         params["processing_status"] = status
     if module:
         params["module"] = module
+    if input:
+        params["input"] = input
     return OsirIpcCall("get_tasks", params=params)
 
 @router.post("/handler/delete",

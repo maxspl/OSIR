@@ -89,7 +89,7 @@ export const useTaskStore = defineStore('task', {
         
         // If handlerId is provided, fetch tasks for that specific handler
         if (handlerId) {
-          result = await api.handler.get_tasks(handlerId, page, pageSize, status, module)
+          result = await api.handler.get_tasks(handlerId, page, pageSize, status, module, input)
         } else {
           // Single API call for all tasks with pagination and filters
           result = await api.case.tasksAll(caseNames, status, input, page, pageSize)
