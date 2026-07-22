@@ -26,7 +26,7 @@ const filterBarConfig = computed(() => [
   ],
   [
     { icon: 'i-lucide-search', label: 'Input', modelKey: 'filterInput', type: 'input' as const, placeholder: 'Search by input path…' },
-    { icon: 'i-lucide-activity', label: 'Status', modelKey: 'filterStatus', options: statusOptions, placeholder: 'All statuses…' },
+    { icon: 'i-lucide-activity', label: 'Status', modelKey: 'filterStatus', options: statusOptions, placeholder: 'All…' },
   ],
 ])
 
