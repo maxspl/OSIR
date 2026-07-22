@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import hljs from 'highlight.js/lib/core'
 import yamlLang from 'highlight.js/lib/languages/yaml'
+import { stringify as yamlStringify } from 'yaml'
 import { useProfileStore } from '~/stores/profile'
 import { useModuleStore } from '~/stores/module'
 
@@ -37,61 +38,18 @@ const profileOptions = computed(() => profileStore.profileOptions)
 const moduleOptions = computed(() => moduleStore.moduleOptions)
 
 // ── YAML Content ────────────────────────────────────────────────────────────
+// Serialize the real object directly (like the module editor) instead of rebuilding a
+// hand-made, flattened/incomplete pseudo-YAML → correct and complete output.
 function generateProfileYaml(profileName: string): string {
   const info = profileStore.profileInfoMap[profileName]
-  if (!info) return `Profile: ${profileName}\nNo info available`
-  
-  const lines: string[] = [
-    `# Profile: ${profileName}`,
-    `name: ${profileName}`,
-    `version: "${info.version ?? '1.0.0'}"`,
-    `author: ${info.author ?? 'OSIR Team'}`,
-    `description: ${info.description ?? 'No description'}`,
-    `os: ${info.os ?? 'all'}`,
-    `modules:`,
-  ]
-  
-  if (info.modules && info.modules.length > 0) {
-    info.modules.forEach(m => lines.push(`  - ${m}`))
-  } else {
-    lines.push('  []')
-  }
-  
-  return lines.join('\n')
+  if (!info) return `# Profile: ${profileName}\nNo info available`
+  return `# Profile: ${profileName}\n${yamlStringify(info, { indent: 2 })}`
 }
 
 function generateModuleYaml(moduleName: string): string {
   const info = moduleStore.moduleInfoMap[moduleName]
-  if (!info) return `Module: ${moduleName}\nNo info available`
-  
-  const lines: string[] = [
-    `# Module: ${moduleName}`,
-    `name: ${moduleName}`,
-    `version: "${info.metadata?.version ?? '1.0.0'}"`,
-    `author: ${info.metadata?.author ?? 'OSIR Team'}`,
-    `description: ${info.metadata?.description ?? 'No description'}`,
-    `os: ${info.metadata?.os ?? 'all'}`,
-    `enabled: ${info.configuration?.disk_only !== true}`,
-    `processor_os: ${info.configuration?.processor_os ?? 'unix'}`,
-    `processor_type: ${info.configuration?.processor_type?.join(', ') ?? 'internal'}`,
-    `input type: ${info.input?.type ?? 'unknown'}`,
-    `input path: ${info.input?.path ?? 'N/A'}`,
-    `output type: ${info.output?.type ?? 'unknown'}`,
-    `output format: ${info.output?.format ?? 'N/A'}`,
-  ]
-  
-  if (info.tool) {
-    lines.push('tool:')
-    lines.push(`  path: ${info.tool.path}`)
-    lines.push(`  cmd: ${info.tool.cmd}`)
-  }
-  
-  if (info.env && info.env.length > 0) {
-    lines.push('env:')
-    info.env.forEach(e => lines.push(`  - ${e}`))
-  }
-  
-  return lines.join('\n')
+  if (!info) return `# Module: ${moduleName}\nNo info available`
+  return `# Module: ${moduleName}\n${yamlStringify(info, { indent: 2 })}`
 }
 
 const currentKey = computed(() =>
