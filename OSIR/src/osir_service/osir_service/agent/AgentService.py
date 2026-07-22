@@ -298,6 +298,9 @@ class CeleryWorker:
                         output_path = "Module without Output"
 
                     self._is_item_in_use(case_uuid, module_instance, db, exclude_task_id=task_id)
+                    # Revoke action, maye not good for perf
+                    # if db.task.get(task_id=task_id).processing_status == "processing_failed":
+                    #     return "external_processor done"
                     db.task.set_runtime_info(task_id, agent=worker_name, output=output_path)
 
                 # Safety net for manually/API file tasks. The normal

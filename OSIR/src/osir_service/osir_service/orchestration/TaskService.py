@@ -52,6 +52,7 @@ def _get_celery_app() -> Celery:
                 app = Celery(name='OSIR', broker=broker_url, backend=result_backend)
                 app.conf.update(
                     result_extended=True,
+                    resultrepr_maxsize=5000000,
                     task_track_started=True,            # STARTED rows in celery_taskmeta
                     result_expires=None,                # no TTL purge: cleanup is per-case
                     database_short_lived_sessions=True,

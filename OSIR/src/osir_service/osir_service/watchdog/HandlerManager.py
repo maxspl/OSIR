@@ -5,6 +5,7 @@ from threading import Thread, Lock, Event
 import logging
 from typing import Dict, Optional, List
 from uuid import UUID, uuid4
+from celery.app.control import Control
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -17,7 +18,7 @@ from osir_service.orchestration.TaskService import TaskService
 from osir_service.ipc.OsirIpc import FileManager
 from osir_service.postgres.OsirDb import OsirDb
 from osir_service.watchdog.WatchdogService import ModuleHandler
-
+from osir_service.orchestration.TaskService import _get_celery_app
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
 
@@ -148,18 +149,25 @@ class HandlerManager:
             else:
                 logger.debug("No UUID provided to stop handler.")
 
-    def _stop_handler(self, handler_uuid: UUID) -> None:
-        if handler_uuid in self.handlers:
-            self.handlers[handler_uuid].stop_event.set()
-            if handler_uuid in self.threads:
-                self.threads[handler_uuid].join(timeout=5)
-                del self.threads[handler_uuid]
-            del self.handlers[handler_uuid]
-            logger.debug(f"Handler {handler_uuid} stopped.")
+    def _stop_handler(self, handler_uuid: UUID | str) -> None:
+        logger.debug(f"Handler {handler_uuid} will be stopped.")
+        uuid_key = handler_uuid if isinstance(handler_uuid, UUID) else UUID(handler_uuid)
 
-    def shutdown(self) -> None:
-        self.stop()
-        logger.debug("HandlerManager shutdown complete.")
+        if uuid_key in self.handlers:
+            if uuid_key in self.threads:
+                self.threads[uuid_key].join(timeout=5)
+                del self.threads[uuid_key]
+
+            handler = self.handlers[uuid_key]
+            with OsirDb() as db:
+                db.handler.update(str(handler.handler_uuid), "processing_done")
+                task_ids = db.handler._task_ids_for_handler(str(handler.handler_uuid))
+                app = _get_celery_app()
+                for id in task_ids:
+                    logger.debug(f"Task {id} stopped.")
+                    app.control.revoke(str(id), terminate=True)
+            del self.handlers[uuid_key]
+            logger.debug(f"Handler {uuid_key} stopped.")
 
     def run_task(self, module_instance: OsirModuleModel, case_name = None, case_uuid = None, handler_uuid = None):
         """

@@ -343,13 +343,13 @@ class OsirIpc(BaseModel):
 
     def _watch_advanced_handler_completion(self, handler_uuid, poll_interval: int = 5, max_wait: int = 6 * 3600):
         """
-        Mark an 'advanced' flow handler (run module on file/folder) as 'processing_done'
-        (or 'processing_failed') as soon as all its tasks are finished.
+            Mark an 'advanced' flow handler (run module on file/folder) as 'processing_done'
+            (or 'processing_failed') as soon as all its tasks are finished.
 
-        Unlike the case/watchdog flow (WatchdogService.monitor_directory), this flow watches
-        no directory: otherwise nothing would update the handler status and it would stay
-        'processing_started' forever. Celery is the source of truth (via is_processing_active);
-        we poll until no task is active anymore.
+            Unlike the case/watchdog flow (WatchdogService.monitor_directory), this flow watches
+            no directory: otherwise nothing would update the handler status and it would stay
+            'processing_started' forever. Celery is the source of truth (via is_processing_active);
+            we poll until no task is active anymore.
         """
         deadline = time.time() + max_wait
         try:
@@ -378,6 +378,18 @@ class OsirIpc(BaseModel):
                 db.handler.delete(handler_id=handler_uuid)
 
         resp.response = to_delete
+        return resp
+
+    @register_action('stop_handler', required_fields=['handler_uuid'])
+    def _handle_stop_handler(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        
+        handler_uuid = req.params["handler_uuid"]
+
+        handler_manager.stop(handler_uuid)
+        resp.message = "Handler Stop Sucessfully"
+        resp.response = {
+            "handler_id": handler_uuid,
+        }
         return resp
     
     @register_action('restart_task', required_fields=['task_id'])

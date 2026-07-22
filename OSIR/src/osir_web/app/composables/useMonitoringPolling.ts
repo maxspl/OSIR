@@ -114,7 +114,8 @@ export function useMonitoringPolling(
   }
 
   // (Re)start/stop polling when the view, the selection or a status changes.
-  watch(
+  onNuxtReady(() => {
+    watch(
     () => [
       activeView.value,
       selectedHandler.value?.handler_id,
@@ -129,6 +130,8 @@ export function useMonitoringPolling(
     () => startPolling(),
     { immediate: true },
   )
+  })
+  
 
   onUnmounted(() => stopPolling())
 

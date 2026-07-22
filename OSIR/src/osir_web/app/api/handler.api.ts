@@ -8,6 +8,7 @@ import type {
   GetHandlerTasksPaginatedResponse,
   GetHandlerStatsResponse,
   PostHandlerDeleteResponse,
+  PostHandlerStopResponse,
 } from './types'
 
 export class HandlerApi {
@@ -52,6 +53,10 @@ export class HandlerApi {
 
   delete(handlerUuid: string): Promise<PostHandlerDeleteResponse> {
     return this.client.post('/api/handler/delete', { handler_uuid: handlerUuid })
+  }
+
+  stop(handlerId: string): Promise<PostHandlerStopResponse> {
+    return this.client.post(`/api/handler/${handlerId}/stop`)
   }
 
   stats(handlerId: string): Promise<GetHandlerStatsResponse> {

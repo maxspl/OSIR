@@ -2,6 +2,7 @@
 import type { HandlerRow } from '~/stores/handler'
 import type { ProcessingStatus } from '~/stores/handler'
 import { getStatusCfg, statusStripeClass, short, formatDateTime } from '~/utils/monitoring'
+import { useOsirApi } from '~/api'
 
 const props = defineProps<{
   handler: HandlerRow
@@ -17,6 +18,29 @@ const emit = defineEmits<{
   'stop': []
   'rerun': []
 }>()
+
+// ── API ─────────────────────────────────────────────────────────────────────
+const api = useOsirApi()
+const toast = useToast()
+
+// ── State ────────────────────────────────────────────────────────────────────
+const isStopping = ref(false)
+
+// ── Actions ──────────────────────────────────────────────────────────────────
+async function handleStop() {
+  if (isStopping.value) return
+  isStopping.value = true
+  try {
+    await api.handler.stop(props.handler.handler_id)
+    toast.add({ title: 'Success', description: 'Closing the handler...', color: 'success' })
+    emit('stop')
+  } catch (error) {
+    toast.add({ title: 'Error', description: 'Failed to stop handler', color: 'error' })
+    console.error('Failed to stop handler:', error)
+  } finally {
+    isStopping.value = false
+  }
+}
 const statusLabels: Record<string, string> = {
   'task_created': 'Created',
   'processing_started': 'Processing',
@@ -86,26 +110,16 @@ const statusColors: Record<string, string> = {
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <!-- Temporarily hidden: the "Stop Handler" feature is not implemented yet on the
-               backend (the action is a no-op). Re-enable once it's done. -->
-          <!-- <UButton
+          <UButton
             v-if="handler.processing_status === 'processing_started'"
             label="Stop Handler"
             icon="i-lucide-square"
             color="error"
             variant="subtle"
             size="sm"
-            @click="emit('stop')"
-          /> -->
-          <!-- <UButton
-            v-if="handler.processing_status === 'processing_done' || handler.processing_status === 'processing_failed'"
-            label="Rerun Handler"
-            icon="i-lucide-refresh-cw"
-            color="primary"
-            variant="subtle"
-            size="sm"
-            @click="emit('rerun')"
-          /> -->
+            :loading="isStopping"
+            @click="handleStop"
+          />
         </div>
       </div>
     </div>

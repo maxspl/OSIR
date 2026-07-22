@@ -288,3 +288,4 @@ export interface PostHandlerAdvancedCreateRequest {
 export interface GetHandlerListResponse extends OsirIpcResponse<OsirDbHandlerModel[]> {}
 
 export interface PostHandlerDeleteResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
+export interface PostHandlerStopResponse extends OsirIpcResponse<OsirDbHandlerModel> {}

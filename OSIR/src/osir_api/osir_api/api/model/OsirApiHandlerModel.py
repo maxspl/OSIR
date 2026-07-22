@@ -70,8 +70,8 @@ class PostHandlerDeleteRequest(BaseModel):
 class PostHandlerDeleteResponse(OsirIpcResponse):
     response: OsirDbHandlerModel
 
-
-
-
 class GetHandlerTaskLogsResponse(OsirIpcResponse):
     response: List[OsirDbTaskModel]
+
+class GetStopHandlerResponse(OsirIpcResponse):
+    response: dict

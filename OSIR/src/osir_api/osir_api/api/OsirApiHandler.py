@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from typing import Optional
 
 from osir_api.api.model.OsirApiTaskModel import GetTaskStatsResponse, PaginatedTaskResponse, GetTasksListResponse
-from osir_api.api.model.OsirApiHandlerModel import GetHandlerTaskLogsResponse, PostHandlerAdvancedCreateRequest, GetHandlerStatusResponse, PostHandlerCreateRequest, PostHandlerCreateResponse, PostHandlerDeleteRequest, PostHandlerDeleteResponse
+from osir_api.api.model.OsirApiHandlerModel import GetHandlerTaskLogsResponse, GetStopHandlerResponse, PostHandlerAdvancedCreateRequest, GetHandlerStatusResponse, PostHandlerCreateRequest, PostHandlerCreateResponse, PostHandlerDeleteRequest, PostHandlerDeleteResponse
 from osir_api.api.OsirApiExceptions import UnexpectedExceptionResponse
 
 from osir_api.api.OsirIpcCall import OsirIpcCall
@@ -91,9 +91,14 @@ def get_handler_tasks(
 @router.post("/handler/delete",
              response_model=PostHandlerDeleteResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})
-def create_handler(request: PostHandlerDeleteRequest):
+def delete_handler(request: PostHandlerDeleteRequest):
     return OsirIpcCall("delete_handler", 
             params={
                 "handler_uuid": request.handler_uuid,
             })
 
+@router.post("/handler/{handler_id}/stop",
+             response_model=GetStopHandlerResponse,
+             responses={500: {"model": UnexpectedExceptionResponse}})
+def stop_handler(handler_id: str):
+    return OsirIpcCall("stop_handler", params={"handler_uuid": handler_id})
