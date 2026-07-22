@@ -133,7 +133,7 @@ class HandlerManager:
         if handler_service is None and (case_path is None or modules is None):
             raise ValueError("Either handler_service or both case_path and modules must be provided")
 
-        handler = handler_service or self._create_handler(case_path, modules, reprocess_case)
+        handler = handler_service or self._create_handler(case_path=case_path, modules=modules, reprocess_case=reprocess_case)
 
         with self.lock:
             handler_uuid = handler.handler_uuid
