@@ -338,6 +338,17 @@ class OsirIpc(BaseModel):
                         case_uuid = monitor_case.case_uuid
                         handler_uuid = monitor_case.run_task(module_instance, handler_uuid)
 
+        # The 'advanced' flow forces the modules and watches no directory: no watchdog will
+        # ever move this handler to 'processing_done'. So we start a lightweight thread that
+        # marks the handler done/failed as soon as all its tasks are finished (or immediately
+        # if there is no active task).
+        if handler_uuid:
+            threading.Thread(
+                target=self._watch_advanced_handler_completion,
+                args=(handler_uuid,),
+                daemon=True,
+            ).start()
+
         resp.message = "Handler created successfully"
         resp.response = {
             "handler_id": handler_uuid,
@@ -347,6 +358,30 @@ class OsirIpc(BaseModel):
             "processing_status": "processing_started"
         }
         return resp
+
+    def _watch_advanced_handler_completion(self, handler_uuid, poll_interval: int = 5, max_wait: int = 6 * 3600):
+        """
+        Mark an 'advanced' flow handler (run module on file/folder) as 'processing_done'
+        (or 'processing_failed') as soon as all its tasks are finished.
+
+        Unlike the case/watchdog flow (WatchdogService.monitor_directory), this flow watches
+        no directory: otherwise nothing would update the handler status and it would stay
+        'processing_started' forever. Celery is the source of truth (via is_processing_active);
+        we poll until no task is active anymore.
+        """
+        deadline = time.time() + max_wait
+        try:
+            while time.time() < deadline:
+                with OsirDb() as db:
+                    if not db.handler.is_processing_active(handler_uuid):
+                        status = "processing_failed" if db.handler.check_handler_failure(handler_uuid) else "processing_done"
+                        db.handler.update(handler_uuid, status)
+                        logger.debug(f"Advanced handler {handler_uuid} marked {status} (all tasks finished).")
+                        return
+                time.sleep(poll_interval)
+            logger.warning(f"Advanced handler {handler_uuid}: completion watch timed out after {max_wait}s.")
+        except Exception as e:
+            logger.error(f"Error while watching advanced handler {handler_uuid} completion: {e}")
 
     @register_action('delete_handler', required_fields=['handler_uuid'])
     def _handle_delete_handler(self, req: OsirIpcRequest, resp: OsirIpcResponse):
