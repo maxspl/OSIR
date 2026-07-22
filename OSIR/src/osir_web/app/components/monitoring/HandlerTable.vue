@@ -31,6 +31,7 @@ const emit = defineEmits<{
           :icon="getStatusCfg(row.original.processing_status).icon"
           variant="subtle"
           size="sm"
+          :ui="{ leadingIcon: row.original.processing_status === 'processing_started' ? 'animate-spin' : undefined }"
         />
       </template>
       <template #created_at-cell="{ row }">

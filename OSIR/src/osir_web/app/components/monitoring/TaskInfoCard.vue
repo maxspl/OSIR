@@ -3,17 +3,19 @@ import type { TaskDetail } from '~/stores/handler'
 import type { ProcessingStatus } from '~/stores/handler'
 import {
   statusCfg, statusStripeClass, logLevelBadge, logRowClass, logMsgClass,
-  short, type LogLevel,
+  short, formatDateTime, type LogLevel,
 } from '~/utils/monitoring'
 
 const props = defineProps<{
   task: TaskDetail
+  // Awaitable callback provided by the parent: lets us wait for the refresh to
+  // actually complete (emit() does not return a Promise, so it isn't awaitable).
+  refreshHandler?: () => Promise<void> | void
 }>()
 
 const emit = defineEmits<{
   'stop': []
   'rerun': []
-  'refresh': []
   'back': []
 }>()
 
@@ -25,9 +27,11 @@ async function handleRefresh() {
   refreshLoading.value = true
   refreshSuccess.value = false
   try {
-    await emit('refresh')
+    await props.refreshHandler?.()
     refreshSuccess.value = true
     setTimeout(() => { refreshSuccess.value = false }, 2000)
+  } catch {
+    // The parent already handles/shows its own error (toast).
   } finally {
     refreshLoading.value = false
   }
@@ -62,6 +66,7 @@ const infoRows = computed(() => [
               'text-amber-400':   task.processing_status === 'processing_started',
               'text-neutral-400': task.processing_status === 'task_created',
               'text-red-500':     task.processing_status === 'processing_failed',
+              'animate-spin':     task.processing_status === 'processing_started',
             }"
           />
           <div class="flex-1 min-w-0">
@@ -70,10 +75,10 @@ const infoRows = computed(() => [
           </div>
           <div class="flex items-center gap-4 text-xs text-muted shrink-0">
             <span v-if="task.start_time" class="flex items-center gap-1">
-              <UIcon name="i-lucide-clock" class="w-3 h-3" />{{ task.start_time }}
+              <UIcon name="i-lucide-clock" class="w-3 h-3" />{{ formatDateTime(task.start_time) }}
             </span>
             <span v-if="task.end_time" class="flex items-center gap-1">
-              <UIcon name="i-lucide-flag" class="w-3 h-3" />{{ task.end_time }}
+              <UIcon name="i-lucide-flag" class="w-3 h-3" />{{ formatDateTime(task.end_time) }}
             </span>
           </div>
           <div class="flex items-center gap-2">
@@ -156,22 +161,29 @@ const infoRows = computed(() => [
         <UInput v-model="logSearch" placeholder="Filter logs…" icon="i-lucide-search" size="xs" class="w-44" />
       </div>
       <div class="divide-y divide-(--ui-border) max-h-72 overflow-y-auto font-mono text-xs">
-        <div
-          v-for="(log, i) in filteredLogs"
-          :key="i"
-          class="flex items-start gap-3 px-4 py-2"
-          :class="logRowClass[log.level as LogLevel]"
-        >
-          <span class="text-green-500/60 shrink-0 tabular-nums select-none">{{ log.timestamp }}</span>
-          <UBadge
-            :label="log.level"
-            :color="logLevelBadge[log.level as LogLevel]"
-            variant="subtle"
-            size="xs"
-            class="shrink-0 w-16 justify-center"
-          />
-          <span class="break-all" :class="logMsgClass[log.level as LogLevel]">{{ log.message }}</span>
-        </div>
+        <template v-for="(log, i) in filteredLogs" :key="i">
+          <!-- Raw tool output (no OSIR prefix): continuation line, no badge, indented -->
+          <div
+            v-if="log.raw"
+            class="px-4 py-1 pl-[8.5rem] whitespace-pre-wrap break-all text-(--ui-text-muted)"
+          >{{ log.message }}</div>
+          <!-- Structured OSIR log line -->
+          <div
+            v-else
+            class="flex items-start gap-3 px-4 py-2"
+            :class="logRowClass[log.level as LogLevel]"
+          >
+            <span class="text-green-500/60 shrink-0 tabular-nums select-none w-16">{{ log.timestamp }}</span>
+            <UBadge
+              :label="log.level"
+              :color="logLevelBadge[log.level as LogLevel]"
+              variant="subtle"
+              size="xs"
+              class="shrink-0 w-16 justify-center"
+            />
+            <span class="break-all" :class="logMsgClass[log.level as LogLevel]">{{ log.message }}</span>
+          </div>
+        </template>
         <div v-if="filteredLogs.length === 0" class="px-4 py-8 text-center text-(--ui-text-muted) italic">
           No matching log lines.
         </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { HandlerRow } from '~/stores/handler'
 import type { ProcessingStatus } from '~/stores/handler'
-import { getStatusCfg, statusStripeClass, short } from '~/utils/monitoring'
+import { getStatusCfg, statusStripeClass, short, formatDateTime } from '~/utils/monitoring'
 
 const props = defineProps<{
   handler: HandlerRow
@@ -52,6 +52,7 @@ const statusColors: Record<string, string> = {
             'text-amber-400':   handler.processing_status === 'processing_started',
             'text-neutral-400': handler.processing_status === 'task_created',
             'text-red-500':     handler.processing_status === 'processing_failed',
+            'animate-spin':     handler.processing_status === 'processing_started',
           }"
         />
         <div class="flex-1 min-w-0">
@@ -65,7 +66,7 @@ const statusColors: Record<string, string> = {
               class="flex items-center gap-1 text-xs"
               :class="statusColors[status]"
             >
-              <UIcon :name="statusIcons[status]" class="w-3 h-3" />
+              <UIcon :name="statusIcons[status]" class="w-3 h-3" :class="{ 'animate-spin': status === 'processing_started' }" />
               <span>{{ statusLabels[status] }}: {{ count }}</span>
             </span>
           </div>
@@ -75,17 +76,19 @@ const statusColors: Record<string, string> = {
             <UIcon name="i-lucide-folder-open" class="w-3 h-3" />{{ handler.case_name }}
           </span>
           <span v-if="startTime" class="flex items-center gap-1">
-            <UIcon name="i-lucide-clock" class="w-3 h-3" />Started: {{ startTime }}
+            <UIcon name="i-lucide-clock" class="w-3 h-3" />Started: {{ formatDateTime(startTime) }}
           </span>
           <span v-if="endTime" class="flex items-center gap-1">
-            <UIcon name="i-lucide-flag" class="w-3 h-3" />Ended: {{ endTime }}
+            <UIcon name="i-lucide-flag" class="w-3 h-3" />Ended: {{ formatDateTime(endTime) }}
           </span>
           <span v-else class="flex items-center gap-1">
             <UIcon name="i-lucide-clock" class="w-3 h-3" />Ongoing
           </span>
         </div>
         <div class="flex items-center gap-2">
-          <UButton
+          <!-- Temporarily hidden: the "Stop Handler" feature is not implemented yet on the
+               backend (the action is a no-op). Re-enable once it's done. -->
+          <!-- <UButton
             v-if="handler.processing_status === 'processing_started'"
             label="Stop Handler"
             icon="i-lucide-square"
@@ -93,7 +96,7 @@ const statusColors: Record<string, string> = {
             variant="subtle"
             size="sm"
             @click="emit('stop')"
-          />
+          /> -->
           <!-- <UButton
             v-if="handler.processing_status === 'processing_done' || handler.processing_status === 'processing_failed'"
             label="Rerun Handler"

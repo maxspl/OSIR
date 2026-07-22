@@ -59,6 +59,13 @@ export function short(uuid: string): string {
   return uuid.slice(0, 8) + '…'
 }
 
+// Truncate an ISO timestamp to the second: "2026-07-22T00:25:12.698411Z" → "2026-07-22 00:25:12"
+export function formatDateTime(value: string | null | undefined): string {
+  if (!value) return '—'
+  const m = String(value).match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2})/)
+  return m ? `${m[1]} ${m[2]}` : String(value)
+}
+
 export function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
   const s = Math.floor(diff / 1000)
@@ -84,7 +91,7 @@ export function extractVal(val: unknown): string {
 }
 
 export const statusOptions = [
-  { label: 'All statuses',  value: 'all' },
+  { label: 'All',  value: 'all' },
   { label: 'Done',          value: 'processing_done' },
   { label: 'Processing',    value: 'processing_started' },
   { label: 'Created',       value: 'task_created' },

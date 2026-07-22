@@ -19,6 +19,7 @@ export interface ParsedLog {
   timestamp: string
   level:     string
   message:   string
+  raw?:      boolean   // line with no OSIR prefix (raw tool stdout/stderr output)
 }
 
 export interface TaskDetail {
@@ -49,17 +50,19 @@ function mapStatus(s?: string | null): ProcessingStatus {
 }
 
 function parseLogLine(line: string): ParsedLog {
-  // Format: [LEVEL][YYYY-MM-DD HH:MM:SS,mmm] - File:line - func() - message
-  const match = line.match(/^\[(\w+)\]\[([^\]]+)\]\s*-\s*.+\s*-\s*.+\(\)\s*-\s*(.+)$/)
+  // OSIR file log format: [origin][task_id][LEVEL][asctime] - file:line - func - message
+  // The number of brackets before LEVEL varies (origin/task_id sometimes empty), so we
+  // locate the [LEVEL][asctime] pair directly.
+  const match = line.match(/\[(DEBUG|INFO|WARNING|ERROR|CRITICAL)\]\[([^\]]+)\]\s*-\s*.+?\s*-\s*.+?\s*-\s*(.*)$/)
   if (!match) {
-    return { level: 'INFO', timestamp: '', message: line.trim() }
+    // Line with no OSIR prefix (e.g. a tool's stdout/stderr) → shown as-is.
+    return { level: '', timestamp: '', message: line.replace(/\s+$/, ''), raw: true }
   }
   const level = match[1] || 'INFO'
-  const timeStr = match[2] || ''
-  const timeParts = timeStr.split(' ')
-  const rawTime = timeParts[1] || timeParts[0] || ''
-  const timestamp = rawTime.split(',')[0] || ''
-  const message = (match[3] || line).trim()
+  const timeStr = (match[2] || '').trim()
+  // asctime = "2026-07-22 04:06:30,625" → keep "04:06:30"
+  const timestamp = (timeStr.split(' ')[1] || timeStr).split(',')[0] ?? ''
+  const message = (match[3] || '').trim()
   return { level, timestamp, message }
 }
 
