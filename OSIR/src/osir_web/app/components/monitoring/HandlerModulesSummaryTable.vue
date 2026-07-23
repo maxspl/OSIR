@@ -111,9 +111,16 @@ function onRowSelect(_e: Event, row: { original: ModuleStats }) {
 
 <template>
   <div class="space-y-4">
+    <!-- Header stays fixed just below the app header while the page scrolls, so
+         it doesn't disappear when a handler has many modules. `sticky` pins the
+         thead; overriding the table root's overflow makes the page (not the
+         table's own box) the scroll container, and top-(--ui-header-height)
+         parks the header under the app bar instead of behind it. -->
     <UTable
       :data="modulesStats"
       :columns="columns"
+      sticky
+      :ui="{ root: 'overflow-visible', thead: 'top-(--ui-header-height)' }"
       class="clickable-rows"
       @select="onRowSelect"
     >
