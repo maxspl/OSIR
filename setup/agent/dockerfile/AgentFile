@@ -131,6 +131,7 @@ RUN set -eux; \
 # - Python dependencies (cached layer) ---------------------
 COPY --from=python-builder /usr/local /usr/local
 COPY --from=python-builder /app/ogre-venv /app/ogre-venv
+COPY --from=python-builder /ogre /ogre
 
 # - Copy entry point that install python libs from mounted volume
 COPY sources/agent_entrypoint.sh /usr/local/bin/entrypoint.sh
