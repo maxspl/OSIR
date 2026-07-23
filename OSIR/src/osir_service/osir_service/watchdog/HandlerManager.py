@@ -57,8 +57,13 @@ class HandlerManager:
         if not module_instances:
             module_instances = [OsirModuleModel.from_name(module) for module in modules]
 
-        if not modules:
-            modules = [module.configuration.module for module in module_instances]
+        # Always store the canonical module name (the module's `module:` field,
+        # which is what osir_tasks.module records). Callers may pass names with a
+        # '.yml' extension (e.g. from a profile), while tasks record the bare
+        # name; normalizing here keeps the handler's declared modules aligned
+        # with the executed ones, so a module can't show up as both "not
+        # launched" and "executed" in the UI.
+        modules = [module.configuration.module for module in module_instances]
 
         case_name = os.path.basename(str(case_path))
         with OsirDb() as db:
