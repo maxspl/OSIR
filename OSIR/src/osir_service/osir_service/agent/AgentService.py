@@ -67,6 +67,30 @@ class CeleryWorker:
         self._register_tasks()
         self._local_count = 0
 
+    def _handler_stopped(self, task_id) -> bool:
+        """
+            Checks whether the task's owning handler has been stopped, so the
+            worker can skip the task instead of processing it.
+
+            Backs up Celery's revoke (fired by HandlerManager on stop), which
+            races with task pickup: a task already in a worker's prefetch buffer
+            is not revoked. The guard must never break normal processing, so any
+            lookup error is swallowed and treated as 'not stopped'.
+
+            Args:
+                task_id (str): The current Celery task id.
+
+            Returns:
+                bool: True if the owning handler was stopped and the task must
+                    be skipped, False otherwise (including on any lookup error).
+        """
+        try:
+            with OsirDb() as db:
+                return db.handler.is_stopped_for_task(task_id)
+        except Exception as exc:
+            logger.error(f"Handler-stop check failed for task {task_id}: {exc}")
+            return False
+
     def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: OsirDb, exclude_task_id=None):
         """
             Wait until the input file or directory is free to use, i.e., not being used by another module.
@@ -210,6 +234,11 @@ class CeleryWorker:
             task_id = current_task.request.id
             worker_name = current_task.request.hostname
 
+            # Skip if the owning handler was stopped between task push and pickup.
+            if self._handler_stopped(task_id):
+                logger.info(f"Task {task_id} skipped: its handler was stopped.")
+                return "handler stopped: task skipped"
+
             try:
                 # logger.debug(f"Task ID inside the task: {task_id}")
                 module_dict = json.loads(module_bytes)
@@ -273,6 +302,11 @@ class CeleryWorker:
             task_id = current_task.request.id
             worker_name = current_task.request.hostname
 
+            # Skip if the owning handler was stopped between task push and pickup.
+            if self._handler_stopped(task_id):
+                logger.info(f"Task {task_id} skipped: its handler was stopped.")
+                return "handler stopped: task skipped"
+
             try:
                 logger.debug(f"This task is running on worker: {task_id}")
                 module_dict = json.loads(module_bytes)
@@ -298,9 +332,6 @@ class CeleryWorker:
                         output_path = "Module without Output"
 
                     self._is_item_in_use(case_uuid, module_instance, db, exclude_task_id=task_id)
-                    # Revoke action, maye not good for perf
-                    # if db.task.get(task_id=task_id).processing_status == "processing_failed":
-                    #     return "external_processor done"
                     db.task.set_runtime_info(task_id, agent=worker_name, output=output_path)
 
                 # Safety net for manually/API file tasks. The normal

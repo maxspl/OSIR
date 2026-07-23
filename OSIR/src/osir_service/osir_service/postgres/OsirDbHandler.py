@@ -273,6 +273,43 @@ class OsirDbHandler:
             logger.error(f"Erreur lors de la vérification du handler actif: {e}")
             raise
         
+    def is_stopped_for_task(self, task_id: str) -> bool:
+        """
+            Checks whether the handler owning a task has been stopped.
+
+            A stopped handler is marked 'processing_done' while some of its
+            tasks may still be queued. Workers call this to skip such tasks
+            instead of processing them: a safety net behind Celery's revoke,
+            which races with task pickup (a task already in a worker's prefetch
+            buffer is not revoked, so the handler status must be re-checked
+            before running the module). Runs a single indexed query
+            (task_id primary key + handler join).
+
+            Args:
+                task_id (str): The task UUID to resolve to its owning handler.
+
+            Returns:
+                bool: True if the owning handler is 'processing_done'. False if
+                    the task has no handler or is unknown, so normal processing
+                    is never blocked by this guard.
+
+            Raises:
+                Exception: If the database query fails.
+        """
+        if not task_id:
+            return False
+        row = self.db.execute_query(
+            """
+            SELECT h.processing_status
+            FROM osir_tasks t
+            JOIN osir_handlers h ON h.handler_id = t.handler_id
+            WHERE t.task_id = %s::uuid
+            """,
+            (str(task_id),),
+            fetch="fetchone",
+        )
+        return bool(row) and row["processing_status"] == "processing_done"
+
     def get_all_task_logs(self, handler_uuid: str) -> List[OsirDbTaskModel]:
         """
             Retrieves all tasks associated with a specific handler.

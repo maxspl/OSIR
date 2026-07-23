@@ -189,6 +189,13 @@ function resetModuleFilter() {
 // Check if we're in single module view
 const showSingleModuleView = computed(() => filterValues.filterModule !== 'all')
 
+// A handler can only be deleted once it has finished (done or failed). While it
+// is still processing it must be stopped first.
+const isHandlerFinished = computed(() =>
+  selectedHandler.value?.processing_status === 'processing_done'
+  || selectedHandler.value?.processing_status === 'processing_failed',
+)
+
 // ── FilterBar definitions ─────────────────────────────────────────────────────
 const view1Filters = computed(() => [[
   { icon: 'i-lucide-folder-open', label: 'Case',   modelKey: 'filterCaseName',      options: caseNameOptions.value, placeholder: 'All cases…' },
@@ -315,6 +322,7 @@ const view2Filters = computed(() => [
           />
 
           <DangerZone
+            v-if="isHandlerFinished"
             title="Delete selected handler"
             description="Permanently removes this handler and all its associated tasks."
             button-label="Delete Handler"
