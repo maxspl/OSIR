@@ -289,3 +289,18 @@ export interface GetHandlerListResponse extends OsirIpcResponse<OsirDbHandlerMod
 
 export interface PostHandlerDeleteResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
 export interface PostHandlerStopResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
+
+// ── System metrics (monitoring graphs) ───────────────────────────────────────
+export interface OsirDbMetricsModel {
+  agent: string
+  ts: string
+  mem_pct: number | null
+  mem_used_mb: number | null
+  mem_total_mb: number | null
+  swap_pct: number | null
+  cpu_pct: number | null
+  loadavg: number | null
+  worker_rss_mb: number | null
+}
+
+export interface GetSystemMetricsResponse extends OsirIpcResponse<OsirDbMetricsModel[]> {}

@@ -391,7 +391,15 @@ class OsirIpc(BaseModel):
             "handler_id": handler_uuid,
         }
         return resp
-    
+
+    @register_action('get_system_metrics')
+    def _handle_get_system_metrics(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        """Return recent host resource samples (per agent) for the web UI graphs."""
+        window_seconds = int(req.params.get("window_seconds", 900))
+        with OsirDb() as db:
+            resp.response = db.metrics.list_recent(window_seconds=window_seconds)
+        return resp
+
     @register_action('restart_task', required_fields=['task_id'])
     def _handle_create_case(self, req: OsirIpcRequest, resp: OsirIpcResponse):
         # TODO: Maybe Wrap this in TaskService ?

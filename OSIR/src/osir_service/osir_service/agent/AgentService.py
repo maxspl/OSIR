@@ -18,6 +18,7 @@ from osir_service.orchestration.TaskProcessorService import InternalProcessor
 from osir_service.orchestration.TaskProcessorService import ExternalProcessor
 from osir_service.postgres.OsirDbConstants import ProcessingStatus
 from osir_service.postgres.OsirDb import OsirDb
+from osir_service.agent.SystemMetricsSampler import SystemMetricsSampler
 
 logger = AppLogger().get_logger()
 
@@ -383,6 +384,15 @@ class CeleryWorker:
             logger.error(exc)
 
         host_hostname = os.getenv('HOST_HOSTNAME', '%h')  # Default to '%h' if the env var is not set
+
+        # Start the host resource sampler (RAM/CPU/load -> osir_metrics) so the
+        # web UI can graph this agent's load. Opt-out via OSIR_METRICS_ENABLED=0.
+        if os.getenv('OSIR_METRICS_ENABLED', '1') != '0':
+            try:
+                SystemMetricsSampler.from_env(agent=host_hostname).start()
+            except Exception as exc:
+                logger.error(f"Could not start system metrics sampler: {exc}")
+
         capacity = self._compute_parallel_capacity(
             standalone=self.agent_config.standalone,
             windows_cores=windows_cores

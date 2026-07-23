@@ -39,6 +39,12 @@ const items = [
         description: 'Monitor your agent & master using Flower',
         icon: 'i-lucide-cpu',
         to: '/monitoring/flower'
+      },
+      {
+        label: 'System Load',
+        description: 'Graph RAM, CPU & load per agent over time',
+        icon: 'i-lucide-gauge',
+        to: '/monitoring/system'
       }
     ]
   },
