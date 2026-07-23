@@ -1,5 +1,5 @@
 # - Base image --------------------------------
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS python-builder
 
 # - Environment --------------------------------
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -32,6 +32,7 @@ RUN set -eux; \
         smbclient \
         cifs-utils \
         wget \
+        curl \
         jc \
         jq \
         sleuthkit \
@@ -66,15 +67,6 @@ RUN set -eux; \
     python -m pip install --no-cache-dir /opt/decode --break-system-packages && \
     rm -rf /opt/decode
 
-# - Docker CLI & legacy OpenSSL (libssl1.1) ------------------
-RUN set -eux; \
-    wget -qO get-docker.sh https://get.docker.com && \
-    sh get-docker.sh && rm get-docker.sh; \
-    \
-    wget -qO /tmp/libssl1.1.deb \
-        http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
-    dpkg -i /tmp/libssl1.1.deb && rm /tmp/libssl1.1.deb
-
 # - Install DFIR-OGRE
 RUN set -eux; \
     mkdir -p /ogre; \
@@ -83,6 +75,62 @@ RUN set -eux; \
     curl https://sh.rustup.rs -sSf | sh -s -- -y; \
     uv venv /app/ogre-venv; \
     uv pip install --python /app/ogre-venv/bin/python --no-cache /ogre/dfir-ogre;
+
+
+# - Base image --------------------------------
+FROM ubuntu:24.04 AS runtime
+
+# - Environment --------------------------------
+ENV DEBIAN_FRONTEND=noninteractive \
+    TZ=Europe/Minsk \
+    PATH="/OSIR/OSIR:${PATH}"
+
+# - Base system & tooling ---------------------------
+RUN set -eux; \
+    # timezone
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ >/etc/timezone; \
+    \
+    # package index & core libs
+    apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+        libpq5 \
+        libleveldb1d \
+        libusb-1.0-0 \
+        libfuse2 \
+        smbclient \
+        cifs-utils \
+        wget \
+        jc \
+        jq \
+        sleuthkit \
+        graphviz \
+        git \
+        age \
+        software-properties-common; \
+    \
+    # add Deadsnakes PPA for Python 3.12
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        python3.12-full \
+        python3-pip; \
+    \
+    # make python3.12 the default python
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1; \
+    \
+    # clean apt cache to shrink image
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# - legacy OpenSSL (libssl1.1) ------------------
+RUN set -eux; \
+    wget -qO /tmp/libssl1.1.deb \
+        http://nz2.archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb && \
+    dpkg -i /tmp/libssl1.1.deb && rm /tmp/libssl1.1.deb
+    
+# - Python dependencies (cached layer) ---------------------
+COPY --from=python-builder /usr/local /usr/local
+COPY --from=python-builder /app/ogre-venv /app/ogre-venv
 
 # - Copy entry point that install python libs from mounted volume
 COPY sources/agent_entrypoint.sh /usr/local/bin/entrypoint.sh
