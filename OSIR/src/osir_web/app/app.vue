@@ -21,7 +21,7 @@ const description = 'Open Software for Incident Response — Orchestration & Mon
 
 // Splunk link based on the FQDN the user is on (instead of a hardcoded localhost).
 // useRequestURL() gives the request host on the server and window.location on the client.
-const splunkUrl = computed(() => `https://${useRequestURL().hostname}:8000`)
+const splunkUrl = computed(() => `http://${useRequestURL().hostname}:8000`)
 
 useSeoMeta({
   title,
