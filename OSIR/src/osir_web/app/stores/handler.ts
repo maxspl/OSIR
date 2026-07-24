@@ -139,7 +139,7 @@ export const useHandlerStore = defineStore('handler', {
                 task_ids:          h.task_id ?? [],
                 processing_status: h.processing_status as ProcessingStatus,
                 created_at:        h.created_at ?? null,
-                task_count:        (h.task_id ?? []).length,
+                task_count:        h.task_count ?? (h.task_id ?? []).length,
               })
             }
           }
@@ -153,7 +153,9 @@ export const useHandlerStore = defineStore('handler', {
     },
 
     async fetchTasksForHandler(handler: HandlerRow) {
-      if (!handler.task_ids?.length) {
+      // task_count comes from the backend; the task_id array is no longer
+      // shipped for scalability, so don't rely on its length here.
+      if (!handler.task_count) {
         this.tasksByHandler[handler.handler_id] = []
         return
       }
@@ -233,7 +235,7 @@ export const useHandlerStore = defineStore('handler', {
             task_ids:          response.response.task_id ?? [],
             processing_status: response.response.processing_status as ProcessingStatus,
             created_at:        response.response.created_at ?? null,
-            task_count:        (response.response.task_id ?? []).length,
+            task_count:        response.response.task_count ?? (response.response.task_id ?? []).length,
           })
           return response.response
         }
@@ -262,7 +264,7 @@ export const useHandlerStore = defineStore('handler', {
             task_ids:          response.response.task_id ?? [],
             processing_status: response.response.processing_status as ProcessingStatus,
             created_at:        response.response.created_at ?? null,
-            task_count:        (response.response.task_id ?? []).length,
+            task_count:        response.response.task_count ?? (response.response.task_id ?? []).length,
           })
           return response.response
         }

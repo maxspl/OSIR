@@ -48,6 +48,7 @@ export interface OsirDbHandlerModel {
   case_uuid: string
   modules: string[]
   task_id: string[]
+  task_count?: number
   processing_status: string
   created_at?: string | null
   case_name?: string | null

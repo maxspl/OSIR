@@ -163,32 +163,47 @@ class OsirDbHandler:
 
     def get(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> Union[OsirDbHandlerModel, List[OsirDbHandlerModel], None]:
         """
-        Retrieves one or more handlers by ID or Case UUID.
+            Retrieves one or more handlers by ID or Case UUID.
+
+            Each handler carries a `task_count` computed in SQL (index-only
+            count on osir_tasks) instead of the full task_id list: on large
+            cases that list holds hundreds of thousands of UUIDs and made the
+            orchestration view painfully slow to serialize and transfer.
+
+            Args:
+                handler_id (str, optional): Fetch a single handler by its UUID.
+                case_uuid (str, optional): Fetch all handlers of a case.
+
+            Returns:
+                OsirDbHandlerModel | List[OsirDbHandlerModel] | None: A single
+                    model (or None) when handler_id is given, else a list.
+
+            Raises:
+                ValueError: If neither handler_id nor case_uuid is provided.
+                Exception: If the query fails.
         """
         try:
-            rows = None
             if isinstance(case_uuid, str):
                 case_uuid = uuid.UUID(case_uuid)
 
+            base_query = """
+                SELECT h.*,
+                       (SELECT COUNT(*) FROM osir_tasks t
+                        WHERE t.handler_id = h.handler_id) AS task_count
+                FROM osir_handlers h
+            """
             if handler_id:
-                rows = self.db.execute_query("SELECT * FROM osir_handlers WHERE handler_id = %s::uuid", (handler_id,), fetch="fetchall")
+                rows = self.db.execute_query(base_query + " WHERE h.handler_id = %s::uuid", (handler_id,), fetch="fetchall")
             elif case_uuid:
-                rows = self.db.execute_query("SELECT * FROM osir_handlers WHERE case_uuid = %s", (case_uuid,), fetch="fetchall")
+                rows = self.db.execute_query(base_query + " WHERE h.case_uuid = %s", (case_uuid,), fetch="fetchall")
             else:
                 raise ValueError("Must provide either `handler_id` or `case_uuid`.")
 
             if not rows:
                 return None if handler_id else []
 
-            if handler_id:
-                model = OsirDbHandlerModel.model_validate(rows[0])
-                model.task_id = self._task_ids_for_handler(model.handler_id)
-                return model
-            else:
-                models = [OsirDbHandlerModel.model_validate(x) for x in rows]
-                for model in models:
-                    model.task_id = self._task_ids_for_handler(model.handler_id)
-                return models
+            models = [OsirDbHandlerModel.model_validate(x) for x in rows]
+            return models[0] if handler_id else models
         except Exception as e:
             logger.error(f"Error retrieving handlers: {e}")
             raise
