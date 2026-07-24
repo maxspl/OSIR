@@ -1,4 +1,5 @@
 import uuid
+from datetime import timezone
 from typing import List, Union, Optional
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 from celery.backends.database.models import TaskExtended
@@ -631,7 +632,15 @@ class OsirDbTask:
                 duration_seconds = max((last_finished_at - first_task_at).total_seconds(), 0.0)
 
         def _iso(value):
-            return value.isoformat() if value is not None else None
+            if value is None:
+                return None
+            # first_task_at / last_finished_at are naive UTC timestamps (see the
+            # `AT TIME ZONE 'utc'` above and celery's naive date_done). Tag them
+            # as UTC so the frontend parses them as an absolute instant, aligned
+            # with the tz-aware handler.created_at, instead of as local time.
+            if value.tzinfo is None:
+                value = value.replace(tzinfo=timezone.utc)
+            return value.isoformat()
 
         return {
             "scope": {"handler_id": str(handler_id) if handler_id else None,

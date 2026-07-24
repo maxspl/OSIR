@@ -71,16 +71,23 @@ export function useHandlerSummary(selectedHandler: Ref<HandlerRow | null>) {
   const handlerSummary = computed(() => {
     if (!selectedHandler.value) return null
     const s = stats.value
+    const status = selectedHandler.value.processing_status
+    // "Ended" is only meaningful once the handler itself is finished. While it
+    // is still running, last_finished_at just tracks the most recently
+    // completed task, so surfacing it here would show an end date for a handler
+    // that is still processing. Keep it null until the handler is done/failed.
+    const isFinished = status === 'processing_done' || status === 'processing_failed'
+    const endTime = isFinished ? (s?.end_time ?? null) : null
     return {
       handlerId: selectedHandler.value.handler_id,
       caseName: selectedHandler.value.case_name,
-      status: selectedHandler.value.processing_status,
+      status,
       modules: selectedHandler.value.modules,
       taskCount: selectedHandler.value.task_count,
       createdAt: selectedHandler.value.created_at,
-      endedAt: s?.end_time ?? null,
+      endedAt: endTime,
       startTime: selectedHandler.value.created_at,
-      endTime: s?.end_time ?? null,
+      endTime,
     }
   })
 
