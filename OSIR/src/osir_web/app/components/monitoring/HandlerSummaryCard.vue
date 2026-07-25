@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import type { HandlerRow } from '~/stores/handler'
 import type { ProcessingStatus } from '~/stores/handler'
 import { getStatusCfg, statusStripeClass, short, formatDateTime } from '~/utils/monitoring'
@@ -9,6 +10,9 @@ const props = defineProps<{
   startTime: string | null
   endTime: string | null
   taskStatusCount: Record<string, number>
+  // Awaitable callback provided by the parent: lets us wait for the refresh to
+  // actually complete (emit() does not return a Promise, so it isn't awaitable).
+  refreshHandler?: () => Promise<void> | void
 }>()
 
 // Ensure taskStatusCount is never undefined
@@ -18,6 +22,25 @@ const emit = defineEmits<{
   'stop': []
   'rerun': []
 }>()
+
+// ── State ────────────────────────────────────────────────────
+const refreshLoading = ref(false)
+const refreshSuccess = ref(false)
+
+// ── Actions ────────────────────────────────────────────────────
+async function handleRefresh() {
+  refreshLoading.value = true
+  refreshSuccess.value = false
+  try {
+    await props.refreshHandler?.()
+    refreshSuccess.value = true
+    setTimeout(() => { refreshSuccess.value = false }, 2000)
+  } catch {
+    // The parent already handles/shows its own error (toast).
+  } finally {
+    refreshLoading.value = false
+  }
+}
 
 // ── API ─────────────────────────────────────────────────────────────────────
 const api = useOsirApi()
@@ -119,6 +142,15 @@ const statusColors: Record<string, string> = {
             size="sm"
             :loading="isStopping"
             @click="handleStop"
+          />
+          <UButton
+            label="Refresh"
+            :icon="refreshSuccess ? 'i-lucide-check' : 'i-lucide-refresh-cw'"
+            :color="refreshSuccess ? 'success' : 'neutral'"
+            :loading="refreshLoading"
+            variant="subtle"
+            size="sm"
+            @click="handleRefresh"
           />
         </div>
       </div>

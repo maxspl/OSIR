@@ -110,6 +110,24 @@ async function deleteHandler() {
   }
 }
 
+async function handleRefreshHandler() {
+  if (!selectedHandler.value) return
+  try {
+    await handlerStore.refreshHandler(selectedHandler.value.handler_id)
+    // Also refresh the stats for this handler
+    await handlerStore.fetchStatsForHandler(selectedHandler.value.handler_id)
+    // Refresh the handler reference
+    const freshHandler = handlerStore.handlers.find(h => h.handler_id === selectedHandler.value?.handler_id)
+    if (freshHandler) {
+      selectedHandler.value = freshHandler
+    }
+  } catch (error) {
+    toast.add({ title: 'Error', description: 'Failed to refresh handler info', color: 'error' })
+    console.error('Failed to refresh handler:', error)
+    throw error
+  }
+}
+
 async function handleRefreshTask() {
   if (!selectedTask.value) return
   try {
@@ -280,6 +298,7 @@ const view2Filters = computed(() => [
             :start-time="handlerSummary?.startTime ?? null"
             :end-time="handlerSummary?.endTime ?? null"
             :task-status-count="taskStatusCount"
+            :refresh-handler="handleRefreshHandler"
             @stop="() => {}"
             @rerun="() => {}"
           />
