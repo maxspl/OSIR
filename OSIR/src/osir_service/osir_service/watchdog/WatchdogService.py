@@ -208,6 +208,14 @@ class ModuleHandler(FileSystemEventHandler):
         self._pending_lock = threading.Lock()
         self._pending_file_tasks: list[tuple[str, _CompiledRule]] = []
         self._push_batch_size = 10000
+
+        self._reprocess = False
+
+        # Legacy file tasks are buffered like compiled ones so the cross-run
+        # dedup check runs once per batch instead of once per file 
+        self._pending_legacy_lock = threading.Lock()
+        self._pending_legacy_file_tasks: list[tuple[str, OsirModuleModel]] = []
+
         self._hash_workers = min(16, (os.cpu_count() or 4) * 2)
         self._case_path_norm = normalize_osir_path(case_path)
         self._flush_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="osir-flush")
@@ -728,17 +736,11 @@ class ModuleHandler(FileSystemEventHandler):
         """
         Monitors the directory for changes at specified intervals.
         """
+        self._reprocess = reprocess
+
         casesnapshot = CaseSnapshot(case_path)
 
-        if not reprocess:
-            logger.debug(f"Fetching previously stored entries for case_uuid={self.case_uuid}")
-            with OsirDb() as db:
-                previous_entries = set(db.snapshot.get_stored_case_snapshot(case_path))
-
-            if not previous_entries:
-                logger.debug("No previous entries found, starting with an empty set.")
-        else:
-            previous_entries = set()
+        previous_entries: set = set()
 
         scan_iterations = 0
 
@@ -781,8 +783,11 @@ class ModuleHandler(FileSystemEventHandler):
                     # executor, overlapping with this dispatch loop.
                     if len(self._pending_file_tasks) >= self._push_batch_size:
                         self._flush_pending_file_tasks()
+                    if len(self._pending_legacy_file_tasks) >= self._push_batch_size:
+                        self._flush_pending_legacy_file_tasks()
 
                 self._flush_pending_file_tasks(wait=True)
+                self._flush_pending_legacy_file_tasks()
 
                 new_entries_duration = time.time() - new_entries_start_time
                 logger.debug(f"Time taken to process new items: {new_entries_duration:.4} seconds")
@@ -791,6 +796,7 @@ class ModuleHandler(FileSystemEventHandler):
 
                 # Defensive: never exit with buffered, delayed or in-flight tasks.
                 self._flush_pending_file_tasks(wait=True)
+                self._flush_pending_legacy_file_tasks()
 
                 if self._has_unstable_file_tasks():
                     logger.debug(
@@ -801,13 +807,6 @@ class ModuleHandler(FileSystemEventHandler):
                         if not db.handler.is_processing_active(self.handler_uuid):
                             with self.timers_lock:
                                 if not self._deferred and not self.active_timers:
-                                    logger.debug("Case snapshot is being saved before exiting...")
-                                    db.snapshot.store_case_snapshot(
-                                        self.case_uuid,
-                                        case_path,
-                                        list(current_entries),
-                                    )
-
                                     if db.handler.check_handler_failure(self.handler_uuid):
                                         db.handler.update(self.handler_uuid, "processing_failed")
                                     else:
@@ -916,9 +915,14 @@ class ModuleHandler(FileSystemEventHandler):
         return False
 
     def _queue_legacy_file_task_when_stable(self, path: str, module_instance: OsirModuleModel) -> bool:
-        """Run a legacy file task only when its input is stable."""
+        """Buffer a legacy file task only when its input is stable.
+
+        Like compiled tasks, stable legacy matches are buffered so the
+        cross-run dedup check runs once per batch instead of once per file.
+        """
         if self._is_file_stable(path):
-            self.process(path, module_instance)
+            with self._pending_legacy_lock:
+                self._pending_legacy_file_tasks.append((path, module_instance))
             return True
 
         key = (path, module_instance.module_name, "legacy")
@@ -961,7 +965,8 @@ class ModuleHandler(FileSystemEventHandler):
                 with self._pending_lock:
                     self._pending_file_tasks.append((path, target))
             else:
-                self.process(path, target)
+                with self._pending_legacy_lock:
+                    self._pending_legacy_file_tasks.append((path, target))
 
             released += 1
             logger.debug(f"Released stable file task for '{path}'")
@@ -1289,7 +1294,24 @@ class ModuleHandler(FileSystemEventHandler):
 
         if current_mtime == previous_mtime and self._check_parent(path, module_instance):
             logger.debug(f"{module_instance.module_name} Directory '{path}' is now idle")
-            self.process(path, module_instance)
+
+            # Cross-run dedup for directory-input modules (low cardinality, so
+            # a single-pair check is fine). Skip re-dispatch if this
+            # (module, directory) pair already has a non-failed task.
+            skip = False
+            if not self._reprocess:
+                with OsirDb() as db:
+                    if db.task.filter_already_processed(
+                        self.case_uuid, [(module_instance.module_name, str(path))]
+                    ):
+                        logger.debug(
+                            f"{module_instance.module_name} Directory '{path}' already "
+                            f"processed; skipping"
+                        )
+                        skip = True
+
+            if not skip:
+                self.process(path, module_instance)
 
             with self.timers_lock:
                 if path in self.active_timers:
@@ -1393,6 +1415,40 @@ class ModuleHandler(FileSystemEventHandler):
         if wait:
             self._drain_flushes()
 
+    def _flush_pending_legacy_file_tasks(self, wait: bool = False) -> None:
+        """Flush buffered legacy file tasks.
+
+        Runs the cross-run dedup check once for the whole buffer, 
+        then dispatches the survivors via process(). The wait flag 
+        is accepted for symmetry with _flush_pending_file_tasks,
+        legacy dispatch is synchronous here.
+        """
+        with self._pending_legacy_lock:
+            pending = self._pending_legacy_file_tasks
+            self._pending_legacy_file_tasks = []
+
+        if not pending:
+            return
+
+        to_push = pending
+        if not self._reprocess:
+            pairs = [(module_instance.module_name, path) for path, module_instance in pending]
+            with OsirDb() as db:
+                done = db.task.filter_already_processed(self.case_uuid, pairs)
+            if done:
+                to_push = [
+                    (path, module_instance)
+                    for path, module_instance in pending
+                    if (module_instance.module_name, path) not in done
+                ]
+                logger.debug(
+                    f"Legacy flush: {len(pending) - len(to_push)} already-processed "
+                    f"file task(s) skipped"
+                )
+
+        for path, module_instance in to_push:
+            self.process(path, module_instance)
+
     def _drain_flushes(self) -> None:
         """Wait for all in-flight flush batches; surface their errors."""
         with self._flush_futures_lock:
@@ -1442,6 +1498,26 @@ class ModuleHandler(FileSystemEventHandler):
                         self._seen_prefix[key] = path
                         to_push.append((path, rule))
 
+        # 2b) Cross-run dedup: drop (module, input) pairs already handled by a
+        #     non-failed task for this case (skipped when reprocess=True).
+        already_done = 0
+        already_done_by_module: dict[str, int] = {}
+        if not self._reprocess and to_push:
+            pairs = [(rule.module_name, path) for path, rule in to_push]
+            with OsirDb() as db:
+                done = db.task.filter_already_processed(self.case_uuid, pairs)
+            if done:
+                kept = []
+                for path, rule in to_push:
+                    if (rule.module_name, path) in done:
+                        already_done += 1
+                        already_done_by_module[rule.module_name] = (
+                            already_done_by_module.get(rule.module_name, 0) + 1
+                        )
+                    else:
+                        kept.append((path, rule))
+                to_push = kept
+
         # 3) Build payloads from the precompiled dump (no pydantic
         #    deepcopy/serialization on the hot path).
         items = []
@@ -1475,9 +1551,13 @@ class ModuleHandler(FileSystemEventHandler):
         duplicates_detail = ", ".join(
             f"{m}: {n}" for m, n in sorted(duplicates_by_module.items())
         ) or "none"
+        already_done_detail = ", ".join(
+            f"{m}: {n}" for m, n in sorted(already_done_by_module.items())
+        ) or "none"
         logger.info(
             f"Batch flush: {len(items)} task(s) pushed, {duplicates} duplicate(s) skipped "
-            f"({duplicates_detail}), "
+            f"({duplicates_detail}), {already_done} already-processed skipped "
+            f"({already_done_detail}), "
             f"{len(pending)} candidate(s) in {time.time() - flush_start:.2f}s "
             f"(hashing: {hash_duration:.2f}s, workers: {self._hash_workers})"
         )

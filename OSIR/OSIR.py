@@ -52,6 +52,7 @@ def parse_args():
     parser.add_argument('--case', type=str, help='Name of the case in /OSIR/share/cases directory.')
     parser.add_argument('--web', action='store_true', help='Launch the master IPC.')
     parser.add_argument('--dev', action='store_true', help='Launch the Nuxt development server.')
+    parser.add_argument('--reprocess', action='store_true', help='Reprocess all files, even those already handled by a non-failed task in a previous run.')
 
     args = parser.parse_args()
 
@@ -185,7 +186,7 @@ def main():
         profile.add_modules(modules_to_add)
         modules = profile.modules
 
-        monitor_case = MonitorCase.MonitorCase(case_path, modules)
+        monitor_case = MonitorCase.MonitorCase(case_path, modules, reprocess_case=args.reprocess)
 
         # Start monitoring the case directory  in a separate thread
         setup_thread = threading.Thread(target=monitor_case.setup_handler)

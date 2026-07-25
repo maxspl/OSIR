@@ -8,7 +8,6 @@ import threading
 import psycopg2
 import psycopg2.extras
 
-from osir_service.postgres.OsirDbSnapshot import OsirDbSnapshot
 from osir_service.postgres.OsirDbTask import OsirDbTask
 from osir_service.postgres.OsirDbHandler import OsirDbHandler
 from osir_service.postgres.OsirDbCase import OsirDbCase
@@ -62,14 +61,12 @@ class OsirDb:
         self.case = OsirDbCase(self)
         self.handler = OsirDbHandler(self)
         self.task = OsirDbTask(self)
-        self.snapshot = OsirDbSnapshot(self)
         self.metrics = OsirDbMetrics(self)
 
         schema_key = (self.host, self.dbname, self.port)
         if schema_key not in OsirDb._schema_initialized:
             with OsirDb._schema_lock:
                 if schema_key not in OsirDb._schema_initialized:
-                    self.snapshot.create_table()
                     self.task.create_table()
                     self.task.create_celery_tables()
                     self.handler.create_table()

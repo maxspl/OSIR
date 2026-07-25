@@ -134,6 +134,12 @@ class OsirDbTask:
                 "CREATE INDEX IF NOT EXISTS idx_osir_tasks_handler_id "
                 "ON osir_tasks (handler_id, processing_status)"
             )
+            # New index (case_uuid, module, input) to save performance
+            # during the search of tasks input already processed
+            self.db.execute_query(
+                "CREATE INDEX IF NOT EXISTS idx_osir_tasks_case_module_input "
+                "ON osir_tasks (case_uuid, module, input)"
+            )
         except Exception as e:
             logger.error(f"Error creating table: {e}")
             raise
@@ -538,6 +544,61 @@ class OsirDbTask:
             return False
 
         return result["count"] > 0
+
+    def filter_already_processed(
+        self,
+        case_uuid: str,
+        pairs: List[tuple],
+    ) -> set:
+        """
+            Returns the subset of (module, input) pairs that already have a
+            NON-failed (ie.status is anything other than FAILURE/REVOKED) 
+            task for this case
+
+            It is keyed on (case_uuid, module, input) via index idx_osir_tasks_case_module_input
+
+            Args:
+                case_uuid (str): The UUID of the case.
+                pairs (List[tuple]): List of (module, input) tuples to test.
+
+            Returns:
+                set: The subset of `pairs` already handled (non-failed).
+        """
+        if not pairs:
+            return set()
+
+        modules = [p[0] for p in pairs]
+        inputs = [str(p[1]) for p in pairs]
+
+        try:
+            rows = self.db.execute_query(
+                """
+                SELECT q.module, q.input
+                FROM unnest(%s::text[], %s::text[]) AS q(module, input)
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM osir_tasks t
+                    LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                    WHERE t.case_uuid = %s
+                      AND t.module = q.module
+                      AND t.input  = q.input
+                      AND COALESCE(m.status, '') NOT IN ('FAILURE', 'REVOKED')
+                      AND NOT (
+                          m.status IS NULL
+                          AND t.processing_status = 'processing_failed'
+                      )
+                )
+                """,
+                (modules, inputs, str(case_uuid)),
+                fetch="fetchall",
+            )
+        except Exception as e:
+            # A dedup failure must never drop tasks: on error, treat every pair
+            # as not yet processed so the caller pushes them all 
+            logger.error(f"Error filtering already-processed pairs: {e}")
+            return set()
+
+        return {(row["module"], row["input"]) for row in rows}
 
     def stats(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> dict:
         """
