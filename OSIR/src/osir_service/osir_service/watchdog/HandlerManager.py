@@ -110,7 +110,7 @@ class HandlerManager:
                 handler.case_uuid,
                 handler.handler_uuid,
             )
-            module_handler.monitor_directory(handler.case_path, poll_interval, reprocess_case)
+            module_handler.monitor_directory(handler.case_path, poll_interval, reprocess_case, stop_event=handler.stop_event)
         except Exception as e:
             logger.error_handler(e)
 
@@ -159,11 +159,12 @@ class HandlerManager:
         uuid_key = handler_uuid if isinstance(handler_uuid, UUID) else UUID(handler_uuid)
 
         if uuid_key in self.handlers:
+            handler = self.handlers[uuid_key]
+            handler.stop_event.set()
             if uuid_key in self.threads:
                 self.threads[uuid_key].join(timeout=5)
                 del self.threads[uuid_key]
 
-            handler = self.handlers[uuid_key]
             with OsirDb() as db:
                 db.handler.update(str(handler.handler_uuid), "processing_done")
             del self.handlers[uuid_key]

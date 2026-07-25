@@ -724,7 +724,7 @@ class ModuleHandler(FileSystemEventHandler):
     # Directory monitoring loop
     # ------------------------------------------------------------------
 
-    def monitor_directory(self, case_path, interval=5, reprocess=False):
+    def monitor_directory(self, case_path, interval=5, reprocess=False, stop_event=None):
         """
         Monitors the directory for changes at specified intervals.
         """
@@ -742,7 +742,8 @@ class ModuleHandler(FileSystemEventHandler):
 
         scan_iterations = 0
 
-        while True:
+        while stop_event is None or not stop_event.is_set():
+            
             scan_iterations += 1
             iteration_start_time = time.time()
             logger.debug("Scanning for new files/folders")
