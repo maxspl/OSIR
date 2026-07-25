@@ -166,11 +166,6 @@ class HandlerManager:
             handler = self.handlers[uuid_key]
             with OsirDb() as db:
                 db.handler.update(str(handler.handler_uuid), "processing_done")
-                task_ids = db.handler._task_ids_for_handler(str(handler.handler_uuid))
-                app = _get_celery_app()
-                for id in task_ids:
-                    logger.debug(f"Task {id} stopped.")
-                    app.control.revoke(str(id), terminate=True)
             del self.handlers[uuid_key]
             logger.debug(f"Handler {uuid_key} stopped.")
 
