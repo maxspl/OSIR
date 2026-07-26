@@ -1,0 +1,328 @@
+###############################
+# Loki-RS ECS normalization
+# Input: Loki-RS JSONL output (one LogEvent per line)
+###############################
+
+# Keep the original Loki-RS payload before normalization.
+if !exists(.event.original) {
+    .event.original = encode_json!(.)
+}
+
+###############################
+# Base event metadata
+###############################
+.event.module = "loki"
+.observer.vendor = "Nextron Systems"
+.observer.product = "Loki-RS"
+.observer.type = "scanner"
+
+# Loki-RS timestamps are RFC3339 with nanoseconds and an offset
+# (2026-07-26T15:09:53.289129040+00:00): normalize to the format the indexer
+# expects for every OSIR sourcetype.
+if exists(.timestamp) {
+    ts = to_string(.timestamp) ?? null
+    if ts != null && ts != "" {
+        parsed_ts = parse_timestamp(ts, format: "%+") ?? null
+        if parsed_ts != null {
+            .timestamp = format_timestamp!(parsed_ts, format: "%Y-%m-%dT%H:%M:%SZ")
+        }
+    }
+}
+
+# Scan host. Loki-RS always runs on the OSIR agent against a collected tree, so
+# this is the scanner, never the compromised endpoint: the real host is set by
+# the indexer from the output file name (host_rex). Unlike THOR there is no
+# fallback to .host.name here, it would always be wrong.
+if exists(.hostname) {
+    observer_hostname = to_string(.hostname) ?? null
+    if observer_hostname != null && observer_hostname != "" {
+        .observer.hostname = observer_hostname
+    }
+}
+
+if exists(.level) {
+    level = downcase(to_string!(.level))
+    .log.level = level
+
+    # Loki-RS levels are score based (alert >= 80, warning >= 60, notice >= 40
+    # by default): expose them on the ECS severity scale as well.
+    if level == "alert" {
+        .event.severity = 90
+    } else if level == "warning" {
+        .event.severity = 70
+    } else if level == "notice" {
+        .event.severity = 50
+    } else if level == "error" {
+        .event.severity = 40
+    } else {
+        .event.severity = 10
+    }
+}
+
+if exists(.message) {
+    .message = to_string(.message) ?? null
+}
+
+###############################
+# Score
+###############################
+# The score is the sum of every match reason, it drives the level above.
+if exists(.score) {
+    # Scores are integers serialized as floats (75.0): expose them as integers,
+    # ECS risk_score readers and the Splunk dashboards expect 75, not "75.0".
+    score_float = to_float(.score) ?? null
+    if score_float != null {
+        score = to_int(score_float)
+        .event.risk_score = score
+        .loki.score = score
+    }
+}
+
+###############################
+# Event categorization
+###############################
+# A Loki-RS line is either a finding (file/process match) or scan telemetry
+# (start, end, progress, errors): only the findings are alerts.
+event_type = downcase(to_string(.event_type) ?? "info")
+
+if event_type == "file_match" {
+    .event.kind = "alert"
+    .event.category = ["file", "malware"]
+    .event.type = ["info"]
+    .event.action = "loki-file-match"
+    .event.dataset = "loki.filescan"
+} else if event_type == "process_match" {
+    .event.kind = "alert"
+    .event.category = ["process", "malware"]
+    .event.type = ["info"]
+    .event.action = "loki-process-match"
+    .event.dataset = "loki.processcheck"
+} else if event_type == "scan_start" {
+    .event.kind = "event"
+    .event.category = ["process"]
+    .event.type = ["start"]
+    .event.action = "loki-scan-start"
+    .event.dataset = "loki.scan"
+} else if event_type == "scan_end" {
+    .event.kind = "event"
+    .event.category = ["process"]
+    .event.type = ["end"]
+    .event.action = "loki-scan-end"
+    .event.dataset = "loki.scan"
+} else if event_type == "error" {
+    .event.kind = "event"
+    .event.category = ["process"]
+    .event.type = ["error"]
+    .event.action = "loki-scan-error"
+    .event.dataset = "loki.scan"
+} else {
+    .event.kind = "event"
+    .event.category = ["process"]
+    .event.type = ["info"]
+    .event.action = "loki-scan-info"
+    .event.dataset = "loki.scan"
+}
+
+###############################
+# File fields
+###############################
+if exists(.file_path) {
+    file_path = to_string(.file_path) ?? null
+    if file_path != null && file_path != "" {
+        .file.path = file_path
+        .file.name = basename!(file_path)
+
+        extension = split(basename!(file_path), ".")
+        if length(extension) > 1 {
+            .file.extension = downcase!(to_string!(extension[-1]))
+        }
+    }
+}
+
+# Loki-RS reports the magic-based type ("ARBITRARY BINARY DATA", "PE", ...),
+# which is exactly what makes a renamed sample stand out.
+if exists(.file_type) {
+    .file.type = to_string(.file_type) ?? null
+}
+
+if exists(.file_size) {
+    file_size = to_int(.file_size) ?? null
+    if file_size != null {
+        .file.size = file_size
+    }
+}
+
+if exists(.md5) {
+    .file.hash.md5 = to_string(.md5) ?? null
+}
+
+if exists(.sha1) {
+    .file.hash.sha1 = to_string(.sha1) ?? null
+}
+
+if exists(.sha256) {
+    .file.hash.sha256 = to_string(.sha256) ?? null
+}
+
+if exists(.file_created) {
+    .file.created = to_string(.file_created) ?? null
+}
+
+if exists(.file_modified) {
+    .file.mtime = to_string(.file_modified) ?? null
+}
+
+if exists(.file_accessed) {
+    .file.accessed = to_string(.file_accessed) ?? null
+}
+
+###############################
+# Process fields
+###############################
+# Only filled by the ProcessCheck module (disabled in the OSIR modules, which
+# scan collected filesystems), kept so a live scan normalizes the same way.
+if exists(.pid) {
+    pid = to_int(.pid) ?? null
+    if pid != null {
+        .process.pid = pid
+    }
+}
+
+if exists(.process_name) {
+    .process.name = to_string(.process_name) ?? null
+}
+
+if exists(.start_time) {
+    start_time = to_int(.start_time) ?? null
+    if start_time != null {
+        .process.start = format_timestamp!(from_unix_timestamp!(start_time), format: "%Y-%m-%dT%H:%M:%SZ")
+    }
+}
+
+if exists(.run_time) {
+    .loki.process.run_time = to_string(.run_time) ?? null
+}
+
+if exists(.memory_bytes) {
+    memory_bytes = to_int(.memory_bytes) ?? null
+    if memory_bytes != null {
+        .loki.process.memory_bytes = memory_bytes
+    }
+}
+
+if exists(.cpu_usage) {
+    cpu_usage = to_float(.cpu_usage) ?? null
+    if cpu_usage != null {
+        .loki.process.cpu_usage = cpu_usage
+    }
+}
+
+if exists(.connection_count) {
+    connection_count = to_int(.connection_count) ?? null
+    if connection_count != null {
+        .loki.process.connection_count = connection_count
+    }
+}
+
+if exists(.listening_ports) {
+    .loki.process.listening_ports = .listening_ports
+}
+
+###############################
+# Match reasons
+###############################
+# Loki-RS reports every reason that contributed to the score (YARA rule, hash
+# IOC, filename IOC, C2 IOC...). The first one is promoted to the ECS rule.*
+# fields - same layout as the THOR "_1" primary match - the whole list stays
+# under loki.reasons.
+if exists(.reasons) {
+    reasons = array(.reasons) ?? []
+    .loki.reasons_count = length(reasons)
+
+    if length(reasons) > 0 {
+        primary = object(reasons[0]) ?? {}
+
+        if exists(primary.message) {
+            reason_message = to_string(primary.message) ?? ""
+            .event.reason = reason_message
+
+            # Loki-RS encodes the match type in the reason sentence:
+            #   "YARA match with rule <rulename>"
+            #   "HASH match with IOC HASH: <hash>"
+            #   "File Name IOC matched PATTERN: <pattern>"
+            # Split it so .rule.name holds the signature identity (as THOR does
+            # with rulename_1) and .rule.ruleset the source that fired.
+            if starts_with(reason_message, "YARA match with rule ") {
+                .rule.name = replace(reason_message, "YARA match with rule ", "")
+                .rule.ruleset = "yara"
+            } else if starts_with(reason_message, "HASH match with IOC HASH: ") {
+                .rule.name = replace(reason_message, "HASH match with IOC HASH: ", "")
+                .rule.ruleset = "hash_ioc"
+            } else if starts_with(reason_message, "File Name IOC matched PATTERN: ") {
+                .rule.name = replace(reason_message, "File Name IOC matched PATTERN: ", "")
+                .rule.ruleset = "filename_ioc"
+            } else {
+                .rule.name = reason_message
+                .rule.ruleset = "loki"
+            }
+        }
+
+        if exists(primary.score) {
+            primary_score = to_int(primary.score) ?? null
+            if primary_score != null {
+                .rule.risk_score = primary_score
+            }
+        }
+
+        if exists(primary.description) {
+            .rule.description = to_string(primary.description) ?? null
+        }
+
+        if exists(primary.author) {
+            .rule.author = [to_string!(primary.author)]
+        }
+
+        if exists(primary.reference) {
+            .rule.reference = to_string(primary.reference) ?? null
+        }
+
+        if exists(primary.matched_strings) {
+            .loki.primary.matched_strings = primary.matched_strings
+        }
+    }
+
+    .loki.reasons = reasons
+}
+
+# Structured context, only used by the remote/syslog outputs today. Kept as a
+# nested object so nothing is lost if a future version fills it.
+if exists(.context) {
+    .loki.context = .context
+}
+
+###############################
+# Cleanup top-level duplicated fields
+###############################
+del(.hostname)
+del(.level)
+del(.event_type)
+del(.score)
+del(.file_path)
+del(.file_type)
+del(.file_size)
+del(.md5)
+del(.sha1)
+del(.sha256)
+del(.file_created)
+del(.file_modified)
+del(.file_accessed)
+del(.pid)
+del(.process_name)
+del(.start_time)
+del(.run_time)
+del(.memory_bytes)
+del(.cpu_usage)
+del(.connection_count)
+del(.listening_ports)
+del(.reasons)
+del(.context)

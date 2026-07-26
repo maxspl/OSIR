@@ -1,0 +1,49 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: YARA/IOC scan of the files collected by UAC (output of the extract_uac
+    module) using Loki-RS.
+  os: generic
+
+configuration:
+  module: loki_uac
+  type: process
+  disk_only: false
+  no_multithread: true
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: loki-rs/loki_scan.sh
+  cmd: --folder {input_dir} --jsonl {output_file} --no-procs --no-tui --no-html
+    --no-log --scan-all-files --threads=-2
+  source: https://github.com/Neo23x0/Loki-RS
+  version: 2.12.0
+
+input:
+  type: dir
+  path: r"extract_uac\/[^\/]+\/extracted_files$"
+
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'loki:files':
+    name_rex: \.jsonl$
+    path_suffix: 'loki_uac'
+    sourcetype: 'loki:files'
+    host_rex: ([\w\.-]+)--
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "Loki"
+    normalize:
+      - ecs_normalize/scan/loki.vrl
