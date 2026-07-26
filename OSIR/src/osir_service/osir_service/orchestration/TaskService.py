@@ -191,6 +191,42 @@ class TaskService:
         return custom_task_id
 
     @staticmethod
+    def revoke_tasks(task_ids, terminate: bool = False) -> int:
+        """
+            Revokes tasks through the broker: a fanout control message tells
+            every connected worker to discard those task ids.
+
+            A revoked id is kept in each worker's in-memory revoked set, so a
+            message still sitting in a RabbitMQ queue is dropped when it is
+            finally delivered instead of being executed. Workers that were not
+            connected when the broadcast was sent never see it, which is why
+            the worker also re-checks its handler status before running a task
+            (AgentService._handler_stopped).
+
+            Args:
+                task_ids: Iterable of task UUIDs to revoke.
+                terminate (bool): Also kill the tasks already being executed.
+                    Left False by the handler stop: a running module is allowed
+                    to finish, only what is still queued is dropped.
+
+            Returns:
+                int: Number of task ids sent to the broker.
+        """
+        task_ids = [str(task_id) for task_id in task_ids]
+        if not task_ids:
+            return 0
+
+        app = _get_celery_app()
+        # One control message per chunk: a single broadcast carrying tens of
+        # thousands of ids would be a needlessly large AMQP frame.
+        chunk_size = 1000
+        for start in range(0, len(task_ids), chunk_size):
+            app.control.revoke(task_ids[start:start + chunk_size], terminate=terminate)
+
+        logger.info(f"Revoke sent to workers for {len(task_ids)} task(s) (terminate={terminate})")
+        return len(task_ids)
+
+    @staticmethod
     def push_tasks_bulk(case_path, case_uuid, handler_uuid, items: list[dict]) -> list[str]:
         """
             Submits many tasks at once:

@@ -289,7 +289,15 @@ export interface PostHandlerAdvancedCreateRequest {
 export interface GetHandlerListResponse extends OsirIpcResponse<OsirDbHandlerModel[]> {}
 
 export interface PostHandlerDeleteResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
-export interface PostHandlerStopResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
+// Stopping a handler drops what it left queued: revoked_tasks counts the tasks
+// pulled out of the broker, running_tasks the ones already running (left to finish).
+export interface StopHandlerResult {
+  handler_id: string
+  revoked_tasks?: number
+  running_tasks?: number
+}
+
+export interface PostHandlerStopResponse extends OsirIpcResponse<StopHandlerResult> {}
 
 // ── System metrics (monitoring graphs) ───────────────────────────────────────
 export interface OsirDbMetricsModel {

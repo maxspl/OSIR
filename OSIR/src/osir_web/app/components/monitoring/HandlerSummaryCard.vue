@@ -54,8 +54,19 @@ async function handleStop() {
   if (isStopping.value) return
   isStopping.value = true
   try {
-    await api.handler.stop(props.handler.handler_id)
-    toast.add({ title: 'Success', description: 'Closing the handler...', color: 'success' })
+    const res = await api.handler.stop(props.handler.handler_id)
+    const revoked = res?.response?.revoked_tasks ?? 0
+    const running = res?.response?.running_tasks ?? 0
+    // Queued tasks are dropped immediately, running ones are left to finish.
+    const details = [
+      revoked ? `${revoked} queued task${revoked > 1 ? 's' : ''} cancelled` : null,
+      running ? `${running} running task${running > 1 ? 's' : ''} left to finish` : null,
+    ].filter(Boolean).join(', ')
+    toast.add({
+      title: 'Success',
+      description: details ? `Handler stopped: ${details}.` : 'Closing the handler...',
+      color: 'success',
+    })
     emit('stop')
   } catch (error) {
     toast.add({ title: 'Error', description: 'Failed to stop handler', color: 'error' })

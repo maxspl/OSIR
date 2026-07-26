@@ -346,6 +346,94 @@ class OsirDbTask:
             logger.error(f"Error setting status for task {task_id}: {e}")
             raise
 
+    def unfinished_by_handler(self, handler_id: str) -> dict:
+        """
+            Lists the tasks of a handler that Celery has not finished yet,
+            split by whether a worker already started them.
+
+            A task without a celery_taskmeta row has not been reported by any
+            worker yet: it is still waiting in the broker queue, so it counts
+            as PENDING (same convention as is_processing_active).
+
+            Args:
+                handler_id (str): The handler UUID to scope the lookup to.
+
+            Returns:
+                dict: {'pending': [task_id, ...], 'started': [task_id, ...]}
+                    'pending' holds the tasks that can still be revoked before
+                    execution (queued, prefetched or waiting for a retry),
+                    'started' the ones a worker is already running.
+
+            Raises:
+                Exception: If the database query fails.
+        """
+        try:
+            rows = self.db.execute_query(f"""
+                SELECT t.task_id::text AS task_id, COALESCE(m.status, '{PENDING}') AS celery_status
+                FROM osir_tasks t
+                LEFT JOIN celery_taskmeta m ON m.task_id = t.task_id::text
+                WHERE t.handler_id = %s::uuid
+                  AND COALESCE(m.status, '{PENDING}') NOT IN {CELERY_DONE_STATES}
+            """, (str(handler_id),), fetch="fetchall")
+        except Exception as e:
+            logger.error(f"Error listing unfinished tasks of handler {handler_id}: {e}")
+            raise
+
+        pending: List[str] = []
+        started: List[str] = []
+        for row in rows:
+            (started if row["celery_status"] == STARTED else pending).append(row["task_id"])
+
+        return {"pending": pending, "started": started}
+
+    def mark_revoked(self, task_ids: List[str], reason: str = "task revoked") -> int:
+        """
+            Writes terminal REVOKED rows in celery_taskmeta for tasks that were
+            revoked before execution.
+
+            A task still queued in the broker has no result row: no worker will
+            ever report it once it is revoked (the message is discarded on
+            receipt), so the terminal state has to be written here. Otherwise
+            the task would stay 'PENDING' forever and keep its handler counted
+            as active. Done in a single round trip because a stopped handler
+            can have thousands of queued tasks.
+
+            The 'reason' lands in celery_taskmeta.traceback, which the task view
+            surfaces as the task logs when no module trace exists.
+
+            Args:
+                task_ids (list[str]): Task UUIDs to mark as revoked.
+                reason (str): Human readable reason, shown in the UI.
+
+            Returns:
+                int: Number of tasks submitted for the update.
+
+            Raises:
+                Exception: If the database query fails.
+        """
+        if not task_ids:
+            return 0
+
+        try:
+            self.db.execute_values_query(
+                f"""
+                INSERT INTO celery_taskmeta (task_id, status, date_done, traceback)
+                VALUES %s
+                ON CONFLICT (task_id) DO UPDATE
+                    SET status = EXCLUDED.status,
+                        date_done = EXCLUDED.date_done,
+                        traceback = EXCLUDED.traceback
+                    WHERE celery_taskmeta.status NOT IN ('{SUCCESS}', '{FAILURE}')
+                """,
+                [(str(task_id), REVOKED, reason) for task_id in task_ids],
+                template="(%s, %s, (now() AT TIME ZONE 'utc'), %s)",
+            )
+            logger.debug(f"Marked {len(task_ids)} task(s) as {REVOKED}: {reason}")
+            return len(task_ids)
+        except Exception as e:
+            logger.error(f"Error marking tasks as revoked: {e}")
+            raise
+
     def list(
         self,
         case_uuid: Optional[Union[str, List[str]]] = None,

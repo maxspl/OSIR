@@ -6,6 +6,7 @@ import os
 import time
 from celery import Celery
 from celery import current_task
+from celery.exceptions import Ignore
 from os import environ, cpu_count
 
 from osir_lib.core.OsirConstants import OSIR_PATHS
@@ -91,6 +92,29 @@ class CeleryWorker:
         except Exception as exc:
             logger.error(f"Handler-stop check failed for task {task_id}: {exc}")
             return False
+
+    def _skip_stopped_task(self, task_id) -> None:
+        """
+            Ends the current task as REVOKED because its handler was stopped.
+
+            The task reached a worker despite the revoke (it was already
+            prefetched, or the worker was not connected when the revoke was
+            broadcast). Recording REVOKED rather than returning normally keeps
+            it consistent with the tasks dropped straight from the queue, and
+            Ignore stops Celery from overwriting that state with SUCCESS.
+
+            Args:
+                task_id (str): The current Celery task id.
+
+            Raises:
+                Ignore: Always, to leave the stored state untouched.
+        """
+        logger.info(f"Task {task_id} skipped: its handler was stopped.")
+        try:
+            self.app.backend.mark_as_revoked(task_id, reason="handler stopped")
+        except Exception as exc:
+            logger.error(f"Could not mark skipped task {task_id} as revoked: {exc}")
+        raise Ignore()
 
     def _is_item_in_use(self, case_uuid, module_instance: OsirModule, db: OsirDb, exclude_task_id=None):
         """
@@ -237,8 +261,7 @@ class CeleryWorker:
 
             # Skip if the owning handler was stopped between task push and pickup.
             if self._handler_stopped(task_id):
-                logger.info(f"Task {task_id} skipped: its handler was stopped.")
-                return "handler stopped: task skipped"
+                self._skip_stopped_task(task_id)
 
             try:
                 # logger.debug(f"Task ID inside the task: {task_id}")
@@ -305,8 +328,7 @@ class CeleryWorker:
 
             # Skip if the owning handler was stopped between task push and pickup.
             if self._handler_stopped(task_id):
-                logger.info(f"Task {task_id} skipped: its handler was stopped.")
-                return "handler stopped: task skipped"
+                self._skip_stopped_task(task_id)
 
             try:
                 logger.debug(f"This task is running on worker: {task_id}")

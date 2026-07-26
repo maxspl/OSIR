@@ -385,10 +385,11 @@ class OsirIpc(BaseModel):
         
         handler_uuid = req.params["handler_uuid"]
 
-        handler_manager.stop(handler_uuid)
+        stopped = handler_manager.stop(handler_uuid)
         resp.message = "Handler Stop Sucessfully"
         resp.response = {
             "handler_id": handler_uuid,
+            **stopped,
         }
         return resp
 

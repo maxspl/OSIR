@@ -757,6 +757,14 @@ class ModuleHandler(FileSystemEventHandler):
 
             logger.debug(f"Time taken to scan case: {scan_case_duration:.4} seconds.")
 
+            # The handler was stopped while this scan was running: drop what it
+            # found instead of pushing more tasks, and leave the loop right away.
+            # Falling through would also let the completion branch below rewrite
+            # the status the stop just set, reading the revoked tasks as failures.
+            if stop_event is not None and stop_event.is_set():
+                logger.debug(f"Handler {self.handler_uuid} stopped: monitor exits without pushing the pending scan.")
+                break
+
             new_entries = current_entries - previous_entries
             n_new_entries = len(new_entries)
             new_entries_duration = 0.0
@@ -851,6 +859,11 @@ class ModuleHandler(FileSystemEventHandler):
             previous_entries = current_entries
 
             time.sleep(interval)
+
+        # Only reached when the handler was stopped (the completion path exits
+        # the thread itself): release the flush pool and cancel the batches it
+        # still has queued, so a stopped handler pushes nothing more.
+        self._flush_executor.shutdown(wait=False, cancel_futures=True)
 
     # ------------------------------------------------------------------
     # File stability gate

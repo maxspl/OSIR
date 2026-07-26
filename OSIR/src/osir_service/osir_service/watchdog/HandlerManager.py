@@ -5,7 +5,6 @@ from threading import Thread, Lock, Event
 import logging
 from typing import Dict, Optional, List
 from uuid import UUID, uuid4
-from celery.app.control import Control
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -18,7 +17,6 @@ from osir_service.orchestration.TaskService import TaskService
 from osir_service.ipc.OsirIpc import FileManager
 from osir_service.postgres.OsirDb import OsirDb
 from osir_service.watchdog.WatchdogService import ModuleHandler
-from osir_service.orchestration.TaskService import _get_celery_app
 logger: CustomLogger = AppLogger(__name__).get_logger()
 
 
@@ -147,28 +145,67 @@ class HandlerManager:
             logger.debug(f"Handler {handler_uuid} started for case {handler.case_uuid}.")
             return handler_uuid, handler.case_uuid
 
-    def stop(self, handler_uuid: Optional[UUID] = None) -> None:
+    def stop(self, handler_uuid: Optional[UUID] = None) -> dict:
+        """
+            Stops a handler: no new task is pushed, and everything it left
+            queued is dropped from the broker.
+
+            Args:
+                handler_uuid: The handler to stop.
+
+            Returns:
+                dict: {'revoked_tasks': int, 'running_tasks': int} — the tasks
+                    dropped from the queues and the ones a worker is already
+                    running (left to finish). Empty dict if no UUID is given.
+        """
         with self.lock:
             if handler_uuid:
-                self._stop_handler(handler_uuid)
-            else:
-                logger.debug("No UUID provided to stop handler.")
+                return self._stop_handler(handler_uuid)
+            logger.debug("No UUID provided to stop handler.")
+            return {}
 
-    def _stop_handler(self, handler_uuid: UUID | str) -> None:
+    def _stop_handler(self, handler_uuid: UUID | str) -> dict:
+        """
+            Stops the monitoring thread, marks the handler done and revokes the
+            tasks it still has queued.
+
+            The handler is marked stopped in the database *before* the revoke:
+            celery's revoke races with task pickup (a message already in a
+            worker's prefetch buffer is not dropped), so the worker re-reads the
+            handler status before running a module and skips the task when it is
+            stopped. Marking first guarantees the guard is armed for every task
+            the revoke misses.
+
+            Queued tasks are revoked but not terminated: a module already
+            running keeps going, only what has not started is dropped.
+        """
         logger.debug(f"Handler {handler_uuid} will be stopped.")
-        uuid_key = handler_uuid if isinstance(handler_uuid, UUID) else UUID(handler_uuid)
+        uuid_key = handler_uuid if isinstance(handler_uuid, UUID) else UUID(str(handler_uuid))
 
-        if uuid_key in self.handlers:
-            handler = self.handlers[uuid_key]
+        # Handlers created before a service restart are no longer tracked in
+        # memory: their tasks must still be revoked, so nothing here depends on
+        # the handler being present in self.handlers.
+        handler = self.handlers.pop(uuid_key, None)
+        thread = self.threads.pop(uuid_key, None)
+        if handler:
             handler.stop_event.set()
-            if uuid_key in self.threads:
-                self.threads[uuid_key].join(timeout=5)
-                del self.threads[uuid_key]
 
-            with OsirDb() as db:
-                db.handler.update(str(handler.handler_uuid), "processing_done")
-            del self.handlers[uuid_key]
-            logger.debug(f"Handler {uuid_key} stopped.")
+        with OsirDb() as db:
+            db.handler.update(str(uuid_key), "processing_done")
+            queued = db.task.unfinished_by_handler(uuid_key)
+            # Tell the workers first, record the terminal state after: the
+            # earlier the broadcast, the fewer tasks get picked up meanwhile.
+            revoked = TaskService.revoke_tasks(queued["pending"])
+            db.task.mark_revoked(queued["pending"], reason=f"Task revoked: handler {uuid_key} stopped")
+
+        if thread:
+            thread.join(timeout=5)
+
+        logger.debug(
+            f"Handler {uuid_key} stopped: {revoked} queued task(s) revoked, "
+            f"{len(queued['started'])} running task(s) left to finish."
+        )
+        return {"revoked_tasks": revoked, "running_tasks": len(queued["started"])}
 
     def run_task(self, module_instance: OsirModuleModel, case_name = None, case_uuid = None, handler_uuid = None):
         """
