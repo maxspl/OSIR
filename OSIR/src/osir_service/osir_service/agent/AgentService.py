@@ -408,14 +408,6 @@ class CeleryWorker:
 
         host_hostname = os.getenv('HOST_HOSTNAME', '%h')  # Default to '%h' if the env var is not set
 
-        # Start the host resource sampler (RAM/CPU/load -> osir_metrics) so the
-        # web UI can graph this agent's load. Opt-out via OSIR_METRICS_ENABLED=0.
-        if os.getenv('OSIR_METRICS_ENABLED', '1') != '0':
-            try:
-                SystemMetricsSampler.from_env(agent=host_hostname).start()
-            except Exception as exc:
-                logger.error(f"Could not start system metrics sampler: {exc}")
-
         capacity = self._compute_parallel_capacity(
             standalone=self.agent_config.standalone,
             windows_cores=windows_cores
@@ -489,6 +481,12 @@ class CeleryWorker:
             process = multiprocessing.Process(target=self._start_single_worker, args=(argv,))
             processes.append(process)
             process.start()
+
+        if os.getenv('OSIR_METRICS_ENABLED', '1') != '0':
+            try:
+                SystemMetricsSampler.from_env(agent=host_hostname).start()
+            except Exception as exc:
+                logger.error(f"Could not start system metrics sampler: {exc}")
 
         for process in processes:
             process.join()
