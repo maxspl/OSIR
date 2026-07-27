@@ -15,6 +15,10 @@ export interface UnexpectedExceptionResponse extends OsirIpcResponse<UnexpectedE
 export interface OsirDbCaseModel {
   case_uuid: string
   name: string
+  // false when the case row is still in database but its directory is gone from
+  // the share: it stays listed (tasks still resolve their case name) but it
+  // cannot be processed any more.
+  exists_on_disk?: boolean
 }
 
 export type OsirDbStatusModel =

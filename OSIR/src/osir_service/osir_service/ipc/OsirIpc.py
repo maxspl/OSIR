@@ -441,9 +441,25 @@ class OsirIpc(BaseModel):
 
         with OsirDb() as db:
             all_cases_in_db = db.case.list()
-            for case in FileManager.all_cases():
+            cases_on_disk = set(FileManager.all_cases())
+
+            for case in cases_on_disk:
                 if case not in [c.name for c in all_cases_in_db]:
                     all_cases_in_db.append(db.case.create(name=case))
+
+            # A case directory removed or renamed by hand leaves its row behind.
+            # Deleting the row here would orphan its handlers and tasks, so the
+            # case is flagged instead: the UI drops it from the processing
+            # selector and greys it out, while task views keep resolving its name.
+            missing = []
+            for case in all_cases_in_db:
+                case.exists_on_disk = case.name in cases_on_disk
+                if not case.exists_on_disk:
+                    missing.append(case.name)
+
+            if missing:
+                logger.debug(f"Cases present in database but missing from the share: {', '.join(sorted(missing))}")
+
             resp.response = all_cases_in_db
         return resp
 

@@ -4,3 +4,4 @@ from uuid import UUID
 class OsirDbCaseModel(BaseModel):
     case_uuid: UUID
     name: str
+    exists_on_disk: bool = True

@@ -21,8 +21,16 @@ export const useCaseStore = defineStore('case', {
   }),
 
   getters: {
+    // A case whose directory disappeared cannot be processed: keep it out of the
+    // selector, but leave it in `cases` so task and handler views still resolve
+    // its name from the UUID.
     caseOptions: (state): SelectMenuItem[] =>
-      state.cases.map(c => ({ label: c.name, value: c.name })),
+      state.cases
+        .filter(c => c.exists_on_disk !== false)
+        .map(c => ({ label: c.name, value: c.name })),
+
+    missingCases: (state): OsirDbCaseModel[] =>
+      state.cases.filter(c => c.exists_on_disk === false),
   },
 
   actions: {
