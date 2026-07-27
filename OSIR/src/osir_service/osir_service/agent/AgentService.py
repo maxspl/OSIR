@@ -69,33 +69,34 @@ class CeleryWorker:
         self._register_tasks()
         self._local_count = 0
 
-    def _handler_stopped(self, task_id) -> bool:
+    def _task_revoked(self, task_id) -> bool:
         """
-            Checks whether the task's owning handler has been stopped, so the
-            worker can skip the task instead of processing it.
+            Checks whether this task was revoked, so the worker skips it instead
+            of processing it.
 
             Backs up Celery's revoke (fired by HandlerManager on stop), which
             races with task pickup: a task already in a worker's prefetch buffer
-            is not revoked. The guard must never break normal processing, so any
-            lookup error is swallowed and treated as 'not stopped'.
+            is not revoked. The guard must never break normal processing - a
+            re-run resets the task to PENDING and runs - so any lookup error is
+            swallowed and treated as 'not revoked'.
 
             Args:
                 task_id (str): The current Celery task id.
 
             Returns:
-                bool: True if the owning handler was stopped and the task must
-                    be skipped, False otherwise (including on any lookup error).
+                bool: True if the task was revoked and must be skipped, False
+                    otherwise (including on any lookup error).
         """
         try:
             with OsirDb() as db:
-                return db.handler.is_stopped_for_task(task_id)
+                return db.handler.is_task_revoked(task_id)
         except Exception as exc:
-            logger.error(f"Handler-stop check failed for task {task_id}: {exc}")
+            logger.error(f"Revocation check failed for task {task_id}: {exc}")
             return False
 
-    def _skip_stopped_task(self, task_id) -> None:
+    def _skip_revoked_task(self, task_id) -> None:
         """
-            Ends the current task as REVOKED because its handler was stopped.
+            Ends the current task as REVOKED, because it was.
 
             The task reached a worker despite the revoke (it was already
             prefetched, or the worker was not connected when the revoke was
@@ -109,9 +110,9 @@ class CeleryWorker:
             Raises:
                 Ignore: Always, to leave the stored state untouched.
         """
-        logger.info(f"Task {task_id} skipped: its handler was stopped.")
+        logger.info(f"Task {task_id} skipped: it was revoked.")
         try:
-            self.app.backend.mark_as_revoked(task_id, reason="handler stopped")
+            self.app.backend.mark_as_revoked(task_id, reason="task revoked")
         except Exception as exc:
             logger.error(f"Could not mark skipped task {task_id} as revoked: {exc}")
         raise Ignore()
@@ -259,9 +260,9 @@ class CeleryWorker:
             task_id = current_task.request.id
             worker_name = current_task.request.hostname
 
-            # Skip if the owning handler was stopped between task push and pickup.
-            if self._handler_stopped(task_id):
-                self._skip_stopped_task(task_id)
+            # Skip a task revoked between its push and its pickup.
+            if self._task_revoked(task_id):
+                self._skip_revoked_task(task_id)
 
             try:
                 # logger.debug(f"Task ID inside the task: {task_id}")
@@ -326,9 +327,9 @@ class CeleryWorker:
             task_id = current_task.request.id
             worker_name = current_task.request.hostname
 
-            # Skip if the owning handler was stopped between task push and pickup.
-            if self._handler_stopped(task_id):
-                self._skip_stopped_task(task_id)
+            # Skip a task revoked between its push and its pickup.
+            if self._task_revoked(task_id):
+                self._skip_revoked_task(task_id)
 
             try:
                 logger.debug(f"This task is running on worker: {task_id}")

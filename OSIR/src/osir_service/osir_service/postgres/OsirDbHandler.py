@@ -288,25 +288,22 @@ class OsirDbHandler:
             logger.error(f"Erreur lors de la vérification du handler actif: {e}")
             raise
         
-    def is_stopped_for_task(self, task_id: str) -> bool:
+    def is_task_revoked(self, task_id: str) -> bool:
         """
-            Checks whether the handler owning a task has been stopped.
+            Checks whether a task was revoked and must not be executed.
 
-            A stopped handler is marked 'processing_done' while some of its
-            tasks may still be queued. Workers call this to skip such tasks
-            instead of processing them: a safety net behind Celery's revoke,
-            which races with task pickup (a task already in a worker's prefetch
-            buffer is not revoked, so the handler status must be re-checked
-            before running the module). Runs a single indexed query
-            (task_id primary key + handler join).
+            Scoped to the task, not to its handler: a stopped handler and a
+            finished one are both 'processing_done', so a handler-scoped check
+            would also kill legitimate re-runs. Stopping a handler marks its
+            queued tasks REVOKED, re-running one resets it to PENDING.
 
             Args:
-                task_id (str): The task UUID to resolve to its owning handler.
+                task_id (str): The task UUID to check.
 
             Returns:
-                bool: True if the owning handler is 'processing_done'. False if
-                    the task has no handler or is unknown, so normal processing
-                    is never blocked by this guard.
+                bool: True if the task carries a REVOKED result, False otherwise
+                    (including when the task is unknown, so normal processing is
+                    never blocked by this guard).
 
             Raises:
                 Exception: If the database query fails.
@@ -314,16 +311,11 @@ class OsirDbHandler:
         if not task_id:
             return False
         row = self.db.execute_query(
-            """
-            SELECT h.processing_status
-            FROM osir_tasks t
-            JOIN osir_handlers h ON h.handler_id = t.handler_id
-            WHERE t.task_id = %s::uuid
-            """,
+            "SELECT status FROM celery_taskmeta WHERE task_id = %s",
             (str(task_id),),
             fetch="fetchone",
         )
-        return bool(row) and row["processing_status"] == "processing_done"
+        return bool(row) and row["status"] == "REVOKED"
 
     def get_all_task_logs(self, handler_uuid: str) -> List[OsirDbTaskModel]:
         """
