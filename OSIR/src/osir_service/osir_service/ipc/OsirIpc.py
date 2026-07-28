@@ -197,8 +197,8 @@ class OsirIpc(BaseModel):
         params = req.params
         profile_instance = params.get('profile', [])
         selected_modules = params.get('modules', [])
-        modules_to_add = params.get('profile_module_to_add', [])
-        modules_to_remove = params.get('profile_module_to_remove', [])
+        modules_to_add = params.get('profile_module_to_add') or []
+        modules_to_remove = params.get('profile_module_to_remove') or []
         selected_case = params.get('case_name', None)
         reprocess_case = params.get('reprocess', False)
         modified_modules = params.get('modified_modules', [])

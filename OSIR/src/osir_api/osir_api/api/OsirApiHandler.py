@@ -16,9 +16,11 @@ router = APIRouter()
              response_model=PostHandlerCreateResponse,
              responses={500: {"model": UnexpectedExceptionResponse}})
 def create_handler(request: PostHandlerCreateRequest):
-    return OsirIpcCall("create_handler", 
+    return OsirIpcCall("create_handler",
             params={
                 "profile": request.profile,
+                "profile_module_to_add": request.profile_module_to_add,
+                "profile_module_to_remove": request.profile_module_to_remove,
                 "modules": request.modules,
                 "case_name": request.case_name,
                 "reprocess": request.reprocess,

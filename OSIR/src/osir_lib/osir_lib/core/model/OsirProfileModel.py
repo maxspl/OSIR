@@ -82,6 +82,8 @@ class OsirProfileModel(BaseModel):
             Args:
                 modules (list[str]): List of module names to add.
         """
+        if not modules:
+            return
         modules = [item + ".yml" if not item.endswith(".yml") else item for item in modules]
         if self.modules is None:
             self.modules = []
@@ -94,7 +96,10 @@ class OsirProfileModel(BaseModel):
             Args:
                 modules (list[str]): List of module names to remove.
         """
+        if not modules:
+            return
         modules = [item + ".yml" if not item.endswith(".yml") else item for item in modules]
+        basenames_to_remove = {m.split('/')[-1] for m in modules}
         if self.modules is None:
             self.modules = []
-        self.modules = list(set(self.modules) - set(modules))
+        self.modules = [m for m in self.modules if m.split('/')[-1] not in basenames_to_remove]

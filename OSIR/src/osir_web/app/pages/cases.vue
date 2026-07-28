@@ -83,13 +83,49 @@ function selectByPath(paths: string[]) {
 // rowSelection is keyed by row index; whenever the order/content of tableRows changes
 // (e.g. the modules polling refresh), we re-align the selection from selectedModules
 // (source of truth, keyed by path) so the wrong rows don't get checked.
-watch(tableRows, () => selectByPath(selectedModules.value))
+// When a profile is active the effective visual selection is:
+//   (profile modules − modulesToRemove) + modulesToAdd
+watch(tableRows, () => {
+  if (selectedProfile.value) {
+    const effective = [
+      ...selectedModules.value.filter(p => !modulesToRemove.value.includes(p)),
+      ...modulesToAdd.value,
+    ]
+    selectByPath(effective)
+  } else {
+    selectByPath(selectedModules.value)
+  }
+})
 
 function onTableSelect(event: Event, row: TableRow<ModuleModel>) {
-  if (!row.getIsSelected()) {
-    selectedModules.value.push(row.original.module_path)
+  const path = row.original.module_path
+  if (selectedProfile.value) {
+    if (!row.getIsSelected()) {
+      // Selecting a row: add to modulesToAdd (unless it's already an in-profile module)
+      const inProfile = selectedModules.value.includes(path)
+      if (!inProfile && !modulesToAdd.value.includes(path)) {
+        modulesToAdd.value = [...modulesToAdd.value, path]
+      }
+      modulesToRemove.value = modulesToRemove.value.filter(p => p !== path)
+    } else {
+      // Deselecting a row
+      if (selectedModules.value.includes(path)) {
+        // In-profile module → mark for removal
+        if (!modulesToRemove.value.includes(path)) {
+          modulesToRemove.value = [...modulesToRemove.value, path]
+        }
+        modulesToAdd.value = modulesToAdd.value.filter(p => p !== path)
+      } else {
+        // Extra module we added → cancel the addition
+        modulesToAdd.value = modulesToAdd.value.filter(p => p !== path)
+      }
+    }
   } else {
-    selectedModules.value = selectedModules.value.filter(p => p !== row.original.module_path)
+    if (!row.getIsSelected()) {
+      selectedModules.value.push(path)
+    } else {
+      selectedModules.value = selectedModules.value.filter(p => p !== path)
+    }
   }
   row.toggleSelected(!row.getIsSelected())
 }
