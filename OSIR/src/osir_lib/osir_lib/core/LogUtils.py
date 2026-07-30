@@ -5,6 +5,7 @@ import queue
 import re
 import threading
 import lzma
+from pathlib import Path
 
 from osir_lib.core.OsirModule import OsirModule
 from osir_lib.core.OsirDecorator import timeit
@@ -42,10 +43,27 @@ class LogUtils:
         severity = re.search(r"debug|warning|info|notice|error|fatal|panic|statement|detail|log", line, re.IGNORECASE)
         return severity.group(0).lower() if severity else "N/A"
 
-    @staticmethod
-    def get_date(line, regex=None, strtime=None):
+    def _source_datetime(self) -> datetime.datetime:
+        """
+        Best guess at when the log file being parsed was last written.
+
+        Uses the artifact mtime. Falls back to the current time when the path is unavailable.
+
+        Returns:
+            datetime.datetime: Naive UTC datetime of the file's last write.
+        """
+        try:
+            mtime = Path(str(self.ctx.input.match)).stat().st_mtime
+            return datetime.datetime.fromtimestamp(mtime, datetime.timezone.utc).replace(tzinfo=None)
+        except (AttributeError, OSError, TypeError, ValueError):
+            return datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+
+    def get_date(self, line, regex=None, strtime=None):
         """
         Parses a date from a log line based on a given regex or inferred format.
+
+        RFC3164 syslog timestamps carry no year, so strptime defaults them to
+        1900.
 
         Args:
             line (str): The log line to parse for date information.
@@ -60,7 +78,26 @@ class LogUtils:
 
         date = re.search(regex, line)
         if date:
-            datetime_object = datetime.datetime.strptime(date.group(0), strtime)
+            try:
+                datetime_object = datetime.datetime.strptime(date.group(0), strtime)
+            except (ValueError, TypeError):
+                logger.debug(f"Unparseable date {date.group(0)!r} for format {strtime!r}")
+                return "N/A"
+
+            if datetime_object.year == 1900 and '%Y' not in (strtime or '') and '%y' not in (strtime or ''):
+                source_dt = self._source_datetime()
+                year = source_dt.year
+                try:
+                    datetime_object = datetime_object.replace(year=year)
+                except ValueError:
+                    datetime_object = datetime_object.replace(year=year, day=28)
+
+                # A log rotated in January still holds December lines. No line
+                # can postdate the file last write, so anything past the mtime
+                # (one day of margin for clock skew) belongs to the year before.
+                if datetime_object > source_dt + datetime.timedelta(days=1):
+                    datetime_object = datetime_object.replace(year=year - 1)
+
             return datetime_object.isoformat()
 
         return "N/A"
@@ -68,29 +105,42 @@ class LogUtils:
     def get_log(self):
         """
         Generates each line from a log file, handling .gz and .xz compressed files if needed.
-        Test multiple encodings :
-            'utf-8', 'latin1', 'iso-8859-1', 'windows-1252'
+
         Yields:
             str: A single log line.
         """
         encodings = ['utf-8', 'latin1', 'iso-8859-1', 'windows-1252']
         suffix = self.ctx.input.match.suffix
-    
+
         if suffix == ".gz":
-            opener = lambda encoding: gzip.open(self.ctx.input.match, 'rt', encoding=encoding)
+            opener = lambda: gzip.open(self.ctx.input.match, 'rb')
         elif suffix == ".xz":
-            opener = lambda encoding: lzma.open(self.ctx.input.match, 'rt', encoding=encoding)
+            opener = lambda: lzma.open(self.ctx.input.match, 'rb')
         else:
-            opener = lambda encoding: open(self.ctx.input.match, 'r', encoding=encoding)
-    
-        for encoding in encodings:
-            try:
-                with opener(encoding) as input_file:
-                    for line in input_file:
-                        yield line
-                break  # Exit the loop if successful
-            except (UnicodeDecodeError, OSError) as e:
-                print(f"Error reading file with encoding {encoding}: {e}")
+            opener = lambda: open(self.ctx.input.match, 'rb')
+
+        reported = False
+        try:
+            with opener() as input_file:
+                for raw in input_file:
+                    for encoding in encodings:
+                        try:
+                            yield raw.decode(encoding)
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                    else:
+                        # No candidate encoding fits: keep the line rather than
+                        # dropping evidence, with undecodable bytes replaced.
+                        if not reported:
+                            logger.warning(
+                                f"Undecodable bytes in {self.ctx.input.match}, "
+                                f"falling back to lossy decoding"
+                            )
+                            reported = True
+                        yield raw.decode('utf-8', errors='replace')
+        except OSError as exc:
+            logger.error(f"Failed to read '{self.ctx.input.match}': {exc}")
 
     @staticmethod
     def date_format(log_line):
@@ -190,7 +240,42 @@ class LogUtils:
         q = queue.Queue(maxsize=MAX_QUEUE_SIZE)
         writer_thread = threading.Thread(target=self._thread_save_jsonl, args=(q, output_path))
         writer_thread.start()
+
+        if not hasattr(self, '_writer_threads'):
+            self._writer_threads = []
+        self._writer_threads.append((q, writer_thread))
+
         return q
+
+    def close_writer_threads(self, timeout: float = 30.0):
+        """
+        Guarantees every writer thread started by this module terminates.
+
+        Prevents agent hangs when a module fails mid-parse by ensuring 
+        the writer thread receives its termination and shuts down cleanly.
+
+        Args:
+            timeout (float): Seconds to wait for each writer thread to finish.
+        """
+        for q, thread in getattr(self, '_writer_threads', []):
+            if not thread.is_alive():
+                continue
+            try:
+                # Harmless when the module already sent one: nothing reads it.
+                q.put_nowait(None)
+            except queue.Full:
+                logger.warning("Writer queue full while shutting down, forcing drain")
+                try:
+                    while not q.empty():
+                        q.get_nowait()
+                        q.task_done()
+                    q.put_nowait(None)
+                except (queue.Empty, queue.Full, ValueError):
+                    pass
+            thread.join(timeout)
+            if thread.is_alive():
+                logger.error(f"Writer thread did not stop within {timeout}s")
+        self._writer_threads = []
 
     def safe_search(self, pattern: str, log: str) -> str:
         """
@@ -204,4 +289,6 @@ class LogUtils:
             str: First matching group, or None if no match is found.
         """
         match = re.search(pattern, log)
-        return match.group(1) if match else None
+        if not match:
+            return None
+        return match.group(1) if match.groups() else match.group(0)

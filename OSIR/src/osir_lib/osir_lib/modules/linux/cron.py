@@ -26,7 +26,7 @@ class CronModule(LogUtils):
 
         # Structure using regex and lambdas with safe_search for parsing log entries
         self.structure = [
-            ("_time", lambda log: self.safe_search(r"^(\w+\s+\d{1,2}\s\S+)", log)),  # Example: Jun 5 11:01:01
+            ("_time", lambda log: self.get_date(log, r"^(\w+\s+\d{1,2}\s\S+)", "%b %d %H:%M:%S")),
             ("hostname", lambda log: self.safe_search(r"^\w+\s+\d{1,2}\s\S+\s+(\S+)", log)),
             ("app", lambda log: self.safe_search(r"^\w+\s+\d{1,2}\s\S+\s+\S+\s+(\S+)", log)),
             ("_raw", lambda log: log),

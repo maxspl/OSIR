@@ -26,8 +26,9 @@ class MailModule(LogUtils):
         self._name_rex = self.module.input.name
 
         self.structure = {
+            # Syslog mail lines carry no year, so the format must not declare one.
             "_time": lambda log: self.get_date(
-                log, r'^(\w+\s+\d{1,2}\s\S+)', '%Y %b %d %H:%M:%S'
+                log, r'^(\w+\s+\d{1,2}\s\S+)', '%b %d %H:%M:%S'
             ),
             "severity": lambda log: self.get_severity(log),
             "src_mail": lambda log: self.safe_search(r'from=\<([^\>]*)\>', log),

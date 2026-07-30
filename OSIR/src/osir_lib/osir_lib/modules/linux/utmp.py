@@ -26,7 +26,7 @@ class UtmpModule(LogUtils):
         self.module = module
         LogUtils.__init__(self, ctx=module)
 
-        self._file_to_process = module.input.file
+        self._file_to_process = module.input.match
 
         # Status mapping for ut_type
         self.STATUS = {
@@ -67,7 +67,7 @@ class UtmpModule(LogUtils):
         """
         try:
             writer_queue = self.start_writer_thread()
-            logger.debug(f"Processing file {self.module.input.file}")
+            logger.debug(f"Processing file {self._file_to_process}")
 
             with open(self._file_to_process, "rb") as utmp_file:
                 while chunk := utmp_file.read(384):  # Read 384 bytes per record

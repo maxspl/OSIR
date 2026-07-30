@@ -37,18 +37,89 @@ class AuditModule(LogUtils):
             writer_queue = self.start_writer_thread()
             logger.debug(f"Processing file {self._file_to_process}")
 
+            # auditd splits one event across several lines that share the same
+            # msg=audit(<epoch>:<serial>) id: SYSCALL carries exe/comm, EXECVE the
+            # argv, CWD the directory, PATH the touched files. Emitting them
+            # separately loses the link between a binary and its command line,
+            # which is what every downstream consumer (ausearch, Sigma rules)
+            # needs. Records are contiguous per event, so grouping streams.
+            current_id, group, count = None, [], 0
+
             for log in self.get_log():
-                if log.strip():  # Ensure log is not empty
-                    res_log = self.parse(log)
-                    if res_log:
-                        writer_queue.put(res_log)
+                if not log.strip():
+                    continue
+                event_id = self.safe_search(r"msg=audit\([^:]+:(\d+)\)", log)
+                if event_id != current_id and group:
+                    writer_queue.put(self.merge(group))
+                    count += 1
+                    group = []
+                current_id = event_id
+                parsed = self.parse(log)
+                if parsed:
+                    group.append(parsed)
+
+            if group:
+                writer_queue.put(self.merge(group))
+                count += 1
 
             writer_queue.put(None)
-            logger.debug(f"{self.module.module_name} done")
+            logger.debug(f"{self.module.module_name} done: {count} events")
             return True
         except Exception as exc:
             logger.error_handler(exc)
             return False
+
+    def merge(self, records: list) -> dict:
+        """
+        Merge the lines of one auditd event into a single record.
+
+        Args:
+            records (list): Parsed records sharing the same audit event id.
+
+        Returns:
+            dict: One consolidated record.
+        """
+        # argv lives only on the EXECVE line. SYSCALL also has a0/a1/a2, but
+        # those are raw syscall registers (hex addresses) and must not be
+        # mistaken for a command line.
+        argv = []
+        for rec in records:
+            if rec.get("type") != "EXECVE":
+                continue
+            for i in range(256):
+                arg = rec.get(f"a{i}")
+                if arg is None:
+                    break
+                argv.append(arg)
+            break
+
+        if len(records) == 1:
+            merged = dict(records[0])
+        else:
+            merged = {}
+            raws, types, tags = [], [], []
+            for rec in records:
+                for key, value in rec.items():
+                    if key == "_raw":
+                        raws.append(value)
+                    elif key == "tag":
+                        tags.extend(value)
+                    elif key == "type":
+                        types.append(value)
+                        merged.setdefault("type", value)
+                    # First writer wins: SYSCALL comes first and holds the
+                    # authoritative exe/comm/pid for the event.
+                    elif key not in merged or merged[key] in (None, ""):
+                        merged[key] = value
+            merged["_raw"] = "".join(raws)
+            merged["types"] = types
+            merged["tag"] = sorted(set(tags))
+
+        # Rebuild the command line so rules and analysts see what was run.
+        if argv and not merged.get("command_line"):
+            merged["command_line"] = " ".join(argv)
+
+        return merged
 
     def parse(self, log):
         """

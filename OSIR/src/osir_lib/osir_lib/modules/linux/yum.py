@@ -31,7 +31,7 @@ class YumModule(LogUtils):
             "_time": lambda log: self.get_date(
                 log, r'[A-Z][a-z]{2} \d{1,2} \d{2}:\d{2}:\d{2}', '%b %d %H:%M:%S'
             ),
-            "package_name": lambda log: re.search(r"(Installed|Updated):\s(.*)$", log).group(2),
+            "package_name": lambda log: self.safe_search(r"(?:Installed|Updated):\s(.*)$", log),
             "event_type": lambda log: "package_install" if "Installed" in log else "package_update" if "Updated" in log else None
         }
 
@@ -44,7 +44,7 @@ class YumModule(LogUtils):
         """
         try:
             writer_queue = self.start_writer_thread()
-            logger.debug(f"Processing file {self.module.input.file}")
+            logger.debug(f"Processing file {self._file_to_process}")
 
             for log in self.get_log():
                 writer_queue.put(self.parse(log))
@@ -66,4 +66,11 @@ class YumModule(LogUtils):
         Returns:
             dict: Parsed log data.
         """
-        return {field: parser(log) for field, parser in self.structure.items() | {"_raw": log}}
+        # `self.structure.items() | {"_raw": log}` unioned a dict_items view with
+        # a dict: iterating a dict yields its keys, so the set held both 2-tuples
+        # and the bare string "_raw", which then failed to unpack into
+        # (field, parser). Every line raised, so the module never emitted anything.
+        parsed_log = {field: parser(log) for field, parser in self.structure.items()}
+        parsed_log["_raw"] = log
+
+        return parsed_log

@@ -28,7 +28,7 @@ class SyslogModule(LogUtils):
         # PARSING OUTPUT STRUCTURE
         self.structure = {
             "_time": lambda log: self.get_date(
-                log, r'([A-Za-z]+\s+(0[1-9]|[12][0-9]|3[01])\s+\d{2}:\d{2}:\d{2})', '%b %d %H:%M:%S'
+                log, r'([A-Za-z]{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})', '%b %d %H:%M:%S'
             ),
             "hostname": lambda log: self.safe_search(r"^\S+\s+\S+\s+\S+\s+(\S+)", log),
             "app": lambda log: self.safe_search(r"^\w+\s+\d{1,2}\s\S+\s+\S+\s([^:\[]+)", log),

@@ -39,10 +39,13 @@ class AuthModule(LogUtils):
             for log in self.get_log():
                 to_return = {'_raw': log}
 
-                match = re.match('^(?P<date>\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<process>[-_\w]+)\[?(?P<pid>\d+)?\]?:\s(?P<message>.+)$', log)
+                match = re.match(r'^(?P<date>\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2})\s+(?P<host>\S+)\s+(?P<process>[-_\w]+)\[?(?P<pid>\d+)?\]?:\s(?P<message>.+)$', log)
 
                 if match:
                     to_return.update(match.groupdict())
+                    to_return['_time'] = self.get_date(
+                        log, r'^(\w{3}\s+\d+\s+\d{2}:\d{2}:\d{2})', '%b %d %H:%M:%S'
+                    )
 
                 writer_queue.put(to_return)
 

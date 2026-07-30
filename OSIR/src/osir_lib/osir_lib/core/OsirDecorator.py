@@ -99,7 +99,18 @@ def osir_internal_module(cls_or_func=None, *, trace: Optional[bool] = True):
                 # 4. Execution logic
                 if isinstance(cls_or_func, type):
                     instance = cls_or_func(**kwargs_to_pass)
-                    result = instance() if hasattr(instance, '__call__') else instance
+                    try:
+                        result = instance() if hasattr(instance, '__call__') else instance
+                    finally:
+                        # Prevents worker shutdown hangs when a module fails 
+                        # mid-parse and leaves its LogUtils writer thread 
+                        # waiting indefinitely for new queue items.
+                        closer = getattr(instance, 'close_writer_threads', None)
+                        if callable(closer):
+                            try:
+                                closer()
+                            except Exception as close_exc:
+                                main_logger.warning(f"Writer shutdown failed: {close_exc}")
                 else:
                     result = cls_or_func(**kwargs_to_pass)
 

@@ -26,11 +26,15 @@ class KernelModule(LogUtils):
 
         # Parsing structure with regex and safe_search
         self.structure = [
-            ("_time", lambda log: self.safe_search(r"^(\w+\s+\d{1,2}\s\S+)", log)),
+            # Same year-less syslog stamp as cron: date it from the source file.
+            ("_time", lambda log: self.get_date(log, r"^(\w+\s+\d{1,2}\s\S+)", "%b %d %H:%M:%S")),
             ("_host", lambda log: self.safe_search(r"^\w+\s+\d{1,2}\s\S+\s+(\S+)\s", log)),
-            ("_type", lambda log: self.safe_search(r"^\w+\s+\d{1,2}\s\S+\s+\S+\s+(\S+)", log).replace(':', '')),
+            # safe_search returns None on a non-syslog line; .replace() on None
+            # raised AttributeError and killed the module on the first one.
+            ("_type", lambda log: (self.safe_search(r"^\w+\s+\d{1,2}\s\S+\s+\S+\s+(\S+)", log) or "").replace(':', '') or None),
             ("_offset", lambda log: self.safe_search(r"\[(.*?)\]", log)),
-            ("_sector", lambda log: self.safe_search(r"\S+:+\s", log)),
+            # No capture group: safe_search's match.group(1) raised "no such group".
+            ("_sector", lambda log: self.safe_search(r"(\S+):+\s", log)),
             ("_raw", lambda log: log)
         ]
 
