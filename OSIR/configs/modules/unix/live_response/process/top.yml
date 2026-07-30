@@ -21,7 +21,7 @@ tool:
 input:
   type: file
   paths:
-    - r"top_-b\.txt$"
+    - r"\/top_-b.*\.txt$"
 
 output:
   type: single_file
@@ -39,7 +39,7 @@ splunk:
     name_rex: top.*\.jsonl$
     path_suffix: process
     sourcetype: 'linux:live_response:top'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "time"
     timestamp_format: "%H:%M:%S"

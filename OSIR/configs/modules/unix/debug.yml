@@ -31,9 +31,7 @@ endpoint:
 splunk:
   'linux:debug':
     name_rex: \.jsonl$
+    path_suffix: debug
     sourcetype: 'linux:debug'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "_time"
-    timestamp_format: "%b %d %H:%M:%S"
+    host_rex: ([\w\.-]+?)--
     artifact: "debug"

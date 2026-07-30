@@ -1,28 +1,71 @@
-version: 1.0
-author:
+version: 1.2
+author: maxspl
 description:
 os: unix
 modules:
+  # Pre-process
   - extract_uac.yml
+  # Collect metadata
+  - collect_info_uac.yml
+  # Log files (OSIR parsers)
   - audit.yml
+  - auth.yml
   - boot.yml
   - cron.yml
-  - collect_info_uac.yml
   - debug.yml
   - dpkg.yml
   - journal.yml
   - kernel.yml
   - lastlog.yml
+  - mactime.yml
   - mail.yml
   - postgresql.yml
-  - syslog.yml  
-  - utmp.yml
+  - syslog.yml
+  - web_access.yml
+  - wtmpdb.yml
   - yum.yml
+  # Dissect plugins
+  - authlog.yml
+  - command_history.yml
+  - cronjobs.yml
+  - openssh.yml
+  - osinfo.yml
+  - securelog.yml
+  - ssh.yml
+  - user_details.yml
+  - webserver.yml
+  # CERT-EDF plasma dissectors
+  - apt_history.yml
+  - apt_sources.yml
+  - at_acl.yml
+  - at_jobs.yml
+  - crontab.yml
+  - dpkg_status.yml
+  - fstab.yml
+  - group.yml
+  - hosts.yml
+  - journal_auth.yml
+  - journal_cron.yml
+  - journal_ftp.yml
+  - logrotate.yml
+  - resolv.yml
+  - shadow.yml
+  - ssh_pub_key.yml
+  - systemd_service.yml
+  - systemd_timer.yml
+  - udev_rules.yml
+  - usbguard_device.yml
+  - usbguard_policy.yml
+  - wtmp_utmp.yml
+  - xdg_autostart.yml
+  - yum_history.yml
+  - yum_sources.yml
+  # Live response (jc)
   - arp.yml
   - blkid.yml
   - df.yml
   - dmidecode.yml
-  - dpkg-l.yml
+  - dpkg_l.yml
   - env.yml
   - findmnt.yml
   - free.yml
@@ -30,12 +73,28 @@ modules:
   - iptables.yml
   - last.yml
   - lsblk.yml
+  - lscpu.yml
   - lsmod.yml
   - lsusb.yml
   - mount.yml
   - netstat.yml
+  - nmcli.yml
   - ps.yml
+  - snap.yml
+  - ss.yml
   - sysctl.yml
+  - systemctl_lu.yml
   - systemctl_luf.yml
   - top.yml
   - vmstat.yml
+  - who.yml
+  - docker_images.yml
+  - docker_ps.yml
+  - hash_executables.yml
+  - hash_processes.yml
+  - journal_boots.yml
+  - proc_net_tcp.yml
+  - systemctl_timers.yml
+  - uname.yml
+  # Scan
+  - loki_uac.yml

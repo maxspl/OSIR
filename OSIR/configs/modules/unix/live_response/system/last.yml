@@ -21,8 +21,8 @@ tool:
 input:
   type: file
   paths:
-    - r"last\.txt$"
-    - r"lastb\.txt$"
+    - r"\/last\.txt$"
+    - r"\/lastb\.txt$"
 
 output:
   type: single_file
@@ -40,7 +40,7 @@ splunk:
     name_rex: last.*\.jsonl$
     path_suffix: system
     sourcetype: 'linux:live_response:system:last'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "login"
     timestamp_format: "%a %b %d %H:%M"

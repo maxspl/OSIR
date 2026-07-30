@@ -6,7 +6,7 @@ metadata:
   os: unix
 
 configuration:
-  module: dpkg
+  module: dpkg_l
   type: process
   disk_only: false
   no_multithread: false
@@ -20,8 +20,8 @@ tool:
 
 input:
   type: file
-  paths: 
-    - r"dpkg_-l\.txt$"
+  paths:
+    - r"\/dpkg_-l\.txt$"
 
 output:
   type: single_file
@@ -38,10 +38,7 @@ splunk:
   'linux:live_response:packages:dpkg':
     name_rex: dpkg.*\.jsonl$
     sourcetype: 'linux:live_response:packages:dpkg'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "_time"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    host_rex: ([\w\.-]+?)--
     artifact: dpkg
     normalize:
       - ecs_normalize/linux/live_response/packages/dpkg.vrl

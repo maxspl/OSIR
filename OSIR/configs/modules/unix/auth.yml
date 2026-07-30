@@ -31,9 +31,10 @@ endpoint:
 splunk:
   'linux:auth':
     name_rex: \.jsonl$
+    path_suffix: auth
     sourcetype: 'linux:auth'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
         - "_time"
-    timestamp_format: "%s"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S"
     artifact: "auth"

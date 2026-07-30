@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: cat
-  cmd: "{input_file} | jc --kv | jq -c '.[]' > {output_file}"
+  cmd: "{input_file} | jc --kv | jq -c '.' > {output_file}"
 
 input:
   type: file
@@ -37,8 +37,5 @@ splunk:
   'linux:live_response:hardware:lscpu':
     name_rex: lscpu.*\.jsonl$
     sourcetype: 'linux:live_response:hardware:lscpu'
-    host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: 
-        - "_time"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    host_rex: ([\w\.-]+?)--
     artifact: lscpu

@@ -1,0 +1,44 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Package install/remove history from /var/log/apt/history.log
+  os: unix
+
+configuration:
+  module: apt_history
+  alt_module: plasma_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - internal
+  processor_os: unix
+
+input:
+  type: dir
+  paths:
+    - r"extract_uac.*\/\[root\]$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+optional:
+  dissector: linux_apt_history
+
+splunk:
+  'linux:apt_history':
+    name_rex: \.jsonl$
+    path_suffix: apt_history
+    sourcetype: 'linux:apt_history'
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
+        - "hist_beg_time"
+    timestamp_format: "%Y-%m-%d  %H:%M:%S"
+    artifact: "apt_history"

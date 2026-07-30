@@ -35,8 +35,9 @@ optional:
 splunk:
   'linux:webserver':
     name_rex: \.jsonl$
+    path_suffix: webserver
     sourcetype: 'linux:webserver'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

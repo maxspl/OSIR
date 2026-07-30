@@ -30,14 +30,12 @@ endpoint:
   default: "UNKNOWN"
 
 optional:
-  plugin: user_details
+  plugin: users
 
 splunk:
   'linux:user_details':
     name_rex: \.jsonl$
+    path_suffix: user_details
     sourcetype: 'linux:user_details'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "ts"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    host_rex: ([\w\.-]+?)--
     artifact: "user_details"

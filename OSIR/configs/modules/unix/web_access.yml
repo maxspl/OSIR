@@ -35,10 +35,12 @@ endpoint:
 splunk:
   'linux:web_access':
     name_rex: \.jsonl$
+    path_suffix: web_access
     sourcetype: 'linux:web_access'
-    host_rex: -([\w\.-]+)--
-    timestamp_path: 
+    host_rex: -([\w\.-]+?)--
+    timestamp_path:
     - "ts"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    - "ts_raw"
+    timestamp_format: "%d/%b/%Y:%H:%M:%S.%f %z"
     artifact: "web_access"
 

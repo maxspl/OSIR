@@ -31,9 +31,9 @@ output:
   format: json
   output_file: "{endpoint_name}--{module}.jsonl"
 
-endpoint: 
+endpoint:
   patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
+    - r"extract_uac\/Endpoint_([^\/]+)"
   default: "UNKNOWN"
 
 splunk:
@@ -41,7 +41,7 @@ splunk:
     name_rex: \.jsonl$
     path_suffix: collect_info_uac
     sourcetype: 'collect:info'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path:
         - "date"
     timestamp_format: "%s"

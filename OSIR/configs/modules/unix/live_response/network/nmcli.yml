@@ -41,9 +41,9 @@ endpoint:
   default: "UNKNOWN"
 
 splunk:
-'linux:live_response:network:nmcli':
+  'linux:live_response:network:nmcli':
     name_rex: nmcli.*\.jsonl$
     path_suffix: network
     sourcetype: 'linux:live_response:network:nmcli'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: nmcli

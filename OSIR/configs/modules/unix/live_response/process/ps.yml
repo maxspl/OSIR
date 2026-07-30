@@ -23,6 +23,8 @@ input:
   paths:
     - r"\/ps\.txt$"
     - r"\/ps_-ef\.txt$"
+    - r"\/ps_auxwww?\.txt$"
+    - r"\/ps_-deaf\.txt$"
 
 output:
   type: single_file
@@ -39,6 +41,6 @@ splunk:
   'linux:live_response:ps':
     name_rex: ps.*\.jsonl$
     path_suffix: process
-    sourcetype: 'linux:live-live_response:ps'
-    host_rex: ([\w\.-]+)--
+    sourcetype: 'linux:live_response:process:ps'
+    host_rex: ([\w\.-]+?)--
     artifact: ps

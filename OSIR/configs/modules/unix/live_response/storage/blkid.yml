@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: cat
-  cmd: "{input_file} | jc --blkid | jq -c '.[]'> {m_output_file}"
+  cmd: "{input_file} | jc --blkid | jq -c '.[]'> {output_file}"
 
 input:
   type: file
@@ -38,5 +38,5 @@ splunk:
     name_rex: blkid.*\.jsonl$
     path_suffix: storage
     sourcetype: 'linux:live_response:storage:blkid'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: blkid

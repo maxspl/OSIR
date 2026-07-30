@@ -30,10 +30,10 @@ endpoint:
 
 splunk:
   'linux:cron':
-    name_rex: ^cron.*?\.jsonl$
+    name_rex: cron.*\.jsonl$
     sourcetype: 'linux:cron'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "_time"
-    timestamp_format: "%b %d %H:%M:%S"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S"
     artifact: "cron"

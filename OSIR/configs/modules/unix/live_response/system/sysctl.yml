@@ -39,6 +39,6 @@ splunk:
   'linux:live_response:sysctl':
     name_rex: sysctl.*\.jsonl$
     path_suffix: system
-    sourcetype: _json
-    host_rex: ([\w\.-]+)--
+    sourcetype: 'linux:live_response:system:sysctl'
+    host_rex: ([\w\.-]+?)--
     artifact: sysctl

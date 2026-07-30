@@ -21,7 +21,8 @@ tool:
 input:
   type: file
   paths:
-    - r"ip_route\.txt$"
+    - r"\/ip_route\.txt$"
+    - r"\/ip_route_show\.txt$"
 
 output:
   type: single_file
@@ -39,5 +40,5 @@ splunk:
     name_rex: ip_route.*\.jsonl$
     path_suffix: network
     sourcetype: 'linux:live_response:network:ip_route'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: ip_route

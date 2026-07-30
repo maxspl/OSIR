@@ -33,10 +33,11 @@ optional:
   plugin: commandhistory
 
 splunk:
-  'linux:bash_history':
+  'linux:command_history':
     name_rex: \.jsonl$
-    sourcetype: 'linux:bash_history'
-    host_rex: ([\w\.-]+)--
+    path_suffix: command_history
+    sourcetype: 'linux:command_history'
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

@@ -1,0 +1,39 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parsing login sessions from '/var/log/wtmp.db' (wtmpdb, Debian 13+/openSUSE/Fedora 42+)
+  os: unix
+
+configuration:
+  module: wtmpdb
+  type: process
+  disk_only: true
+  no_multithread: true
+  processor_type:
+  - internal
+  processor_os: unix
+
+input:
+  type: file
+  name: (?:wtmp\.db)
+  path: var/log
+
+output:
+  type: single_file
+  format: json
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'linux:wtmpdb':
+    name_rex: wtmp.*\.jsonl$
+    sourcetype: 'linux:wtmpdb'
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
+        - "_time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    artifact: "wtmpdb"

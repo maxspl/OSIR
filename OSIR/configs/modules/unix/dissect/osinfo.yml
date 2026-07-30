@@ -35,9 +35,7 @@ optional:
 splunk:
   'linux:osinfo':
     name_rex: \.jsonl$
+    path_suffix: osinfo
     sourcetype: 'linux:osinfo'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "ts"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    host_rex: ([\w\.-]+?)--
     artifact: "osinfo"

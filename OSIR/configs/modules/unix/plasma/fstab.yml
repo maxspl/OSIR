@@ -1,0 +1,41 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Filesystem mounts from /etc/fstab
+  os: unix
+
+configuration:
+  module: fstab
+  alt_module: plasma_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - internal
+  processor_os: unix
+
+input:
+  type: dir
+  paths:
+    - r"extract_uac.*\/\[root\]$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+optional:
+  dissector: linux_fstab
+
+splunk:
+  'linux:fstab':
+    name_rex: \.jsonl$
+    path_suffix: fstab
+    sourcetype: 'linux:fstab'
+    host_rex: ([\w\.-]+?)--
+    artifact: "fstab"

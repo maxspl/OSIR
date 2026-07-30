@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: cat
-  cmd: "{input_file} | jc --asciitable | jq -c '.[]' > {m_output_file}"
+  cmd: "{input_file} | jc --asciitable | jq -c '.[]' > {output_file}"
 
 input:
   type: file
@@ -35,13 +35,10 @@ endpoint:
   default: "UNKNOWN"
 
 splunk:
-  'linux:live_response:dpkg':
+  'linux:live_response:packages:snap':
     name_rex: snap.*\.jsonl$
     sourcetype: 'linux:live_response:packages:snap'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "_time"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+    host_rex: ([\w\.-]+?)--
     artifact: snap
     normalize:
       - ecs_normalize/linux/live_response/packages/snap.vrl

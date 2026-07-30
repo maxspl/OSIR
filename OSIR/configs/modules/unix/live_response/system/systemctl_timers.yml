@@ -1,0 +1,42 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: systemd timers, a persistence location
+  os: unix
+
+configuration:
+  module: systemctl_timers
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: cat
+  cmd: "{input_file} | jc --asciitable | jq -c '.[]' > {output_file}"
+
+input:
+  type: file
+  paths:
+    - r"\/systemctl_list-timers.*\.txt$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_dir: "{case_path}/live_response/system"
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'linux:live_response:system:systemctl_timers':
+    name_rex: --systemctl_timers-.*\.jsonl$
+    path_suffix: system
+    sourcetype: 'linux:live_response:system:systemctl_timers'
+    host_rex: ([\w\.-]+?)--
+    artifact: systemctl_timers

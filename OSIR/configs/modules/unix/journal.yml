@@ -37,7 +37,7 @@ splunk:
     name_rex: \.jsonl$
     path_suffix: journal
     sourcetype: 'linux:journal'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "__REALTIME_TIMESTAMP"
     artifact: "journal"

@@ -1,0 +1,47 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Kelly Brazil - JsonConverter - Parsing the output of the command who.
+    UAC collects who rather than last on modern distributions.
+  os: unix
+
+configuration:
+  module: who
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: cat
+  cmd: "{input_file} | jc --who | jq -c '.[]' > {output_file}"
+
+input:
+  type: file
+  paths:
+    - r"\/who\.txt$"
+    - r"\/who_-.*\.txt$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_dir: "{case_path}/live_response/system"
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'linux:live_response:system:who':
+    name_rex: who.*\.jsonl$
+    path_suffix: system
+    sourcetype: 'linux:live_response:system:who'
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
+        - "epoch"
+    timestamp_format: "%s"
+    artifact: who

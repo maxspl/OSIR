@@ -15,8 +15,8 @@ configuration:
 
 input:
   type: file
-  name: (?:auth\.log)
-  path: var/log/
+  name: (?:audit\.log)
+  path: var/log/audit
 
 output:
   type: single_file
@@ -31,8 +31,9 @@ endpoint:
 splunk:
   'linux:audit':
     name_rex: \.jsonl$
+    path_suffix: audit
     sourcetype: 'linux:audit'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "_time"
     timestamp_format: "%s"

@@ -20,7 +20,8 @@ tool:
 input:
   type: file
   paths:
-    - r"iptables\.txt$"
+    - r"\/iptables\.txt$"
+    - r"\/iptables_-.*\.txt$"
 
 output:
   type: single_file
@@ -38,5 +39,5 @@ splunk:
     name_rex: iptables.*\.jsonl$
     path_suffix: network
     sourcetype: 'linux:live_response:network:iptables'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: iptables

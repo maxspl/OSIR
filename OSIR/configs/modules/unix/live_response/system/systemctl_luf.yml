@@ -36,8 +36,8 @@ endpoint:
 
 splunk:
   'linux:live_response:systemctl':
-    name_rex: systemctl.*\.jsonl$
+    name_rex: --systemctl_luf-.*\.jsonl$
     path_suffix: system
     sourcetype: 'linux:live_response:systemctl'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: systemctl

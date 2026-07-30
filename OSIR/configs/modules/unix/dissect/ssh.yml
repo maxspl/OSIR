@@ -35,9 +35,7 @@ optional:
 splunk:
   'linux:ssh':
     name_rex: \.jsonl$
+    path_suffix: ssh
     sourcetype: 'linux:ssh'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "ts"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    host_rex: ([\w\.-]+?)--
     artifact: "ssh"

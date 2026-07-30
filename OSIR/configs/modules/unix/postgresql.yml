@@ -31,8 +31,9 @@ endpoint:
 splunk:
   'linux:postgres':
     name_rex: \.jsonl$
+    path_suffix: postgresql
     sourcetype: 'linux:postgres'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     timestamp_path: 
         - "_time"
     timestamp_format: "%s"

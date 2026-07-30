@@ -35,9 +35,7 @@ optional:
 splunk:
   'linux:cronjobs':
     name_rex: \.jsonl$
+    path_suffix: cronjobs
     sourcetype: 'linux:cronjobs'
-    host_rex: ([\w\.-]+)--
-    timestamp_path: 
-        - "ts"
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    host_rex: ([\w\.-]+?)--
     artifact: "cronjobs"

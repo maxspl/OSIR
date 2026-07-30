@@ -27,3 +27,13 @@ endpoint:
   patterns:
     - r"extract_uac\/Endpoint_(.*?)\/"
   default: "UNKNOWN"
+
+splunk:
+  'linux:yum':
+    name_rex: yum.*\.jsonl$
+    sourcetype: 'linux:yum'
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
+        - "_time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S"
+    artifact: "yum"

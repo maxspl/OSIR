@@ -1,0 +1,46 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Login records from binary utmp/wtmp/btmp using the CERT-EDF plasma dissector
+  os: unix
+
+configuration:
+  module: wtmp_utmp
+  alt_module: plasma_dispatcher
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - internal
+  processor_os: unix
+
+input:
+  type: dir
+  paths:
+    - r"extract_uac.*\/\[root\]$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+optional:
+  dissector: linux_wtmp_utmp
+  exclude_paths:
+    - r"wtmp\.db$"
+
+splunk:
+  'linux:wtmp_utmp':
+    name_rex: \.jsonl$
+    path_suffix: wtmp_utmp
+    sourcetype: 'linux:wtmp_utmp'
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
+        - "ut_time"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S%z"
+    artifact: "wtmp_utmp"

@@ -21,8 +21,8 @@ tool:
 input:
   type: file
   paths:
-    - r"arp\.txt$"
-    - r"arp_-a\.txt$"
+    - r"\/arp\.txt$"
+    - r"\/arp_-a\.txt$"
 
 output:
   type: single_file
@@ -40,5 +40,5 @@ splunk:
     name_rex: arp.*\.jsonl$
     path_suffix: network
     sourcetype: 'linux:live_response:network:arp'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: "arp"

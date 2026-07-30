@@ -20,7 +20,8 @@ tool:
 input:
   type: file
   paths:
-    - r"netstat_-a\.txt$"
+    - r"\/netstat\.txt$"
+    - r"\/netstat_-a.*\.txt$"
 
 output:
   type: single_file
@@ -38,5 +39,5 @@ splunk:
     name_rex: netstat.*\.jsonl$
     path_suffix: network
     sourcetype: 'linux:live_response:network:netstats'
-    host_rex: ([\w\.-]+)--
+    host_rex: ([\w\.-]+?)--
     artifact: netstats

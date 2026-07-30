@@ -1,0 +1,42 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Hashes of the binaries backing running processes, for IOC matching
+  os: unix
+
+configuration:
+  module: hash_processes
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: cat
+  cmd: "{input_file} | jc --hashsum | jq -c '.[]' > {output_file}"
+
+input:
+  type: file
+  paths:
+    - r"\/hash_running_processes\.(md5|sha1|sha256)$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_dir: "{case_path}/live_response/integrity"
+  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+
+endpoint:
+  patterns:
+    - r"extract_uac\/Endpoint_(.*?)\/"
+  default: "UNKNOWN"
+
+splunk:
+  'linux:live_response:integrity:hash_processes':
+    name_rex: --hash_processes-.*\.jsonl$
+    path_suffix: integrity
+    sourcetype: 'linux:live_response:integrity:hash_processes'
+    host_rex: ([\w\.-]+?)--
+    artifact: hash_processes
