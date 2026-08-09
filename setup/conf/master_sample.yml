@@ -1,3 +1,5 @@
+siem:
+  selected: {siem_selected} # splunk | elasticsearch | both
 splunk:
   location: {splunk_location}
   user: {splunk_user}
@@ -6,6 +8,18 @@ splunk:
   mport: {splunk_mport}
   ssl: {splunk_ssl}
   local_splunk:
-    previous_data: keep # values: erase, keep, stop
+    previous_data: {local_splunk_previous_data} # values: erase, keep, stop
   remote_splunk:
     host: {splunk_remote_splunk_host}
+elasticsearch:
+  location: {es_location} # local | remote
+  host: {es_host}
+  port: {es_port}
+  user: {es_user}
+  password: {es_password}
+  ssl: {es_ssl}
+  kibana_port: {kibana_port} # Kibana web interface port (display only, used by the web sidebar link)
+  local_es:
+    previous_data: {local_elastic_previous_data} # values: erase, keep, stop
+  remote_es:
+    host: {es_remote_host}

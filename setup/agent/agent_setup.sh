@@ -440,6 +440,14 @@ install_from_conf(){
     # Get Splunk ssl
     splunk_ssl=$(get_yml_value "" splunk_ssl)
 
+    # Get ElasticSearch connection details
+    es_host=$(get_yml_value "" es_host)
+    es_user=$(get_yml_value "" es_user)
+    es_password=$(get_yml_value "" es_password)
+    es_port=$(get_yml_value "" es_port)
+    es_ssl=$(get_yml_value "" es_ssl)
+    kibana_port=$(get_yml_value "" kibana_port)
+
     (echo >&2 "${INFO} Splunk host : $splunk_host")
     (echo >&2 "${INFO} Splunk user : $splunk_user")
     (echo >&2 "${INFO} Splunk password : $splunk_password")
@@ -476,6 +484,22 @@ install_from_conf(){
         (echo >&2 "${ERROR} Wrong location. Needs to be local or remote.")
         exit 0
     fi
+
+    # Export Splunk vars with fallback defaults (even if splunk not selected, agent.yaml needs them)
+    export SPLUNK_REMOTE_HOST=${splunk_host:-host.docker.internal}
+    export SPLUNK_USER=${splunk_user:-admin}
+    export SPLUNK_PASSWORD=${splunk_password:-DFIR_passwd}
+    export SPLUNK_PORT=${splunk_port:-8000}
+    export SPLUNK_MPORT=${splunk_mport:-8089}
+    export SPLUNK_SSL=${splunk_ssl:-False}
+
+    # Export ElasticSearch vars read from config so they propagate to agent.yml
+    export ELASTIC_HOST=${es_host:-host.docker.internal}
+    export ELASTIC_USER=${es_user:-elastic}
+    export ELASTIC_PASSWORD=${es_password:-DFIR_passwd}
+    export ELASTIC_PORT=${es_port:-9200}
+    export ELASTIC_SSL=${es_ssl:-False}
+    export KIBANA_PORT=${kibana_port:-5601}
 }
 
 manual_install(){
@@ -632,18 +656,26 @@ manual_install(){
         mount_point=""
     fi
 
-    # Ask user : connect agent to Splunk server
-    default_connect_splunk="yes"
-    read -p "$(echo -n >&2 "${USERINPUT} Do you want to connect agent to a Splunk server ? [Default is: $default_connect_splunk] [options: yes/no]: ")" connect_splunk
-    # Initialize Splunk vars even if user answers "no"
+    # Ask user : which SIEM to use for visualization (mirrors master setup)
+    default_siem="splunk"
+    read -p "$(echo -n >&2 "${USERINPUT} Which SIEM do you want the agent to forward data to ? [Default is: $default_siem] [options: splunk/elasticsearch/both]: ")" siem_selected
+    if [[ -z "$siem_selected" ]]; then
+        siem_selected="$default_siem"
+    fi
+    siem_selected=$(echo "$siem_selected" | tr '[:upper:]' '[:lower:]')
+    if [[ "$siem_selected" != "splunk" && "$siem_selected" != "elasticsearch" && "$siem_selected" != "both" ]]; then
+        (echo >&2 "${ERROR} Invalid SIEM choice. Use splunk, elasticsearch or both.")
+        exit 0
+    fi
+
+    # Initialize Splunk vars
     splunk_host=""
     splunk_user=""
     splunk_password=""
     splunk_port=""
     splunk_mport=""
     splunk_ssl=""
-    if [ -z "$connect_splunk" ] || [ "$connect_splunk" = "yes" ] ; then
-
+    if [ "$siem_selected" = "splunk" ] || [ "$siem_selected" = "both" ] ; then
         # Ask user for the Splunk host
         default_splunk_host="host.docker.internal"
         echo "Enter the Splunk Host:"
@@ -663,7 +695,7 @@ manual_install(){
         if [[ -z "$splunk_user" ]]; then
             splunk_user="$default_user"
         fi
-        
+
         # Ask user : remote Splunk password
         default_password="DFIR_passwd"
         read -p "$(echo -n >&2 "${USERINPUT} Enter the Splunk password. [Default is: $default_password]: ")" splunk_password
@@ -693,18 +725,81 @@ manual_install(){
         fi
     fi
 
+    # Initialize ElasticSearch vars
+    es_host=""
+    es_user=""
+    es_password=""
+    es_port=""
+    es_ssl=""
+    kibana_port=""
+    if [ "$siem_selected" = "elasticsearch" ] || [ "$siem_selected" = "both" ] ; then
+        # Ask user for the ElasticSearch host
+        default_es_host="host.docker.internal"
+        echo "Enter the ElasticSearch Host:"
+        echo "  - Press ENTER to use the default ElasticSearch service ($default_es_host)"
+        echo "  - If using a remote master, enter the FQDN/IP of the remote master"
+        echo "  - If you prefer to use a different ElasticSearch server, enter its FQDN/IP."
+        read -p "ElasticSearch host [Default: $default_es_host]: " es_host
+        es_host=${es_host:-$default_es_host}
+
+        if [[ -z "$es_host" ]]; then
+            es_host="$default_es_host"
+        fi
+
+        # Ask user : ElasticSearch user
+        default_es_user="elastic"
+        read -p "$(echo -n >&2 "${USERINPUT} Enter the ElasticSearch user. [Default is: $default_es_user]: ")" es_user
+        if [[ -z "$es_user" ]]; then
+            es_user="$default_es_user"
+        fi
+
+        # Ask user : ElasticSearch password
+        default_es_password="DFIR_passwd"
+        read -p "$(echo -n >&2 "${USERINPUT} Enter the ElasticSearch password. [Default is: $default_es_password]: ")" es_password
+        if [[ -z "$es_password" ]]; then
+            es_password="$default_es_password"
+        fi
+
+        # Ask user : ElasticSearch port
+        default_es_port="9200"
+        read -p "$(echo -n >&2 "${USERINPUT} Enter the ElasticSearch REST port. [Default is: $default_es_port]: ")" es_port
+        if [[ -z "$es_port" ]]; then
+            es_port="$default_es_port"
+        fi
+
+        # Ask user : ElasticSearch SSL
+        default_es_ssl="False"
+        read -p "$(echo -n >&2 "${USERINPUT} Enable SSL for ElasticSearch communication ? . [Default is: $default_es_ssl] [options: True/False]: ")" es_ssl
+        if [[ -z "$es_ssl" ]]; then
+            es_ssl="$default_es_ssl"
+        fi
+
+        # Ask user : Kibana web port (display only, used for the web sidebar link)
+        default_kibana_port="5601"
+        read -p "$(echo -n >&2 "${USERINPUT} Enter the Kibana web port. [Default is: $default_kibana_port]: ")" kibana_port
+        if [[ -z "$kibana_port" ]]; then
+            kibana_port="$default_kibana_port"
+        fi
+    fi
+
     # Export users input to env
     export LOCATION_TYPE=$location_type
     export WINDOWS_HOST=$host
     export WINDOWS_USER=$user
     export WINDOWS_PASSWORD=$password
     export WINDOWS_MOUNT_POINT=${mount_point//:} # Save drive letter without ":"
-    export SPLUNK_REMOTE_HOST=$splunk_host
-    export SPLUNK_USER=$splunk_user
-    export SPLUNK_PASSWORD=$splunk_password
-    export SPLUNK_PORT=$splunk_port
-    export SPLUNK_MPORT=$splunk_mport
-    export SPLUNK_SSL=$splunk_ssl
+    export SPLUNK_REMOTE_HOST=${splunk_host:-host.docker.internal}
+    export SPLUNK_USER=${splunk_user:-admin}
+    export SPLUNK_PASSWORD=${splunk_password:-DFIR_passwd}
+    export SPLUNK_PORT=${splunk_port:-8000}
+    export SPLUNK_MPORT=${splunk_mport:-8089}
+    export SPLUNK_SSL=${splunk_ssl:-False}
+    export ELASTIC_HOST=${es_host:-host.docker.internal}
+    export ELASTIC_USER=${es_user:-elastic}
+    export ELASTIC_PASSWORD=${es_password:-DFIR_passwd}
+    export ELASTIC_PORT=${es_port:-9200}
+    export ELASTIC_SSL=${es_ssl:-False}
+    export KIBANA_PORT=${kibana_port:-5601}
 
     # Save setup config
     conf_agent_sample="$CONF_PATH/agent_sample.yml"

@@ -37,10 +37,24 @@ start_docker_compose() {
     set_env_var "HOST_IP_LIST" "$(hostname -I | tr ' ' ',')"
     set_env_var "WINDOWS_CORES" "$WINDOWS_CORES"
 
+    # Persist user-selected SIEM ports so docker compose (run as root via sudo,
+    # which does not inherit the exported shell variables) publishes the same
+    # ports the user was asked for during setup.
+    [ -n "$SPLUNK_PORT" ] && set_env_var "SPLUNK_PORT" "$SPLUNK_PORT"
+    [ -n "$SPLUNK_MPORT" ] && set_env_var "SPLUNK_MPORT" "$SPLUNK_MPORT"
+    [ -n "$ELASTIC_PORT" ] && set_env_var "ELASTIC_PORT" "$ELASTIC_PORT"
+    [ -n "$KIBANA_PORT" ] && set_env_var "KIBANA_PORT" "$KIBANA_PORT"
+
     if is_wsl; then
         set_env_var "WSL_INTEROP" "$WSL_INTEROP"
         set_env_var "OSIR_PATH" "$(wslpath -w "$MASTER_DIR/../../../")"
     fi
+
+    # Ensure elasticsearch data directory exists with correct ownership (uid 1000)
+    # before starting containers, so the bind mount is writable by the container.
+    local es_data_dir="$DOCKER_COMPOSE_REPO/../../setup/elastic/data"
+    sudo mkdir -p "$es_data_dir"
+    sudo chown -R 1000:1000 "$es_data_dir"
 
     if [ -n "$COMPOSE_PROFILES" ]; then
         sudo COMPOSE_PROFILES="$COMPOSE_PROFILES" docker compose -f "$DOCKER_COMPOSE_REPO/docker-compose.yml" up -d

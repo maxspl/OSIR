@@ -63,20 +63,26 @@ def sidebar():
         # time.sleep(1)
         # host = location_details["hostname"]
         
-        # Get splunk host
+        # Get splunk and elastic hosts
         try:
             agent_config = OsirAgentConfig()
             host = agent_config.master_host
             splunk_host = agent_config.splunk_host if agent_config.splunk_host not in ["host.docker.internal", "127.0.0.1"] else host
+            elastic_host = agent_config.elastic_host if agent_config.elastic_host not in ["host.docker.internal", "127.0.0.1"] else host
+            splunk_port = agent_config.splunk_port
+            kibana_port = agent_config.elastic_kibana_port
         except FileNotFoundError:
             # agent.yml missing -> happens if master launched before agent is installed
             host = "localhost"
             splunk_host = host
-            
+            elastic_host = host
+            splunk_port = 8000
+            kibana_port = 5601
 
-        # Set the URL for the iframe
+        # Set the URLs
         url = f"http://{host}:80/"
-        splunk_url = f"http://{splunk_host}:8000/"
+        splunk_url = f"http://{splunk_host}:{splunk_port}/"
+        kibana_url = f"http://{elastic_host}:{kibana_port}/"
         colored_header(
             label="Useful links",
             description="",
@@ -85,6 +91,7 @@ def sidebar():
         with st.expander(":round_pushpin: External"):
             st.page_link(url, label="Open Database", help="open a new tab to pgadmin", width='stretch', icon="💾")
             st.page_link(splunk_url, label="Splunk", help="open a new tab to local Splunk server", width='stretch', icon="💹")
+            st.page_link(kibana_url, label="Kibana", help="open a new tab to local Kibana server", width='stretch', icon="📊")
 
         # Master specs
         colored_header(

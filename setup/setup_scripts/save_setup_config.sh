@@ -20,6 +20,12 @@ save_agent_setup_conf() {
     sed -i "s/{splunk_port}/$SPLUNK_PORT/g" $conf
     sed -i "s/{splunk_mport}/$SPLUNK_MPORT/g" $conf
     sed -i "s/{splunk_ssl}/$SPLUNK_SSL/g" $conf
+    sed -i "s/{es_host}/$ELASTIC_HOST/g" $conf
+    sed -i "s/{es_user}/$ELASTIC_USER/g" $conf
+    sed -i "s/{es_password}/$ELASTIC_PASSWORD/g" $conf
+    sed -i "s/{es_port}/$ELASTIC_PORT/g" $conf
+    sed -i "s/{es_ssl}/$ELASTIC_SSL/g" $conf
+    sed -i "s/{kibana_port}/${KIBANA_PORT:-5601}/g" $conf
     
     # Return the exit status of the last command executed
     return $?
@@ -27,6 +33,7 @@ save_agent_setup_conf() {
 
 save_master_setup_conf() {
     cp $conf_sample $conf
+    sed -i "s/{siem_selected}/$SIEM_SELECTED/g" $conf
     sed -i "s/{splunk_location}/$SPLUNK_LOCATION/g" $conf
     sed -i "s/{splunk_user}/$SPLUNK_USER/g" $conf
     sed -i "s/{splunk_password}/$SPLUNK_PASSWORD/g" $conf
@@ -34,7 +41,17 @@ save_master_setup_conf() {
     sed -i "s/{splunk_port}/$SPLUNK_PORT/g" $conf
     sed -i "s/{splunk_mport}/$SPLUNK_MPORT/g" $conf
     sed -i "s/{splunk_ssl}/$SPLUNK_SSL/g" $conf
-
+    sed -i "s/{es_location}/$ELASTIC_LOCATION/g" $conf
+    sed -i "s/{es_host}/$ELASTIC_HOST/g" $conf
+    sed -i "s/{es_port}/$ELASTIC_PORT/g" $conf
+    sed -i "s/{es_user}/$ELASTIC_USER/g" $conf
+    sed -i "s/{es_password}/$ELASTIC_PASSWORD/g" $conf
+    sed -i "s/{es_ssl}/$ELASTIC_SSL/g" $conf
+    sed -i "s/{es_remote_host}/$ELASTIC_REMOTE_HOST/g" $conf
+    sed -i "s/{kibana_port}/${KIBANA_PORT:-5601}/g" $conf
+    sed -i "s/{local_elastic_previous_data}/$LOCAL_ELASTIC_PREVIOUS_DATA/g" $conf
+    sed -i "s/{local_splunk_previous_data}/$LOCAL_SPLUNK_PREVIOUS_DATA/g" $conf
+    
     # Return the exit status of the last command executed
     return $?
 }

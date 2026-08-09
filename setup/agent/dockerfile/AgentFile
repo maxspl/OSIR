@@ -4,7 +4,7 @@ FROM ubuntu:24.04
 # - Environment --------------------------------
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Europe/Minsk \
-    PATH="/OSIR/OSIR:${PATH}"
+    PATH="/OSIR/OSIR:/OSIR/OSIR/bin:${PATH}"
 
 # - Base system & tooling ---------------------------
 RUN set -eux; \
@@ -58,7 +58,8 @@ RUN set -eux; \
 # - Python dependencies (cached layer) ---------------------
 COPY sources/requirements.txt /tmp/requirements.txt
 RUN set -eux; \
-    python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt
+    python -m pip install --no-cache-dir --break-system-packages --ignore-installed -r /tmp/requirements.txt; \
+    python3.12 -m pip install --no-cache-dir --break-system-packages elasticsearch
 
 # - Install DECODE from https://github.com/ANSSI-FR/DECODE -----------------------
 RUN set -eux; \
