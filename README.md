@@ -9,15 +9,20 @@ OSIR is a dockerized and distributed parsing framework that works on Linux and W
 
 
 # Table of Contents
+- [OSIR](#osir)
+- [Table of Contents](#table-of-contents)
 - [Architecture](#architecture)
 - [How does it work ?](#how-does-it-work-)
-- [Quick Start](#quick-start)
-- [Contributing](#contributing)
+- [Quick start](#quick-start)
+  - [Clone the project including dependencies](#clone-the-project-including-dependencies)
+  - [Example of usage: parsing DFIR ORC triage on Ubuntu host](#example-of-usage-parsing-dfir-orc-triage-on-ubuntu-host)
 - [Main features](#main-features)
 - [Documentation](#documentation)
-- [Currently supported modules](#currently-supported-modules)
+- [Supported Modules](#supported-modules)
+- [Contributing](#contributing)
 - [Creators](#creators)
 - [License](#license)
+- [Other references](#other-references)
 
 # Architecture
 
@@ -73,6 +78,7 @@ git clone --recurse-submodules https://github.com/maxspl/OSIR
 - Dockerized installation
 - Modular: processing tasks are defined by easily modifiable configuration files
 - Splunk integration for output analysis
+- ElasticSearch (ELK) integration for output analysis (choose Splunk, ElasticSearch or both at master setup)
 
 
 # Documentation
@@ -84,7 +90,8 @@ Project documentation: https://osir.readthedocs.io
 | OS      | Filename                             | Description                                                                                                                             | Author         |   Version | Processor Type     | Tool Path                           |
 |:--------|:-------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------------|:---------------|----------:|:-------------------|:------------------------------------|
 | generic | age_decrypt.yml                      | Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.                           | maxspl         |       1   | external           | age                                 |
-| generic | indexer-ng.yml                       | Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs configuration.                                            | maxspl         |       1   | internal           | json2splunk-rs                      |
+| generic | indexer-ng.yml                      | Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk-rs configuration.                                            | maxspl         |       1   | internal           | json2splunk-rs                      |
+| generic | indexer_elastic.yml                 | ElasticSearch logs ingestion (DFIR ORC and UAC) using module-specific json2elastic-rs configuration.           | Grand-Duc      |       1   | internal           | json2elastic-rs                     |
 | generic | mongodb.yml                          | Splunk logs ingestion of Mongodb logs.                                                                                                  | Typ            |       1   | external           | json2splunk-rs                      |
 | generic | thor_lite.yml                        | Scan of collected file using Thor Lite.                                                                                                 | typ            |       1   | external           | thor-lite/thor-lite-linux-64        |
 | generic | thor_orc.yml                         | Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).                                   | maxspl         |       1   | external           | thor/thor-linux-64                  |

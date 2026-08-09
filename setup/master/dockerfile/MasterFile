@@ -4,7 +4,7 @@ FROM ubuntu:24.04
 # - Environment --------------------------------
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=Europe/Minsk \
-    PATH="/OSIR/OSIR:${PATH}"
+    PATH="/OSIR/OSIR:/OSIR/OSIR/bin:${PATH}"
 
 # - System setup -------------------------------
 RUN set -eux; \

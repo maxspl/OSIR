@@ -1,0 +1,92 @@
+{
+  "id": "osir-template",
+  "body": {
+    "index_patterns": ["osir-*"],
+    "template": {
+      "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "default_pipeline": "osir-timestamp",
+        "mapping.total_fields.limit": 20000,
+        "mapping.depth.limit": 50,
+        "mapping.nested_fields.limit": 500,
+        "index.mapping.ignore_malformed": true,
+        "index.mapping.coerce": true,
+        "index.refresh_interval": "-1",
+        "index.translog.durability": "async",
+        "index.translog.sync_interval": "30s",
+        "index.translog.flush_threshold_size": "1gb"
+      },
+      "mappings": {
+        "dynamic": true,
+        "subobjects": false,
+        "properties": {
+          "@timestamp": { "type": "date" },
+          "timestamp": { "type": "date" },
+          "event": {
+            "properties": {
+              "original": { "type": "text" },
+              "dataset": { "type": "keyword" },
+              "kind": { "type": "keyword" },
+              "category": { "type": "keyword" },
+              "type": { "type": "keyword" },
+              "action": { "type": "keyword" }
+            }
+          },
+          "host": {
+            "properties": {
+              "name": { "type": "keyword" }
+            }
+          },
+          "artifact": { "type": "keyword" },
+          "sourcetype": { "type": "keyword" },
+          "sourcefile": { "type": "keyword" },
+          "case": { "type": "keyword" }
+        },
+        "dynamic_templates": [
+          {
+            "strings_as_keyword": {
+              "match_mapping_type": "string",
+              "mapping": {
+                "type": "keyword",
+                "ignore_above": 1024
+              }
+            }
+          },
+          {
+            "longs_as_long": {
+              "match_mapping_type": "long",
+              "mapping": {
+                "type": "long"
+              }
+            }
+          },
+          {
+            "doubles_as_double": {
+              "match_mapping_type": "double",
+              "mapping": {
+                "type": "double"
+              }
+            }
+          },
+          {
+            "booleans_as_boolean": {
+              "match_mapping_type": "boolean",
+              "mapping": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "dates_as_date": {
+              "match_mapping_type": "date",
+              "mapping": {
+                "type": "date"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

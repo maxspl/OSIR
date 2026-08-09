@@ -80,16 +80,38 @@ class SplunkConfig(BaseModel):
     ssl: bool  # booléen pour True/False
 
 
+class ElasticConfig(BaseModel):
+    """
+        Contains the authentication and connection parameters for ElasticSearch integration.
+
+        Args:
+            host (str): The address of the ElasticSearch server (default 127.0.0.1).
+            user (str): Username for ElasticSearch (default elastic).
+            password (str): Password for ElasticSearch.
+            port (int): The destination port for the REST API (default 9200).
+            ssl (bool): Whether to use encrypted HTTPS for the connection.
+            kibana_port (int): The Kibana web interface port (default 5601). Display-only,
+                used to build the "Open Kibana" link in the web sidebar.
+    """
+    host: str
+    user: str
+    password: str
+    port: int
+    ssl: bool
+    kibana_port: int = 5601
+
+
 class FullAgentConfig(BaseModel):
     """
         The root validation model for the 'agent.yml' configuration file.
 
         It acts as a single point of truth, validating that the Master, Windows Box,
-        and Splunk sections are correctly formatted and present before the agent starts.
+        Splunk and ElasticSearch sections are correctly formatted and present before the agent starts.
     """
     master: MasterConfig
     windows_box: WindowsBoxConfig
     splunk: SplunkConfig
+    elasticsearch: ElasticConfig
 
 
 @singleton
@@ -203,6 +225,30 @@ class OsirAgentConfig:
     @property
     def splunk_ssl(self) -> bool:
         return self.config_data.splunk.ssl
+
+    @property
+    def elastic_host(self) -> str:
+        return self.config_data.elasticsearch.host
+
+    @property
+    def elastic_user(self) -> str:
+        return self.config_data.elasticsearch.user
+
+    @property
+    def elastic_password(self) -> str:
+        return self.config_data.elasticsearch.password
+
+    @property
+    def elastic_port(self) -> int:
+        return self.config_data.elasticsearch.port
+
+    @property
+    def elastic_ssl(self) -> bool:
+        return self.config_data.elasticsearch.ssl
+
+    @property
+    def elastic_kibana_port(self) -> int:
+        return self.config_data.elasticsearch.kibana_port
 
     def _is_standalone(self) -> bool:
         """

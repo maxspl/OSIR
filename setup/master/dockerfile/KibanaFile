@@ -1,0 +1,13 @@
+FROM docker.elastic.co/kibana/kibana:9.4.3
+
+# Point Kibana at the local Elasticsearch service. Security is disabled to match
+# the local Elasticsearch container (xpack.security.enabled=false).
+# Uses service name 'elasticsearch' (container: master-elasticsearch)
+ENV ELASTICSEARCH_HOSTS=http://elasticsearch:9200 \
+    SERVER_HOST=0.0.0.0 \
+    SERVER_NAME=osir-kibana \
+    XPACK_SECURITY_ENABLED=false \
+    ELASTICSEARCH_SSL_VERIFICATIONMODE=none \
+    ELASTICSEARCH_SSL_ALWAYSPRESENTCERTIFICATE=false
+
+EXPOSE 5601
