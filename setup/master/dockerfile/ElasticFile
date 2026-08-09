@@ -1,8 +1,6 @@
 FROM docker.elastic.co/elasticsearch/elasticsearch:9.4.3
 
-# Single-node forensic deployment. Security is disabled by default to mirror
-# the Splunk "Free" local experience; remote secured clusters are supported via
-# the agent/master elasticsearch configuration (basic_auth).
+# Single-node deployment.
 ENV discovery.type=single-node \
     xpack.security.enabled=false \
     xpack.security.http.ssl.enabled=false \
@@ -17,8 +15,7 @@ RUN echo 'http.cors.enabled: true' >> /usr/share/elasticsearch/config/elasticsea
 RUN echo 'indices.memory.index_buffer_size: 512mb' >> /usr/share/elasticsearch/config/elasticsearch.yml && \
     echo 'thread_pool.write.queue_size: 10000' >> /usr/share/elasticsearch/config/elasticsearch.yml
 
-# Local single-node forensic deployment: hosts often run with a nearly full
-# disk. Disable the disk watermark threshold so Elasticsearch keeps allocating
+# Disable the disk watermark threshold so Elasticsearch keeps allocating
 # shards instead of blocking indexing when free space drops below 90%.
 RUN echo 'cluster.routing.allocation.disk.threshold_enabled: false' >> /usr/share/elasticsearch/config/elasticsearch.yml
 

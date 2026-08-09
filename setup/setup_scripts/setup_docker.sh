@@ -50,6 +50,12 @@ start_docker_compose() {
         set_env_var "OSIR_PATH" "$(wslpath -w "$MASTER_DIR/../../../")"
     fi
 
+    # Ensure elasticsearch data directory exists with correct ownership (uid 1000)
+    # before starting containers, so the bind mount is writable by the container.
+    local es_data_dir="$DOCKER_COMPOSE_REPO/../../setup/elastic/data"
+    sudo mkdir -p "$es_data_dir"
+    sudo chown -R 1000:1000 "$es_data_dir"
+
     if [ -n "$COMPOSE_PROFILES" ]; then
         sudo COMPOSE_PROFILES="$COMPOSE_PROFILES" docker compose -f "$DOCKER_COMPOSE_REPO/docker-compose.yml" up -d
     else 
