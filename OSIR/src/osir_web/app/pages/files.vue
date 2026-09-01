@@ -27,11 +27,9 @@ onUnmounted(() => moduleStore.stopPolling())
 
 const toast = useToast()
 
-const { data: casesData, refresh: refreshCases } = await useAsyncData('cases', () => api.case.list())
-
 const caseOptions = computed(() => [
   { label: 'All cases', value: 'all' },
-  ...(casesData.value?.response ?? []).map(c => ({ label: c.name, value: c.name })),
+  ...caseStore.caseOptions,
 ])
 
 // ── New case creation ────────────────────────────────────────────────────────
@@ -48,7 +46,7 @@ async function createCase() {
   creatingCase.value = true
   try {
     await api.case.create(name)
-    await Promise.all([refreshCases(), caseStore.refresh()])
+    await caseStore.refresh()
     showNewCaseModal.value = false
     newCaseName.value = ''
     selectedCase.value = name
@@ -68,6 +66,13 @@ await Promise.all([
   profileStore.fetchProfiles()
 ])
 moduleStore.fetchModuleInfos()
+
+// The selected case can vanish between two refreshes (directory removed from
+// the share): fall back to the root storage instead of browsing a dead path.
+watch(caseOptions, (options) => {
+  if (!options.length || caseStore.isLoading) return
+  if (!options.some(o => o.value === selectedCase.value)) selectedCase.value = 'all'
+})
 
 const selectedExpanded = ref(false)
 

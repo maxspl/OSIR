@@ -8,6 +8,7 @@ from celery.result import AsyncResult
 from pydantic import BaseModel
 
 from osir_lib.core.FileManager import FileManager
+from osir_lib.core.OsirConstants import OSIR_PATHS
 from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 from osir_service.ipc.OsirIpcTus import OsirIpcTus
 from osir_service.ipc.model.OsirExceptions import OsirException
@@ -432,8 +433,12 @@ class OsirIpc(BaseModel):
 
     @register_action('create_case', required_fields=['case_name'])
     def _handle_create_case(self, req: OsirIpcRequest, resp: OsirIpcResponse):
+        case_name = req.params['case_name']
         with OsirDb() as db:
-            resp.response = db.case.create(name=req.params['case_name'])
+            case = db.case.create(name=case_name)
+            FileManager.create_case(directory=OSIR_PATHS.CASES_DIR, case_name=case_name)
+            case.exists_on_disk = True
+            resp.response = case
         return resp
 
     @register_action('get_cases')

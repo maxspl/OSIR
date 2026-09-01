@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia'
-import type { SelectMenuItem } from '@nuxt/ui'
 import { useOsirApi } from '~/api'
 import type { OsirDbCaseModel } from '~/api/types'
+
+export interface CaseOption {
+  label: string
+  value: string
+}
 
 export interface CaseState {
   cases: OsirDbCaseModel[]
@@ -24,7 +28,7 @@ export const useCaseStore = defineStore('case', {
     // A case whose directory disappeared cannot be processed: keep it out of the
     // selector, but leave it in `cases` so task and handler views still resolve
     // its name from the UUID.
-    caseOptions: (state): SelectMenuItem[] =>
+    caseOptions: (state): CaseOption[] =>
       state.cases
         .filter(c => c.exists_on_disk !== false)
         .map(c => ({ label: c.name, value: c.name })),
