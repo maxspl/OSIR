@@ -116,7 +116,8 @@ RUN set -eux; \
     apt-get update -y && \
     apt-get install -y --no-install-recommends \
         python3.12-full \
-        python3-pip; \
+        python3-pip \
+        libpython3.12t64; \
     \
     # make python3.12 the default python
     update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1; \

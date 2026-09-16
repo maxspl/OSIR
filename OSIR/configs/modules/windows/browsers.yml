@@ -15,9 +15,9 @@ configuration:
 
 tool: 
   path: python
-  cmd: /OSIR/OSIR/bin/BrowserParser/main.py {input_dir} {output_dir} --json
-  source: https://github.com/seba7236/BrowserParser
-  version: 1.0.1
+  cmd: /OSIR/OSIR/bin/BrowserParser/main.py {input_dir} {output_dir} --jsonl
+  source: https://github.com/maxspl/BrowserParser
+  version: 1.1.0
 
 input:
   type: dir
@@ -35,17 +35,17 @@ endpoint:
 
 splunk:
   'application:firefox':
-    name_rex: .*firefox.*\.json$
+    name_rex: .*firefox.*\.jsonl$
     path_suffix: 'browsers'
     sourcetype: 'application:browser:firefox'
     host_rex: ([\w\.-]+)--
   'application:chrome':
-    name_rex: .*chrome.*\.json$
+    name_rex: .*chrome.*\.jsonl$
     path_suffix: 'browsers'
     sourcetype: 'application:browser:chrome'
     host_rex: ([\w\.-]+)--
   'application:edge':
-    name_rex: .*edge.*\.json$
+    name_rex: .*edge.*\.jsonl$
     path_suffix: 'browsers'
     sourcetype: 'application:browser:edge'
     host_rex: ([\w\.-]+)--
