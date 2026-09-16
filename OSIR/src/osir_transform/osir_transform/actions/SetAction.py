@@ -29,7 +29,7 @@ class SetAction(BaseModel):
         fields = extract_vrl_fields(str(val))
         if not fields:
             return [stmt]
-        guard = " && ".join(f"exists({f})" for f in fields)
+        guard = " && ".join(f"exists({f}) && {f} != null" for f in fields)
         return [
             f"{indent}if {guard} {{",
             f"{indent}  .{dst} = {render_value(val)}",

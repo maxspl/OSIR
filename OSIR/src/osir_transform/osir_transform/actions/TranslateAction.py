@@ -29,5 +29,14 @@ class TranslateAction(BaseModel):
         dict_literal = "{\n" + "".join(
             f'{indent}  "{k}": "{v}",\n' for k, v in self.dictionary.items()
         ) + f"{indent}}}"
-        fallback = f' ?? "{self.fallback}"' if self.fallback else ""
-        return [f"{indent}.{dst_field} = get(value: {dict_literal}, path: [to_string!({src})]){fallback}"]
+        # get() returns null (not an error) on a missing key, so `??` alone never applies the fallback
+        lines = [
+            f"{indent}translated = get(value: {dict_literal}, path: [to_string!({src})]) ?? null",
+            f"{indent}if translated != null {{",
+            f"{indent}  .{dst_field} = translated",
+        ]
+        if self.fallback:
+            lines.append(f'{indent}}} else {{')
+            lines.append(f'{indent}  .{dst_field} = "{self.fallback}"')
+        lines.append(f"{indent}}}")
+        return lines

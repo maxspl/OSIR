@@ -10,9 +10,11 @@ pipeline:
   - name: set_action
   - name: set_mitre
   - name: set_channel
+  - name: parse_hashes
   - name: set_dll
   - name: set_file
   - name: main_stage
+  - name: process_executable
   - name: finalize
   - name: dns_fields
   - name: registry
@@ -21,6 +23,11 @@ pipeline:
   - name: hashes
   - name: process_ids
   - name: set_user
+  - name: set_source_fields
+  - name: set_network_policy_fields
+  - name: action_outcome
+  - name: event_outcome
+  - name: rule
   - name: action_target
   - name: set_destination
   - name: del_event
@@ -48,7 +55,7 @@ stages:
           action.properties.BytesTotal: v'.Event.EventData.bytesTotal'
           action.properties.ConfigurationFile: v'.Event.EventData.Configuration'
           action.properties.FileVersion: v'.Event.EventData.FileVersion'
-          action.properties.Product: v'.Event.EventData.FileVersion'
+          action.properties.Product: v'.Event.EventData.Product'
           action.properties.Description: v'.Event.EventData.Description'
           action.properties.ThreatName: v'.Event.EventData.ThreatName'
           action.properties.DetectionUser: v'.Event.EventData.DetectionUser'
@@ -63,6 +70,28 @@ stages:
           action.properties.StatusInformation: v'.Event.EventData.StatusInformation'
           action.properties.Subject: v'.Event.EventData.Subject'
           action.properties.TransmittedServices: v'.Event.EventData.TransmittedServices'
+      # Some providers (TerminalServices, WMI, RestartManager, CBS, LogFileCleared...) store
+      # their payload in <UserData><RootElement>...</RootElement></UserData> instead of EventData.
+      # Merge the root element content (and its XML attributes) into action.properties.
+      - custom:
+          user_data: |-
+            if is_object(.Event.UserData) {
+              ud_obj = object!(.Event.UserData)
+              ud_keys = keys(ud_obj)
+              if length(ud_keys) > 0 {
+                ud_root = string!(ud_keys[0])
+                ud = get!(ud_obj, [ud_root])
+                if is_object(ud) {
+                  ud_attrs = object(get(ud, ["#attributes"]) ?? {}) ?? {}
+                  ud_attrs = remove!(ud_attrs, ["xmlns"])
+                  ud = remove!(ud, ["#attributes"])
+                  .action.properties = merge(object(.action.properties) ?? {}, merge(ud_attrs, object!(ud)))
+                } else {
+                  .action.properties = merge(object(.action.properties) ?? {}, set!({}, [ud_root], ud))
+                }
+                .action.properties.UserDataType = ud_root
+              }
+            }
       - set:
           action.properties.Image: v'.Event.EventData.Image'
         filter: v'exists(.Event.EventData.Image)'
@@ -110,7 +139,7 @@ stages:
       #     action.properties.AdditionalActionsString: v'.Event.EventData.AdditionalActionsString'
       # - set:
       #     action.properties.ProxyServer: v'.parsed_message_xml.AuditBase.ContextComponents.Component.ProxyServer'
-      #   filter: v'.Event.System.Provider == "AD FS Auditing"'
+      #   filter: v'.Event.System.Provider."#attributes".Name == "AD FS Auditing"'
 
   set_destination:
     actions:
@@ -138,32 +167,28 @@ stages:
           destination.address: v'.url.domain'
         filter: v'exists(.url.domain) && !exists(.destination.address)'
 
+  parse_hashes:
+    actions:
+      - custom:
+          hashes: .parsed_hashes_kv = parse_key_value(.Event.EventData.Hashes, key_value_delimiter:"=", field_delimiter:",") ?? {}
+        filter: v'is_string(.Event.EventData.Hashes)'
+      - custom:
+          hash: .parsed_hashes_kv_2 = parse_key_value(.Event.EventData.Hash, key_value_delimiter:"=", field_delimiter:",") ?? {}
+        filter: v'is_string(.Event.EventData.Hash)'
+
   set_dll:
     actions:
       - set:
           dll.path: v'.Event.EventData.ImageLoaded'
-      - set:
           dll.name: v'.Event.EventData.OriginalFileName'
-      - set:
           dll.pe.imphash: v'.parsed_hashes_kv.IMPHASH'
-      - set:
-          dll.pe.imphash: v'.parsed_hashes_kv_2.IMPHASH'
-        filter: v'!exists(.dll.pe.imphash)'
-      - set:
           dll.hash.md5: v'.parsed_hashes_kv.MD5'
-      - set:
-          dll.hash.md5: v'.parsed_hashes_kv_2.MD5'
-        filter: v'!exists(.dll.hash.md5)'
-      - set:
           dll.hash.sha256: v'.parsed_hashes_kv.SHA256'
-      - set:
-          dll.hash.sha256: v'.parsed_hashes_kv_2.SHA256'
-        filter: v'!exists(.dll.hash.sha256)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && .event.id == 7'
 
   main_stage:
     actions:
       - set:
-          timestamp: v'.Event.EventData.UtcTime'
           action.type: v'.Event.System.Channel'
           action.id: v'.event.code'
           event.provider: v'.Event.System.Provider."#attributes".Name'
@@ -171,6 +196,8 @@ stages:
           host.hostname: v'split!(.Event.System.Computer, ".")[0]'
           os.family: "windows"
           os.platform: "windows"
+      - set:
+          event.created: v'.Event.EventData.UtcTime'
       - set:
           file.name: v'.Event.EventData.name'
       - set:
@@ -254,74 +281,75 @@ stages:
   finalize:
     actions:
       - set:
-          log.level: v'downcase!(string!(.log.level))'
+          log.level: v'downcase(to_string(.log.level) ?? "")'
         filter: v'exists(.log.level)'
       - set:
-          process.command_line: v'replace!(.process.command_line, "\"", "")'
+          process.command_line: v'replace(to_string(.process.command_line) ?? "", "\"", "")'
         filter: v'exists(.process.command_line)'
       - set:
-          process.parent.command_line: v'replace!(.process.parent.command_line, "\"", "")'
+          process.parent.command_line: v'replace(to_string(.process.parent.command_line) ?? "", "\"", "")'
         filter: v'exists(.process.parent.command_line)'
       - set:
-          process.pe.imphash: v'downcase!(string!(.process.pe.imphash))'
+          process.pe.imphash: v'downcase(to_string(.process.pe.imphash) ?? "")'
         filter: v'exists(.process.pe.imphash)'
       - set:
-          process.hash.md5: v'downcase!(string!(.process.hash.md5))'
+          process.hash.md5: v'downcase(to_string(.process.hash.md5) ?? "")'
         filter: v'exists(.process.hash.md5)'
       - set:
-          process.hash.sha1: v'downcase!(string!(.process.hash.sha1))'
+          process.hash.sha1: v'downcase(to_string(.process.hash.sha1) ?? "")'
         filter: v'exists(.process.hash.sha1)'
       - set:
-          process.hash.sha256: v'downcase!(string!(.process.hash.sha256))'
+          process.hash.sha256: v'downcase(to_string(.process.hash.sha256) ?? "")'
         filter: v'exists(.process.hash.sha256)'
       - set:
-          file.pe.imphash: v'downcase!(string!(.file.pe.imphash))'
+          file.pe.imphash: v'downcase(to_string(.file.pe.imphash) ?? "")'
         filter: v'exists(.file.pe.imphash)'
       - set:
-          file.hash.md5: v'downcase!(string!(.file.hash.md5))'
+          file.hash.md5: v'downcase(to_string(.file.hash.md5) ?? "")'
         filter: v'exists(.file.hash.md5)'
       - set:
-          file.hash.sha256: v'downcase!(string!(.file.hash.sha256))'
+          file.hash.sha256: v'downcase(to_string(.file.hash.sha256) ?? "")'
         filter: v'exists(.file.hash.sha256)'
       - set:
-          dll.hash.imphash: v'downcase!(string!(.dll.pe.imphash))'
+          dll.hash.imphash: v'downcase(to_string(.dll.pe.imphash) ?? "")'
         filter: v'exists(.dll.pe.imphash)'
       - set:
-          dll.pe.imphash: v'downcase!(string!(.dll.pe.imphash))'
+          dll.pe.imphash: v'downcase(to_string(.dll.pe.imphash) ?? "")'
         filter: v'exists(.dll.pe.imphash)'
       - set:
-          dll.hash.md5: v'downcase!(string!(.dll.hash.md5))'
+          dll.hash.md5: v'downcase(to_string(.dll.hash.md5) ?? "")'
         filter: v'exists(.dll.hash.md5)'
       - set:
-          dll.hash.sha256: v'downcase!(string!(.dll.hash.sha256))'
+          dll.hash.sha256: v'downcase(to_string(.dll.hash.sha256) ?? "")'
         filter: v'exists(.dll.hash.sha256)'
       - set:
           process.parent.command_line: v'.process.parent.executable'
-        filter: v'exists(.process.parent.command_line) && exists(.process.parent.executable) && downcase!(string!(.process.parent.command_line)) == downcase!(string!(.process.parent.executable))'
+        filter: v'exists(.process.parent.command_line) && exists(.process.parent.executable) && downcase(to_string(.process.parent.command_line) ?? "") == downcase(to_string(.process.parent.executable) ?? "")'
       - set:
-          source.size_in_char: v'length(string!(.source.domain))'
+          source.size_in_char: v'length(to_string(.source.domain) ?? "")'
         filter: v'exists(.source.domain)'
       - set:
-          destination.size_in_char: v'length(string!(.destination.domain))'
+          destination.size_in_char: v'length(to_string(.destination.domain) ?? "")'
         filter: v'exists(.destination.domain)'
       - set:
-          process.name: v'basename!(.process.executable)'
+          process.name: v'replace(to_string(.process.executable) ?? "", r'^.*[\\/]', "")'
         filter: v'exists(.process.executable) && !exists(.process.name)'
       - set:
-          process.working_directory: v'dirname!(.process.executable) + "\\"'
+          process.working_directory: v'replace(to_string(.process.executable) ?? "", r'[^\\/]*$', "")'
         filter: v'exists(.process.executable) && !exists(.process.working_directory)'
       - set:
-          process.parent.name: v'basename!(.process.parent.executable)'
+          process.parent.name: v'replace(to_string(.process.parent.executable) ?? "", r'^.*[\\/]', "")'
         filter: v'exists(.process.parent.executable) && !exists(.process.parent.name)'
       - set:
-          process.parent.working_directory: v'dirname!(.process.parent.executable) + "\\"'
+          process.parent.working_directory: v'replace(to_string(.process.parent.executable) ?? "", r'[^\\/]*$', "")'
         filter: v'exists(.process.parent.executable) && !exists(.process.parent.working_directory)'
       - set:
           process.name: "powershell.exe"
-        filter: v'.Event.System.Provider == "Microsoft-Windows-PowerShell"'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-PowerShell"'
       - set:
           file.size: "-1"
-        filter: v'exists(.Event.EventData.fileLength) && .Event.EventData.fileLength == "18446744073709551615"'
+        # 0xFFFFFFFFFFFFFFFF (unknown size) does not fit in i64 and is parsed as a float
+        filter: v'is_float(.Event.EventData.fileLength) || (to_string(.Event.EventData.fileLength) ?? "") == "18446744073709551615"'
 
   dns_fields:
     actions:
@@ -336,13 +364,13 @@ stages:
           dns.type: "answer"
         filter: v'exists(.Event.EventData.QueryResults)'
       - set:
-          dns.size_in_char: v'length(string!(.dns.question.name))'
+          dns.size_in_char: v'length(to_string(.dns.question.name) ?? "")'
         filter: v'exists(.dns.question.name)'
 
   registry:
     actions:
       - set:
-          registry.value: v'.Event.EventData.Details'
+          registry.data.strings: v'[to_string(.Event.EventData.Details) ?? ""]'
       - set:
           registry.path: v'.Event.EventData.TargetObject'
           registry.hive: v'split!(.Event.EventData.TargetObject, "\\")[0]'
@@ -351,7 +379,7 @@ stages:
         filter: v'exists(.Event.EventData.TargetObject)'
       - set:
           registry.data.type: "STRING"
-          registry.data.strings: v'[string!(.Event.EventData.Details)]'
+          registry.data.strings: v'[replace(to_string(.Event.EventData.Details) ?? "", r'^"|"$', "")]'
         filter: v'exists(.Event.EventData.Details) && starts_with(to_string!(.Event.EventData.Details), "\"")'
       - set:
           registry.data.type: v'split!(to_string!(.Event.EventData.Details), " ")[0]'
@@ -368,9 +396,12 @@ stages:
 
   set_url:
     actions:
+      - custom:
+          parse_url: .parse_url = parse_url(to_string(.url.original) ?? "") ?? {}
+        filter: v'exists(.url.original)'
       - set:
           url.full: v'.url.original'
-          url.domain: v'.parse_url.domain'
+          url.domain: v'.parse_url.host'
           url.scheme: v'.parse_url.scheme'
           url.path: v'.parse_url.path'
         filter: v'exists(.url.original) && starts_with(to_string!(.url.original), "http")'
@@ -379,10 +410,10 @@ stages:
     actions:
       - set:
           network.type: "ipv6"
-        filter: v'.Event.EventData.SourceIsIpv6 == "true"'
+        filter: v'(to_string(.Event.EventData.SourceIsIpv6) ?? "") == "true"'
       - set:
           network.type: "ipv4"
-        filter: v'.Event.EventData.SourceIsIpv6 == "false"'
+        filter: v'(to_string(.Event.EventData.SourceIsIpv6) ?? "") == "false"'
 
   hashes:
     actions:
@@ -417,46 +448,88 @@ stages:
           process.pid: v'.Event.EventData.ProcessID'
       - set:
           process.pid: v'.Event.EventData.ProcessId'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Sysmon" && includes([1,2,3,5,7,9,11,12,13,14,15,17,18,22,25,26], .event.id)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && includes([1,2,3,5,7,9,11,12,13,14,15,17,18,22,25,26], .event.id)'
       # - set:
       #     process.pid: v'to_int!(parse_int!(to_string!(.Event.EventData.NewProcessId), base: 16))'
-      #   filter: v'.Event.System.Provider == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) && exists(.Event.EventData.NewProcessId)'
+      #   filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) && exists(.Event.EventData.NewProcessId)'
       # - set:
       #     process.parent.pid: v'to_int!(parse_int!(to_string!(.Event.EventData.CreatorProcessId), base: 16))'
-      #   filter: v'.Event.System.Provider == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) && exists(.Event.EventData.CreatorProcessId)'
+      #   filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) && exists(.Event.EventData.CreatorProcessId)'
       - set:
           process.pid: v'.Event.EventData.SourceProcessId'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id)'
+      # Security-Auditing stores PIDs as hex strings ("0x1f4")
+      - set:
+          process.pid: v'parse_int!(.Event.EventData.NewProcessId)'
+          process.parent.pid: v'parse_int!(.Event.EventData.ProcessId)'
+        filter: v'.event.provider == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) && starts_with(to_string(.Event.EventData.NewProcessId) ?? "", "0x")'
+      - set:
+          process.pid: v'parse_int!(.Event.EventData.ProcessId)'
+        filter: v'.event.provider == "Microsoft-Windows-Security-Auditing" && !includes([4688, 4689], .event.id) && !exists(.process.pid) && starts_with(to_string(.Event.EventData.ProcessId) ?? "", "0x")'
       - set:
           process.id: v'.process.pid'
         filter: v'exists(.process.pid)'
       - set:
           process.thread.id: v'.Event.EventData.ThreadID'
 
+  # action.properties holds EventData *and* UserData fields (see set_action_properties)
   set_user:
     actions:
+      # TerminalServices-RemoteConnectionManager 1149: Param1=user, Param2=domain, Param3=source IP
       - set:
-          user.name: v'.Event.EventData.User'
-      - set:
-          user.name: v'.Event.EventData.AccountName'
+          user.name: v'.action.properties.Param1'
+          user.domain: v'.action.properties.Param2'
+        filter: v'.action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational" && .event.id == 1149'
+      - custom:
+          user_name: |-
+            user_candidates = compact([
+              .action.properties.User,
+              .action.properties.AccountName,
+              .action.properties.Requester,
+              .action.properties.UserName,
+              .action.properties.Username,
+              .action.properties.PrincipalSamName
+            ])
+            user_candidates = filter(user_candidates) -> |_i, v| { is_string(v) && v != "-" && v != "NULL" }
+            if length(user_candidates) > 0 {
+              .user.name = user_candidates[0]
+            }
         filter: v'!exists(.user.name)'
+      # Some providers put a SID in the "User" field (e.g. WMI 5859)
       - set:
-          user.name: v'.Event.EventData.Requester'
-        filter: v'!exists(.user.name)'
+          user.id: v'.user.name'
+        filter: v'exists(.user.name) && !exists(.user.id) && starts_with(to_string(.user.name) ?? "", "S-1-")'
+      - custom:
+          drop_sid_user_name: del(.user.name)
+        filter: v'exists(.user.name) && starts_with(to_string(.user.name) ?? "", "S-1-")'
       - set:
           user.domain: v'split!(.user.name, "\\")[0]'
           user.name: v'split!(.user.name, "\\")[1]'
-        filter: v'exists(.user.name) && contains(to_string!(.user.name), "\\")'
+        filter: v'exists(.user.name) && contains(to_string(.user.name) ?? "", "\\")'
       - set:
           user.domain: v'.Event.EventData.Domain'
         filter: v'exists(.user.name) && !exists(.user.domain)'
       - set:
           user.domain: v'.Event.System.Computer'
         filter: v'exists(.user.name) && !exists(.user.domain)'
+      # SubjectUserName also covers UserData.LogFileCleared (1102 / 104)
       - set:
-          user.name: v'.Event.EventData.SubjectUserName'
-          user.domain: v'.Event.EventData.SubjectDomainName'
+          user.name: v'.action.properties.SubjectUserName'
+          user.domain: v'.action.properties.SubjectDomainName'
         filter: v'!exists(.user.name)'
+      - set:
+          user.id: v'.action.properties.SubjectUserSid'
+        filter: v'!exists(.user.id)'
+      - set:
+          user.id: v'.action.properties.UserSid'
+        filter: v'!exists(.user.id)'
+      - set:
+          user.id: v'.action.properties.SID'
+        filter: v'!exists(.user.id)'
+      # Account under which the event was logged (only when the payload has no user at all)
+      - set:
+          user.id: v'.Event.System.Security."#attributes".UserID'
+        filter: v'!exists(.user.id) && !exists(.user.name)'
 
   action_target:
     actions:
@@ -471,11 +544,11 @@ stages:
     actions:
       - set:
           file.path: v'.Event.EventData.LocalName'
-          file.name: v'basename!(.Event.EventData.LocalName)'
+          file.name: v'replace(to_string(.Event.EventData.LocalName) ?? "", r'^.*[\\/]', "")'
         filter: v'exists(.Event.EventData.LocalName)'
       - set:
           file.path: v'.Event.EventData.TargetFilename'
-          file.name: v'basename!(.Event.EventData.TargetFilename)'
+          file.name: v'replace(to_string(.Event.EventData.TargetFilename) ?? "", r'^.*[\\/]', "")'
         filter: v'!exists(.file.path)'
       - set:
           file.owner: v'.Event.EventData.jobOwner'
@@ -485,17 +558,17 @@ stages:
       - set:
           file.size: v'.Event.EventData.fileLength'
       - set:
-          file.name: v'basename!(.Event.EventData.name)'
+          file.name: v'replace(to_string(.Event.EventData.name) ?? "", r'^.*[\\/]', "")'
           file.path: v'.Event.EventData.name'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Bits-Client" && includes([59, 60], .event.id)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Bits-Client" && includes([59, 60], .event.id)'
       - set:
-          file.name: v'basename!(.Event.EventData.ObjectName)'
+          file.name: v'replace(to_string(.Event.EventData.ObjectName) ?? "", r'^.*[\\/]', "")'
           file.path: v'.Event.EventData.ObjectName'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Security-Auditing" && .event.id == 4663 && includes(["File", "Process"], .Event.EventData.ObjectType)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && .event.id == 4663 && includes(["File", "Process"], .Event.EventData.ObjectType)'
       - set:
-          file.name: v'basename!(.Event.EventData.script.name)'
+          file.name: v'replace(to_string(.Event.EventData.script.name) ?? "", r'^.*[\\/]', "")'
           file.path: v'.Event.EventData.script.name'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-PowerShell" && exists(.Event.EventData.script.name)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-PowerShell" && exists(.Event.EventData.script.name)'
       - set:
           file.pe.imphash: v'.parsed_hashes_kv.IMPHASH'
         filter: v'includes([15, 23, 24, 26, 28], .event.id)'
@@ -531,28 +604,28 @@ stages:
     actions:
       - set:
           process.executable: v'.Event.EventData.NewProcessName'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id)'
       - set:
           process.executable: v'.Event.EventData.ProcessName'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Security-Auditing" && includes([4656, 4657, 4658, 4663, 4670, 4674], .event.id)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && includes([4656, 4657, 4658, 4663, 4670, 4674], .event.id)'
       - set:
           process.executable: v'.Event.EventData.ImageLoaded'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Sysmon" && .event.id == 6'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && .event.id == 6'
       - set:
           process.executable: v'.Event.EventData.SourceImage'
-        filter: v'.Event.System.Provider == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id)'
+        filter: v'.Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id)'
       - set:
           process.executable: v'.Event.EventData.ProcessName'
-        filter: v'!exists(.process.executable)'
+        filter: v'!exists(.process.executable) && .Event.EventData.ProcessName != "-"'
 
   action_outcome:
     actions:
       - set:
           action.outcome: "success"
-        filter: v'.Event.EventData.EventType == "AUDIT_SUCCESS"'
+        filter: v'.Event.System.Keywords == "0x8020000000000000"'
       - set:
           action.outcome: "failure"
-        filter: v'.Event.EventData.EventType == "AUDIT_FAILURE"'
+        filter: v'.Event.System.Keywords == "0x8010000000000000"'
 
   event_outcome:
     actions:
@@ -565,42 +638,64 @@ stages:
 
   set_source_fields:
     actions:
+      - custom:
+          source_ip: |-
+            ip_candidates = [
+              .Event.EventData.IpAddress,
+              .Event.EventData.SourceIp,
+              .Event.EventData.SourceAddress,
+              .Event.EventData.SourceAddr,
+              .Event.EventData.SourceNetworkAddress,
+              .Event.EventData.NetworkAddress,
+              .Event.EventData.ClientAddress,
+              .Event.EventData.ClientIP,
+              .action.properties.Address
+            ]
+            if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational" && .event.id == 1149 {
+              ip_candidates = push(ip_candidates, .action.properties.Param3)
+            }
+            ips = []
+            for_each(ip_candidates) -> |_i, v| {
+              ip = replace(to_string(v) ?? "", r'^::ffff:', "")
+              # "1.2.3.4:3389" / "[::1]:3389"
+              ip_port = parse_regex(ip, r'^\[?(?P<ip>[0-9a-fA-F:.]+?)\]?:(?P<port>\d+)$') ?? {}
+              if !is_ipv6(ip) && exists(ip_port.ip) {
+                ip = string!(ip_port.ip)
+                if !exists(.source.port) { .source.port = ip_port.port }
+              }
+              if is_ipv4(ip) || is_ipv6(ip) {
+                ips = push(ips, ip)
+              }
+            }
+            if length(ips) > 0 {
+              .source.ip = ips[0]
+              .source.address = ips[0]
+            }
+        filter: v'!exists(.source.ip)'
       - set:
-          source.ip: v'.Event.EventData.SourceIp'
-        filter: v'is_ipv4(to_string!(.Event.EventData.SourceIp)) || is_ipv6(to_string!(.Event.EventData.SourceIp))'
+          source.port: v'.Event.EventData.IpPort'
+        filter: v'!exists(.source.port) && exists(.source.ip) && !includes(["-", "0"], .Event.EventData.IpPort)'
       - set:
-          source.ip: v'.Event.EventData.SourceAddress'
-        filter: v'!exists(.source.ip) && (is_ipv4(to_string!(.Event.EventData.SourceAddress)) || is_ipv6(to_string!(.Event.EventData.SourceAddress)))'
-      # - set:
-      #     source.ip: v'strip_suffix(split!(to_string!(.Event.EventData.Message), "Client IP: ")[-1], ".")'
-      #   filter: v'.event.code == 56 && exists(.Event.EventData.Message)'
+          source.domain: v'.Event.EventData.WorkstationName'
+        filter: v'!exists(.source.domain) && !includes(["-", ""], .Event.EventData.WorkstationName)'
       - set:
-          source.address: v'remove_prefix(to_string!(.Event.EventData.SourceIp), "::ffff:")'
-        filter: v'is_ipv4(to_string!(.Event.EventData.SourceIp)) || is_ipv6(to_string!(.Event.EventData.SourceIp))'
-      - set:
-          source.address: v'remove_prefix(to_string!(.Event.EventData.IpAddress), "::ffff:")'
-        filter: v'is_ipv4(to_string!(.Event.EventData.IpAddress)) || is_ipv6(to_string!(.Event.EventData.IpAddress))'
-      - set:
-          source.address: v'remove_prefix(to_string!(.Event.EventData.SourceHostname), "::ffff:")'
-        filter: v'is_ipv4(to_string!(.Event.EventData.SourceHostname)) || is_ipv6(to_string!(.Event.EventData.SourceHostname))'
-      - set:
-          source.address: v'remove_prefix(to_string!(.Event.EventData.SourceAddr), "::ffff:")'
-        filter: v'is_ipv4(to_string!(.Event.EventData.SourceAddr)) || is_ipv6(to_string!(.Event.EventData.SourceAddr))'
+          source.address: v'.source.domain'
+        filter: v'!exists(.source.address) && exists(.source.domain)'
 
   set_network_policy_fields:
     actions:
       - set:
           source.ip: v'.Event.EventData.CallingStationID'
-        filter: v'is_ipv4(to_string!(.Event.EventData.CallingStationID)) || is_ipv6(to_string!(.Event.EventData.CallingStationID))'
+        filter: v'is_ipv4(to_string(.Event.EventData.CallingStationID) ?? "") || is_ipv6(to_string(.Event.EventData.CallingStationID) ?? "")'
       - set:
           source.mac: v'.Event.EventData.CallingStationID'
-        filter: v'!exists(.source.ip)'
+        filter: v'!exists(.source.ip) && .Event.EventData.CallingStationID != "-"'
       - set:
           destination.ip: v'.Event.EventData.AuthenticationServer'
-        filter: v'is_ipv4(to_string!(.Event.EventData.AuthenticationServer)) || is_ipv6(to_string!(.Event.EventData.AuthenticationServer))'
+        filter: v'is_ipv4(to_string(.Event.EventData.AuthenticationServer) ?? "") || is_ipv6(to_string(.Event.EventData.AuthenticationServer) ?? "")'
       - set:
           destination.domain: v'.Event.EventData.AuthenticationServer'
-        filter: v'!exists(.destination.ip)'
+        filter: v'!exists(.destination.ip) && .Event.EventData.AuthenticationServer != "-"'
 
   rule:
     actions:
@@ -1059,7 +1154,6 @@ stages:
             6408: "Registered product failed, Windows Firewall is now controlling filtering"
             6409: "BranchCache: service connection point object could not be parsed"
             8191: "Highest System-Defined Audit Message Value"
-          fallback: "unknown"
         filter: v'.action.type == "Security"'
 
       # ── System channel ────────────────────────────────────────────────────────
@@ -1103,7 +1197,6 @@ stages:
             7036: "Service Control Manager - Service changed running state"
             8222: "Shadow copy has been created"
             20001: "New hardware connected to the computer"
-          fallback: "unknown"
         filter: v'.action.type == "System"'
 
       # ── Application channel ───────────────────────────────────────────────────
@@ -1136,7 +1229,6 @@ stages:
             20225: "RasClient - User successfully connected via VPN"
             20226: "RasClient - User VPN connection terminated"
             20227: "RasClient - User VPN connection failed"
-          fallback: "unknown"
         filter: v'.action.type == "Application"'
 
       # ── PowerShell Operational channels ──────────────────────────────────────
@@ -1146,7 +1238,6 @@ stages:
           dictionary:
             4103: "PowerShell module logging"
             4104: "PowerShell script block logging"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-PowerShell/Operational", "PowerShellCore/Operational"], .action.type)'
 
       # ── DNS channels ──────────────────────────────────────────────────────────
@@ -1189,7 +1280,6 @@ stages:
             580:  "DNS server level policy deleted"
             581:  "DNS zone level policy deleted"
             582:  "DNS forwarding policy deleted"
-          fallback: "unknown"
         filter: v'includes(["DNS Server", "Microsoft-Windows-DNSServer/Audit"], .action.type)'
 
       # ── Exchange Management channel ───────────────────────────────────────────
@@ -1199,7 +1289,6 @@ stages:
           dictionary:
             1: "Exchange - Successful command operation"
             6: "Exchange - Failed command operation"
-          fallback: "unknown"
         filter: v'.action.type == "MSExchange Management"'
 
       # ── RDP - RdpCoreTS channel ───────────────────────────────────────────────
@@ -1212,7 +1301,6 @@ stages:
             140:  "RDP - Connection failed: bad username or password"
             168:  "RDP - Client resolution info"
             169:  "RDP - Client operating system type"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-RemoteDesktopServices-RdpCoreTS/Operational"'
 
       # ── RDP - LocalSessionManager channel ─────────────────────────────────────
@@ -1225,7 +1313,6 @@ stages:
             24:  "RDP LocalSession - Session has been disconnected"
             25:  "RDP LocalSession - Session reconnection succeeded"
             40:  "RDP LocalSession - Session disconnected with reason code"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"'
 
       # ── RDP - RDPClient channel ───────────────────────────────────────────────
@@ -1235,7 +1322,6 @@ stages:
           dictionary:
             1024: "RDP Client - Trying to connect to server"
             1029: "RDP Client - Username hash (Base64 SHA1)"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-TerminalServices-RDPClient/Operational"'
 
       # ── RDP - RemoteConnectionManager channel ─────────────────────────────────
@@ -1256,7 +1342,6 @@ stages:
             20513: "RDP Shadow - Shadow blocked by GPO"
             20514: "RDP Shadow - Session already shadowed"
             20522: "RDP Shadow - Clipboard copy request"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"'
 
       # ── WinRM channel ─────────────────────────────────────────────────────────
@@ -1267,7 +1352,6 @@ stages:
             6:   "WinRM - WSMan session created"
             91:  "WinRM - Session creation"
             169: "WinRM - User authenticated"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-WinRM/Operational"'
 
       # ── OpenSSH channel ───────────────────────────────────────────────────────
@@ -1276,7 +1360,6 @@ stages:
             action.name: .event.id
           dictionary:
             4: "SSH - sshd message"
-          fallback: "unknown"
         filter: v'.action.type == "OpenSSH/Operational"'
 
       # ── Sysmon channel ────────────────────────────────────────────────────────
@@ -1314,7 +1397,6 @@ stages:
             28:  "Sysmon - FileBlockShredding"
             29:  "Sysmon - FileExecutableDetected"
             255: "Sysmon - Error"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Sysmon/Operational"'
 
       # ── Task Scheduler channel ────────────────────────────────────────────────
@@ -1327,7 +1409,6 @@ stages:
             141: "Task Scheduler - Task deleted"
             200: "Task Scheduler - Task action launched"
             201: "Task Scheduler - Task action completed"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-TaskScheduler/Operational"'
 
       # ── WMI Activity channel ──────────────────────────────────────────────────
@@ -1337,7 +1418,6 @@ stages:
           dictionary:
             5860: "WMI - Temporary event consumer registered"
             5861: "WMI - Permanent event consumer registered"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-WMI-Activity/Operational"'
 
       # ── Windows Defender channel ──────────────────────────────────────────────
@@ -1361,7 +1441,6 @@ stages:
             5004: "Defender - Real-time protection feature configured"
             5007: "Defender - Configuration changed (exclusions)"
             5008: "Defender - Malware engine failure"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Windows Defender/Operational"'
 
       # ── AppLocker channels ────────────────────────────────────────────────────
@@ -1375,7 +1454,6 @@ stages:
             8005: "AppLocker - Script/MSI execution allowed"
             8006: "AppLocker - Script/MSI execution prevented (audit)"
             8007: "AppLocker - Script/MSI execution blocked"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-AppLocker/EXE and DLL", "Microsoft-Windows-AppLocker/MSI and Script"], .action.type)'
 
       # ── Firewall channel ──────────────────────────────────────────────────────
@@ -1390,7 +1468,6 @@ stages:
             2006: "Firewall - Rule deleted"
             2097: "Firewall - Rule added to exception list"
             2099: "Firewall - Rule modified in exception list"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall"'
 
       # ── Kernel PnP channel ────────────────────────────────────────────────────
@@ -1401,7 +1478,6 @@ stages:
             400: "PnP - Device configured"
             401: "PnP - Device configuration failed"
             410: "PnP - Device initiated"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Kernel-PnP/Configuration"'
 
       # ── DriverFrameworks / USB channel ────────────────────────────────────────
@@ -1411,7 +1487,6 @@ stages:
           dictionary:
             1003: "USB - Media connected"
             1008: "USB - Media disconnected"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-DriverFrameworks-UserMode/Operational"'
 
       # ── VHDMP / ISO mount channel ─────────────────────────────────────────────
@@ -1422,7 +1497,6 @@ stages:
             1:  "VHDMP - ISO/VHD file online"
             2:  "VHDMP - ISO/VHD file mounted"
             12: "VHDMP - Handle for virtual disk created"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-VHDMP-Operational"'
 
       # ── BITS Client channel ───────────────────────────────────────────────────
@@ -1434,7 +1508,6 @@ stages:
             4:  "BITS - Transfer completed"
             59: "BITS - Transfer job started"
             60: "BITS - Transfer job stopped"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Bits-Client/Operational"'
 
       # ── Code Integrity channel ────────────────────────────────────────────────
@@ -1451,7 +1524,6 @@ stages:
             3065: "CodeIntegrity - Process attempted to load file not meeting signing level requirements"
             3066: "CodeIntegrity - Process attempted to load file not meeting signing level requirements"
             3077: "CodeIntegrity - Process attempted to load file not meeting signing level requirements"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-CodeIntegrity/Operational"'
 
       # ── CAPI2 channel ─────────────────────────────────────────────────────────
@@ -1463,7 +1535,6 @@ stages:
             30: "CAPI2 - Certificate chain policy verified"
             70: "CAPI2 - Certificate private key acquired"
             81: "CAPI2 - Certificate trust verified"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-CAPI2/Operational"'
 
       # ── CertificateServicesClient channels ────────────────────────────────────
@@ -1474,7 +1545,6 @@ stages:
             1001: "CertLifecycle - Certificate updated"
             1006: "CertLifecycle - New certificate installed"
             1007: "CertLifecycle - Certificate exported"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-CertificateServicesClient-Lifecycle-User/Operational", "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational"], .action.type)'
 
       # ── BitLocker channel ─────────────────────────────────────────────────────
@@ -1488,7 +1558,6 @@ stages:
             796: "BitLocker - Software-based encryption in use"
             817: "BitLocker - Key successfully sealed to TPM"
             840: "BitLocker - Trusted WIM file added"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-BitLocker/BitLocker Management"'
 
       # ── Security Mitigations channel ──────────────────────────────────────────
@@ -1499,7 +1568,6 @@ stages:
             3:  "SecurityMitigation - Process blocked from creating a child process"
             10: "SecurityMitigation - Process blocked from making system calls to driver"
             12: "SecurityMitigation - Process blocked from loading non-Microsoft binary"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Security-Mitigations/KernelMode"'
 
       # ── Hyper-V VMMS channel ──────────────────────────────────────────────────
@@ -1512,7 +1580,6 @@ stages:
             18303: "Hyper-V - VM exporting"
             18304: "Hyper-V - VM creation started"
             20927: "Hyper-V - VM storage location moved"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Hyper-V-VMMS-Admin"'
 
       # ── Hyper-V Worker channel ────────────────────────────────────────────────
@@ -1531,7 +1598,6 @@ stages:
             18514: "Hyper-V Worker - VM reset via guest OS"
             18504: "Hyper-V Worker - VM shut down via shutdown component"
             18508: "Hyper-V Worker - VM shut down via guest OS"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Hyper-V-Worker-Admin"'
 
       # ── SMB Client channels ───────────────────────────────────────────────────
@@ -1544,7 +1610,6 @@ stages:
             31018: "SMBClient - Insecure guest logon enabled by administrator"
             32000: "SMBClient - SMBv1 negotiate response received"
             30803: "SMBClient - Failed to establish network connection"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-SMBClient/Security", "Microsoft-Windows-SmbClient/Connectivity"], .action.type)'
 
       # ── NTLM Operational channel ──────────────────────────────────────────────
@@ -1556,7 +1621,6 @@ stages:
             8002: "NTLM - Traffic that would be blocked"
             8003: "NTLM - Authentication in domain audited"
             8004: "NTLM - Domain controller blocked authentication (audit)"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-NTLM/Operational"'
 
       # ── PrintService channels ─────────────────────────────────────────────────
@@ -1570,7 +1634,6 @@ stages:
             307: "PrintService - Print job"
             848: "PrintService - Printer share created"
             849: "PrintService - Printer share canceled"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-PrintService/Admin", "Microsoft-Windows-PrintService/Operational"], .action.type)'
 
       # ── Application Experience channels ───────────────────────────────────────
@@ -1584,7 +1647,6 @@ stages:
             907: "AppInventory - Program removed from system"
             908: "AppInventory - Program removed from system"
             500: "AppTelemetry - Compatibility fix applied to executable"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant", "Microsoft-Windows-Application-Experience/Program-Inventory", "Microsoft-Windows-Application-Experience/Program-Telemetry"], .action.type)'
 
       # ── Shell Core channels ───────────────────────────────────────────────────
@@ -1596,7 +1658,6 @@ stages:
             9707:  "ShellCore - Process started from Run/RunOnce registry key"
             9708:  "ShellCore - Process from Run/RunOnce registry key finished"
             28115: "ShellCore - Shortcut added to App Resolver Cache"
-          fallback: "unknown"
         filter: v'includes(["Microsoft-Windows-Shell-Core/AppDefaults", "Microsoft-Windows-Shell-Core/Operational"], .action.type)'
 
       # ── IIS channel ───────────────────────────────────────────────────────────
@@ -1606,7 +1667,6 @@ stages:
           dictionary:
             29: "IIS - Module configuration committed"
             50: "IIS - WebConfig configuration committed"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-IIS-Configuration/Operational"'
 
       # ── RAS / BFE Connections channel ─────────────────────────────────────────
@@ -1616,7 +1676,6 @@ stages:
           dictionary:
             2000: "BFE Connections - New session"
             2001: "BFE Connections - Session closed"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Base-Filtering-Engine-Connections/Operational"'
 
       # ── WinINet Proxy channel ─────────────────────────────────────────────────
@@ -1625,7 +1684,6 @@ stages:
             action.name: .event.id
           dictionary:
             5600: "WinINet - Proxy configuration obtained"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-WinINet-Config/ProxyConfigChanged"'
 
       # ── Winsock channel ───────────────────────────────────────────────────────
@@ -1637,7 +1695,6 @@ stages:
             2: "Winsock - Protocol entry removed from catalog"
             3: "Winsock - Protocol entry disabled from catalog"
             4: "Winsock - Catalog was reset"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Winsock-WS2HELP/Operational"'
 
       # ── Setup / Servicing channel ─────────────────────────────────────────────
@@ -1653,7 +1710,6 @@ stages:
             10: "Servicing - Selectable update successfully turned off"
             13: "Servicing - Reboot required before selectable update can be turned on"
             14: "Servicing - Reboot required before selectable update can be turned off"
-          fallback: "unknown"
         filter: v'.action.type == "Setup"'
 
       # ── Directory Service / LDAP channel ──────────────────────────────────────
@@ -1665,7 +1721,6 @@ stages:
             1174: "DirectoryService - LDAP wrong password"
             2946: "DirectoryService - gMSA password successfully retrieved"
             2947: "DirectoryService - gMSA password retrieval failed"
-          fallback: "unknown"
         filter: v'.action.type == "Directory Service"'
 
       # ── Authentication Policy channels ────────────────────────────────────────
@@ -1678,7 +1733,6 @@ stages:
             106: "AuthPolicy - Kerberos restriction failure (user/device not allowed)"
             305: "AuthPolicy - Potential Kerberos restriction failure (device)"
             306: "AuthPolicy - Potential Kerberos restriction failure (user/device)"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Authentication/AuthenticationPolicyFailures-DomainController"'
 
       # ── Protected User channels ───────────────────────────────────────────────
@@ -1688,7 +1742,6 @@ stages:
           dictionary:
             104: "ProtectedUser - Security package does not contain credentials"
             304: "ProtectedUser - Security package does not store Protected User credentials"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Authentication/ProtectedUser-Client"'
 
       - translate:
@@ -1696,7 +1749,6 @@ stages:
             action.name: .event.id
           dictionary:
             100: "ProtectedUserFailures - NTLM sign-in failure for Protected User"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Authentication/ProtectedUserFailures-DomainController"'
 
       - translate:
@@ -1704,7 +1756,6 @@ stages:
             action.name: .event.id
           dictionary:
             303: "ProtectedUserSuccesses - Kerberos TGT issued for Protected User"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Authentication/ProtectedUserSuccesses-DomainController"'
 
       # ── Windows Update channel ────────────────────────────────────────────────
@@ -1713,7 +1764,6 @@ stages:
             action.name: .event.id
           dictionary:
             41: "WindowsUpdate - Update downloaded"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-WindowsUpdateClient/Operational"'
 
       # ── Time Service channel ──────────────────────────────────────────────────
@@ -1722,7 +1772,6 @@ stages:
             action.name: .event.id
           dictionary:
             261: "TimeService - System time set by W32time"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Time-Service/Operational"'
 
       # ── NetworkProfile channel ────────────────────────────────────────────────
@@ -1731,7 +1780,6 @@ stages:
             action.name: .event.id
           dictionary:
             10000: "NetworkProfile - Network connected to domain"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-NetworkProfile/Operational"'
 
       # ── Wired AutoConfig channel ──────────────────────────────────────────────
@@ -1740,7 +1788,6 @@ stages:
             action.name: .event.id
           dictionary:
             15510: "WiredAutoConfig - Network adapter added to system"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Wired-AutoConfig/Operational"'
 
       # ── Partition Diagnostic channel ──────────────────────────────────────────
@@ -1749,7 +1796,6 @@ stages:
             action.name: .event.id
           dictionary:
             1006: "Partition - Disk/device information"
-          fallback: "unknown"
         filter: v'.action.type == "Microsoft-Windows-Partition/Diagnostic"'
 
   set_mitre:
@@ -1863,7 +1909,6 @@ stages:
             6410: "T1036.001 - Masquerading: Invalid Code Signature"
             6416: "T1091 - Replication Through Removable Media"
             6423: "T1091 - Replication Through Removable Media"
-          fallback: "N/A"
         filter: v'.action.type == "Security"'
 
       # ── System channel ────────────────────────────────────────────────────────
@@ -1889,7 +1934,6 @@ stages:
             7045: "T1543.003 - Create or Modify System Process: Windows Service"
             1074: "T1529 - System Shutdown/Reboot"
             1076: "T1529 - System Shutdown/Reboot"
-          fallback: "N/A"
         filter: v'.action.type == "System"'
 
       # ── Application channel ───────────────────────────────────────────────────
@@ -1909,7 +1953,6 @@ stages:
             867:  "M1038 - Execution Prevention"
             868:  "M1038 - Execution Prevention"
             882:  "M1038 - Execution Prevention"
-          fallback: "N/A"
         filter: v'.action.type == "Application"'
 
       # ── PowerShell channels ───────────────────────────────────────────────────
@@ -1919,7 +1962,6 @@ stages:
           dictionary:
             4103: "T1059.001 - Command and Scripting Interpreter: PowerShell"
             4104: "T1059.001 - Command and Scripting Interpreter: PowerShell"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-PowerShell/Operational", "PowerShellCore/Operational"], .action.type)'
 
       # ── DNS channels ──────────────────────────────────────────────────────────
@@ -1930,7 +1972,6 @@ stages:
             150:  "T1574.002 - Hijack Execution Flow: DLL Side-Loading"
             770:  "T1574.002 - Hijack Execution Flow: DLL Side-Loading"
             6004: "T1071.004 - Application Layer Protocol: DNS"
-          fallback: "N/A"
         filter: v'includes(["DNS Server", "Microsoft-Windows-DNSServer/Audit"], .action.type)'
 
       # ── Exchange Management channel ───────────────────────────────────────────
@@ -1940,7 +1981,6 @@ stages:
           dictionary:
             1: "T1505.002 - Server Software Component: Transport Agent"
             6: "T1505.002 - Server Software Component: Transport Agent"
-          fallback: "N/A"
         filter: v'.action.type == "MSExchange Management"'
 
       # ── RDP channels ──────────────────────────────────────────────────────────
@@ -1953,7 +1993,6 @@ stages:
             140:  "T1021.001 - Remote Services: Remote Desktop Protocol"
             168:  "T1021.001 - Remote Services: Remote Desktop Protocol"
             169:  "T1021.001 - Remote Services: Remote Desktop Protocol"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-RemoteDesktopServices-RdpCoreTS/Operational"'
 
       - translate:
@@ -1962,7 +2001,6 @@ stages:
           dictionary:
             21: "T1021.001 - Remote Services: Remote Desktop Protocol"
             25: "T1021.001 - Remote Services: Remote Desktop Protocol"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational"'
 
       - translate:
@@ -1971,7 +2009,6 @@ stages:
           dictionary:
             1024: "T1021.001 - Remote Services: Remote Desktop Protocol"
             1029: "T1021.001 - Remote Services: Remote Desktop Protocol"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-TerminalServices-RDPClient/Operational"'
 
       - translate:
@@ -1991,7 +2028,6 @@ stages:
             20513: "T1563.002 - Remote Service Session Hijacking: RDP Hijacking"
             20514: "T1563.002 - Remote Service Session Hijacking: RDP Hijacking"
             20522: "T1563.002 - Remote Service Session Hijacking: RDP Hijacking"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational"'
 
       # ── WinRM channel ─────────────────────────────────────────────────────────
@@ -2002,7 +2038,6 @@ stages:
             6:   "T1021.006 - Remote Services: Windows Remote Management"
             91:  "T1021.006 - Remote Services: Windows Remote Management"
             169: "T1021.006 - Remote Services: Windows Remote Management"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-WinRM/Operational"'
 
       # ── OpenSSH channel ───────────────────────────────────────────────────────
@@ -2011,7 +2046,6 @@ stages:
             threat.technique.id_name: .event.id
           dictionary:
             4: "T1021.004 - Remote Services: SSH"
-          fallback: "N/A"
         filter: v'.action.type == "OpenSSH/Operational"'
 
       # ── Task Scheduler channel ────────────────────────────────────────────────
@@ -2023,7 +2057,6 @@ stages:
             110: "T1053.005 - Scheduled Task/Job: Scheduled Task"
             200: "T1053.005 - Scheduled Task/Job: Scheduled Task"
             201: "T1053.005 - Scheduled Task/Job: Scheduled Task"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-TaskScheduler/Operational"'
 
       # ── WMI Activity channel ──────────────────────────────────────────────────
@@ -2033,7 +2066,6 @@ stages:
           dictionary:
             5860: "T1546.003 - Event Triggered Execution: WMI Event Subscription"
             5861: "T1546.003 - Event Triggered Execution: WMI Event Subscription"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-WMI-Activity/Operational"'
 
       # ── Windows Defender channel ──────────────────────────────────────────────
@@ -2049,7 +2081,6 @@ stages:
             5001: "T1562.001 - Impair Defenses: Disable or Modify Tools"
             5007: "T1562.001 - Impair Defenses: Disable or Modify Tools"
             5008: "T1562.001 - Impair Defenses: Disable or Modify Tools"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Windows Defender/Operational"'
 
       # ── AppLocker channels ────────────────────────────────────────────────────
@@ -2063,7 +2094,6 @@ stages:
             8005: "M1038 - Execution Prevention"
             8006: "M1038 - Execution Prevention"
             8007: "M1038 - Execution Prevention"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-AppLocker/EXE and DLL", "Microsoft-Windows-AppLocker/MSI and Script"], .action.type)'
 
       # ── Firewall channel ──────────────────────────────────────────────────────
@@ -2078,7 +2108,6 @@ stages:
             2006: "T1562.004 - Impair Defenses: Disable or Modify System Firewall"
             2097: "T1562.004 - Impair Defenses: Disable or Modify System Firewall"
             2099: "T1562.004 - Impair Defenses: Disable or Modify System Firewall"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall"'
 
       # ── Kernel PnP / USB / Partition channels ─────────────────────────────────
@@ -2089,7 +2118,6 @@ stages:
             400: "T1091 - Replication Through Removable Media"
             401: "T1091 - Replication Through Removable Media"
             410: "T1091 - Replication Through Removable Media"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Kernel-PnP/Configuration"'
 
       - translate:
@@ -2098,7 +2126,6 @@ stages:
           dictionary:
             1003: "T1091 - Replication Through Removable Media"
             1008: "T1091 - Replication Through Removable Media"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-DriverFrameworks-UserMode/Operational"'
 
       - translate:
@@ -2106,7 +2133,6 @@ stages:
             threat.technique.id_name: .event.id
           dictionary:
             1006: "T1091 - Replication Through Removable Media"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Partition/Diagnostic"'
 
       # ── VHDMP / ISO mount channel ─────────────────────────────────────────────
@@ -2117,7 +2143,6 @@ stages:
             1:  "T1553.005 - Subvert Trust Controls: Mark-of-the-Web Bypass"
             2:  "T1553.005 - Subvert Trust Controls: Mark-of-the-Web Bypass"
             12: "T1553.005 - Subvert Trust Controls: Mark-of-the-Web Bypass"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-VHDMP-Operational"'
 
       # ── BITS Client channel ───────────────────────────────────────────────────
@@ -2129,7 +2154,6 @@ stages:
             4:  "T1197 - BITS Jobs"
             59: "T1197 - BITS Jobs"
             60: "T1197 - BITS Jobs"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Bits-Client/Operational"'
 
       # ── Code Integrity channel ────────────────────────────────────────────────
@@ -2146,7 +2170,6 @@ stages:
             3065: "T1036.001 - Masquerading: Invalid Code Signature"
             3066: "T1036.001 - Masquerading: Invalid Code Signature"
             3077: "T1036.001 - Masquerading: Invalid Code Signature"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-CodeIntegrity/Operational"'
 
       # ── CAPI2 / Certificate channels ──────────────────────────────────────────
@@ -2158,7 +2181,6 @@ stages:
             30:   "T1553.004 - Subvert Trust Controls: Install Root Certificate"
             70:   "T1552.004 - Unsecured Credentials: Private Keys"
             81:   "T1553.004 - Subvert Trust Controls: Install Root Certificate"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-CAPI2/Operational"'
 
       - translate:
@@ -2167,7 +2189,6 @@ stages:
           dictionary:
             1006: "T1553.004 - Subvert Trust Controls: Install Root Certificate"
             1007: "T1552.004 - Unsecured Credentials: Private Keys"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-CertificateServicesClient-Lifecycle-User/Operational", "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational"], .action.type)'
 
       # ── BitLocker channel ─────────────────────────────────────────────────────
@@ -2177,7 +2198,6 @@ stages:
           dictionary:
             768: "T1486 - Data Encrypted for Impact"
             796: "T1486 - Data Encrypted for Impact"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-BitLocker/BitLocker Management"'
 
       # ── Security Mitigations channel ──────────────────────────────────────────
@@ -2188,7 +2208,6 @@ stages:
             3:  "T1553.003 - Subvert Trust Controls: SIP and Trust Provider Hijacking"
             10: "T1553.002 - Subvert Trust Controls: Code Signing"
             12: "T1553.002 - Subvert Trust Controls: Code Signing"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Security-Mitigations/KernelMode"'
 
       # ── Hyper-V channels ──────────────────────────────────────────────────────
@@ -2199,7 +2218,6 @@ stages:
             13002: "T1497 - Virtualization/Sandbox Evasion"
             13003: "T1485 - Data Destruction"
             18304: "T1497 - Virtualization/Sandbox Evasion"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Hyper-V-VMMS-Admin"'
 
       - translate:
@@ -2209,7 +2227,6 @@ stages:
             18502: "T1529 - System Shutdown/Reboot"
             18504: "T1529 - System Shutdown/Reboot"
             18508: "T1529 - System Shutdown/Reboot"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Hyper-V-Worker-Admin"'
 
       # ── SMB Client channels ───────────────────────────────────────────────────
@@ -2222,7 +2239,6 @@ stages:
             31018: "T1562.010 - Impair Defenses: Downgrade Attack"
             32000: "T1562.010 - Impair Defenses: Downgrade Attack"
             30803: "T1021.002 - Remote Services: SMB/Windows Admin Shares"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-SMBClient/Security", "Microsoft-Windows-SmbClient/Connectivity"], .action.type)'
 
       # ── NTLM Operational channel ──────────────────────────────────────────────
@@ -2234,7 +2250,6 @@ stages:
             8002: "T1078 - Valid Accounts"
             8003: "T1078 - Valid Accounts"
             8004: "T1078 - Valid Accounts"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-NTLM/Operational"'
 
       # ── PrintService channels ─────────────────────────────────────────────────
@@ -2247,7 +2262,6 @@ stages:
             823: "T1547.012 - Boot or Logon Autostart Execution: Print Processors"
             848: "T1210 - Exploitation of Remote Services"
             849: "T1210 - Exploitation of Remote Services"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-PrintService/Admin", "Microsoft-Windows-PrintService/Operational"], .action.type)'
 
       # ── Application Experience channels ───────────────────────────────────────
@@ -2259,7 +2273,6 @@ stages:
             903: "T0843 - Program Install"
             904: "T0843 - Program Install"
             500: "T1546.011 - Event Triggered Execution: Application Shimming"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant", "Microsoft-Windows-Application-Experience/Program-Inventory", "Microsoft-Windows-Application-Experience/Program-Telemetry"], .action.type)'
 
       # ── Shell Core channels ───────────────────────────────────────────────────
@@ -2270,7 +2283,6 @@ stages:
             62443: "T1546.001 - Event Triggered Execution: Change Default File Association"
             9707:  "T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder"
             9708:  "T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder"
-          fallback: "N/A"
         filter: v'includes(["Microsoft-Windows-Shell-Core/AppDefaults", "Microsoft-Windows-Shell-Core/Operational"], .action.type)'
 
       # ── IIS channel ───────────────────────────────────────────────────────────
@@ -2280,7 +2292,6 @@ stages:
           dictionary:
             29: "T1505.004 - Server Software Component: IIS Components"
             50: "T1505.004 - Server Software Component: IIS Components"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-IIS-Configuration/Operational"'
 
       # ── Setup / Servicing channel ─────────────────────────────────────────────
@@ -2296,7 +2307,6 @@ stages:
             10: "T1562.001 - Impair Defenses: Disable or Modify Tools"
             13: "T0843 - Program Install"
             14: "T1562.001 - Impair Defenses: Disable or Modify Tools"
-          fallback: "N/A"
         filter: v'.action.type == "Setup"'
 
       # ── Directory Service / LDAP channel ──────────────────────────────────────
@@ -2308,7 +2318,6 @@ stages:
             1174: "T1110.001 - Brute Force: Password Guessing"
             2946: "T1003 - OS Credential Dumping"
             2947: "T1003 - OS Credential Dumping"
-          fallback: "N/A"
         filter: v'.action.type == "Directory Service"'
 
       # ── Authentication Policy channels ────────────────────────────────────────
@@ -2321,7 +2330,6 @@ stages:
             106: "T1078 - Valid Accounts"
             305: "T1078 - Valid Accounts"
             306: "T1078 - Valid Accounts"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Authentication/AuthenticationPolicyFailures-DomainController"'
 
       - translate:
@@ -2330,7 +2338,6 @@ stages:
           dictionary:
             100: "T1110 - Brute Force"
             104: "T1558 - Steal or Forge Kerberos Tickets"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Authentication/ProtectedUserFailures-DomainController"'
 
       # ── WinINet Proxy channel ─────────────────────────────────────────────────
@@ -2339,7 +2346,6 @@ stages:
             threat.technique.id_name: .event.id
           dictionary:
             5600: "T1090 - Proxy"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-WinINet-Config/ProxyConfigChanged"'
 
       # ── Winsock channel ───────────────────────────────────────────────────────
@@ -2351,7 +2357,6 @@ stages:
             2: "T1106 - Native API"
             3: "T1106 - Native API"
             4: "T1106 - Native API"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Winsock-WS2HELP/Operational"'
 
       # ── Time Service channel ──────────────────────────────────────────────────
@@ -2360,7 +2365,6 @@ stages:
             threat.technique.id_name: .event.id
           dictionary:
             261: "T1070.006 - Indicator Removal: Timestomp"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Time-Service/Operational"'
 
       # ── Wired AutoConfig channel ──────────────────────────────────────────────
@@ -2369,7 +2373,6 @@ stages:
             threat.technique.id_name: .event.id
           dictionary:
             15510: "T1200 - Hardware Additions"
-          fallback: "N/A"
         filter: v'.action.type == "Microsoft-Windows-Wired-AutoConfig/Operational"'
 
       - delete:
@@ -2385,6 +2388,9 @@ stages:
     actions:
       - delete:
           - Event
+          - parsed_hashes_kv
+          - parsed_hashes_kv_2
+          - parse_url
 
 descriptions:
   - message: "Hostname: {host.name} - Source: {event.provider} - EventID: {action.id}"
@@ -2758,6 +2764,64 @@ descriptions:
         value: 4825
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
+
+  # ── TerminalServices - RDP (UserData payloads) ────────────────────────────
+  - message: "{user.domain}\\\\{user.name} successfully authenticated over RDP to {host.name} from IP {source.ip}"
+    relationships:
+      - source: user.name
+        target: host.name
+        type: authenticated over RDP to
+      - source: user.name
+        target: source.ip
+        type: connected from
+    conditions:
+      - field: action.id
+        value: 1149
+      - field: event.provider
+        value: Microsoft-Windows-TerminalServices-RemoteConnectionManager
+
+  - message: "{user.domain}\\\\{user.name} opened session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
+    relationships:
+      - source: user.name
+        target: host.name
+        type: logged on to
+    conditions:
+      - field: action.id
+        value: 21
+      - field: event.provider
+        value: Microsoft-Windows-TerminalServices-LocalSessionManager
+
+  - message: "{user.domain}\\\\{user.name} session {action.properties.SessionID} shell started on {host.name}"
+    conditions:
+      - field: action.id
+        value: 22
+      - field: event.provider
+        value: Microsoft-Windows-TerminalServices-LocalSessionManager
+
+  - message: "{user.domain}\\\\{user.name} logged off session {action.properties.SessionID} on {host.name}"
+    conditions:
+      - field: action.id
+        value: 23
+      - field: event.provider
+        value: Microsoft-Windows-TerminalServices-LocalSessionManager
+
+  - message: "{user.domain}\\\\{user.name} disconnected from session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
+    conditions:
+      - field: action.id
+        value: 24
+      - field: event.provider
+        value: Microsoft-Windows-TerminalServices-LocalSessionManager
+
+  - message: "{user.domain}\\\\{user.name} reconnected to session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
+    relationships:
+      - source: user.name
+        target: host.name
+        type: logged on to
+    conditions:
+      - field: action.id
+        value: 25
+      - field: event.provider
+        value: Microsoft-Windows-TerminalServices-LocalSessionManager
 
   # ── Security - Network Share ──────────────────────────────────────────────
   - message: "{user.domain}\\\\{user.name} was granted access to {action.properties.ShareName}\\\\{action.properties.RelativeTargetName} from IP {source.ip}"

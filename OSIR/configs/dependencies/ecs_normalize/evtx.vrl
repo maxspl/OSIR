@@ -12,6 +12,7 @@ if exists(."Event.EventData.CallingStationID") { .Event.EventData.CallingStation
 if exists(."Event.EventData.bytesTotal") { .Event.EventData.bytesTotal = get!(., path: ["Event.EventData.bytesTotal"]) }
 if exists(."Event.EventData.Configuration") { .Event.EventData.Configuration = get!(., path: ["Event.EventData.Configuration"]) }
 if exists(."Event.EventData.FileVersion") { .Event.EventData.FileVersion = get!(., path: ["Event.EventData.FileVersion"]) }
+if exists(."Event.EventData.Product") { .Event.EventData.Product = get!(., path: ["Event.EventData.Product"]) }
 if exists(."Event.EventData.Description") { .Event.EventData.Description = get!(., path: ["Event.EventData.Description"]) }
 if exists(."Event.EventData.ThreatName") { .Event.EventData.ThreatName = get!(., path: ["Event.EventData.ThreatName"]) }
 if exists(."Event.EventData.DetectionUser") { .Event.EventData.DetectionUser = get!(., path: ["Event.EventData.DetectionUser"]) }
@@ -41,14 +42,10 @@ if exists(."Event.System.Channel") { .Event.System.Channel = get!(., path: ["Eve
 if exists(."Event.EventData.ImageLoaded") { .Event.EventData.ImageLoaded = get!(., path: ["Event.EventData.ImageLoaded"]) }
 if exists(."Event.EventData.OriginalFileName") { .Event.EventData.OriginalFileName = get!(., path: ["Event.EventData.OriginalFileName"]) }
 if exists(."parsed_hashes_kv.IMPHASH") { .parsed_hashes_kv.IMPHASH = get!(., path: ["parsed_hashes_kv.IMPHASH"]) }
-if exists(."parsed_hashes_kv_2.IMPHASH") { .parsed_hashes_kv_2.IMPHASH = get!(., path: ["parsed_hashes_kv_2.IMPHASH"]) }
-if exists(."dll.pe.imphash") { .dll.pe.imphash = get!(., path: ["dll.pe.imphash"]) }
 if exists(."parsed_hashes_kv.MD5") { .parsed_hashes_kv.MD5 = get!(., path: ["parsed_hashes_kv.MD5"]) }
-if exists(."parsed_hashes_kv_2.MD5") { .parsed_hashes_kv_2.MD5 = get!(., path: ["parsed_hashes_kv_2.MD5"]) }
-if exists(."dll.hash.md5") { .dll.hash.md5 = get!(., path: ["dll.hash.md5"]) }
 if exists(."parsed_hashes_kv.SHA256") { .parsed_hashes_kv.SHA256 = get!(., path: ["parsed_hashes_kv.SHA256"]) }
-if exists(."parsed_hashes_kv_2.SHA256") { .parsed_hashes_kv_2.SHA256 = get!(., path: ["parsed_hashes_kv_2.SHA256"]) }
-if exists(."dll.hash.sha256") { .dll.hash.sha256 = get!(., path: ["dll.hash.sha256"]) }
+if exists(."Event.System.Provider.#attributes.Name") { .Event.System.Provider."#attributes".Name = get!(., path: ["Event.System.Provider.#attributes.Name"]) }
+if exists(."event.id") { .event.id = get!(., path: ["event.id"]) }
 if exists(."Event.EventData.LocalName") { .Event.EventData.LocalName = get!(., path: ["Event.EventData.LocalName"]) }
 if exists(."Event.EventData.TargetFilename") { .Event.EventData.TargetFilename = get!(., path: ["Event.EventData.TargetFilename"]) }
 if exists(."file.path") { .file.path = get!(., path: ["file.path"]) }
@@ -56,18 +53,18 @@ if exists(."Event.EventData.jobOwner") { .Event.EventData.jobOwner = get!(., pat
 if exists(."Event.EventData.CreationUtcTime") { .Event.EventData.CreationUtcTime = get!(., path: ["Event.EventData.CreationUtcTime"]) }
 if exists(."Event.EventData.fileLength") { .Event.EventData.fileLength = get!(., path: ["Event.EventData.fileLength"]) }
 if exists(."Event.EventData.name") { .Event.EventData.name = get!(., path: ["Event.EventData.name"]) }
-if exists(."Event.System.Provider") { .Event.System.Provider = get!(., path: ["Event.System.Provider"]) }
-if exists(."event.id") { .event.id = get!(., path: ["event.id"]) }
 if exists(."Event.EventData.ObjectName") { .Event.EventData.ObjectName = get!(., path: ["Event.EventData.ObjectName"]) }
 if exists(."Event.EventData.ObjectType") { .Event.EventData.ObjectType = get!(., path: ["Event.EventData.ObjectType"]) }
 if exists(."Event.EventData.script.name") { .Event.EventData.script.name = get!(., path: ["Event.EventData.script.name"]) }
+if exists(."parsed_hashes_kv_2.IMPHASH") { .parsed_hashes_kv_2.IMPHASH = get!(., path: ["parsed_hashes_kv_2.IMPHASH"]) }
 if exists(."file.pe.imphash") { .file.pe.imphash = get!(., path: ["file.pe.imphash"]) }
+if exists(."parsed_hashes_kv_2.MD5") { .parsed_hashes_kv_2.MD5 = get!(., path: ["parsed_hashes_kv_2.MD5"]) }
 if exists(."file.hash.md5") { .file.hash.md5 = get!(., path: ["file.hash.md5"]) }
+if exists(."parsed_hashes_kv_2.SHA256") { .parsed_hashes_kv_2.SHA256 = get!(., path: ["parsed_hashes_kv_2.SHA256"]) }
 if exists(."file.hash.sha256") { .file.hash.sha256 = get!(., path: ["file.hash.sha256"]) }
 if exists(."Event.EventData.Message") { .Event.EventData.Message = get!(., path: ["Event.EventData.Message"]) }
-if exists(."Event.EventData.UtcTime") { .Event.EventData.UtcTime = get!(., path: ["Event.EventData.UtcTime"]) }
-if exists(."Event.System.Provider.#attributes.Name") { .Event.System.Provider."#attributes".Name = get!(., path: ["Event.System.Provider.#attributes.Name"]) }
 if exists(."Event.System.Computer") { .Event.System.Computer = get!(., path: ["Event.System.Computer"]) }
+if exists(."Event.EventData.UtcTime") { .Event.EventData.UtcTime = get!(., path: ["Event.EventData.UtcTime"]) }
 if exists(."Event.EventData.CommandLine") { .Event.EventData.CommandLine = get!(., path: ["Event.EventData.CommandLine"]) }
 if exists(."Event.EventData.ParentCommandLine") { .Event.EventData.ParentCommandLine = get!(., path: ["Event.EventData.ParentCommandLine"]) }
 if exists(."Event.EventData.RecordNumber") { .Event.EventData.RecordNumber = get!(., path: ["Event.EventData.RecordNumber"]) }
@@ -97,6 +94,9 @@ if exists(."Event.EventData.TargetDomainName") { .Event.EventData.TargetDomainNa
 if exists(."Event.EventData.TargetUserSid") { .Event.EventData.TargetUserSid = get!(., path: ["Event.EventData.TargetUserSid"]) }
 if exists(."Event.EventData.LmPackageName") { .Event.EventData.LmPackageName = get!(., path: ["Event.EventData.LmPackageName"]) }
 if exists(."Event.EventData.Application") { .Event.EventData.Application = get!(., path: ["Event.EventData.Application"]) }
+if exists(."Event.EventData.NewProcessName") { .Event.EventData.NewProcessName = get!(., path: ["Event.EventData.NewProcessName"]) }
+if exists(."Event.EventData.SourceImage") { .Event.EventData.SourceImage = get!(., path: ["Event.EventData.SourceImage"]) }
+if exists(."process.executable") { .process.executable = get!(., path: ["process.executable"]) }
 if exists(."log.level") { .log.level = get!(., path: ["log.level"]) }
 if exists(."process.command_line") { .process.command_line = get!(., path: ["process.command_line"]) }
 if exists(."process.parent.command_line") { .process.parent.command_line = get!(., path: ["process.parent.command_line"]) }
@@ -104,9 +104,11 @@ if exists(."process.pe.imphash") { .process.pe.imphash = get!(., path: ["process
 if exists(."process.hash.md5") { .process.hash.md5 = get!(., path: ["process.hash.md5"]) }
 if exists(."process.hash.sha1") { .process.hash.sha1 = get!(., path: ["process.hash.sha1"]) }
 if exists(."process.hash.sha256") { .process.hash.sha256 = get!(., path: ["process.hash.sha256"]) }
+if exists(."dll.pe.imphash") { .dll.pe.imphash = get!(., path: ["dll.pe.imphash"]) }
+if exists(."dll.hash.md5") { .dll.hash.md5 = get!(., path: ["dll.hash.md5"]) }
+if exists(."dll.hash.sha256") { .dll.hash.sha256 = get!(., path: ["dll.hash.sha256"]) }
 if exists(."source.domain") { .source.domain = get!(., path: ["source.domain"]) }
 if exists(."destination.domain") { .destination.domain = get!(., path: ["destination.domain"]) }
-if exists(."process.executable") { .process.executable = get!(., path: ["process.executable"]) }
 if exists(."process.name") { .process.name = get!(., path: ["process.name"]) }
 if exists(."process.working_directory") { .process.working_directory = get!(., path: ["process.working_directory"]) }
 if exists(."process.parent.name") { .process.parent.name = get!(., path: ["process.parent.name"]) }
@@ -117,7 +119,7 @@ if exists(."Event.EventData.QueryResults") { .Event.EventData.QueryResults = get
 if exists(."dns.question.name") { .dns.question.name = get!(., path: ["dns.question.name"]) }
 if exists(."Event.EventData.Details") { .Event.EventData.Details = get!(., path: ["Event.EventData.Details"]) }
 if exists(."Event.EventData.TargetObject") { .Event.EventData.TargetObject = get!(., path: ["Event.EventData.TargetObject"]) }
-if exists(."parse_url.domain") { .parse_url.domain = get!(., path: ["parse_url.domain"]) }
+if exists(."parse_url.host") { .parse_url.host = get!(., path: ["parse_url.host"]) }
 if exists(."parse_url.scheme") { .parse_url.scheme = get!(., path: ["parse_url.scheme"]) }
 if exists(."parse_url.path") { .parse_url.path = get!(., path: ["parse_url.path"]) }
 if exists(."Event.EventData.SourceIsIpv6") { .Event.EventData.SourceIsIpv6 = get!(., path: ["Event.EventData.SourceIsIpv6"]) }
@@ -126,14 +128,29 @@ if exists(."parsed_hashes_kv_2.SHA1") { .parsed_hashes_kv_2.SHA1 = get!(., path:
 if exists(."Event.EventData.ProcessID") { .Event.EventData.ProcessID = get!(., path: ["Event.EventData.ProcessID"]) }
 if exists(."Event.EventData.ProcessId") { .Event.EventData.ProcessId = get!(., path: ["Event.EventData.ProcessId"]) }
 if exists(."Event.EventData.SourceProcessId") { .Event.EventData.SourceProcessId = get!(., path: ["Event.EventData.SourceProcessId"]) }
+if exists(."Event.EventData.NewProcessId") { .Event.EventData.NewProcessId = get!(., path: ["Event.EventData.NewProcessId"]) }
+if exists(."event.provider") { .event.provider = get!(., path: ["event.provider"]) }
 if exists(."process.pid") { .process.pid = get!(., path: ["process.pid"]) }
-if exists(."Event.EventData.User") { .Event.EventData.User = get!(., path: ["Event.EventData.User"]) }
-if exists(."Event.EventData.AccountName") { .Event.EventData.AccountName = get!(., path: ["Event.EventData.AccountName"]) }
+if exists(."action.properties.Param1") { .action.properties.Param1 = get!(., path: ["action.properties.Param1"]) }
+if exists(."action.properties.Param2") { .action.properties.Param2 = get!(., path: ["action.properties.Param2"]) }
+if exists(."action.type") { .action.type = get!(., path: ["action.type"]) }
 if exists(."user.name") { .user.name = get!(., path: ["user.name"]) }
 if exists(."Event.EventData.Domain") { .Event.EventData.Domain = get!(., path: ["Event.EventData.Domain"]) }
 if exists(."user.domain") { .user.domain = get!(., path: ["user.domain"]) }
-if exists(."Event.EventData.SubjectUserName") { .Event.EventData.SubjectUserName = get!(., path: ["Event.EventData.SubjectUserName"]) }
-if exists(."Event.EventData.SubjectDomainName") { .Event.EventData.SubjectDomainName = get!(., path: ["Event.EventData.SubjectDomainName"]) }
+if exists(."action.properties.SubjectUserName") { .action.properties.SubjectUserName = get!(., path: ["action.properties.SubjectUserName"]) }
+if exists(."action.properties.SubjectDomainName") { .action.properties.SubjectDomainName = get!(., path: ["action.properties.SubjectDomainName"]) }
+if exists(."action.properties.SubjectUserSid") { .action.properties.SubjectUserSid = get!(., path: ["action.properties.SubjectUserSid"]) }
+if exists(."action.properties.UserSid") { .action.properties.UserSid = get!(., path: ["action.properties.UserSid"]) }
+if exists(."action.properties.SID") { .action.properties.SID = get!(., path: ["action.properties.SID"]) }
+if exists(."Event.System.Security.#attributes.UserID") { .Event.System.Security."#attributes".UserID = get!(., path: ["Event.System.Security.#attributes.UserID"]) }
+if exists(."Event.EventData.IpPort") { .Event.EventData.IpPort = get!(., path: ["Event.EventData.IpPort"]) }
+if exists(."source.port") { .source.port = get!(., path: ["source.port"]) }
+if exists(."source.ip") { .source.ip = get!(., path: ["source.ip"]) }
+if exists(."Event.EventData.WorkstationName") { .Event.EventData.WorkstationName = get!(., path: ["Event.EventData.WorkstationName"]) }
+if exists(."source.address") { .source.address = get!(., path: ["source.address"]) }
+if exists(."Event.EventData.AuthenticationServer") { .Event.EventData.AuthenticationServer = get!(., path: ["Event.EventData.AuthenticationServer"]) }
+if exists(."Event.System.Keywords") { .Event.System.Keywords = get!(., path: ["Event.System.Keywords"]) }
+if exists(."Event.EventData.RuleName") { .Event.EventData.RuleName = get!(., path: ["Event.EventData.RuleName"]) }
 if exists(."url.domain") { .url.domain = get!(., path: ["url.domain"]) }
 if exists(."Event.EventData.DestinationAddress") { .Event.EventData.DestinationAddress = get!(., path: ["Event.EventData.DestinationAddress"]) }
 if exists(."destination.address") { .destination.address = get!(., path: ["destination.address"]) }
@@ -141,112 +158,129 @@ if exists(."destination.address") { .destination.address = get!(., path: ["desti
 # -----------------------------------------------------------------------------
 # set_timestamp
 # -----------------------------------------------------------------------------
-if exists(.Event.System.TimeCreated."#attributes".SystemTime) {
+if exists(.Event.System.TimeCreated."#attributes".SystemTime) && .Event.System.TimeCreated."#attributes".SystemTime != null {
   .timestamp = .Event.System.TimeCreated."#attributes".SystemTime
 }
 
 # -----------------------------------------------------------------------------
 # set_action_properties
 # -----------------------------------------------------------------------------
-if exists(.Event.System) {
+if exists(.Event.System) && .Event.System != null {
   .action.system = .Event.System
 }
-if exists(.Event.EventData) {
+if exists(.Event.EventData) && .Event.EventData != null {
   .action.properties = .Event.EventData
 }
-if exists(.Event.EventData.Attributes) {
+if exists(.Event.EventData.Attributes) && .Event.EventData.Attributes != null {
   .action.properties.Attributes = .Event.EventData.Attributes
 }
-if exists(.Event.EventData.Requester) {
+if exists(.Event.EventData.Requester) && .Event.EventData.Requester != null {
   .action.properties.Requester = .Event.EventData.Requester
 }
-if exists(.Event.EventData.ContextInfo) {
+if exists(.Event.EventData.ContextInfo) && .Event.EventData.ContextInfo != null {
   .action.properties.ContextInfo = .Event.EventData.ContextInfo
 }
-if exists(.Event.EventData.CallingStationID) {
+if exists(.Event.EventData.CallingStationID) && .Event.EventData.CallingStationID != null {
   .action.properties.CallingStationID = .Event.EventData.CallingStationID
 }
-if exists(.Event.EventData.bytesTotal) {
+if exists(.Event.EventData.bytesTotal) && .Event.EventData.bytesTotal != null {
   .action.properties.BytesTotal = .Event.EventData.bytesTotal
 }
-if exists(.Event.EventData.Configuration) {
+if exists(.Event.EventData.Configuration) && .Event.EventData.Configuration != null {
   .action.properties.ConfigurationFile = .Event.EventData.Configuration
 }
-if exists(.Event.EventData.FileVersion) {
+if exists(.Event.EventData.FileVersion) && .Event.EventData.FileVersion != null {
   .action.properties.FileVersion = .Event.EventData.FileVersion
 }
-if exists(.Event.EventData.FileVersion) {
-  .action.properties.Product = .Event.EventData.FileVersion
+if exists(.Event.EventData.Product) && .Event.EventData.Product != null {
+  .action.properties.Product = .Event.EventData.Product
 }
-if exists(.Event.EventData.Description) {
+if exists(.Event.EventData.Description) && .Event.EventData.Description != null {
   .action.properties.Description = .Event.EventData.Description
 }
-if exists(.Event.EventData.ThreatName) {
+if exists(.Event.EventData.ThreatName) && .Event.EventData.ThreatName != null {
   .action.properties.ThreatName = .Event.EventData.ThreatName
 }
-if exists(.Event.EventData.DetectionUser) {
+if exists(.Event.EventData.DetectionUser) && .Event.EventData.DetectionUser != null {
   .action.properties.DetectionUser = .Event.EventData.DetectionUser
 }
-if exists(.Event.EventData.HealthAttestationServer) {
+if exists(.Event.EventData.HealthAttestationServer) && .Event.EventData.HealthAttestationServer != null {
   .action.properties.HealthAttestationServer = .Event.EventData.HealthAttestationServer
 }
-if exists(.Event.EventData.LastASSecurityIntelligenceAge) {
+if exists(.Event.EventData.LastASSecurityIntelligenceAge) && .Event.EventData.LastASSecurityIntelligenceAge != null {
   .action.properties.LastASSecurityIntelligenceAge = .Event.EventData.LastASSecurityIntelligenceAge
 }
-if exists(.Event.EventData.LastAVSecurityIntelligenceAge) {
+if exists(.Event.EventData.LastAVSecurityIntelligenceAge) && .Event.EventData.LastAVSecurityIntelligenceAge != null {
   .action.properties.LastAVSecurityIntelligenceAge = .Event.EventData.LastAVSecurityIntelligenceAge
 }
-if exists(.Event.EventData.LastFullScanAge) {
+if exists(.Event.EventData.LastFullScanAge) && .Event.EventData.LastFullScanAge != null {
   .action.properties.LastFullScanAge = .Event.EventData.LastFullScanAge
 }
-if exists(.Event.EventData.LastQuickScanAge) {
+if exists(.Event.EventData.LastQuickScanAge) && .Event.EventData.LastQuickScanAge != null {
   .action.properties.LastQuickScanAge = .Event.EventData.LastQuickScanAge
 }
-if exists(.Event.EventData.NewValue) {
+if exists(.Event.EventData.NewValue) && .Event.EventData.NewValue != null {
   .action.properties.NewValue = .Event.EventData.NewValue
 }
-if exists(.Event.EventData.SentUpdateServer) {
+if exists(.Event.EventData.SentUpdateServer) && .Event.EventData.SentUpdateServer != null {
   .action.properties.SentUpdateServer = .Event.EventData.SentUpdateServer
 }
-if exists(.Event.EventData.ServiceFileName) {
+if exists(.Event.EventData.ServiceFileName) && .Event.EventData.ServiceFileName != null {
   .action.properties.ServiceFileName = .Event.EventData.ServiceFileName
 }
-if exists(.Event.EventData.StatusInformation) {
+if exists(.Event.EventData.StatusInformation) && .Event.EventData.StatusInformation != null {
   .action.properties.StatusInformation = .Event.EventData.StatusInformation
 }
-if exists(.Event.EventData.Subject) {
+if exists(.Event.EventData.Subject) && .Event.EventData.Subject != null {
   .action.properties.Subject = .Event.EventData.Subject
 }
-if exists(.Event.EventData.TransmittedServices) {
+if exists(.Event.EventData.TransmittedServices) && .Event.EventData.TransmittedServices != null {
   .action.properties.TransmittedServices = .Event.EventData.TransmittedServices
 }
+if is_object(.Event.UserData) {
+  ud_obj = object!(.Event.UserData)
+  ud_keys = keys(ud_obj)
+  if length(ud_keys) > 0 {
+    ud_root = string!(ud_keys[0])
+    ud = get!(ud_obj, [ud_root])
+    if is_object(ud) {
+      ud_attrs = object(get(ud, ["#attributes"]) ?? {}) ?? {}
+      ud_attrs = remove!(ud_attrs, ["xmlns"])
+      ud = remove!(ud, ["#attributes"])
+      .action.properties = merge(object(.action.properties) ?? {}, merge(ud_attrs, object!(ud)))
+    } else {
+      .action.properties = merge(object(.action.properties) ?? {}, set!({}, [ud_root], ud))
+    }
+    .action.properties.UserDataType = ud_root
+  }
+}
 if exists(.Event.EventData.Image) {
-  if exists(.Event.EventData.Image) {
+  if exists(.Event.EventData.Image) && .Event.EventData.Image != null {
     .action.properties.Image = .Event.EventData.Image
   }
 }
 if !exists(.Event.EventData.Image) {
-  if exists(.parsed_message_kv.Image) {
+  if exists(.parsed_message_kv.Image) && .parsed_message_kv.Image != null {
     .action.properties.Image = .parsed_message_kv.Image
   }
 }
 if exists(.Event.EventData.DestinationPort) {
-  if exists(.Event.EventData.DestinationPort) {
+  if exists(.Event.EventData.DestinationPort) && .Event.EventData.DestinationPort != null {
     .action.properties.DestinationPort = .Event.EventData.DestinationPort
   }
 }
 if !exists(.action.properties.DestinationPort) {
-  if exists(.Event.EventData.DestPort) {
+  if exists(.Event.EventData.DestPort) && .Event.EventData.DestPort != null {
     .action.properties.DestinationPort = .Event.EventData.DestPort
   }
 }
 if exists(.Event.EventData.ErrorCode) {
-  if exists(.Event.EventData.ErrorCode) {
+  if exists(.Event.EventData.ErrorCode) && .Event.EventData.ErrorCode != null {
     .action.properties.ErrorCode = .Event.EventData.ErrorCode
   }
 }
 if exists(.Event.EventData.ProcessName) {
-  if exists(.Event.EventData.ProcessName) {
+  if exists(.Event.EventData.ProcessName) && .Event.EventData.ProcessName != null {
     .action.properties.ProcessName = .Event.EventData.ProcessName
   }
 }
@@ -254,29 +288,29 @@ if exists(.Event.EventData.ProcessName) {
 # -----------------------------------------------------------------------------
 # set_event
 # -----------------------------------------------------------------------------
-if exists(.Event.System.EventID."#text") {
+if exists(.Event.System.EventID."#text") && .Event.System.EventID."#text" != null {
   .event.code = to_int!(.Event.System.EventID."#text")
 }
 if !exists!(.event.code) {
-  if exists(.Event.System.EventID) {
+  if exists(.Event.System.EventID) && .Event.System.EventID != null {
     .event.code = to_int!(.Event.System.EventID)
   }
 }
-if exists(.Event.System.EventRecordID) {
+if exists(.Event.System.EventRecordID) && .Event.System.EventRecordID != null {
   .event.record = to_string!(.Event.System.EventRecordID)
 }
-if exists(.event.code) {
+if exists(.event.code) && .event.code != null {
   .event.id = .event.code
 }
 
 # -----------------------------------------------------------------------------
 # set_action
 # -----------------------------------------------------------------------------
-if exists(.Event.System.Channel) {
+if exists(.Event.System.Channel) && .Event.System.Channel != null {
   .action.type = to_string!(.Event.System.Channel)
 }
 if .action.type == "Security" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1100": "Event logging service has shut down",
     "1101": "Audit events have been dropped by the transport",
     "1102": "Event log cleared",
@@ -700,10 +734,13 @@ if .action.type == "Security" {
     "6408": "Registered product failed, Windows Firewall is now controlling filtering",
     "6409": "BranchCache: service connection point object could not be parsed",
     "8191": "Highest System-Defined Audit Message Value",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "System" {
-  .action.name = get(value: {
+  translated = get(value: {
     "6005": "Event log service was started",
     "6006": "Event log service was stopped",
     "6008": "Previous system shutdown was unexpected",
@@ -739,10 +776,13 @@ if .action.type == "System" {
     "233": "Hyper-V virtual machine NIC related information",
     "8222": "Shadow copy has been created",
     "20001": "New hardware connected to the computer",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Application" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1": "Search Service removed for user profile deletion",
     "216": "ESENT - Database location change detected",
     "325": "ESENT - Database engine created a new database (IFM)",
@@ -768,16 +808,22 @@ if .action.type == "Application" {
     "20225": "RasClient - User successfully connected via VPN",
     "20226": "RasClient - User VPN connection terminated",
     "20227": "RasClient - User VPN connection failed",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-PowerShell/Operational", "PowerShellCore/Operational"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "4103": "PowerShell module logging",
     "4104": "PowerShell script block logging",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["DNS Server", "Microsoft-Windows-DNSServer/Audit"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "150": "DNS Server could not load or initialize plugin DLL",
     "770": "DNS Server plugin DLL has been loaded",
     "6004": "DNS Server received zone transfer request for non-existent zone",
@@ -813,40 +859,55 @@ if includes(["DNS Server", "Microsoft-Windows-DNSServer/Audit"], .action.type) {
     "580": "DNS server level policy deleted",
     "581": "DNS zone level policy deleted",
     "582": "DNS forwarding policy deleted",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "MSExchange Management" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1": "Exchange - Successful command operation",
     "6": "Exchange - Failed command operation",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-RemoteDesktopServices-RdpCoreTS/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "104": "RDP - Client timezone info",
     "131": "RDP - Server accepted new connection from client",
     "140": "RDP - Connection failed: bad username or password",
     "168": "RDP - Client resolution info",
     "169": "RDP - Client operating system type",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "21": "RDP LocalSession - Session logon succeeded",
     "23": "RDP LocalSession - Session logoff succeeded",
     "24": "RDP LocalSession - Session has been disconnected",
     "25": "RDP LocalSession - Session reconnection succeeded",
     "40": "RDP LocalSession - Session disconnected with reason code",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TerminalServices-RDPClient/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1024": "RDP Client - Trying to connect to server",
     "1029": "RDP Client - Username hash (Base64 SHA1)",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1149": "RDP RemoteConn - User authentication succeeded",
     "20503": "RDP Shadow - View session started",
     "20504": "RDP Shadow - View session stopped",
@@ -860,22 +921,31 @@ if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/O
     "20513": "RDP Shadow - Shadow blocked by GPO",
     "20514": "RDP Shadow - Session already shadowed",
     "20522": "RDP Shadow - Clipboard copy request",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WinRM/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "6": "WinRM - WSMan session created",
     "91": "WinRM - Session creation",
     "169": "WinRM - User authenticated",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "OpenSSH/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "4": "SSH - sshd message",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Sysmon/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1": "Sysmon - Process creation",
     "2": "Sysmon - Process changed a file creation time",
     "3": "Sysmon - Network connection",
@@ -906,25 +976,34 @@ if .action.type == "Microsoft-Windows-Sysmon/Operational" {
     "28": "Sysmon - FileBlockShredding",
     "29": "Sysmon - FileExecutableDetected",
     "255": "Sysmon - Error",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TaskScheduler/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "106": "Task Scheduler - Task created",
     "110": "Task Scheduler - Task execution started",
     "141": "Task Scheduler - Task deleted",
     "200": "Task Scheduler - Task action launched",
     "201": "Task Scheduler - Task action completed",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WMI-Activity/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "5860": "WMI - Temporary event consumer registered",
     "5861": "WMI - Permanent event consumer registered",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Windows Defender/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1013": "Defender - Malware history deleted",
     "1014": "Defender - Malware history deletion failed",
     "1116": "Defender - Threat detected (no action taken)",
@@ -941,20 +1020,26 @@ if .action.type == "Microsoft-Windows-Windows Defender/Operational" {
     "5004": "Defender - Real-time protection feature configured",
     "5007": "Defender - Configuration changed (exclusions)",
     "5008": "Defender - Malware engine failure",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-AppLocker/EXE and DLL", "Microsoft-Windows-AppLocker/MSI and Script"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "8002": "AppLocker - Execution allowed",
     "8003": "AppLocker - Execution prevented (audit)",
     "8004": "AppLocker - Execution blocked",
     "8005": "AppLocker - Script/MSI execution allowed",
     "8006": "AppLocker - Script/MSI execution prevented (audit)",
     "8007": "AppLocker - Script/MSI execution blocked",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" {
-  .action.name = get(value: {
+  translated = get(value: {
     "2002": "Firewall - Settings changed in profile",
     "2003": "Firewall - Settings changed in profile",
     "2004": "Firewall - Rule created",
@@ -962,38 +1047,53 @@ if .action.type == "Microsoft-Windows-Windows Firewall With Advanced Security/Fi
     "2006": "Firewall - Rule deleted",
     "2097": "Firewall - Rule added to exception list",
     "2099": "Firewall - Rule modified in exception list",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Kernel-PnP/Configuration" {
-  .action.name = get(value: {
+  translated = get(value: {
     "400": "PnP - Device configured",
     "401": "PnP - Device configuration failed",
     "410": "PnP - Device initiated",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-DriverFrameworks-UserMode/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1003": "USB - Media connected",
     "1008": "USB - Media disconnected",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-VHDMP-Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1": "VHDMP - ISO/VHD file online",
     "2": "VHDMP - ISO/VHD file mounted",
     "12": "VHDMP - Handle for virtual disk created",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Bits-Client/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "3": "BITS - Transfer job created",
     "4": "BITS - Transfer completed",
     "59": "BITS - Transfer job started",
     "60": "BITS - Transfer job stopped",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-CodeIntegrity/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "3001": "CodeIntegrity - Unsigned driver loaded",
     "3002": "CodeIntegrity - Image integrity could not be verified (per-page hashes not found)",
     "3003": "CodeIntegrity - Image integrity could not be verified (kernel debugger attached)",
@@ -1003,51 +1103,69 @@ if .action.type == "Microsoft-Windows-CodeIntegrity/Operational" {
     "3065": "CodeIntegrity - Process attempted to load file not meeting signing level requirements",
     "3066": "CodeIntegrity - Process attempted to load file not meeting signing level requirements",
     "3077": "CodeIntegrity - Process attempted to load file not meeting signing level requirements",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-CAPI2/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "11": "CAPI2 - Certificate chain built",
     "30": "CAPI2 - Certificate chain policy verified",
     "70": "CAPI2 - Certificate private key acquired",
     "81": "CAPI2 - Certificate trust verified",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-CertificateServicesClient-Lifecycle-User/Operational", "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "1001": "CertLifecycle - Certificate updated",
     "1006": "CertLifecycle - New certificate installed",
     "1007": "CertLifecycle - Certificate exported",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-BitLocker/BitLocker Management" {
-  .action.name = get(value: {
+  translated = get(value: {
     "768": "BitLocker - Encryption started",
     "775": "BitLocker - Key protector created",
     "793": "BitLocker - Boot settings resealed to TPM",
     "796": "BitLocker - Software-based encryption in use",
     "817": "BitLocker - Key successfully sealed to TPM",
     "840": "BitLocker - Trusted WIM file added",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Security-Mitigations/KernelMode" {
-  .action.name = get(value: {
+  translated = get(value: {
     "3": "SecurityMitigation - Process blocked from creating a child process",
     "10": "SecurityMitigation - Process blocked from making system calls to driver",
     "12": "SecurityMitigation - Process blocked from loading non-Microsoft binary",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Hyper-V-VMMS-Admin" {
-  .action.name = get(value: {
+  translated = get(value: {
     "13002": "Hyper-V - VM created",
     "13003": "Hyper-V - VM deleted",
     "18303": "Hyper-V - VM exporting",
     "18304": "Hyper-V - VM creation started",
     "20927": "Hyper-V - VM storage location moved",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Hyper-V-Worker-Admin" {
-  .action.name = get(value: {
+  translated = get(value: {
     "12148": "Hyper-V Worker - VM started",
     "18500": "Hyper-V Worker - VM started",
     "18510": "Hyper-V Worker - VM saved",
@@ -1059,80 +1177,110 @@ if .action.type == "Microsoft-Windows-Hyper-V-Worker-Admin" {
     "18514": "Hyper-V Worker - VM reset via guest OS",
     "18504": "Hyper-V Worker - VM shut down via shutdown component",
     "18508": "Hyper-V Worker - VM shut down via guest OS",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-SMBClient/Security", "Microsoft-Windows-SmbClient/Connectivity"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "31010": "SMBClient - Process not granted access rights to object",
     "31017": "SMBClient - Insecure guest logon rejected",
     "31018": "SMBClient - Insecure guest logon enabled by administrator",
     "32000": "SMBClient - SMBv1 negotiate response received",
     "30803": "SMBClient - Failed to establish network connection",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-NTLM/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "8001": "NTLM - Outgoing authentication would be blocked (audit)",
     "8002": "NTLM - Traffic that would be blocked",
     "8003": "NTLM - Authentication in domain audited",
     "8004": "NTLM - Domain controller blocked authentication (audit)",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-PrintService/Admin", "Microsoft-Windows-PrintService/Operational"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "354": "PrintService - Printer initialized with driver",
     "808": "PrintService - Printer initialized with driver",
     "823": "PrintService - Default printer changed",
     "307": "PrintService - Print job",
     "848": "PrintService - Printer share created",
     "849": "PrintService - Printer share canceled",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant", "Microsoft-Windows-Application-Experience/Program-Inventory", "Microsoft-Windows-Application-Experience/Program-Telemetry"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "17": "AppCompat - Program Compatibility Assistant executed",
     "903": "AppInventory - Program installed on system",
     "904": "AppInventory - Program installed on system",
     "907": "AppInventory - Program removed from system",
     "908": "AppInventory - Program removed from system",
     "500": "AppTelemetry - Compatibility fix applied to executable",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if includes(["Microsoft-Windows-Shell-Core/AppDefaults", "Microsoft-Windows-Shell-Core/Operational"], .action.type) {
-  .action.name = get(value: {
+  translated = get(value: {
     "62443": "ShellCore - Default application association changed",
     "9707": "ShellCore - Process started from Run/RunOnce registry key",
     "9708": "ShellCore - Process from Run/RunOnce registry key finished",
     "28115": "ShellCore - Shortcut added to App Resolver Cache",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-IIS-Configuration/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "29": "IIS - Module configuration committed",
     "50": "IIS - WebConfig configuration committed",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Base-Filtering-Engine-Connections/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "2000": "BFE Connections - New session",
     "2001": "BFE Connections - Session closed",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WinINet-Config/ProxyConfigChanged" {
-  .action.name = get(value: {
+  translated = get(value: {
     "5600": "WinINet - Proxy configuration obtained",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Winsock-WS2HELP/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1": "Winsock - Protocol entry added to catalog",
     "2": "Winsock - Protocol entry removed from catalog",
     "3": "Winsock - Protocol entry disabled from catalog",
     "4": "Winsock - Catalog was reset",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Setup" {
-  .action.name = get(value: {
+  translated = get(value: {
     "2": "Servicing - Package changed to Installed state",
     "4": "Servicing - Reboot required before package install",
     "7": "Servicing - Initiating changes to turn on update",
@@ -1141,72 +1289,105 @@ if .action.type == "Setup" {
     "10": "Servicing - Selectable update successfully turned off",
     "13": "Servicing - Reboot required before selectable update can be turned on",
     "14": "Servicing - Reboot required before selectable update can be turned off",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Directory Service" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1138": "DirectoryService - LDAP search debug",
     "1174": "DirectoryService - LDAP wrong password",
     "2946": "DirectoryService - gMSA password successfully retrieved",
     "2947": "DirectoryService - gMSA password retrieval failed",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Authentication/AuthenticationPolicyFailures-DomainController" {
-  .action.name = get(value: {
+  translated = get(value: {
     "101": "AuthPolicy - NTLM sign-in failure due to authentication policy",
     "105": "AuthPolicy - Kerberos restriction failure (device not permitted)",
     "106": "AuthPolicy - Kerberos restriction failure (user/device not allowed)",
     "305": "AuthPolicy - Potential Kerberos restriction failure (device)",
     "306": "AuthPolicy - Potential Kerberos restriction failure (user/device)",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Authentication/ProtectedUser-Client" {
-  .action.name = get(value: {
+  translated = get(value: {
     "104": "ProtectedUser - Security package does not contain credentials",
     "304": "ProtectedUser - Security package does not store Protected User credentials",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Authentication/ProtectedUserFailures-DomainController" {
-  .action.name = get(value: {
+  translated = get(value: {
     "100": "ProtectedUserFailures - NTLM sign-in failure for Protected User",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Authentication/ProtectedUserSuccesses-DomainController" {
-  .action.name = get(value: {
+  translated = get(value: {
     "303": "ProtectedUserSuccesses - Kerberos TGT issued for Protected User",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WindowsUpdateClient/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "41": "WindowsUpdate - Update downloaded",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Time-Service/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "261": "TimeService - System time set by W32time",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-NetworkProfile/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "10000": "NetworkProfile - Network connected to domain",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Wired-AutoConfig/Operational" {
-  .action.name = get(value: {
+  translated = get(value: {
     "15510": "WiredAutoConfig - Network adapter added to system",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Partition/Diagnostic" {
-  .action.name = get(value: {
+  translated = get(value: {
     "1006": "Partition - Disk/device information",
-  }, path: [to_string!(.event.id)]) ?? "unknown"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .action.name = translated
+  }
 }
 
 # -----------------------------------------------------------------------------
 # set_mitre
 # -----------------------------------------------------------------------------
 if .action.type == "Security" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1100": "T1562.002 - Impair Defenses: Disable Windows Event Logging",
     "1102": "T1070.001 - Indicator Removal: Clear Windows Event Logs",
     "1104": "T1562.002 - Impair Defenses: Disable Windows Event Logging",
@@ -1311,10 +1492,13 @@ if .action.type == "Security" {
     "6410": "T1036.001 - Masquerading: Invalid Code Signature",
     "6416": "T1091 - Replication Through Removable Media",
     "6423": "T1091 - Replication Through Removable Media",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "System" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "6006": "T1562.002 - Impair Defenses: Disable Windows Event Logging",
     "6008": "T1529 - System Shutdown/Reboot",
     "104": "T1070.001 - Indicator Removal: Clear Windows Event Logs",
@@ -1333,10 +1517,13 @@ if .action.type == "System" {
     "7045": "T1543.003 - Create or Modify System Process: Windows Service",
     "1074": "T1529 - System Shutdown/Reboot",
     "1076": "T1529 - System Shutdown/Reboot",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Application" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "325": "T1003.003 - OS Credential Dumping: NTDS",
     "326": "T1003.003 - OS Credential Dumping: NTDS",
     "327": "T1003.003 - OS Credential Dumping: NTDS",
@@ -1349,50 +1536,71 @@ if .action.type == "Application" {
     "867": "M1038 - Execution Prevention",
     "868": "M1038 - Execution Prevention",
     "882": "M1038 - Execution Prevention",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-PowerShell/Operational", "PowerShellCore/Operational"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "4103": "T1059.001 - Command and Scripting Interpreter: PowerShell",
     "4104": "T1059.001 - Command and Scripting Interpreter: PowerShell",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["DNS Server", "Microsoft-Windows-DNSServer/Audit"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "150": "T1574.002 - Hijack Execution Flow: DLL Side-Loading",
     "770": "T1574.002 - Hijack Execution Flow: DLL Side-Loading",
     "6004": "T1071.004 - Application Layer Protocol: DNS",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "MSExchange Management" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1": "T1505.002 - Server Software Component: Transport Agent",
     "6": "T1505.002 - Server Software Component: Transport Agent",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-RemoteDesktopServices-RdpCoreTS/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "104": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "131": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "140": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "168": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "169": "T1021.001 - Remote Services: Remote Desktop Protocol",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TerminalServices-LocalSessionManager/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "21": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "25": "T1021.001 - Remote Services: Remote Desktop Protocol",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TerminalServices-RDPClient/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1024": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "1029": "T1021.001 - Remote Services: Remote Desktop Protocol",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1149": "T1021.001 - Remote Services: Remote Desktop Protocol",
     "20503": "T1563.002 - Remote Service Session Hijacking: RDP Hijacking",
     "20504": "T1563.002 - Remote Service Session Hijacking: RDP Hijacking",
@@ -1406,36 +1614,51 @@ if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/O
     "20513": "T1563.002 - Remote Service Session Hijacking: RDP Hijacking",
     "20514": "T1563.002 - Remote Service Session Hijacking: RDP Hijacking",
     "20522": "T1563.002 - Remote Service Session Hijacking: RDP Hijacking",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WinRM/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "6": "T1021.006 - Remote Services: Windows Remote Management",
     "91": "T1021.006 - Remote Services: Windows Remote Management",
     "169": "T1021.006 - Remote Services: Windows Remote Management",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "OpenSSH/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "4": "T1021.004 - Remote Services: SSH",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-TaskScheduler/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "106": "T1053.005 - Scheduled Task/Job: Scheduled Task",
     "110": "T1053.005 - Scheduled Task/Job: Scheduled Task",
     "200": "T1053.005 - Scheduled Task/Job: Scheduled Task",
     "201": "T1053.005 - Scheduled Task/Job: Scheduled Task",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WMI-Activity/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "5860": "T1546.003 - Event Triggered Execution: WMI Event Subscription",
     "5861": "T1546.003 - Event Triggered Execution: WMI Event Subscription",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Windows Defender/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1013": "T1070.003 - Indicator Removal: Clear Command History",
     "1014": "T1070.003 - Indicator Removal: Clear Command History",
     "1121": "T1055 - Process Injection",
@@ -1444,20 +1667,26 @@ if .action.type == "Microsoft-Windows-Windows Defender/Operational" {
     "5001": "T1562.001 - Impair Defenses: Disable or Modify Tools",
     "5007": "T1562.001 - Impair Defenses: Disable or Modify Tools",
     "5008": "T1562.001 - Impair Defenses: Disable or Modify Tools",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-AppLocker/EXE and DLL", "Microsoft-Windows-AppLocker/MSI and Script"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "8002": "M1038 - Execution Prevention",
     "8003": "M1038 - Execution Prevention",
     "8004": "M1038 - Execution Prevention",
     "8005": "M1038 - Execution Prevention",
     "8006": "M1038 - Execution Prevention",
     "8007": "M1038 - Execution Prevention",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "2002": "T1562.004 - Impair Defenses: Disable or Modify System Firewall",
     "2003": "T1562.004 - Impair Defenses: Disable or Modify System Firewall",
     "2004": "T1562.004 - Impair Defenses: Disable or Modify System Firewall",
@@ -1465,43 +1694,61 @@ if .action.type == "Microsoft-Windows-Windows Firewall With Advanced Security/Fi
     "2006": "T1562.004 - Impair Defenses: Disable or Modify System Firewall",
     "2097": "T1562.004 - Impair Defenses: Disable or Modify System Firewall",
     "2099": "T1562.004 - Impair Defenses: Disable or Modify System Firewall",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Kernel-PnP/Configuration" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "400": "T1091 - Replication Through Removable Media",
     "401": "T1091 - Replication Through Removable Media",
     "410": "T1091 - Replication Through Removable Media",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-DriverFrameworks-UserMode/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1003": "T1091 - Replication Through Removable Media",
     "1008": "T1091 - Replication Through Removable Media",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Partition/Diagnostic" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1006": "T1091 - Replication Through Removable Media",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-VHDMP-Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1": "T1553.005 - Subvert Trust Controls: Mark-of-the-Web Bypass",
     "2": "T1553.005 - Subvert Trust Controls: Mark-of-the-Web Bypass",
     "12": "T1553.005 - Subvert Trust Controls: Mark-of-the-Web Bypass",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Bits-Client/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "3": "T1197 - BITS Jobs",
     "4": "T1197 - BITS Jobs",
     "59": "T1197 - BITS Jobs",
     "60": "T1197 - BITS Jobs",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-CodeIntegrity/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "3001": "T1036.001 - Masquerading: Invalid Code Signature",
     "3002": "T1036.001 - Masquerading: Invalid Code Signature",
     "3003": "T1036.001 - Masquerading: Invalid Code Signature",
@@ -1511,98 +1758,137 @@ if .action.type == "Microsoft-Windows-CodeIntegrity/Operational" {
     "3065": "T1036.001 - Masquerading: Invalid Code Signature",
     "3066": "T1036.001 - Masquerading: Invalid Code Signature",
     "3077": "T1036.001 - Masquerading: Invalid Code Signature",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-CAPI2/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "11": "T1553.004 - Subvert Trust Controls: Install Root Certificate",
     "30": "T1553.004 - Subvert Trust Controls: Install Root Certificate",
     "70": "T1552.004 - Unsecured Credentials: Private Keys",
     "81": "T1553.004 - Subvert Trust Controls: Install Root Certificate",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-CertificateServicesClient-Lifecycle-User/Operational", "Microsoft-Windows-CertificateServicesClient-Lifecycle-System/Operational"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1006": "T1553.004 - Subvert Trust Controls: Install Root Certificate",
     "1007": "T1552.004 - Unsecured Credentials: Private Keys",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-BitLocker/BitLocker Management" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "768": "T1486 - Data Encrypted for Impact",
     "796": "T1486 - Data Encrypted for Impact",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Security-Mitigations/KernelMode" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "3": "T1553.003 - Subvert Trust Controls: SIP and Trust Provider Hijacking",
     "10": "T1553.002 - Subvert Trust Controls: Code Signing",
     "12": "T1553.002 - Subvert Trust Controls: Code Signing",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Hyper-V-VMMS-Admin" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "13002": "T1497 - Virtualization/Sandbox Evasion",
     "13003": "T1485 - Data Destruction",
     "18304": "T1497 - Virtualization/Sandbox Evasion",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Hyper-V-Worker-Admin" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "18502": "T1529 - System Shutdown/Reboot",
     "18504": "T1529 - System Shutdown/Reboot",
     "18508": "T1529 - System Shutdown/Reboot",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-SMBClient/Security", "Microsoft-Windows-SmbClient/Connectivity"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "31010": "T1078 - Valid Accounts",
     "31017": "T1078.001 - Valid Accounts: Default Accounts",
     "31018": "T1562.010 - Impair Defenses: Downgrade Attack",
     "32000": "T1562.010 - Impair Defenses: Downgrade Attack",
     "30803": "T1021.002 - Remote Services: SMB/Windows Admin Shares",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-NTLM/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "8001": "T1078 - Valid Accounts",
     "8002": "T1078 - Valid Accounts",
     "8003": "T1078 - Valid Accounts",
     "8004": "T1078 - Valid Accounts",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-PrintService/Admin", "Microsoft-Windows-PrintService/Operational"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "354": "T1547.012 - Boot or Logon Autostart Execution: Print Processors",
     "808": "T1547.012 - Boot or Logon Autostart Execution: Print Processors",
     "823": "T1547.012 - Boot or Logon Autostart Execution: Print Processors",
     "848": "T1210 - Exploitation of Remote Services",
     "849": "T1210 - Exploitation of Remote Services",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-Application-Experience/Program-Compatibility-Assistant", "Microsoft-Windows-Application-Experience/Program-Inventory", "Microsoft-Windows-Application-Experience/Program-Telemetry"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "17": "T1202 - Indirect Command Execution",
     "903": "T0843 - Program Install",
     "904": "T0843 - Program Install",
     "500": "T1546.011 - Event Triggered Execution: Application Shimming",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if includes(["Microsoft-Windows-Shell-Core/AppDefaults", "Microsoft-Windows-Shell-Core/Operational"], .action.type) {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "62443": "T1546.001 - Event Triggered Execution: Change Default File Association",
     "9707": "T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder",
     "9708": "T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys / Startup Folder",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-IIS-Configuration/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "29": "T1505.004 - Server Software Component: IIS Components",
     "50": "T1505.004 - Server Software Component: IIS Components",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Setup" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "2": "T0843 - Program Install",
     "4": "T0843 - Program Install",
     "7": "T0843 - Program Install",
@@ -1611,53 +1897,77 @@ if .action.type == "Setup" {
     "10": "T1562.001 - Impair Defenses: Disable or Modify Tools",
     "13": "T0843 - Program Install",
     "14": "T1562.001 - Impair Defenses: Disable or Modify Tools",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Directory Service" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1138": "T1087.002 - Account Discovery: Domain Account",
     "1174": "T1110.001 - Brute Force: Password Guessing",
     "2946": "T1003 - OS Credential Dumping",
     "2947": "T1003 - OS Credential Dumping",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Authentication/AuthenticationPolicyFailures-DomainController" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "101": "T1078 - Valid Accounts",
     "105": "T1078 - Valid Accounts",
     "106": "T1078 - Valid Accounts",
     "305": "T1078 - Valid Accounts",
     "306": "T1078 - Valid Accounts",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Authentication/ProtectedUserFailures-DomainController" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "100": "T1110 - Brute Force",
     "104": "T1558 - Steal or Forge Kerberos Tickets",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-WinINet-Config/ProxyConfigChanged" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "5600": "T1090 - Proxy",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Winsock-WS2HELP/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "1": "T1106 - Native API",
     "2": "T1106 - Native API",
     "3": "T1106 - Native API",
     "4": "T1106 - Native API",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Time-Service/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "261": "T1070.006 - Indicator Removal: Timestomp",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if .action.type == "Microsoft-Windows-Wired-AutoConfig/Operational" {
-  .threat.technique.id_name = get(value: {
+  translated = get(value: {
     "15510": "T1200 - Hardware Additions",
-  }, path: [to_string!(.event.id)]) ?? "N/A"
+  }, path: [to_string!(.event.id)]) ?? null
+  if translated != null {
+    .threat.technique.id_name = translated
+  }
 }
 if is_empty(to_string!(.threat.technique.id_name)) {
   del(.threat.technique.id_name)
@@ -1666,41 +1976,38 @@ if is_empty(to_string!(.threat.technique.id_name)) {
 # -----------------------------------------------------------------------------
 # set_channel
 # -----------------------------------------------------------------------------
-if exists(.Event.System.Channel) {
+if exists(.Event.System.Channel) && .Event.System.Channel != null {
   .event.dataset = to_string!(.Event.System.Channel)
+}
+
+# -----------------------------------------------------------------------------
+# parse_hashes
+# -----------------------------------------------------------------------------
+if is_string(.Event.EventData.Hashes) {
+  .parsed_hashes_kv = parse_key_value(.Event.EventData.Hashes, key_value_delimiter:"=", field_delimiter:",") ?? {}
+}
+if is_string(.Event.EventData.Hash) {
+  .parsed_hashes_kv_2 = parse_key_value(.Event.EventData.Hash, key_value_delimiter:"=", field_delimiter:",") ?? {}
 }
 
 # -----------------------------------------------------------------------------
 # set_dll
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.ImageLoaded) {
-  .dll.path = .Event.EventData.ImageLoaded
-}
-if exists(.Event.EventData.OriginalFileName) {
-  .dll.name = .Event.EventData.OriginalFileName
-}
-if exists(.parsed_hashes_kv.IMPHASH) {
-  .dll.pe.imphash = .parsed_hashes_kv.IMPHASH
-}
-if !exists(.dll.pe.imphash) {
-  if exists(.parsed_hashes_kv_2.IMPHASH) {
-    .dll.pe.imphash = .parsed_hashes_kv_2.IMPHASH
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && .event.id == 7 {
+  if exists(.Event.EventData.ImageLoaded) && .Event.EventData.ImageLoaded != null {
+    .dll.path = .Event.EventData.ImageLoaded
   }
-}
-if exists(.parsed_hashes_kv.MD5) {
-  .dll.hash.md5 = .parsed_hashes_kv.MD5
-}
-if !exists(.dll.hash.md5) {
-  if exists(.parsed_hashes_kv_2.MD5) {
-    .dll.hash.md5 = .parsed_hashes_kv_2.MD5
+  if exists(.Event.EventData.OriginalFileName) && .Event.EventData.OriginalFileName != null {
+    .dll.name = .Event.EventData.OriginalFileName
   }
-}
-if exists(.parsed_hashes_kv.SHA256) {
-  .dll.hash.sha256 = .parsed_hashes_kv.SHA256
-}
-if !exists(.dll.hash.sha256) {
-  if exists(.parsed_hashes_kv_2.SHA256) {
-    .dll.hash.sha256 = .parsed_hashes_kv_2.SHA256
+  if exists(.parsed_hashes_kv.IMPHASH) && .parsed_hashes_kv.IMPHASH != null {
+    .dll.pe.imphash = .parsed_hashes_kv.IMPHASH
+  }
+  if exists(.parsed_hashes_kv.MD5) && .parsed_hashes_kv.MD5 != null {
+    .dll.hash.md5 = .parsed_hashes_kv.MD5
+  }
+  if exists(.parsed_hashes_kv.SHA256) && .parsed_hashes_kv.SHA256 != null {
+    .dll.hash.sha256 = .parsed_hashes_kv.SHA256
   }
 }
 
@@ -1708,91 +2015,91 @@ if !exists(.dll.hash.sha256) {
 # set_file
 # -----------------------------------------------------------------------------
 if exists(.Event.EventData.LocalName) {
-  if exists(.Event.EventData.LocalName) {
+  if exists(.Event.EventData.LocalName) && .Event.EventData.LocalName != null {
     .file.path = .Event.EventData.LocalName
   }
-  if exists(.Event.EventData.LocalName) {
-    .file.name = basename!(.Event.EventData.LocalName)
+  if exists(.Event.EventData.LocalName) && .Event.EventData.LocalName != null {
+    .file.name = replace(to_string(.Event.EventData.LocalName) ?? "", r'^.*[\\/]', "")
   }
 }
 if !exists(.file.path) {
-  if exists(.Event.EventData.TargetFilename) {
+  if exists(.Event.EventData.TargetFilename) && .Event.EventData.TargetFilename != null {
     .file.path = .Event.EventData.TargetFilename
   }
-  if exists(.Event.EventData.TargetFilename) {
-    .file.name = basename!(.Event.EventData.TargetFilename)
+  if exists(.Event.EventData.TargetFilename) && .Event.EventData.TargetFilename != null {
+    .file.name = replace(to_string(.Event.EventData.TargetFilename) ?? "", r'^.*[\\/]', "")
   }
 }
-if exists(.Event.EventData.jobOwner) {
+if exists(.Event.EventData.jobOwner) && .Event.EventData.jobOwner != null {
   .file.owner = .Event.EventData.jobOwner
 }
 if exists(.Event.EventData.CreationUtcTime) {
-  if exists(.Event.EventData.CreationUtcTime) {
+  if exists(.Event.EventData.CreationUtcTime) && .Event.EventData.CreationUtcTime != null {
     .file.created = to_string!(.Event.EventData.CreationUtcTime)
   }
 }
-if exists(.Event.EventData.fileLength) {
+if exists(.Event.EventData.fileLength) && .Event.EventData.fileLength != null {
   .file.size = .Event.EventData.fileLength
 }
-if .Event.System.Provider == "Microsoft-Windows-Bits-Client" && includes([59, 60], .event.id) {
-  if exists(.Event.EventData.name) {
-    .file.name = basename!(.Event.EventData.name)
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Bits-Client" && includes([59, 60], .event.id) {
+  if exists(.Event.EventData.name) && .Event.EventData.name != null {
+    .file.name = replace(to_string(.Event.EventData.name) ?? "", r'^.*[\\/]', "")
   }
-  if exists(.Event.EventData.name) {
+  if exists(.Event.EventData.name) && .Event.EventData.name != null {
     .file.path = .Event.EventData.name
   }
 }
-if .Event.System.Provider == "Microsoft-Windows-Security-Auditing" && .event.id == 4663 && includes(["File", "Process"], .Event.EventData.ObjectType) {
-  if exists(.Event.EventData.ObjectName) {
-    .file.name = basename!(.Event.EventData.ObjectName)
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && .event.id == 4663 && includes(["File", "Process"], .Event.EventData.ObjectType) {
+  if exists(.Event.EventData.ObjectName) && .Event.EventData.ObjectName != null {
+    .file.name = replace(to_string(.Event.EventData.ObjectName) ?? "", r'^.*[\\/]', "")
   }
-  if exists(.Event.EventData.ObjectName) {
+  if exists(.Event.EventData.ObjectName) && .Event.EventData.ObjectName != null {
     .file.path = .Event.EventData.ObjectName
   }
 }
-if .Event.System.Provider == "Microsoft-Windows-PowerShell" && exists(.Event.EventData.script.name) {
-  if exists(.Event.EventData.script.name) {
-    .file.name = basename!(.Event.EventData.script.name)
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-PowerShell" && exists(.Event.EventData.script.name) {
+  if exists(.Event.EventData.script.name) && .Event.EventData.script.name != null {
+    .file.name = replace(to_string(.Event.EventData.script.name) ?? "", r'^.*[\\/]', "")
   }
-  if exists(.Event.EventData.script.name) {
+  if exists(.Event.EventData.script.name) && .Event.EventData.script.name != null {
     .file.path = .Event.EventData.script.name
   }
 }
 if includes([15, 23, 24, 26, 28], .event.id) {
-  if exists(.parsed_hashes_kv.IMPHASH) {
+  if exists(.parsed_hashes_kv.IMPHASH) && .parsed_hashes_kv.IMPHASH != null {
     .file.pe.imphash = .parsed_hashes_kv.IMPHASH
   }
 }
 if includes([15, 23, 24, 26, 28], .event.id) && !exists(.file.pe.imphash) {
-  if exists(.parsed_hashes_kv_2.IMPHASH) {
+  if exists(.parsed_hashes_kv_2.IMPHASH) && .parsed_hashes_kv_2.IMPHASH != null {
     .file.pe.imphash = .parsed_hashes_kv_2.IMPHASH
   }
 }
 if includes([15, 23, 24, 26, 28], .event.id) {
-  if exists(.parsed_hashes_kv.MD5) {
+  if exists(.parsed_hashes_kv.MD5) && .parsed_hashes_kv.MD5 != null {
     .file.hash.md5 = .parsed_hashes_kv.MD5
   }
 }
 if includes([15, 23, 24, 26, 28], .event.id) && !exists(.file.hash.md5) {
-  if exists(.parsed_hashes_kv_2.MD5) {
+  if exists(.parsed_hashes_kv_2.MD5) && .parsed_hashes_kv_2.MD5 != null {
     .file.hash.md5 = .parsed_hashes_kv_2.MD5
   }
 }
 if includes([15, 23, 24, 26, 28], .event.id) {
-  if exists(.parsed_hashes_kv.SHA256) {
+  if exists(.parsed_hashes_kv.SHA256) && .parsed_hashes_kv.SHA256 != null {
     .file.hash.sha256 = .parsed_hashes_kv.SHA256
   }
 }
 if includes([15, 23, 24, 26, 28], .event.id) && !exists(.file.hash.sha256) {
-  if exists(.parsed_hashes_kv_2.SHA256) {
+  if exists(.parsed_hashes_kv_2.SHA256) && .parsed_hashes_kv_2.SHA256 != null {
     .file.hash.sha256 = .parsed_hashes_kv_2.SHA256
   }
 }
 if includes([8002, 8005], .event.id) && exists(.Event.EventData.Message) {
-  if exists(.Event.EventData.Message) {
+  if exists(.Event.EventData.Message) && .Event.EventData.Message != null {
     .file.name = split!(split!(.Event.EventData.Message, " ")[0], "\\")[-1]
   }
-  if exists(.Event.EventData.Message) {
+  if exists(.Event.EventData.Message) && .Event.EventData.Message != null {
     .file.path = split!(.Event.EventData.Message, " ")[0]
   }
 }
@@ -1800,147 +2107,176 @@ if includes([8002, 8005], .event.id) && exists(.Event.EventData.Message) {
 # -----------------------------------------------------------------------------
 # main_stage
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.UtcTime) {
-  .timestamp = .Event.EventData.UtcTime
-}
-if exists(.Event.System.Channel) {
+if exists(.Event.System.Channel) && .Event.System.Channel != null {
   .action.type = .Event.System.Channel
 }
-if exists(.event.code) {
+if exists(.event.code) && .event.code != null {
   .action.id = .event.code
 }
-if exists(.Event.System.Provider."#attributes".Name) {
+if exists(.Event.System.Provider."#attributes".Name) && .Event.System.Provider."#attributes".Name != null {
   .event.provider = .Event.System.Provider."#attributes".Name
 }
-if exists(.Event.System.Computer) {
+if exists(.Event.System.Computer) && .Event.System.Computer != null {
   .host.name = .Event.System.Computer
 }
-if exists(.Event.System.Computer) {
+if exists(.Event.System.Computer) && .Event.System.Computer != null {
   .host.hostname = split!(.Event.System.Computer, ".")[0]
 }
 .os.family = "windows"
 .os.platform = "windows"
-if exists(.Event.EventData.name) {
+if exists(.Event.EventData.UtcTime) && .Event.EventData.UtcTime != null {
+  .event.created = .Event.EventData.UtcTime
+}
+if exists(.Event.EventData.name) && .Event.EventData.name != null {
   .file.name = .Event.EventData.name
 }
-if exists(.Event.EventData.CommandLine) {
+if exists(.Event.EventData.CommandLine) && .Event.EventData.CommandLine != null {
   .process.command_line = .Event.EventData.CommandLine
 }
-if exists(.Event.EventData.ParentCommandLine) {
+if exists(.Event.EventData.ParentCommandLine) && .Event.EventData.ParentCommandLine != null {
   .process.parent.command_line = .Event.EventData.ParentCommandLine
 }
-if exists(.Event.EventData.RecordNumber) {
+if exists(.Event.EventData.RecordNumber) && .Event.EventData.RecordNumber != null {
   .action.record_id = .Event.EventData.RecordNumber
 }
-if exists(.Event.EventData.DestinationHostname) {
+if exists(.Event.EventData.DestinationHostname) && .Event.EventData.DestinationHostname != null {
   .destination.domain = .Event.EventData.DestinationHostname
 }
-if exists(.Event.EventData.DestAddress) {
+if exists(.Event.EventData.DestAddress) && .Event.EventData.DestAddress != null {
   .destination.ip = .Event.EventData.DestAddress
 }
 if !exists(.destination.ip) {
-  if exists(.Event.EventData.DestinationIp) {
+  if exists(.Event.EventData.DestinationIp) && .Event.EventData.DestinationIp != null {
     .destination.ip = .Event.EventData.DestinationIp
   }
 }
-if exists(.Event.EventData.DestPort) {
+if exists(.Event.EventData.DestPort) && .Event.EventData.DestPort != null {
   .destination.port = .Event.EventData.DestPort
 }
 if !exists(.destination.port) {
-  if exists(.Event.EventData.DestinationPort) {
+  if exists(.Event.EventData.DestinationPort) && .Event.EventData.DestinationPort != null {
     .destination.port = .Event.EventData.DestinationPort
   }
 }
-if exists(.Event.EventData.Description) {
+if exists(.Event.EventData.Description) && .Event.EventData.Description != null {
   .event.reason = .Event.EventData.Description
 }
-if exists(.Event.EventData.CreationUtcTime) {
+if exists(.Event.EventData.CreationUtcTime) && .Event.EventData.CreationUtcTime != null {
   .file.created = .Event.EventData.CreationUtcTime
 }
-if exists(.Event.EventData.jobOwner) {
+if exists(.Event.EventData.jobOwner) && .Event.EventData.jobOwner != null {
   .file.owner = .Event.EventData.jobOwner
 }
-if exists(.Event.EventData.Severity) {
+if exists(.Event.EventData.Severity) && .Event.EventData.Severity != null {
   .log.level = .Event.EventData.Severity
 }
-if exists(.Event.EventData.Protocol) {
+if exists(.Event.EventData.Protocol) && .Event.EventData.Protocol != null {
   .network.transport = .Event.EventData.Protocol
 }
-if exists(.Event.EventData.Image) {
+if exists(.Event.EventData.Image) && .Event.EventData.Image != null {
   .process.executable = .Event.EventData.Image
 }
-if exists(.Event.EventData.ParentImage) {
+if exists(.Event.EventData.ParentImage) && .Event.EventData.ParentImage != null {
   .process.parent.executable = .Event.EventData.ParentImage
 }
 if !exists(.process.parent.executable) {
-  if exists(.Event.EventData.ParentProcessName) {
+  if exists(.Event.EventData.ParentProcessName) && .Event.EventData.ParentProcessName != null {
     .process.parent.executable = .Event.EventData.ParentProcessName
   }
 }
-if exists(.Event.EventData.ParentProcessId) {
+if exists(.Event.EventData.ParentProcessId) && .Event.EventData.ParentProcessId != null {
   .process.ppid = .Event.EventData.ParentProcessId
 }
-if exists(.Event.EventData.ThreadID) {
+if exists(.Event.EventData.ThreadID) && .Event.EventData.ThreadID != null {
   .process.thread.id = .Event.EventData.ThreadID
 }
-if exists(.Event.EventData.CurrentDirectory) {
+if exists(.Event.EventData.CurrentDirectory) && .Event.EventData.CurrentDirectory != null {
   .process.working_directory = .Event.EventData.CurrentDirectory
 }
-if exists(.Event.EventData.SourceHostname) {
+if exists(.Event.EventData.SourceHostname) && .Event.EventData.SourceHostname != null {
   .source.domain = .Event.EventData.SourceHostname
 }
-if exists(.Event.EventData.SourcePort) {
+if exists(.Event.EventData.SourcePort) && .Event.EventData.SourcePort != null {
   .source.port = .Event.EventData.SourcePort
 }
-if exists(.Event.EventData.url) {
+if exists(.Event.EventData.url) && .Event.EventData.url != null {
   .url.original = .Event.EventData.url
 }
 if !exists(.url.original) {
-  if exists(.Event.EventData.RemoteName) {
+  if exists(.Event.EventData.RemoteName) && .Event.EventData.RemoteName != null {
     .url.original = .Event.EventData.RemoteName
   }
 }
-if exists(.Event.EventData.SubjectUserSid) {
+if exists(.Event.EventData.SubjectUserSid) && .Event.EventData.SubjectUserSid != null {
   .user.id = .Event.EventData.SubjectUserSid
 }
 if !exists(.user.id) {
-  if exists(.Event.EventData.UserID) {
+  if exists(.Event.EventData.UserID) && .Event.EventData.UserID != null {
     .user.id = .Event.EventData.UserID
   }
 }
-if exists(.Event.EventData.TargetUserName) {
+if exists(.Event.EventData.TargetUserName) && .Event.EventData.TargetUserName != null {
   .user.target.name = .Event.EventData.TargetUserName
 }
-if exists(.Event.EventData.TargetDomainName) {
+if exists(.Event.EventData.TargetDomainName) && .Event.EventData.TargetDomainName != null {
   .user.target.domain = .Event.EventData.TargetDomainName
 }
-if exists(.Event.EventData.TargetUserSid) {
+if exists(.Event.EventData.TargetUserSid) && .Event.EventData.TargetUserSid != null {
   .user.target.id = .Event.EventData.TargetUserSid
 }
 if exists(.Event.EventData.url) && !starts_with(to_string!(.Event.EventData.url), "http") {
-  if exists(.Event.EventData.url) {
+  if exists(.Event.EventData.url) && .Event.EventData.url != null {
     .url.domain = split!(.Event.EventData.url, r'/')[0]
   }
 }
 if exists(.Event.EventData.RemoteName) && !starts_with(to_string!(.Event.EventData.RemoteName), "http") {
-  if exists(.Event.EventData.RemoteName) {
+  if exists(.Event.EventData.RemoteName) && .Event.EventData.RemoteName != null {
     .url.domain = split!(.Event.EventData.RemoteName, r'/')[0]
   }
 }
 if exists(.Event.EventData.LmPackageName) && .Event.EventData.LmPackageName != "-" {
-  if exists(.Event.EventData.LmPackageName) {
+  if exists(.Event.EventData.LmPackageName) && .Event.EventData.LmPackageName != null {
     .package.name = split!(.Event.EventData.LmPackageName, " ")[0]
   }
   .package.description = "LAN Manager package"
 }
 if exists(.Event.EventData.LmPackageName) && length(split!(.Event.EventData.LmPackageName, " ")) > 1 {
-  if exists(.Event.EventData.LmPackageName) {
+  if exists(.Event.EventData.LmPackageName) && .Event.EventData.LmPackageName != null {
     .package.version = split!(.Event.EventData.LmPackageName, " ")[-1]
   }
 }
 if exists(.Event.EventData.Application) {
-  if exists(.Event.EventData.Application) {
+  if exists(.Event.EventData.Application) && .Event.EventData.Application != null {
     .process.name = split!(.Event.EventData.Application, "\\")[-1]
+  }
+}
+
+# -----------------------------------------------------------------------------
+# process_executable
+# -----------------------------------------------------------------------------
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) {
+  if exists(.Event.EventData.NewProcessName) && .Event.EventData.NewProcessName != null {
+    .process.executable = .Event.EventData.NewProcessName
+  }
+}
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Security-Auditing" && includes([4656, 4657, 4658, 4663, 4670, 4674], .event.id) {
+  if exists(.Event.EventData.ProcessName) && .Event.EventData.ProcessName != null {
+    .process.executable = .Event.EventData.ProcessName
+  }
+}
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && .event.id == 6 {
+  if exists(.Event.EventData.ImageLoaded) && .Event.EventData.ImageLoaded != null {
+    .process.executable = .Event.EventData.ImageLoaded
+  }
+}
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id) {
+  if exists(.Event.EventData.SourceImage) && .Event.EventData.SourceImage != null {
+    .process.executable = .Event.EventData.SourceImage
+  }
+}
+if !exists(.process.executable) && .Event.EventData.ProcessName != "-" {
+  if exists(.Event.EventData.ProcessName) && .Event.EventData.ProcessName != null {
+    .process.executable = .Event.EventData.ProcessName
   }
 }
 
@@ -1948,124 +2284,124 @@ if exists(.Event.EventData.Application) {
 # finalize
 # -----------------------------------------------------------------------------
 if exists(.log.level) {
-  if exists(.log.level) {
-    .log.level = downcase!(string!(.log.level))
+  if exists(.log.level) && .log.level != null {
+    .log.level = downcase(to_string(.log.level) ?? "")
   }
 }
 if exists(.process.command_line) {
-  if exists(.process.command_line) {
-    .process.command_line = replace!(.process.command_line, "\"", "")
+  if exists(.process.command_line) && .process.command_line != null {
+    .process.command_line = replace(to_string(.process.command_line) ?? "", "\"", "")
   }
 }
 if exists(.process.parent.command_line) {
-  if exists(.process.parent.command_line) {
-    .process.parent.command_line = replace!(.process.parent.command_line, "\"", "")
+  if exists(.process.parent.command_line) && .process.parent.command_line != null {
+    .process.parent.command_line = replace(to_string(.process.parent.command_line) ?? "", "\"", "")
   }
 }
 if exists(.process.pe.imphash) {
-  if exists(.process.pe.imphash) {
-    .process.pe.imphash = downcase!(string!(.process.pe.imphash))
+  if exists(.process.pe.imphash) && .process.pe.imphash != null {
+    .process.pe.imphash = downcase(to_string(.process.pe.imphash) ?? "")
   }
 }
 if exists(.process.hash.md5) {
-  if exists(.process.hash.md5) {
-    .process.hash.md5 = downcase!(string!(.process.hash.md5))
+  if exists(.process.hash.md5) && .process.hash.md5 != null {
+    .process.hash.md5 = downcase(to_string(.process.hash.md5) ?? "")
   }
 }
 if exists(.process.hash.sha1) {
-  if exists(.process.hash.sha1) {
-    .process.hash.sha1 = downcase!(string!(.process.hash.sha1))
+  if exists(.process.hash.sha1) && .process.hash.sha1 != null {
+    .process.hash.sha1 = downcase(to_string(.process.hash.sha1) ?? "")
   }
 }
 if exists(.process.hash.sha256) {
-  if exists(.process.hash.sha256) {
-    .process.hash.sha256 = downcase!(string!(.process.hash.sha256))
+  if exists(.process.hash.sha256) && .process.hash.sha256 != null {
+    .process.hash.sha256 = downcase(to_string(.process.hash.sha256) ?? "")
   }
 }
 if exists(.file.pe.imphash) {
-  if exists(.file.pe.imphash) {
-    .file.pe.imphash = downcase!(string!(.file.pe.imphash))
+  if exists(.file.pe.imphash) && .file.pe.imphash != null {
+    .file.pe.imphash = downcase(to_string(.file.pe.imphash) ?? "")
   }
 }
 if exists(.file.hash.md5) {
-  if exists(.file.hash.md5) {
-    .file.hash.md5 = downcase!(string!(.file.hash.md5))
+  if exists(.file.hash.md5) && .file.hash.md5 != null {
+    .file.hash.md5 = downcase(to_string(.file.hash.md5) ?? "")
   }
 }
 if exists(.file.hash.sha256) {
-  if exists(.file.hash.sha256) {
-    .file.hash.sha256 = downcase!(string!(.file.hash.sha256))
+  if exists(.file.hash.sha256) && .file.hash.sha256 != null {
+    .file.hash.sha256 = downcase(to_string(.file.hash.sha256) ?? "")
   }
 }
 if exists(.dll.pe.imphash) {
-  if exists(.dll.pe.imphash) {
-    .dll.hash.imphash = downcase!(string!(.dll.pe.imphash))
+  if exists(.dll.pe.imphash) && .dll.pe.imphash != null {
+    .dll.hash.imphash = downcase(to_string(.dll.pe.imphash) ?? "")
   }
 }
 if exists(.dll.pe.imphash) {
-  if exists(.dll.pe.imphash) {
-    .dll.pe.imphash = downcase!(string!(.dll.pe.imphash))
+  if exists(.dll.pe.imphash) && .dll.pe.imphash != null {
+    .dll.pe.imphash = downcase(to_string(.dll.pe.imphash) ?? "")
   }
 }
 if exists(.dll.hash.md5) {
-  if exists(.dll.hash.md5) {
-    .dll.hash.md5 = downcase!(string!(.dll.hash.md5))
+  if exists(.dll.hash.md5) && .dll.hash.md5 != null {
+    .dll.hash.md5 = downcase(to_string(.dll.hash.md5) ?? "")
   }
 }
 if exists(.dll.hash.sha256) {
-  if exists(.dll.hash.sha256) {
-    .dll.hash.sha256 = downcase!(string!(.dll.hash.sha256))
+  if exists(.dll.hash.sha256) && .dll.hash.sha256 != null {
+    .dll.hash.sha256 = downcase(to_string(.dll.hash.sha256) ?? "")
   }
 }
-if exists(.process.parent.command_line) && exists(.process.parent.executable) && downcase!(string!(.process.parent.command_line)) == downcase!(string!(.process.parent.executable)) {
-  if exists(.process.parent.executable) {
+if exists(.process.parent.command_line) && exists(.process.parent.executable) && downcase(to_string(.process.parent.command_line) ?? "") == downcase(to_string(.process.parent.executable) ?? "") {
+  if exists(.process.parent.executable) && .process.parent.executable != null {
     .process.parent.command_line = .process.parent.executable
   }
 }
 if exists(.source.domain) {
-  if exists(.source.domain) {
-    .source.size_in_char = length(string!(.source.domain))
+  if exists(.source.domain) && .source.domain != null {
+    .source.size_in_char = length(to_string(.source.domain) ?? "")
   }
 }
 if exists(.destination.domain) {
-  if exists(.destination.domain) {
-    .destination.size_in_char = length(string!(.destination.domain))
+  if exists(.destination.domain) && .destination.domain != null {
+    .destination.size_in_char = length(to_string(.destination.domain) ?? "")
   }
 }
 if exists(.process.executable) && !exists(.process.name) {
-  if exists(.process.executable) {
-    .process.name = basename!(.process.executable)
+  if exists(.process.executable) && .process.executable != null {
+    .process.name = replace(to_string(.process.executable) ?? "", r'^.*[\\/]', "")
   }
 }
 if exists(.process.executable) && !exists(.process.working_directory) {
-  if exists(.process.executable) {
-    .process.working_directory = dirname!(.process.executable) + "\\"
+  if exists(.process.executable) && .process.executable != null {
+    .process.working_directory = replace(to_string(.process.executable) ?? "", r'[^\\/]*$', "")
   }
 }
 if exists(.process.parent.executable) && !exists(.process.parent.name) {
-  if exists(.process.parent.executable) {
-    .process.parent.name = basename!(.process.parent.executable)
+  if exists(.process.parent.executable) && .process.parent.executable != null {
+    .process.parent.name = replace(to_string(.process.parent.executable) ?? "", r'^.*[\\/]', "")
   }
 }
 if exists(.process.parent.executable) && !exists(.process.parent.working_directory) {
-  if exists(.process.parent.executable) {
-    .process.parent.working_directory = dirname!(.process.parent.executable) + "\\"
+  if exists(.process.parent.executable) && .process.parent.executable != null {
+    .process.parent.working_directory = replace(to_string(.process.parent.executable) ?? "", r'[^\\/]*$', "")
   }
 }
-if .Event.System.Provider == "Microsoft-Windows-PowerShell" {
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-PowerShell" {
   .process.name = "powershell.exe"
 }
-if exists(.Event.EventData.fileLength) && .Event.EventData.fileLength == "18446744073709551615" {
+if is_float(.Event.EventData.fileLength) || (to_string(.Event.EventData.fileLength) ?? "") == "18446744073709551615" {
   .file.size = "-1"
 }
 
 # -----------------------------------------------------------------------------
 # dns_fields
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.QueryName) {
+if exists(.Event.EventData.QueryName) && .Event.EventData.QueryName != null {
   .dns.question.name = .Event.EventData.QueryName
 }
-if exists(.Event.EventData.QueryStatus) {
+if exists(.Event.EventData.QueryStatus) && .Event.EventData.QueryStatus != null {
   .dns.response_code = .Event.EventData.QueryStatus
 }
 if exists(.Event.EventData.QueryName) {
@@ -2075,63 +2411,71 @@ if exists(.Event.EventData.QueryResults) {
   .dns.type = "answer"
 }
 if exists(.dns.question.name) {
-  if exists(.dns.question.name) {
-    .dns.size_in_char = length(string!(.dns.question.name))
+  if exists(.dns.question.name) && .dns.question.name != null {
+    .dns.size_in_char = length(to_string(.dns.question.name) ?? "")
   }
 }
 
 # -----------------------------------------------------------------------------
 # registry
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.Details) {
-  .registry.value = .Event.EventData.Details
+if exists(.Event.EventData.Details) && .Event.EventData.Details != null {
+  .registry.data.strings = [to_string(.Event.EventData.Details) ?? ""]
 }
 if exists(.Event.EventData.TargetObject) {
-  if exists(.Event.EventData.TargetObject) {
+  if exists(.Event.EventData.TargetObject) && .Event.EventData.TargetObject != null {
     .registry.path = .Event.EventData.TargetObject
   }
-  if exists(.Event.EventData.TargetObject) {
+  if exists(.Event.EventData.TargetObject) && .Event.EventData.TargetObject != null {
     .registry.hive = split!(.Event.EventData.TargetObject, "\\")[0]
   }
-  if exists(.Event.EventData.TargetObject) {
+  if exists(.Event.EventData.TargetObject) && .Event.EventData.TargetObject != null {
     .registry.key = join!(slice!(split!(.Event.EventData.TargetObject, "\\"), 1, -1), "\\")
   }
-  if exists(.Event.EventData.TargetObject) {
+  if exists(.Event.EventData.TargetObject) && .Event.EventData.TargetObject != null {
     .registry.value = split!(.Event.EventData.TargetObject, "\\")[-1]
   }
 }
 if exists(.Event.EventData.Details) && starts_with(to_string!(.Event.EventData.Details), "\"") {
   .registry.data.type = "STRING"
-  if exists(.Event.EventData.Details) {
-    .registry.data.strings = [string!(.Event.EventData.Details)]
+  if exists(.Event.EventData.Details) && .Event.EventData.Details != null {
+    .registry.data.strings = [replace(to_string(.Event.EventData.Details) ?? "", r'^"|"$', "")]
   }
 }
 if exists(.Event.EventData.Details) && ends_with(to_string!(.Event.EventData.Details), ")") {
-  if exists(.Event.EventData.Details) {
+  if exists(.Event.EventData.Details) && .Event.EventData.Details != null {
     .registry.data.type = split!(to_string!(.Event.EventData.Details), " ")[0]
   }
 }
 if exists(.registry.data.type) {
-  .registry.data.type = get(value: {
+  translated = get(value: {
     "DWORD": "REG_DWORD",
     "STRING": "REG_SZ",
-  }, path: [to_string!(.registry.data.type)]) ?? "REG_NONE"
+  }, path: [to_string!(.registry.data.type)]) ?? null
+  if translated != null {
+    .registry.data.type = translated
+  } else {
+    .registry.data.type = "REG_NONE"
+  }
 }
 
 # -----------------------------------------------------------------------------
 # set_url
 # -----------------------------------------------------------------------------
+if exists(.url.original) {
+  .parse_url = parse_url(to_string(.url.original) ?? "") ?? {}
+}
 if exists(.url.original) && starts_with(to_string!(.url.original), "http") {
-  if exists(.url.original) {
+  if exists(.url.original) && .url.original != null {
     .url.full = .url.original
   }
-  if exists(.parse_url.domain) {
-    .url.domain = .parse_url.domain
+  if exists(.parse_url.host) && .parse_url.host != null {
+    .url.domain = .parse_url.host
   }
-  if exists(.parse_url.scheme) {
+  if exists(.parse_url.scheme) && .parse_url.scheme != null {
     .url.scheme = .parse_url.scheme
   }
-  if exists(.parse_url.path) {
+  if exists(.parse_url.path) && .parse_url.path != null {
     .url.path = .parse_url.path
   }
 }
@@ -2139,10 +2483,10 @@ if exists(.url.original) && starts_with(to_string!(.url.original), "http") {
 # -----------------------------------------------------------------------------
 # network_type
 # -----------------------------------------------------------------------------
-if .Event.EventData.SourceIsIpv6 == "true" {
+if (to_string(.Event.EventData.SourceIsIpv6) ?? "") == "true" {
   .network.type = "ipv6"
 }
-if .Event.EventData.SourceIsIpv6 == "false" {
+if (to_string(.Event.EventData.SourceIsIpv6) ?? "") == "false" {
   .network.type = "ipv4"
 }
 
@@ -2150,42 +2494,42 @@ if .Event.EventData.SourceIsIpv6 == "false" {
 # hashes
 # -----------------------------------------------------------------------------
 if !includes([7, 15, 23, 24, 26], .event.id) {
-  if exists(.parsed_hashes_kv.IMPHASH) {
+  if exists(.parsed_hashes_kv.IMPHASH) && .parsed_hashes_kv.IMPHASH != null {
     .process.pe.imphash = .parsed_hashes_kv.IMPHASH
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) && !exists(.process.pe.imphash) {
-  if exists(.parsed_hashes_kv_2.IMPHASH) {
+  if exists(.parsed_hashes_kv_2.IMPHASH) && .parsed_hashes_kv_2.IMPHASH != null {
     .process.pe.imphash = .parsed_hashes_kv_2.IMPHASH
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) {
-  if exists(.parsed_hashes_kv.SHA1) {
+  if exists(.parsed_hashes_kv.SHA1) && .parsed_hashes_kv.SHA1 != null {
     .process.hash.sha1 = .parsed_hashes_kv.SHA1
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) && !exists(.process.hash.sha1) {
-  if exists(.parsed_hashes_kv_2.SHA1) {
+  if exists(.parsed_hashes_kv_2.SHA1) && .parsed_hashes_kv_2.SHA1 != null {
     .process.hash.sha1 = .parsed_hashes_kv_2.SHA1
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) {
-  if exists(.parsed_hashes_kv.MD5) {
+  if exists(.parsed_hashes_kv.MD5) && .parsed_hashes_kv.MD5 != null {
     .process.hash.md5 = .parsed_hashes_kv.MD5
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) && !exists(.process.hash.md5) {
-  if exists(.parsed_hashes_kv_2.MD5) {
+  if exists(.parsed_hashes_kv_2.MD5) && .parsed_hashes_kv_2.MD5 != null {
     .process.hash.md5 = .parsed_hashes_kv_2.MD5
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) {
-  if exists(.parsed_hashes_kv.SHA256) {
+  if exists(.parsed_hashes_kv.SHA256) && .parsed_hashes_kv.SHA256 != null {
     .process.hash.sha256 = .parsed_hashes_kv.SHA256
   }
 }
 if !includes([7, 15, 23, 24, 26], .event.id) && !exists(.process.hash.sha256) {
-  if exists(.parsed_hashes_kv_2.SHA256) {
+  if exists(.parsed_hashes_kv_2.SHA256) && .parsed_hashes_kv_2.SHA256 != null {
     .process.hash.sha256 = .parsed_hashes_kv_2.SHA256
   }
 }
@@ -2193,69 +2537,222 @@ if !includes([7, 15, 23, 24, 26], .event.id) && !exists(.process.hash.sha256) {
 # -----------------------------------------------------------------------------
 # process_ids
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.ProcessID) {
+if exists(.Event.EventData.ProcessID) && .Event.EventData.ProcessID != null {
   .process.pid = .Event.EventData.ProcessID
 }
-if .Event.System.Provider == "Microsoft-Windows-Sysmon" && includes([1,2,3,5,7,9,11,12,13,14,15,17,18,22,25,26], .event.id) {
-  if exists(.Event.EventData.ProcessId) {
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && includes([1,2,3,5,7,9,11,12,13,14,15,17,18,22,25,26], .event.id) {
+  if exists(.Event.EventData.ProcessId) && .Event.EventData.ProcessId != null {
     .process.pid = .Event.EventData.ProcessId
   }
 }
-if .Event.System.Provider == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id) {
-  if exists(.Event.EventData.SourceProcessId) {
+if .Event.System.Provider."#attributes".Name == "Microsoft-Windows-Sysmon" && includes([8, 10], .event.id) {
+  if exists(.Event.EventData.SourceProcessId) && .Event.EventData.SourceProcessId != null {
     .process.pid = .Event.EventData.SourceProcessId
   }
 }
+if .event.provider == "Microsoft-Windows-Security-Auditing" && includes([4688, 4689], .event.id) && starts_with(to_string(.Event.EventData.NewProcessId) ?? "", "0x") {
+  if exists(.Event.EventData.NewProcessId) && .Event.EventData.NewProcessId != null {
+    .process.pid = parse_int!(.Event.EventData.NewProcessId)
+  }
+  if exists(.Event.EventData.ProcessId) && .Event.EventData.ProcessId != null {
+    .process.parent.pid = parse_int!(.Event.EventData.ProcessId)
+  }
+}
+if .event.provider == "Microsoft-Windows-Security-Auditing" && !includes([4688, 4689], .event.id) && !exists(.process.pid) && starts_with(to_string(.Event.EventData.ProcessId) ?? "", "0x") {
+  if exists(.Event.EventData.ProcessId) && .Event.EventData.ProcessId != null {
+    .process.pid = parse_int!(.Event.EventData.ProcessId)
+  }
+}
 if exists(.process.pid) {
-  if exists(.process.pid) {
+  if exists(.process.pid) && .process.pid != null {
     .process.id = .process.pid
   }
 }
-if exists(.Event.EventData.ThreadID) {
+if exists(.Event.EventData.ThreadID) && .Event.EventData.ThreadID != null {
   .process.thread.id = .Event.EventData.ThreadID
 }
 
 # -----------------------------------------------------------------------------
 # set_user
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.User) {
-  .user.name = .Event.EventData.User
-}
-if !exists(.user.name) {
-  if exists(.Event.EventData.AccountName) {
-    .user.name = .Event.EventData.AccountName
+if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational" && .event.id == 1149 {
+  if exists(.action.properties.Param1) && .action.properties.Param1 != null {
+    .user.name = .action.properties.Param1
+  }
+  if exists(.action.properties.Param2) && .action.properties.Param2 != null {
+    .user.domain = .action.properties.Param2
   }
 }
 if !exists(.user.name) {
-  if exists(.Event.EventData.Requester) {
-    .user.name = .Event.EventData.Requester
+  user_candidates = compact([
+  .action.properties.User,
+  .action.properties.AccountName,
+  .action.properties.Requester,
+  .action.properties.UserName,
+  .action.properties.Username,
+  .action.properties.PrincipalSamName
+])
+user_candidates = filter(user_candidates) -> |_i, v| { is_string(v) && v != "-" && v != "NULL" }
+if length(user_candidates) > 0 {
+  .user.name = user_candidates[0]
+}
+}
+if exists(.user.name) && !exists(.user.id) && starts_with(to_string(.user.name) ?? "", "S-1-") {
+  if exists(.user.name) && .user.name != null {
+    .user.id = .user.name
   }
 }
-if exists(.user.name) && contains(to_string!(.user.name), "\\") {
-  if exists(.user.name) {
+if exists(.user.name) && starts_with(to_string(.user.name) ?? "", "S-1-") {
+  del(.user.name)
+}
+if exists(.user.name) && contains(to_string(.user.name) ?? "", "\\") {
+  if exists(.user.name) && .user.name != null {
     .user.domain = split!(.user.name, "\\")[0]
   }
-  if exists(.user.name) {
+  if exists(.user.name) && .user.name != null {
     .user.name = split!(.user.name, "\\")[1]
   }
 }
 if exists(.user.name) && !exists(.user.domain) {
-  if exists(.Event.EventData.Domain) {
+  if exists(.Event.EventData.Domain) && .Event.EventData.Domain != null {
     .user.domain = .Event.EventData.Domain
   }
 }
 if exists(.user.name) && !exists(.user.domain) {
-  if exists(.Event.System.Computer) {
+  if exists(.Event.System.Computer) && .Event.System.Computer != null {
     .user.domain = .Event.System.Computer
   }
 }
 if !exists(.user.name) {
-  if exists(.Event.EventData.SubjectUserName) {
-    .user.name = .Event.EventData.SubjectUserName
+  if exists(.action.properties.SubjectUserName) && .action.properties.SubjectUserName != null {
+    .user.name = .action.properties.SubjectUserName
   }
-  if exists(.Event.EventData.SubjectDomainName) {
-    .user.domain = .Event.EventData.SubjectDomainName
+  if exists(.action.properties.SubjectDomainName) && .action.properties.SubjectDomainName != null {
+    .user.domain = .action.properties.SubjectDomainName
   }
+}
+if !exists(.user.id) {
+  if exists(.action.properties.SubjectUserSid) && .action.properties.SubjectUserSid != null {
+    .user.id = .action.properties.SubjectUserSid
+  }
+}
+if !exists(.user.id) {
+  if exists(.action.properties.UserSid) && .action.properties.UserSid != null {
+    .user.id = .action.properties.UserSid
+  }
+}
+if !exists(.user.id) {
+  if exists(.action.properties.SID) && .action.properties.SID != null {
+    .user.id = .action.properties.SID
+  }
+}
+if !exists(.user.id) && !exists(.user.name) {
+  if exists(.Event.System.Security."#attributes".UserID) && .Event.System.Security."#attributes".UserID != null {
+    .user.id = .Event.System.Security."#attributes".UserID
+  }
+}
+
+# -----------------------------------------------------------------------------
+# set_source_fields
+# -----------------------------------------------------------------------------
+if !exists(.source.ip) {
+  ip_candidates = [
+  .Event.EventData.IpAddress,
+  .Event.EventData.SourceIp,
+  .Event.EventData.SourceAddress,
+  .Event.EventData.SourceAddr,
+  .Event.EventData.SourceNetworkAddress,
+  .Event.EventData.NetworkAddress,
+  .Event.EventData.ClientAddress,
+  .Event.EventData.ClientIP,
+  .action.properties.Address
+]
+if .action.type == "Microsoft-Windows-TerminalServices-RemoteConnectionManager/Operational" && .event.id == 1149 {
+  ip_candidates = push(ip_candidates, .action.properties.Param3)
+}
+ips = []
+for_each(ip_candidates) -> |_i, v| {
+  ip = replace(to_string(v) ?? "", r'^::ffff:', "")
+  # "1.2.3.4:3389" / "[::1]:3389"
+  ip_port = parse_regex(ip, r'^\[?(?P<ip>[0-9a-fA-F:.]+?)\]?:(?P<port>\d+)$') ?? {}
+  if !is_ipv6(ip) && exists(ip_port.ip) {
+    ip = string!(ip_port.ip)
+    if !exists(.source.port) { .source.port = ip_port.port }
+  }
+  if is_ipv4(ip) || is_ipv6(ip) {
+    ips = push(ips, ip)
+  }
+}
+if length(ips) > 0 {
+  .source.ip = ips[0]
+  .source.address = ips[0]
+}
+}
+if !exists(.source.port) && exists(.source.ip) && !includes(["-", "0"], .Event.EventData.IpPort) {
+  if exists(.Event.EventData.IpPort) && .Event.EventData.IpPort != null {
+    .source.port = .Event.EventData.IpPort
+  }
+}
+if !exists(.source.domain) && !includes(["-", ""], .Event.EventData.WorkstationName) {
+  if exists(.Event.EventData.WorkstationName) && .Event.EventData.WorkstationName != null {
+    .source.domain = .Event.EventData.WorkstationName
+  }
+}
+if !exists(.source.address) && exists(.source.domain) {
+  if exists(.source.domain) && .source.domain != null {
+    .source.address = .source.domain
+  }
+}
+
+# -----------------------------------------------------------------------------
+# set_network_policy_fields
+# -----------------------------------------------------------------------------
+if is_ipv4(to_string(.Event.EventData.CallingStationID) ?? "") || is_ipv6(to_string(.Event.EventData.CallingStationID) ?? "") {
+  if exists(.Event.EventData.CallingStationID) && .Event.EventData.CallingStationID != null {
+    .source.ip = .Event.EventData.CallingStationID
+  }
+}
+if !exists(.source.ip) && .Event.EventData.CallingStationID != "-" {
+  if exists(.Event.EventData.CallingStationID) && .Event.EventData.CallingStationID != null {
+    .source.mac = .Event.EventData.CallingStationID
+  }
+}
+if is_ipv4(to_string(.Event.EventData.AuthenticationServer) ?? "") || is_ipv6(to_string(.Event.EventData.AuthenticationServer) ?? "") {
+  if exists(.Event.EventData.AuthenticationServer) && .Event.EventData.AuthenticationServer != null {
+    .destination.ip = .Event.EventData.AuthenticationServer
+  }
+}
+if !exists(.destination.ip) && .Event.EventData.AuthenticationServer != "-" {
+  if exists(.Event.EventData.AuthenticationServer) && .Event.EventData.AuthenticationServer != null {
+    .destination.domain = .Event.EventData.AuthenticationServer
+  }
+}
+
+# -----------------------------------------------------------------------------
+# action_outcome
+# -----------------------------------------------------------------------------
+if .Event.System.Keywords == "0x8020000000000000" {
+  .action.outcome = "success"
+}
+if .Event.System.Keywords == "0x8010000000000000" {
+  .action.outcome = "failure"
+}
+
+# -----------------------------------------------------------------------------
+# event_outcome
+# -----------------------------------------------------------------------------
+if .event.code == 4624 {
+  .event.outcome = "success"
+}
+if .event.code == 4625 {
+  .event.outcome = "failure"
+}
+
+# -----------------------------------------------------------------------------
+# rule
+# -----------------------------------------------------------------------------
+if exists(.Event.EventData.RuleName) && .Event.EventData.RuleName != null {
+  .rule.name = .Event.EventData.RuleName
 }
 
 # -----------------------------------------------------------------------------
@@ -2271,40 +2768,40 @@ if exists(.registry) && exists(.action) {
 # -----------------------------------------------------------------------------
 # set_destination
 # -----------------------------------------------------------------------------
-if exists(.Event.EventData.DestinationIp) {
+if exists(.Event.EventData.DestinationIp) && .Event.EventData.DestinationIp != null {
   .destination.ip = .Event.EventData.DestinationIp
 }
 if !exists(.destination.ip) {
-  if exists(.Event.EventData.DestAddress) {
+  if exists(.Event.EventData.DestAddress) && .Event.EventData.DestAddress != null {
     .destination.ip = .Event.EventData.DestAddress
   }
 }
-if exists(.Event.EventData.DestinationPort) {
+if exists(.Event.EventData.DestinationPort) && .Event.EventData.DestinationPort != null {
   .destination.port = .Event.EventData.DestinationPort
 }
 if !exists(.destination.port) {
-  if exists(.Event.EventData.DestPort) {
+  if exists(.Event.EventData.DestPort) && .Event.EventData.DestPort != null {
     .destination.port = .Event.EventData.DestPort
   }
 }
-if exists(.Event.EventData.DestinationHostname) {
+if exists(.Event.EventData.DestinationHostname) && .Event.EventData.DestinationHostname != null {
   .destination.domain = .Event.EventData.DestinationHostname
 }
 if exists(.url.domain) && !exists(.destination.domain) {
-  if exists(.url.domain) {
+  if exists(.url.domain) && .url.domain != null {
     .destination.domain = .url.domain
   }
 }
-if exists(.Event.EventData.DestinationAddress) {
+if exists(.Event.EventData.DestinationAddress) && .Event.EventData.DestinationAddress != null {
   .destination.address = .Event.EventData.DestinationAddress
 }
 if !exists(.destination.address) {
-  if exists(.Event.EventData.DestAddress) {
+  if exists(.Event.EventData.DestAddress) && .Event.EventData.DestAddress != null {
     .destination.address = .Event.EventData.DestAddress
   }
 }
 if exists(.url.domain) && !exists(.destination.address) {
-  if exists(.url.domain) {
+  if exists(.url.domain) && .url.domain != null {
     .destination.address = .url.domain
   }
 }
@@ -2313,6 +2810,9 @@ if exists(.url.domain) && !exists(.destination.address) {
 # del_event
 # -----------------------------------------------------------------------------
 del(.Event)
+del(.parsed_hashes_kv)
+del(.parsed_hashes_kv_2)
+del(.parse_url)
 
 # -----------------------------------------------------------------------------
 # descriptions
@@ -2432,6 +2932,32 @@ if .action.id == 4825 && .event.provider == "Microsoft-Windows-Security-Auditing
   .message = "Authenticated user " + to_string!(.user.name) + " was denied the access to Remote Desktop to " + to_string!(.host.name) + " from IP " + to_string!(.action.properties.ClientAddress)
   if !is_array(.relationships) { .relationships = [] }
   .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.host.name), "type": "was denied RDP access to"})
+}
+if .action.id == 1149 && .event.provider == "Microsoft-Windows-TerminalServices-RemoteConnectionManager" && exists(.user.domain) && exists(.user.name) && exists(.host.name) && exists(.source.ip) {
+  .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " successfully authenticated over RDP to " + to_string!(.host.name) + " from IP " + to_string!(.source.ip)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.host.name), "type": "authenticated over RDP to"})
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.source.ip), "type": "connected from"})
+}
+if .action.id == 21 && .event.provider == "Microsoft-Windows-TerminalServices-LocalSessionManager" && exists(.user.domain) && exists(.user.name) && exists(.action.properties.SessionID) && exists(.host.name) && exists(.action.properties.Address) {
+  .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " opened session " + to_string!(.action.properties.SessionID) + " on " + to_string!(.host.name) + " (source: " + to_string!(.action.properties.Address) + ")"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.host.name), "type": "logged on to"})
+}
+if .action.id == 22 && .event.provider == "Microsoft-Windows-TerminalServices-LocalSessionManager" && exists(.user.domain) && exists(.user.name) && exists(.action.properties.SessionID) && exists(.host.name) {
+  .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " session " + to_string!(.action.properties.SessionID) + " shell started on " + to_string!(.host.name)
+}
+if .action.id == 23 && .event.provider == "Microsoft-Windows-TerminalServices-LocalSessionManager" && exists(.user.domain) && exists(.user.name) && exists(.action.properties.SessionID) && exists(.host.name) {
+  .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " logged off session " + to_string!(.action.properties.SessionID) + " on " + to_string!(.host.name)
+}
+if .action.id == 24 && .event.provider == "Microsoft-Windows-TerminalServices-LocalSessionManager" && exists(.user.domain) && exists(.user.name) && exists(.action.properties.SessionID) && exists(.host.name) && exists(.action.properties.Address) {
+  .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " disconnected from session " + to_string!(.action.properties.SessionID) + " on " + to_string!(.host.name) + " (source: " + to_string!(.action.properties.Address) + ")"
+}
+if .action.id == 25 && .event.provider == "Microsoft-Windows-TerminalServices-LocalSessionManager" && exists(.user.domain) && exists(.user.name) && exists(.action.properties.SessionID) && exists(.host.name) && exists(.action.properties.Address) {
+  .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " reconnected to session " + to_string!(.action.properties.SessionID) + " on " + to_string!(.host.name) + " (source: " + to_string!(.action.properties.Address) + ")"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.host.name), "type": "logged on to"})
 }
 if .action.id == 5145 && .event.provider == "Microsoft-Windows-Security-Auditing" && exists(.user.domain) && exists(.user.name) && exists(.action.properties.ShareName) && exists(.action.properties.RelativeTargetName) && exists(.source.ip) {
   .message = to_string!(.user.domain) + "\\" + to_string!(.user.name) + " was granted access to " + to_string!(.action.properties.ShareName) + "\\" + to_string!(.action.properties.RelativeTargetName) + " from IP " + to_string!(.source.ip)
