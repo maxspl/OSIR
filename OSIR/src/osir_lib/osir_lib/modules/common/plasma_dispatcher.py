@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import time
 from pathlib import Path
 
 from osir_lib.core.OsirDecorator import osir_internal_module
@@ -106,6 +108,16 @@ class PlasmaDispatcher():
         records = 0
         errors = 0
 
+        previous_tz = os.environ.get("TZ")
+        os.environ["TZ"] = "UTC"
+        time.tzset()
+        try:
+            import datetime as _dt
+            import systemd.journal as _sd_journal
+            _sd_journal._LOCAL_TIMEZONE = _dt.timezone.utc
+        except ImportError:
+            pass
+
         try:
             with open(out_path, "w", encoding="utf-8") as fh:
                 for artifact in dissector.select(target):
@@ -138,6 +150,12 @@ class PlasmaDispatcher():
         except Exception as exc:
             logger.error(f"Failed to write JSONL '{out_path}': {exc}")
             return False
+        finally:
+            if previous_tz is None:
+                os.environ.pop("TZ", None)
+            else:
+                os.environ["TZ"] = previous_tz
+            time.tzset()
 
         logger.debug(
             f"{dissector_slug} done: artifacts={selected} skipped={skipped} "
