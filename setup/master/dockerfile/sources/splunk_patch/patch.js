@@ -465,6 +465,10 @@ $(document).ready(function() {
     // Init
     setupLookupObserver();
     badgeMatchingRows();
+    // The events viewer renders the "Show as raw text" anchor after the row itself: a row processed
+    // too early gets no button and no further mutation retries it. Rescan periodically (processed
+    // rows are skipped, so this is cheap).
+    setInterval(badgeMatchingRows, 1500);
 
     setupSlider();
     setupSwitch();
