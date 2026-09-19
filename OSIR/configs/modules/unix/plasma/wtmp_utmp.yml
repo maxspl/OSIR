@@ -33,6 +33,8 @@ optional:
   dissector: linux_wtmp_utmp
   exclude_paths:
     - r"wtmp\.db$"
+  include_paths:
+    - r"/(wtmp|btmp|utmp)([.-][0-9]+)?$"
 
 splunk:
   'linux:wtmp_utmp':
