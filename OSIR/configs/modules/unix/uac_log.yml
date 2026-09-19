@@ -1,0 +1,40 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parse the UAC acquisition log (uac-*.log) and execution log (uac.log)
+  os: unix
+
+configuration:
+  module: uac_log
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: python
+  cmd: /OSIR/OSIR/bin/uac_log.py --input-dir {input_dir} --output-dir {output_dir}
+  source:
+  version: 2026.09.19
+
+input:
+  type: dir
+  paths:
+    - extract_uac/*
+
+output:
+  type: multiple_files
+  format: raw
+
+splunk:
+  'uac:log':
+    name_rex: \.jsonl$
+    path_suffix: uac_log
+    sourcetype: 'uac:log'
+    host_rex: ([\w\.-]+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "uac_log"
