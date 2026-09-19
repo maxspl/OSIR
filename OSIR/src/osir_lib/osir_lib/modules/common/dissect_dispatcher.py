@@ -99,15 +99,25 @@ class DissectDispatcher():
         #     logger.error(f"Failed to prepare output path: {e}")
         #     return False
         
+        excluded = set()
+        if isinstance(self.module.optional, dict):
+            excluded = set(self.module.optional.get("exclude_descriptors") or [])
+        dropped = 0
+
         # Write output file
         try:
             logger.debug(f"Writing dissect output to: {out_path}")
             with open(out_path, "w", encoding="utf-8") as fh:
                 for obj in iterator:
+                    if excluded and getattr(getattr(obj, "_desc", None), "name", None) in excluded:
+                        dropped += 1
+                        continue
                     line = packer.pack(obj) 
                     fh.write(line + "\n")
         except Exception as e:
             logger.error(f"Failed to write JSONL '{out_path}': {e}")
             return False
 
+        if dropped:
+            logger.debug(f"'{plugin_name}': {dropped} records dropped by exclude_descriptors {sorted(excluded)}")
         return True
