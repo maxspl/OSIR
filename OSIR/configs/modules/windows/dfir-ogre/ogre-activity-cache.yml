@@ -34,7 +34,7 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}--{user_name}-{module}-"
+  output_prefix: "{endpoint_name}--{user_name}--{module}-"
 
 endpoint: 
   patterns:
@@ -55,5 +55,6 @@ splunk:
     host_rex: ([\w\.-]+?)--
     artifact: "Activity Cache"
     timestamp_path:
-      - "timestamp" 
+      - "start_time"
+      - "last_modified_time" 
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
