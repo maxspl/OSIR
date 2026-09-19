@@ -1,0 +1,40 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parse the DFIR ORC execution log (DFIR-ORC_*.log) for run parameters, archives, commands and their outcome
+  os: windows
+
+configuration:
+  module: orc_log
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: python
+  cmd: /OSIR/OSIR/bin/orc_log.py --input-dir {input_dir} --output-dir {output_dir}
+  source:
+  version: 2026.09.19
+
+input:
+  type: dir
+  paths:
+    - extract_orc/*
+
+output:
+  type: multiple_files
+  format: raw
+
+splunk:
+  'orc:log':
+    name_rex: \.jsonl$
+    path_suffix: orc_log
+    sourcetype: 'orc:log'
+    host_rex: orc_log_(.+)_\d{8}_\d{6}\.jsonl$
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "orc_log"
