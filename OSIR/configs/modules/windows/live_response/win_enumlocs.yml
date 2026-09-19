@@ -32,3 +32,17 @@ endpoint:
 
 optional:
   parser: enumlocs
+
+splunk:
+  'windows:live_response:enumlocs':
+    name_rex: --win_enumlocs\.jsonl$
+    path_suffix: win_enumlocs
+    host_rex: ([\w\.-]+)--
+    timestamp_path:
+      - "event.start"
+      - "host.Ext.enumlocs.start_time"
+      - "host.Ext.enumlocs.start_time_raw"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "ENUMLOCS"
+    normalize:
+      - ecs_normalize/windows/live_response/enumlocs.vrl
