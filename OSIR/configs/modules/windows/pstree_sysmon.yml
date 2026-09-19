@@ -1,7 +1,7 @@
 metadata:
   version: "2.0"
   author: maxspl
-  description: Parse output of EVTX module to build process tree from security.evtx - event ID 1
+  description: Parse output of EVTX module to build process tree from the Sysmon operational channel - event ID 1
   os: windows
 
 configuration:
@@ -21,7 +21,7 @@ tool:
 
 input:
   type: file
-  name: -Security\.evtx.*?\.jsonl$
+  name: Sysmon.*\.evtx.*?\.jsonl$
   path: evtx/
 
 output:
