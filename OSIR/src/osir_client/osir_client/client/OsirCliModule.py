@@ -36,9 +36,9 @@ class OsirCliModule(BaseModel):
         )
         return response.response
 
-    def list(self, print: bool = True) -> dict:
+    def list(self, print: bool = True) -> list[str]:
         """
-        Retrieve all available modules.
+        Retrieve all available modules as paths relative to the modules directory.
         GET /api/module
         """
         response: GetModuleListResponse = self._api.get(

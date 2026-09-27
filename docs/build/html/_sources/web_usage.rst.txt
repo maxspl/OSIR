@@ -1,12 +1,7 @@
+:orphan:
+
 Web Usage
 =============================
-
-.. contents:: Table of Contents
-   :depth: 2
-   :local:
-   :backlinks: none
-
-----
 
 Orchestrator Actions
 --------------------
@@ -36,7 +31,7 @@ A handler is defined by the OsirDbHandlerModel class in the osir_service/postgre
 File Orchestration
 ^^^^^^^^^^^^^^^^^^
 
-The File Orchestration module provides a file explorer interface for executing modules on specific files or folders. Each execution create only a task and not a handler.
+The File Orchestration module provides a file explorer interface for executing modules on specific files or folders. Each execution creates only a task and not a handler.
 
 **Available Actions:**
 
@@ -55,9 +50,9 @@ The File Orchestration module provides a file explorer interface for executing m
 - **Search and Navigation** — Search for specific files or directories.
 - **Tree View** — Expand/collapse the directory tree for easy navigation.
 
-**Exemple:**
+**Example:**
 
-Windows & Linux module execution through WebUi : 
+Windows & Linux module execution through WebUi :
 
 .. video:: _img/file_orchestration.webm
    :alt: File Orchestration demo
@@ -81,7 +76,6 @@ The Helper module provides auxiliary functions for viewing configuration details
 .. image:: _img/helper.png
    :alt: Helper 
 
-----
 
 Status Monitoring Actions
 --------------------------
@@ -146,5 +140,5 @@ The Flower Monitoring module provides monitoring of Celery workers and tasks.
 - **Task Details** — View detailed task information through the Flower web interface.
 - **Worker Management** — Monitor worker health and availability.
 
-.. image:: _img/flower_monitoring.gif
+.. image:: _img/flower_monitoring.png
    :alt: Flower Monitoring

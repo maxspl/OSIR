@@ -5,8 +5,6 @@ from rich import box
 from typing import Optional
 from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 
-from osir_api.api.model.OsirApiModuleModel import OsirModuleGroupModel
-
 console = Console()
 
 STATUS_COLORS = {
@@ -194,9 +192,10 @@ class OsirCliDisplay:
         console.print(table)
 
     @staticmethod
-    def modules(tree: "OsirModuleGroupModel", title: str = "Modules") -> None:
-        """Renders a module tree node recursively. Generic: the category
-        column is the directory path, whatever the tree looks like."""
+    def modules(modules: list[str], title: str = "Modules") -> None:
+        """Render the list of available modules returned by GET /api/module.
+        Each entry is a path relative to the modules directory: the category
+        column is the directory path, the module column is the file name."""
         table = Table(
             title=f"🧩 {title}",
             box=box.ROUNDED,
@@ -206,13 +205,15 @@ class OsirCliDisplay:
         table.add_column("Category", style="bold cyan", no_wrap=True)
         table.add_column("Module", style="white")
 
-        def _walk(group: "OsirModuleGroupModel", prefix: str) -> None:
-            for module in group.modules:
-                table.add_row(prefix or "—", module)
-            for name in sorted(group.groups):
-                _walk(group.groups[name], f"{prefix} / {name}" if prefix else name)
+        grouped: dict[str, list[str]] = {}
+        for module in modules:
+            category, _, name = module.replace("\\", "/").rpartition("/")
+            grouped.setdefault(category, []).append(name)
 
-        _walk(tree, "")
+        for category in sorted(grouped):
+            for name in sorted(grouped[category]):
+                table.add_row(category or "—", name)
+
         console.print(table)
 
 

@@ -447,22 +447,23 @@ class OsirDbTask:
     ) -> tuple[List[OsirDbTaskModel], int]:
         """
         When handler_id is provided, returns only tasks from that specific handler.
-            Args:
-                case_uuid (str or List[str], optional): Filter tasks by a specific case UUID or list of UUIDs.
-                    If None, returns tasks from all cases.
-                handler_id (str, optional): Filter tasks by a specific handler ID.
-                processing_status (Union[str, List[str]], optional): Include only tasks with these statuses.
-                exclude_status (Union[str, List[str]], optional): Exclude tasks with these statuses.
-                input_filter (str, optional): Filter tasks by input path (LIKE pattern).
-                page (int): Page number for pagination (1-indexed).
-                module (str, optional): Filter tasks by module name.
-                page_size (int): Number of items per page.
 
-            Returns:
-                tuple: (list of tasks, total count) - A list of dictionaries, each representing a task,
-                       and the total count of tasks matching the filters (for pagination).
+        Args:
+            case_uuid (str or List[str], optional): Filter tasks by a specific case UUID or list of UUIDs.
+                If None, returns tasks from all cases.
+            handler_id (str, optional): Filter tasks by a specific handler ID.
+            processing_status (Union[str, List[str]], optional): Include only tasks with these statuses.
+            exclude_status (Union[str, List[str]], optional): Exclude tasks with these statuses.
+            input_filter (str, optional): Filter tasks by input path (LIKE pattern).
+            page (int): Page number for pagination (1-indexed).
+            module (str, optional): Filter tasks by module name.
+            page_size (int): Number of items per page.
 
-            Raises:
+        Returns:
+            tuple: (list of tasks, total count) - A list of dictionaries, each representing a task,
+                   and the total count of tasks matching the filters (for pagination).
+
+        Raises:
                 Exception: If the database query fails.
         """
         try:
@@ -690,16 +691,18 @@ class OsirDbTask:
 
     def stats(self, handler_id: Optional[str] = None, case_uuid: Optional[str] = None) -> dict:
         """
-            Aggregated task statistics for a handler or a whole case, computed
-            in SQL on the effective (celery-joined) statuses.
+        Aggregated task statistics for a handler or a whole case, computed
+        in SQL on the effective (celery-joined) statuses.
 
-            Args:
-                handler_id (str, optional): Scope to a single handler.
-                case_uuid (str, optional): Scope to a whole case (used when
-                    handler_id is not provided).
+        Args:
+            handler_id (str, optional): Scope to a single handler.
+            case_uuid (str, optional): Scope to a whole case (used when
+                handler_id is not provided).
 
-            Returns:
-                dict: {
+        Returns:
+            dict with the following keys::
+
+                {
                     total, by_status {status: count},
                     by_module {module: {status: count, total}},
                     done_last_min, failed_last_min,

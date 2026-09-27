@@ -28,7 +28,7 @@ class WmiEventConsumerParser:
             text: Raw text obtained from a command such as Get-WmiObject -Namespace root\\Subscription -Class __EventConsumer 
 
         Returns:
-            A JSONL string where each line is a record like:
+            A JSONL string where each line is a record like::
 
                 {
                     "type": "wmi_eventconsumer",

@@ -70,16 +70,16 @@ class ArpCacheParser:
 
         Returns:
             A JSONL string where each line is a JSON object describing a single entry.
-            Example object:
+            Example object::
 
-            {
-                "type": "arp_entry",
-                "interface_ip": "192.168.1.10",
-                "interface_index": "0x12",
-                "ip_address": "192.168.1.1",
-                "mac_address": "11-22-33-44-55-66",
-                "entry_type": "dynamic"
-            }
+                {
+                    "type": "arp_entry",
+                    "interface_ip": "192.168.1.10",
+                    "interface_index": "0x12",
+                    "ip_address": "192.168.1.1",
+                    "mac_address": "11-22-33-44-55-66",
+                    "entry_type": "dynamic"
+                }
         """
         records: List[Dict[str, Any]] = []
         current_iface_ip = None

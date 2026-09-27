@@ -16,7 +16,8 @@ class DissectDispatcher():
     The plugin to run is taken from:
     - module.optional.plugin (preferred)
 
-    Example YAML:
+    Example YAML::
+
         module: activites_cache
         alt_module: dissect_dispatcher
         optional:

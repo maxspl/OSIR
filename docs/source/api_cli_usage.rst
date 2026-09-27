@@ -7,13 +7,6 @@ API & Client Usage
 This document provides comprehensive information about the OSIR API endpoints
 and how to use them through the OSIR client.
 
-.. contents:: Table of Contents
-   :depth: 2
-   :local:
-   :backlinks: none
-
-----
-
 API Base URL
 ============
 
@@ -32,7 +25,6 @@ Authentication
 
    The OSIR API currently does not require authentication.
 
-----
 
 OsirClient Class Reference
 ==========================
@@ -53,7 +45,6 @@ Initialization
 
     client._check_version()
 
-----
 
 Command-Line Interface
 ======================
@@ -203,7 +194,6 @@ Related API endpoints:
    GET  /api/case/{case_name}/stats
    POST /api/handler/{handler_id}/stats
 
-----
 
 Complete Workflow Examples
 ==========================
@@ -271,7 +261,6 @@ CLI Workflows
     OsirClient.py profile list
     OsirClient.py profile run -c "orc" -p "DFIR_ORC.yml" -w
 
-----
 
 Advanced Usage
 ==============

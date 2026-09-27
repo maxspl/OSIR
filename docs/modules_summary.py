@@ -3,8 +3,11 @@ import yaml
 import pandas as pd
 from tabulate import tabulate
 
-# Define the directory to scan
-directory_to_scan = "/OSIR/OSIR/configs/modules"
+# Define the directory to scan (relative to this script, i.e. docs/)
+directory_to_scan = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "..", "OSIR", "configs", "modules",
+)
 
 # List to hold the extracted data
 data = []
@@ -58,8 +61,11 @@ df = pd.DataFrame(data, columns=['OS', 'Filename', 'Description', 'Author', 'Ver
 # Sort the DataFrame by OS first and then alphabetically by Filename
 df = df.sort_values(by=['OS', 'Filename'])
 
-# Replace '|' characters with a space in all string entries of the DataFrame
+# Replace '|' characters with a space and escape reST inline markup
+# characters in all string entries of the DataFrame
 df = df.replace(r'\|', ' ', regex=True)
+df = df.replace(r'\*', r'\\\*', regex=True)
+df = df.replace(r'_', r'\\_', regex=True)
 
 
 # Convert the DataFrame to an RST table

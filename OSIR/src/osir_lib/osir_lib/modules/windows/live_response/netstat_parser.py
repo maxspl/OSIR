@@ -19,7 +19,7 @@ class NetstatParser:
 
         Returns:
             A single string containing one JSON object per line (JSONL format),
-            each describing a network connection with fields:
+            each describing a network connection with fields::
 
                 {
                     "type": "netstat_connection",

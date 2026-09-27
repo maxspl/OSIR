@@ -18,7 +18,7 @@ class TcpvconParser:
             text: Raw CSV text as produced by `tcpvcon -c` (header is optional).
 
         Returns:
-            A JSONL string where each line is a JSON object like:
+            A JSONL string where each line is a JSON object like::
 
                 {
                     "type": "tcpvcon_connection",

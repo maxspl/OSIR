@@ -4,6 +4,14 @@ src.osir\_service.osir\_service.watchdog package
 Submodules
 ----------
 
+src.osir\_service.osir\_service.watchdog.HandlerManager module
+--------------------------------------------------------------
+
+.. automodule:: src.osir_service.osir_service.watchdog.HandlerManager
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_service.osir\_service.watchdog.MonitorCase module
 -----------------------------------------------------------
 

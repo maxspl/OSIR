@@ -36,14 +36,6 @@ src.osir\_lib.osir\_lib.core.OsirAgentConfig module
    :show-inheritance:
    :undoc-members:
 
-src.osir\_lib.osir\_lib.core.OsirConnector module
--------------------------------------------------
-
-.. automodule:: src.osir_lib.osir_lib.core.OsirConnector
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 src.osir\_lib.osir\_lib.core.OsirConstants module
 -------------------------------------------------
 

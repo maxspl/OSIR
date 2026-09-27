@@ -44,10 +44,10 @@ src.osir\_service.osir\_service.postgres.OsirDbHandler module
    :show-inheritance:
    :undoc-members:
 
-src.osir\_service.osir\_service.postgres.OsirDbSnapshot module
---------------------------------------------------------------
+src.osir\_service.osir\_service.postgres.OsirDbMetrics module
+-------------------------------------------------------------
 
-.. automodule:: src.osir_service.osir_service.postgres.OsirDbSnapshot
+.. automodule:: src.osir_service.osir_service.postgres.OsirDbMetrics
    :members:
    :show-inheritance:
    :undoc-members:

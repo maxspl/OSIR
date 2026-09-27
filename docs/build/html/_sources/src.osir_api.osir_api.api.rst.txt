@@ -28,6 +28,14 @@ src.osir\_api.osir\_api.api.OsirApiExceptions module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_api.osir\_api.api.OsirApiFiles module
+-----------------------------------------------
+
+.. automodule:: src.osir_api.osir_api.api.OsirApiFiles
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_api.osir\_api.api.OsirApiHandler module
 -------------------------------------------------
 
@@ -48,6 +56,14 @@ src.osir\_api.osir\_api.api.OsirApiModule module
 ------------------------------------------------
 
 .. automodule:: src.osir_api.osir_api.api.OsirApiModule
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+src.osir\_api.osir\_api.api.OsirApiMonitoring module
+----------------------------------------------------
+
+.. automodule:: src.osir_api.osir_api.api.OsirApiMonitoring
    :members:
    :show-inheritance:
    :undoc-members:
@@ -84,10 +100,26 @@ src.osir\_api.osir\_api.api.OsirApiTask module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_api.osir\_api.api.OsirApiTus module
+---------------------------------------------
+
+.. automodule:: src.osir_api.osir_api.api.OsirApiTus
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_api.osir\_api.api.OsirApiVersion module
 -------------------------------------------------
 
 .. automodule:: src.osir_api.osir_api.api.OsirApiVersion
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+src.osir\_api.osir\_api.api.OsirIpcCall module
+----------------------------------------------
+
+.. automodule:: src.osir_api.osir_api.api.OsirIpcCall
    :members:
    :show-inheritance:
    :undoc-members:

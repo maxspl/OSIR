@@ -12,6 +12,14 @@ src.osir\_service.osir\_service.agent.AgentService module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_service.osir\_service.agent.SystemMetricsSampler module
+-----------------------------------------------------------------
+
+.. automodule:: src.osir_service.osir_service.agent.SystemMetricsSampler
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 Module contents
 ---------------
 

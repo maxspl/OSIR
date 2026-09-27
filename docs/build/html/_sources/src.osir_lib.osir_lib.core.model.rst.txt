@@ -12,10 +12,34 @@ src.osir\_lib.osir\_lib.core.model.LiteralModel module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_lib.osir\_lib.core.model.OsirConfigurationModel module
+----------------------------------------------------------------
+
+.. automodule:: src.osir_lib.osir_lib.core.model.OsirConfigurationModel
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+src.osir\_lib.osir\_lib.core.model.OsirEndpointModel module
+-----------------------------------------------------------
+
+.. automodule:: src.osir_lib.osir_lib.core.model.OsirEndpointModel
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_lib.osir\_lib.core.model.OsirInputModel module
 --------------------------------------------------------
 
 .. automodule:: src.osir_lib.osir_lib.core.model.OsirInputModel
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+src.osir\_lib.osir\_lib.core.model.OsirMetadataModel module
+-----------------------------------------------------------
+
+.. automodule:: src.osir_lib.osir_lib.core.model.OsirMetadataModel
    :members:
    :show-inheritance:
    :undoc-members:

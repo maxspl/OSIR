@@ -20,10 +20,10 @@ src.osir\_service.osir\_service.postgres.model.OsirDbHandlerModel module
    :show-inheritance:
    :undoc-members:
 
-src.osir\_service.osir\_service.postgres.model.OsirDbSnapshotModel module
--------------------------------------------------------------------------
+src.osir\_service.osir\_service.postgres.model.OsirDbMetricsModel module
+------------------------------------------------------------------------
 
-.. automodule:: src.osir_service.osir_service.postgres.model.OsirDbSnapshotModel
+.. automodule:: src.osir_service.osir_service.postgres.model.OsirDbMetricsModel
    :members:
    :show-inheritance:
    :undoc-members:

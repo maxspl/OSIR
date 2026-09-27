@@ -22,7 +22,8 @@ class PlasmaDispatcher():
 
     The dissector to run is taken from module.optional.dissector.
 
-    Example YAML:
+    Example YAML::
+
         module: wtmp_utmp
         alt_module: plasma_dispatcher
         optional:
@@ -31,13 +32,14 @@ class PlasmaDispatcher():
                 - r"\\.db$"
 
     Optional keys:
-        dissector (str):      plasma dissector slug (required)
-        exclude_paths (list): regexes; selected artifacts matching any of them
-                              are skipped. Needed because a few plasma selectors
-                              are broader than the format they parse (e.g.
-                              'wtmp*' also matches the unrelated wtmp.db).
-        include_paths (list): regexes; when set, only artifacts matching at
-                              least one of them are kept.
+
+    - ``dissector`` (str): plasma dissector slug (required)
+    - ``exclude_paths`` (list): regexes; selected artifacts matching any of
+      them are skipped. Needed because a few plasma selectors are broader
+      than the format they parse (e.g. ``wtmp*`` also matches the unrelated
+      wtmp.db).
+    - ``include_paths`` (list): regexes; when set, only artifacts matching at
+      least one of them are kept.
     """
 
     def __init__(self, case_path: str, module: OsirModule) -> None:

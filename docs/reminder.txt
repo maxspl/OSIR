@@ -1,6 +1,7 @@
 pip install -r ../requirements.txt
-sphinx-apidoc -o source/ ../OSIR/
+sphinx-apidoc -f -T -o source/ ../OSIR/
 modules_summary.py
+python modules_pages.py
 make clean
 make html
 python -m http.server 8501

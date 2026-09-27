@@ -4,7 +4,7 @@ def singleton(cls):
     Decorator to transform a class into a singleton. Ensures that only one instance of the class exists within the application.
 
     Args:
-        cls (type): The class to be transformed into a singleton.
+        cls: The class to be transformed into a singleton.
 
     Returns:
         function: A wrapper function that manages the instantiation of the singleton class, ensuring only one instance is created.

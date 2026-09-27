@@ -11,7 +11,7 @@ Subpackages
    src.osir_client
    src.osir_lib
    src.osir_service
-   src.osir_web
+   src.osir_vrl
 
 Module contents
 ---------------

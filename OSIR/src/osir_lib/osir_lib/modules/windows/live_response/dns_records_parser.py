@@ -23,7 +23,7 @@ class DnsRecordsParser:
       - Returned as JSONL (newline-separated JSON objects).
       - Fields are stored as raw strings (no type conversion).
 
-    Example output record:
+    Example output record::
 
         {
             "type": "dns_record",

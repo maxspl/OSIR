@@ -40,7 +40,7 @@ class DnsCacheParser:
       * Leaves field values untouched (no type coercion).
       * Emits one JSON object per entry, separated by newlines (JSONL).
 
-    Example record:
+    Example record::
 
         {
             "type": "dns_cache_entry",

@@ -15,6 +15,7 @@ class UAC_Extractor():
 
     Handles every archive layout UAC can produce, all through a single ``7zz``
     tool (same idiom as extract_orc):
+
       * ``.zip`` -> extracted in one pass, using a password when the archive is encrypted
       * ``.tar.gz`` -> extracted in two passes, 7zz first strips the gzip layer
         and yields an intermediate ``.tar`` that is then extracted (same idea as

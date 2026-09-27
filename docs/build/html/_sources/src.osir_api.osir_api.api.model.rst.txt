@@ -12,6 +12,14 @@ src.osir\_api.osir\_api.api.model.OsirApiCaseModel module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_api.osir\_api.api.model.OsirApiFilesModel module
+----------------------------------------------------------
+
+.. automodule:: src.osir_api.osir_api.api.model.OsirApiFilesModel
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_api.osir\_api.api.model.OsirApiHandlerModel module
 ------------------------------------------------------------
 
@@ -32,6 +40,14 @@ src.osir\_api.osir\_api.api.model.OsirApiModuleModel module
 -----------------------------------------------------------
 
 .. automodule:: src.osir_api.osir_api.api.model.OsirApiModuleModel
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+src.osir\_api.osir\_api.api.model.OsirApiMonitoringModel module
+---------------------------------------------------------------
+
+.. automodule:: src.osir_api.osir_api.api.model.OsirApiMonitoringModel
    :members:
    :show-inheritance:
    :undoc-members:

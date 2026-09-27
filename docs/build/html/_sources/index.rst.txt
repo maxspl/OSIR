@@ -3,38 +3,54 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-OSIR documentation
-====================
-
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
-
+.. meta::
+   :http-equiv=refresh: 0; url=overview.html
 
 .. toctree::
-   :maxdepth: 2
-   :caption: First steps:
+   :hidden:
+   :caption: How To
 
-   getting_started
-   extracted_module_info
-   web_usage
-   api_cli_usage
+   install_osir
    processing_safety
-   
-.. toctree::
-   :maxdepth: 2
-   :caption: Setup in details:
-
-   setup_details
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Profiles and modules:
+   :hidden:
+   :caption: Detailed Setup
 
-   modules_and_profiles
+   setup/master_setup
+   setup/agent_setup
+   setup/developer_mode
+   setup/air_gap_setup
 
 .. toctree::
-   :maxdepth: 5
-   :caption: API:
+   :hidden:
+   :caption: Configuration For
 
+   config/profiles
+   config/modules
+
+.. toctree::
+   :hidden:
+   :caption: Available Modules
+
+   extracted_module_info
+   modules/index
+
+.. toctree::
+   :hidden:
+   :caption: Package Information
+
+   packages/lib
+   packages/service
+   packages/web
+   packages/api
+   packages/client
+   packages/vrl
+
+.. toctree::
+   :hidden:
+   :caption: API & Client Usage
+
+   api_cli_usage
    api
+

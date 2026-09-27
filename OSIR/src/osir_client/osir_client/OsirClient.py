@@ -122,27 +122,37 @@ def main():
                 osir.cases.modules.list()
 
             elif args.action == "list-category":
-                tree = osir.cases.modules.list(print=False)
+                all_modules = osir.cases.modules.list(print=False)
 
                 path_parts = [p for p in [
                     args.category,
                     getattr(args, "subcategory", None),
                     getattr(args, "subsubcategory", None),
                 ] if p]
+                prefix = "/".join(part.strip("/") for part in path_parts)
 
-                node = tree
-                for depth, part in enumerate(path_parts):
-                    child = node.groups.get(part)
-                    if child is None:
-                        available = ", ".join(sorted(node.groups)) or "none"
-                        logger.error(
-                            f"Group '{'/'.join(path_parts[:depth + 1])}' not found. "
-                            f"Available here: {available}"
-                        )
-                        return
-                    node = child
+                selected = [
+                    m for m in all_modules
+                    if m.replace("\\", "/").startswith(prefix + "/")
+                ]
 
-                OsirCliDisplay.modules(node, title=" / ".join(path_parts))
+                if not selected:
+                    parent = "/".join(prefix.split("/")[:-1])
+                    candidates = [
+                        m.replace("\\", "/") for m in all_modules
+                        if parent and m.replace("\\", "/").startswith(parent + "/")
+                    ]
+                    if candidates:
+                        available = sorted({m[len(parent) + 1:].split("/")[0] for m in candidates})
+                    else:
+                        available = sorted({m.replace("\\", "/").split("/")[0] for m in all_modules})
+                    logger.error(
+                        f"No module under '{prefix}'. "
+                        f"Available here: {', '.join(available) or 'none'}"
+                    )
+                    return
+
+                OsirCliDisplay.modules(selected, title=prefix)
 
             elif args.action == "exists":
                 module = osir.cases.modules.exists(args.module_name)

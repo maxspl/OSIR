@@ -12,10 +12,10 @@ src.osir\_lib.osir\_lib.modules.indexer.indexer module
    :show-inheritance:
    :undoc-members:
 
-src.osir\_lib.osir\_lib.modules.indexer.indexer\-ng module
+src.osir\_lib.osir\_lib.modules.indexer.indexer\_ng module
 ----------------------------------------------------------
 
-.. automodule:: src.osir_lib.osir_lib.modules.indexer.indexer-ng
+.. automodule:: src.osir_lib.osir_lib.modules.indexer.indexer_ng
    :members:
    :show-inheritance:
    :undoc-members:

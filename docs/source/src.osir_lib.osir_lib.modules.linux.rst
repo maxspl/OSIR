@@ -116,6 +116,14 @@ src.osir\_lib.osir\_lib.modules.linux.utmp module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_lib.osir\_lib.modules.linux.wtmpdb module
+---------------------------------------------------
+
+.. automodule:: src.osir_lib.osir_lib.modules.linux.wtmpdb
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_lib.osir\_lib.modules.linux.yum module
 ------------------------------------------------
 

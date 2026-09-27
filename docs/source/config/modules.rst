@@ -1,0 +1,295 @@
+Modules
+=======
+
+Modules are individual YAML files that define specific tasks to be executed. Each module includes metadata such as the version, author, description, operating system, type, and requirements.
+
+.. note:: Modules are essential and are the core of the project. Each processing tool is specified by a module. They are used to specify:
+    
+    - the tool to run and its options
+    - the input file or the directory
+    - the output file or the directory
+    - ...
+
+.. tip:: Modules are located in OSIR/OSIR/configs/modules. They can be placed in any subdirectory of this path, the directory name does not matter.
+
+Example Module
+^^^^^^^^^^^^^^
+srum.yml
+********
+
+.. code-block:: yaml
+
+    metadata:
+      version: "2.0"
+      author: maxspl
+      description: Parsing of SRUM artifact.
+      os: windows
+
+    configuration:
+      module: srum
+      type: process
+      disk_only: false
+      no_multithread: false
+      processor_type:
+      - external
+      processor_os: unix
+
+    tool: 
+      path: artemis
+      cmd: acquire --format JSONL --output-dir {output_dir} srum --alt-file {input_file}
+      source: https://github.com/maxspl/artemis
+      version: 1.1
+
+    input:
+      type: file
+      name: SRUDB\.dat
+      path: Windows/System32/sru
+
+    output:
+      type: multiple_files
+      format: csv
+      output_prefix: "{endpoint_name}--{module}-"
+
+    endpoint: 
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+Parameters
+^^^^^^^^^^
+
+version: **Required**
+*********************
+    - The version of the module.
+
+author: **Required**
+********************
+    - The author of the module.
+
+module: **Required**
+********************
+    - The name of the module. Requires to be the same name as the module file name.
+
+alt_module: **Optional**
+************************
+    - Relevant only for internal modules. Specifies an alternate module name, i.e. OSIR will try to launch the Python module with this name instead of the default module name.
+
+description: **Required**
+*************************
+    - Description of the module.
+
+os: **Required**
+****************
+    - The operating system the module is designed for.
+    - Informational, not used to process the input.
+    - Examples of value: Windows, Unix, Network etc.
+
+type: **Required**
+******************
+    - The type of module (e.g., pre-process, process, post-process).
+    - Informational, not used to process the input.
+
+disk_only: **Optional**
+***********************
+    - Boolean indicating if the module can only take input via direct access (not via SMB), ie. only if the agent is on the same host as the master.
+    - Default value is False.
+    - Used to determine the queue for the task.
+    - Useful for tasks that require many disk operations like decompressing 7z.
+
+no_multithread: **Optional**
+****************************
+    - Boolean indicating if the module must be processed by a queue that does not allow concurent tasks.
+    - Default value is False.
+    - Each tasks with this option will be processed sequentially on each agent.
+
+hold_consumers: **Optional**
+********************************
+
+Boolean indicating that downstream directory consumers must wait until this module has finished producing its output.
+
+Default value is ``False``.
+
+When enabled, OSIR defers matching directory-input modules located under the producer output directory until all pending tasks of the producer module are completed.
+
+This is useful for pre-processing modules that extract or generate a directory tree consumed by later modules.
+
+Example:
+
+.. code-block:: yaml
+
+   configuration:
+     module: extract_orc
+     type: pre-process
+     disk_only: true
+     no_multithread: true
+     hold_consumers: true
+
+processor_os: **Required**
+**************************
+    - Operating system for the processor.
+    
+processor_type: **Required**
+****************************
+Defines how the module processes data. Two processor types exist:
+
+- **external**
+  
+  - The module relies on an external executable tool.
+  - If ``processor_os: unix``, the tool is executed inside the **agent Docker container** using ``subprocess``.
+  - If ``processor_os: windows``, the tool is executed on a **remote Windows machine via WinRM``**
+  - Example: a decompression module that calls ``7zz`` externally.
+
+- **internal**
+  
+  - The module is implemented as a **Python module** located under ``OSIR/OSIR/src/modules/``.
+  - The Python file must have the **same name** as the module defined in the configuration.
+  - Example: ``OSIR/OSIR/configs/modules/pre-process/extract_orc.yml`` uses ``OSIR/OSIR/src/modules/windows/extract_orc.py``.
+
+- **combined usage**
+  
+  - You can specify **both** ``internal`` and ``external`` if the internal Python module wraps
+    or orchestrates an external tool defined in the configuration.
+
+**Possible values:** ``internal``, ``external`` (list of one or both).
+
+tool: **Required only if processor_type contains external** 
+***********************************************************
+    - path: **Required** 
+        - Path to the tool. 
+        - If processor_os is unix, there are 3 choices: 
+            - relative path from OSIR/OSIR/bin/ on agent docker
+            - full path of the tool on agent docker
+            - path of the tool presents in the PATH env var of agent docker
+        - If processor_os is windows, only one choice for the moment:
+            - full path from <mount_point>\OSIR\bin where <mount_point> is defined in agent config, default is C:
+    - cmd: **Required** 
+        - Command line of the tool. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
+    - source: **Optional**
+        - URL to the source of the tool.
+    - version: **Optional**
+        - Version of the tool.
+
+input: **Required** 
+*******************
+    - type:  **Required** 
+        - Possible values: file, dir
+    - name: **DEPRECATED/Required** 
+        - Regex pattern to identify the input file.
+        - Can only be used input type is file.
+        - If input type is file, path option can also be used.
+    - path: **DEPRECATED/Required**
+        - Path suffix of the input file or directory.
+        - File or dir to match must end the path specified.
+        - Ex: Windows/System32/sru will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru
+        - **It's also possible to use a regex that will be applied on the whole file/dir path. To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.** 
+        - **wildcard is supported**. The path field supports a single-level wildcard (*), which matches all immediate subdirectories or files under the specified directory. For example, restore_fs/* will match restore_fs/host_a/ and restore_fs/host_b/, but it will not match deeper paths like restore_fs/host_a/C/.
+    - paths: **Required** 
+        - List of Path either Glob pattern or regex (To enable regex mode, enclose your pattern in r"" For an example, see windows/browsers module.**).
+        - Ex: r"\*\*/Windows/System32/sru" will match /OSIR/share/cases/my_first_case/restore_fs/DESKTOP-ABC/C/Windows/System32/sru
+        - **wildcard is supported**. The path field supports a single-level wildcard (*), which matches all immediate subdirectories or files under the specified directory. For example, restore_fs/* will match restore_fs/host_a/ and restore_fs/host_b/, but it will not match deeper paths like restore_fs/host_a/C/.
+
+.. tip:: How to use module output as input of a new module ? Just specify input.name or/and input.path corresponding to the output of the first module. The tool automatically processes each new file to match a module.
+
+output: **Required** 
+********************
+
+    - type: **Required** 
+        - Type of output 
+        - Possible values: single_file, multiple_files, None
+    - format: **Optional** 
+        - Format of the output (e.g., csv, jsonl).
+        - Informational, not used to process the output.
+    - output_prefix: **Optional** 
+        - Can only be used if output type is multiple_files.
+        - Use to add a prefix to each file and directory that are the output.
+        - Usefull when tools don't allow to specify output name.
+    - output_file: **Optional** 
+        - Name of the output file. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
+    - output_dir: **Optional** 
+        - Name of the output directory. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
+        - Default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/<module_name> 
+        - As a default value exists, no need to define it to use it in command line if default value is desired.
+
+endpoint: **Optional** 
+**********************
+
+    - patterns: **Optional** List of Regex pattern to capture the name of the endpoint in the path of the input dir or the input directory. 
+        - Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.
+    - default: **Optional** Name of the endpoint if patterns doesn't match
+
+user: **Optional**
+******************
+
+    - patterns: **Optional** List of regex patterns used to capture the user name from the input file or input directory path.
+        - Used in exposed variables to name the output. Useful when processing files from multiple users without overwriting output files.
+    - default: **Optional** User name used when no pattern matches.
+
+The extracted user value is available through the `{user_name}` placeholder.
+
+optional: **Optional**
+***********************
+    - List of <key: value> that will be used as exposed variables and can be referenced in the command line.
+    - Ex: if optional contain password: ABCD and the command line contains {optional_password}, it will be replaced with ABCD.
+
+Create a new module
+^^^^^^^^^^^^^^^^^^^
+
+To create a new module from scratch you can:
+    -    **Manual**: Create a .yml file using an existing one as example and add the binary required if exernal type or create python module if internal type.
+
+Exposed variables
+^^^^^^^^^^^^^^^^^
+
+Exposed variables are replaced by the OSIR agent during execution. To be used in the config files, they need to be contained in {}.
+
+Tool Variables
+**************
+
+These variables are available in ``tool.cmd`` sections:
+
+.. list-table:: Tool Exposed Variables
+   :widths: 20 40 40
+   :header-rows: 1
+
+   * - Variable
+     - Description
+     - Where It Can Be Used
+   * - ``{drive}``
+     - Windows mount point with colon (e.g., ``C:``).
+     - ``tool.path``, ``tool.cmd``
+   * - ``{input_file}``
+     - Input path in ``tool.cmd``. Input file name in ``output`` fields.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{input_dir}``
+     - Path of the input directory that matched the module input options.
+     - ``tool.cmd``
+   * - ``{output_file}``
+     - Resolved output file path.
+     - ``tool.cmd``
+   * - ``{output_dir}``
+     - Resolved output directory path, default is the name of the module in the case.
+     - ``tool.cmd``
+   * - ``{case_name}``
+     - Name of the case being processed.
+     - ``tool.cmd``
+   * - ``{case_path}``
+     - Path of the case being processed.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{master_host}``
+     - SMB host used to access the master share.
+     - ``tool.cmd``
+   * - ``{endpoint_name}``
+     - Value extracted from the ``endpoint`` regex section.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{user_name}``
+     - Value extracted from the ``user`` regex section.
+     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{module}``
+     - Current module name.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{input_path_hash}``
+     - MD5 hash of the input path, useful to avoid output name collisions.
+     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{optional_*}``
+     - Optional values, usage described in module documentation.
+     - ``tool.cmd``

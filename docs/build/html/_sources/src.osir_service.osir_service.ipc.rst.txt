@@ -1,32 +1,16 @@
 src.osir\_service.osir\_service.ipc package
 ===========================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   src.osir_service.osir_service.ipc.model
+
 Submodules
 ----------
-
-src.osir\_service.osir\_service.ipc.IpcService module
------------------------------------------------------
-
-.. automodule:: src.osir_service.osir_service.ipc.IpcService
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-src.osir\_service.osir\_service.ipc.JsonSocket module
------------------------------------------------------
-
-.. automodule:: src.osir_service.osir_service.ipc.JsonSocket
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-src.osir\_service.osir\_service.ipc.OsirExceptions module
----------------------------------------------------------
-
-.. automodule:: src.osir_service.osir_service.ipc.OsirExceptions
-   :members:
-   :show-inheritance:
-   :undoc-members:
 
 src.osir\_service.osir\_service.ipc.OsirIpc module
 --------------------------------------------------
@@ -36,18 +20,26 @@ src.osir\_service.osir\_service.ipc.OsirIpc module
    :show-inheritance:
    :undoc-members:
 
-src.osir\_service.osir\_service.ipc.OsirIpcClient module
---------------------------------------------------------
+src.osir\_service.osir\_service.ipc.OsirIpcFiles module
+-------------------------------------------------------
 
-.. automodule:: src.osir_service.osir_service.ipc.OsirIpcClient
+.. automodule:: src.osir_service.osir_service.ipc.OsirIpcFiles
    :members:
    :show-inheritance:
    :undoc-members:
 
-src.osir\_service.osir\_service.ipc.OsirIpcModel module
--------------------------------------------------------
+src.osir\_service.osir\_service.ipc.OsirIpcTus module
+-----------------------------------------------------
 
-.. automodule:: src.osir_service.osir_service.ipc.OsirIpcModel
+.. automodule:: src.osir_service.osir_service.ipc.OsirIpcTus
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+src.osir\_service.osir\_service.ipc.OsirSocket module
+-----------------------------------------------------
+
+.. automodule:: src.osir_service.osir_service.ipc.OsirSocket
    :members:
    :show-inheritance:
    :undoc-members:

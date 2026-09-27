@@ -44,6 +44,14 @@ src.osir\_client.osir\_client.client.OsirCliProfile module
    :show-inheritance:
    :undoc-members:
 
+src.osir\_client.osir\_client.client.OsirCliStats module
+--------------------------------------------------------
+
+.. automodule:: src.osir_client.osir_client.client.OsirCliStats
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_client.osir\_client.client.OsirCliTask module
 -------------------------------------------------------
 

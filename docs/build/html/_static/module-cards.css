@@ -1,0 +1,61 @@
+/* Navigation cards for the Modules index pages. Colors reuse the theme
+ * custom properties so cards match light and dark modes. */
+
+.module-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 1.5rem;
+}
+
+/* Specificity must beat the theme rule '#content a:not(.toc-backref)',
+ * which underlines content links. */
+#content .module-cards a.module-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s,
+    transform 0.2s;
+}
+
+#content .module-cards a.module-card:hover {
+  border-color: var(--color-muted-foreground, #9ca3af);
+  background: var(--color-muted, #f5f5f5);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+#content .module-cards a.module-card:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+}
+
+#content .module-cards a.module-card span {
+  text-decoration: none;
+}
+
+.module-card-title {
+  display: block;
+  font-weight: 600;
+  padding: 0.75rem 1rem 0.25rem;
+}
+
+.module-card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex-grow: 1;
+  font-size: 0.875rem;
+  color: var(--color-muted-foreground, #6b7280);
+  padding: 0 1rem;
+  margin-bottom: 0.75rem;
+}

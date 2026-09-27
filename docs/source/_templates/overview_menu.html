@@ -1,0 +1,17 @@
+{#- Overview: a single page whose sections are linked from a collapsible
+    submenu. The structure mirrors the theme's toctree markup so the
+    collapsible_nav post-processing (expand buttons) applies to it. -#}
+{%- set base = '' if pagename == 'overview' else pathto('overview') -%}
+<nav class="table w-full min-w-full my-6 lg:my-8">
+  <ul{% if pagename == 'overview' %} class="current"{% endif %}>
+    <li class="toctree-l1{% if pagename == 'overview' %} current{% endif %}">
+      <a class="reference internal{% if pagename == 'overview' %} current{% endif %}" href="{{ base }}"><span class="doc">Overview</span></a><ul{% if pagename == 'overview' %} class="current"{% endif %}>
+        <li class="toctree-l2"><a class="reference internal" href="{{ base }}#features">Features</a></li>
+        <li class="toctree-l2"><a class="reference internal" href="{{ base }}#components-terminology">Components &amp; Terminology</a></li>
+        <li class="toctree-l2"><a class="reference internal" href="{{ base }}#architectures">Architectures</a></li>
+        <li class="toctree-l2"><a class="reference internal" href="{{ base }}#network-flows">Network flows</a></li>
+        <li class="toctree-l2"><a class="reference internal" href="{{ base }}#getting-started">Getting Started</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
