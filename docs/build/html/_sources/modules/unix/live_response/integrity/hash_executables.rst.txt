@@ -1,15 +1,10 @@
 hash_executables
 ================
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:integrity:hash_executables``**
-
-   * name_rex: ``--hash_executables-.*\.jsonl$``
-   * path_suffix: ``integrity``
-   * sourcetype: ``linux:live_response:integrity:hash_executables``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``hash_executables``
+   * ``linux:live_response:integrity:hash_executables`` | name_rex: ``--hash_executables-.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Hashes of every executable collected by UAC, for IOC matching
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

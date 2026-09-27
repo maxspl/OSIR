@@ -1,4 +1,4 @@
-OSIR Lib
+OSIR Library
 ========
 
 .. include:: ../../../OSIR/src/osir_lib/README.md

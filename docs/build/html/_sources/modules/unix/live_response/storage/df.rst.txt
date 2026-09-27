@@ -1,15 +1,10 @@
 df
 ==
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:storage:df``**
-
-   * name_rex: ``df.*\.jsonl$``
-   * path_suffix: ``storage``
-   * sourcetype: ``linux:live_response:storage:df``
-   * host_rex: ``([\w\.-]+?)--``
-   * artificat: ``df``
+   * ``linux:live_response:storage:df`` | name_rex: ``df.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Kelly Brazil - JsonConverter - Parsing the output of the command df and df -h
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

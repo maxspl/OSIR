@@ -1,13 +1,10 @@
 orc_outcome
 ===========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:orc_outcome``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``orc_outcome``
-   * host_rex: ``orc_outcome_([^_]+)_\d{8}_\d{6}\.jsonl$``
+   * ``windows:orc_outcome`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -17,27 +14,9 @@ Process DFIR ORC outcome and outline json files.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

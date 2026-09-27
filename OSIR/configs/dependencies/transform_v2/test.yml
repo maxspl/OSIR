@@ -1,0 +1,9 @@
+metadata:
+  version: "1.0"
+  id: test
+  author: Typ
+  description: test ECS normalization
+
+transformation:
+  - custom: |2-
+        .event.code = .Event.System.EventID."#text"

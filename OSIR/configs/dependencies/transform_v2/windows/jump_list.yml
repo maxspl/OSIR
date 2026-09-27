@@ -1,0 +1,373 @@
+metadata:
+  version: "1.0"
+  id: jump_list
+  author: Typ
+  description: Windows JumpList CSV (automaticDestinations & customDestinations)
+
+transformation:
+  - set:
+      event:
+        value: {}
+    conditions:
+      - field: event
+        exists: false
+  - set:
+      event.original: encode_json!(.)
+    conditions:
+      - field: event.original
+        exists: false
+  - set:
+      event.dataset:
+        value: windows.jumplist
+    conditions:
+      - field: event.dataset
+        exists: false
+  - set:
+      event.module:
+        value: windows
+    conditions:
+      - field: event.module
+        exists: false
+  - set:
+      event.provider:
+        value: Windows JumpList (generic)
+    conditions:
+      - field: event.provider
+        exists: false
+  - set:
+      event.kind:
+        value: state
+    conditions:
+      - field: event.kind
+        exists: false
+  - set:
+      event.category:
+        value: [process]
+    conditions:
+      - field: event.category
+        exists: false
+  - set:
+      event.type:
+        value: [info]
+    conditions:
+      - field: event.type
+        exists: false
+  - set:
+      event.action:
+        value: jumplist
+    conditions:
+      - field: event.action
+        exists: false
+  - set:
+      event.code:
+        value: jumplist
+    conditions:
+      - field: event.code
+        exists: false
+  - set:
+      event.outcome:
+        value: success
+    conditions:
+      - field: event.outcome
+        exists: false
+  - set:
+      event.Ext.jumplist.source_file: to_string!(del(.SourceFile))
+      event.Ext.jumplist.has_sps: to_string!(del(.HasSps))
+  - custom: |2-
+      if exists(.DestListVersion) {
+        dlv_raw = to_string!(del(.DestListVersion))
+        dlv_val = parse_int(dlv_raw) ?? null
+        if dlv_val != null {
+          .event.Ext.jumplist.dest_list_version = dlv_val
+        } else {
+          .event.Ext.jumplist.dest_list_version_raw = dlv_raw
+        }
+      }
+  - set:
+      event.Ext.jumplist.extra_blocks_present: to_string!(del(.ExtraBlocksPresent))
+      event.Ext.jumplist.header_flags: to_string!(del(.HeaderFlags))
+      file.attributes: to_string!(del(.FileAttributes))
+      event.Ext.jumplist.app_id: to_string!(del(.AppId))
+      event.Ext.jumplist.app_description: to_string!(del(.AppIdDescription))
+      event.Ext.jumplist.entry_name: to_string!(del(.EntryName))
+  - custom: |2-
+      if exists(.MRU) {
+        mru_raw = to_string!(del(.MRU))
+        mru_val = parse_int(mru_raw) ?? null
+        if mru_val != null {
+          .event.Ext.jumplist.mru = mru_val
+        } else {
+          .event.Ext.jumplist.mru_raw = mru_raw
+        }
+      }
+
+      if exists(.LastUsedEntryNumber) {
+        lu_raw = to_string!(del(.LastUsedEntryNumber))
+        lu_val = parse_int(lu_raw) ?? null
+        if lu_val != null {
+          .event.Ext.jumplist.last_used_entry_number = lu_val
+        } else {
+          .event.Ext.jumplist.last_used_entry_number_raw = lu_raw
+        }
+      }
+
+      if exists(.EntryNumber) {
+        en_raw = to_string!(del(.EntryNumber))
+        en_val = parse_int(en_raw) ?? null
+        if en_val != null {
+          .event.sequence = en_val
+        } else {
+          .event.Ext.jumplist.entry_number_raw = en_raw
+        }
+      }
+
+      if exists(.InteractionCount) {
+        ic_raw = to_string!(del(.InteractionCount))
+        ic_val = parse_int(ic_raw) ?? null
+        if ic_val != null {
+          .event.Ext.jumplist.interaction_count = ic_val
+        } else {
+          .event.Ext.jumplist.interaction_count_raw = ic_raw
+        }
+      }
+
+      if exists(.PinStatus) {
+        ps_raw = to_string!(del(.PinStatus))
+        .event.Ext.jumplist.pin_status_raw = ps_raw
+        low = downcase(ps_raw)
+        if low == "true" {
+          .event.Ext.jumplist.pinned = true
+        } else if low == "false" {
+          .event.Ext.jumplist.pinned = false
+        }
+      }
+  - set:
+      event.Ext.jumplist.notes: to_string!(del(.Notes))
+  - custom: |2-
+      if exists(.Hostname) {
+        hn = to_string!(del(.Hostname))
+        if hn != "" && !exists(.host.name) {
+          .host.name = hn
+        }
+      }
+
+      if exists(.MacAddress) {
+        mac = to_string!(del(.MacAddress))
+        if mac != "" && !exists(.host.mac) {
+          .host.mac = mac
+        }
+      }
+
+      if exists(.MachineID) {
+        mid = to_string!(del(.MachineID))
+        .host.id = mid
+        if !exists(.host.name) && mid != "" {
+          .host.name = mid
+        }
+      }
+
+      if exists(.MachineMACAddress) {
+        mmac = to_string!(del(.MachineMACAddress))
+        if mmac != "" && !exists(.host.mac) {
+          .host.mac = mmac
+        }
+      }
+
+      if exists(.Path) {
+        p_raw = to_string!(del(.Path))
+        if p_raw != "" && !exists(.file.path) {
+          .file.path = p_raw
+        }
+        .file.Ext.jumplist.path_raw = p_raw
+      }
+
+      if exists(.TargetIDAbsolutePath) {
+        tid_raw = to_string!(del(.TargetIDAbsolutePath))
+        if tid_raw != "" && !exists(.file.path) {
+          .file.path = tid_raw
+        }
+        .file.Ext.jumplist.target_id_absolute_path = tid_raw
+      }
+
+      if exists(.LocalPath) {
+        lp_raw = to_string!(del(.LocalPath))
+        if lp_raw != "" && !exists(.file.path) {
+          .file.path = lp_raw
+        }
+        .file.Ext.jumplist.local_path = lp_raw
+      }
+
+      if exists(.CommonPath) {
+        cp_raw = to_string!(del(.CommonPath))
+        if cp_raw != "" && !exists(.file.path) {
+          .file.path = cp_raw
+        }
+        .file.Ext.jumplist.common_path = cp_raw
+      }
+  - set:
+      file.Ext.jumplist.relative_path: to_string!(del(.RelativePath))
+      file.Ext.jumplist.working_directory: to_string!(del(.WorkingDirectory))
+      file.Ext.jumplist.arguments: to_string!(del(.Arguments))
+  - custom: |2-
+      if exists(.file.path) && !exists(.file.name) {
+        fp = to_string!(.file.path)
+        parts = split!(fp, "\\\\")
+        plen = length(parts)
+        if plen > 0 {
+          idx = plen - 1
+          last_part = get!(parts, [idx])
+          .file.name = last_part
+        }
+      }
+
+      if exists(.FileSize) {
+        fs_raw = to_string!(del(.FileSize))
+        fs_val = parse_int(fs_raw) ?? null
+        if fs_val != null {
+          .file.size = fs_val
+        } else {
+          .file.Ext.jumplist.file_size_raw = fs_raw
+        }
+      }
+  - set:
+      file.Ext.jumplist.drive_type: to_string!(del(.DriveType))
+      file.Ext.jumplist.volume_serial_number: to_string!(del(.VolumeSerialNumber))
+      file.Ext.jumplist.volume_label: to_string!(del(.VolumeLabel))
+      file.Ext.jumplist.file_birth_droid: to_string!(del(.FileBirthDroid))
+      file.Ext.jumplist.file_droid: to_string!(del(.FileDroid))
+      file.Ext.jumplist.volume_birth_droid: to_string!(del(.VolumeBirthDroid))
+      file.Ext.jumplist.volume_droid: to_string!(del(.VolumeDroid))
+      file.Ext.jumplist.target_mft_entry_number: to_string!(del(.TargetMFTEntryNumber))
+      file.Ext.jumplist.target_mft_sequence_number: to_string!(del(.TargetMFTSequenceNumber))
+  - custom: |2-
+      if exists(.SourceCreated) {
+        raw = to_string!(del(.SourceCreated))
+        if raw != "" {
+          ts_sc = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_sc != null {
+            .event.Ext.jumplist.source_created = ts_sc
+          } else {
+            .event.Ext.jumplist.source_created_raw = raw
+          }
+        }
+      }
+
+      if exists(.SourceModified) {
+        raw = to_string!(del(.SourceModified))
+        if raw != "" {
+          ts_sm = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_sm != null {
+            .event.Ext.jumplist.source_modified = ts_sm
+          } else {
+            .event.Ext.jumplist.source_modified_raw = raw
+          }
+        }
+      }
+
+      if exists(.SourceAccessed) {
+        raw = to_string!(del(.SourceAccessed))
+        if raw != "" {
+          ts_sa = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_sa != null {
+            .event.Ext.jumplist.source_accessed = ts_sa
+          } else {
+            .event.Ext.jumplist.source_accessed_raw = raw
+          }
+        }
+      }
+
+      if exists(.CreationTime) {
+        raw = to_string!(del(.CreationTime))
+        if raw != "" {
+          ts_ct = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_ct != null {
+            .event.Ext.jumplist.entry_created = ts_ct
+          } else {
+            .event.Ext.jumplist.entry_created_raw = raw
+          }
+        }
+      }
+
+      if exists(.LastModified) {
+        raw = to_string!(del(.LastModified))
+        if raw != "" {
+          ts_lm = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_lm != null {
+            .event.Ext.jumplist.entry_last_modified = ts_lm
+          } else {
+            .event.Ext.jumplist.entry_last_modified_raw = raw
+          }
+        }
+      }
+
+      if exists(.TargetCreated) {
+        raw = to_string!(del(.TargetCreated))
+        if raw != "" {
+          ts_tc = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_tc != null {
+            if !exists(.file.created) {
+              .file.created = ts_tc
+            }
+            .file.Ext.jumplist.target_created = ts_tc
+          } else {
+            .file.Ext.jumplist.target_created_raw = raw
+          }
+        }
+      }
+
+      if exists(.TargetModified) {
+        raw = to_string!(del(.TargetModified))
+        if raw != "" {
+          ts_tm = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_tm != null {
+            .file.mtime = ts_tm
+            .file.Ext.jumplist.target_modified = ts_tm
+          } else {
+            .file.Ext.jumplist.target_modified_raw = raw
+          }
+        }
+      }
+
+      if exists(.TargetAccessed) {
+        raw = to_string!(del(.TargetAccessed))
+        if raw != "" {
+          ts_ta = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_ta != null {
+            .file.atime = ts_ta
+            .file.Ext.jumplist.target_accessed = ts_ta
+          } else {
+            .file.Ext.jumplist.target_accessed_raw = raw
+          }
+        }
+      }
+
+      if exists(.TrackerCreatedOn) {
+        raw = to_string!(del(.TrackerCreatedOn))
+        if raw != "" {
+          ts_tr = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts_tr != null {
+            .event.Ext.jumplist.tracker_created = ts_tr
+          } else {
+            .event.Ext.jumplist.tracker_created_raw = raw
+          }
+        }
+      }
+
+      ts_value = null
+
+      ts_source = ""
+
+      if exists(.event.Ext.jumplist.entry_last_modified) {
+        ts_value = .event.Ext.jumplist.entry_last_modified
+        ts_source = "jumplist.entry_last_modified"
+      }
+
+      if ts_value != null {
+        .timestamp = ts_value
+
+        if !exists(.event.created) {
+          .event.created = ts_value
+        }
+
+        .event.Ext.timestamp_source = ts_source
+      }

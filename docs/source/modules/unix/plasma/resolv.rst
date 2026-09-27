@@ -1,15 +1,10 @@
 resolv
 ======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:resolv``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``resolv``
-   * sourcetype: ``linux:resolv``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``resolv``
+   * ``linux:resolv`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ DNS resolvers from resolv.conf
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

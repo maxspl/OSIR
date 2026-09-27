@@ -27,6 +27,7 @@
 <link href="../../_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="../../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
 <link href="../../_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
+<link href="../../_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="../../search.html" rel="search" title="Search"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
 <link href="jump_list.html" rel="next" title="jump_list"/>
@@ -359,7 +360,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../packages/lib.html">OSIR Lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../packages/lib.html">OSIR Library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packages/service.html">OSIR Service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packages/web.html">OSIR Web</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packages/api.html">OSIR Api</a></li>
@@ -429,10 +430,7 @@
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l5"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -494,10 +492,7 @@
 </ul>
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -530,17 +525,10 @@
 <h1>hives_hklm</h1>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Ingestion into Splunk.</p>
-<p><strong>``windows:hklm``</strong></p>
+<p>In Splunk you can find the result of the module after
+ingestion with the following sourcetype:</p>
 <ul class="simple">
-<li><p>name_rex: <code class="docutils literal notranslate"><span class="pre">--hives_*\w*\.csv</span></code></p></li>
-<li><p>path_rex: <code class="docutils literal notranslate"><span class="pre">.*\/hives_hklm.*</span></code></p></li>
-<li><p>sourcetype: <code class="docutils literal notranslate"><span class="pre">windows:registry:hklm</span></code></p></li>
-<li><p>host_rex: <code class="docutils literal notranslate"><span class="pre">([\w\.-]+)--</span></code></p></li>
-<li><p>artifact: <code class="docutils literal notranslate"><span class="pre">Hives</span></code></p></li>
-<li><p>timestamp_path: <code class="docutils literal notranslate"><span class="pre">timestamp</span></code></p></li>
-<li><p>timestamp_format: <code class="docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%SZ</span></code></p></li>
-<li><p>normalize: <code class="docutils literal notranslate"><span class="pre">ecs_normalize/windows/hives.vrl</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:registry:hklm</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">--hives_*\w*\.csv</span></code></p></li>
 </ul>
 </div>
 <section id="description">
@@ -549,34 +537,532 @@
 </section>
 <section id="timeline">
 <h2>Timeline</h2>
-<p>Placeholder table for the messages created for the timeline.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Timeline</p></th>
-<th class="head"><p>ECS field</p></th>
-<th class="head"><p>Message</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<p>No timeline messages.</p>
 </section>
 <section id="fields">
 <h2>Fields</h2>
-<p>Placeholder table for the output fields.</p>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head"><p>Original</p></th>
+<th class="head"><p>ECS field</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">encode_json!(.)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.original</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.BatchKeyPath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.BatchValueName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.HivePath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.hive</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.HiveType))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.hive_type</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.KeyPath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.key_path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.KeyName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.key_name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ValueName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ValueType))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value_type</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">del(.ValueData)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value_data</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">del(.ValueData2)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value_data2</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">del(.ValueData3)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value_data3</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ValueDataRaw))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value_data_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Category))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.category</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Comment))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.comment</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Comments))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.comments</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PluginDetailFile))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.plugin_detail_file</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Recursive))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.recursive</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Deleted))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.deleted</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ResetData))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.reset_data</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FullPath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.AbsolutePath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Path))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Path1))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Path2))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.directory</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Filename))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FileName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
 <td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FolderName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.directory</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Extension))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.extension</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ExtensionLastOpened))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.Ext.extension_last_opened_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FileSource))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.source</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Details))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.details</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LnkName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.lnk_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.UninstallString))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.uninstall_command</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Executable))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ProgramName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Program))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.App))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ImagePath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Service))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ServiceType))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.service_type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.StartMode))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.start_mode</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ServiceDLL))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.service_dll</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.RequiredPrivileges))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.required_privileges</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.NameKeyLastWrite))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.name_key_last_write_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ParametersKeyLastWrite))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">service.parameters_key_last_write_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FocusTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.focus_time_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.JumpListName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.jumplist_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Url))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">url.full</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.SearchTerm))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">url.query</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Slack))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">url.slack_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.HostName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Device))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DeviceName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DeviceDesc))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.description</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Manufacturer))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.manufacturer</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.SerialNumber))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.serial_number</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DiskId))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.disk_id</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Title))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.model</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LocationInformation))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.location_information</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ParentidPrefix))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.parent_id_prefix</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DriveName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.volume_drive_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.VolumeLabel))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.volume_label</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DriveType))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.volume_drive_type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.GuidFolder))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.guid_folder</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Guid))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.guid</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DeviceInstanceid))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.instance_id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DriverDesc))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">driver.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DriverVersion))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">driver.version</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DriverDate))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">driver.date_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ProviderName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">driver.vendor</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FriendlyName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">device.friendly_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.GatewayMacAddress))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.gateway_mac</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.NetworkName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DNSSuffix))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.domain</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Alias))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.interface_alias</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PermanentAddress))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.permanent_address</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.CurrentAddress))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.current_address</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Protocol))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.transport</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ProtocolList))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.protocol_list</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Address))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.address_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Action))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.action</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Dir))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.direction</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Active))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.active_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.SecurityDescriptor))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.security_descriptor</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Source))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.source</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.TaskState))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.task_state</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastActionResult))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rule.last_action_result</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Username))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.UserName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InternetUserName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.email</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.UserId))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FullName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.full_name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ProfileImagePath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.home</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.HomeDirectory))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.home</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.HomeDirectoryRequired))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.home_directory_required</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.AccountDisabled))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.account_disabled</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.AutoLocked))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.auto_locked</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.NormalUserAccount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.normal_user_account</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InterdomainTrustAccount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.interdomain_trust_account</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.MnsLogonAccount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.mns_logon_account</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ServerTrustAccount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.server_trust_account</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.TempDuplicateAccount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.temp_duplicate_account</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ValidUserId))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.valid_user_id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PasswordDoesNotExpire))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.password_does_not_expire</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PasswordNotRequired))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.password_not_required</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PasswordHint))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.password_hint</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastIncorrectPassword))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.last_incorrect_password_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastLoginTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.last_login_time_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastLogoffTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.last_logoff_time_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastLogonTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.last_logon_time_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastPasswordChange))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.last_password_change_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.TotalLoginCount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.total_login_count_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InvalidLoginCount))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.invalid_login_count_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.UserComment))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.comment</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.GroupName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">group.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Groups))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">group.groups_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Users))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">group.users_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ProfileGUID))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.profile_guid</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DisplayName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.DisplayVersion))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.version</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Publisher))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.organization</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InstallLocation))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InstallSource))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.install_source</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PackageName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.id</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.PackageRootFolder))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.root_folder</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Version))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">package.version_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.CreatedOn))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.created_on_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ExecutedOn))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.executed_on_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ExecutionTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.execution_time_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.ExpiresOn))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.expires_on_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InstallDate))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.install_date_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InstallTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.install_time_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.InitialTimestamp))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.initial_timestamp_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Installed))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.installed_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FirstInstalled))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.first_installed_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.FirstConnectLOCAL))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.first_connect_local_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastConnectedLOCAL))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_connected_local_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastClosed))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_closed_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastConnected))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_connected_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastRemoved))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_removed_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastSeen))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_seen_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastStart))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_start_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastStop))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_stop_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastWriteTimestamp))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_write_timestamp_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastModified))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_modified_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastDetectionTime))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_detection_time_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.LastExecuted))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.last_executed_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.EventType))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.reason</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Source))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.provider</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Name))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.name</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Title))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.title</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Description))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.description</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.Type))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.type_raw</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.UserChoice))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.user_choice_raw</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.BatchKeyPath))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.BatchValueName))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">registry.value</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"windows.registry_artifacts"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.dataset</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"Windows</span> <span class="pre">Registry</span> <span class="pre">(generic)"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.provider</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[configuration]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.category</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[info]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"state"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.kind</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"success"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.outcome</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"windows"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.module</span></code></p></td>
 </tr>
 </tbody>
 </table>

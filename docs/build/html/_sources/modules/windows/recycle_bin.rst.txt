@@ -1,16 +1,10 @@
 recycle_bin
 ===========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:recyclebin``**
-
-   * name_rex: ``\.csv$``
-   * path_suffix: ``recycle_bin``
-   * sourcetype: ``windows:files:recyclebin``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``DeletedOn``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
+   * ``windows:files:recyclebin`` | name_rex: ``\.csv$``
 
 Description
 -----------
@@ -20,27 +14,9 @@ Parsing of recycle bin artifact.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

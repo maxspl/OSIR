@@ -1,0 +1,88 @@
+metadata:
+  version: "1.0"
+  id: arp_cache
+  author: Typ
+  description: Windows ARP Cache
+
+transformation:
+  - custom: |2-
+      if !exists(.event) || !exists(.event.original) {
+          .event.original = encode_json!(.)
+      }
+  - set:
+      event.dataset:
+        value: windows.arp_cache
+      event.module:
+        value: windows
+      event.kind:
+        value: state
+      event.category:
+        value: [network]
+      event.type:
+        value: [info, arp]
+      event.outcome:
+        value: success
+      event.provider:
+        value: Windows ARP Cache
+      network.protocol:
+        value: arp
+      network.type:
+        value: ipv4
+  - custom: |2-
+      rec_type = null
+
+      if exists(.type) {
+          rec_type = to_string!(del(.type))
+          .event.code   = rec_type
+          .event.action = downcase(rec_type)
+      }
+
+      if exists(.interface_ip) {
+          iface_ip = to_string!(del(.interface_ip))
+
+          .source.ip = iface_ip
+          .network.Ext.arp.interface_ip = iface_ip
+
+          .host.ip = [iface_ip]
+      }
+  - set:
+      network.Ext.arp.interface_index: to_string!(del(.interface_index))
+  - custom: |2-
+      if exists(.ip_address) {
+          neigh_ip = to_string!(del(.ip_address))
+          .destination.ip = neigh_ip
+          .network.Ext.arp.neighbor_ip = neigh_ip
+
+          ip_str = neigh_ip
+          if contains(ip_str, ":") {
+              .network.type = "ipv6"
+          } else {
+              .network.type = "ipv4"
+          }
+      }
+
+      if exists(.mac_address) {
+          mac_raw = to_string!(del(.mac_address))
+          .network.Ext.arp.neighbor_mac_raw = mac_raw
+
+          mac_norm = downcase(replace(mac_raw, "-", ":"))
+          .network.Ext.arp.neighbor_mac = mac_norm
+
+          .destination.mac = mac_norm
+      }
+
+      if exists(.entry_type) {
+          et_raw = to_string!(del(.entry_type))
+          et_l   = downcase(et_raw)
+
+          .network.Ext.arp.entry_type_raw = et_raw
+
+          norm = et_l
+          if et_l == "dynamique" {
+              norm = "dynamic"
+          } else if et_l == "statique" {
+              norm = "static"
+          }
+
+          .network.Ext.arp.entry_type = norm
+      }

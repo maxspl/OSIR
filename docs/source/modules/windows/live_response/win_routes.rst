@@ -1,15 +1,10 @@
 win_routes
 ==========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:routes``**
-
-   * name_rex: ``--win_routes\.jsonl$``
-   * path_suffix: ``win_routes``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``ROUTES``
-   * normalize: ``ecs_normalize/windows/live_response/routes.vrl``
+   * ``windows:live_response:routes`` | name_rex: ``--win_routes\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,35 @@ Parse routes.txt from DFIR ORC (route.exe PRINT command)
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 
+   * - ``"windows.routes"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[network, configuration]``
+     - ``event.category``
+   * - ``[info, routing]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows routes"``
+     - ``event.provider``
+   * - ``"ipv4"``
+     - ``network.type``
+   * - ``"ip"``
+     - ``network.protocol``
+   * - ``custom``
+     - 

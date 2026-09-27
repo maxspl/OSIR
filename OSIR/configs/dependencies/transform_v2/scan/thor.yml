@@ -1,0 +1,329 @@
+metadata:
+  version: "1.0"
+  id: thor
+  author: Typ
+  description: THOR / THOR-Lite ECS normalization
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+    conditions:
+      - field: event.original
+        exists: false
+  - set:
+      event.kind:
+        value: alert
+      event.module:
+        value: thor
+      event.provider:
+        value: Nextron THOR
+      observer.vendor:
+        value: Nextron Systems
+      observer.product:
+        value: THOR
+      observer.type:
+        value: scanner
+  - custom: |2-
+      if exists(.time) {
+          thor_time = to_string(.time) ?? null
+          if thor_time != null && thor_time != "" {
+              .timestamp = thor_time
+              .event.created = thor_time
+          }
+      }
+
+      if exists(.event_time) {
+          event_time = to_string(.event_time) ?? null
+          if event_time != null && event_time != "" {
+              if exists(.timestamp) {
+                  .event.created = .timestamp
+              }
+              .timestamp = event_time
+          }
+      }
+
+      if exists(.hostname) {
+          observer_hostname = to_string(.hostname) ?? null
+          if observer_hostname != null && observer_hostname != "" {
+              .observer.hostname = observer_hostname
+          }
+      }
+
+      if exists(.event_computer) {
+          event_computer = to_string(.event_computer) ?? null
+          if event_computer != null && event_computer != "" {
+              .host.name = event_computer
+              .winlog.computer_name = event_computer
+          }
+      } else if exists(.hostname) {
+          host_name = to_string(.hostname) ?? null
+          if host_name != null && host_name != "" {
+              .host.name = host_name
+          }
+      }
+  - set:
+      log.level: to_string(.level) ?? null
+  - custom: |2-
+      if exists(.module) {
+          thor_module = downcase!(to_string!(.module))
+          .event.dataset = "thor." + thor_module
+          .log.logger = to_string!(.module)
+      } else {
+          .event.dataset = "thor"
+      }
+  - set:
+      message: to_string(.message) ?? null
+      thor.scan.id: to_string(.scanid) ?? null
+  - custom: |2-
+      if exists(.log_version) {
+          .observer.version = to_string(.log_version) ?? null
+          .thor.log.version = to_string(.log_version) ?? null
+      }
+
+      if exists(.score) {
+          score = to_int(.score) ?? null
+          if score != null {
+              .event.risk_score = score
+              .event.severity = score
+              .thor.score = score
+          }
+      }
+
+      if exists(.subscore_1) {
+          subscore = to_int(.subscore_1) ?? null
+          if subscore != null {
+              .rule.risk_score = subscore
+              .thor.primary.subscore = subscore
+          }
+      }
+
+      if exists(.reason_1) {
+          .event.reason = to_string(.reason_1) ?? null
+          .thor.primary.reason = to_string(.reason_1) ?? null
+      }
+
+      if exists(.rulename_1) {
+          .rule.name = to_string(.rulename_1) ?? null
+      } else if exists(.reason_1) {
+          .rule.name = to_string(.reason_1) ?? null
+      }
+  - set:
+      rule.id: to_string(.id_1) ?? null
+      rule.description: to_string(.description_1) ?? null
+      rule.author: '[to_string!(.author_1)]'
+      rule.reference: to_string(.ref_1) ?? null
+      rule.created: to_string(.ruledate_1) ?? null
+  - custom: |2-
+      if exists(.sigtype_1) {
+          .rule.ruleset = to_string(.sigtype_1) ?? null
+          .thor.primary.signature.type = to_string(.sigtype_1) ?? null
+      }
+
+      if exists(.sigclass_1) {
+          .rule.category = to_string(.sigclass_1) ?? null
+          .thor.primary.signature.class = to_string(.sigclass_1) ?? null
+      }
+  - set:
+      thor.primary.false_positives: to_string(.falsepositives_1) ?? null
+  - custom: |2-
+      if exists(.tags_1) {
+          tags = to_string(.tags_1) ?? null
+          if tags != null && tags != "" {
+              .rule.tags = split!(tags, ",")
+              .thor.primary.tags = tags
+          }
+      }
+  - set:
+      thor.primary.matched: matched_1
+  - custom: |2-
+      if exists(.reasons_count) {
+          reasons_count = to_int(.reasons_count) ?? null
+          if reasons_count != null {
+              .thor.reasons_count = reasons_count
+          }
+      }
+
+      if exists(.module) {
+          module_name = downcase!(to_string!(.module))
+
+          if module_name == "filescan" {
+              .event.category = ["file", "malware"]
+              .event.type = ["info"]
+              .event.action = "thor-filescan-match"
+          } else if module_name == "logscan" {
+              .event.category = ["file", "malware"]
+              .event.type = ["info"]
+              .event.action = "thor-logscan-match"
+          } else if module_name == "evtx" {
+              .event.category = ["malware"]
+              .event.type = ["info"]
+              .event.action = "thor-evtx-match"
+          } else {
+              .event.category = ["malware"]
+              .event.type = ["info"]
+              .event.action = "thor-match"
+          }
+      } else {
+          .event.category = ["malware"]
+          .event.type = ["info"]
+          .event.action = "thor-match"
+      }
+
+      if exists(.file) {
+          file_path = to_string(.file) ?? null
+          del(.file)
+          if file_path != null && file_path != "" {
+              .file.path = file_path
+              .file.name = basename!(file_path)
+          }
+      }
+
+      if exists(.file_1) {
+          file_1_path = to_string(.file_1) ?? null
+          if file_1_path != null && file_1_path != "" {
+              .thor.primary.file.path = file_1_path
+              if !exists(.file.path) {
+                  .file.path = file_1_path
+                  .file.name = basename!(file_1_path)
+              }
+          }
+      }
+  - set:
+      thor.primary.file.exists: to_string(.exists_1) ?? null
+  - custom: |2-
+      if exists(.ext) {
+          .file.extension = replace(to_string!(.ext), ".", "")
+      }
+
+      if exists(.type) {
+          .file.type = to_string(.type) ?? null
+      } else if exists(.type_1) {
+          .file.type = to_string(.type_1) ?? null
+      }
+
+      if exists(.size) {
+          file_size = to_int(.size) ?? null
+          if file_size != null {
+              .file.size = file_size
+          }
+      } else if exists(.size_1) {
+          file_size = to_int(.size_1) ?? null
+          if file_size != null {
+              .file.size = file_size
+          }
+      }
+
+      if exists(.md5) {
+          .file.hash.md5 = to_string(.md5) ?? null
+      } else if exists(.md5_1) {
+          .file.hash.md5 = to_string(.md5_1) ?? null
+      }
+
+      if exists(.sha1) {
+          .file.hash.sha1 = to_string(.sha1) ?? null
+      } else if exists(.sha1_1) {
+          .file.hash.sha1 = to_string(.sha1_1) ?? null
+      }
+
+      if exists(.sha256) {
+          .file.hash.sha256 = to_string(.sha256) ?? null
+      } else if exists(.sha256_1) {
+          .file.hash.sha256 = to_string(.sha256_1) ?? null
+      }
+
+      if exists(.permissions) {
+          .file.mode = to_string(.permissions) ?? null
+      } else if exists(.permissions_1) {
+          .file.mode = to_string(.permissions_1) ?? null
+      }
+
+      if exists(.owner) {
+          .file.owner = to_string(.owner) ?? null
+      } else if exists(.owner_1) {
+          .file.owner = to_string(.owner_1) ?? null
+      }
+
+      if exists(.group) {
+          .file.group = to_string(.group) ?? null
+      } else if exists(.group_1) {
+          .file.group = to_string(.group_1) ?? null
+      }
+
+      if exists(.firstbytes) {
+          .thor.file.first_bytes = to_string(.firstbytes) ?? null
+      } else if exists(.firstbytes_1) {
+          .thor.file.first_bytes = to_string(.firstbytes_1) ?? null
+      }
+
+      if exists(.event_id) {
+          event_id = to_int(.event_id) ?? null
+          if event_id != null {
+              .winlog.event_id = event_id
+              .event.code = to_string!(event_id)
+          } else {
+              .event.code = to_string(.event_id) ?? null
+          }
+      }
+  - set:
+      winlog.level: to_string(.event_level) ?? null
+      winlog.channel: to_string(.event_channel) ?? null
+      thor.entry: to_string(.entry) ?? .entry
+      thor.log.modified: to_string(.log_modified) ?? null
+      thor.log.accessed: to_string(.log_accessed) ?? null
+  - delete:
+      - time
+      - hostname
+      - level
+      - module
+      - scanid
+      - score
+      - subscore_1
+      - reason_1
+      - rulename_1
+      - id_1
+      - description_1
+      - author_1
+      - ref_1
+      - ruledate_1
+      - sigtype_1
+      - sigclass_1
+      - falsepositives_1
+      - tags_1
+      - matched_1
+      - reasons_count
+      - event_id
+      - event_level
+      - event_channel
+      - event_computer
+      - event_time
+      - log_version
+      - file_1
+      - exists_1
+      - ext
+      - type
+      - type_1
+      - size
+      - size_1
+      - md5
+      - md5_1
+      - sha1
+      - sha1_1
+      - sha256
+      - sha256_1
+      - changed
+      - changed_1
+      - modified
+      - modified_1
+      - accessed
+      - accessed_1
+      - permissions
+      - permissions_1
+      - owner
+      - owner_1
+      - group
+      - group_1
+      - firstbytes
+      - firstbytes_1
+      - log_modified
+      - log_accessed
+      - entry

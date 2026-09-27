@@ -1,17 +1,10 @@
 win_enumlocs
 ============
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:enumlocs``**
-
-   * name_rex: ``--win_enumlocs\.jsonl$``
-   * path_suffix: ``win_enumlocs``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``event.start``, ``host.Ext.enumlocs.start_time``, ``host.Ext.enumlocs.start_time_raw``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S.%fZ``
-   * artifact: ``ENUMLOCS``
-   * normalize: ``ecs_normalize/windows/live_response/enumlocs.vrl``
+   * ``windows:live_response:enumlocs`` | name_rex: ``--win_enumlocs\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,49 @@ Parse Enumlocs.txt from DFIR ORC
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 
+   * - ``"windows.enumlocs"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[host, configuration]``
+     - ``event.category``
+   * - ``[info, inventory]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows enumlocs volume inventory"``
+     - ``event.provider``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.volume_id))``
+     - ``host.Ext.enumlocs.volume.id``
+   * - ``to_string!(del(.filesystem))``
+     - ``host.Ext.enumlocs.volume.filesystem``
+   * - ``to_string!(del(.status))``
+     - ``host.Ext.enumlocs.volume.status``
+   * - ``del(.entries)``
+     - ``host.Ext.enumlocs.volume.entries``
+   * - ``del(.MountedVolume)``
+     - ``host.Ext.enumlocs.volume.mounted_volumes``
+   * - ``del(.PhysicalDriveVolume)``
+     - ``host.Ext.enumlocs.volume.physical_drive_volume_raw``
+   * - ``del(.DiskInterfaceVolume)``
+     - ``host.Ext.enumlocs.volume.disk_interface_volume_raw``
+   * - ``del(.Snapshot)``
+     - ``host.Ext.enumlocs.volume.snapshots``
+   * - ``custom``
+     - 

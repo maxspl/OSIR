@@ -1,18 +1,10 @@
 hayabusa
 ========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``hayabusa``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``hayabusa``
-   * sourcetype: ``hayabusa``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``hayabusa``
-   * normalize: ``ecs_normalize/scan/hayabusa.vrl``
+   * ``hayabusa`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -22,27 +14,37 @@ Hayabusa scan of evtx files
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``custom``
+     - 
+   * - ``"event"``
+     - ``event.kind``
+   * - ``"hayabusa"``
+     - ``event.module``
+   * - ``"hayabusa"``
+     - ``agent.type``
+   * - ``custom``
+     - 
+   * - ``del(.Computer)``
+     - ``host.name``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.RecordID))``
+     - ``winlog.record_id``
+   * - ``del(.Details)``
+     - ``hayabusa.details``
+   * - ``del(.ExtraFieldInfo)``
+     - ``hayabusa.extra``
+   * - ``custom``
+     - 

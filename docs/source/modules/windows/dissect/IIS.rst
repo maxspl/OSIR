@@ -1,17 +1,10 @@
 IIS
 ===
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:iis``**
-
-   * name_rex: ``--IIS\.jsonl$``
-   * host_rex: ``([\w\.-]+)--``
-   * path_suffix: ``IIS``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``IIS``
-   * normalize: ``ecs_normalize/windows/iis.vrl``
+   * ``windows:iis`` | name_rex: ``--IIS\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,39 @@ Parse IIS from DFIR ORC restore\_fs using Dissect plugin
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``custom``
+     - 
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[web]``
+     - ``event.category``
+   * - ``[access]``
+     - ``event.type``
+   * - ``"iis.access"``
+     - ``event.dataset``
+   * - ``"iis"``
+     - ``event.module``
+   * - ``"unknown"``
+     - ``event.outcome``
+   * - ``custom``
+     - 
+   * - ``del(._recorddescriptor)``
+     - ``event.Ext.iis.recorddescriptor``
+   * - ``del(._classification)``
+     - ``event.Ext.iis.classification``
+   * - ``custom``
+     - 

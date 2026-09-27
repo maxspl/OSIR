@@ -1,15 +1,10 @@
 ogre-tcp-connection
 ===================
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:ogre:tcp_connection``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``ogre-tcp-connection``
-   * sourcetype: ``windows:ogre:tcp_connection``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``network``
+   * ``windows:ogre:tcp_connection`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Parsing of tcpvcon - using ANSSI DFIR OGRE
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

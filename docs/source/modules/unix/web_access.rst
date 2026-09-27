@@ -1,17 +1,10 @@
 web_access
 ==========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:web_access``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``web_access``
-   * sourcetype: ``linux:web_access``
-   * host_rex: ``-([\w\.-]+?)--``
-   * timestamp_path: ``ts``, ``ts_raw``
-   * timestamp_format: ``%d/%b/%Y:%H:%M:%S.%f %z``
-   * artifact: ``web_access``
+   * ``linux:web_access`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Parsing web access logs
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

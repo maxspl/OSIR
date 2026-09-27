@@ -1,15 +1,10 @@
 ssh
 ===
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:ssh``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``ssh``
-   * sourcetype: ``linux:ssh``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``ssh``
+   * ``linux:ssh`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Parse ssh authorized\_keys,known\_hosts,private\_keys,public\_keys,config,sessio
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

@@ -1,15 +1,10 @@
 user_details
 ============
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:user_details``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``user_details``
-   * sourcetype: ``linux:user_details``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``user_details``
+   * ``linux:user_details`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Parse user infos from UAC [root] using Dissect plugin
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

@@ -27,9 +27,9 @@
 <link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
 <link href="_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
+<link href="_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
-<link href="src.osir_vrl.osir_vrl.actions.html" rel="next" title="src.osir_vrl.osir_vrl.actions package"/>
 <link href="src.osir_vrl.html" rel="prev" title="src.osir_vrl package"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
@@ -359,7 +359,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="packages/lib.html">OSIR Lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packages/lib.html">OSIR Library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packages/service.html">OSIR Service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packages/web.html">OSIR Web</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packages/api.html">OSIR Api</a></li>
@@ -429,10 +429,7 @@
 </ul>
 </li>
 <li class="toctree-l3 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
-<li class="toctree-l4 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="current reference internal expandable" href="#">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -494,10 +491,7 @@
 </ul>
 </li>
 <li class="toctree-l2 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
-<li class="toctree-l3 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="current reference internal expandable" href="#">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -529,247 +523,367 @@
 <div id="content" role="main">
 <section id="src-osir-vrl-osir-vrl-package">
 <h1>src.osir_vrl.osir_vrl package</h1>
-<section id="subpackages">
-<h2>Subpackages</h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#module-src.osir_vrl.osir_vrl.actions.OsirVrlCustom">src.osir_vrl.osir_vrl.actions.OsirVrlCustom module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom"><code class="docutils literal notranslate"><span class="pre">OsirVrlCustom</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom.custom"><code class="docutils literal notranslate"><span class="pre">OsirVrlCustom.custom</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlCustom.filter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlCustom.model_config</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlCustom.to_vrl()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#module-src.osir_vrl.osir_vrl.actions.OsirVrlDelete">src.osir_vrl.osir_vrl.actions.OsirVrlDelete module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete"><code class="docutils literal notranslate"><span class="pre">OsirVrlDelete</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete.delete"><code class="docutils literal notranslate"><span class="pre">OsirVrlDelete.delete</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlDelete.filter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlDelete.model_config</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlDelete.to_vrl()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#module-src.osir_vrl.osir_vrl.actions.OsirVrlSet">src.osir_vrl.osir_vrl.actions.OsirVrlSet module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet"><code class="docutils literal notranslate"><span class="pre">OsirVrlSet</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlSet.filter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlSet.model_config</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.set"><code class="docutils literal notranslate"><span class="pre">OsirVrlSet.set</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlSet.to_vrl()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#module-src.osir_vrl.osir_vrl.actions.OsirVrlTranslate">src.osir_vrl.osir_vrl.actions.OsirVrlTranslate module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate.dictionary"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate.dictionary</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate.fallback"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate.fallback</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate.filter</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate.mapping"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate.mapping</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate.model_config</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlTranslate.to_vrl()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#module-src.osir_vrl.osir_vrl.actions">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
 <section id="submodules">
 <h2>Submodules</h2>
 </section>
-<section id="module-src.osir_vrl.osir_vrl.OsirVrlDescription">
-<span id="src-osir-vrl-osir-vrl-osirvrldescription-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlDescription module</h2>
+<section id="module-src.osir_vrl.osir_vrl.OsirVrlBlock">
+<span id="src-osir-vrl-osir-vrl-osirvrlblock-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlBlock module</h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlDescription.</span></span><span class="sig-name descname"><span class="pre">OsirVrlCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlDescription.html#OsirVrlCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlBlock.</span></span><span class="sig-name descname"><span class="pre">OsirVrlBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlBlock.html#OsirVrlBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>One item of the <cite>transformation</cite> list: a typed block holding one or
+several entries, expanded (in order) into linear VRL instructions.</p>
+<dl class="simple">
+<dt>Block kinds (v1 structure):</dt><dd><ul class="simple">
+<li><dl class="simple">
+<dt>set:       mapping <cite>target: spec</cite>, spec being either a shorthand</dt><dd><p>string (a field path / VRL expression used as source) or
+a mapping with <cite>source</cite> / <cite>value</cite> / <cite>operation</cite> /
+<cite>parameters</cite> / <cite>on_error</cite></p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>translate: <cite>mapping: {target: source}</cite> + shared <cite>dictionary</cite> and</dt><dd><p>optional <cite>fallback</cite></p>
+</dd>
+</dl>
+</li>
+<li><p>delete:    list of field names to <cite>del()</cite></p></li>
+<li><p>custom:    raw VRL code</p></li>
+</ul>
+</dd>
+</dl>
+<p><cite>filter</cite> (raw VRL) and <cite>conditions</cite> (declarative, timeline semantics)
+sit at the block level, next to the kind key, and guard every entry of
+the block.</p>
+<p>Entries of a block are rendered in mapping order; blocks are rendered in
+list order, so the whole <cite>transformation</cite> list stays a linear program.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.field">
-<span class="sig-name descname"><span class="pre">field</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.conditions">
+<span class="sig-name descname"><span class="pre">conditions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.value">
-<span class="sig-name descname"><span class="pre">value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlDescription.</span></span><span class="sig-name descname"><span class="pre">OsirVrlDescription</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relationships</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship" title="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship"><span class="pre">OsirVrlRelationship</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlDescription.html#OsirVrlDescription"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.conditions">
-<span class="sig-name descname"><span class="pre">conditions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.custom">
+<span class="sig-name descname"><span class="pre">custom</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.message">
-<span class="sig-name descname"><span class="pre">message</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.relationships">
-<span class="sig-name descname"><span class="pre">relationships</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship" title="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship"><span class="pre">OsirVrlRelationship</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
 <dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.to_vrl">
-<span class="sig-name descname"><span class="pre">to_vrl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlDescription.html#OsirVrlDescription.to_vrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.entries">
+<span class="sig-name descname"><span class="pre">entries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation" title="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation"><span class="pre">OsirVrlTransformation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlBlock.html#OsirVrlBlock.entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>The block expanded into linear transformation entries, in order.</p>
 </dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlDescription.</span></span><span class="sig-name descname"><span class="pre">OsirVrlRelationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlDescription.html#OsirVrlRelationship"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.source">
-<span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.target">
-<span class="sig-name descname"><span class="pre">target</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.type">
-<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
-<dd></dd></dl>
-</dd></dl>
-</section>
-<section id="module-src.osir_vrl.osir_vrl.OsirVrlField">
-<span id="src-osir-vrl-osir-vrl-osirvrlfield-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlField module</h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlField.</span></span><span class="sig-name descname"><span class="pre">OsirVrlField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlField.html#OsirVrlField"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.description">
-<span class="sig-name descname"><span class="pre">description</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> – The context.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.name">
-<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.type">
-<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>
 <section id="module-src.osir_vrl.osir_vrl.OsirVrlModel">
 <span id="src-osir-vrl-osir-vrl-osirvrlmodel-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlModel module</h2>
 <dl class="py class">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlModel.</span></span><span class="sig-name descname"><span class="pre">OsirVrlMetadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">os</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'windows'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'unix'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ios'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'macos'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'network'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'android'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'generic'</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlMetadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">OsirMetadataModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.id">
+<span class="sig-name descname"><span class="pre">id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlModel.</span></span><span class="sig-name descname"><span class="pre">OsirVrlModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel" title="src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel"><span class="pre">OsirMetadataModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep" title="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep"><span class="pre">OsirVrlPipelineStep</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage" title="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage"><span class="pre">OsirVrlStage</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField" title="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField"><span class="pre">OsirVrlField</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">descriptions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription" title="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription"><span class="pre">OsirVrlDescription</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlModel.</span></span><span class="sig-name descname"><span class="pre">OsirVrlModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata" title="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata"><span class="pre">OsirVrlMetadata</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource" title="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource"><span class="pre">OsirVrlSource</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock"><span class="pre">OsirVrlBlock</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry"><span class="pre">OsirVrlTimelineEntry</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.descriptions">
-<span class="sig-name descname"><span class="pre">descriptions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription" title="src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription"><span class="pre">OsirVrlDescription</span></a><span class="p"><span class="pre">]</span></span></span></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.fields">
-<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField" title="src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField"><span class="pre">OsirVrlField</span></a><span class="p"><span class="pre">]</span></span></span></dt>
-<dd></dd></dl>
+<p>Declarative VRL program: metadata + source, an ordered list of
+transformation blocks (<cite>set</cite> / <cite>translate</cite> / <cite>delete</cite> / <cite>custom</cite>, each
+expanded linearly: first entry = first VRL instruction), then the
+timeline (message / relationships / conditions).</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.entries">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">entries</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation" title="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation"><span class="pre">OsirVrlTransformation</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dd><p>All transformation entries, flattened in program order.</p>
+</dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.from_yaml">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel" title="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel"><span class="pre">OsirVrlModel</span></a></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlModel.from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.metadata">
-<span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel" title="src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel"><span class="pre">OsirMetadataModel</span></a></span></dt>
+<span class="sig-name descname"><span class="pre">metadata</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata" title="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata"><span class="pre">OsirVrlMetadata</span></a></span></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.pipeline">
-<span class="sig-name descname"><span class="pre">pipeline</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep" title="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep"><span class="pre">OsirVrlPipelineStep</span></a><span class="p"><span class="pre">]</span></span></span></dt>
-<dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.save_vrl">
 <span class="sig-name descname"><span class="pre">save_vrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlModel.save_vrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.stages">
-<span class="sig-name descname"><span class="pre">stages</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage" title="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage"><span class="pre">OsirVrlStage</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.source">
+<span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource" title="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource"><span class="pre">OsirVrlSource</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.timeline">
+<span class="sig-name descname"><span class="pre">timeline</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry"><span class="pre">OsirVrlTimelineEntry</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd></dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.to_vrl">
 <span class="sig-name descname"><span class="pre">to_vrl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlModel.to_vrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.transformation">
+<span class="sig-name descname"><span class="pre">transformation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock"><span class="pre">OsirVrlBlock</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dd></dd></dl>
 </dd></dl>
-</section>
-<section id="module-src.osir_vrl.osir_vrl.OsirVrlPipeline">
-<span id="src-osir-vrl-osir-vrl-osirvrlpipeline-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlPipeline module</h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlPipeline.</span></span><span class="sig-name descname"><span class="pre">OsirVrlPipelineStep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlPipeline.html#OsirVrlPipelineStep"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlModel.</span></span><span class="sig-name descname"><span class="pre">OsirVrlSource</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">internal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlModel.html#OsirVrlSource"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.filter">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.internal">
+<span class="sig-name descname"><span class="pre">internal</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.raw">
+<span class="sig-name descname"><span class="pre">raw</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.tools">
+<span class="sig-name descname"><span class="pre">tools</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-src.osir_vrl.osir_vrl.OsirVrlTimeline">
+<span id="src-osir-vrl-osir-vrl-osirvrltimeline-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlTimeline module</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlTimeline.</span></span><span class="sig-name descname"><span class="pre">OsirVrlCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTimeline.html#OsirVrlCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>One declarative condition: no value -&gt; exists(), <cite>exists: false</cite> -&gt;
+!exists(), otherwise an equality test.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.exists">
+<span class="sig-name descname"><span class="pre">exists</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.field">
+<span class="sig-name descname"><span class="pre">field</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlTimeline.</span></span><span class="sig-name descname"><span class="pre">OsirVrlRelationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTimeline.html#OsirVrlRelationship"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.source">
+<span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.target">
+<span class="sig-name descname"><span class="pre">target</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlTimeline.</span></span><span class="sig-name descname"><span class="pre">OsirVrlTimelineEntry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relationships</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship"><span class="pre">OsirVrlRelationship</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTimeline.html#OsirVrlTimelineEntry"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.conditions">
+<span class="sig-name descname"><span class="pre">conditions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.message">
+<span class="sig-name descname"><span class="pre">message</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.relationships">
+<span class="sig-name descname"><span class="pre">relationships</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship"><span class="pre">OsirVrlRelationship</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dd></dd></dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.to_vrl">
+<span class="sig-name descname"><span class="pre">to_vrl</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTimeline.html#OsirVrlTimelineEntry.to_vrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd></dd></dl>
+</dd></dl>
+</section>
+<section id="module-src.osir_vrl.osir_vrl.OsirVrlTransformation">
+<span id="src-osir-vrl-osir-vrl-osirvrltransformation-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlTransformation module</h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlTransformation.</span></span><span class="sig-name descname"><span class="pre">OsirVrlTransformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictionary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTransformation.html#OsirVrlTransformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>One linear transformation step: the first item of <cite>transformations</cite>
+is the first VRL instruction, the second the second, and so on.</p>
+<p>A <cite>source</cite> is either a dotted field path (guarded by exists(), rendered
+as <cite>.path</cite>) or a raw VRL expression (rendered verbatim, guarded on the
+fields it references). Use <cite>value</cite> for literal values instead.</p>
+<p>Types (mostly inferred):</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>normalization / transformation (default): <cite>.target = operation(source, parameters…)</cite>, <cite>.target = source</cite> or <cite>.target = value</cite></p></li>
+<li><p>translation (inferred from <cite>dictionary</cite>/<cite>fallback</cite>): <cite>.target = get(value: dictionary, path: [to_string(source)]) ?? fallback</cite></p></li>
+<li><p>deletion (inferred when no <cite>target</cite>): <cite>del(.source)</cite> per field</p></li>
+<li><p>custom (explicit): raw VRL code in <cite>source</cite> (escape hatch)</p></li>
+</ul>
+</div></blockquote>
+<p>Guards: an entry is rendered inside <cite>if &lt;guard&gt; { … }</cite> combining, in
+order, the raw VRL <cite>filter</cite>, the declarative <cite>conditions</cite> (timeline
+semantics: no value -&gt; exists(), otherwise equality) and the default
+source guards.</p>
+<p>Error handling (default): VRL functions taking an event field (type <cite>any</cite>)
+are fallible at compile time, so an <cite>operation</cite> is by default rendered with
+the non-aborting error-handling pattern:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">_result</span><span class="p">,</span> <span class="n">err</span> <span class="o">=</span> <span class="n">operation</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span id="line-2"><span class="k">if</span> <span class="n">err</span> <span class="o">==</span> <span class="n">null</span> <span class="p">{</span>
+</span><span id="line-3">    <span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">_result</span>
+</span><span id="line-4"><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span id="line-5">    <span class="n">log</span><span class="p">(</span><span class="s2">"[module] échec ... : "</span> <span class="o">+</span> <span class="n">err</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="s2">"warn"</span><span class="p">)</span>
+</span><span id="line-6"><span class="p">}</span>
+</span></code></pre></div>
+</div>
+<p>Opt-outs:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><cite>operation: downcase!</cite> (bang variant): aborting call, rendered verbatim</p></li>
+<li><p>operation listed in INFALLIBLE_OPERATIONS: direct call (destructured calls on infallible functions are compile error E104)</p></li>
+<li><p><cite>on_error: direct</cite>: render the call verbatim (escape hatch)</p></li>
+</ul>
+</div></blockquote>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.conditions">
+<span class="sig-name descname"><span class="pre">conditions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition" title="src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><span class="pre">OsirVrlCondition</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.dictionary">
+<span class="sig-name descname"><span class="pre">dictionary</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.fallback">
+<span class="sig-name descname"><span class="pre">fallback</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.filter">
 <span class="sig-name descname"><span class="pre">filter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'extra':</span> <span class="pre">'forbid'}</span></span></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.name">
-<span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span></dt>
-<dd></dd></dl>
-</dd></dl>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlPipeline.</span></span><span class="sig-name descname"><span class="pre">OsirVrlStage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlPipeline.html#OsirVrlStage"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.actions">
-<span class="sig-name descname"><span class="pre">actions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.on_error">
+<span class="sig-name descname"><span class="pre">on_error</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
 <dd></dd></dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></span></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.operation">
+<span class="sig-name descname"><span class="pre">operation</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.source">
+<span class="sig-name descname"><span class="pre">source</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.target">
+<span class="sig-name descname"><span class="pre">target</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.parsed_actions">
-<span class="sig-name descname"><span class="pre">parsed_actions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet" title="src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet"><span class="pre">OsirVrlSet</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate" title="src.osir_vrl.osir_vrl.actions.OsirVrlTranslate.OsirVrlTranslate"><span class="pre">OsirVrlTranslate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete" title="src.osir_vrl.osir_vrl.actions.OsirVrlDelete.OsirVrlDelete"><span class="pre">OsirVrlDelete</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom" title="src.osir_vrl.osir_vrl.actions.OsirVrlCustom.OsirVrlCustom"><span class="pre">OsirVrlCustom</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlPipeline.html#OsirVrlStage.parsed_actions"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.to_vrl">
+<span class="sig-name descname"><span class="pre">to_vrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flat_fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">frozenset({})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTransformation.html#OsirVrlTransformation.to_vrl"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.type">
+<span class="sig-name descname"><span class="pre">type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></dt>
+<dd></dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.value">
+<span class="sig-name descname"><span class="pre">value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Any</span></span></dt>
+<dd></dd></dl>
+</dd></dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlTransformation.is_path">
+<span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlTransformation.</span></span><span class="sig-name descname"><span class="pre">is_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlTransformation.html#is_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>True when a source is a plain dotted field path (as opposed to a VRL expression).</p>
 </dd></dl>
 </section>
 <section id="module-src.osir_vrl.osir_vrl.OsirVrlUtils">
 <span id="src-osir-vrl-osir-vrl-osirvrlutils-module"></span><h2>src.osir_vrl.osir_vrl.OsirVrlUtils module</h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlUtils.OsirVrlVRL">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlUtils.</span></span><span class="sig-name descname"><span class="pre">OsirVrlVRL</span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlUtils.html#OsirVrlVRL"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlUtils.condition_guard">
+<span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlUtils.</span></span><span class="sig-name descname"><span class="pre">condition_guard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlUtils.html#condition_guard"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>VRL guard for one declarative condition: no value -&gt; exists(),
+<cite>exists: false</cite> -&gt; !exists(), otherwise an equality test (same semantics
+for transformation entries and timeline entries).</p>
 </dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlUtils.extract_vrl_fields">
@@ -778,10 +892,6 @@
 <p>Supports plain fields (.foo.bar), quoted segments (.”#text”), and mixed chains
 (.Event.System.EventID.”#text”).</p>
 </dd></dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlUtils.parse_vrl_tag">
-<span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlUtils.</span></span><span class="sig-name descname"><span class="pre">parse_vrl_tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlUtils.html#parse_vrl_tag"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd></dd></dl>
 <dl class="py function">
 <dt class="sig sig-object py" id="src.osir_vrl.osir_vrl.OsirVrlUtils.render_value">
 <span class="sig-prename descclassname"><span class="pre">src.osir_vrl.osir_vrl.OsirVrlUtils.</span></span><span class="sig-name descname"><span class="pre">render_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/src/osir_vrl/osir_vrl/OsirVrlUtils.html#render_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
@@ -794,76 +904,98 @@
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">
 <div class="sticky top-16 -mt-10 max-h-[calc(100vh-5rem)] h-full overflow-y-auto pt-6 space-y-2"><p class="font-medium">On this page</p>
 <ul>
-<li><a :data-current="activeSection === '#subpackages'" class="reference internal" href="#subpackages">Subpackages</a></li>
 <li><a :data-current="activeSection === '#submodules'" class="reference internal" href="#submodules">Submodules</a></li>
-<li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlDescription'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlDescription">src.osir_vrl.osir_vrl.OsirVrlDescription module</a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.field'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.field"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.field</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.value'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlCondition.value"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.value</span></code></a></li>
-</ul>
-</li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription"><code class="docutils literal notranslate"><span class="pre">OsirVrlDescription</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.conditions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.conditions"><code class="docutils literal notranslate"><span class="pre">OsirVrlDescription.conditions</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.message'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.message"><code class="docutils literal notranslate"><span class="pre">OsirVrlDescription.message</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlDescription.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.relationships'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.relationships"><code class="docutils literal notranslate"><span class="pre">OsirVrlDescription.relationships</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.to_vrl'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlDescription.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlDescription.to_vrl()</span></code></a></li>
-</ul>
-</li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.source'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.source"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.source</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.target'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.target"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.target</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.type'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlDescription.OsirVrlRelationship.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.type</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlField'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlField">src.osir_vrl.osir_vrl.OsirVrlField module</a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField"><code class="docutils literal notranslate"><span class="pre">OsirVrlField</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.description'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.description"><code class="docutils literal notranslate"><span class="pre">OsirVrlField.description</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlField.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.name'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.name"><code class="docutils literal notranslate"><span class="pre">OsirVrlField.name</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.type'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlField.OsirVrlField.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlField.type</span></code></a></li>
+<li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlBlock'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlBlock">src.osir_vrl.osir_vrl.OsirVrlBlock module</a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.conditions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.conditions"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.conditions</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.custom'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.custom"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.custom</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.delete'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.delete"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.delete</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.entries'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.entries"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.entries()</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.filter'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.filter</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_post_init'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_post_init"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.model_post_init()</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.set</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.translate'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.translate"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.translate</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlModel'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlModel">src.osir_vrl.osir_vrl.OsirVrlModel module</a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.id'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.id"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.id</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.type'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.type</span></code></a></li>
+</ul>
+</li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.descriptions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.descriptions"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.descriptions</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.fields'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.fields</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.entries'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.entries"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.entries</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.from_yaml'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.from_yaml()</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.metadata'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.metadata"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.metadata</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.pipeline'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.pipeline"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.pipeline</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.save_vrl'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.save_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.save_vrl()</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.stages'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.stages"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.stages</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.source'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.source"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.source</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.timeline'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.timeline"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.timeline</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.to_vrl'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.to_vrl()</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.transformation'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.transformation"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.transformation</span></code></a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.internal'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.internal"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.internal</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.raw'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.raw"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.raw</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.tools'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.tools"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.tools</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlPipeline'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlPipeline">src.osir_vrl.osir_vrl.OsirVrlPipeline module</a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep"><code class="docutils literal notranslate"><span class="pre">OsirVrlPipelineStep</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.filter'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlPipelineStep.filter</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlPipelineStep.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.name'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlPipelineStep.name"><code class="docutils literal notranslate"><span class="pre">OsirVrlPipelineStep.name</span></code></a></li>
+<li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlTimeline'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlTimeline">src.osir_vrl.osir_vrl.OsirVrlTimeline module</a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.exists'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.exists"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.exists</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.field'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.field"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.field</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.value'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.value"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.value</span></code></a></li>
 </ul>
 </li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage"><code class="docutils literal notranslate"><span class="pre">OsirVrlStage</span></code></a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.actions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.actions"><code class="docutils literal notranslate"><span class="pre">OsirVrlStage.actions</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlStage.model_config</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.parsed_actions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlPipeline.OsirVrlStage.parsed_actions"><code class="docutils literal notranslate"><span class="pre">OsirVrlStage.parsed_actions()</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.source'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.source"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.source</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.target'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.target"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.target</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.type'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.type</span></code></a></li>
 </ul>
 </li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.conditions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.conditions"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.conditions</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.message'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.message"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.message</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.relationships'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.relationships"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.relationships</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.to_vrl'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.to_vrl()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlTransformation'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlTransformation">src.osir_vrl.osir_vrl.OsirVrlTransformation module</a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation</span></code></a><ul>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.conditions'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.conditions"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.conditions</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.dictionary'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.dictionary"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.dictionary</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.fallback'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.fallback"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.fallback</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.filter'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.filter</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_config'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.model_config</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.on_error'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.on_error"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.on_error</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.operation'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.operation"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.operation</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.parameters'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.parameters"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.parameters</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.source'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.source"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.source</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.target'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.target"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.target</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.to_vrl'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.to_vrl()</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.type'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.type</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.value'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.value"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.value</span></code></a></li>
+</ul>
+</li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlTransformation.is_path'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlTransformation.is_path"><code class="docutils literal notranslate"><span class="pre">is_path()</span></code></a></li>
 </ul>
 </li>
 <li><a :data-current="activeSection === '#module-src.osir_vrl.osir_vrl.OsirVrlUtils'" class="reference internal" href="#module-src.osir_vrl.osir_vrl.OsirVrlUtils">src.osir_vrl.osir_vrl.OsirVrlUtils module</a><ul>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlUtils.OsirVrlVRL'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlUtils.OsirVrlVRL"><code class="docutils literal notranslate"><span class="pre">OsirVrlVRL</span></code></a></li>
+<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlUtils.condition_guard'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlUtils.condition_guard"><code class="docutils literal notranslate"><span class="pre">condition_guard()</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlUtils.extract_vrl_fields'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlUtils.extract_vrl_fields"><code class="docutils literal notranslate"><span class="pre">extract_vrl_fields()</span></code></a></li>
-<li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlUtils.parse_vrl_tag'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlUtils.parse_vrl_tag"><code class="docutils literal notranslate"><span class="pre">parse_vrl_tag()</span></code></a></li>
 <li><a :data-current="activeSection === '#src.osir_vrl.osir_vrl.OsirVrlUtils.render_value'" class="reference internal" href="#src.osir_vrl.osir_vrl.OsirVrlUtils.render_value"><code class="docutils literal notranslate"><span class="pre">render_value()</span></code></a></li>
 </ul>
 </li>

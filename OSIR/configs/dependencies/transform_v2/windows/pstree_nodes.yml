@@ -1,0 +1,150 @@
+metadata:
+  version: "1.0"
+  id: pstree_nodes
+  author: Typ
+  description: Windows live response – process tree nodes → ECS
+
+transformation:
+  - set:
+      event.dataset:
+        value: windows.pstree_nodes
+      event.module:
+        value: windows
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [info]
+      event.action:
+        value: process_tree_node
+      event.outcome:
+        value: success
+      event.original: encode_json!(.)
+  - custom: |2-
+      if exists(.tree_id) {
+          tid = to_int(.tree_id) ?? null
+
+          if tid != null {
+              .pstree.tree_id = tid
+          } else {
+              .pstree.tree_id_raw = to_string!(.tree_id)
+          }
+
+          del(.tree_id)
+      }
+
+      if exists(.node_key) {
+          nk = to_int(.node_key) ?? null
+
+          if nk != null {
+              .pstree.node_key = nk
+          } else {
+              .pstree.node_key_raw = to_string!(.node_key)
+          }
+
+          del(.node_key)
+      }
+
+      if exists(.parent_key) {
+          pk = to_int(.parent_key) ?? null
+
+          if pk != null {
+              .pstree.parent_key = pk
+          } else {
+              .pstree.parent_key_raw = to_string!(.parent_key)
+          }
+
+          del(.parent_key)
+      }
+
+      if exists(.depth) {
+          d = to_int(.depth) ?? null
+
+          if d != null {
+              .pstree.depth = d
+          } else {
+              .pstree.depth_raw = to_string!(.depth)
+          }
+
+          del(.depth)
+      }
+
+      if exists(.pid) {
+          pid_val = to_int(.pid) ?? null
+
+          if pid_val != null {
+              .process.pid    = pid_val
+              .pstree.pid     = pid_val
+          } else {
+              .pstree.pid_raw = to_string!(.pid)
+          }
+
+          del(.pid)
+      }
+
+      if exists(.ppid) {
+          ppid_val = to_int(.ppid) ?? null
+
+          if ppid_val != null {
+              .process.parent.pid = ppid_val
+              .pstree.ppid        = ppid_val
+          } else {
+              .pstree.ppid_raw = to_string!(.ppid)
+          }
+
+          del(.ppid)
+      }
+
+      if exists(.exe) {
+          exe = to_string!(del(.exe))
+          if exe != "" {
+              .process.executable = exe
+              .process.name       = exe   # these entries only have the image name
+              .pstree.exe         = exe
+          }
+      }
+
+      if exists(.cmdline) {
+          cl = to_string!(.cmdline)
+
+          if cl != "" {
+              .process.command_line = cl
+              .pstree.cmdline       = cl
+          }
+
+          del(.cmdline)
+      } else {
+          del(.cmdline)
+      }
+
+      if exists(.time) {
+          t_raw = to_string!(.time)
+
+          ts = parse_timestamp(t_raw, format: "%+") ?? null
+
+          if ts != null {
+              .timestamp     = ts
+              .event.created = ts
+              .process.start = ts
+              .pstree.time   = ts
+          } else if t_raw != "" {
+              .pstree.time_raw = t_raw
+          }
+
+          del(.time)
+      }
+
+      if exists(.ancestor_pids_path) {
+          ap = to_string!(del(.ancestor_pids_path))
+          if ap != "" {
+              .pstree.ancestor_pids_path = ap      # e.g. "0->4"
+          }
+      }
+
+      if exists(.path) {
+          p = to_string!(del(.path))
+          if p != "" {
+              .pstree.path = p                     # e.g. "0->4->556"
+          }
+      }

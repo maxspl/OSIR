@@ -1,0 +1,93 @@
+metadata:
+  version: '1.0'
+  id: mactime
+  author: Typ
+  description: osir-mactime | Osir Transform description to normalize Mactime log file.
+
+transformation:
+  - set:
+      timestamp: to_string!(.Date)
+      file.size: to_int!(.Size)
+      file.mode: to_string!(.Mode)
+      file.uid: to_int!(.UID)
+      file.gid: to_int!(.GID)
+      file.name: 'get!(., path: ["File Name"])'
+      file.meta: to_string!(.Meta)
+  - translate:
+      mapping:
+        event.action: Type
+      dictionary:
+        '...b': Created
+        .a.b: Created
+        .acb: Created
+        .ab.: Created
+        m..b: Created
+        ma.b: Created
+        macb: Created
+        m.cb: Created
+        ..cb: Created
+        ..c.: Created
+        .ac.: Created
+        m.c.: Created
+        mac.: Created
+        m...: Modified
+        ma..: Modified
+        .a..: Accessed
+        '....': No activity recorded
+      fallback: Unknown
+  - delete:
+      - Date
+      - Size
+      - Type
+      - Mode
+      - UID
+      - GID
+      - Meta
+      - File Name
+
+timeline:
+- {message: '{file.name} — {event.action}', conditions: []}
+- {message: '{file.name} ({file.size} bytes) — {event.action}', conditions: [{field: file.size}]}
+- message: '{file.name} ({file.size} bytes, mode {file.mode}) — Created'
+  conditions:
+  - field: file.size
+  - field: file.mode
+  - field: event.action
+    value: Created
+- message: '{file.name} ({file.size} bytes, mode {file.mode}) — Created by uid {file.uid}'
+  conditions:
+  - field: file.size
+  - field: file.mode
+  - field: file.uid
+  - field: event.action
+    value: Created
+- message: '{file.name} ({file.size} bytes, mode {file.mode}) — Modified'
+  conditions:
+  - field: file.size
+  - field: file.mode
+  - field: event.action
+    value: Modified
+- message: '{file.name} ({file.size} bytes, mode {file.mode}) — Modified by uid {file.uid}'
+  conditions:
+  - field: file.size
+  - field: file.mode
+  - field: file.uid
+  - field: event.action
+    value: Modified
+- message: '{file.name} ({file.size} bytes, mode {file.mode}) — Accessed'
+  conditions:
+  - field: file.size
+  - field: file.mode
+  - field: event.action
+    value: Accessed
+- message: '{file.name} ({file.size} bytes, mode {file.mode}) — Accessed by uid {file.uid}'
+  conditions:
+  - field: file.size
+  - field: file.mode
+  - field: file.uid
+  - field: event.action
+    value: Accessed
+- message: '{file.name} — No activity recorded'
+  conditions:
+  - field: event.action
+    value: No activity recorded

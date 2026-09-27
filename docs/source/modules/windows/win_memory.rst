@@ -1,275 +1,38 @@
 win_memory
 ==========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:memory:devices``**
-
-   * name_rex: ``devices``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:device``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:device``
-
-   **``windows:live_response:memory:drivers``**
-
-   * name_rex: ``drivers``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:drivers``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:drivers``
-
-   **``windows:live_response:memory:files``**
-
-   * name_rex: ``files``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:files``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:files``
-
-   **``windows:live_response:memory:findevil``**
-
-   * name_rex: ``findevil``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:findevil``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:findevil``
-
-   **``windows:live_response:memory:general``**
-
-   * name_rex: ``general``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:general``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:general``
-
-   **``windows:live_response:memory:handles``**
-
-   * name_rex: ``handles``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:handles``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:handles``
-
-   **``windows:live_response:memory:modules``**
-
-   * name_rex: ``modules``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:modules``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:modules``
-
-   **``windows:live_response:memory:net``**
-
-   * name_rex: ``net``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:net``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S UTC``
-   * artifact: ``Memprocfs:net``
-
-   **``windows:live_response:memory:prefetch``**
-
-   * name_rex: ``prefetch``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:prefetch``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``RunTime1``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:prefetch``
-
-   **``windows:live_response:memory:process``**
-
-   * name_rex: ``process``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:process``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``CreateTime``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:process``
-
-   **``windows:live_response:memory:registry``**
-
-   * name_rex: ``registry``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:registry``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``lastwrite``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``Memprocfs:registry``
-
-   **``windows:live_response:memory:services``**
-
-   * name_rex: ``services``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:services``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:services``
-
-   **``windows:live_response:memory:sysinfo``**
-
-   * name_rex: ``sysinfo``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:sysinfo``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:sysinfo``
-
-   **``windows:live_response:memory:tasks``**
-
-   * name_rex: ``tasks``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:tasks``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``TimeCreate``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:tasks``
-
-   **``windows:live_response:memory:threads``**
-
-   * name_rex: ``threads``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:threads``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``CreateTime``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:threads``
-
-   **``windows:live_response:memory:timeline``**
-
-   * name_rex: ``timeline.json``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``date``, ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline``
-
-   **``windows:live_response:memory:timeline_all``**
-
-   * name_rex: ``timeline_all``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_all``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_all``
-
-   **``windows:live_response:memory:timeline_kernelobject``**
-
-   * name_rex: ``timeline_kernelobject``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_kernelobject``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_kernelobject``
-
-   **``windows:live_response:memory:timeline_net``**
-
-   * name_rex: ``timeline_net``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_net``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_net``
-
-   **``windows:live_response:memory:timeline_ntfs``**
-
-   * name_rex: ``timeline_ntfs``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_ntfs``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_ntfs``
-
-   **``windows:live_response:memory:timeline_prefetch``**
-
-   * name_rex: ``timeline_prefetch``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_prefetch``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_prefetch``
-
-   **``windows:live_response:memory:timeline_process``**
-
-   * name_rex: ``timeline_process``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_process``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_process``
-
-   **``windows:live_response:memory:timeline_registry``**
-
-   * name_rex: ``timeline_registry``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_registry``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_registry``
-
-   **``windows:live_response:memory:timeline_task``**
-
-   * name_rex: ``timeline_task``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_task``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_task``
-
-   **``windows:live_response:memory:timeline_thread``**
-
-   * name_rex: ``timeline_thread``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_thread``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_thread``
-
-   **``windows:live_response:memory:timeline_web``**
-
-   * name_rex: ``timeline_web``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:timeline_web``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``Time``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:timeline_web``
-
-   **``windows:live_response:memory:unloaded_modules``**
-
-   * name_rex: ``unloaded_modules``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:unloaded_modules``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * timestamp_path: ``UnloadTime``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S``
-   * artifact: ``Memprocfs:unloaded_modules``
-
-   **``windows:live_response:memory:virtualmachines``**
-
-   * name_rex: ``virtualmachines``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:virtualmachines``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:virtualmachines``
-
-   **``windows:live_response:memory:yara``**
-
-   * name_rex: ``yara``
-   * path_rex: ``win_memory/[^/]+$``
-   * sourcetype: ``windows:live_response:memory:ram:yara``
-   * host_rex: ``win_memory\/(.*?)\/``
-   * artifact: ``Memprocfs:yara``
+   * ``windows:live_response:memory:ram:device`` | name_rex: ``devices``
+   * ``windows:live_response:memory:ram:drivers`` | name_rex: ``drivers``
+   * ``windows:live_response:memory:ram:files`` | name_rex: ``files``
+   * ``windows:live_response:memory:ram:findevil`` | name_rex: ``findevil``
+   * ``windows:live_response:memory:ram:general`` | name_rex: ``general``
+   * ``windows:live_response:memory:ram:handles`` | name_rex: ``handles``
+   * ``windows:live_response:memory:ram:modules`` | name_rex: ``modules``
+   * ``windows:live_response:memory:ram:net`` | name_rex: ``net``
+   * ``windows:live_response:memory:ram:prefetch`` | name_rex: ``prefetch``
+   * ``windows:live_response:memory:ram:process`` | name_rex: ``process``
+   * ``windows:live_response:memory:ram:registry`` | name_rex: ``registry``
+   * ``windows:live_response:memory:ram:services`` | name_rex: ``services``
+   * ``windows:live_response:memory:ram:sysinfo`` | name_rex: ``sysinfo``
+   * ``windows:live_response:memory:ram:tasks`` | name_rex: ``tasks``
+   * ``windows:live_response:memory:ram:threads`` | name_rex: ``threads``
+   * ``windows:live_response:memory:ram:timeline`` | name_rex: ``timeline.json``
+   * ``windows:live_response:memory:ram:timeline_all`` | name_rex: ``timeline_all``
+   * ``windows:live_response:memory:ram:timeline_kernelobject`` | name_rex: ``timeline_kernelobject``
+   * ``windows:live_response:memory:ram:timeline_net`` | name_rex: ``timeline_net``
+   * ``windows:live_response:memory:ram:timeline_ntfs`` | name_rex: ``timeline_ntfs``
+   * ``windows:live_response:memory:ram:timeline_prefetch`` | name_rex: ``timeline_prefetch``
+   * ``windows:live_response:memory:ram:timeline_process`` | name_rex: ``timeline_process``
+   * ``windows:live_response:memory:ram:timeline_registry`` | name_rex: ``timeline_registry``
+   * ``windows:live_response:memory:ram:timeline_task`` | name_rex: ``timeline_task``
+   * ``windows:live_response:memory:ram:timeline_thread`` | name_rex: ``timeline_thread``
+   * ``windows:live_response:memory:ram:timeline_web`` | name_rex: ``timeline_web``
+   * ``windows:live_response:memory:ram:unloaded_modules`` | name_rex: ``unloaded_modules``
+   * ``windows:live_response:memory:ram:virtualmachines`` | name_rex: ``virtualmachines``
+   * ``windows:live_response:memory:ram:yara`` | name_rex: ``yara``
 
 Description
 -----------
@@ -279,27 +42,9 @@ Parsing of Windows memory dump.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

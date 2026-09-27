@@ -1,16 +1,10 @@
 cron
 ====
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:cron``**
-
-   * name_rex: ``cron.*\.jsonl$``
-   * sourcetype: ``linux:cron``
-   * host_rex: ``([\w\.-]+?)--``
-   * timestamp_path: ``_time``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S``
-   * artifact: ``cron``
+   * ``linux:cron`` | name_rex: ``cron.*\.jsonl$``
 
 Description
 -----------
@@ -20,27 +14,9 @@ Parsing logs from '/var/log/cron'
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

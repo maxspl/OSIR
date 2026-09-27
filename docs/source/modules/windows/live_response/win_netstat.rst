@@ -1,15 +1,10 @@
 win_netstat
 ===========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:netstat``**
-
-   * name_rex: ``--win_netstat\.jsonl$``
-   * path_suffix: ``win_netstat``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``NETSTAT``
-   * normalize: ``ecs_normalize/windows/live_response/netstat.vrl``
+   * ``windows:live_response:netstat`` | name_rex: ``--win_netstat\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,27 @@ Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``encode_json(.)``
+     - ``event.original``
+   * - ``"windows.netstat"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[network]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``custom``
+     - 

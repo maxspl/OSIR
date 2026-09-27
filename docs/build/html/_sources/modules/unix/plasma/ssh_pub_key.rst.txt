@@ -1,15 +1,10 @@
 ssh_pub_key
 ===========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:ssh_pub_key``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``ssh_pub_key``
-   * sourcetype: ``linux:ssh_pub_key``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``ssh_pub_key``
+   * ``linux:ssh_pub_key`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ SSH public keys found on disk
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

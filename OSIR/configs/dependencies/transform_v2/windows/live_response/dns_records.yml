@@ -1,0 +1,116 @@
+metadata:
+  version: "1.0"
+  id: dns_records
+  author: Typ
+  description: Windows enumlocs → ECS-ish host/volume inventory
+
+transformation:
+  - custom: |2-
+      if !exists(.event) || !exists(.event.original) {
+          .event.original = encode_json!(.)
+      }
+  - set:
+      event.dataset:
+        value: windows.enumlocs
+      event.module:
+        value: windows
+      event.kind:
+        value: state
+      event.category:
+        value: [host, configuration]
+      event.type:
+        value: [info, inventory]
+      event.outcome:
+        value: success
+      event.provider:
+        value: Windows enumlocs volume inventory
+  - custom: |2-
+      if exists(.type) {
+          type_raw = to_string!(del(.type))
+          type_l   = downcase(type_raw)
+
+          .event.code   = type_raw
+          .event.action = type_l
+      }
+  - set:
+      host.Ext.enumlocs.volume.id: to_string!(del(.volume_id))
+      host.Ext.enumlocs.volume.filesystem: to_string!(del(.filesystem))
+      host.Ext.enumlocs.volume.status: to_string!(del(.status))
+      host.Ext.enumlocs.volume.entries: del(.entries)
+      host.Ext.enumlocs.volume.mounted_volumes: del(.MountedVolume)
+      host.Ext.enumlocs.volume.physical_drive_volume_raw: del(.PhysicalDriveVolume)
+      host.Ext.enumlocs.volume.disk_interface_volume_raw: del(.DiskInterfaceVolume)
+      host.Ext.enumlocs.volume.snapshots: del(.Snapshot)
+  - custom: |2-
+      if exists(.parameters) {
+
+          if exists(.parameters."Start time") {
+              start_raw = to_string!(del(.parameters."Start time"))
+              ts = parse_timestamp(start_raw, "%+") ?? null
+              if ts != null {
+                  .event.start = ts
+                  .host.Ext.enumlocs.start_time = ts
+              } else {
+                  .host.Ext.enumlocs.start_time_raw = start_raw
+              }
+          }
+
+          if exists(.parameters."Computer name") {
+              comp_name = to_string!(del(.parameters."Computer name"))
+
+              if !exists(.host.name) {
+                  .host.name = comp_name
+              }
+              .host.Ext.enumlocs.computer_name = comp_name
+          }
+
+          if exists(.parameters."Operating system") {
+              os_full = to_string!(del(.parameters."Operating system"))
+              .host.os.full = os_full
+              .host.Ext.enumlocs.operating_system = os_full
+          }
+
+          if exists(.parameters."User") {
+              user_raw = to_string!(del(.parameters."User"))
+              .host.Ext.enumlocs.user_raw = user_raw
+
+              if contains(user_raw, " (elevated)") {
+                  .user.Ext.elevated = true
+                  user_clean = replace(user_raw, " (elevated)", "")
+              } else {
+                  user_clean = user_raw
+              }
+
+              parts = split!(user_clean, "\\\\")
+              if length(parts) == 2 {
+                  dom  = parts[0]
+                  uname = parts[1]
+                  .user.domain   = dom
+                  .user.name     = uname
+                  .user.full_name = uname
+              } else {
+                  .user.name = user_clean
+              }
+          }
+
+          if exists(.parameters."System type") {
+              sys_type = to_string!(del(.parameters."System type"))
+              .host.type = sys_type
+              .host.Ext.enumlocs.system_type = sys_type
+          }
+
+          if exists(.parameters."System tags") {
+              sys_tags_raw = to_string!(del(.parameters."System tags"))
+              .host.Ext.enumlocs.system_tags_raw = sys_tags_raw
+          }
+
+          if exists(.parameters."Log file") {
+              log_file = to_string!(del(.parameters."Log file"))
+              .host.Ext.enumlocs.log_file = log_file
+          }
+
+          if exists(.parameters."Syslog") {
+              syslog = to_string!(del(.parameters."Syslog"))
+              .host.Ext.enumlocs.syslog = syslog
+          }
+      }

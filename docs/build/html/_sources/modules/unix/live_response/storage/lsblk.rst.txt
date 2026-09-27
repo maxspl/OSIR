@@ -1,15 +1,10 @@
 lsblk
 =====
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:lsblk``**
-
-   * name_rex: ``lsblk.*\.jsonl$``
-   * path_suffix: ``storage``
-   * sourcetype: ``linux:live_response:lsblk``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``lsblk``
+   * ``linux:live_response:lsblk`` | name_rex: ``lsblk.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Kelly Brazil - JsonConverter - Parsing the output of the command lsblk
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

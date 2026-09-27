@@ -1,17 +1,10 @@
 top
 ===
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:top``**
-
-   * name_rex: ``top.*\.jsonl$``
-   * path_suffix: ``process``
-   * sourcetype: ``linux:live_response:top``
-   * host_rex: ``([\w\.-]+?)--``
-   * timestamp_path: ``time``
-   * timestamp_format: ``%H:%M:%S``
-   * artifact: ``top``
+   * ``linux:live_response:top`` | name_rex: ``top.*\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Kelly Brazil - JsonConverter - Parsing the output of the command top and top -b
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

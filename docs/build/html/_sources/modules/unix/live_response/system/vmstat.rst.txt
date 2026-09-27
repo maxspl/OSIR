@@ -1,15 +1,10 @@
 vmstat
 ======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:vmstat``**
-
-   * name_rex: ``vmstat.*\.jsonl$``
-   * path_suffix: ``system``
-   * sourcetype: ``linux:live_response:vmstat``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``vmstat``
+   * ``linux:live_response:vmstat`` | name_rex: ``vmstat.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Kelly Brazil - JsonConverter - Parsing the output of the command vmstat
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

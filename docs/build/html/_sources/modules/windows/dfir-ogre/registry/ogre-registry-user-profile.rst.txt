@@ -1,17 +1,10 @@
 ogre-registry-user-profile
 ==========================
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:ogre:registry_user_profile``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``ogre-registry-user-profile``
-   * sourcetype: ``windows:ogre:registry_user_profile``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``hive``
-   * timestamp_path: ``key_modif_time``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S.%f%z``
+   * ``windows:ogre:registry_user_profile`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Parsing of user\_profile - using ANSSI DFIR OGRE
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

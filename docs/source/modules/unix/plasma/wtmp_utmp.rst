@@ -1,17 +1,10 @@
 wtmp_utmp
 =========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:wtmp_utmp``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``wtmp_utmp``
-   * sourcetype: ``linux:wtmp_utmp``
-   * host_rex: ``([\w\.-]+?)--``
-   * timestamp_path: ``ut_time``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S%z``
-   * artifact: ``wtmp_utmp``
+   * ``linux:wtmp_utmp`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Login records from binary utmp/wtmp/btmp using the CERT-EDF plasma dissector
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

@@ -1,15 +1,10 @@
 win_listdlls
 ============
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:dll``**
-
-   * name_rex: ``--win_listdlls\.jsonl$``
-   * path_suffix: ``win_listdlls``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``DLL``
-   * normalize: ``ecs_normalize/windows/live_response/listdlls.vrl``
+   * ``windows:live_response:dll`` | name_rex: ``--win_listdlls\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,39 @@ Parse Listdlls.txt from DFIR ORC (Listdlls.exe command)
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 
+   * - ``"windows.listdlls"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Sysinternals ListDLLs"``
+     - ``event.provider``
+   * - ``custom``
+     - 
+   * - ``del(.process_name)``
+     - ``process.name``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.base_address))``
+     - ``dll.Ext.base_address``
+   * - ``custom``
+     - 

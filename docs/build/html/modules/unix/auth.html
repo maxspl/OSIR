@@ -27,6 +27,7 @@
 <link href="../../_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="../../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
 <link href="../../_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
+<link href="../../_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="../../search.html" rel="search" title="Search"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
 <link href="boot.html" rel="next" title="boot"/>
@@ -359,7 +360,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../packages/lib.html">OSIR Lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../packages/lib.html">OSIR Library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packages/service.html">OSIR Service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packages/web.html">OSIR Web</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../packages/api.html">OSIR Api</a></li>
@@ -429,10 +430,7 @@
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l5"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -494,10 +492,7 @@
 </ul>
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="../../src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -530,16 +525,10 @@
 <h1>auth</h1>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Ingestion into Splunk.</p>
-<p><strong>``linux:auth``</strong></p>
+<p>In Splunk you can find the result of the module after
+ingestion with the following sourcetype:</p>
 <ul class="simple">
-<li><p>name_rex: <code class="docutils literal notranslate"><span class="pre">\.jsonl$</span></code></p></li>
-<li><p>path_suffix: <code class="docutils literal notranslate"><span class="pre">auth</span></code></p></li>
-<li><p>sourcetype: <code class="docutils literal notranslate"><span class="pre">linux:auth</span></code></p></li>
-<li><p>host_rex: <code class="docutils literal notranslate"><span class="pre">([\w\.-]+?)--</span></code></p></li>
-<li><p>timestamp_path: <code class="docutils literal notranslate"><span class="pre">_time</span></code></p></li>
-<li><p>timestamp_format: <code class="docutils literal notranslate"><span class="pre">%Y-%m-%dT%H:%M:%S</span></code></p></li>
-<li><p>artifact: <code class="docutils literal notranslate"><span class="pre">auth</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">linux:auth</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">\.jsonl$</span></code></p></li>
 </ul>
 </div>
 <section id="description">
@@ -548,37 +537,11 @@
 </section>
 <section id="timeline">
 <h2>Timeline</h2>
-<p>Placeholder table for the messages created for the timeline.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Timeline</p></th>
-<th class="head"><p>ECS field</p></th>
-<th class="head"><p>Message</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<p>No transform configuration found for this module.</p>
 </section>
 <section id="fields">
 <h2>Fields</h2>
-<p>Placeholder table for the output fields.</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<p>No transform configuration found for this module.</p>
 </section>
 </section>
 </div></div><aside class="hidden text-sm xl:block" id="right-sidebar">

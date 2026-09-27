@@ -1,15 +1,10 @@
 win_dns_cache
 =============
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:dns_cache``**
-
-   * name_rex: ``--win_dns_cache\.jsonl$``
-   * path_suffix: ``win_dns_cache``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``DNS_CACHE``
-   * normalize: ``ecs_normalize/windows/live_response/dns_cache.vrl``
+   * ``windows:live_response:dns_cache`` | name_rex: ``--win_dns_cache\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,35 @@ Parse dns\_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fi
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 
+   * - ``"windows.dns_cache"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[network]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows DNS Cache"``
+     - ``event.provider``
+   * - ``"answer"``
+     - ``dns.type``
+   * - ``"dns"``
+     - ``network.protocol``
+   * - ``custom``
+     - 

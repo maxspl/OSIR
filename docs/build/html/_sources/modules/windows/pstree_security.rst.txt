@@ -1,18 +1,10 @@
 pstree_security
 ===============
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:evtx:pstree``**
-
-   * name_rex: ``nodes\.jsonl$``
-   * path_suffix: ``pstree_security``
-   * sourcetype: ``windows:evtx:pstree``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``pstree_security``
-   * normalize: ``ecs_normalize/windows/pstree_nodes.vrl``
+   * ``windows:evtx:pstree`` | name_rex: ``nodes\.jsonl$``
 
 Description
 -----------
@@ -22,27 +14,31 @@ Parse output of EVTX module to build process tree from security.evtx - event ID 
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``"windows.pstree_nodes"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"process_tree_node"``
+     - ``event.action``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``custom``
+     - 

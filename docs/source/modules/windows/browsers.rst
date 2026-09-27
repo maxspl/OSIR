@@ -1,28 +1,12 @@
 browsers
 ========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``application:chrome``**
-
-   * name_rex: ``.*chrome.*\.jsonl$``
-   * path_suffix: ``browsers``
-   * sourcetype: ``application:browser:chrome``
-   * host_rex: ``([\w\.-]+)--``
-
-   **``application:edge``**
-
-   * name_rex: ``.*edge.*\.jsonl$``
-   * path_suffix: ``browsers``
-   * sourcetype: ``application:browser:edge``
-   * host_rex: ``([\w\.-]+)--``
-
-   **``application:firefox``**
-
-   * name_rex: ``.*firefox.*\.jsonl$``
-   * path_suffix: ``browsers``
-   * sourcetype: ``application:browser:firefox``
-   * host_rex: ``([\w\.-]+)--``
+   * ``application:browser:chrome`` | name_rex: ``.*chrome.*\.jsonl$``
+   * ``application:browser:edge`` | name_rex: ``.*edge.*\.jsonl$``
+   * ``application:browser:firefox`` | name_rex: ``.*firefox.*\.jsonl$``
 
 Description
 -----------
@@ -32,27 +16,9 @@ Parsing of browsers artifact.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

@@ -1,0 +1,24 @@
+metadata:
+  version: "1.0"
+  id: snap
+  author: Typ
+  description: OSIR - snap package list normalizer
+
+transformation:
+  - set:
+      package.name: name
+      package.version: version
+      package.reference: rev
+      package.type: tracking
+      package.vendor: publisher
+  - custom: |2-
+      if exists(.notes) {
+          .message = .Notes
+      }
+  - delete:
+      - name
+      - version
+      - rev
+      - tracking
+      - publisher
+      - notes

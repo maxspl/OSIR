@@ -1,0 +1,130 @@
+metadata:
+  version: "1.0"
+  id: handle
+  author: Typ
+  description: Windows Handle snapshot → ECS
+
+transformation:
+  - set:
+      event.dataset:
+        value: windows.handle
+      event.module:
+        value: windows
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [info]
+      event.action:
+        value: handle_entry
+  - custom: |2-
+      if exists(.type) {
+          t = to_string!(del(.type))
+          .handle.entry_type = t
+
+          if !exists(.event.code) && t != "" {
+              .event.code = t
+          }
+      }
+
+      if exists(.pid) {
+          pid_raw = to_string!(del(.pid))
+          pid_i   = to_int(pid_raw) ?? null
+
+          if pid_i != null {
+              .process.pid = pid_i
+              .handle.pid  = pid_i
+          } else if pid_raw != "" {
+              .handle.pid_raw = pid_raw
+          }
+      }
+
+      if exists(.process_name) {
+          pn = to_string!(del(.process_name))
+          if pn != "" {
+              .process.name        = pn
+              .handle.process_name = pn
+          }
+      }
+
+      handle_type_l = null
+
+      if exists(.handle_type) {
+          ht = to_string!(del(.handle_type))
+          .handle.type = ht
+          if ht != "" {
+              handle_type_l = downcase!(ht)
+          }
+      }
+
+      if exists(.handle_id) {
+          hid = to_string!(del(.handle_id))
+          if hid != "" {
+              .handle.id = hid
+          }
+      }
+
+      if exists(.name) {
+          nm = to_string!(del(.name))
+          if nm != "" {
+              .handle.name = nm
+
+              if handle_type_l != null && (handle_type_l == "file" || handle_type_l == "directory") {
+                  .file.path      = nm
+                  .event.category = ["file"]
+              }
+          }
+      }
+
+      if exists(.rights) {
+          r = to_string!(del(.rights))
+          if r != "" {
+              .handle.rights = r
+          }
+      }
+
+      if exists(.user) {
+          user_raw = to_string!(del(.user))
+          .handle.user = user_raw
+
+          parts = split(user_raw, "\\")
+          parts_len = length(parts)
+
+          if parts_len >= 2 {
+              username = get!(parts, [parts_len - 1])
+
+              domain_parts = slice(parts, 0, parts_len - 1) ?? []
+              domain = join(domain_parts, "\\") ?? ""
+
+              if starts_with(domain, "\\") {
+                  domain = slice(domain, 1, length(domain) - 1) ?? domain
+              }
+
+              if username != "" {
+                  .user.name = username
+              }
+              if domain != "" {
+                  .user.domain = domain
+              }
+
+              if domain != "" && username != "" && !exists(.user.full_name) {
+                  full = (domain + "\\" + username) ?? ""
+                  if full != "" {
+                      .user.full_name = full
+                  }
+              }
+          } else {
+              if user_raw != "" {
+                  .user.name = user_raw
+              }
+          }
+      }
+
+      if handle_type_l != null && !exists(.file.path) {
+          if handle_type_l == "file" || handle_type_l == "directory" {
+              .event.category = ["file"]
+          } else if handle_type_l == "process" || handle_type_l == "thread" {
+              .event.category = ["process"]
+          }
+      }

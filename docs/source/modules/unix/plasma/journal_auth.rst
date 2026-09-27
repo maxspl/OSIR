@@ -1,17 +1,10 @@
 journal_auth
 ============
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:journal_auth``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``journal_auth``
-   * sourcetype: ``linux:journal_auth``
-   * host_rex: ``([\w\.-]+?)--``
-   * timestamp_path: ``journal_time``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S.%f%z``
-   * artifact: ``journal_auth``
+   * ``linux:journal_auth`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Authentication events from the systemd journal (replaces auth.log on systemd-onl
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

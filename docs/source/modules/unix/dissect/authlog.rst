@@ -1,17 +1,10 @@
 authlog
 =======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:authlog``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``authlog``
-   * sourcetype: ``linux:authlog``
-   * host_rex: ``([\w\.-]+?)--``
-   * timestamp_path: ``ts``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S.%f%z``
-   * artifact: ``auth``
+   * ``linux:authlog`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Parse auth log from UAC [root] using Dissect plugin
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

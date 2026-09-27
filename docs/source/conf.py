@@ -69,7 +69,7 @@ autodoc_default_options = {
 html_theme = 'sphinxawesome_theme'
 html_title = 'Orchestration Software for Incident Response'
 html_static_path = ['_static']
-html_css_files = ['module-cards.css']
+html_css_files = ['module-cards.css', 'tables.css']
 html_js_files = ['sidebar-scroll.js']
 
 # Remove the permanent anchor links after each heading

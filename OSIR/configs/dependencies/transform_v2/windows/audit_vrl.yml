@@ -1,0 +1,329 @@
+metadata:
+  version: '1.0'
+  id: audit_vrl
+  author: jerego
+  description: osir-audit | Osir Transform description to normalize audit log file.
+
+transformation:
+  - set:
+      timestamp: from_unix_timestamp!(to_int!(._time))
+      event.kind: to_string!(.type)
+      event.outcome: to_string!(.res)
+      event.original: to_string!(._raw)
+  - translate:
+      mapping:
+        event.category: type
+      dictionary:
+        SYSCALL: process
+        LOGIN: authentication
+        USER_AUTH: authentication
+        USER_LOGIN: authentication
+        USER_LOGOUT: authentication
+        AVC: intrusion_detection
+        CONFIG_CHANGE: configuration
+        SERVICE_START: process
+        SERVICE_STOP: process
+        SOFTWARE_UPDATE: package
+        SYSTEM_BOOT: host
+        SYSTEM_SHUTDOWN: host
+      fallback: other
+  - translate:
+      mapping:
+        event.type: type
+      dictionary:
+        SYSCALL: access
+        LOGIN: start
+        USER_AUTH: authentication
+        USER_LOGIN: start
+        USER_LOGOUT: end
+        AVC: denied
+        CONFIG_CHANGE: change
+        SERVICE_START: start
+        SERVICE_STOP: end
+        SOFTWARE_UPDATE: change
+        SYSTEM_BOOT: start
+        SYSTEM_SHUTDOWN: end
+      fallback: info
+  - translate:
+      mapping:
+        event.action: type
+      dictionary:
+        ADD_USER: user-add
+        ADD_GROUP: group-add
+        CRED_ACQ: credential-acquire
+        CRED_DISP: credential-dispose
+        CRED_REFR: credential-refresh
+        USER_CMD: command-execution
+      fallback: not-found
+  - set:
+      process.pid: to_string!(.pid)
+      process.ppid: to_string!(.ppid)
+      process.name: to_string!(.comm)
+      process.executable: to_string!(.exe)
+      process.command_line: to_string!(.command_line)
+      process.working_directory: to_string!(.cwd)
+      process.thread.id: to_string!(.spid)
+      user.id: to_string!(.uid)
+      user.name: to_string!(.acct)
+      user.effective.id: to_string!(.euid)
+      user.effective.name: to_string!(.acct)
+      user.target.id: to_string!(.suid)
+      user.target.name: to_string!(.acct)
+      user.group.id: to_string!(.gid)
+      user.group.name: to_string!(.group)
+      user.audit.id: to_string!(.auid)
+      user.session.id: to_string!(.ses)
+      host.name: to_string!(.hostname)
+      host.ip: to_string!(.addr)
+      audit.session: to_string!(.ses)
+      audit.id: to_string!(.auid)
+      audit.result: to_string!(.res)
+      audit.message: to_string!(.msg)
+      audit.tag: to_string!(.tag)
+      audit.key: to_string!(.key)
+      network.direction: to_string!(.direction)
+      source.ip: to_string!(.addr)
+      source.port: to_string!(.rport)
+      destination.ip: to_string!(.laddr)
+      destination.port: to_string!(.lport)
+      file.name: to_string!(.name)
+      file.path: to_string!(.path)
+      file.device: to_string!(.dev)
+      file.inode: to_string!(.ino)
+      file.directory: to_string!(.root_dir)
+      system.audit.id: to_string!(.auid)
+      system.audit.session: to_string!(.ses)
+      system.audit.command: to_string!(.proctitle)
+      system.audit.tty: to_string!(.tty)
+      system.audit.terminal: to_string!(.terminal)
+      system.audit.runlevel: to_string!(.level)
+  - delete:
+      - _raw
+      - _time
+      - type
+      - acct
+      - addr
+      - auid
+      - comm
+      - exe
+      - hostname
+      - msg
+      - pid
+      - res
+      - ses
+      - subj
+      - tag
+      - terminal
+      - uid
+      - ppid
+      - command_line
+      - cwd
+      - spid
+      - gid
+      - group
+      - suid
+      - tty
+      - level
+      - key
+      - name
+      - path
+      - dev
+      - ino
+      - root_dir
+      - direction
+      - laddr
+      - lport
+      - rport
+      - proctitle
+      - grantors
+      - id
+      - old
+      - family
+      - table
+      - entries
+      - cipher
+      - ksize
+      - mac
+      - pfs
+      - fp
+      - sauid
+      - scontext
+      - tcontext
+      - tclass
+      - seqno
+      - a0
+      - a1
+      - a2
+      - a3
+      - arch
+      - egid
+      - euid
+      - exit
+      - fsgid
+      - fsuid
+      - items
+      - sgid
+      - success
+      - syscall
+      - ver
+      - kernel
+      - format
+      - op
+      - state
+      - context
+      - sw_type
+      - gpg_res
+      - key_enforce
+
+timeline:
+- message: Audit event of type {event.kind} occurred on {host.name}
+  conditions:
+  - field: event.kind
+  - field: host.name
+- message: 'User {user.name} (UID: {user.id}) was added on {host.name}'
+  conditions:
+  - field: event.kind
+    value: ADD_USER
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: Group was added on {host.name}
+  conditions:
+  - field: event.kind
+    value: ADD_GROUP
+  - field: host.name
+- message: 'AVC denial: {audit.message} (scontext={audit.scontext}, tcontext={audit.tcontext}, tclass={audit.tclass}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: AVC
+  - field: audit.message
+  - field: audit.scontext
+  - field: audit.tcontext
+  - field: audit.tclass
+  - field: host.name
+- message: 'Audit configuration changed: {audit.message} (old={audit.old}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: CONFIG_CHANGE
+  - field: audit.message
+  - field: audit.old
+  - field: host.name
+- message: 'Credentials acquired by user {user.name} (UID: {user.id}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: CRED_ACQ
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'Credentials disposed by user {user.name} (UID: {user.id}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: CRED_DISP
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'Credentials refreshed by user {user.name} (UID: {user.id}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: CRED_REFR
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'Crypto key used by process {process.executable} (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: CRYPTO_KEY_USER
+  - field: process.executable
+  - field: process.pid
+  - field: host.name
+- message: 'Crypto session established by process {process.executable} (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: CRYPTO_SESSION
+  - field: process.executable
+  - field: process.pid
+  - field: host.name
+- message: 'Audit daemon started (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: DAEMON_START
+  - field: process.pid
+  - field: host.name
+- message: 'Audit daemon stopped (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: DAEMON_END
+  - field: process.pid
+  - field: host.name
+- message: 'User {user.name} (UID: {user.id}) logged in on {host.name}'
+  conditions:
+  - field: event.kind
+    value: LOGIN
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'User {user.name} (UID: {user.id}) authenticated on {host.name}'
+  conditions:
+  - field: event.kind
+    value: USER_AUTH
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'User {user.name} (UID: {user.id}) logged in on {host.name}'
+  conditions:
+  - field: event.kind
+    value: USER_LOGIN
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'User {user.name} (UID: {user.id}) logged out from {host.name}'
+  conditions:
+  - field: event.kind
+    value: USER_LOGOUT
+  - field: user.name
+  - field: user.id
+  - field: host.name
+- message: 'Command {process.command_line} executed by user {user.name} (UID: {user.id})'
+  conditions:
+  - field: event.kind
+    value: USER_CMD
+  - field: process.command_line
+  - field: user.name
+  - field: user.id
+- message: 'Syscall {event.action} executed by process {process.name} (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: SYSCALL
+  - field: event.action
+  - field: process.name
+  - field: process.pid
+  - field: host.name
+- message: 'Service {process.name} started (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: SERVICE_START
+  - field: process.name
+  - field: process.pid
+  - field: host.name
+- message: 'Service {process.name} stopped (PID: {process.pid}) on {host.name}'
+  conditions:
+  - field: event.kind
+    value: SERVICE_STOP
+  - field: process.name
+  - field: process.pid
+  - field: host.name
+- message: Software update performed on {host.name}
+  conditions:
+  - field: event.kind
+    value: SOFTWARE_UPDATE
+  - field: host.name
+- message: System booted on {host.name}
+  conditions:
+  - field: event.kind
+    value: SYSTEM_BOOT
+  - field: host.name
+- message: System shutdown initiated on {host.name}
+  conditions:
+  - field: event.kind
+    value: SYSTEM_SHUTDOWN
+  - field: host.name

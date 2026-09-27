@@ -1,0 +1,268 @@
+metadata:
+  version: "1.0"
+  id: lnk
+  author: Typ
+  description: Windows LNK CSV
+
+transformation:
+  - set:
+      event:
+        value: {}
+    conditions:
+      - field: event
+        exists: false
+  - set:
+      event.original: encode_json!(.)
+    conditions:
+      - field: event.original
+        exists: false
+  - set:
+      event.dataset:
+        value: windows.lnk
+    conditions:
+      - field: event.dataset
+        exists: false
+  - set:
+      event.module:
+        value: windows
+    conditions:
+      - field: event.module
+        exists: false
+  - set:
+      event.provider:
+        value: Windows LNK
+    conditions:
+      - field: event.provider
+        exists: false
+  - set:
+      event.kind:
+        value: state
+    conditions:
+      - field: event.kind
+        exists: false
+  - set:
+      event.category:
+        value: [file]
+    conditions:
+      - field: event.category
+        exists: false
+  - set:
+      event.type:
+        value: [info]
+    conditions:
+      - field: event.type
+        exists: false
+  - set:
+      event.action:
+        value: shortcut
+    conditions:
+      - field: event.action
+        exists: false
+  - set:
+      event.code:
+        value: lnk
+    conditions:
+      - field: event.code
+        exists: false
+  - set:
+      event.outcome:
+        value: success
+    conditions:
+      - field: event.outcome
+        exists: false
+  - set:
+      file.Ext.lnk.source_file: to_string!(del(.SourceFile))
+      file.Ext.lnk.extra_blocks_present: to_string!(del(.ExtraBlocksPresent))
+      file.Ext.lnk.header_flags: to_string!(del(.HeaderFlags))
+      file.attributes: to_string!(del(.FileAttributes))
+      file.Ext.lnk.drive_type: to_string!(del(.DriveType))
+      file.Ext.lnk.volume_serial_number: to_string!(del(.VolumeSerialNumber))
+      file.Ext.lnk.volume_label: to_string!(del(.VolumeLabel))
+  - custom: |2-
+      if exists(.TargetIDAbsolutePath) {
+        tid_raw = to_string!(del(.TargetIDAbsolutePath))
+        if tid_raw != "" && !exists(.file.path) {
+          .file.path = tid_raw
+        }
+        .file.Ext.lnk.target_id_absolute_path = tid_raw
+      }
+
+      if exists(.LocalPath) {
+        lp_raw = to_string!(del(.LocalPath))
+        if lp_raw != "" && !exists(.file.path) {
+          .file.path = lp_raw
+        }
+        .file.Ext.lnk.local_path = lp_raw
+      }
+
+      if exists(.CommonPath) {
+        cp_raw = to_string!(del(.CommonPath))
+        if cp_raw != "" && !exists(.file.path) {
+          .file.path = cp_raw
+        }
+        .file.Ext.lnk.common_path = cp_raw
+      }
+
+      if exists(.NetworkPath) {
+        np_raw = to_string!(del(.NetworkPath))
+        if np_raw != "" && !exists(.file.path) {
+          .file.path = np_raw
+        }
+        .file.Ext.lnk.network_path = np_raw
+      }
+  - set:
+      file.Ext.lnk.relative_path: to_string!(del(.RelativePath))
+      file.Ext.lnk.working_directory: to_string!(del(.WorkingDirectory))
+      file.Ext.lnk.arguments: to_string!(del(.Arguments))
+  - custom: |2-
+      if exists(.file.path) && !exists(.file.name) {
+        fp = to_string!(.file.path)
+        parts = split!(fp, "\\\\")
+        plen = length(parts)
+        if plen > 0 {
+          idx = plen - 1
+          last_part = get!(parts, [idx])
+          .file.name = last_part
+        }
+      }
+
+      if exists(.FileSize) {
+        fs_raw = to_string!(del(.FileSize))
+        fs_val = parse_int(fs_raw) ?? null
+        if fs_val != null {
+          .file.size = fs_val
+        } else {
+          .file.size_raw = fs_raw
+        }
+      }
+
+      if exists(.MachineID) {
+        mid = to_string!(del(.MachineID))
+        .host.id = mid
+        if !exists(.host.name) && mid != "" {
+          .host.name = mid
+        }
+      }
+
+      if exists(.MachineMACAddress) {
+        mac = to_string!(del(.MachineMACAddress))
+        .host.mac = mac
+      }
+  - set:
+      host.Ext.lnk.mac_vendor: to_string!(del(.MACVendor))
+  - custom: |2-
+      if exists(.SourceCreated) {
+        raw = to_string!(del(.SourceCreated))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            .file.Ext.lnk.source_created = ts
+          } else {
+            .file.Ext.lnk.source_created_raw = raw
+          }
+        }
+      }
+
+      if exists(.SourceModified) {
+        raw = to_string!(del(.SourceModified))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            .file.Ext.lnk.source_modified = ts
+          } else {
+            .file.Ext.lnk.source_modified_raw = raw
+          }
+        }
+      }
+
+      if exists(.SourceAccessed) {
+        raw = to_string!(del(.SourceAccessed))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            .file.Ext.lnk.source_accessed = ts
+          } else {
+            .file.Ext.lnk.source_accessed_raw = raw
+          }
+        }
+      }
+
+      if exists(.TargetCreated) {
+        raw = to_string!(del(.TargetCreated))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            if !exists(.file.created) {
+              .file.created = ts
+            }
+            .file.Ext.lnk.target_created = ts
+          } else {
+            .file.Ext.lnk.target_created_raw = raw
+          }
+        }
+      }
+
+      if exists(.TargetModified) {
+        raw = to_string!(del(.TargetModified))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            .file.mtime = ts
+            .file.Ext.lnk.target_modified = ts
+          } else {
+            .file.Ext.lnk.target_modified_raw = raw
+          }
+        }
+      }
+
+      if exists(.TargetAccessed) {
+        raw = to_string!(del(.TargetAccessed))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            .file.atime = ts
+            .file.Ext.lnk.target_accessed = ts
+          } else {
+            .file.Ext.lnk.target_accessed_raw = raw
+          }
+        }
+      }
+
+      if exists(.TrackerCreatedOn) {
+        raw = to_string!(del(.TrackerCreatedOn))
+        if raw != "" {
+          ts = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
+          if ts != null {
+            .event.Ext.lnk.tracker_created = ts
+          } else {
+            .event.Ext.lnk.tracker_created_raw = raw
+          }
+        }
+      }
+  - set:
+      file.Ext.lnk.target_mft_entry_number: to_string!(del(.TargetMFTEntryNumber))
+      file.Ext.lnk.target_mft_sequence_number: to_string!(del(.TargetMFTSequenceNumber))
+  - custom: |2-
+      ts_value = null
+
+      ts_source = ""
+
+      if exists(.file.Ext.lnk.source_modified) {
+        ts_value = .file.Ext.lnk.source_modified
+        ts_source = "lnk.source_modified"
+      }
+
+      if ts_value == null && exists(.file.atime) {
+        ts_value = .file.atime
+        ts_source = "lnk.source_created"
+      }
+
+      if ts_value != null {
+        .timestamp = ts_value
+
+        if !exists(.event.created) {
+          .event.created = ts_value
+        }
+
+        .event.Ext.timestamp_source = ts_source
+      }

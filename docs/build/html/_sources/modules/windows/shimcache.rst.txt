@@ -1,18 +1,10 @@
 shimcache
 =========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:shimcache``**
-
-   * name_rex: ``\.csv$``
-   * path_suffix: ``shimcache``
-   * sourcetype: ``windows:registry:hklm:shimcache``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``ShimCache``
-   * normalize: ``ecs_normalize/windows/shimcache.vrl``
+   * ``windows:registry:hklm:shimcache`` | name_rex: ``\.csv$``
 
 Description
 -----------
@@ -22,27 +14,39 @@ Parsing of ShimCache artifact.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 
+   * - ``"windows.shimcache"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[file]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows ShimCache (AppCompatCache)"``
+     - ``event.provider``
+   * - ``"shimcache_entry"``
+     - ``event.code``
+   * - ``"shimcache_entry"``
+     - ``event.action``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.SourceFile))``
+     - ``file.Ext.shimcache.source_file``
+   * - ``custom``
+     - 

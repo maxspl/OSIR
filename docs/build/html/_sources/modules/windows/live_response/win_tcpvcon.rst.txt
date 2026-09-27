@@ -1,15 +1,10 @@
 win_tcpvcon
 ===========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:win_tcpvcon``**
-
-   * name_rex: ``--win_tcpvcon\.jsonl$``
-   * path_suffix: ``win_tcpvcon``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``TCPVCON``
-   * normalize: ``ecs_normalize/windows/live_response/tcpvcon.vrl``
+   * ``windows:live_response:win_tcpvcon`` | name_rex: ``--win_tcpvcon\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,37 @@ Parse routes.txt from DFIR ORC (Tcpvcon.exe -a -n -c command)
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 
+   * - ``"windows.tcpvcon"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[network]``
+     - ``event.category``
+   * - ``[info, connection]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Sysinternals Tcpvcon"``
+     - ``event.provider``
+   * - ``"ip"``
+     - ``network.protocol``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.process_name))``
+     - ``process.name``
+   * - ``custom``
+     - 

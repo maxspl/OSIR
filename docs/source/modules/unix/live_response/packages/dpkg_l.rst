@@ -1,15 +1,10 @@
 dpkg_l
 ======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:packages:dpkg``**
-
-   * name_rex: ``dpkg.*\.jsonl$``
-   * sourcetype: ``linux:live_response:packages:dpkg``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``dpkg``
-   * normalize: ``ecs_normalize/linux/live_response/packages/dpkg.vrl``
+   * ``linux:live_response:packages:dpkg`` | name_rex: ``dpkg.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,29 @@ Kelly Brazil - JsonConverter - Parsing the output of the command dpkg -l
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``to_string!(.name)``
+     - ``package.name``
+   * - ``to_string!(.version)``
+     - ``package.version``
+   * - ``to_string!(.architecture)``
+     - ``package.architecture``
+   * - ``to_string!(.description)``
+     - ``package.description``
+   * - ``to_string!(.desired)``
+     - ``package.install_scope``
+   * - ``"dpkg"``
+     - ``package.type``
+   * - ``to_string!(.status)``
+     - ``labels.package_status``
+   * - ``custom``
+     - 

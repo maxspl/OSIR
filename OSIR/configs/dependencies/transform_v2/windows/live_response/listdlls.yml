@@ -1,0 +1,86 @@
+metadata:
+  version: "1.0"
+  id: listdlls
+  author: Typ
+  description: Sysinternals ListDLLs → ECS
+
+transformation:
+  - custom: |2-
+      if !exists(.event) || !exists(.event.original) {
+          .event.original = encode_json!(.)
+      }
+  - set:
+      event.dataset:
+        value: windows.listdlls
+      event.module:
+        value: windows
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [info]
+      event.outcome:
+        value: success
+      event.provider:
+        value: Sysinternals ListDLLs
+  - custom: |2-
+      if exists(.type) {
+          type_raw = to_string!(del(.type))
+          type_l   = downcase(type_raw)
+
+          .event.code   = type_raw
+          .event.action = type_l
+      }
+  - set:
+      process.name: del(.process_name)
+  - custom: |2-
+      if exists(.pid) {
+          pid_raw = to_string!(del(.pid))
+          pid_int = parse_int(pid_raw) ?? null
+
+          if pid_int != null {
+              .process.pid = pid_int
+          } else {
+              .process.pid = pid_raw
+          }
+      }
+
+      if exists(.path) {
+          dll_path = to_string!(del(.path))
+
+          .dll.path  = dll_path
+          .file.path = dll_path
+
+          dll_path_norm = replace(dll_path, "\\", "/")
+
+          dll_name = basename(dll_path_norm) ?? null
+
+          if dll_name != null {
+              .dll.name  = dll_name
+              .file.name = dll_name
+          }
+
+          if exists(.process.name) {
+              proc_name  = to_string!(.process.name)
+              dll_lower  = downcase(dll_path)
+              proc_lower = downcase(proc_name)
+
+              if ends_with(dll_lower, "\\" + proc_lower) || ends_with(dll_lower, "/" + proc_lower) {
+                  .process.executable = dll_path
+              }
+          }
+      }
+  - set:
+      dll.Ext.base_address: to_string!(del(.base_address))
+  - custom: |2-
+      if exists(.size) {
+          size_raw = to_string!(del(.size))
+          size_int = parse_int(size_raw) ?? null
+
+          if size_int != null {
+              .dll.Ext.memory_size = size_int
+          } else {
+              .dll.Ext.memory_size = size_raw
+          }
+      }

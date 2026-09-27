@@ -27,6 +27,7 @@
 <link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
 <link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
 <link href="_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
+<link href="_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
 <link href="src.osir_service.osir_service.postgres.model.html" rel="next" title="src.osir_service.osir_service.postgres.model package"/>
@@ -359,7 +360,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Package Information</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="packages/lib.html">OSIR Lib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="packages/lib.html">OSIR Library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packages/service.html">OSIR Service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packages/web.html">OSIR Web</a></li>
 <li class="toctree-l1"><a class="reference internal" href="packages/api.html">OSIR Api</a></li>
@@ -429,10 +430,7 @@
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -494,10 +492,7 @@
 </ul>
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="src.osir_vrl.html">src.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html">src.osir_vrl.osir_vrl.actions package</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a></li>
 </ul>
 </li>
 </ul>
@@ -1146,7 +1141,7 @@ if they do not already exist.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.filter_already_processed">
-<span class="sig-name descname"><span class="pre">filter_already_processed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.set" title="src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.set"><span class="pre">set</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbTask.html#OsirDbTask.filter_already_processed"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-name descname"><span class="pre">filter_already_processed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set"><span class="pre">set</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbTask.html#OsirDbTask.filter_already_processed"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Returns the subset of (module, input) pairs that already have a
 NON-failed (ie.status is anything other than FAILURE/REVOKED)
 task for this case</p>
@@ -1162,7 +1157,7 @@ task for this case</p>
 <dd class="field-even"><p>The subset of <cite>pairs</cite> already handled (non-failed).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="src.osir_vrl.osir_vrl.actions.html#src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.set" title="src.osir_vrl.osir_vrl.actions.OsirVrlSet.OsirVrlSet.set">set</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set">set</a></p>
 </dd>
 </dl>
 </dd></dl>

@@ -1,15 +1,10 @@
 findmnt
 =======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:storage:findmnt``**
-
-   * name_rex: ``findmnt.*\.jsonl$``
-   * path_suffix: ``system``
-   * sourcetype: ``linux:live_response:storage:findmnt``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``findmnt``
+   * ``linux:live_response:storage:findmnt`` | name_rex: ``findmnt.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,9 @@ Kelly Brazil - JsonConverter - Parsing the output of the command findmnt
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

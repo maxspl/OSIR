@@ -1,16 +1,10 @@
 zeek_log
 ========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:network:zeek``**
-
-   * name_rex: ``\.jsonl$``
-   * sourcetype: ``linux:network:zeek``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * timestamp_path: ``_time``
-   * timestamp_format: ``%s``
-   * artifact: ``audit``
+   * ``linux:network:zeek`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -20,27 +14,9 @@ Parsing logs from Zeek
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

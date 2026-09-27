@@ -1,15 +1,10 @@
 powershell_history
 ==================
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:powershell_history``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``powershell_history``
-   * host_rex: ``([\w\.-]+)--``
-   * artifact: ``POWERSHELL``
-   * normalize: ``ecs_normalize/windows/powershell_history.vrl``
+   * ``windows:powershell_history`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,31 @@ Parse ConsoleHost\_history.txt
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.powershell_history"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"PowerShell History"``
+     - ``event.provider``
+   * - ``custom``
+     - 

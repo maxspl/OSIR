@@ -1,0 +1,87 @@
+metadata:
+  version: '1.0'
+  id: custom_log
+  author: Typ
+  type: PARSER & NORMALIZER
+  description: custom_log | Osir Transform description to normalize a custom application log.
+
+source:
+  tools: custom_app
+  internal: custom_log
+  raw: raw
+
+# transformation: a list of typed blocks, expanded linearly (first entry =
+# first VRL instruction). Block kinds (v1 structure):
+#   - set:       mapping `target: spec`; spec is a shorthand source string
+#                (dotted path or VRL expression, no leading dot) or a
+#                mapping with source / value / operation / parameters /
+#                on_error
+#   - translate: mapping: {target: source} + shared dictionary + fallback
+#   - delete:    list of fields to del()
+#   - custom:    raw VRL code
+# `filter` (raw VRL guard) and `conditions` (declarative, timeline
+# semantics: no value -> exists(), `exists: false` -> !exists(), otherwise
+# equality) sit at the block level, next to the kind key, and guard every
+# entry of the block.
+# A `source` on a fallible operation gets a non-aborting error handler by
+# default (`_result, err` + warn log); bang variants (`downcase!`) stay
+# verbatim.
+transformation:
+  - set:
+      timestamp:
+        source: raw
+        operation: parse_timestamp
+        parameters:
+          format: '%Y-%m-%dT%H:%M:%SZ'
+          timezone: UTC
+      event.kind:
+        value: event
+      event.dataset:
+        value: custom_log
+  - set:
+      event.environment:
+        value: production
+    conditions:
+      - field: event.dataset
+        value: custom_log
+  - set:
+      json_data: parse_json(.payload) ?? {}
+      event.action:
+        source: json_data.action
+        operation: downcase!
+      user.name: json_data.user
+  - translate:
+      mapping:
+        event.severity: json_data.level
+      dictionary:
+        debug: Debug
+        info: Informational
+        warn: Warning
+        error: Error
+      fallback: Unknown
+  - custom: |
+      if is_object(.json_data) {
+        status = to_int(to_string(.json_data.status_code) ?? "0") ?? 0
+        if status > 0 && status < 400 {
+          .event.outcome = "success"
+        } else if status >= 400 {
+          .event.outcome = "failure"
+        }
+      }
+  - delete:
+      - payload
+      - raw
+
+timeline:
+  - message: "{user.name} performed {event.action} (severity {event.severity})"
+    relationships:
+      - source: user.name
+        target: host.name
+        type: performed action on
+    conditions:
+      - field: event.action
+      - field: event.severity
+
+  - message: "{user.name} performed {event.action}"
+    conditions:
+      - field: event.action

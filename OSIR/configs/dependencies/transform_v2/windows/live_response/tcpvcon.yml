@@ -1,0 +1,105 @@
+metadata:
+  version: "1.0"
+  id: tcpvcon
+  author: Typ
+  description: Sysinternals Tcpvcon
+
+transformation:
+  - custom: |2-
+      if !exists(.event) || !exists(.event.original) {
+          .event.original = encode_json!(.)
+      }
+  - set:
+      event.dataset:
+        value: windows.tcpvcon
+      event.module:
+        value: windows
+      event.kind:
+        value: state
+      event.category:
+        value: [network]
+      event.type:
+        value: [info, connection]
+      event.outcome:
+        value: success
+      event.provider:
+        value: Sysinternals Tcpvcon
+      network.protocol:
+        value: ip
+  - custom: |2-
+      rec_type = null
+
+      if exists(.type) {
+          rec_type = to_string!(del(.type))
+          .event.code   = rec_type
+          .event.action = downcase(rec_type)
+      }
+
+      if exists(.protocol) {
+          proto_raw = to_string!(del(.protocol))
+          proto_l   = downcase(proto_raw)
+
+          .network.transport = proto_l
+          .network.protocol  = proto_l
+      }
+  - set:
+      process.name: to_string!(del(.process_name))
+  - custom: |2-
+      if exists(.pid) {
+          pid_raw = to_string!(del(.pid))
+          pid_int = parse_int(pid_raw) ?? null
+
+          if pid_int != null {
+              .process.pid = pid_int
+          } else {
+              .process.pid = pid_raw
+          }
+      }
+
+      if exists(.state) {
+          state_raw = to_string!(del(.state))
+          state_l   = downcase(state_raw)
+
+          .network.Ext.tcp_state = state_raw
+
+          .event.action = state_l
+
+          if state_l == "listening" {
+              .network.direction = "ingress"
+          }
+      }
+
+      local_ip  = null
+
+      remote_ip = null
+
+      if exists(.local_address) {
+          local_ip = to_string!(del(.local_address))
+          if local_ip != "" {
+              .source.ip = local_ip
+          }
+      }
+
+      if exists(.remote_address) {
+          remote_ip = to_string!(del(.remote_address))
+          if remote_ip != "" {
+              .destination.ip = remote_ip
+          }
+      }
+
+      ip_sample = null
+
+      if local_ip != null && local_ip != "" {
+          ip_sample = local_ip
+      } else if remote_ip != null && remote_ip != "" {
+          ip_sample = remote_ip
+      }
+
+      if ip_sample != null {
+          ip_str = to_string!(ip_sample)
+          if contains(ip_str, ":") {
+              .network.type = "ipv6"
+          } else {
+              .network.type = "ipv4"
+          }
+      }

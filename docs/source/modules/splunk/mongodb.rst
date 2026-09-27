@@ -1,17 +1,10 @@
 mongodb
 =======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:app:mongodb``**
-
-   * name_rex: ``mongod.log$``
-   * sourcetype: ``linux:app:mongodb``
-   * host_rex: ``extract_uac/(.*?)/``
-   * artifact: ``mongodb``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * normalize: ``ecs_normalize/linux/mongodb.vrl``
+   * ``linux:app:mongodb`` | name_rex: ``mongod.log$``
 
 Description
 -----------
@@ -21,27 +14,15 @@ Splunk logs ingestion of Mongodb logs.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``custom``
+     - 

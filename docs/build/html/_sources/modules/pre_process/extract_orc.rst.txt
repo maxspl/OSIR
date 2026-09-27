@@ -1,85 +1,17 @@
 extract_orc
 ===========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``filesystem:ntfs:i30``**
-
-   * name_rex: ``I30Info.*.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * sourcetype: ``filesystem:ntfs:i30``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * encoding: ``utf-8``
-   * normalize: ``ecs_normalize/windows/NTFSInfo_i30.vrl``
-
-   **``filesystem:ntfs:info``**
-
-   * name_rex: ``NTFSInfo.*.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * sourcetype: ``filesystem:ntfs:info``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * encoding: ``utf-8``
-   * normalize: ``ecs_normalize/windows/NTFSInfo.vrl``
-
-   **``filesystem:ntfs:usn``**
-
-   * name_rex: ``USNInfo.*.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * sourcetype: ``filesystem:ntfs:usn``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * timestamp_path: ``TimeStamp``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S.%f``
-
-   **``orc:collected_files``**
-
-   * name_rex: ``GetThis.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * sourcetype: ``orc:collected_files``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * timestamp_path: ``CreationDate``
-   * timestamp_format: ``%Y-%m-%d %H:%M:%S.%f``
-
-   **``orc:csv``**
-
-   * name_rex: ``\.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * sourcetype: ``orc:files``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * artifact: ``Orc``
-
-   **``windows:live_response:autoruns``**
-
-   * name_rex: ``autoruns.*csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * sourcetype: ``windows:autoruns``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * normalize: ``ecs_normalize/windows/live_response/autoruns.vrl``
-
-   **``windows:live_response:processes``**
-
-   * name_rex: ``(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * sourcetype: ``_json``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * normalize: ``ecs_normalize/windows/live_response/ps1_processes.vrl``
-
-   **``windows:live_response:systeminfo``**
-
-   * name_rex: ``(?i)^systeminfo(?:_.+)?\.csv$``
-   * path_rex: ``.*\/extract_orc.*``
-   * host_rex: ``/Endpoint_(.*?)/``
-   * sourcetype: ``_json``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * normalize: ``ecs_normalize/windows/live_response/systeminfo.vrl``
+   * ``filesystem:ntfs:i30`` | name_rex: ``I30Info.*.csv$``
+   * ``filesystem:ntfs:info`` | name_rex: ``NTFSInfo.*.csv$``
+   * ``filesystem:ntfs:usn`` | name_rex: ``USNInfo.*.csv$``
+   * ``orc:collected_files`` | name_rex: ``GetThis.csv$``
+   * ``orc:files`` | name_rex: ``\.csv$``
+   * ``windows:autoruns`` | name_rex: ``autoruns.*csv$``
+   * ``_json`` | name_rex: ``(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$``
+   * ``_json`` | name_rex: ``(?i)^systeminfo(?:_.+)?\.csv$``
 
 Description
 -----------
@@ -89,27 +21,229 @@ Used to execute internal pre-processing for DFIR-ORC capture
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
+**``windows/live_response/systeminfo.yml``**
 
-.. list-table::
-   :header-rows: 1
+No timeline messages.
 
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+**``windows/live_response/ps1_processes.yml``**
+
+No timeline messages.
+
+**``windows/NTFSInfo.yml``**
+
+No timeline messages.
+
+**``windows/NTFSInfo_i30.yml``**
+
+No timeline messages.
+
+**``windows/live_response/autoruns.yml``**
+
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
+**``windows/live_response/systeminfo.yml``**
 
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.systeminfo"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[host]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"systeminfo"``
+     - ``event.action``
+   * - ``"systeminfo"``
+     - ``event.code``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows Systeminfo"``
+     - ``event.provider``
+   * - ``custom``
+     - 
+
+**``windows/live_response/ps1_processes.yml``**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.process"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"Windows Process (generic)"``
+     - ``event.provider``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"process_snapshot"``
+     - ``event.action``
+   * - ``"process_snapshot"``
+     - ``event.code``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.WindowsVersion))``
+     - ``host.os.version``
+   * - ``to_string!(del(.OSName))``
+     - ``host.os.full``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.Product))``
+     - ``process.Ext.snapshot.product``
+   * - ``to_string!(del(.FileVersion))``
+     - ``process.Ext.snapshot.file_version``
+   * - ``to_string!(del(.ProductVersion))``
+     - ``process.Ext.snapshot.product_version``
+   * - ``to_string!(del(.CreationClassName))``
+     - ``process.Ext.snapshot.creation_class_name``
+   * - ``to_string!(del(.OSCreationClassName))``
+     - ``process.Ext.snapshot.os_creation_class_name``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.KernelModeTime))``
+     - ``process.Ext.snapshot.kernel_mode_time_raw``
+   * - ``to_string!(del(.UserModeTime))``
+     - ``process.Ext.snapshot.user_mode_time_raw``
+   * - ``to_string!(del(.TotalProcessorTime))``
+     - ``process.Ext.snapshot.total_processor_time``
+   * - ``to_string!(del(.UserProcessorTime))``
+     - ``process.Ext.snapshot.user_processor_time``
+   * - ``to_string!(del(.PrivilegedProcessorTime))``
+     - ``process.Ext.snapshot.privileged_processor_time``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.PriorityClass))``
+     - ``process.Ext.snapshot.priority_class``
+   * - ``to_string!(del(.HasExited))``
+     - ``process.Ext.snapshot.has_exited_raw``
+   * - ``custom``
+     - 
+
+**``windows/NTFSInfo.yml``**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.ntfsinfo"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[file]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"ntfs_file"``
+     - ``event.action``
+   * - ``"ntfs_file"``
+     - ``event.code``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows NTFSInfo (detail)"``
+     - ``event.provider``
+   * - ``to_string!(del(.ComputerName))``
+     - ``host.name``
+   * - ``to_string!(del(.VolumeID))``
+     - ``file.Ext.ntfs.volume_id``
+   * - ``custom``
+     - 
+
+**``windows/NTFSInfo_i30.yml``**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.ntfsinfo.filename"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[file]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"ntfs_filename"``
+     - ``event.action``
+   * - ``"ntfs_filename"``
+     - ``event.code``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows NTFS Filename (detail)"``
+     - ``event.provider``
+   * - ``to_string!(del(.ComputerName))``
+     - ``host.name``
+   * - ``to_string!(del(.VolumeID))``
+     - ``file.Ext.ntfs.volume_id``
+   * - ``custom``
+     - 
+
+**``windows/live_response/autoruns.yml``**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.autoruns"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"autoruns_entry"``
+     - ``event.action``
+   * - ``"autoruns_entry"``
+     - ``event.code``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``"Windows Autoruns CSV"``
+     - ``event.provider``
+   * - ``custom``
+     - 

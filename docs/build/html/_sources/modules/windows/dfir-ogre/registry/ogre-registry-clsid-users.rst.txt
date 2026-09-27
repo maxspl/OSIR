@@ -1,17 +1,10 @@
 ogre-registry-clsid-users
 =========================
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:ogre:registry_clsid_users``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``ogre-registry-clsid-users``
-   * sourcetype: ``windows:ogre:registry_clsid_users``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``hive``
-   * timestamp_path: ``key_modif_time``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%S.%f%z``
+   * ``windows:ogre:registry_clsid_users`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,9 @@ Parsing of clsid - using ANSSI DFIR OGRE
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No transform configuration found for this module.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+No transform configuration found for this module.

@@ -1,17 +1,10 @@
 mactime
 =======
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:files:bodyfile``**
-
-   * name_rex: ``bodyfile.*\.jsonl$``
-   * sourcetype: ``linux:files:bodyfile``
-   * host_rex: ``([\w\.-]+?)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``bodyfile``
-   * normalize: ``ecs_normalize/linux/mactime.vrl``
+   * ``linux:files:bodyfile`` | name_rex: ``bodyfile.*\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,49 @@ Parsing logs from '/bodyfile' in UAC collect
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
 .. list-table::
    :header-rows: 1
 
-   * - Timeline
-     - ECS field
+   * - action.id
      - Message
-   * -
-     -
-     -
+   * - 
+     - ``{file.name} — {event.action}``
+   * - 
+     - ``{file.name} ({file.size} bytes) — {event.action}``
+   * - 
+     - ``{file.name} ({file.size} bytes, mode {file.mode}) — Created``
+   * - 
+     - ``{file.name} ({file.size} bytes, mode {file.mode}) — Created by uid {file.uid}``
+   * - 
+     - ``{file.name} ({file.size} bytes, mode {file.mode}) — Modified``
+   * - 
+     - ``{file.name} ({file.size} bytes, mode {file.mode}) — Modified by uid {file.uid}``
+   * - 
+     - ``{file.name} ({file.size} bytes, mode {file.mode}) — Accessed``
+   * - 
+     - ``{file.name} ({file.size} bytes, mode {file.mode}) — Accessed by uid {file.uid}``
+   * - 
+     - ``{file.name} — No activity recorded``
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``to_string!(.Date)``
+     - ``timestamp``
+   * - ``to_int!(.Size)``
+     - ``file.size``
+   * - ``to_string!(.Mode)``
+     - ``file.mode``
+   * - ``to_int!(.UID)``
+     - ``file.uid``
+   * - ``to_int!(.GID)``
+     - ``file.gid``
+   * - ``get!(., path: ["File Name"])``
+     - ``file.name``
+   * - ``to_string!(.Meta)``
+     - ``file.meta``

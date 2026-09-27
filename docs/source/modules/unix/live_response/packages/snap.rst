@@ -1,15 +1,10 @@
 snap
 ====
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``linux:live_response:packages:snap``**
-
-   * name_rex: ``snap.*\.jsonl$``
-   * sourcetype: ``linux:live_response:packages:snap``
-   * host_rex: ``([\w\.-]+?)--``
-   * artifact: ``snap``
-   * normalize: ``ecs_normalize/linux/live_response/packages/snap.vrl``
+   * ``linux:live_response:packages:snap`` | name_rex: ``snap.*\.jsonl$``
 
 Description
 -----------
@@ -19,27 +14,25 @@ Kelly Brazil - JsonConverter - Parsing the output of the command snap
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``name``
+     - ``package.name``
+   * - ``version``
+     - ``package.version``
+   * - ``rev``
+     - ``package.reference``
+   * - ``tracking``
+     - ``package.type``
+   * - ``publisher``
+     - ``package.vendor``
+   * - ``custom``
+     - 

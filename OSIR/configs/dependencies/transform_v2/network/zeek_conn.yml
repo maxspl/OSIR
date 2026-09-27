@@ -1,0 +1,128 @@
+metadata:
+  version: '1.0'
+  id: zeek_conn
+  author: Typ
+  description: Zeek Conn | Osir Transform description to normalize Zeek conn.log file.
+
+transformation:
+  - set:
+      timestamp: parse_timestamp(.ts, "%s") ?? .ts
+      event.kind:
+        value: event
+      event.category:
+        value: [network]
+      event.type:
+        value: [connection]
+      event.dataset:
+        value: zeek.conn
+      event.module:
+        value: zeek
+      event.id: to_string!(.uid)
+      event.duration: to_int!(float!(.duration))
+  - translate:
+      mapping:
+        event.action: conn_state
+      dictionary:
+        S0: connection_attempt_no_reply
+        S1: connection_established
+        SF: connection_closed_normally
+        REJ: connection_rejected
+        S2: connection_closed_originator
+        S3: connection_closed_responder
+        RSTO: connection_reset_originator
+        RSTR: connection_reset_responder
+        RSTOS0: originator_reset_attempt
+        RSTRH: responder_reset_attempt
+        SH: fin_originator_no_reply
+        SHR: fin_responder_no_reply
+        OTH: no_syn_seen
+      fallback: unknown
+  - set:
+      source.ip: to_string!(.id.orig_h)
+      source.port: to_int!(.id.orig_p)
+      source.bytes: to_int!(.orig_bytes)
+      source.packets: to_int!(.orig_pkts)
+      source.ip_bytes: to_int!(.orig_ip_bytes)
+  - set:
+      source.internal:
+        value: true
+    filter: starts_with!(to_string!(.id.orig_h), "192.168.") || starts_with!(to_string!(.id.orig_h), "10.") || starts_with!(to_string!(.id.orig_h), "172.16.")
+  - set:
+      destination.ip: to_string!(.id.resp_h)
+      destination.port: to_int!(.id.resp_p)
+      destination.bytes: to_int!(.resp_bytes)
+      destination.packets: to_int!(.resp_pkts)
+      destination.ip_bytes: to_int!(.resp_ip_bytes)
+      network.transport: downcase!(to_string!(.proto))
+      network.protocol: downcase!(to_string!(.service))
+      network.bytes: to_int!(.orig_bytes) + to_int!(.resp_bytes)
+      network.packets: to_int!(.orig_pkts)  + to_int!(.resp_pkts)
+      network.history: to_string!(.history)
+      network.ip_proto: to_int!(.ip_proto)
+  - custom: |-
+      if .EventID == 4624 { .event.status = "success" } else if .EventID == 4625 { .event.status = "failure" } else { .event.status = "unknown" }
+  - delete:
+      - ts
+      - uid
+      - id.orig_h
+      - id.orig_p
+      - id.resp_h
+      - id.resp_p
+      - proto
+      - ip_proto
+      - service
+      - duration
+      - orig_bytes
+      - resp_bytes
+      - orig_pkts
+      - resp_pkts
+      - orig_ip_bytes
+      - resp_ip_bytes
+      - missed_bytes
+      - conn_state
+      - history
+
+timeline:
+- message: Connection {event.action} from {source.ip}:{source.port} to {destination.ip}:{destination.port}
+  conditions: []
+- message: Connection {event.action} from {source.ip}:{source.port} to {destination.ip}:{destination.port} via {network.protocol}
+  conditions:
+  - field: network.protocol
+- message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes'
+  conditions:
+  - field: network.bytes
+- message: Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.protocol}) {network.bytes} bytes
+  relationships:
+  - source: source.ip
+    target: destination.ip
+    type: connected to
+  conditions:
+  - field: source.internal
+    value: true
+  - field: network.protocol
+  - field: network.bytes
+- message: Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes
+  relationships:
+  - source: source.ip
+    target: destination.ip
+    type: connected to
+  conditions:
+  - field: source.internal
+    value: true
+  - field: network.bytes
+- message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} — connection rejected'
+  relationships:
+  - source: source.ip
+    target: destination.ip
+    type: attempted to connect to
+  conditions:
+  - field: event.action
+    value: connection_rejected
+- message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} — no reply ({network.transport})'
+  relationships:
+  - source: source.ip
+    target: destination.ip
+    type: attempted to connect to
+  conditions:
+  - field: event.action
+    value: connection_attempt_no_reply

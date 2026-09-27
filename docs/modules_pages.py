@@ -22,6 +22,9 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 MODULES_SRC = os.path.normpath(
     os.path.join(BASE, "..", "OSIR", "configs", "modules")
 )
+TRANSFORM_V2 = os.path.normpath(
+    os.path.join(BASE, "..", "OSIR", "configs", "dependencies", "transform_v2")
+)
 OUT_DIR = os.path.join(BASE, "source", "modules")
 
 SKIP_CATEGORIES = {"test", "deprecated"}
@@ -50,31 +53,122 @@ Description
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+{timeline_section}
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Field
-     - Description
-   * -
-     -
+{fields_section}
 """
+
+
+# ── transform configuration sections ────────────────────────────────────────
+
+def transform_configs_for(content):
+    """Transform_v2 configs feeding this module, from its splunk
+    ``normalize`` lists (``ecs_normalize/<path>.vrl`` ->
+    ``transform_v2/<path>.yml``), deduplicated in reference order."""
+    configs = []
+    for params in (content.get("splunk") or {}).values():
+        for path in (params or {}).get("normalize") or []:
+            if not isinstance(path, str) or not path.startswith("ecs_normalize/"):
+                continue
+            rel = path[len("ecs_normalize/"):].rsplit(".", 1)[0] + ".yml"
+            if rel not in configs and os.path.isfile(os.path.join(TRANSFORM_V2, rel)):
+                configs.append(rel)
+    return configs
+
+
+def _literal(value):
+    text = str(value).replace("`", "'")
+    return f"``{text}``" if text else ""
+
+
+def _spec_original(spec):
+    """'Original' column of a set entry: source, operation call or literal."""
+    if isinstance(spec, str):
+        return spec
+    if spec.get("value") is not None:
+        value = spec["value"]
+        if isinstance(value, bool):
+            return str(value).lower()
+        if isinstance(value, list):
+            return "[" + ", ".join(str(v) for v in value) + "]"
+        if isinstance(value, dict):
+            return "{}"
+        return f'"{value}"'
+    source = spec.get("source")
+    operation = spec.get("operation")
+    if operation:
+        return f"{operation}({source if source else ''})"
+    return source or ""
+
+
+def timeline_rst(config_data):
+    """Timeline as a two-column table: the action.id condition value (when
+    the entry has one) and the message."""
+    entries = config_data.get("timeline") or []
+    if not entries:
+        return "No timeline messages."
+    lines = [
+        ".. list-table::",
+        "   :header-rows: 1",
+        "",
+        "   * - action.id",
+        "     - Message",
+    ]
+    for entry in entries:
+        action_id = ""
+        for cond in entry.get("conditions") or []:
+            if cond.get("field") == "action.id" and cond.get("value") is not None:
+                action_id = str(cond.get("value"))
+                break
+        lines.append("   * - " + (_literal(action_id) if action_id else ""))
+        lines.append("     - " + _literal(entry.get("message", "")))
+    return "\n".join(lines)
+
+
+def fields_rst(config_data):
+    """Field mappings of the transformation: original -> ECS field;
+    custom blocks are not expanded, translate blocks are skipped."""
+    rows = []
+    for block in config_data.get("transformation") or []:
+        if "set" in block:
+            for target, spec in (block.get("set") or {}).items():
+                rows.append((_spec_original(spec), target))
+        elif "custom" in block:
+            rows.append(("custom", ""))
+    if not rows:
+        return "No field mappings."
+    lines = [
+        ".. list-table::",
+        "   :header-rows: 1",
+        "",
+        "   * - Original",
+        "     - ECS field",
+    ]
+    for original, target in rows:
+        lines.append(
+            "   * - " + _literal(original)
+            + "\n     - " + _literal(target)
+        )
+    return "\n".join(lines)
+
+
+def _per_config(configs, render):
+    """Render one section for each transform config; when a module uses
+    several configs, each block is introduced by the config path."""
+    if not configs:
+        return "No transform configuration found for this module."
+    blocks = []
+    for rel in configs:
+        with open(os.path.join(TRANSFORM_V2, rel), encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+        part = render(data)
+        if len(configs) > 1:
+            part = f"**{_literal(rel)}**\n\n{part}"
+        blocks.append(part)
+    return "\n\n".join(blocks)
 
 
 def rst_inline_safe(text):
@@ -111,17 +205,26 @@ def rst_literal(value):
 
 
 def ingestion_tip(splunk):
-    """Render the ingestion information as a 'tip' admonition."""
+    """Render the ingestion information as a 'tip' admonition: one line per
+    sourcetype (sourcetype | name_rex), or a notice when the module does not
+    ingest into Splunk."""
     if not splunk:
-        return (".. tip:: This module does not ingest data into Splunk.")
+        return ".. tip:: The output of this module can't be ingested by splunk."
 
-    lines = [".. tip:: Ingestion into Splunk.", ""]
+    lines = [
+        ".. tip:: In Splunk you can find the result of the module after",
+        "   ingestion with the following sourcetype:",
+        "",
+    ]
     for key, params in sorted(splunk.items()):
-        lines += [f"   **``{key}``**", ""]
-        for name, value in params.items():
-            lines += [f"   * {name}: {rst_literal(value)}"]
-        lines.append("")
-    return "\n".join(lines).rstrip()
+        params = params or {}
+        sourcetype = params.get("sourcetype", key)
+        name_rex = params.get("name_rex")
+        if name_rex:
+            lines.append(f"   * ``{sourcetype}`` | name_rex: ``{name_rex}``")
+        else:
+            lines.append(f"   * ``{sourcetype}``")
+    return "\n".join(lines)
 
 
 def generate_module_page(yml_path, category, subcategory, module_info):
@@ -133,11 +236,14 @@ def generate_module_page(yml_path, category, subcategory, module_info):
     title = os.path.splitext(os.path.basename(yml_path))[0]
     description = rst_inline_safe(metadata.get("description", ""))
 
+    configs = transform_configs_for(content)
     page = TEMPLATE.format(
         title=title,
         title_underline="=" * len(title),
         description=description,
         ingestion_tip=ingestion_tip(content.get("splunk", {}) or {}),
+        timeline_section=_per_config(configs, timeline_rst),
+        fields_section=_per_config(configs, fields_rst),
     )
 
     rel = os.path.relpath(yml_path, MODULES_SRC)

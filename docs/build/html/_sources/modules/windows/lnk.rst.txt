@@ -1,18 +1,10 @@
 lnk
 ===
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:lnk``**
-
-   * name_rex: ``\.csv$``
-   * path_suffix: ``lnk``
-   * sourcetype: ``windows:files:lnk``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``Lnk``
-   * normalize: ``ecs_normalize/windows/lnk.vrl``
+   * ``windows:files:lnk`` | name_rex: ``\.csv$``
 
 Description
 -----------
@@ -22,27 +14,69 @@ Parsing of lnk artifact.
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``{}``
+     - ``event``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"windows.lnk"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"Windows LNK"``
+     - ``event.provider``
+   * - ``"state"``
+     - ``event.kind``
+   * - ``[file]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"shortcut"``
+     - ``event.action``
+   * - ``"lnk"``
+     - ``event.code``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``to_string!(del(.SourceFile))``
+     - ``file.Ext.lnk.source_file``
+   * - ``to_string!(del(.ExtraBlocksPresent))``
+     - ``file.Ext.lnk.extra_blocks_present``
+   * - ``to_string!(del(.HeaderFlags))``
+     - ``file.Ext.lnk.header_flags``
+   * - ``to_string!(del(.FileAttributes))``
+     - ``file.attributes``
+   * - ``to_string!(del(.DriveType))``
+     - ``file.Ext.lnk.drive_type``
+   * - ``to_string!(del(.VolumeSerialNumber))``
+     - ``file.Ext.lnk.volume_serial_number``
+   * - ``to_string!(del(.VolumeLabel))``
+     - ``file.Ext.lnk.volume_label``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.RelativePath))``
+     - ``file.Ext.lnk.relative_path``
+   * - ``to_string!(del(.WorkingDirectory))``
+     - ``file.Ext.lnk.working_directory``
+   * - ``to_string!(del(.Arguments))``
+     - ``file.Ext.lnk.arguments``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.MACVendor))``
+     - ``host.Ext.lnk.mac_vendor``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.TargetMFTEntryNumber))``
+     - ``file.Ext.lnk.target_mft_entry_number``
+   * - ``to_string!(del(.TargetMFTSequenceNumber))``
+     - ``file.Ext.lnk.target_mft_sequence_number``
+   * - ``custom``
+     - 

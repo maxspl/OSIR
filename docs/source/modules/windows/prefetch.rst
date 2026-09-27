@@ -1,18 +1,10 @@
 prefetch
 ========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:prefetch``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``prefetch``
-   * sourcetype: ``windows:files:prefetch``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``Prefetch``
-   * normalize: ``ecs_normalize/windows/prefetch.vrl``
+   * ``windows:files:prefetch`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -22,27 +14,51 @@ Eric Zimmerman - PECmd.exe
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``"windows.prefetch"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[start, info]``
+     - ``event.type``
+   * - ``"prefetch_summary"``
+     - ``event.action``
+   * - ``"info"``
+     - ``log.level``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.Hash))``
+     - ``prefetch.hash``
+   * - ``to_string!(del(.Version))``
+     - ``prefetch.version``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.Volume0Name))``
+     - ``prefetch.volume0_name``
+   * - ``to_string!(del(.Volume0Serial))``
+     - ``prefetch.volume0_serial``
+   * - ``custom``
+     - 
+   * - ``to_string!(del(.Volume1Name))``
+     - ``prefetch.volume1_name``
+   * - ``to_string!(del(.Volume1Serial))``
+     - ``prefetch.volume1_serial``
+   * - ``custom``
+     - 
+   * - ``"success"``
+     - ``event.outcome``

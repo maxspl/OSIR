@@ -1,0 +1,80 @@
+metadata:
+  version: "1.0"
+  id: dpkg
+  author: Typ
+  description: OSIR - dpkg package status normalizer
+
+transformation:
+  - set:
+      package.name: to_string!(.name)
+      package.version: to_string!(.version)
+      package.architecture: to_string!(.architecture)
+      package.description: to_string!(.description)
+      package.install_scope: to_string!(.desired)
+      package.type:
+        value: dpkg
+      labels.package_status: to_string!(.status)
+  - custom: |2-
+      if exists(.codes) {
+          codes = to_string!(.codes)
+          .labels.package_codes = codes
+          
+          if length(codes) >= 1 {
+              desired_code = slice!(codes, 0, 1)
+              .labels.package_desired_state = if desired_code == "u" {
+                  "unknown"
+              } else if desired_code == "i" {
+                  "install"
+              } else if desired_code == "r" {
+                  "remove"
+              } else if desired_code == "p" {
+                  "purge"
+              } else if desired_code == "h" {
+                  "hold"
+              } else {
+                  desired_code
+              }
+          }
+          
+          if length(codes) >= 2 {
+              current_code = slice!(codes, 1, 2)
+              .labels.package_current_state = if current_code == "n" {
+                  "not-installed"
+              } else if current_code == "i" {
+                  "installed"
+              } else if current_code == "c" {
+                  "config-files"
+              } else if current_code == "U" {
+                  "unpacked"
+              } else if current_code == "F" {
+                  "half-configured"
+              } else if current_code == "h" {
+                  "half-installed"
+              } else if current_code == "W" {
+                  "triggers-awaited"
+              } else if current_code == "t" {
+                  "triggers-pending"
+              } else {
+                  current_code
+              }
+          }
+          
+          if length(codes) >= 3 {
+              error_code = slice!(codes, 2, 3)
+              if error_code != " " {
+                  .labels.package_error_state = if error_code == "R" {
+                      "reinst-required"
+                  } else {
+                      error_code
+                  }
+              }
+          }
+      }
+  - delete:
+      - codes
+      - name
+      - version
+      - architecture
+      - description
+      - desired
+      - status

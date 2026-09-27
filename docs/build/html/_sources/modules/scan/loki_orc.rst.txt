@@ -1,18 +1,10 @@
 loki_orc
 ========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``loki:files``**
-
-   * name_rex: ``\.jsonl$``
-   * path_suffix: ``loki_orc``
-   * sourcetype: ``loki:files``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``Loki``
-   * normalize: ``ecs_normalize/scan/loki.vrl``
+   * ``loki:files`` | name_rex: ``\.jsonl$``
 
 Description
 -----------
@@ -22,27 +14,61 @@ YARA/IOC scan of the filesystem rebuilt from a DFIR ORC collection (output of th
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"loki"``
+     - ``event.module``
+   * - ``"Nextron Systems"``
+     - ``observer.vendor``
+   * - ``"Loki-RS"``
+     - ``observer.product``
+   * - ``"scanner"``
+     - ``observer.type``
+   * - ``custom``
+     - 
+   * - ``to_string(.message) ?? null``
+     - ``message``
+   * - ``custom``
+     - 
+   * - ``to_string(.file_type) ?? null``
+     - ``file.type``
+   * - ``custom``
+     - 
+   * - ``to_string(.md5) ?? null``
+     - ``file.hash.md5``
+   * - ``to_string(.sha1) ?? null``
+     - ``file.hash.sha1``
+   * - ``to_string(.sha256) ?? null``
+     - ``file.hash.sha256``
+   * - ``to_string(.file_created) ?? null``
+     - ``file.created``
+   * - ``to_string(.file_modified) ?? null``
+     - ``file.mtime``
+   * - ``to_string(.file_accessed) ?? null``
+     - ``file.accessed``
+   * - ``custom``
+     - 
+   * - ``to_string(.process_name) ?? null``
+     - ``process.name``
+   * - ``custom``
+     - 
+   * - ``to_string(.run_time) ?? null``
+     - ``loki.process.run_time``
+   * - ``custom``
+     - 
+   * - ``listening_ports``
+     - ``loki.process.listening_ports``
+   * - ``custom``
+     - 
+   * - ``context``
+     - ``loki.context``

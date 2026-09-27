@@ -1,17 +1,10 @@
 win_handle
 ==========
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:handle``**
-
-   * name_rex: ``--win_handle\.jsonl$``
-   * path_suffix: ``win_handle``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``HANDLE``
-   * normalize: ``ecs_normalize/windows/live_response/handle.vrl``
+   * ``windows:live_response:handle`` | name_rex: ``--win_handle\.jsonl$``
 
 Description
 -----------
@@ -21,27 +14,27 @@ Parse handle from DFIR ORC (handle.exe /a command)
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``"windows.handle"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"handle_entry"``
+     - ``event.action``
+   * - ``custom``
+     - 

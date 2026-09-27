@@ -1,18 +1,10 @@
 pstree_live_response
 ====================
 
-.. tip:: Ingestion into Splunk.
+.. tip:: In Splunk you can find the result of the module after
+   ingestion with the following sourcetype:
 
-   **``windows:live_response:pstree``**
-
-   * name_rex: ``nodes\.jsonl$``
-   * path_suffix: ``pstree_live_response``
-   * sourcetype: ``windows:live_response:pstree``
-   * host_rex: ``([\w\.-]+)--``
-   * timestamp_path: ``timestamp``
-   * timestamp_format: ``%Y-%m-%dT%H:%M:%SZ``
-   * artifact: ``pstree_live_response``
-   * normalize: ``ecs_normalize/windows/pstree_nodes.vrl``
+   * ``windows:live_response:pstree`` | name_rex: ``nodes\.jsonl$``
 
 Description
 -----------
@@ -22,27 +14,31 @@ Parse processes1.csv to produce pstree
 Timeline
 --------
 
-Placeholder table for the messages created for the timeline.
-
-.. list-table::
-   :header-rows: 1
-
-   * - Timeline
-     - ECS field
-     - Message
-   * -
-     -
-     -
+No timeline messages.
 
 Fields
 ------
 
-Placeholder table for the output fields.
-
 .. list-table::
    :header-rows: 1
 
-   * - Field
-     - Description
-   * -
-     -
+   * - Original
+     - ECS field
+   * - ``"windows.pstree_nodes"``
+     - ``event.dataset``
+   * - ``"windows"``
+     - ``event.module``
+   * - ``"event"``
+     - ``event.kind``
+   * - ``[process]``
+     - ``event.category``
+   * - ``[info]``
+     - ``event.type``
+   * - ``"process_tree_node"``
+     - ``event.action``
+   * - ``"success"``
+     - ``event.outcome``
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``custom``
+     - 
