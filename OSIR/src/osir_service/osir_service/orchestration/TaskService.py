@@ -33,7 +33,7 @@ def _default_result_backend() -> str:
         host = "host.docker.internal" if agent_config.standalone else agent_config.master_host
     except FileNotFoundError:
         host = "master-postgres"
-    return f"db+postgresql://{user}:{password}@{host}:5432/OSIR_db"
+    return f"db+postgresql+psycopg2://{user}:{password}@{host}:5432/OSIR_db"
 
 
 def _get_celery_app() -> Celery:

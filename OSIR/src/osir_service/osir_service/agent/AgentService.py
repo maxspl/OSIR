@@ -50,7 +50,7 @@ class CeleryWorker:
         self.CELERY_BROKER_URL = environ.get('CELERY_BROKER_URL', f'pyamqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{self.master_host}:5672//')
         self.CELERY_RESULT_BACKEND = environ.get(
             'CELERY_RESULT_BACKEND',
-            f'db+postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{self.master_host}:5432/OSIR_db'
+            f'db+postgresql+psycopg2://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{self.master_host}:5432/OSIR_db'
         )
 
         self.app = Celery(name='OSIR', backend=self.CELERY_RESULT_BACKEND)
