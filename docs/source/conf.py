@@ -68,6 +68,8 @@ autodoc_default_options = {
 
 html_theme = 'sphinxawesome_theme'
 html_title = 'Orchestration Software for Incident Response'
+html_logo = '_img/OSIR_LOGO.png'
+html_favicon = '_img/OSIR_LOGO.png'
 html_static_path = ['_static']
 html_css_files = ['module-cards.css', 'tables.css']
 html_js_files = ['sidebar-scroll.js']

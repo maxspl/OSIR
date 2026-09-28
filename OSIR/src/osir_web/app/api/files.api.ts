@@ -52,10 +52,6 @@ export class FilesApi {
     return this.client.post('/api/files/unarchive', body)
   }
 
-  createFile(body: CreateItemRequest): Promise<FileOperationResult> {
-    return this.client.post('/api/files/create-file', body)
-  }
-
   createFolder(body: CreateItemRequest): Promise<FileOperationResult> {
     return this.client.post('/api/files/create-folder', body)
   }

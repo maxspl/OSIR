@@ -3,9 +3,6 @@ import type {
   GetModuleListResponse,
   GetModuleExistsResponse,
   PostModuleInfoRequest,
-  PostModuleRunRequest,
-  PostModuleRunResponse,
-  PostModuleRunOnFileResponse,
 } from './types'
 
 export class ModuleApi {
@@ -17,13 +14,5 @@ export class ModuleApi {
 
   info(body: PostModuleInfoRequest): Promise<GetModuleExistsResponse> {
     return this.client.post('/api/module/info', body)
-  }
-
-  run(body: PostModuleRunRequest): Promise<PostModuleRunResponse> {
-    return this.client.post('/api/module/run', body)
-  }
-
-  runOnFile(body: PostModuleRunRequest): Promise<PostModuleRunOnFileResponse> {
-    return this.client.post('/api/module/run_on_file', body)
   }
 }

@@ -86,13 +86,6 @@ def extract_archive(body: UnarchiveRequest):
     return OsirIpcCall("files_unarchive", params={"body": body.model_dump()}, response_only=True)
 
 
-@router.post("/files/create-file",
-             response_model=FileOperationResult,
-             responses={400: {}, 403: {}, 500: {"model": UnexpectedExceptionResponse}})
-def create_file(body: CreateItemRequest):
-    return OsirIpcCall("files_create_file", params={"body": body.model_dump()}, response_only=True)
-
-
 @router.post("/files/create-folder",
              response_model=FileOperationResult,
              responses={400: {}, 403: {}, 500: {"model": UnexpectedExceptionResponse}})

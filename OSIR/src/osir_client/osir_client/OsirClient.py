@@ -168,10 +168,7 @@ def main():
                         input_path=getattr(args, "input_path", None)
                     )
                 )
-                if getattr(args, "input_path", None):
-                    OsirCliDisplay.task_info(handler)
-                else:
-                    handler.status(wait_end=args.wait)
+                handler.status(wait_end=args.wait)
 
         # --- PROFILE ---
         elif args.command == "profile":

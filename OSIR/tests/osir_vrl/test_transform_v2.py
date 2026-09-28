@@ -2,17 +2,13 @@ import glob
 import os
 import shutil
 import subprocess
-import sys
 
 import pytest
 
-OSIR_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OSIR_SRC = os.path.join(OSIR_ROOT, "src")
-if OSIR_SRC not in sys.path:
-    sys.path.insert(0, OSIR_SRC)
+# sys.path and OSIR_HOME are set up by tests/conftest.py
+from osir_vrl.OsirVrlModel import OsirVrlModel  # noqa: E402
 
-from osir_vrl.osir_vrl.OsirVrlModel import OsirVrlModel  # noqa: E402
-
+OSIR_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TRANSFORM_V2 = os.path.join(OSIR_ROOT, "configs", "dependencies", "transform_v2")
 
 # legacy configs migrated to the new transformations/timeline format

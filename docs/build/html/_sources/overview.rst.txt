@@ -1,5 +1,12 @@
 :orphan:
 
+.. image:: /_img/OSIR_LOGO.png
+   :alt: OSIR logo
+   :width: 260px
+   :align: center
+
+----
+
 Overview
 ========
 

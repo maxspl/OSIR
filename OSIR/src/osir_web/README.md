@@ -75,7 +75,3 @@ default API calls go through the `/proxy` route of the development server.
 In production the application is built and served as part of the OSIR master
 stack, alongside the FastAPI backend and the other OSIR containers (see the
 main OSIR documentation for the `osir-launcher.py` workflow).
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.

@@ -43,12 +43,6 @@ def retrieved_case_handler(case_name: str):
 def stats_case(case_name: str):
     return OsirIpcCall("get_task_stats", params={"case_name": case_name})
 
-@router.post("/case/{case_name}/handler/run",
-             response_model=GetCaseHandlerResponse,
-             responses={500: {"model": UnexpectedExceptionResponse}})
-def start_case_handler(case_name: str):
-    return OsirIpcCall("get_case_handler", params={"case_name": case_name})
-
 # Endpoint for file uploads
 @router.post("/case/{case_name}/uploads")
 async def upload_file(

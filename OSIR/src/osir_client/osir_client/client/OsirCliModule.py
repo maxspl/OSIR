@@ -1,14 +1,13 @@
 import os
-from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 from pydantic import BaseModel, PrivateAttr
 
 from osir_lib.logger.logger import AppLogger, CustomLogger
-from osir_lib.core.model.OsirModuleModel import OsirModuleModel
 
 from osir_client.client.OsirCliHandler import OsirCliHandler
 from osir_client.client.OsirCliDisplay import OsirCliDisplay
-from osir_api.api.model.OsirApiModuleModel import GetModuleListResponse, GetModuleExistsResponse, PostModuleRunResponse, PostModuleRunOnFileResponse
+from osir_api.api.model.OsirApiModuleModel import GetModuleListResponse, GetModuleExistsResponse
+from osir_api.api.model.OsirApiHandlerModel import PostHandlerCreateResponse
 
 logger: CustomLogger = AppLogger().get_logger()
 
@@ -25,16 +24,17 @@ class OsirCliModule(BaseModel):
     def ctx(self) -> "OsirCliCase":
         return self._context
 
-    def exists(self, module_name: str) -> Optional[OsirModuleModel]:
+    def exists(self, module_name: str) -> Optional[dict]:
         """
         Retrieve module info by name.
-        GET /api/module/{module_name}/info
+        POST /api/module/info
         """
-        response: GetModuleExistsResponse = self._api.get(
-            f"/api/module/{module_name}/info",
-            response_model=GetModuleExistsResponse
+        response: GetModuleExistsResponse = self._api.post(
+            "/api/module/info",
+            response_model=GetModuleExistsResponse,
+            json={"modules": [module_name]}
         )
-        return response.response
+        return (response.response or {}).get(module_name) or None
 
     def list(self, print: bool = True) -> list[str]:
         """
@@ -83,38 +83,38 @@ class OsirCliModule(BaseModel):
     def run(self, module_name: str, input_path: Optional[str] = None) -> OsirCliHandler:
         """
         Run a module against the current case context.
-        POST /api/module/{module_name}/run
+        POST /api/handler/create (whole case) or POST /api/handler/advanced (on an uploaded file)
         """
         if self.ctx is None or self.ctx.name is None:
             logger.error("You can't run a module on a not setup case")
             return self
         try:
-            payload = {"case_name": self.ctx.name}
-
             if input_path:
                 if not os.path.exists(input_path):
                     logger.error(f"Input path does not exist: '{input_path}'")
                     return self
                 uploaded_name = self._upload(self.ctx.name, input_path)
-                uploaded_path = Path("/OSIR/share/cases") / self.ctx.name / "upload" / uploaded_name
-                payload["input_path"] = str(uploaded_path)
-
-                response: PostModuleRunOnFileResponse = self._api.post(
-                    f"/api/module/{module_name}/run/file",
-                    response_model=PostModuleRunOnFileResponse,
-                    json=payload
-                )
-                return response.response
-
+                endpoint = "/api/handler/advanced"
+                payload = {
+                    "case_name": self.ctx.name,
+                    "files_modules": module_name,
+                    "files_input": [f"{self.ctx.name}://uploads/{uploaded_name}"],
+                }
             else:
-                response: PostModuleRunResponse = self._api.post(
-                    f"/api/module/{module_name}/run",
-                    response_model=PostModuleRunResponse,
-                    json=payload
-                )
-                handler = OsirCliHandler(handler_id=str(response.response.handler_id))
-                handler._api = self._api
-                return handler
+                endpoint = "/api/handler/create"
+                payload = {
+                    "case_name": self.ctx.name,
+                    "modules": [module_name],
+                }
+
+            response: PostHandlerCreateResponse = self._api.post(
+                endpoint,
+                response_model=PostHandlerCreateResponse,
+                json=payload
+            )
+            handler = OsirCliHandler(handler_id=str(response.response.handler_id))
+            handler._api = self._api
+            return handler
 
         except Exception as e:
             logger.error(f"Failed to run module '{module_name}': {e}")

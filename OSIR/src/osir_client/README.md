@@ -22,133 +22,141 @@ pip install -r requirements.txt
 pip install .
 ```
 
-## Quick Start
+## Concepts
 
-### Basic Usage
+The client mirrors the OSIR workflow. You connect through an `OsirClient`, and everything starts from **cases**. Each case gives access to its **modules**, **profiles**, **handlers** and **tasks**. Running a module or a profile returns a **handler**, which represents one processing batch on that case.
+
+```
+OsirClient (api_url)
+└── client.cases           → create / get / list cases
+    └── case (OsirCliCase)
+        ├── case.modules   → run a single module          → returns a Handler
+        ├── case.profiles  → run a profile (module set)   → returns a Handler
+        ├── case.handlers  → list handlers, follow status
+        └── case.tasks    → list tasks, inspect one by ID
+```
+
+Most `list()` and `status()` calls print a formatted table to the console (via `rich`); pass `print=False` where supported to get the raw data instead.
+
+## Quick Start
 
 ```python
 from osir_client.client.OsirClient import OsirClient
 
-# Initialize the client
-api_url = "http://127.0.0.1:8502"
-osir_client = OsirClient(api_url=api_url)
+# Connect to the OSIR API
+client = OsirClient(api_url="http://127.0.0.1:8502")
+client.is_active()  # True if the server responds
 
-# Create a new case
-case = osir_client.cases.create("my_forensic_case")
+# Create a new case (or fetch an existing one)
+case = client.cases.create("my_forensic_case")
+# case = client.cases.get("my_forensic_case")
 
-# Run a module on the case
+# Run a module on the case — returns a Handler
 handler = case.modules.run("bodyfile.yml")
 
-# Wait for processing to complete
-handler.status(wait_end=True)
+# Wait until the handler finishes (done or failed), polling every 5s
+handler.status(wait_end=True)  # default timeout: 300s
 
-# Get task information
-first_task = handler.tasks.list().select(0)
-first_task.status()
-first_task.log()
+# Inspect the results
+case.tasks.list()                              # print all tasks of the case
+task = case.tasks.get_task_info("<task_id>")   # full record of one task
 ```
-
-## Features
-
-### Case Management
-- Create, list, and manage forensic cases
-- Access case information and metadata
-- Case lifecycle management
-
-### Module Execution
-- Run forensic modules against cases
-- Upload files for analysis
-- Monitor module execution status
-- Retrieve module results and logs
-
-### Profile Management
-- Execute predefined investigation profiles
-- Automate complex workflows
-- Profile-based analysis
-
-### Task Monitoring
-- Track task execution status
-- View task logs and outputs
-- Manage task lifecycle
 
 ## API Reference
 
 ### OsirClient
 
-The main client class for connecting to the OSIR API.
+Entry point for all calls. Requires the URL of the OSIR API server.
 
 ```python
 from osir_client.client.OsirClient import OsirClient
 
 client = OsirClient(api_url="http://127.0.0.1:8502")
+client.is_active()  # check the server is reachable
 ```
 
 ### Cases
 
-Manage forensic cases:
+`client.cases` is the entry point for case management. `create()` and `get()` return the case object used to access modules, profiles, handlers and tasks.
 
 ```python
-# Create a new case
+# Create a new case (returns a case with name and case_uuid set)
 case = client.cases.create("case_name")
 
-# Get a specific case
+# Get an existing case by name
 case = client.cases.get("case_name")
 
-# List all cases
-cases = client.cases.list()
+# Print the list of all cases
+client.cases.list()
 ```
 
 ### Modules
 
-Execute forensic modules:
+`case.modules` runs forensic modules.
 
 ```python
-# Run a module on a case
+# List available modules (prints a table and returns the module paths)
+modules = case.modules.list()
+
+# Get a module's configuration (returns None if it does not exist)
+module = case.modules.exists("module_name.yml")
+
+# Run a module on the case — returns a Handler
 handler = case.modules.run("module_name.yml")
 
-# Run a module with input file
+# Run a module on a local file — the file is uploaded to the case first
 handler = case.modules.run("module_name.yml", "/path/to/input/file")
-
-# Check if module exists
-module_info = case.modules.exists("module_name.yml")
-
-# List available modules
-modules = case.modules.list()
 ```
+
+The upload in the last example is automatic and chunked (10 MB per chunk); you never call the upload endpoint directly.
 
 ### Profiles
 
-Execute investigation profiles:
+`case.profiles` runs predefined module sets (profiles).
 
 ```python
-# Run a profile on a case
-handler = case.profiles.run("profile_name.yml")
-
-# List available profiles
+# List available profiles (prints a table and returns the profile paths)
 profiles = case.profiles.list()
+
+# Get a profile's definition (returns None if it does not exist)
+profile = case.profiles.exists("profile_name.yml")
+
+# Run a profile on the case — returns a Handler
+handler = case.profiles.run("profile_name.yml")
 ```
 
 ### Handlers
 
-Manage module execution:
+A handler is one processing batch: a single module run, or all the modules of a profile. `run()` calls return it, and its `handler_id` is the key used by the server.
 
 ```python
-# Check handler status
-handler.status(wait_end=True)  # Wait for completion
-handler.status()  # Get current status
+# List all handlers of the case
+case.handlers.list()
 
-# Access tasks
-tasks = handler.tasks.list()
-first_task = tasks.select(0)
+# Print the current status of a handler
+handler.status()
 
-# Get task information
-first_task.status()
-first_task.log()
+# Wait until the handler completes or fails
+handler.status(wait_end=True)                  # timeout=300s, poll every interval=5s
+handler.status(wait_end=True, timeout=600, interval=10)
 ```
 
-## Configuration
+A handler's life cycle is: `processing_started` → `processing_done` or `processing_failed`. With `wait_end=True`, `status()` raises a `TimeoutError` if the handler does not finish within `timeout` seconds.
 
-The client can be configured using environment variables or directly in code.
+### Tasks
+
+`case.tasks` inspects individual task executions.
+
+```python
+# Print all tasks of the case
+case.tasks.list()
+
+# Get a task by its ID (prints a table and returns the task record)
+task = case.tasks.get_task_info("task_id")
+
+# Get the record without printing
+task = case.tasks.get_task_info("task_id", print=False)
+```
 
 ### Environment Variables
 
@@ -167,7 +175,3 @@ The package requires:
 - `rich`: For enhanced console output
 - `tabulate`: For table formatting
 - `python-dotenv`: For environment variable management
-
-## Support
-
-For issues, questions, or contributions, please visit the [OSIR GitHub repository](https://github.com/maxspl/OSIR).

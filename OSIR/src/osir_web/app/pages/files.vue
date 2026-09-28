@@ -182,7 +182,6 @@ const driver = new RemoteDriver({
     move: '/move',
     archive: '/archive',
     unarchive: '/unarchive',
-    createFile: '/create-file',
     createFolder: '/create-folder',
     preview: '/preview',
     download: '/download',

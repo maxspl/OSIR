@@ -42,11 +42,3 @@ if success:
 
 - `OSIR_HOME`: Set the base directory for OSIR (default: `/OSIR`)
 - `LOG_LEVEL`: Set logging level (DEBUG, INFO, WARNING, ERROR)
-
-## Contributing
-
-Contributions are welcome! Please submit pull requests or open issues for bugs and feature requests.
-
-## Support
-
-For support, please open an issue on the GitHub repository or contact the maintainers.

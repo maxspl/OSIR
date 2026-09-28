@@ -1,17 +1,15 @@
 import os
-import sys
 
 import pytest
 
-OSIR_SRC = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), "src"))
-if OSIR_SRC not in sys.path:
-    sys.path.insert(0, OSIR_SRC)
-
-from osir_vrl.osir_vrl.OsirVrlModel import OsirVrlModel
-from osir_vrl.osir_vrl.OsirVrlTransformation import OsirVrlTransformation
-from osir_vrl.osir_vrl.OsirVrlBlock import OsirVrlBlock
+# sys.path and OSIR_HOME are set up by tests/conftest.py
+from osir_vrl.OsirVrlModel import OsirVrlModel
+from osir_vrl.OsirVrlTransformation import OsirVrlTransformation
+from osir_vrl.OsirVrlBlock import OsirVrlBlock
 from pydantic import ValidationError
 
+OSIR_SRC = os.path.abspath(os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "src"))
 EXAMPLE_YML = os.path.join(OSIR_SRC, "osir_vrl", "examples", "custom_log.yml")
 
 

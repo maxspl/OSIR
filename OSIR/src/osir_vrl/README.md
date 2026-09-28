@@ -3,7 +3,7 @@
 Compile YAML transformation configurations into Vector Remap Language
 (VRL) programs. A configuration describes *what* to normalize; the package
 generates the *how* — guards, error handling, cleanup — as a single `.vrl`
-file.
+file. This wrapper is mainly use to know the structure of the parsed element and how to query them.
 
 ```
 configs/dependencies/transform_v2/**.yml   --(OsirVrlModel.to_vrl)-->  *.vrl

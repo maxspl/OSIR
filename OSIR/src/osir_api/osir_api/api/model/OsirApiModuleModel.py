@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Union
 from osir_service.ipc.model.OsirIpcResponse import OsirIpcResponse
-from osir_lib.core.model.OsirModuleModel import OsirModuleModel
-from osir_service.postgres.model.OsirDbHandlerModel import OsirDbHandlerModel
-from osir_service.postgres.model.OsirDbTaskModel import OsirDbTaskModel
 from pydantic import BaseModel
 
 """ 
@@ -49,47 +46,3 @@ class PostModuleInfoRequest(BaseModel):
 
 class GetModuleExistsResponse(OsirIpcResponse):
     response: Union[None, dict[str, dict]]
-
-"""
-==========================================
-API Endpoint: POST /api/module/run
-==========================================
-Description: Run a OSIR module on a case
-
-Request model:
-  - PostModuleRunRequest
-
-Response model:
-  - PostModuleRunResponse
-
-==========================================
-"""
-
-
-class PostModuleRunRequest(BaseModel):
-    module_name: str
-    case_name: str
-    input_path: Optional[str] = None
-
-
-class PostModuleRunResponse(OsirIpcResponse):
-    response: OsirDbHandlerModel
-
-"""
-==========================================
-API Endpoint: POST /api/module/run_on_file
-==========================================
-Description: Run a OSIR module on a case
-
-Request model:
-  - PostModuleRunRequest
-
-Response model:
-  - PostModuleRunOnFileResponse
-
-==========================================
-"""
-
-
-class PostModuleRunOnFileResponse(OsirIpcResponse):
-    response: OsirDbTaskModel

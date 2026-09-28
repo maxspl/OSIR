@@ -425,7 +425,7 @@ class FsData(BaseModel):
         new_dir = dir_path / name
         if new_dir.exists():
             raise ValueError(f"Directory already exists: {name}")
-        
+
         new_dir.mkdir()
         return DirEntry.from_path(new_dir, case_name)
 

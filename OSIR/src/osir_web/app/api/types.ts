@@ -207,9 +207,6 @@ export interface OsirModuleModel {
 export interface GetModuleListResponse extends OsirIpcResponse<string[]> {}
 export interface PostModuleInfoRequest { modules: string[]; keys?: string[] }
 export interface GetModuleExistsResponse extends OsirIpcResponse<Record<string, Record<string, unknown>> | null> {}
-export interface PostModuleRunRequest { module_name: string; case_name: string; input_path?: string | null }
-export interface PostModuleRunResponse extends OsirIpcResponse<OsirDbHandlerModel> {}
-export interface PostModuleRunOnFileResponse extends OsirIpcResponse<OsirDbTaskModel> {}
 
 // ── File system ───────────────────────────────────────────────────────────────
 

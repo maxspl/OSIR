@@ -204,7 +204,7 @@ class OsirIpcFiles:
             return OsirException.VALIDATION_ERROR(str(e))
         except Exception as e:
             return OsirException.FILE_OPERATION_ERROR(str(e), "create_folder")
-    
+
     @staticmethod
     def handle_files_download(req: OsirIpcRequest, resp: OsirIpcResponse = None) -> OsirIpcResponse:
         """Handler for downloading a file."""

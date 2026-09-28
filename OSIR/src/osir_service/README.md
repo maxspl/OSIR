@@ -1,6 +1,6 @@
 # OSIR Service Package
 
-The `osir_service` package provides the core service infrastructure for the OSIR (Open Source Incident Response) framework. It handles task orchestration, inter-process communication, database management, and distributed processing.
+The `osir_service` package provides the core service infrastructure for the OSIR framework. It handles task orchestration, inter-process communication, database management, and distributed processing.
 
 ## Overview
 
@@ -16,8 +16,8 @@ OSIR Service is a distributed forensic analysis framework that uses:
 ```
 osir_service/
 ├── agent/                  # Agent management and worker services
-├── ipc/                    # Inter-process communication services
-├── orchestration/          # Task orchestration and processing
+├── ipc/                    # Inter-process communication services and processing
+├── orchestration/          # Task orchestration
 ├── postgres/               # Database models and services
 ├── smb/                    # SMB/CIFS network services
 └── watchdog/               # File system monitoring services
@@ -43,26 +43,58 @@ The `CeleryWorker` class manages distributed forensic task execution:
 
 ### 2. IPC Service (`ipc/OsirIpc.py`)
 
-The `OsirIpc` class provides JSON-based inter-process communication:
+The `OsirIpc` class provides JSON-based inter-process communication, covering all actions available through the OSIR API and Web interfaces. It handles every call and process of the OSIR project. It listens on a TCP socket and dispatches JSON requests to registered action handlers.
 
 **Supported Actions:**
+
+*Connection:*
 - `socket_on`: Test connection readiness
-- `exec_module`: Execute a single forensic module
+
+*Execution:*
+- `exec_module`: Execute a single forensic module on a case or a specific input file
 - `exec_profile`: Execute a module profile
-- `create_case`: Create a new forensic case
-- `get_cases`: List all cases
-- `get_tasks`: Get tasks for a specific case
-- `get_task_log`: Retrieve logs for a specific task
+- `restart_task`: Re-submit a task by its ID
+- `stop_handler`: Stop a running handler
+
+*Handlers:*
+- `create_handler`: Create a handler with profile/modules validation and start processing
+- `create_advanced_handler`: Run modules directly on specific files or folders (no watchdog)
+- `delete_handler`: Delete a handler and its tasks
 - `get_handler_status`: Check handler execution status
 - `get_case_handler`: Get handlers for a case
+- `get_handler_task_info`: Retrieve all task logs for a handler
+- `get_system_metrics`: Get recent host resource samples (per agent) for the web UI graphs
 
-**Usage:**
-```python
-from osir_service.ipc.OsirIpc import OsirIpc
+*Cases:*
+- `create_case`: Create a new forensic case
+- `get_cases`: List all cases
 
-ipc = OsirIpc(host="localhost", port=5000)
-ipc.start()  # Starts listener in background thread
-```
+*Tasks:*
+- `get_tasks`: Get tasks with filtering (case, handler, module, status) and pagination
+- `get_task_stats`: Get aggregated task statistics for a case or handler
+- `get_task_log`: Retrieve logs for a specific task
+
+*Modules:*
+- `get_modules`: List all available modules
+- `get_module_info`: Get configuration details for specific modules
+
+*File management:*
+- `files_list`: List files and folders
+- `files_delete`: Delete files or folders
+- `files_rename`: Rename files or folders
+- `files_copy`: Copy files or folders
+- `files_move`: Move files or folders
+- `files_archive`: Archive files or folders
+- `files_unarchive`: Extract archives
+- `files_create_folder`: Create a folder
+- `files_download`: Download a file
+- `files_search`: Search files by name
+
+*Upload (tus protocol):*
+- `tus_upload_options`: Handle tus preflight (OPTIONS) requests
+- `tus_upload_post`: Create a tus upload session
+- `tus_upload_patch`: Send a chunk of data to an upload session
+- `tus_upload_head`: Get upload session status
 
 ### 3. Task Service (`orchestration/TaskService.py`)
 
@@ -89,59 +121,3 @@ The `OsirDb` class provides PostgreSQL database access:
 - **Handlers**: Execution handlers for module batches
 - **Tasks**: Individual task execution records
 - **Snapshots**: System state snapshots
-
-**Key Features:**
-- Automatic connection management with retry logic
-- Context manager support (`with OsirDb() as db:`)
-- Table creation and schema management
-- Transaction support
-
-## Usage Examples
-
-### Starting the Agent
-
-```python
-from osir_service.agent.AgentService import CeleryWorker
-
-worker = CeleryWorker()
-worker.start_worker()  # Starts all worker processes
-```
-
-### Submitting a Task
-
-```python
-from osir_service.orchestration.TaskService import TaskService
-from osir_lib.core.model.OsirModuleModel import OsirModuleModel
-
-# Create module instance
-module = OsirModuleModel.from_name("evtx_extract")
-module.input.match = "/path/to/evtx/file"
-
-# Submit task
-task_id = TaskService.push_task(
-    case_path="/cases/my_case",
-    module_instance=module,
-    case_uuid="case-uuid-here"
-)
-```
-
-### Using IPC Service
-
-```python
-from osir_service.ipc.OsirIpc import OsirIpc
-from osir_service.ipc.OsirIpc import OsirIpc
-
-# Create IPC service
-ipc = OsirIpc(host="localhost", port=5000)
-ipc.start()
-
-# Create request
-request = OsirIpc(
-    action="exec_module",
-    case_path="/cases/my_case",
-    modules=["evtx_extract"]
-)
-
-# Send request and get response
-response = ipc.action(request.model_dump())
-```

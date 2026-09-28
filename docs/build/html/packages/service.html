@@ -28,6 +28,7 @@
 <link href="../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
 <link href="../_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
+<link href="../_static/OSIR_LOGO.png" rel="icon"/>
 <link href="../search.html" rel="search" title="Search"/>
 <link href="../genindex.html" rel="index" title="Index"/>
 <link href="web.html" rel="next" title="OSIR Web"/>
@@ -38,7 +39,8 @@
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-xs border-border bg-background/90 backdrop-blur"><div class="container flex items-center h-14">
 <div class="hidden mr-4 md:flex">
-<a class="flex items-center mr-6" href="../index.html"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
+<a class="flex items-center mr-6" href="../index.html">
+<img alt="Logo" class="mr-2 dark:invert" height="24" src="../_static/OSIR_LOGO.png" width="24"/><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
 </a></div><button @click="showSidebar = true" class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden" type="button">
 <svg aria-hidden="true" fill="currentColor" height="24" viewbox="0 96 960 960" width="24" xmlns="http://www.w3.org/2000/svg">
 <path d="M152.587 825.087q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440Zm0-203.587q-19.152 0-32.326-13.174T107.087 576q0-19.152 13.174-32.326t32.326-13.174h320q19.152 0 32.326 13.174T518.087 576q0 19.152-13.174 32.326T472.587 621.5h-320Zm0-203.587q-19.152 0-32.326-13.174t-13.174-32.326q0-19.152 13.174-32.326t32.326-13.174h440q19.152 0 32.326 13.174t13.174 32.326q0 19.152-13.174 32.326t-32.326 13.174h-440ZM708.913 576l112.174 112.174q12.674 12.674 12.674 31.826t-12.674 31.826Q808.413 764.5 789.261 764.5t-31.826-12.674l-144-144Q600 594.391 600 576t13.435-31.826l144-144q12.674-12.674 31.826-12.674t31.826 12.674q12.674 12.674 12.674 31.826t-12.674 31.826L708.913 576Z"></path>
@@ -68,7 +70,8 @@
 </div>
 </header>
 <div class="flex-1"><div class="container md:grid md:grid-cols-[220px_minmax(0,1fr)] md:gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-10"><aside :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }" class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full overflow-y-auto border-r border-border md:sticky" id="left-sidebar">
-<a class="justify-start text-sm md:!hidden bg-background" href="../index.html"><span class="font-bold text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
+<a class="justify-start text-sm md:!hidden bg-background" href="../index.html">
+<img alt="Logo" class="mr-2 dark:invert" height="16" src="../_static/OSIR_LOGO.png" width="16"/><span class="font-bold text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
 </a>
 <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
 <div class="overflow-y-auto h-full w-full relative pr-6"><nav class="table w-full min-w-full my-6 lg:my-8">
@@ -523,7 +526,7 @@
 <h1>OSIR Service</h1>
 <section id="osir-service-package">
 <h2>OSIR Service Package</h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">osir_service</span></code> package provides the core service infrastructure for the OSIR (Open Source Incident Response) framework. It handles task orchestration, inter-process communication, database management, and distributed processing.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">osir_service</span></code> package provides the core service infrastructure for the OSIR framework. It handles task orchestration, inter-process communication, database management, and distributed processing.</p>
 <section id="overview">
 <h3>Overview</h3>
 <p>OSIR Service is a distributed forensic analysis framework that uses:</p>
@@ -539,8 +542,8 @@
 <h3>Package Structure</h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">osir_service/
 </span><span id="line-2">├── agent/                  # Agent management and worker services
-</span><span id="line-3">├── ipc/                    # Inter-process communication services
-</span><span id="line-4">├── orchestration/          # Task orchestration and processing
+</span><span id="line-3">├── ipc/                    # Inter-process communication services and processing
+</span><span id="line-4">├── orchestration/          # Task orchestration
 </span><span id="line-5">├── postgres/               # Database models and services
 </span><span id="line-6">├── smb/                    # SMB/CIFS network services
 </span><span id="line-7">└── watchdog/               # File system monitoring services
@@ -569,26 +572,65 @@
 </section>
 <section id="ipc-service-ipc-osiripc-py">
 <h4>2. IPC Service (<code class="docutils literal notranslate"><span class="pre">ipc/OsirIpc.py</span></code>)</h4>
-<p>The <code class="docutils literal notranslate"><span class="pre">OsirIpc</span></code> class provides JSON-based inter-process communication:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">OsirIpc</span></code> class provides JSON-based inter-process communication, covering all actions available through the OSIR API and Web interfaces. It handles every call and process of the OSIR project. It listens on a TCP socket and dispatches JSON requests to registered action handlers.</p>
 <p><strong>Supported Actions:</strong></p>
+<p><em>Connection:</em></p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">socket_on</span></code>: Test connection readiness</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">exec_module</span></code>: Execute a single forensic module</p></li>
+</ul>
+<p><em>Execution:</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">exec_module</span></code>: Execute a single forensic module on a case or a specific input file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">exec_profile</span></code>: Execute a module profile</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">create_case</span></code>: Create a new forensic case</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_cases</span></code>: List all cases</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_tasks</span></code>: Get tasks for a specific case</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_task_log</span></code>: Retrieve logs for a specific task</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">restart_task</span></code>: Re-submit a task by its ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stop_handler</span></code>: Stop a running handler</p></li>
+</ul>
+<p><em>Handlers:</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">create_handler</span></code>: Create a handler with profile/modules validation and start processing</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">create_advanced_handler</span></code>: Run modules directly on specific files or folders (no watchdog)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">delete_handler</span></code>: Delete a handler and its tasks</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_handler_status</span></code>: Check handler execution status</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_case_handler</span></code>: Get handlers for a case</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_handler_task_info</span></code>: Retrieve all task logs for a handler</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_system_metrics</span></code>: Get recent host resource samples (per agent) for the web UI graphs</p></li>
 </ul>
-<p><strong>Usage:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpc</span>
-</span><span id="line-2">
-</span><span id="line-3"><span class="n">ipc</span> <span class="o">=</span> <span class="n">OsirIpc</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
-</span><span id="line-4"><span class="n">ipc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>  <span class="c1"># Starts listener in background thread</span>
-</span></code></pre></div>
-</div>
+<p><em>Cases:</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">create_case</span></code>: Create a new forensic case</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_cases</span></code>: List all cases</p></li>
+</ul>
+<p><em>Tasks:</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_tasks</span></code>: Get tasks with filtering (case, handler, module, status) and pagination</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_task_stats</span></code>: Get aggregated task statistics for a case or handler</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_task_log</span></code>: Retrieve logs for a specific task</p></li>
+</ul>
+<p><em>Modules:</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_modules</span></code>: List all available modules</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_module_info</span></code>: Get configuration details for specific modules</p></li>
+</ul>
+<p><em>File management:</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">files_list</span></code>: List files and folders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_delete</span></code>: Delete files or folders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_rename</span></code>: Rename files or folders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_copy</span></code>: Copy files or folders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_move</span></code>: Move files or folders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_archive</span></code>: Archive files or folders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_unarchive</span></code>: Extract archives</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_create_folder</span></code>: Create a folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_download</span></code>: Download a file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">files_search</span></code>: Search files by name</p></li>
+</ul>
+<p><em>Upload (tus protocol):</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tus_upload_options</span></code>: Handle tus preflight (OPTIONS) requests</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tus_upload_post</span></code>: Create a tus upload session</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tus_upload_patch</span></code>: Send a chunk of data to an upload session</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tus_upload_head</span></code>: Get upload session status</p></li>
+</ul>
 </section>
 <section id="task-service-orchestration-taskservice-py">
 <h4>3. Task Service (<code class="docutils literal notranslate"><span class="pre">orchestration/TaskService.py</span></code>)</h4>
@@ -618,64 +660,6 @@ Tasks are automatically routed to the appropriate queue based on:</p>
 <li><p><strong>Tasks</strong>: Individual task execution records</p></li>
 <li><p><strong>Snapshots</strong>: System state snapshots</p></li>
 </ul>
-<p><strong>Key Features:</strong></p>
-<ul class="simple">
-<li><p>Automatic connection management with retry logic</p></li>
-<li><p>Context manager support (<code class="docutils literal notranslate"><span class="pre">with</span> <span class="pre">OsirDb()</span> <span class="pre">as</span> <span class="pre">db:</span></code>)</p></li>
-<li><p>Table creation and schema management</p></li>
-<li><p>Transaction support</p></li>
-</ul>
-</section>
-</section>
-<section id="usage-examples">
-<h3>Usage Examples</h3>
-<section id="starting-the-agent">
-<h4>Starting the Agent</h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.agent.AgentService</span><span class="w"> </span><span class="kn">import</span> <span class="n">CeleryWorker</span>
-</span><span id="line-2">
-</span><span id="line-3"><span class="n">worker</span> <span class="o">=</span> <span class="n">CeleryWorker</span><span class="p">()</span>
-</span><span id="line-4"><span class="n">worker</span><span class="o">.</span><span class="n">start_worker</span><span class="p">()</span>  <span class="c1"># Starts all worker processes</span>
-</span></code></pre></div>
-</div>
-</section>
-<section id="submitting-a-task">
-<h4>Submitting a Task</h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
-</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-</span><span id="line-3">
-</span><span id="line-4"><span class="c1"># Create module instance</span>
-</span><span id="line-5"><span class="n">module</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="s2">"evtx_extract"</span><span class="p">)</span>
-</span><span id="line-6"><span class="n">module</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span> <span class="o">=</span> <span class="s2">"/path/to/evtx/file"</span>
-</span><span id="line-7">
-</span><span id="line-8"><span class="c1"># Submit task</span>
-</span><span id="line-9"><span class="n">task_id</span> <span class="o">=</span> <span class="n">TaskService</span><span class="o">.</span><span class="n">push_task</span><span class="p">(</span>
-</span><span id="line-10">    <span class="n">case_path</span><span class="o">=</span><span class="s2">"/cases/my_case"</span><span class="p">,</span>
-</span><span id="line-11">    <span class="n">module_instance</span><span class="o">=</span><span class="n">module</span><span class="p">,</span>
-</span><span id="line-12">    <span class="n">case_uuid</span><span class="o">=</span><span class="s2">"case-uuid-here"</span>
-</span><span id="line-13"><span class="p">)</span>
-</span></code></pre></div>
-</div>
-</section>
-<section id="using-ipc-service">
-<h4>Using IPC Service</h4>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpc</span>
-</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpc</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpc</span>
-</span><span id="line-3">
-</span><span id="line-4"><span class="c1"># Create IPC service</span>
-</span><span id="line-5"><span class="n">ipc</span> <span class="o">=</span> <span class="n">OsirIpc</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s2">"localhost"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
-</span><span id="line-6"><span class="n">ipc</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-</span><span id="line-7">
-</span><span id="line-8"><span class="c1"># Create request</span>
-</span><span id="line-9"><span class="n">request</span> <span class="o">=</span> <span class="n">OsirIpc</span><span class="p">(</span>
-</span><span id="line-10">    <span class="n">action</span><span class="o">=</span><span class="s2">"exec_module"</span><span class="p">,</span>
-</span><span id="line-11">    <span class="n">case_path</span><span class="o">=</span><span class="s2">"/cases/my_case"</span><span class="p">,</span>
-</span><span id="line-12">    <span class="n">modules</span><span class="o">=</span><span class="p">[</span><span class="s2">"evtx_extract"</span><span class="p">]</span>
-</span><span id="line-13"><span class="p">)</span>
-</span><span id="line-14">
-</span><span id="line-15"><span class="c1"># Send request and get response</span>
-</span><span id="line-16"><span class="n">response</span> <span class="o">=</span> <span class="n">ipc</span><span class="o">.</span><span class="n">action</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span>
-</span></code></pre></div>
-</div>
 </section>
 </section>
 </section>
@@ -691,12 +675,6 @@ Tasks are automatically routed to the appropriate queue based on:</p>
 <li><a :data-current="activeSection === '#ipc-service-ipc-osiripc-py'" class="reference internal" href="#ipc-service-ipc-osiripc-py">2. IPC Service (<code class="docutils literal notranslate"><span class="pre">ipc/OsirIpc.py</span></code>)</a></li>
 <li><a :data-current="activeSection === '#task-service-orchestration-taskservice-py'" class="reference internal" href="#task-service-orchestration-taskservice-py">3. Task Service (<code class="docutils literal notranslate"><span class="pre">orchestration/TaskService.py</span></code>)</a></li>
 <li><a :data-current="activeSection === '#database-service-postgres-osirdb-py'" class="reference internal" href="#database-service-postgres-osirdb-py">4. Database Service (<code class="docutils literal notranslate"><span class="pre">postgres/OsirDb.py</span></code>)</a></li>
-</ul>
-</li>
-<li><a :data-current="activeSection === '#usage-examples'" class="reference internal" href="#usage-examples">Usage Examples</a><ul>
-<li><a :data-current="activeSection === '#starting-the-agent'" class="reference internal" href="#starting-the-agent">Starting the Agent</a></li>
-<li><a :data-current="activeSection === '#submitting-a-task'" class="reference internal" href="#submitting-a-task">Submitting a Task</a></li>
-<li><a :data-current="activeSection === '#using-ipc-service'" class="reference internal" href="#using-ipc-service">Using IPC Service</a></li>
 </ul>
 </li>
 </ul>

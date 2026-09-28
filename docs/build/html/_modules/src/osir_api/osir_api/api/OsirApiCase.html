@@ -30,6 +30,7 @@
   <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=d6d7c91b" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/tables.css" />
+  <link rel="icon" href="../../../../../_static/OSIR_LOGO.png" />
   <link rel="search" title="Search" href="../../../../../search.html" />
   <link rel="index" title="Index" href="../../../../../genindex.html" />
 </head>
@@ -43,7 +44,8 @@
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-xs border-border bg-background/90 backdrop-blur"><div class="container flex items-center h-14">
     <div class="hidden mr-4 md:flex">
-      <a href="../../../../../index.html" class="flex items-center mr-6"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
+      <a href="../../../../../index.html" class="flex items-center mr-6">
+        <img height="24" width="24" class="mr-2 dark:invert" src="../../../../../_static/OSIR_LOGO.png" alt="Logo" /><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
       </a></div><button
       class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden"
       type="button" @click="showSidebar = true">
@@ -99,7 +101,8 @@
   class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full overflow-y-auto border-r border-border md:sticky"
   :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }">
 
-    <a href="../../../../../index.html" class="justify-start text-sm md:!hidden bg-background"><span class="font-bold text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
+    <a href="../../../../../index.html" class="justify-start text-sm md:!hidden bg-background">
+      <img height="16" width="16" class="mr-2 dark:invert" src="../../../../../_static/OSIR_LOGO.png" alt="Logo" /><span class="font-bold text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
     </a>
 
     <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
@@ -628,131 +631,122 @@
 </span><span id="line-44">    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_task_stats&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
 
 </span><span id="line-45">
-<div class="viewcode-block" id="start_case_handler">
-<a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.start_case_handler">[docs]</a>
-</span><span id="line-46"><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/handler/run&quot;</span><span class="p">,</span>
-</span><span id="line-47">             <span class="n">response_model</span><span class="o">=</span><span class="n">GetCaseHandlerResponse</span><span class="p">,</span>
-</span><span id="line-48">             <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
-</span><span id="line-49"><span class="k">def</span><span class="w"> </span><span class="nf">start_case_handler</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="line-50">    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_case_handler&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">})</span></div>
-
-</span><span id="line-51">
-</span><span id="line-52"><span class="c1"># Endpoint for file uploads</span>
+</span><span id="line-46"><span class="c1"># Endpoint for file uploads</span>
 <div class="viewcode-block" id="upload_file">
 <a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.upload_file">[docs]</a>
-</span><span id="line-53"><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/uploads&quot;</span><span class="p">)</span>
-</span><span id="line-54"><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">upload_file</span><span class="p">(</span>
-</span><span id="line-55">    <span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="line-56">    <span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>  <span class="c1"># File to be uploaded</span>
-</span><span id="line-57">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>  <span class="c1"># Name of the file</span>
-</span><span id="line-58">    <span class="n">chunk_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># Current chunk number</span>
-</span><span id="line-59">    <span class="n">total_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># Total number of chunks</span>
-</span><span id="line-60"><span class="p">):</span>
-</span><span id="line-61"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="line-62"><span class="sd">    Handles file uploads with chunked transfer</span>
-</span><span id="line-63"><span class="sd">    (if total_chunks &gt; 1) or single-file upload.</span>
-</span><span id="line-64"><span class="sd">    Files are stored in the case directory.</span>
-</span><span id="line-65">
-</span><span id="line-66"><span class="sd">    Args:</span>
-</span><span id="line-67"><span class="sd">        case_name: Name of the case where files should be uploaded</span>
-</span><span id="line-68"><span class="sd">        file: File to be uploaded</span>
-</span><span id="line-69"><span class="sd">        name: Name of the file</span>
-</span><span id="line-70"><span class="sd">        chunk_number: Current chunk number</span>
-</span><span id="line-71"><span class="sd">        total_chunks: Total number of chunks</span>
-</span><span id="line-72">
-</span><span id="line-73"><span class="sd">    Raises:</span>
-</span><span id="line-74"><span class="sd">        HTTPException: If a validation error occurs</span>
-</span><span id="line-75"><span class="sd">        (e.g., missing data, invalid file size, case not found).</span>
-</span><span id="line-76"><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="line-77">    <span class="k">try</span><span class="p">:</span>
-</span><span id="line-78">        <span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">case_name</span><span class="p">)</span>
-</span><span id="line-79">        <span class="k">if</span> <span class="n">case_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="line-80">            <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Case &#39;</span><span class="si">{</span><span class="n">case_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span>
-</span><span id="line-81">
-</span><span id="line-82">        <span class="n">chunks_dir</span> <span class="o">=</span> <span class="n">case_path</span> <span class="o">/</span> <span class="s2">&quot;chunks&quot;</span>
-</span><span id="line-83">        <span class="n">uploads_dir</span> <span class="o">=</span> <span class="n">case_path</span> <span class="o">/</span> <span class="s2">&quot;uploads&quot;</span>
-</span><span id="line-84">        <span class="n">chunks_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="line-85">        <span class="n">uploads_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="line-86">
-</span><span id="line-87">        <span class="n">isLast</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chunk_number</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_chunks</span><span class="p">)</span>
+</span><span id="line-47"><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/uploads&quot;</span><span class="p">)</span>
+</span><span id="line-48"><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">upload_file</span><span class="p">(</span>
+</span><span id="line-49">    <span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="line-50">    <span class="n">file</span><span class="p">:</span> <span class="n">UploadFile</span> <span class="o">=</span> <span class="n">File</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>  <span class="c1"># File to be uploaded</span>
+</span><span id="line-51">    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="o">...</span><span class="p">),</span>  <span class="c1"># Name of the file</span>
+</span><span id="line-52">    <span class="n">chunk_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>  <span class="c1"># Current chunk number</span>
+</span><span id="line-53">    <span class="n">total_chunks</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Form</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># Total number of chunks</span>
+</span><span id="line-54"><span class="p">):</span>
+</span><span id="line-55"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="line-56"><span class="sd">    Handles file uploads with chunked transfer</span>
+</span><span id="line-57"><span class="sd">    (if total_chunks &gt; 1) or single-file upload.</span>
+</span><span id="line-58"><span class="sd">    Files are stored in the case directory.</span>
+</span><span id="line-59">
+</span><span id="line-60"><span class="sd">    Args:</span>
+</span><span id="line-61"><span class="sd">        case_name: Name of the case where files should be uploaded</span>
+</span><span id="line-62"><span class="sd">        file: File to be uploaded</span>
+</span><span id="line-63"><span class="sd">        name: Name of the file</span>
+</span><span id="line-64"><span class="sd">        chunk_number: Current chunk number</span>
+</span><span id="line-65"><span class="sd">        total_chunks: Total number of chunks</span>
+</span><span id="line-66">
+</span><span id="line-67"><span class="sd">    Raises:</span>
+</span><span id="line-68"><span class="sd">        HTTPException: If a validation error occurs</span>
+</span><span id="line-69"><span class="sd">        (e.g., missing data, invalid file size, case not found).</span>
+</span><span id="line-70"><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="line-71">    <span class="k">try</span><span class="p">:</span>
+</span><span id="line-72">        <span class="n">case_path</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">get_cases_path</span><span class="p">(</span><span class="n">case_name</span><span class="p">)</span>
+</span><span id="line-73">        <span class="k">if</span> <span class="n">case_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-74">            <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Case &#39;</span><span class="si">{</span><span class="n">case_name</span><span class="si">}</span><span class="s2">&#39; not found&quot;</span><span class="p">)</span>
+</span><span id="line-75">
+</span><span id="line-76">        <span class="n">chunks_dir</span> <span class="o">=</span> <span class="n">case_path</span> <span class="o">/</span> <span class="s2">&quot;chunks&quot;</span>
+</span><span id="line-77">        <span class="n">uploads_dir</span> <span class="o">=</span> <span class="n">case_path</span> <span class="o">/</span> <span class="s2">&quot;uploads&quot;</span>
+</span><span id="line-78">        <span class="n">chunks_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-79">        <span class="n">uploads_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="line-80">
+</span><span id="line-81">        <span class="n">isLast</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">chunk_number</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_chunks</span><span class="p">)</span>
+</span><span id="line-82">
+</span><span id="line-83">        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">chunk_number</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="line-84">
+</span><span id="line-85">        <span class="n">chunk_path</span> <span class="o">=</span> <span class="n">chunks_dir</span> <span class="o">/</span> <span class="n">file_name</span>
+</span><span id="line-86">        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chunk_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buffer</span><span class="p">:</span>
+</span><span id="line-87">            <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="k">await</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
 </span><span id="line-88">
-</span><span id="line-89">        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">chunk_number</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="line-90">
-</span><span id="line-91">        <span class="n">chunk_path</span> <span class="o">=</span> <span class="n">chunks_dir</span> <span class="o">/</span> <span class="n">file_name</span>
-</span><span id="line-92">        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chunk_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buffer</span><span class="p">:</span>
-</span><span id="line-93">            <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="k">await</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-</span><span id="line-94">
-</span><span id="line-95">        <span class="k">if</span> <span class="n">isLast</span><span class="p">:</span> 
-</span><span id="line-96">            <span class="n">final_file_path</span> <span class="o">=</span> <span class="n">uploads_dir</span> <span class="o">/</span> <span class="n">name</span>
-</span><span id="line-97">            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">final_file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buffer</span><span class="p">:</span>
-</span><span id="line-98">                <span class="n">chunk</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="line-99">                <span class="k">while</span> <span class="n">chunk</span> <span class="o">&lt;</span> <span class="n">total_chunks</span><span class="p">:</span>
-</span><span id="line-100">                    <span class="n">chunk_file_path</span> <span class="o">=</span> <span class="n">chunks_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="line-101">                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chunk_file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
-</span><span id="line-102">                        <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">infile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
-</span><span id="line-103">                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">chunk_file_path</span><span class="p">)</span>
-</span><span id="line-104">                    <span class="n">chunk</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="line-105">
-</span><span id="line-106">            <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span>
-</span><span id="line-107">                <span class="n">version</span><span class="o">=</span><span class="n">API_VERSION</span><span class="p">,</span>
-</span><span id="line-108">                <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-</span><span id="line-109">                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;File Uploaded&quot;</span><span class="p">,</span>
-</span><span id="line-110">                <span class="n">response</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">final_file_path</span><span class="p">),</span> <span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
-</span><span id="line-111">            <span class="p">)</span>
-</span><span id="line-112">            <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</span><span id="line-113">
-</span><span id="line-114">        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span>
-</span><span id="line-115">            <span class="n">version</span><span class="o">=</span><span class="n">API_VERSION</span><span class="p">,</span>
-</span><span id="line-116">            <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
-</span><span id="line-117">            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Chunk Uploaded&quot;</span><span class="p">,</span>
-</span><span id="line-118">            <span class="n">response</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chunk_number&quot;</span><span class="p">:</span> <span class="n">chunk_number</span><span class="p">,</span> <span class="s2">&quot;total_chunks&quot;</span><span class="p">:</span> <span class="n">total_chunks</span><span class="p">}</span>
-</span><span id="line-119">        <span class="p">)</span>
-</span><span id="line-120">        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-</span><span id="line-121">
-</span><span id="line-122">    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-</span><span id="line-123">        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+</span><span id="line-89">        <span class="k">if</span> <span class="n">isLast</span><span class="p">:</span> 
+</span><span id="line-90">            <span class="n">final_file_path</span> <span class="o">=</span> <span class="n">uploads_dir</span> <span class="o">/</span> <span class="n">name</span>
+</span><span id="line-91">            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">final_file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buffer</span><span class="p">:</span>
+</span><span id="line-92">                <span class="n">chunk</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="line-93">                <span class="k">while</span> <span class="n">chunk</span> <span class="o">&lt;</span> <span class="n">total_chunks</span><span class="p">:</span>
+</span><span id="line-94">                    <span class="n">chunk_file_path</span> <span class="o">=</span> <span class="n">chunks_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span id="line-95">                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">chunk_file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">infile</span><span class="p">:</span>
+</span><span id="line-96">                        <span class="n">buffer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">infile</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</span><span id="line-97">                    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">chunk_file_path</span><span class="p">)</span>
+</span><span id="line-98">                    <span class="n">chunk</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="line-99">
+</span><span id="line-100">            <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span>
+</span><span id="line-101">                <span class="n">version</span><span class="o">=</span><span class="n">API_VERSION</span><span class="p">,</span>
+</span><span id="line-102">                <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+</span><span id="line-103">                <span class="n">message</span><span class="o">=</span><span class="s2">&quot;File Uploaded&quot;</span><span class="p">,</span>
+</span><span id="line-104">                <span class="n">response</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;file_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">final_file_path</span><span class="p">),</span> <span class="s2">&quot;file_name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">}</span>
+</span><span id="line-105">            <span class="p">)</span>
+</span><span id="line-106">            <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</span><span id="line-107">
+</span><span id="line-108">        <span class="n">response</span> <span class="o">=</span> <span class="n">OsirIpcResponse</span><span class="p">(</span>
+</span><span id="line-109">            <span class="n">version</span><span class="o">=</span><span class="n">API_VERSION</span><span class="p">,</span>
+</span><span id="line-110">            <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
+</span><span id="line-111">            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Chunk Uploaded&quot;</span><span class="p">,</span>
+</span><span id="line-112">            <span class="n">response</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chunk_number&quot;</span><span class="p">:</span> <span class="n">chunk_number</span><span class="p">,</span> <span class="s2">&quot;total_chunks&quot;</span><span class="p">:</span> <span class="n">total_chunks</span><span class="p">}</span>
+</span><span id="line-113">        <span class="p">)</span>
+</span><span id="line-114">        <span class="k">return</span> <span class="n">handle_response</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</span><span id="line-115">
+</span><span id="line-116">    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+</span><span id="line-117">        <span class="k">raise</span> <span class="n">UnexpectedException</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
 
-</span><span id="line-124">
-</span><span id="line-125">
+</span><span id="line-118">
+</span><span id="line-119">
 <div class="viewcode-block" id="get_case_tasks">
 <a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.get_case_tasks">[docs]</a>
-</span><span id="line-126"><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/tasks&quot;</span><span class="p">,</span>
-</span><span id="line-127">            <span class="n">response_model</span><span class="o">=</span><span class="n">GetTasksListResponse</span><span class="p">,</span>
-</span><span id="line-128">            <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
-</span><span id="line-129"><span class="k">def</span><span class="w"> </span><span class="nf">get_case_tasks</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
-</span><span id="line-130">    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_tasks&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">,</span> <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;page_size&quot;</span><span class="p">:</span> <span class="n">page_size</span><span class="p">})</span></div>
+</span><span id="line-120"><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/case/</span><span class="si">{case_name}</span><span class="s2">/tasks&quot;</span><span class="p">,</span>
+</span><span id="line-121">            <span class="n">response_model</span><span class="o">=</span><span class="n">GetTasksListResponse</span><span class="p">,</span>
+</span><span id="line-122">            <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+</span><span id="line-123"><span class="k">def</span><span class="w"> </span><span class="nf">get_case_tasks</span><span class="p">(</span><span class="n">case_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
+</span><span id="line-124">    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_tasks&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;case_name&quot;</span><span class="p">:</span> <span class="n">case_name</span><span class="p">,</span> <span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;page_size&quot;</span><span class="p">:</span> <span class="n">page_size</span><span class="p">})</span></div>
 
-</span><span id="line-131">
-</span><span id="line-132">
+</span><span id="line-125">
+</span><span id="line-126">
 <div class="viewcode-block" id="get_all_tasks">
 <a class="viewcode-back" href="../../../../../src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.get_all_tasks">[docs]</a>
-</span><span id="line-133"><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/tasks&quot;</span><span class="p">,</span>
-</span><span id="line-134">            <span class="n">response_model</span><span class="o">=</span><span class="n">GetTasksListResponse</span><span class="p">,</span>
-</span><span id="line-135">            <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
-</span><span id="line-136"><span class="k">def</span><span class="w"> </span><span class="nf">get_all_tasks</span><span class="p">(</span>
-</span><span id="line-137">    <span class="n">case_names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Comma-separated list of case names</span>
-</span><span id="line-138">    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Comma-separated list of statuses</span>
-</span><span id="line-139">    <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Input path filter (LIKE pattern)</span>
-</span><span id="line-140">    <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span id="line-141">    <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
-</span><span id="line-142"><span class="p">):</span>
-</span><span id="line-143"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="line-144"><span class="sd">    Get paginated tasks from all cases or specific cases with filters.</span>
-</span><span id="line-145"><span class="sd">    If case_names is not provided, returns tasks from all cases.</span>
-</span><span id="line-146"><span class="sd">    If case_names is provided, it should be a comma-separated list of case names.</span>
-</span><span id="line-147"><span class="sd">    If status is provided, it should be a comma-separated list of statuses.</span>
-</span><span id="line-148"><span class="sd">    If input is provided, filters tasks by input path (contains match).</span>
-</span><span id="line-149"><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="line-150">    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;page_size&quot;</span><span class="p">:</span> <span class="n">page_size</span><span class="p">}</span>
-</span><span id="line-151">    <span class="k">if</span> <span class="n">case_names</span><span class="p">:</span>
-</span><span id="line-152">        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;case_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">case_names</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
-</span><span id="line-153">    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
-</span><span id="line-154">        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;processing_status_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
-</span><span id="line-155">    <span class="k">if</span> <span class="nb">input</span><span class="p">:</span>
-</span><span id="line-156">        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span>
-</span><span id="line-157">    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_tasks&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
+</span><span id="line-127"><span class="nd">@router</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/tasks&quot;</span><span class="p">,</span>
+</span><span id="line-128">            <span class="n">response_model</span><span class="o">=</span><span class="n">GetTasksListResponse</span><span class="p">,</span>
+</span><span id="line-129">            <span class="n">responses</span><span class="o">=</span><span class="p">{</span><span class="mi">500</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">UnexpectedExceptionResponse</span><span class="p">}})</span>
+</span><span id="line-130"><span class="k">def</span><span class="w"> </span><span class="nf">get_all_tasks</span><span class="p">(</span>
+</span><span id="line-131">    <span class="n">case_names</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Comma-separated list of case names</span>
+</span><span id="line-132">    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Comma-separated list of statuses</span>
+</span><span id="line-133">    <span class="nb">input</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Input path filter (LIKE pattern)</span>
+</span><span id="line-134">    <span class="n">page</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+</span><span id="line-135">    <span class="n">page_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span>
+</span><span id="line-136"><span class="p">):</span>
+</span><span id="line-137"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="line-138"><span class="sd">    Get paginated tasks from all cases or specific cases with filters.</span>
+</span><span id="line-139"><span class="sd">    If case_names is not provided, returns tasks from all cases.</span>
+</span><span id="line-140"><span class="sd">    If case_names is provided, it should be a comma-separated list of case names.</span>
+</span><span id="line-141"><span class="sd">    If status is provided, it should be a comma-separated list of statuses.</span>
+</span><span id="line-142"><span class="sd">    If input is provided, filters tasks by input path (contains match).</span>
+</span><span id="line-143"><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="line-144">    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;page&quot;</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s2">&quot;page_size&quot;</span><span class="p">:</span> <span class="n">page_size</span><span class="p">}</span>
+</span><span id="line-145">    <span class="k">if</span> <span class="n">case_names</span><span class="p">:</span>
+</span><span id="line-146">        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;case_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">case_names</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+</span><span id="line-147">    <span class="k">if</span> <span class="n">status</span><span class="p">:</span>
+</span><span id="line-148">        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;processing_status_list&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">status</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span>
+</span><span id="line-149">    <span class="k">if</span> <span class="nb">input</span><span class="p">:</span>
+</span><span id="line-150">        <span class="n">params</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">input</span>
+</span><span id="line-151">    <span class="k">return</span> <span class="n">OsirIpcCall</span><span class="p">(</span><span class="s2">&quot;get_tasks&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
 
-</span><span id="line-158">
+</span><span id="line-152">
 </span></code></pre></div>
     </div></div>
           </main>

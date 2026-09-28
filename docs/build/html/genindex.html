@@ -30,6 +30,7 @@
   <link rel="stylesheet" type="text/css" href="_static/theme.css?v=d6d7c91b" />
   <link rel="stylesheet" type="text/css" href="_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="_static/tables.css" />
+  <link rel="icon" href="_static/OSIR_LOGO.png" />
   <link rel="search" title="Search" href="search.html" />
   <link rel="index" title="Index" href="#" />
 </head>
@@ -43,7 +44,8 @@
       Skip to content
     </a><header class="sticky top-0 z-40 w-full border-b shadow-xs border-border bg-background/90 backdrop-blur"><div class="container flex items-center h-14">
     <div class="hidden mr-4 md:flex">
-      <a href="index.html" class="flex items-center mr-6"><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
+      <a href="index.html" class="flex items-center mr-6">
+        <img height="24" width="24" class="mr-2 dark:invert" src="_static/OSIR_LOGO.png" alt="Logo" /><span class="hidden font-bold sm:inline-block text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
       </a></div><button
       class="inline-flex items-center justify-center h-10 px-0 py-2 mr-2 text-base font-medium transition-colors rounded-md hover:text-accent-foreground hover:bg-transparent md:hidden"
       type="button" @click="showSidebar = true">
@@ -99,7 +101,8 @@
   class="fixed inset-y-0 left-0 md:top-14 z-50 md:z-30 bg-background md:bg-transparent transition-all duration-100 -translate-x-full md:translate-x-0 ml-0 p-6 md:p-0 md:-ml-2 md:h-[calc(100vh-3.5rem)] w-5/6 md:w-full overflow-y-auto border-r border-border md:sticky"
   :aria-hidden="!showSidebar" :class="{ 'translate-x-0': showSidebar }">
 
-    <a href="index.html" class="justify-start text-sm md:!hidden bg-background"><span class="font-bold text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
+    <a href="index.html" class="justify-start text-sm md:!hidden bg-background">
+      <img height="16" width="16" class="mr-2 dark:invert" src="_static/OSIR_LOGO.png" alt="Logo" /><span class="font-bold text-clip whitespace-nowrap">Orchestration Software for Incident Response</span>
     </a>
 
     <div class="relative overflow-hidden md:overflow-auto my-4 md:my-0">
@@ -722,8 +725,6 @@
       <ul style="list-style-type:none">
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest.case_name">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest attribute)</a>
 </li>
-        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest.case_name">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest attribute)</a>
-</li>
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest.case_name">(src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest attribute)</a>
 </li>
         <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirModule.OsirModule.case_name">(src.osir_lib.osir_lib.core.OsirModule.OsirModule property)</a>
@@ -840,8 +841,6 @@
 </li>
       </ul></li>
       <li><a href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.create_celery_tables">create_celery_tables() (src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask method)</a>
-</li>
-      <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiFiles.create_file">create_file() (in module src.osir_api.osir_api.api.OsirApiFiles)</a>
 </li>
       <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiFiles.create_folder">create_folder() (in module src.osir_api.osir_api.api.OsirApiFiles)</a>
 
@@ -1403,8 +1402,6 @@
         <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.input">(src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel attribute)</a>
 </li>
       </ul></li>
-      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest.input_path">input_path (src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest attribute)</a>
-</li>
       <li><a href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbMetrics.OsirDbMetrics.insert">insert() (src.osir_service.osir_service.postgres.OsirDbMetrics.OsirDbMetrics method)</a>
 </li>
       <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.internal">internal (src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource attribute)</a>
@@ -1413,10 +1410,10 @@
 </li>
       <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.IO_ERROR">IO_ERROR() (src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException static method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirClient.OsirClient.is_active">is_active() (src.osir_client.osir_client.client.OsirClient.OsirClient method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile.is_final">is_final (src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile attribute)</a>
 </li>
       <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile.is_partial">is_partial (src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile attribute)</a>
@@ -1650,12 +1647,6 @@
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse.model_config">(src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse attribute)</a>
 </li>
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest.model_config">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest attribute)</a>
-</li>
-        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunOnFileResponse.model_config">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunOnFileResponse attribute)</a>
-</li>
-        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest.model_config">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest attribute)</a>
-</li>
-        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunResponse.model_config">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunResponse attribute)</a>
 </li>
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse.model_config">(src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse attribute)</a>
 </li>
@@ -2147,12 +2138,8 @@
 </li>
       <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_LOAD_ERROR">MODULE_LOAD_ERROR() (src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException static method)</a>
 </li>
-      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest.module_name">module_name (src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest attribute)</a>
-
-      <ul style="list-style-type:none">
-        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.module_name">(src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel property)</a>
+      <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.module_name">module_name (src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel property)</a>
 </li>
-      </ul></li>
       <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_NOT_FOUND">MODULE_NOT_FOUND() (src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException static method)</a>
 </li>
       <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MODULE_REQUIRED_FOR_FILES">MODULE_REQUIRED_FOR_FILES() (src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException static method)</a>
@@ -2515,12 +2502,6 @@
 </li>
       <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest">PostModuleInfoRequest (class in src.osir_api.osir_api.api.model.OsirApiModuleModel)</a>
 </li>
-      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunOnFileResponse">PostModuleRunOnFileResponse (class in src.osir_api.osir_api.api.model.OsirApiModuleModel)</a>
-</li>
-      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunRequest">PostModuleRunRequest (class in src.osir_api.osir_api.api.model.OsirApiModuleModel)</a>
-</li>
-      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunResponse">PostModuleRunResponse (class in src.osir_api.osir_api.api.model.OsirApiModuleModel)</a>
-</li>
       <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest">PostProfileRunRequest (class in src.osir_api.osir_api.api.model.OsirApiProfileModel)</a>
 </li>
       <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunResponse">PostProfileRunResponse (class in src.osir_api.osir_api.api.model.OsirApiProfileModel)</a>
@@ -2663,10 +2644,6 @@
 </li>
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse.response">(src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse attribute)</a>
 </li>
-        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunOnFileResponse.response">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunOnFileResponse attribute)</a>
-</li>
-        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunResponse.response">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleRunResponse attribute)</a>
-</li>
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse.response">(src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse attribute)</a>
 </li>
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileInfoResponse.response">(src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileInfoResponse attribute)</a>
@@ -2714,16 +2691,12 @@
 </li>
       <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_local">run_local() (src.osir_lib.osir_lib.core.OsirTool.OsirTool method)</a>
 </li>
-      <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.run_module">run_module() (in module src.osir_api.osir_api.api.OsirApiModule)</a>
+      <li><a href="src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskProcessorService.ExternalProcessor.run_module">run_module() (src.osir_service.osir_service.orchestration.TaskProcessorService.ExternalProcessor method)</a>
 
       <ul style="list-style-type:none">
-        <li><a href="src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskProcessorService.ExternalProcessor.run_module">(src.osir_service.osir_service.orchestration.TaskProcessorService.ExternalProcessor method)</a>
-</li>
         <li><a href="src.osir_service.osir_service.orchestration.html#src.osir_service.osir_service.orchestration.TaskProcessorService.InternalProcessor.run_module">(src.osir_service.osir_service.orchestration.TaskProcessorService.InternalProcessor method)</a>
 </li>
       </ul></li>
-      <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiModule.run_module_on_file">run_module_on_file() (in module src.osir_api.osir_api.api.OsirApiModule)</a>
-</li>
       <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiProfile.run_profile">run_profile() (in module src.osir_api.osir_api.api.OsirApiProfile)</a>
 </li>
       <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirTool.OsirTool.run_remote">run_remote() (src.osir_lib.osir_lib.core.OsirTool.OsirTool method)</a>
@@ -3932,8 +3905,6 @@
         <li><a href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.start">(src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase method)</a>
 </li>
       </ul></li>
-      <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiCase.start_case_handler">start_case_handler() (in module src.osir_api.osir_api.api.OsirApiCase)</a>
-</li>
       <li><a href="src.osir_service.osir_service.smb.html#src.osir_service.osir_service.smb.SMBService.SMBMounter.start_monitoring">start_monitoring() (src.osir_service.osir_service.smb.SMBService.SMBMounter method)</a>
 </li>
       <li><a href="src.osir_service.osir_service.agent.html#src.osir_service.osir_service.agent.AgentService.CeleryWorker.start_worker">start_worker() (src.osir_service.osir_service.agent.AgentService.CeleryWorker method)</a>
