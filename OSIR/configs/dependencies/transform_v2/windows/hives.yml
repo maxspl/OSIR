@@ -2,855 +2,272 @@ metadata:
   version: "1.0"
   id: hives
   author: Typ
-  description: Generic Windows Registry Artifacts → ECS normalizer
+  description: Registry artifacts (RECmd CSV + dfir-ogre hive JSONL) → ECS
 
 transformation:
   - set:
-      event:
-        value: {}
-    conditions:
-      - field: event
-        exists: false
-  - set:
       event.original: encode_json!(.)
-    conditions:
-      - field: event.original
-        exists: false
-  - set:
-      registry.path: to_string!(del(.BatchKeyPath))
-    conditions:
-      - field: BatchKeyPath
-      - field: registry.path
-        exists: false
-  - set:
-      registry.value: to_string!(del(.BatchValueName))
-    conditions:
-      - field: BatchValueName
-      - field: registry.value
-        exists: false
-  - set:
-      registry.hive: to_string!(del(.HivePath))
-    conditions:
-      - field: HivePath
-      - field: registry.hive
-        exists: false
-  - set:
-      registry.hive_type: to_string!(del(.HiveType))
-  - set:
-      registry.key_path: to_string!(del(.KeyPath))
-    conditions:
-      - field: KeyPath
-      - field: registry.key_path
-        exists: false
-  - set:
-      registry.key_name: to_string!(del(.KeyName))
-    conditions:
-      - field: KeyName
-      - field: registry.key_name
-        exists: false
-  - set:
-      registry.value_name: to_string!(del(.ValueName))
-    conditions:
-      - field: ValueName
-      - field: registry.value_name
-        exists: false
-  - set:
-      registry.value_type: to_string!(del(.ValueType))
-      registry.value_data: del(.ValueData)
-      registry.value_data2: del(.ValueData2)
-      registry.value_data3: del(.ValueData3)
-      registry.value_data_raw: to_string!(del(.ValueDataRaw))
-      registry.category: to_string!(del(.Category))
-      registry.comment: to_string!(del(.Comment))
-      registry.comments: to_string!(del(.Comments))
-      registry.plugin_detail_file: to_string!(del(.PluginDetailFile))
-      registry.recursive: to_string!(del(.Recursive))
-      registry.deleted: to_string!(del(.Deleted))
-      registry.reset_data: to_string!(del(.ResetData))
-  - set:
-      file.path: to_string!(del(.FullPath))
-    conditions:
-      - field: FullPath
-      - field: file.path
-        exists: false
-  - set:
-      file.path: to_string!(del(.AbsolutePath))
-    conditions:
-      - field: AbsolutePath
-      - field: file.path
-        exists: false
-  - set:
-      file.path: to_string!(del(.Path))
-    conditions:
-      - field: Path
-      - field: file.path
-        exists: false
-  - set:
-      file.path: to_string!(del(.Path1))
-    conditions:
-      - field: Path1
-      - field: file.path
-        exists: false
-  - set:
-      file.directory: to_string!(del(.Path2))
-    conditions:
-      - field: Path2
-      - field: file.directory
-        exists: false
-  - set:
-      file.name: to_string!(del(.Filename))
-    conditions:
-      - field: Filename
-      - field: file.name
-        exists: false
-  - set:
-      file.name: to_string!(del(.FileName))
-    conditions:
-      - field: FileName
-      - field: file.name
-        exists: false
-  - custom: |2-
-      if exists(.file.path) && !exists(.file.name) {
-        fp = to_string!(.file.path)
-        parts = split!(fp, "\\\\")
-        plen = length(parts)
-        if plen > 0 {
-          idx = plen - 1
-          last_part = get!(parts, [idx])
-          .file.name = last_part
-        }
-      }
-  - set:
-      file.directory: to_string!(del(.FolderName))
-    conditions:
-      - field: FolderName
-      - field: file.directory
-        exists: false
-  - set:
-      file.extension: to_string!(del(.Extension))
-      file.Ext.extension_last_opened_raw: to_string!(del(.ExtensionLastOpened))
-  - custom: |2-
-      if exists(.FileSize) {
-        fs_raw = to_string!(del(.FileSize))
-        fs_val = parse_int(fs_raw) ?? null
-        if fs_val != null {
-          .file.size = fs_val
-        } else {
-          .file.size_raw = fs_raw
-        }
-      }
-  - set:
-      file.source: to_string!(del(.FileSource))
-      file.details: to_string!(del(.Details))
-  - custom: |2-
-      if exists(.PageCount) {
-        pc_raw = to_string!(del(.PageCount))
-        pc_val = parse_int(pc_raw) ?? null
-        if pc_val != null {
-          .file.page_count = pc_val
-        } else {
-          .file.page_count_raw = pc_raw
-        }
-      }
-  - set:
-      file.lnk_name: to_string!(del(.LnkName))
-  - set:
-      file.uninstall_command: to_string!(del(.UninstallString))
-    conditions:
-      - field: UninstallString
-      - field: file.uninstall_command
-        exists: false
-  - set:
-      process.executable: to_string!(del(.Executable))
-    conditions:
-      - field: Executable
-      - field: process.executable
-        exists: false
-  - set:
-      process.name: to_string!(del(.ProgramName))
-    conditions:
-      - field: ProgramName
-      - field: process.name
-        exists: false
-  - set:
-      process.executable: to_string!(del(.Program))
-    conditions:
-      - field: Program
-      - field: process.executable
-        exists: false
-  - set:
-      process.executable: to_string!(del(.App))
-    conditions:
-      - field: App
-      - field: process.executable
-        exists: false
-  - set:
-      process.executable: to_string!(del(.ImagePath))
-    conditions:
-      - field: ImagePath
-      - field: process.executable
-        exists: false
-  - set:
-      service.name: to_string!(del(.Service))
-    conditions:
-      - field: Service
-      - field: service.name
-        exists: false
-  - set:
-      service.service_type: to_string!(del(.ServiceType))
-      service.start_mode: to_string!(del(.StartMode))
-      service.service_dll: to_string!(del(.ServiceDLL))
-      service.required_privileges: to_string!(del(.RequiredPrivileges))
-      service.name_key_last_write_raw: to_string!(del(.NameKeyLastWrite))
-      service.parameters_key_last_write_raw: to_string!(del(.ParametersKeyLastWrite))
-  - custom: |2-
-      if exists(.RunCounter) {
-        rc_raw = to_string!(del(.RunCounter))
-        rc_val = parse_int(rc_raw) ?? null
-        if rc_val != null {
-          .process.run_count = rc_val
-        } else {
-          .process.run_count_raw = rc_raw
-        }
-      }
 
-      if exists(.FocusCount) {
-        fc_raw = to_string!(del(.FocusCount))
-        fc_val = parse_int(fc_raw) ?? null
-        if fc_val != null {
-          .process.focus_count = fc_val
-        } else {
-          .process.focus_count_raw = fc_raw
-        }
-      }
-  - set:
-      process.focus_time_raw: to_string!(del(.FocusTime))
-      process.jumplist_name: to_string!(del(.JumpListName))
-  - set:
-      url.full: to_string!(del(.Url))
-    conditions:
-      - field: Url
-      - field: url.full
-        exists: false
-  - set:
-      url.query: to_string!(del(.SearchTerm))
-    conditions:
-      - field: SearchTerm
-      - field: url.query
-        exists: false
-  - set:
-      url.slack_raw: to_string!(del(.Slack))
-  - set:
-      host.name: to_string!(del(.HostName))
-    conditions:
-      - field: HostName
-      - field: host.name
-        exists: false
-  - set:
-      device.name: to_string!(del(.Device))
-    conditions:
-      - field: Device
-      - field: device.name
-        exists: false
-  - set:
-      device.name: to_string!(del(.DeviceName))
-    conditions:
-      - field: DeviceName
-      - field: device.name
-        exists: false
-  - set:
-      device.description: to_string!(del(.DeviceDesc))
-  - set:
-      device.manufacturer: to_string!(del(.Manufacturer))
-    conditions:
-      - field: Manufacturer
-      - field: device.manufacturer
-        exists: false
-  - set:
-      device.serial_number: to_string!(del(.SerialNumber))
-    conditions:
-      - field: SerialNumber
-      - field: device.serial_number
-        exists: false
-  - set:
-      device.disk_id: to_string!(del(.DiskId))
-  - set:
-      device.model: to_string!(del(.Title))
-    conditions:
-      - field: Title
-      - field: device.model
-        exists: false
-  - set:
-      device.location_information: to_string!(del(.LocationInformation))
-      device.parent_id_prefix: to_string!(del(.ParentidPrefix))
-      device.volume_drive_name: to_string!(del(.DriveName))
-      device.volume_label: to_string!(del(.VolumeLabel))
-      device.volume_drive_type: to_string!(del(.DriveType))
-      device.guid_folder: to_string!(del(.GuidFolder))
-      device.guid: to_string!(del(.Guid))
-      device.instance_id: to_string!(del(.DeviceInstanceid))
-  - set:
-      driver.name: to_string!(del(.DriverDesc))
-    conditions:
-      - field: DriverDesc
-      - field: driver.name
-        exists: false
-  - set:
-      driver.version: to_string!(del(.DriverVersion))
-      driver.date_raw: to_string!(del(.DriverDate))
-  - set:
-      driver.vendor: to_string!(del(.ProviderName))
-    conditions:
-      - field: ProviderName
-      - field: driver.vendor
-        exists: false
-  - set:
-      device.friendly_name: to_string!(del(.FriendlyName))
-      network.gateway_mac: to_string!(del(.GatewayMacAddress))
-      network.name: to_string!(del(.NetworkName))
-      network.domain: to_string!(del(.DNSSuffix))
-      network.interface_alias: to_string!(del(.Alias))
-      network.permanent_address: to_string!(del(.PermanentAddress))
-      network.current_address: to_string!(del(.CurrentAddress))
-      network.transport: to_string!(del(.Protocol))
-      network.protocol_list: to_string!(del(.ProtocolList))
-      network.address_raw: to_string!(del(.Address))
-  - custom: |2-
-      if exists(.LPort) {
-        lp_raw = to_string!(del(.LPort))
-        lp_val = parse_int(lp_raw) ?? null
-        if lp_val != null {
-          .destination.port = lp_val
-        } else {
-          .network.lport_raw = lp_raw
-        }
-      }
-
-      if exists(.RPort) {
-        rp_raw = to_string!(del(.RPort))
-        rp_val = parse_int(rp_raw) ?? null
-        if rp_val != null {
-          .source.port = rp_val
-        } else {
-          .network.rport_raw = rp_raw
-        }
-      }
-  - set:
-      rule.action: to_string!(del(.Action))
-      rule.direction: to_string!(del(.Dir))
-      rule.active_raw: to_string!(del(.Active))
-      rule.security_descriptor: to_string!(del(.SecurityDescriptor))
-      rule.source: to_string!(del(.Source))
-      rule.task_state: to_string!(del(.TaskState))
-      rule.last_action_result: to_string!(del(.LastActionResult))
-  - set:
-      user.name: to_string!(del(.Username))
-    conditions:
-      - field: Username
-      - field: user.name
-        exists: false
-  - set:
-      user.name: to_string!(del(.UserName))
-    conditions:
-      - field: UserName
-      - field: user.name
-        exists: false
-  - set:
-      user.email: to_string!(del(.InternetUserName))
-    conditions:
-      - field: InternetUserName
-      - field: user.email
-        exists: false
-  - set:
-      user.id: to_string!(del(.UserId))
-    conditions:
-      - field: UserId
-      - field: user.id
-        exists: false
-  - set:
-      user.full_name: to_string!(del(.FullName))
-  - set:
-      user.home: to_string!(del(.ProfileImagePath))
-    conditions:
-      - field: ProfileImagePath
-      - field: user.home
-        exists: false
-  - set:
-      user.home: to_string!(del(.HomeDirectory))
-    conditions:
-      - field: HomeDirectory
-      - field: user.home
-        exists: false
-  - set:
-      user.home_directory_required: to_string!(del(.HomeDirectoryRequired))
-      user.account_disabled: to_string!(del(.AccountDisabled))
-      user.auto_locked: to_string!(del(.AutoLocked))
-      user.normal_user_account: to_string!(del(.NormalUserAccount))
-      user.interdomain_trust_account: to_string!(del(.InterdomainTrustAccount))
-      user.mns_logon_account: to_string!(del(.MnsLogonAccount))
-      user.server_trust_account: to_string!(del(.ServerTrustAccount))
-      user.temp_duplicate_account: to_string!(del(.TempDuplicateAccount))
-      user.valid_user_id: to_string!(del(.ValidUserId))
-      user.password_does_not_expire: to_string!(del(.PasswordDoesNotExpire))
-      user.password_not_required: to_string!(del(.PasswordNotRequired))
-      user.password_hint: to_string!(del(.PasswordHint))
-      user.last_incorrect_password_raw: to_string!(del(.LastIncorrectPassword))
-      user.last_login_time_raw: to_string!(del(.LastLoginTime))
-      user.last_logoff_time_raw: to_string!(del(.LastLogoffTime))
-      user.last_logon_time_raw: to_string!(del(.LastLogonTime))
-      user.last_password_change_raw: to_string!(del(.LastPasswordChange))
-      user.total_login_count_raw: to_string!(del(.TotalLoginCount))
-      user.invalid_login_count_raw: to_string!(del(.InvalidLoginCount))
-      user.comment: to_string!(del(.UserComment))
-      group.name: to_string!(del(.GroupName))
-      group.groups_raw: to_string!(del(.Groups))
-      group.users_raw: to_string!(del(.Users))
-      user.profile_guid: to_string!(del(.ProfileGUID))
-  - set:
-      package.name: to_string!(del(.DisplayName))
-    conditions:
-      - field: DisplayName
-      - field: package.name
-        exists: false
-  - set:
-      package.version: to_string!(del(.DisplayVersion))
-    conditions:
-      - field: DisplayVersion
-      - field: package.version
-        exists: false
-  - set:
-      package.organization: to_string!(del(.Publisher))
-    conditions:
-      - field: Publisher
-      - field: package.organization
-        exists: false
-  - set:
-      package.path: to_string!(del(.InstallLocation))
-    conditions:
-      - field: InstallLocation
-      - field: package.path
-        exists: false
-  - set:
-      package.install_source: to_string!(del(.InstallSource))
-  - set:
-      package.id: to_string!(del(.PackageName))
-    conditions:
-      - field: PackageName
-      - field: package.id
-        exists: false
-  - set:
-      package.root_folder: to_string!(del(.PackageRootFolder))
-    conditions:
-      - field: PackageRootFolder
-      - field: package.root_folder
-        exists: false
-  - set:
-      package.version_raw: to_string!(del(.Version))
-  - custom: |2-
-      if !exists(.event.sequence) && exists(.MruPosition) {
-        mru_raw = to_string!(del(.MruPosition))
-        mru_val = parse_int(mru_raw) ?? null
-        if mru_val != null {
-          .event.sequence = mru_val
-        } else {
-          .event.sequence_raw = mru_raw
-        }
-      }
-
-      if !exists(.event.sequence) && exists(.MRUPosition) {
-        mru_raw2 = to_string!(del(.MRUPosition))
-        mru_val2 = parse_int(mru_raw2) ?? null
-        if mru_val2 != null {
-          .event.sequence = mru_val2
-        } else {
-          .event.sequence2_raw = mru_raw2
-        }
-      }
-
-      if !exists(.event.sequence) && exists(.CacheEntryPosition) {
-        cep_raw = to_string!(del(.CacheEntryPosition))
-        cep_val = parse_int(cep_raw) ?? null
-        if cep_val != null {
-          .event.sequence = cep_val
-        } else {
-          .event.cache_entry_position_raw = cep_raw
-        }
-      }
-
-      if exists(.Timestamp) && !exists(.event.created) {
-        ts_raw = to_string!(del(.Timestamp))
-        if ts_raw != "" {
-          ts_val = parse_timestamp(ts_raw, "%F %T%.f", "UTC") ?? parse_timestamp(ts_raw, "%F %T", "UTC") ?? null
-          if ts_val != null {
-            .event.created = ts_val
-          } else {
-            .event.timestamp_raw = ts_raw
-          }
-        }
-      }
-  - set:
-      event.created_on_raw: to_string!(del(.CreatedOn))
-      event.executed_on_raw: to_string!(del(.ExecutedOn))
-      event.execution_time_raw: to_string!(del(.ExecutionTime))
-      event.expires_on_raw: to_string!(del(.ExpiresOn))
-      event.install_date_raw: to_string!(del(.InstallDate))
-      event.install_time_raw: to_string!(del(.InstallTime))
-      event.initial_timestamp_raw: to_string!(del(.InitialTimestamp))
-      event.installed_raw: to_string!(del(.Installed))
-      event.first_installed_raw: to_string!(del(.FirstInstalled))
-      event.first_connect_local_raw: to_string!(del(.FirstConnectLOCAL))
-      event.last_connected_local_raw: to_string!(del(.LastConnectedLOCAL))
-      event.last_closed_raw: to_string!(del(.LastClosed))
-      event.last_connected_raw: to_string!(del(.LastConnected))
-      event.last_removed_raw: to_string!(del(.LastRemoved))
-      event.last_seen_raw: to_string!(del(.LastSeen))
-      event.last_start_raw: to_string!(del(.LastStart))
-      event.last_stop_raw: to_string!(del(.LastStop))
-      event.last_write_timestamp_raw: to_string!(del(.LastWriteTimestamp))
-      event.last_modified_raw: to_string!(del(.LastModified))
-      event.last_detection_time_raw: to_string!(del(.LastDetectionTime))
-      event.last_executed_raw: to_string!(del(.LastExecuted))
-  - custom: |2-
-      ts_value = null
-
-      ts_source = ""
-
-      if exists(.event.created) {
-        ts_value = .event.created
-        ts_source = "event.created"
-      }
-
-      if ts_value == null && exists(.event.timestamp_raw) {
-        raw = to_string!(.event.timestamp_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.timestamp_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.created_on_raw) {
-        raw = to_string!(.event.created_on_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.created_on_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.executed_on_raw) {
-        raw = to_string!(.event.executed_on_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.executed_on_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.execution_time_raw) {
-        raw = to_string!(.event.execution_time_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.execution_time_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.expires_on_raw) {
-        raw = to_string!(.event.expires_on_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.expires_on_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.install_date_raw) {
-        raw = to_string!(.event.install_date_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.install_date_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.install_time_raw) {
-        raw = to_string!(.event.install_time_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.install_time_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.initial_timestamp_raw) {
-        raw = to_string!(.event.initial_timestamp_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.initial_timestamp_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.installed_raw) {
-        raw = to_string!(.event.installed_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.installed_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.first_installed_raw) {
-        raw = to_string!(.event.first_installed_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.first_installed_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.first_connect_local_raw) {
-        raw = to_string!(.event.first_connect_local_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.first_connect_local_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_connected_local_raw) {
-        raw = to_string!(.event.last_connected_local_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_connected_local_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_closed_raw) {
-        raw = to_string!(.event.last_closed_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_closed_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_connected_raw) {
-        raw = to_string!(.event.last_connected_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_connected_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_removed_raw) {
-        raw = to_string!(.event.last_removed_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_removed_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_seen_raw) {
-        raw = to_string!(.event.last_seen_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_seen_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_start_raw) {
-        raw = to_string!(.event.last_start_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_start_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_stop_raw) {
-        raw = to_string!(.event.last_stop_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_stop_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_write_timestamp_raw) {
-        raw = to_string!(.event.last_write_timestamp_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_write_timestamp_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_modified_raw) {
-        raw = to_string!(.event.last_modified_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_modified_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_detection_time_raw) {
-        raw = to_string!(.event.last_detection_time_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_detection_time_raw"
-          }
-        }
-      }
-
-      if ts_value == null && exists(.event.last_executed_raw) {
-        raw = to_string!(.event.last_executed_raw)
-        if raw != "" {
-          v = parse_timestamp(raw, "%F %T%.f", "UTC") ?? parse_timestamp(raw, "%F %T", "UTC") ?? null
-          if v != null {
-            ts_value = v
-            ts_source = "event.last_executed_raw"
-          }
-        }
-      }
-
-      if ts_value != null {
-        .timestamp = ts_value
-
-        if !exists(.event.created) {
-          .event.created = ts_value
-        }
-
-        .event.Ext.timestamp_source = ts_source
-      }
-  - set:
-      event.reason: to_string!(del(.EventType))
-  - set:
-      event.provider: to_string!(del(.Source))
-    conditions:
-      - field: Source
-      - field: event.provider
-        exists: false
-  - set:
-      event.name: to_string!(del(.Name))
-    conditions:
-      - field: Name
-      - field: event.name
-        exists: false
-  - set:
-      event.title: to_string!(del(.Title))
-    conditions:
-      - field: Title
-      - field: event.title
-        exists: false
-  - set:
-      event.description: to_string!(del(.Description))
-    conditions:
-      - field: Description
-      - field: event.description
-        exists: false
-  - set:
-      event.type_raw: to_string!(del(.Type))
-      event.user_choice_raw: to_string!(del(.UserChoice))
-  - set:
-      registry.path: to_string!(del(.BatchKeyPath))
-    conditions:
-      - field: BatchKeyPath
-      - field: registry.path
-        exists: false
-  - set:
-      registry.value: to_string!(del(.BatchValueName))
-    conditions:
-      - field: BatchValueName
-      - field: registry.value
-        exists: false
   - set:
       event.dataset:
-        value: windows.registry_artifacts
-    conditions:
-      - field: event.dataset
-        exists: false
-  - set:
-      event.provider:
-        value: Windows Registry (generic)
-    conditions:
-      - field: event.provider
-        exists: false
-  - set:
-      event.category:
-        value: [configuration]
-    conditions:
-      - field: event.category
-        exists: false
-  - set:
-      event.type:
-        value: [info]
-    conditions:
-      - field: event.type
-        exists: false
-  - set:
-      event.kind:
-        value: state
-    conditions:
-      - field: event.kind
-        exists: false
-  - set:
-      event.outcome:
-        value: success
-    conditions:
-      - field: event.outcome
-        exists: false
-  - set:
+        value: windows.registry
       event.module:
         value: windows
+      event.kind:
+        value: event
+      event.category:
+        value: [registry]
+      event.type:
+        value: [info]
+      event.provider:
+        value: "Windows Registry"
+      event.outcome:
+        value: success
+
+  # -- RECmd (Zimmerman) input --------------------------------------------------
+
+  # HivePath, HiveType, Description, Category, KeyPath, ValueName, ValueType,
+  # ValueData, ValueData2, ValueData3, Comment, Recursive, Deleted,
+  # LastWriteTimestamp, PluginDetailFile
+  - set:
+      registry.path: KeyPath
+      registry.value: ValueName
+      registry.data.type: ValueType
+      registry.hive: HiveType
+      labels.hive_path: HivePath
+      labels.description: Description
+      labels.category: Category
+      labels.comment: Comment
+      labels.value_data: ValueData
+      labels.value_data2: ValueData2
+      labels.value_data3: ValueData3
+      labels.recursive:
+        source: Recursive
+        operation: to_bool
+      labels.deleted:
+        source: Deleted
+        operation: to_bool
+      labels.plugin_detail_file: PluginDetailFile
+      timestamp:
+        source: LastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.HiveType) && exists(.KeyPath)
+
+  # -- RECmd DFIRBatch UserAccounts (SAM) input ---------------------------------
+
+  # ValidUserId, BatchKeyPath, BatchValueName, UserId, InvalidLoginCount,
+  # TotalLoginCount, CreatedOn, LastLoginTime, LastPasswordChange,
+  # LastIncorrectPassword, ExpiresOn, UserName, FullName, PasswordHint, Groups,
+  # Comment, UserComment, HomeDirectory, InternetUserName, ResetData,
+  # AccountDisabled, HomeDirectoryRequired, PasswordNotRequired,
+  # TempDuplicateAccount, NormalUserAccount, MnsLogonAccount,
+  # InterdomainTrustAccount, WorkstationTrustAccount, ServerTrustAccount,
+  # PasswordDoesNotExpire, AutoLocked
+  - set:
+      registry.path: BatchKeyPath
+      registry.value: BatchValueName
+      registry.hive:
+        value: SAM
+      user.id: UserId
+      user.name: UserName
+      user.full_name: FullName
+      user.email: InternetUserName
+      labels.password_hint: PasswordHint
+      labels.groups: Groups
+      labels.comment: Comment
+      labels.user_comment: UserComment
+      labels.home_directory: HomeDirectory
+      labels.valid_user_id:
+        source: ValidUserId
+        operation: to_bool
+      labels.invalid_login_count:
+        source: InvalidLoginCount
+        operation: to_int
+      labels.total_login_count:
+        source: TotalLoginCount
+        operation: to_int
+      labels.reset_data:
+        source: ResetData
+        operation: to_bool
+      labels.account_disabled:
+        source: AccountDisabled
+        operation: to_bool
+      labels.home_directory_required:
+        source: HomeDirectoryRequired
+        operation: to_bool
+      labels.password_not_required:
+        source: PasswordNotRequired
+        operation: to_bool
+      labels.temp_duplicate_account:
+        source: TempDuplicateAccount
+        operation: to_bool
+      labels.normal_user_account:
+        source: NormalUserAccount
+        operation: to_bool
+      labels.mns_logon_account:
+        source: MnsLogonAccount
+        operation: to_bool
+      labels.interdomain_trust_account:
+        source: InterdomainTrustAccount
+        operation: to_bool
+      labels.workstation_trust_account:
+        source: WorkstationTrustAccount
+        operation: to_bool
+      labels.server_trust_account:
+        source: ServerTrustAccount
+        operation: to_bool
+      labels.password_does_not_expire:
+        source: PasswordDoesNotExpire
+        operation: to_bool
+      labels.auto_locked:
+        source: AutoLocked
+        operation: to_bool
+    filter: exists(.BatchKeyPath) && exists(.UserId)
+
+  - set:
+      timestamp:
+        source: CreatedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.CreatedOn) && .CreatedOn != ""
+
+  - set:
+      labels.last_login_time:
+        source: LastLoginTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastLoginTime) && .LastLoginTime != ""
+
+  - set:
+      labels.last_password_change:
+        source: LastPasswordChange
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastPasswordChange) && .LastPasswordChange != ""
+
+  - set:
+      labels.last_incorrect_password:
+        source: LastIncorrectPassword
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastIncorrectPassword) && .LastIncorrectPassword != ""
+
+  - set:
+      labels.expires_on:
+        source: ExpiresOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.ExpiresOn) && .ExpiresOn != ""
+
+  # -- OGRE (dfir-ogre hive) input ----------------------------------------------
+
+  # path, mtime, name, data, type, size, is_placeholder,
+  # security_descriptor, ogre_md
+  - set:
+      registry.path:
+        source: 'replace(to_string!(.path), pattern: "\\\\", with: "\\")'
+      registry.value: name
+      registry.data.type: type
+      labels.value_data: data
+      registry.mtime:
+        source: mtime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      timestamp:
+        source: mtime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      labels.value_size:
+        source: size
+        operation: to_int
+      labels.is_placeholder:
+        source: is_placeholder
+        operation: to_bool
+      labels.security_descriptor: security_descriptor
+    filter: exists(.path) && exists(.mtime)
+
+  - delete:
+      - HivePath
+      - HiveType
+      - Description
+      - Category
+      - KeyPath
+      - ValueName
+      - ValueType
+      - ValueData
+      - ValueData2
+      - ValueData3
+      - Comment
+      - Recursive
+      - Deleted
+      - LastWriteTimestamp
+      - PluginDetailFile
+      - ValidUserId
+      - BatchKeyPath
+      - BatchValueName
+      - UserId
+      - InvalidLoginCount
+      - TotalLoginCount
+      - CreatedOn
+      - LastLoginTime
+      - LastPasswordChange
+      - LastIncorrectPassword
+      - ExpiresOn
+      - UserName
+      - FullName
+      - PasswordHint
+      - Groups
+      - UserComment
+      - HomeDirectory
+      - InternetUserName
+      - ResetData
+      - AccountDisabled
+      - HomeDirectoryRequired
+      - PasswordNotRequired
+      - TempDuplicateAccount
+      - NormalUserAccount
+      - MnsLogonAccount
+      - InterdomainTrustAccount
+      - WorkstationTrustAccount
+      - ServerTrustAccount
+      - PasswordDoesNotExpire
+      - AutoLocked
+      - path
+      - mtime
+      - name
+      - data
+      - type
+      - size
+      - is_placeholder
+      - security_descriptor
+      - ogre_md
+
+timeline:
+  - id: registry-value
+    message: "Registry value {registry.value} exists in key {registry.path}"
     conditions:
-      - field: event.module
-        exists: false
+      - field: registry.path
+        exists: true
+
+  - id: user-account
+    message: "User account {user.name} (RID {user.id}) exists in SAM"
+    conditions:
+      - field: registry.hive
+        value: SAM
+      - field: user.id
+        exists: true
+
+relationships:
+  - id: registry-value
+    source: registry.path
+    target: registry.value
+    type: contains

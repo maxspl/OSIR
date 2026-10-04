@@ -4,7 +4,7 @@ anssi_decode
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``anssi:decode`` | name_rex: ``decode_result_\w+\.csv``
+   * ``anssi:decode`` | name_rex: ``r"decode_result_\w+\.csv"``
 
 Description
 -----------
@@ -13,6 +13,11 @@ ANSSI tool designed for detecting anomalous Portable Executable (PE) files among
 
 Timeline
 --------
+
+No transform configuration found for this module.
+
+Relationships
+-------------
 
 No transform configuration found for this module.
 

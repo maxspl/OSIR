@@ -4,7 +4,7 @@ ps
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``linux:live_response:process:ps`` | name_rex: ``ps.*\.jsonl$``
+   * ``linux:live_response:process:ps`` | name_rex: ``r"ps.*\.jsonl$"``
 
 Description
 -----------
@@ -13,6 +13,11 @@ Kelly Brazil - JsonConverter - Parsing the output of the command ps and ps -ef
 
 Timeline
 --------
+
+No transform configuration found for this module.
+
+Relationships
+-------------
 
 No transform configuration found for this module.
 

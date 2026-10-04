@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: python
-  cmd: /OSIR/OSIR/bin/BrowserParser/main.py {input_dir} {output_dir} --jsonl
+  cmd: /OSIR/OSIR/bin/BrowserParser/main.py "{input_dir}" "{output_dir}" --csv
   source: https://github.com/maxspl/BrowserParser
   version: 1.1.0
 
@@ -26,26 +26,45 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}--{module}-"
+  output_prefix: "{extracted_endpoint}--{module}-"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'application:firefox':
-    name_rex: .*firefox.*\.jsonl$
+    name_rex: r".*firefox.*\.csv$"
     path_suffix: 'browsers'
     sourcetype: 'application:browser:firefox'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/browsers.vrl
   'application:chrome':
-    name_rex: .*chrome.*\.jsonl$
+    name_rex: r".*chrome.*\.csv$"
     path_suffix: 'browsers'
     sourcetype: 'application:browser:chrome'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/browsers.vrl
   'application:edge':
-    name_rex: .*edge.*\.jsonl$
+    name_rex: r".*edge.*\.csv$"
     path_suffix: 'browsers'
     sourcetype: 'application:browser:edge'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/browsers.vrl

@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from .OsirVrlBlock import OsirVrlBlock
 from .OsirVrlTransformation import OsirVrlTransformation, is_path
-from .OsirVrlTimeline import OsirVrlTimelineEntry
+from .OsirVrlTimeline import OsirVrlRelationship, OsirVrlTimelineEntry
 from .OsirVrlUtils import extract_vrl_fields
 from osir_lib.core.model.OsirMetadataModel import OsirMetadataModel
 
@@ -24,9 +24,10 @@ class OsirVrlSource(BaseModel):
 
 class OsirVrlModel(BaseModel):
     """Declarative VRL program: metadata + source, an ordered list of
-    transformation blocks (`set` / `translate` / `delete` / `custom`, each
-    expanded linearly: first entry = first VRL instruction), then the
-    timeline (message / relationships / conditions)."""
+    transformation blocks (`set` / `constant` / `translate` / `delete` /
+    `custom`, each expanded linearly: first entry = first VRL
+    instruction), then the timeline (id / message / conditions) and the
+    relationships, each attached to a timeline element through its id."""
 
     model_config = {"extra": "forbid"}
 
@@ -34,6 +35,20 @@ class OsirVrlModel(BaseModel):
     source:        Optional[OsirVrlSource]        = None
     transformation: list[OsirVrlBlock]             = []
     timeline:      list[OsirVrlTimelineEntry]     = []
+    relationships: list[OsirVrlRelationship]     = []
+
+    @model_validator(mode="after")
+    def _validate_relationship_ids(self) -> "OsirVrlModel":
+        timeline_ids = [e.id for e in self.timeline if e.id]
+        duplicates = {i for i in timeline_ids if timeline_ids.count(i) > 1}
+        if duplicates:
+            raise ValueError(f"duplicate timeline ids: {sorted(duplicates)}")
+        known = set(timeline_ids)
+        unknown = [r.id for r in self.relationships if r.id not in known]
+        if unknown:
+            raise ValueError(
+                f"relationships reference unknown timeline ids: {unknown}")
+        return self
 
     @property
     def entries(self) -> list[OsirVrlTransformation]:
@@ -105,6 +120,17 @@ class OsirVrlModel(BaseModel):
                     name = ref.lstrip(".")
                     if "." in name:
                         seen[name] = True
+        # timeline fields: message templates and relationships reference
+        # event paths that may also live behind a single flat dotted key
+        # (e.g. a splunk constant injected as "user.name")
+        for entry in self.timeline:
+            timeline_fields: list[str] = list(entry._template_fields())
+            for rel in self.relationships:
+                timeline_fields += [rel.source, rel.target]
+            for name in timeline_fields:
+                name = name.lstrip(".")
+                if "." in name:
+                    seen[name] = True
         return list(seen.keys())
 
     def _normalize_dotted_fields_vrl(self) -> str:
@@ -114,7 +140,10 @@ class OsirVrlModel(BaseModel):
         lines = [f"\n{_HR}\n# normalize dotted fields\n{_HR}"]
         for field in fields:
             field_without_quote = field.replace('"', "") if '"' in field else field
-            lines.append(f'if exists(."{field_without_quote}") {{ .{field} = get!(., path: ["{field_without_quote}"]) }}')
+            lines.append(f'if exists(."{field_without_quote}") {{')
+            lines.append(f'  .{field} = get!(., path: ["{field_without_quote}"])')
+            lines.append(f'  del(."{field_without_quote}")')
+            lines.append('}')
         return "\n".join(lines)
 
     # ── transformations (linear) ────────────────────────────────────────────────
@@ -142,8 +171,11 @@ class OsirVrlModel(BaseModel):
     def _timeline_to_vrl(self) -> str:
         if not self.timeline:
             return ""
+        rels_by_id: dict[str, list[OsirVrlRelationship]] = {}
+        for rel in self.relationships:
+            rels_by_id.setdefault(rel.id, []).append(rel)
         sorted_t = sorted(self.timeline, key=lambda e: len(e.conditions))
         lines = [f"\n{_HR}\n# timeline\n{_HR}"]
         for entry in sorted_t:
-            lines.append(entry.to_vrl())
+            lines.append(entry.to_vrl(rels_by_id.get(entry.id or "", [])))
         return "\n".join(lines)

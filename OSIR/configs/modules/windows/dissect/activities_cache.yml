@@ -21,20 +21,21 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)$"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)$"
+      default: "UNKNOWN"
 
 optional:
   plugin: activitiescache
 
 splunk:
   'windows:activitiescache':
-    name_rex: --activities_cache\.jsonl$
-    host_rex: ([\w\.-]+)--
+    name_rex: r"--activities_cache\.jsonl$"
+    host_rex: r"([\w\.-]+)--"
     path_suffix: activities_cache
     timestamp_path:
       - "timestamp" 

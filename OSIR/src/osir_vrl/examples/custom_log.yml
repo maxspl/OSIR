@@ -73,11 +73,8 @@ transformation:
       - raw
 
 timeline:
-  - message: "{user.name} performed {event.action} (severity {event.severity})"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: performed action on
+  - id: action-severity
+    message: "{user.name} performed {event.action} (severity {event.severity})"
     conditions:
       - field: event.action
       - field: event.severity
@@ -85,3 +82,9 @@ timeline:
   - message: "{user.name} performed {event.action}"
     conditions:
       - field: event.action
+
+relationships:
+  - id: action-severity
+    source: user.name
+    target: host.name
+    type: performed action on

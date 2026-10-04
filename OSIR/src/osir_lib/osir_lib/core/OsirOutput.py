@@ -5,7 +5,7 @@ import re
 import shutil
 from typing import TYPE_CHECKING, Optional
 
-from pydantic import PrivateAttr
+from pydantic import PrivateAttr, field_validator
 from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 from osir_lib.core.model.OsirOutputModel import OsirOutputModel
 
@@ -38,6 +38,16 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
     # TODO: Not the best implemantation i think 
     output_file_without_suffix: Optional[str] = None
     output_dir_without_suffix: Optional[str] = None
+    # Resolved output file path: <output_dir>/<filename>. None until update().
+    output_file: Optional[str] = None
+
+    @field_validator("output_file", mode="before")
+    @classmethod
+    def cast_output_file_to_str(cls, v):
+        """Ensures Path objects assigned by apply_suffix are stored as strings."""
+        if isinstance(v, Path):
+            return str(v)
+        return v
 
     def _hash_path(self, path: str) -> str:
         """
@@ -64,12 +74,11 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
             ctx = self._context
 
             replacements = {
-                "endpoint_name": ctx.endpoint_name,
-                "user_name": ctx.user_name,
                 "module": ctx.module,
                 "input_file": ctx.input.get_input_name_safe(),
                 "input_path_hash": self._hash_path(str(ctx.input.match)),
-                "case_path": ctx.case_path
+                "case_path": ctx.case_path,
+                **getattr(ctx, "extracted_placeholders", {}),
             }
             
             base_output_path = Path(ctx.case_path) / ctx.module
@@ -84,10 +93,12 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
                 self.output_dir = base_output_path
 
             # Resolve Filename Template
-            if self.output_file:
-                formatted_filename = self.safe_format(self.output_file, **replacements)
-                self.output_file = str(Path(self.output_dir) / formatted_filename)
-            
+            # After update: `filename` is the bare resolved filename and
+            # `output_file` the full path (<output_dir>/<filename>).
+            if self.filename:
+                self.filename = self.safe_format(self.filename, **replacements)
+                self.output_file = str(Path(self.output_dir) / self.filename)
+
             self.output_dir_without_suffix = self.output_dir
             self.output_file_without_suffix = self.output_file
             self.apply_suffix("output_dir")
@@ -98,7 +109,8 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
             if self.output_prefix:
                 self.output_prefix_no_endpoint = self.safe_format(
                     self.output_prefix,
-                    **{k: v for k, v in replacements.items() if k not in ('endpoint_name', 'user_name')}
+                    **{k: v for k, v in replacements.items()
+                       if not k.startswith('extracted_')}
                 )
                 self.output_prefix = self.safe_format(self.output_prefix, **replacements)
 
@@ -123,11 +135,14 @@ class OsirOutput(OsirOutputModel, OsirPathTransformerMixin):
         # Build regex to avoid double-renaming items that already have a valid prefix
         prefix_extented = re.compile(
             "^"
-            + self._context.output.output_prefix_no_endpoint
-            .replace("{endpoint_name}", ".*")
-            .replace("{user_name}", ".*")
+            + re.sub(r"\{extracted_[^}]+\}", ".*",
+                     self._context.output.output_prefix_no_endpoint)
         )
-        for root, dirs, files in os.walk(self._context.output.output_dir, topdown=True):
+        # Walk the local (pre-suffix) path: for processor_os windows modules
+        # output_dir holds the UNC form (with the literal {master_host} token),
+        # which does not exist on the agent's filesystem. output_dir_without_suffix
+        # is the agent-local path and equals output_dir for unix modules.
+        for root, dirs, files in os.walk(self._context.output.output_dir_without_suffix, topdown=True):
             # Process files within the current directory
             for file in files:
                 if not prefix_extented.match(file):

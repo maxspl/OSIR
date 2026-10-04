@@ -1,45 +1,44 @@
-# -----------------------------------------------------------------------------
-# Windows ActivitiesCache 
-#   Input fields (per record):
-#     hostname, domain, start_time, end_time,
-#     last_modified_time, last_modified_on_client,
-#     original_last_modified_on_client, expiration_time,
-#     created_in_cloud, activity_id, app_id, enterprise_id,
-#     app_activity_id, group_app_activity_id, group,
-#     activity_type, activity_status, activity_priority,
-#     match_id, etag, tag, is_local_only,
-#     platform_device_id, package_id_hash,
-#     payload, original_payload, clipboard_payload,
-#     source, username, user_id, user_group, user_home,
-#     _source, _classification, _generated, _version,
-#     _type, _recorddescriptor
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : activities_cache
+# Version    : 1.0
+# Windows ActivitiesCache
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Keep raw event (ECS best practice) - do this FIRST
+# transformations
 # -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.activities_cache -> event.dataset
+.event.dataset = "windows.activities_cache"
 
-.event.dataset  = "windows.activities_cache"
-.event.module   = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-.event.kind     = "event"
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['session'] -> event.category
 .event.category = ["session"]
-.event.type     = ["info"]
 
-.event.outcome  = "success"
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows ActivitiesCache -> event.provider
 .event.provider = "Windows ActivitiesCache"
 
-# -----------------------------------------------------------------------------
-# Host information
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.hostname) {
     hn_val = del(.hostname)
     if hn_val != null {
@@ -55,10 +54,6 @@ if exists(.domain) {
         .host.domain = to_string!(dom_val)
     }
 }
-
-# -----------------------------------------------------------------------------
-# User information
-# -----------------------------------------------------------------------------
 
 if exists(.username) {
     u_val = del(.username)
@@ -97,20 +92,8 @@ if exists(.enterprise_id) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Core timestamps
-# -----------------------------------------------------------------------------
-
-# We'll pick a primary timestamp for the event here
 ts_main = null
 
-# Helper: parse ISO-8601 with timezone if present
-# parse_timestamp(s, "%+") is fallible; we wrap with "?? null"
-# and always keep raw strings in Ext as well.
-
-# -------------------------------------------------------------------------
-# start_time → event.start + candidate for main @timestamp
-# -------------------------------------------------------------------------
 if exists(.start_time) {
     st_val = del(.start_time)
     if st_val != null {
@@ -126,9 +109,6 @@ if exists(.start_time) {
     }
 }
 
-# -------------------------------------------------------------------------
-# end_time → event.end (does NOT change main timestamp)
-# -------------------------------------------------------------------------
 if exists(.end_time) {
     et_val = del(.end_time)
     if et_val != null {
@@ -143,9 +123,6 @@ if exists(.end_time) {
     }
 }
 
-# -------------------------------------------------------------------------
-# last_modified_time → event.created (and fallback main timestamp)
-# -------------------------------------------------------------------------
 if exists(.last_modified_time) {
     lmt_val = del(.last_modified_time)
     if lmt_val != null {
@@ -155,10 +132,8 @@ if exists(.last_modified_time) {
         .user.Ext.activitiescache.last_modified_time_raw = lmt_raw
 
         if ts != null {
-            # Treat this as "record created/updated" time
             .event.created = ts
 
-            # If we *didn't* get a valid start_time, use this as main
             if ts_main == null {
                 ts_main = ts
             }
@@ -166,9 +141,6 @@ if exists(.last_modified_time) {
     }
 }
 
-# -------------------------------------------------------------------------
-# last_modified_on_client → Ext only
-# -------------------------------------------------------------------------
 if exists(.last_modified_on_client) {
     lmoc_val = del(.last_modified_on_client)
     if lmoc_val != null {
@@ -183,9 +155,6 @@ if exists(.last_modified_on_client) {
     }
 }
 
-# -------------------------------------------------------------------------
-# original_last_modified_on_client → Ext only
-# -------------------------------------------------------------------------
 if exists(.original_last_modified_on_client) {
     olmoc_val = del(.original_last_modified_on_client)
     if olmoc_val != null {
@@ -200,9 +169,6 @@ if exists(.original_last_modified_on_client) {
     }
 }
 
-# -------------------------------------------------------------------------
-# expiration_time → Ext (when the record expires)
-# -------------------------------------------------------------------------
 if exists(.expiration_time) {
     exp_val = del(.expiration_time)
     if exp_val != null {
@@ -217,9 +183,6 @@ if exists(.expiration_time) {
     }
 }
 
-# -------------------------------------------------------------------------
-# created_in_cloud → Ext
-# -------------------------------------------------------------------------
 if exists(.created_in_cloud) {
     cic_val = del(.created_in_cloud)
     if cic_val != null {
@@ -234,23 +197,14 @@ if exists(.created_in_cloud) {
     }
 }
 
-# -------------------------------------------------------------------------
-# Final selection of ECS event time
-# -------------------------------------------------------------------------
 if ts_main != null {
     .timestamp = ts_main
 
-    # If event.created wasn't set (no last_modified_time), default it to main
     if !exists(.event.created) {
         .event.created = ts_main
     }
 }
 
-# -----------------------------------------------------------------------------
-# Activity metadata (IDs, types, priority, tags, flags)
-# -----------------------------------------------------------------------------
-
-# activity_id → use as event.id + Ext
 if exists(.activity_id) {
     aid_val = del(.activity_id)
     if aid_val != null {
@@ -279,7 +233,6 @@ if exists(.activity_priority) {
     if ap_val != null {
         .user.Ext.activitiescache.activity_priority = ap_val
 
-        # Try to map to event.severity (0–10 style, but we just reuse the int)
         sev = to_int(ap_val) ?? null
         if sev != null {
             .event.severity = sev
@@ -331,13 +284,8 @@ if exists(.group_app_activity_id) {
 
 if exists(.is_local_only) {
     ilo_val = del(.is_local_only)
-    # usually a boolean already
     .user.Ext.activitiescache.is_local_only = ilo_val
 }
-
-# -----------------------------------------------------------------------------
-# Device / package identifiers
-# -----------------------------------------------------------------------------
 
 if exists(.platform_device_id) {
     pdid_val = del(.platform_device_id)
@@ -353,11 +301,6 @@ if exists(.package_id_hash) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Application ID and payloads
-# -----------------------------------------------------------------------------
-
-# app_id is a JSON string (array of {application, platform,...})
 if exists(.app_id) {
     appid_val = del(.app_id)
     if appid_val != null {
@@ -371,14 +314,12 @@ if exists(.app_id) {
     }
 }
 
-# payload can be JSON or opaque (base64 etc.)
 if exists(.payload) {
     pay_val = del(.payload)
     if pay_val != null {
         pay_raw = to_string!(pay_val)
         .user.Ext.activitiescache.payload_raw = pay_raw
 
-        # Try to parse JSON payloads (those that look like objects)
         if starts_with(pay_raw, "{") {
             p_json = parse_json(pay_raw) ?? null
             if p_json != null {
@@ -402,10 +343,6 @@ if exists(.clipboard_payload) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Source file (ActivitiesCache.db on disk)
-# -----------------------------------------------------------------------------
-
 if exists(.source) {
     src_val = del(.source)
     if src_val != null {
@@ -414,10 +351,6 @@ if exists(.source) {
         .event.Ext.activitiescache.db_path = src_path
     }
 }
-
-# -----------------------------------------------------------------------------
-# del metatada
-# -----------------------------------------------------------------------------
 
 if exists(._source) {
     del(._source)

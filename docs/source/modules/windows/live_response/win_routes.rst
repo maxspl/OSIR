@@ -4,7 +4,7 @@ win_routes
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:routes`` | name_rex: ``--win_routes\.jsonl$``
+   * ``windows:live_response:routes`` | name_rex: ``r"--win_routes\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

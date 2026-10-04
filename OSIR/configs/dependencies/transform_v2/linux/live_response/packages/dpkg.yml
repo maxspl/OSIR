@@ -14,11 +14,15 @@ transformation:
       package.type:
         value: dpkg
       labels.package_status: to_string!(.status)
+  - set:
+      labels.package_codes: to_string!(.codes)
+  # dpkg status codes: three one-letter states (desired/current/error) decoded
+  # from a 3-char string, each unknown letter kept verbatim — the per-position
+  # slicing with dynamic fallbacks has no declarative equivalent.
   - custom: |2-
       if exists(.codes) {
           codes = to_string!(.codes)
-          .labels.package_codes = codes
-          
+
           if length(codes) >= 1 {
               desired_code = slice!(codes, 0, 1)
               .labels.package_desired_state = if desired_code == "u" {
@@ -35,7 +39,7 @@ transformation:
                   desired_code
               }
           }
-          
+
           if length(codes) >= 2 {
               current_code = slice!(codes, 1, 2)
               .labels.package_current_state = if current_code == "n" {
@@ -58,7 +62,7 @@ transformation:
                   current_code
               }
           }
-          
+
           if length(codes) >= 3 {
               error_code = slice!(codes, 2, 3)
               if error_code != " " {

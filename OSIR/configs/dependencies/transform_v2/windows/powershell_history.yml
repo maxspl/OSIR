@@ -2,7 +2,7 @@ metadata:
   version: "1.0"
   id: powershell_history
   author: Typ
-  description: PowerShell History → ECS
+  description: Windows PowerShell History JSONL → ECS
 
 transformation:
   - set:
@@ -10,45 +10,19 @@ transformation:
     conditions:
       - field: event.original
         exists: false
+
   - set:
-      event.dataset:
-        value: windows.powershell_history
-      event.module:
-        value: windows
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [info]
-      event.outcome:
-        value: success
-      event.provider:
-        value: PowerShell History
-  - custom: |2-
-      if exists(.type) {
-          type_raw = to_string!(del(.type))
-          type_l   = downcase(type_raw)
+      process.command_line: command
+      event.sequence:
+        source: line_number
+        operation: to_int
+      labels.line_number: line_number
 
-          .event.code   = type_raw
-          .event.action = type_l
-      }
+  - delete:
+      - type
+      - line_number
+      - command
 
-      if exists(.line_number) {
-          ln_raw = to_string!(del(.line_number))
-          ln_int = parse_int(ln_raw) ?? null
-
-          if ln_int != null {
-              .event.sequence                 = ln_int
-              .powershell.history.line_number = ln_int
-          } else {
-              .powershell.history.line_number = ln_raw
-          }
-      }
-
-      if exists(.command) {
-          cmd = to_string!(del(.command))
-
-          .process.command_line         = cmd
-          .powershell.history.command   = cmd
-      }
+timeline:
+  - id: executed
+    message: "PowerShell command was executed: {process.command_line}"

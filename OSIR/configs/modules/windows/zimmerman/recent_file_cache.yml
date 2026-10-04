@@ -1,0 +1,50 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Parsing of RecentFileCache.bcf with RecentFileCacheParser
+  os: windows
+
+configuration:
+  module: recent_file_cache
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: windows
+
+tool: 
+  path: net9/RecentFileCacheParser.exe
+  cmd: -f "{input_file}" --csv "{output_dir}" --csvf "{output_filename}"
+  source: https://ericzimmerman.github.io/
+  version: 2026.5.0
+
+input:
+  type: file
+  paths:
+    - r"/RecentFileCache\.bcf$"
+
+output:
+  type: single_file
+  format: csv
+  filename: "{extracted_endpoint}--{extracted_user}--{module}.csv"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+  - user:
+      patterns:
+        - r"Users\/([^\/]+)"
+      default: "UNKNOWN"
+
+splunk:
+  'windows:recent_file_cache':
+    name_rex: r"--recent_file_cache\.csv$"
+    path_suffix: 'recent_file_cache'
+    sourcetype: 'windows:recent_file_cache'
+    host_rex: r"([\w\.-]+?)--"
+    user_rex: r"--([^-]+)--recent_file_cache"
+    artifact: "RecentFileCache"

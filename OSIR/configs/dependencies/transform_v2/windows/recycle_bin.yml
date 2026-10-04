@@ -1,0 +1,96 @@
+metadata:
+  version: "1.0"
+  id: recycle_bin
+  author: Typ
+  description: Recycle bin artifacts (RBCmd CSV + dfir-ogre recycle_bin JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.dataset:
+        value: windows.recycle_bin
+      event.module:
+        value: windows
+      event.kind:
+        value: event
+      event.category:
+        value: [file]
+      event.type:
+        value: [deletion]
+      event.provider:
+        value: "Windows Recycle Bin"
+      event.outcome:
+        value: success
+
+  # -- RBCmd (Zimmerman) input -------------------------------------------------
+
+  # SourceName, FileType, FileName, FileSize, DeletedOn
+  - set:
+      timestamp:
+        source: DeletedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.path: FileName
+      file.size:
+        source: FileSize
+        operation: to_int
+      labels.file_type: FileType
+      labels.source_name: SourceName
+    filter: exists(.DeletedOn)
+
+
+  # -- OGRE (dfir-ogre recycle_bin) input ---------------------------------------
+
+  # path, size, header, uninstall_date, ogre_md
+  - set:
+      file.path: path
+      file.size:
+        source: size
+        operation: to_int
+      labels.header:
+        source: header
+        operation: to_int
+      timestamp:
+        source: uninstall_date
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+    filter: exists(.path) && exists(.uninstall_date)
+
+  # $RECYCLE.BIN\<SID>\$I... : extract the owner SID from
+  # SourceName (RBCmd) or ogre_md.archive_filename (OGRE)
+  - custom: |2-
+      rb_src = null
+      if exists(.SourceName) {
+          rb_src = to_string!(.SourceName)
+      } else if exists(.ogre_md.archive_filename) {
+          rb_src = to_string!(.ogre_md.archive_filename)
+      }
+      if rb_src != null {
+          rb, rberr = parse_regex(to_string!(rb_src), r'\$RECYCLE\.BIN[/\\](?<sid>[^/\\]+)[/\\]')
+          if rberr == null {
+              .user.id = rb.sid
+          }
+      }
+
+  - delete:
+      - SourceName
+      - FileType
+      - FileName
+      - FileSize
+      - DeletedOn
+      - path
+      - size
+      - header
+      - uninstall_date
+      - ogre_md
+
+timeline:
+  - id: deleted
+    message: "File {file.path} was deleted on {timestamp}"
+    conditions:
+      - field: file.path
+        exists: true

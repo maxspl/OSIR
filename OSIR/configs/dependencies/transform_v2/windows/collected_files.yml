@@ -1,0 +1,193 @@
+metadata:
+  version: "1.0"
+  id: collected_files
+  author: Typ
+  description: DFIR-ORC GetThis collected files CSV → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.dataset:
+        value: orc.collected_files
+      event.module:
+        value: orc
+      event.kind:
+        value: event
+      event.category:
+        value: [file]
+      event.type:
+        value: [info]
+      event.provider:
+        value: "DFIR-ORC GetThis"
+      event.outcome:
+        value: success
+
+  # -- GetThis (DFIR-ORC) input --------------------------------------------------
+
+  # ComputerName, VolumeID, ParentFRN, FRN, FullName, SampleName, SizeInBytes,
+  # MD5, SHA1, SHA256, SSDeep, TLSH, FindMatch, ContentType,
+  # SampleCollectionDate, CreationDate, LastModificationDate, LastAccessDate,
+  # LastAttrChangeDate, FileNameCreationDate, FileNameLastModificationDate,
+  # FileNameLastAccessDate, FileNameLastAttrModificationDate, AttrType,
+  # AttrName, AttrID, SnapshotID, YaraRules, RecordInUse
+
+  - set:
+      file.path: FullName
+      file.size:
+        source: SizeInBytes
+        operation: to_int
+      host.name: ComputerName
+      labels.volume_id: VolumeID
+      labels.parent_frn: ParentFRN
+      labels.frn: FRN
+      labels.attr_type: AttrType
+      labels.attr_name: AttrName
+      labels.attr_id:
+        source: AttrID
+        operation: to_int
+      labels.content_type: ContentType
+      labels.snapshot_id: SnapshotID
+      labels.find_match: FindMatch
+      labels.sample_name: SampleName
+      labels.yara_rules: YaraRules
+      labels.record_in_use: RecordInUse
+
+  - set:
+      timestamp:
+        source: CreationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+      file.created:
+        source: CreationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.CreationDate) && .CreationDate != ""
+
+  - set:
+      file.mtime:
+        source: LastModificationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.LastModificationDate) && .LastModificationDate != ""
+
+  - set:
+      file.accessed:
+        source: LastAccessDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.LastAccessDate) && .LastAccessDate != ""
+
+  - set:
+      file.ctime:
+        source: LastAttrChangeDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.LastAttrChangeDate) && .LastAttrChangeDate != ""
+
+  - set:
+      labels.fn_creation_date:
+        source: FileNameCreationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.FileNameCreationDate) && .FileNameCreationDate != ""
+
+  - set:
+      labels.fn_last_modification_date:
+        source: FileNameLastModificationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.FileNameLastModificationDate) && .FileNameLastModificationDate != ""
+
+  - set:
+      labels.fn_last_access_date:
+        source: FileNameLastAccessDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.FileNameLastAccessDate) && .FileNameLastAccessDate != ""
+
+  - set:
+      labels.fn_last_attr_modification_date:
+        source: FileNameLastAttrModificationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.FileNameLastAttrModificationDate) && .FileNameLastAttrModificationDate != ""
+
+  - set:
+      labels.sample_collection_date:
+        source: SampleCollectionDate
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.SampleCollectionDate) && .SampleCollectionDate != ""
+
+  - set:
+      hash.md5: MD5
+    filter: exists(.MD5) && .MD5 != ""
+
+  - set:
+      hash.sha1: SHA1
+    filter: exists(.SHA1) && .SHA1 != ""
+
+  - set:
+      hash.sha256: SHA256
+    filter: exists(.SHA256) && .SHA256 != ""
+
+  - set:
+      hash.ssdeep: SSDeep
+    filter: exists(.SSDeep) && .SSDeep != ""
+
+  - set:
+      labels.tlsh: TLSH
+    filter: exists(.TLSH) && .TLSH != ""
+
+  - delete:
+      - ComputerName
+      - VolumeID
+      - ParentFRN
+      - FRN
+      - FullName
+      - SampleName
+      - SizeInBytes
+      - MD5
+      - SHA1
+      - SHA256
+      - SSDeep
+      - TLSH
+      - FindMatch
+      - ContentType
+      - SampleCollectionDate
+      - CreationDate
+      - LastModificationDate
+      - LastAccessDate
+      - LastAttrChangeDate
+      - FileNameCreationDate
+      - FileNameLastModificationDate
+      - FileNameLastAccessDate
+      - FileNameLastAttrModificationDate
+      - AttrType
+      - AttrName
+      - AttrID
+      - SnapshotID
+      - YaraRules
+      - RecordInUse
+
+timeline:
+  - id: collected
+    message: "File {file.path} was collected by DFIR-ORC (MD5 {hash.md5})"
+
+relationships:
+  - id: collected
+    source: file.path
+    target: hash.md5
+    type: "collected as"

@@ -4,7 +4,7 @@ syslog
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``linux:syslog`` | name_rex: ``syslog.*\.jsonl$``
+   * ``linux:syslog`` | name_rex: ``r"syslog.*\.jsonl$"``
 
 Description
 -----------
@@ -13,6 +13,11 @@ Parsing logs from '/var/log/syslog'
 
 Timeline
 --------
+
+No transform configuration found for this module.
+
+Relationships
+-------------
 
 No transform configuration found for this module.
 

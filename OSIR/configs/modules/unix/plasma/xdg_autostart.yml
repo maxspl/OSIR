@@ -22,20 +22,21 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint:
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 optional:
   dissector: linux_xdg_autostart
 
 splunk:
   'linux:xdg_autostart':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: xdg_autostart
     sourcetype: 'linux:xdg_autostart'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     artifact: "xdg_autostart"

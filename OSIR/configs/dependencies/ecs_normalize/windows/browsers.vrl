@@ -1,0 +1,382 @@
+##############################################################
+# Module VRL : browsers
+# Version    : 1.0
+# Browser artifacts (BrowserParser CSV + dfir-ogre chrome/firefox JSONL) → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."user.name") {
+  .user.name = get!(., path: ["user.name"])
+  del(."user.name")
+}
+if exists(."url.original") {
+  .url.original = get!(., path: ["url.original"])
+  del(."url.original")
+}
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
+}
+if exists(."labels.search_term") {
+  .labels.search_term = get!(., path: ["labels.search_term"])
+  del(."labels.search_term")
+}
+if exists(."file.name") {
+  .file.name = get!(., path: ["file.name"])
+  del(."file.name")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
+
+# [normalization] web.browser -> event.dataset
+.event.dataset = "web.browser"
+
+# [normalization] browser -> event.module
+.event.module = "browser"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['web'] -> event.category
+.event.category = ["web"]
+
+# [normalization] ['access', 'info'] -> event.type
+.event.type = ["access", "info"]
+
+# [normalization] Browser artifacts -> event.provider
+.event.provider = "Browser artifacts"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] url -> url.original
+if exists(.last_visit_time) && exists(.url) {
+  .url.original = .url
+}
+
+# [normalization] title -> labels.title
+if exists(.last_visit_time) && exists(.title) {
+  .labels.title = .title
+}
+
+# [normalization] visit_count -> labels.visit_count
+if exists(.last_visit_time) && exists(.visit_count) {
+  _result, err = to_int(.visit_count)
+  if err == null {
+    .labels.visit_count = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur labels.visit_count : " + err, level: "warn")
+  }
+}
+
+# [normalization] last_visit_time -> timestamp
+if exists(.last_visit_time) {
+  _result, err = parse_timestamp(.last_visit_time, format: "%F %T%.f")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] filename -> file.name
+if exists(.filename) {
+  .file.name = .filename
+}
+
+# [normalization] target_path -> file.path
+if exists(.filename) && exists(.target_path) {
+  .file.path = .target_path
+}
+
+# [normalization] current_path -> labels.current_path
+if exists(.filename) && exists(.current_path) {
+  .labels.current_path = .current_path
+}
+
+# [normalization] total_bytes -> file.size
+if exists(.filename) && exists(.total_bytes) {
+  _result, err = to_int(.total_bytes)
+  if err == null {
+    .file.size = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur file.size : " + err, level: "warn")
+  }
+}
+
+# [normalization] received_bytes -> labels.received_bytes
+if exists(.filename) && exists(.received_bytes) {
+  _result, err = to_int(.received_bytes)
+  if err == null {
+    .labels.received_bytes = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur labels.received_bytes : " + err, level: "warn")
+  }
+}
+
+# [normalization] opened -> labels.opened
+if exists(.filename) && exists(.opened) {
+  _result, err = to_bool(.opened)
+  if err == null {
+    .labels.opened = _result
+  } else {
+    log("[browsers] échec de l'opération to_bool sur labels.opened : " + err, level: "warn")
+  }
+}
+
+# [normalization] mime_type -> labels.mime_type
+if exists(.filename) && exists(.mime_type) {
+  .labels.mime_type = .mime_type
+}
+
+# [normalization] start_time -> timestamp
+if exists(.filename) && exists(.start_time) {
+  _result, err = parse_timestamp(.start_time, format: "%F %T%.f")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] start_time -> event.start
+if exists(.filename) && exists(.start_time) {
+  _result, err = parse_timestamp(.start_time, format: "%F %T%.f")
+  if err == null {
+    .event.start = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur event.start : " + err, level: "warn")
+  }
+}
+
+# [normalization] end_time -> file.mtime
+if exists(.filename) && exists(.end_time) {
+  _result, err = parse_timestamp(.end_time, format: "%F %T%.f")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] last_access_time -> file.accessed
+if exists(.filename) && exists(.last_access_time) {
+  _result, err = parse_timestamp(.last_access_time, format: "%F %T%.f")
+  if err == null {
+    .file.accessed = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur file.accessed : " + err, level: "warn")
+  }
+}
+
+# [normalization] term -> labels.search_term
+if exists(.term) {
+  .labels.search_term = .term
+}
+
+# [normalization] normalized_term -> labels.normalized_term
+if exists(.normalized_term) {
+  .labels.normalized_term = .normalized_term
+}
+
+# [normalization] url -> url.original
+if exists(.ogre_md) && !exists(.target_path) && exists(.url) {
+  .url.original = .url
+}
+
+# [normalization] title -> labels.title
+if exists(.ogre_md) && !exists(.target_path) && exists(.title) {
+  .labels.title = .title
+}
+
+# [normalization] visit_count -> labels.visit_count
+if exists(.ogre_md) && !exists(.target_path) && exists(.visit_count) {
+  _result, err = to_int(.visit_count)
+  if err == null {
+    .labels.visit_count = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur labels.visit_count : " + err, level: "warn")
+  }
+}
+
+# [normalization] hidden -> labels.hidden
+if exists(.ogre_md) && !exists(.target_path) && exists(.hidden) {
+  _result, err = to_int(.hidden)
+  if err == null {
+    .labels.hidden = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur labels.hidden : " + err, level: "warn")
+  }
+}
+
+# [normalization] referer -> labels.referer
+if exists(.ogre_md) && !exists(.target_path) && exists(.referer) {
+  .labels.referer = .referer
+}
+
+# [normalization] visit_date -> timestamp
+if exists(.visit_date) && .visit_date != "" {
+  _result, err = parse_timestamp(.visit_date, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] target_path -> file.path
+if exists(.target_path) && !exists(.filename) {
+  .file.path = .target_path
+}
+
+# [normalization] url -> url.original
+if exists(.target_path) && !exists(.filename) && exists(.url) {
+  .url.original = .url
+}
+
+# [normalization] total_bytes -> file.size
+if exists(.target_path) && !exists(.filename) && exists(.total_bytes) {
+  _result, err = to_int(.total_bytes)
+  if err == null {
+    .file.size = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur file.size : " + err, level: "warn")
+  }
+}
+
+# [normalization] received_bytes -> labels.received_bytes
+if exists(.target_path) && !exists(.filename) && exists(.received_bytes) {
+  _result, err = to_int(.received_bytes)
+  if err == null {
+    .labels.received_bytes = _result
+  } else {
+    log("[browsers] échec de l'opération to_int sur labels.received_bytes : " + err, level: "warn")
+  }
+}
+
+# [normalization] state -> labels.state
+if exists(.target_path) && !exists(.filename) && exists(.state) {
+  .labels.state = .state
+}
+
+# [normalization] danger_type -> labels.danger_type
+if exists(.target_path) && !exists(.filename) && exists(.danger_type) {
+  .labels.danger_type = .danger_type
+}
+
+# [normalization] deleted -> labels.deleted
+if exists(.target_path) && !exists(.filename) && exists(.deleted) {
+  _result, err = to_bool(.deleted)
+  if err == null {
+    .labels.deleted = _result
+  } else {
+    log("[browsers] échec de l'opération to_bool sur labels.deleted : " + err, level: "warn")
+  }
+}
+
+# [normalization] interrupt_reason -> labels.interrupt_reason
+if exists(.target_path) && !exists(.filename) && exists(.interrupt_reason) {
+  .labels.interrupt_reason = .interrupt_reason
+}
+
+# [normalization] opened -> labels.opened
+if exists(.target_path) && !exists(.filename) && exists(.opened) {
+  _result, err = to_bool(.opened)
+  if err == null {
+    .labels.opened = _result
+  } else {
+    log("[browsers] échec de l'opération to_bool sur labels.opened : " + err, level: "warn")
+  }
+}
+
+# [normalization] start_time -> timestamp
+if exists(.target_path) && !exists(.filename) && exists(.start_time) {
+  _result, err = parse_timestamp(.start_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] start_time -> event.start
+if exists(.target_path) && !exists(.filename) && exists(.start_time) {
+  _result, err = parse_timestamp(.start_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .event.start = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur event.start : " + err, level: "warn")
+  }
+}
+
+# [normalization] end_time -> file.mtime
+if exists(.target_path) && !exists(.filename) && exists(.end_time) {
+  _result, err = parse_timestamp(.end_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[browsers] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
+  }
+}
+
+# [custom]
+if exists(.target_path) && !exists(.filename) {
+    bn, berr = basename(replace(to_string!(.target_path), pattern: "\\", with: "/"))
+    if berr == null {
+        .file.name = bn
+    }
+}
+
+# [deletion] title, visit_count, last_visit_time, filename, current_path, target_path, start_time, received_bytes, total_bytes, end_time, opened, last_access_time, mime_type, term, normalized_term, visit_date, hidden, referer, ogre_md, state, danger_type, interrupt_reason, deleted
+del(.title)
+del(.visit_count)
+del(.last_visit_time)
+del(.filename)
+del(.current_path)
+del(.target_path)
+del(.start_time)
+del(.received_bytes)
+del(.total_bytes)
+del(.end_time)
+del(.opened)
+del(.last_access_time)
+del(.mime_type)
+del(.term)
+del(.normalized_term)
+del(.visit_date)
+del(.hidden)
+del(.referer)
+del(.ogre_md)
+del(.state)
+del(.danger_type)
+del(.interrupt_reason)
+del(.deleted)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.labels.visit_count) && exists(.user.name) && exists(.url.original) {
+  .message = "User " + to_string!(.user.name) + " visited " + to_string!(.url.original)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.url.original), "type": "visited"})
+}
+if exists(.file.path) && exists(.user.name) && exists(.file.name) {
+  .message = "User " + to_string!(.user.name) + " downloaded " + to_string!(.file.name) + " to " + to_string!(.file.path)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.file.path), "type": "downloaded to"})
+}
+if exists(.labels.search_term) && exists(.user.name) {
+  .message = "User " + to_string!(.user.name) + " searched for " + to_string!(.labels.search_term)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.labels.search_term), "type": "searched for"})
+}

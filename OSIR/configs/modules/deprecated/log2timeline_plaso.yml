@@ -26,9 +26,10 @@ input:
 output:
   type: single_file
   format: plaso
-  output_file: "{endpoint_name}--{module}-log2timeline.plaso"
+  filename: "{extracted_endpoint}--{module}-log2timeline.plaso"
 
-endpoint: 
-  patterns:
-    - r"/Endpoint_(.*?)/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"/Endpoint_(.*?)/"
+      default: "UNKNOWN"

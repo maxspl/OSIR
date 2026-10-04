@@ -1,0 +1,276 @@
+##############################################################
+# Module VRL : systeminfo
+# Version    : 1.0
+# Windows system information (dfir-ogre systeminfo JSONL) → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."host.name") {
+  .host.name = get!(., path: ["host.name"])
+  del(."host.name")
+}
+if exists(."os.full") {
+  .os.full = get!(., path: ["os.full"])
+  del(."os.full")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
+
+# [normalization] windows.systeminfo -> event.dataset
+.event.dataset = "windows.systeminfo"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['host'] -> event.category
+.event.category = ["host"]
+
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] Windows System Information -> event.provider
+.event.provider = "Windows System Information"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] host_name -> host.name
+if exists(.host_name) && exists(.os_name) {
+  .host.name = .host_name
+}
+
+# [normalization] os_name -> os.name
+if exists(.host_name) && exists(.os_name) {
+  .os.name = .os_name
+}
+
+# [normalization] os_version -> os.version
+if exists(.host_name) && exists(.os_name) && exists(.os_version) {
+  .os.version = .os_version
+}
+
+# [normalization] to_string!(.os_name) + " " + to_string!(.os_version) -> os.full
+if exists(.host_name) && exists(.os_name) && exists(.os_version) {
+  .os.full = to_string!(.os_name) + " " + to_string!(.os_version)
+}
+
+# [normalization] os_manufacturer -> labels.os_manufacturer
+if exists(.host_name) && exists(.os_name) && exists(.os_manufacturer) {
+  .labels.os_manufacturer = .os_manufacturer
+}
+
+# [normalization] os_configuration -> labels.os_configuration
+if exists(.host_name) && exists(.os_name) && exists(.os_configuration) {
+  .labels.os_configuration = .os_configuration
+}
+
+# [normalization] os_build_type -> labels.os_build_type
+if exists(.host_name) && exists(.os_name) && exists(.os_build_type) {
+  .labels.os_build_type = .os_build_type
+}
+
+# [normalization] registered_owner -> labels.registered_owner
+if exists(.host_name) && exists(.os_name) && exists(.registered_owner) {
+  .labels.registered_owner = .registered_owner
+}
+
+# [normalization] registered_organization -> labels.registered_organization
+if exists(.host_name) && exists(.os_name) && exists(.registered_organization) {
+  .labels.registered_organization = .registered_organization
+}
+
+# [normalization] product_id -> labels.product_id
+if exists(.host_name) && exists(.os_name) && exists(.product_id) {
+  .labels.product_id = .product_id
+}
+
+# [normalization] system_boot_time -> event.start
+if exists(.host_name) && exists(.os_name) && exists(.system_boot_time) {
+  _result, err = parse_timestamp(.system_boot_time, format: "%d/%m/%Y, %H:%M:%S")
+  if err == null {
+    .event.start = _result
+  } else {
+    log("[systeminfo] échec de l'opération parse_timestamp sur event.start : " + err, level: "warn")
+  }
+}
+
+# [normalization] system_boot_time -> timestamp
+if exists(.host_name) && exists(.os_name) && exists(.system_boot_time) {
+  _result, err = parse_timestamp(.system_boot_time, format: "%d/%m/%Y, %H:%M:%S")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[systeminfo] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] original_install_date -> labels.original_install_date
+if exists(.host_name) && exists(.os_name) && exists(.original_install_date) {
+  .labels.original_install_date = .original_install_date
+}
+
+# [normalization] system_manufacturer -> labels.system_manufacturer
+if exists(.host_name) && exists(.os_name) && exists(.system_manufacturer) {
+  .labels.system_manufacturer = .system_manufacturer
+}
+
+# [normalization] system_model -> labels.system_model
+if exists(.host_name) && exists(.os_name) && exists(.system_model) {
+  .labels.system_model = .system_model
+}
+
+# [normalization] system_type -> labels.system_type
+if exists(.host_name) && exists(.os_name) && exists(.system_type) {
+  .labels.system_type = .system_type
+}
+
+# [normalization] processors -> labels.processors
+if exists(.host_name) && exists(.os_name) && exists(.processors) {
+  .labels.processors = .processors
+}
+
+# [normalization] bios_version -> labels.bios_version
+if exists(.host_name) && exists(.os_name) && exists(.bios_version) {
+  .labels.bios_version = .bios_version
+}
+
+# [normalization] windows_directory -> labels.windows_directory
+if exists(.host_name) && exists(.os_name) && exists(.windows_directory) {
+  .labels.windows_directory = .windows_directory
+}
+
+# [normalization] system_directory -> labels.system_directory
+if exists(.host_name) && exists(.os_name) && exists(.system_directory) {
+  .labels.system_directory = .system_directory
+}
+
+# [normalization] boot_device -> labels.boot_device
+if exists(.host_name) && exists(.os_name) && exists(.boot_device) {
+  .labels.boot_device = .boot_device
+}
+
+# [normalization] system_locale -> labels.system_locale
+if exists(.host_name) && exists(.os_name) && exists(.system_locale) {
+  .labels.system_locale = .system_locale
+}
+
+# [normalization] input_locale -> labels.input_locale
+if exists(.host_name) && exists(.os_name) && exists(.input_locale) {
+  .labels.input_locale = .input_locale
+}
+
+# [normalization] time_zone -> labels.time_zone
+if exists(.host_name) && exists(.os_name) && exists(.time_zone) {
+  .labels.time_zone = .time_zone
+}
+
+# [normalization] total_physical_memory -> labels.total_physical_memory
+if exists(.host_name) && exists(.os_name) && exists(.total_physical_memory) {
+  .labels.total_physical_memory = .total_physical_memory
+}
+
+# [normalization] available_physical_memory -> labels.available_physical_memory
+if exists(.host_name) && exists(.os_name) && exists(.available_physical_memory) {
+  .labels.available_physical_memory = .available_physical_memory
+}
+
+# [normalization] virtual_memory_max_size -> labels.virtual_memory_max_size
+if exists(.host_name) && exists(.os_name) && exists(.virtual_memory_max_size) {
+  .labels.virtual_memory_max_size = .virtual_memory_max_size
+}
+
+# [normalization] virtual_memory_available -> labels.virtual_memory_available
+if exists(.host_name) && exists(.os_name) && exists(.virtual_memory_available) {
+  .labels.virtual_memory_available = .virtual_memory_available
+}
+
+# [normalization] virtual_memory_in_use -> labels.virtual_memory_in_use
+if exists(.host_name) && exists(.os_name) && exists(.virtual_memory_in_use) {
+  .labels.virtual_memory_in_use = .virtual_memory_in_use
+}
+
+# [normalization] page_file_location -> labels.page_file_location
+if exists(.host_name) && exists(.os_name) && exists(.page_file_location) {
+  .labels.page_file_location = .page_file_location
+}
+
+# [normalization] domain -> labels.domain
+if exists(.host_name) && exists(.os_name) && exists(.domain) {
+  .labels.domain = .domain
+}
+
+# [normalization] logon_server -> labels.logon_server
+if exists(.host_name) && exists(.os_name) && exists(.logon_server) {
+  .labels.logon_server = .logon_server
+}
+
+# [normalization] hotfix -> labels.hotfix
+if exists(.host_name) && exists(.os_name) && exists(.hotfix) {
+  .labels.hotfix = .hotfix
+}
+
+# [normalization] network_cards -> labels.network_cards
+if exists(.host_name) && exists(.os_name) && exists(.network_cards) {
+  .labels.network_cards = .network_cards
+}
+
+# [normalization] hyper_v_requirements -> labels.hyper_v_requirements
+if exists(.host_name) && exists(.os_name) && exists(.hyper_v_requirements) {
+  .labels.hyper_v_requirements = .hyper_v_requirements
+}
+
+# [deletion] host_name, os_name, os_version, os_manufacturer, os_configuration, os_build_type, registered_owner, registered_organization, product_id, original_install_date, system_boot_time, system_manufacturer, system_model, system_type, processors, bios_version, windows_directory, system_directory, boot_device, system_locale, input_locale, time_zone, total_physical_memory, available_physical_memory, virtual_memory_max_size, virtual_memory_available, virtual_memory_in_use, page_file_location, domain, logon_server, hotfix, network_cards, hyper_v_requirements, ogre_md
+del(.host_name)
+del(.os_name)
+del(.os_version)
+del(.os_manufacturer)
+del(.os_configuration)
+del(.os_build_type)
+del(.registered_owner)
+del(.registered_organization)
+del(.product_id)
+del(.original_install_date)
+del(.system_boot_time)
+del(.system_manufacturer)
+del(.system_model)
+del(.system_type)
+del(.processors)
+del(.bios_version)
+del(.windows_directory)
+del(.system_directory)
+del(.boot_device)
+del(.system_locale)
+del(.input_locale)
+del(.time_zone)
+del(.total_physical_memory)
+del(.available_physical_memory)
+del(.virtual_memory_max_size)
+del(.virtual_memory_available)
+del(.virtual_memory_in_use)
+del(.page_file_location)
+del(.domain)
+del(.logon_server)
+del(.hotfix)
+del(.network_cards)
+del(.hyper_v_requirements)
+del(.ogre_md)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.host.name) && exists(.os.full) && exists(.timestamp) {
+  .message = "Host " + to_string!(.host.name) + " runs " + to_string!(.os.full) + " (booted on " + to_string!(.timestamp) + ")"
+}

@@ -1,66 +1,57 @@
-# -----------------------------------------------------------------------------
-# PowerShell History → ECS
-#   Input fields:
-#     type, line_number, command
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : powershell_history
+# Version    : 1.0
+# Windows PowerShell History JSONL → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
 # -----------------------------------------------------------------------------
-# Keep raw event (ECS best practice) - do this FIRST
+# normalize dotted fields
 # -----------------------------------------------------------------------------
+if exists(."process.command_line") {
+  .process.command_line = get!(., path: ["process.command_line"])
+  del(."process.command_line")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
 if !exists(.event.original) {
-    .event.original = encode_json!(.)
+  .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
-
-.event.dataset  = "windows.powershell_history"
-.event.module   = "windows"
-
-.event.kind     = "event"
-.event.category = ["process"]
-.event.type     = ["info"]
-.event.outcome  = "success"
-
-.event.provider = "PowerShell History"
-
-# -----------------------------------------------------------------------------
-# Basic event classification from "type"
-# -----------------------------------------------------------------------------
-
-if exists(.type) {
-    type_raw = to_string!(del(.type))
-    type_l   = downcase(type_raw)
-
-    .event.code   = type_raw
-    .event.action = type_l
-}
-
-# -----------------------------------------------------------------------------
-# Line number → event.sequence + extension
-# -----------------------------------------------------------------------------
-
-if exists(.line_number) {
-    ln_raw = to_string!(del(.line_number))
-    ln_int = parse_int(ln_raw) ?? null
-
-    if ln_int != null {
-        .event.sequence                 = ln_int
-        .powershell.history.line_number = ln_int
-    } else {
-        .powershell.history.line_number = ln_raw
-    }
-}
-
-# -----------------------------------------------------------------------------
-# Command line
-# -----------------------------------------------------------------------------
-
+# [normalization] command -> process.command_line
 if exists(.command) {
-    cmd = to_string!(del(.command))
+  .process.command_line = .command
+}
 
-    # ECS process command line
-    .process.command_line         = cmd
-    .powershell.history.command   = cmd
+# [normalization] line_number -> event.sequence
+if exists(.line_number) {
+  _result, err = to_int(.line_number)
+  if err == null {
+    .event.sequence = _result
+  } else {
+    log("[powershell_history] échec de l'opération to_int sur event.sequence : " + err, level: "warn")
+  }
+}
+
+# [normalization] line_number -> labels.line_number
+if exists(.line_number) {
+  .labels.line_number = .line_number
+}
+
+# [deletion] type, line_number, command
+del(.type)
+del(.line_number)
+del(.command)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.process.command_line) {
+  .message = "PowerShell command was executed: " + to_string!(.process.command_line)
 }

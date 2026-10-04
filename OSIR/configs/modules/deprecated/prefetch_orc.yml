@@ -5,7 +5,7 @@ metadata:
   os: windows
 
 configuration:
-  module: prefetch
+  module: prefetch_orc
   type: process
   disk_only: false
   no_multithread: false
@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: net9/PECmd.exe
-  cmd: -d "{input_dir}" --json "{output_dir}" --jsonf "{output_file}" -q
+  cmd: -d "{input_dir}" --json "{output_dir}" --jsonf "{output_filename}" -q
   source: https://ericzimmerman.github.io/
   version: 1.5.1
 
@@ -27,19 +27,20 @@ input:
 output:
   type: single_file
   format: json
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint: 
-  patterns:
-    - r"/Endpoint_(.*?)/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"/Endpoint_(.*?)/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:prefetch':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: 'prefetch'
     sourcetype: 'windows:files:prefetch'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     timestamp_path: 
         - "LastRun"
     timestamp_format: "%Y-%m-%d %H:%M:%S"

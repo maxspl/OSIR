@@ -2,122 +2,77 @@ metadata:
   version: "1.0"
   id: shimcache
   author: Typ
-  description: Windows ShimCache (AppCompatCache) CSV
+  description: Windows ShimCache / AppCompatCache (AppCompatCacheParser CSV) → ECS
 
 transformation:
-  - custom: |2-
-      if !exists(.event) || !exists(.event.original) {
-          .event.original = encode_json!(.)
-      }
+  - set:
+      event.original: encode_json!(.)
+
   - set:
       event.dataset:
         value: windows.shimcache
       event.module:
         value: windows
       event.kind:
-        value: state
+        value: event
       event.category:
         value: [file]
       event.type:
         value: [info]
+      event.provider:
+        value: "Windows AppCompatCache (ShimCache)"
       event.outcome:
         value: success
-      event.provider:
-        value: Windows ShimCache (AppCompatCache)
-      event.code:
-        value: shimcache_entry
-      event.action:
-        value: shimcache_entry
-  - custom: |2-
-      if exists(.ControlSet) {
-          cs_raw = to_string!(del(.ControlSet))
-          cs_int = parse_int(cs_raw) ?? null
-          if cs_int != null {
-              .file.Ext.shimcache.control_set = cs_int
-          } else {
-              .file.Ext.shimcache.control_set_raw = cs_raw
-          }
-      }
 
-      if exists(.CacheEntryPosition) {
-          pos_raw = to_string!(del(.CacheEntryPosition))
-          pos_int = parse_int(pos_raw) ?? null
-          if pos_int != null {
-              .file.Ext.shimcache.entry_index = pos_int
-          } else {
-              .file.Ext.shimcache.entry_index_raw = pos_raw
-          }
-      }
+  # -- AppCompatCacheParser (Zimmerman) input ------------------------------------
 
-      if exists(.Path) {
-          path_str = to_string!(del(.Path))
-          .file.path = path_str
-          .file.Ext.shimcache.path_raw = path_str
-      }
-
-      ts_value = null
-
-      ts_source = null
-
-      if exists(.LastModifiedTimeUTC) {
-          lm_raw = to_string!(del(.LastModifiedTimeUTC))
-          if lm_raw != "" {
-              lm_ts = parse_timestamp(lm_raw, "%F %T") ?? null
-              if lm_ts != null {
-                  .file.mtime = lm_ts
-                  .file.Ext.shimcache.last_modified_utc = lm_ts
-                  .file.Ext.shimcache.last_modified_utc_raw = lm_raw
-
-                  ts_value = lm_ts
-                  ts_source = "shimcache_last_modified_utc"
-              } else {
-                  .file.Ext.shimcache.last_modified_utc_raw = lm_raw
-              }
-          }
-      }
-
-      if exists(.Executed) {
-          ex_raw = to_string!(del(.Executed))
-          ex_l   = downcase(ex_raw)
-
-          .file.Ext.shimcache.executed_raw = ex_raw
-
-          if ex_l == "yes" {
-              .file.Ext.shimcache.executed = true
-
-              if exists(.event.type) {
-                  if !includes(.event.type, "indicator") {
-                      .event.type = push(.event.type, "indicator")
-                  }
-              } else {
-                  .event.type = ["info", "indicator"]
-              }
-          } else if ex_l == "no" {
-              .file.Ext.shimcache.executed = false
-          }
-      }
-
-      if exists(.Duplicate) {
-          du_raw = to_string!(del(.Duplicate))
-          du_l   = downcase(du_raw)
-
-          .file.Ext.shimcache.duplicate_raw = du_raw
-
-          if du_l == "true" {
-              .file.Ext.shimcache.duplicate = true
-          } else if du_l == "false" {
-              .file.Ext.shimcache.duplicate = false
-          }
-      }
+  # ControlSet, CacheEntryPosition, Path, LastModifiedTimeUTC, Executed,
+  # Duplicate, SourceFile
   - set:
-      file.Ext.shimcache.source_file: to_string!(del(.SourceFile))
-  - custom: |2-
-      if ts_value != null {
-          .timestamp = ts_value
+      file.path: Path
+      file.mtime:
+        source: LastModifiedTimeUTC
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      timestamp:
+        source: LastModifiedTimeUTC
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.control_set:
+        source: ControlSet
+        operation: to_int
+      labels.cache_entry_position:
+        source: CacheEntryPosition
+        operation: to_int
+      labels.executed:
+        source: Executed
+        operation: to_bool
+      labels.duplicate:
+        source: Duplicate
+        operation: to_bool
+      labels.source_file: SourceFile
+    filter: exists(.Path) && exists(.CacheEntryPosition)
 
-          if !exists(.event.created) {
-              .event.created = ts_value
-          }
+  - delete:
+      - ControlSet
+      - CacheEntryPosition
+      - Path
+      - LastModifiedTimeUTC
+      - Executed
+      - Duplicate
+      - SourceFile
 
-          .event.Ext.timestamp_source = ts_source
-      }
+timeline:
+  - id: shimcache-entry
+    message: "ShimCache entry exists for {file.path}"
+    conditions:
+      - field: file.path
+        exists: true
+
+relationships:
+  - id: shimcache-entry
+    source: file.path
+    target: labels.executed
+    type: executed

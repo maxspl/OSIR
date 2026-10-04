@@ -48,12 +48,13 @@ srum.yml
     output:
       type: multiple_files
       format: csv
-      output_prefix: "{endpoint_name}--{module}-"
+      output_prefix: "{extracted_endpoint}--{module}-"
 
-    endpoint: 
-      patterns:
-        - r"restore_fs\/(.*?)\/"
-      default: "UNKNOWN"
+    extracted:
+      - endpoint:
+          patterns:
+            - r"restore_fs\/(.*?)\/"
+          default: "UNKNOWN"
 
 Parameters
 ^^^^^^^^^^
@@ -203,28 +204,44 @@ output: **Required**
         - Can only be used if output type is multiple_files.
         - Use to add a prefix to each file and directory that are the output.
         - Usefull when tools don't allow to specify output name.
-    - output_file: **Optional** 
+    - filename: **Optional** 
         - Name of the output file. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
     - output_dir: **Optional** 
         - Name of the output directory. Can contain specific variables replaced by the agent at runtime (cf. Exposed variables in the documentation)
         - Default is the name of the module in the case. Ex: /OSIR/share/cases/my_first_case/<module_name> 
         - As a default value exists, no need to define it to use it in command line if default value is desired.
 
-endpoint: **Optional** 
+extracted: **Optional**
 **********************
 
-    - patterns: **Optional** List of Regex pattern to capture the name of the endpoint in the path of the input dir or the input directory. 
-        - Used in exposed variables to name the output. Useful when processing files from multiple endpoints without overwriting the output files.
-    - default: **Optional** Name of the endpoint if patterns doesn't match
+    - List of named extractions run against the input path, each declared as
+      `- <name>:` with:
 
-user: **Optional**
-******************
+    - patterns: **Optional** List of regex patterns tried in order against the
+      path of the input file or directory; the first capture group wins.
+    - default: **Optional** Value used when no pattern matches (``UNKNOWN`` when unset).
 
-    - patterns: **Optional** List of regex patterns used to capture the user name from the input file or input directory path.
-        - Used in exposed variables to name the output. Useful when processing files from multiple users without overwriting output files.
-    - default: **Optional** User name used when no pattern matches.
+    Every extraction named ``<name>`` is exposed as the ``{extracted_<name>}``
+    placeholder, replaceable everywhere templates are resolved (``tool.cmd``,
+    ``output.*``, splunk constants):
 
-The extracted user value is available through the `{user_name}` placeholder.
+    - ``endpoint``: feeds the ``{extracted_endpoint}`` placeholder. Useful
+      when processing files from multiple endpoints without overwriting the
+      output files.
+    - ``user``: feeds the ``{extracted_user}`` placeholder. Useful when
+      processing files from multiple users without overwriting output files.
+
+    Example::
+
+        extracted:
+          - endpoint:
+              patterns:
+                - r"restore_fs\/(.*?)\/"
+              default: "UNKNOWN"
+          - user:
+              patterns:
+                - r"Users\/([^\/]+)"
+              default: "UNKNOWN"
 
 optional: **Optional**
 ***********************
@@ -259,12 +276,15 @@ These variables are available in ``tool.cmd`` sections:
      - ``tool.path``, ``tool.cmd``
    * - ``{input_file}``
      - Input path in ``tool.cmd``. Input file name in ``output`` fields.
-     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+     - ``tool.cmd``, ``output.filename``, ``output.output_prefix``, ``output.output_dir``
    * - ``{input_dir}``
      - Path of the input directory that matched the module input options.
      - ``tool.cmd``
    * - ``{output_file}``
      - Resolved output file path.
+     - ``tool.cmd``
+   * - ``{output_filename}``
+     - Resolved output file name, without directory.
      - ``tool.cmd``
    * - ``{output_dir}``
      - Resolved output directory path, default is the name of the module in the case.
@@ -274,22 +294,19 @@ These variables are available in ``tool.cmd`` sections:
      - ``tool.cmd``
    * - ``{case_path}``
      - Path of the case being processed.
-     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+     - ``tool.cmd``, ``output.filename``, ``output.output_prefix``, ``output.output_dir``
    * - ``{master_host}``
      - SMB host used to access the master share.
      - ``tool.cmd``
-   * - ``{endpoint_name}``
-     - Value extracted from the ``endpoint`` regex section.
-     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
-   * - ``{user_name}``
-     - Value extracted from the ``user`` regex section.
-     - ``tool.cmd``, ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+   * - ``{extracted_<name>}``
+     - Value of the ``<name>`` entry of the ``extracted`` section (e.g. ``{extracted_endpoint}``, ``{extracted_user}``).
+     - ``tool.cmd``, ``output.filename``, ``output.output_prefix``, ``output.output_dir``, ``splunk constant``
    * - ``{module}``
      - Current module name.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+     - ``output.filename``, ``output.output_prefix``, ``output.output_dir``
    * - ``{input_path_hash}``
      - MD5 hash of the input path, useful to avoid output name collisions.
-     - ``output.output_file``, ``output.output_prefix``, ``output.output_dir``
+     - ``output.filename``, ``output.output_prefix``, ``output.output_dir``
    * - ``{optional_*}``
      - Optional values, usage described in module documentation.
      - ``tool.cmd``

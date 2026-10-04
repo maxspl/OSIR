@@ -1,166 +1,136 @@
-# -----------------------------------------------------------------------------
-# Windows ShimCache (AppCompatCache) CSV 
+##############################################################
+# Module VRL : shimcache
+# Version    : 1.0
+# Windows ShimCache / AppCompatCache (AppCompatCacheParser CSV) → ECS
 #
-# Input columns (CSV → JSON fields):
-#   ControlSet
-#   CacheEntryPosition
-#   Path
-#   LastModifiedTimeUTC
-#   Executed
-#   Duplicate
-#   SourceFile
-#
-# Goals:
-#   - Keep raw row in event.original
-#   - Map path + time to ECS file.*
-#   - Track shimcache-specific metadata under file.Ext.shimcache.*
-#   - Promote a best-effort .timestamp/.event.created with source tracking
-# -----------------------------------------------------------------------------
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
 # -----------------------------------------------------------------------------
-# Keep raw event first
+# normalize dotted fields
 # -----------------------------------------------------------------------------
-if !exists(.event) || !exists(.event.original) {
-    .event.original = encode_json!(.)
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
+}
+if exists(."labels.executed") {
+  .labels.executed = get!(., path: ["labels.executed"])
+  del(."labels.executed")
 }
 
 # -----------------------------------------------------------------------------
-# ECS scaffolding
+# transformations
 # -----------------------------------------------------------------------------
 
-.event.dataset  = "windows.shimcache"
-.event.module   = "windows"
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
 
-# ShimCache = historical file presence / execution indicator
-.event.kind     = "state"
+# [normalization] windows.shimcache -> event.dataset
+.event.dataset = "windows.shimcache"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['file'] -> event.category
 .event.category = ["file"]
-.event.type     = ["info"]
 
-.event.outcome  = "success"
-.event.provider = "Windows ShimCache (AppCompatCache)"
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
 
-# Generic action/code for this pipeline
-.event.code   = "shimcache_entry"
-.event.action = "shimcache_entry"
+# [normalization] Windows AppCompatCache (ShimCache) -> event.provider
+.event.provider = "Windows AppCompatCache (ShimCache)"
 
-# -----------------------------------------------------------------------------
-# ControlSet & entry index
-# -----------------------------------------------------------------------------
+# [normalization] success -> event.outcome
+.event.outcome = "success"
 
-if exists(.ControlSet) {
-    cs_raw = to_string!(del(.ControlSet))
-    cs_int = parse_int(cs_raw) ?? null
-    if cs_int != null {
-        .file.Ext.shimcache.control_set = cs_int
-    } else {
-        .file.Ext.shimcache.control_set_raw = cs_raw
-    }
+# [normalization] Path -> file.path
+if exists(.Path) && exists(.CacheEntryPosition) {
+  .file.path = .Path
 }
 
-if exists(.CacheEntryPosition) {
-    pos_raw = to_string!(del(.CacheEntryPosition))
-    pos_int = parse_int(pos_raw) ?? null
-    if pos_int != null {
-        .file.Ext.shimcache.entry_index = pos_int
-    } else {
-        .file.Ext.shimcache.entry_index_raw = pos_raw
-    }
+# [normalization] LastModifiedTimeUTC -> file.mtime
+if exists(.Path) && exists(.CacheEntryPosition) && exists(.LastModifiedTimeUTC) {
+  _result, err = parse_timestamp(.LastModifiedTimeUTC, format: "%F %T")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[shimcache] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
+  }
 }
 
-# -----------------------------------------------------------------------------
-# Path → file.path
-# -----------------------------------------------------------------------------
-
-if exists(.Path) {
-    path_str = to_string!(del(.Path))
-    .file.path = path_str
-    .file.Ext.shimcache.path_raw = path_str
+# [normalization] LastModifiedTimeUTC -> timestamp
+if exists(.Path) && exists(.CacheEntryPosition) && exists(.LastModifiedTimeUTC) {
+  _result, err = parse_timestamp(.LastModifiedTimeUTC, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[shimcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
 }
 
-# -----------------------------------------------------------------------------
-# ShimCache timestamps
-#   LastModifiedTimeUTC is the file's last-modified time as recorded in cache
-#   Sample format: "2023-11-11 02:09:55"
-# -----------------------------------------------------------------------------
-
-ts_value = null
-ts_source = null
-
-if exists(.LastModifiedTimeUTC) {
-    lm_raw = to_string!(del(.LastModifiedTimeUTC))
-    if lm_raw != "" {
-        lm_ts = parse_timestamp(lm_raw, "%F %T") ?? null
-        if lm_ts != null {
-            .file.mtime = lm_ts
-            .file.Ext.shimcache.last_modified_utc = lm_ts
-            .file.Ext.shimcache.last_modified_utc_raw = lm_raw
-
-            ts_value = lm_ts
-            ts_source = "shimcache_last_modified_utc"
-        } else {
-            .file.Ext.shimcache.last_modified_utc_raw = lm_raw
-        }
-    }
+# [normalization] ControlSet -> labels.control_set
+if exists(.Path) && exists(.CacheEntryPosition) && exists(.ControlSet) {
+  _result, err = to_int(.ControlSet)
+  if err == null {
+    .labels.control_set = _result
+  } else {
+    log("[shimcache] échec de l'opération to_int sur labels.control_set : " + err, level: "warn")
+  }
 }
 
-# -----------------------------------------------------------------------------
-# Executed / Duplicate flags
-# -----------------------------------------------------------------------------
-
-if exists(.Executed) {
-    ex_raw = to_string!(del(.Executed))
-    ex_l   = downcase(ex_raw)
-
-    .file.Ext.shimcache.executed_raw = ex_raw
-
-    if ex_l == "yes" {
-        .file.Ext.shimcache.executed = true
-
-        # Enrich event.type to show this is an execution indicator, without dupes
-        if exists(.event.type) {
-            if !includes(.event.type, "indicator") {
-                .event.type = push(.event.type, "indicator")
-            }
-        } else {
-            .event.type = ["info", "indicator"]
-        }
-    } else if ex_l == "no" {
-        .file.Ext.shimcache.executed = false
-    }
+# [normalization] CacheEntryPosition -> labels.cache_entry_position
+if exists(.Path) && exists(.CacheEntryPosition) {
+  _result, err = to_int(.CacheEntryPosition)
+  if err == null {
+    .labels.cache_entry_position = _result
+  } else {
+    log("[shimcache] échec de l'opération to_int sur labels.cache_entry_position : " + err, level: "warn")
+  }
 }
 
-if exists(.Duplicate) {
-    du_raw = to_string!(del(.Duplicate))
-    du_l   = downcase(du_raw)
-
-    .file.Ext.shimcache.duplicate_raw = du_raw
-
-    if du_l == "true" {
-        .file.Ext.shimcache.duplicate = true
-    } else if du_l == "false" {
-        .file.Ext.shimcache.duplicate = false
-    }
+# [normalization] Executed -> labels.executed
+if exists(.Path) && exists(.CacheEntryPosition) && exists(.Executed) {
+  _result, err = to_bool(.Executed)
+  if err == null {
+    .labels.executed = _result
+  } else {
+    log("[shimcache] échec de l'opération to_bool sur labels.executed : " + err, level: "warn")
+  }
 }
 
-# -----------------------------------------------------------------------------
-# Source hive file (where the cache came from)
-# -----------------------------------------------------------------------------
-
-if exists(.SourceFile) {
-    src = to_string!(del(.SourceFile))
-    .file.Ext.shimcache.source_file = src
+# [normalization] Duplicate -> labels.duplicate
+if exists(.Path) && exists(.CacheEntryPosition) && exists(.Duplicate) {
+  _result, err = to_bool(.Duplicate)
+  if err == null {
+    .labels.duplicate = _result
+  } else {
+    log("[shimcache] échec de l'opération to_bool sur labels.duplicate : " + err, level: "warn")
+  }
 }
 
+# [normalization] SourceFile -> labels.source_file
+if exists(.Path) && exists(.CacheEntryPosition) && exists(.SourceFile) {
+  .labels.source_file = .SourceFile
+}
+
+# [deletion] ControlSet, CacheEntryPosition, Path, LastModifiedTimeUTC, Executed, Duplicate, SourceFile
+del(.ControlSet)
+del(.CacheEntryPosition)
+del(.Path)
+del(.LastModifiedTimeUTC)
+del(.Executed)
+del(.Duplicate)
+del(.SourceFile)
+
 # -----------------------------------------------------------------------------
-# Promote best-effort event timestamp with source tracking
+# timeline
 # -----------------------------------------------------------------------------
-
-if ts_value != null {
-    .timestamp = ts_value
-
-    if !exists(.event.created) {
-        .event.created = ts_value
-    }
-
-    .event.Ext.timestamp_source = ts_source
+if exists(.file.path) {
+  .message = "ShimCache entry exists for " + to_string!(.file.path)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.file.path), "target": to_string!(.labels.executed), "type": "executed"})
 }

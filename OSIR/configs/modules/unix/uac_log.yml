@@ -30,10 +30,10 @@ output:
 
 splunk:
   'uac:log':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: uac_log
     sourcetype: 'uac:log'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     timestamp_path:
       - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"

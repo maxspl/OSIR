@@ -2,9 +2,12 @@ metadata:
   version: "1.0"
   id: prefetch
   author: Typ
-  description: Windows Prefetch JSONL → ECS
+  description: Windows Prefetch JSONL (PECmd) → ECS
 
 transformation:
+  - set:
+      event.original: encode_json!(.)
+
   - set:
       event.dataset:
         value: windows.prefetch
@@ -16,257 +19,161 @@ transformation:
         value: [process]
       event.type:
         value: [start, info]
+      event.provider:
+        value: "Windows Prefetch"
       event.action:
-        value: prefetch_summary
-      log.level:
-        value: info
-      event.original: encode_json!(.)
-  - custom: |2-
-      if exists(.SourceFilename) {
-          src = to_string!(del(.SourceFilename))
-
-          .file.path                  = src
-          .prefetch.source_filename   = src
-      }
-
-      if exists(.SourceCreated) {
-          created_s = to_string!(del(.SourceCreated))
-          created_ts = parse_timestamp(created_s, format: "%F %T") ?? null
-
-          if created_ts != null {
-              .file.created              = created_ts
-              .prefetch.source_created   = created_ts
-          } else {
-              .prefetch.source_created_raw = created_s
-          }
-      }
-
-      if exists(.SourceModified) {
-          modified_s = to_string!(del(.SourceModified))
-          modified_ts = parse_timestamp(modified_s, format: "%F %T") ?? null
-
-          if modified_ts != null {
-              .file.mtime               = modified_ts
-              .prefetch.source_modified = modified_ts
-          } else {
-              .prefetch.source_modified_raw = modified_s
-          }
-      }
-
-      if exists(.SourceAccessed) {
-          accessed_s = to_string!(del(.SourceAccessed))
-          accessed_ts = parse_timestamp(accessed_s, format: "%F %T") ?? null
-
-          if accessed_ts != null {
-              .file.atime              = accessed_ts
-              .prefetch.source_accessed = accessed_ts
-          } else {
-              .prefetch.source_accessed_raw = accessed_s
-          }
-      }
-
-      if exists(.Size) {
-          size_i = to_int(to_string!(del(.Size))) ?? null
-          if size_i != null {
-              .file.size       = size_i
-              .prefetch.size   = size_i
-          }
-      }
-
-      if exists(.ExecutableName) {
-          exe_name = to_string!(del(.ExecutableName))
-
-          .process.name                = exe_name
-          .prefetch.executable_name   = exe_name
-      }
-  - set:
-      prefetch.hash: to_string!(del(.Hash))
-      prefetch.version: to_string!(del(.Version))
-  - custom: |2-
-      if exists(.LastRun) {
-          last_run_s  = to_string!(del(.LastRun))
-          last_run_ts = parse_timestamp(last_run_s, format: "%F %T") ?? null
-
-          if last_run_ts != null {
-              .timestamp      = last_run_ts
-              .event.start    = last_run_ts
-              .process.start  = last_run_ts
-              .prefetch.last_run = last_run_ts
-          } else {
-              .prefetch.last_run_raw = last_run_s
-          }
-      }
-
-      if exists(.PreviousRun0) {
-          s  = to_string!(del(.PreviousRun0))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.PreviousRun1) {
-          s  = to_string!(del(.PreviousRun1))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.PreviousRun2) {
-          s  = to_string!(del(.PreviousRun2))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.PreviousRun3) {
-          s  = to_string!(del(.PreviousRun3))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.PreviousRun4) {
-          s  = to_string!(del(.PreviousRun4))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.PreviousRun5) {
-          s  = to_string!(del(.PreviousRun5))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.PreviousRun6) {
-          s  = to_string!(del(.PreviousRun6))
-          ts = parse_timestamp(s, format: "%F %T") ?? null
-
-          if ts != null {
-              if exists(.prefetch.previous_runs) {
-                  .prefetch.previous_runs = push!(.prefetch.previous_runs, ts)
-              } else {
-                  .prefetch.previous_runs = [ts]
-              }
-          } else {
-              .prefetch.previous_run0_raw = s
-          }
-      }
-
-      if exists(.RunCount) {
-          run_count_i = to_int(to_string!(del(.RunCount))) ?? null
-          if run_count_i != null {
-              .prefetch.run_count = run_count_i
-          } else {
-              .prefetch.run_count_raw = .RunCount
-          }
-      }
-
-      if exists(.Directories) {
-          dirs_raw = to_string!(del(.Directories))
-          .prefetch.directories = split(dirs_raw, ", ")
-      }
-
-      if exists(.FilesLoaded) {
-          files_raw = to_string!(del(.FilesLoaded))
-          .prefetch.files_loaded = split(files_raw, ", ")
-      }
-  - set:
-      prefetch.volume0_name: to_string!(del(.Volume0Name))
-      prefetch.volume0_serial: to_string!(del(.Volume0Serial))
-  - custom: |2-
-      if exists(.Volume0Created) {
-          v0c_s  = to_string!(del(.Volume0Created))
-          v0c_ts = parse_timestamp(v0c_s, format: "%F %T") ?? null
-
-          if v0c_ts != null {
-              .prefetch.volume0_created = v0c_ts
-          } else {
-              .prefetch.volume0_created_raw = v0c_s
-          }
-      }
-  - set:
-      prefetch.volume1_name: to_string!(del(.Volume1Name))
-      prefetch.volume1_serial: to_string!(del(.Volume1Serial))
-  - custom: |2-
-      if exists(.Volume1Created) {
-          v1c_s  = to_string!(del(.Volume1Created))
-          v1c_ts = parse_timestamp(v1c_s, format: "%F %T") ?? null
-
-          if v1c_ts != null {
-              .prefetch.volume1_created = v1c_ts
-          } else {
-              .prefetch.volume1_created_raw = v1c_s
-          }
-      }
-
-      if exists(.ParsingError) {
-          parsing = to_bool(.ParsingError) ?? null
-          del(.ParsingError)
-
-          if parsing != null {
-              .prefetch.parsing_error = parsing
-
-              if parsing == true {
-                  .event.outcome = "failure"
-                  .log.level     = "error"
-              }
-          } else {
-              .prefetch.parsing_error_raw = .ParsingError
-          }
-      }
-  - set:
+        value: prefetch_entry
       event.outcome:
         value: success
-    conditions:
-      - field: event.outcome
-        exists: false
+
+  - set:
+      file.path: SourceFilename
+      process.name: ExecutableName
+      labels.hash: Hash
+      labels.version: Version
+
+  - set:
+      timestamp:
+        source: LastRun
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      event.start:
+        source: LastRun
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.last_run:
+        source: LastRun
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+
+  - set:
+      file.created:
+        source: SourceCreated
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.mtime:
+        source: SourceModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.accessed:
+        source: SourceAccessed
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.size:
+        source: Size
+        operation: to_int
+
+  - set:
+      labels.run_count:
+        source: RunCount
+        operation: to_int
+      labels.previous_run0:
+        source: PreviousRun0
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.previous_run1:
+        source: PreviousRun1
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.previous_run2:
+        source: PreviousRun2
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.previous_run3:
+        source: PreviousRun3
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.previous_run4:
+        source: PreviousRun4
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.previous_run5:
+        source: PreviousRun5
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.previous_run6:
+        source: PreviousRun6
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+
+  - set:
+      labels.volume0_name: Volume0Name
+      labels.volume0_serial: Volume0Serial
+      labels.volume1_name: Volume1Name
+      labels.volume1_serial: Volume1Serial
+
+  - set:
+      labels.volume0_created:
+        source: Volume0Created
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      labels.volume1_created:
+        source: Volume1Created
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+
+  - set:
+      labels.directories:
+        source: Directories
+        operation: split
+        parameters:
+          pattern: ", "
+      labels.files_loaded:
+        source: FilesLoaded
+        operation: split
+        parameters:
+          pattern: ", "
+
+
+  - delete:
+      - SourceFilename
+      - SourceCreated
+      - SourceModified
+      - SourceAccessed
+      - ExecutableName
+      - Hash
+      - Size
+      - Version
+      - RunCount
+      - LastRun
+      - PreviousRun0
+      - PreviousRun1
+      - PreviousRun2
+      - PreviousRun3
+      - PreviousRun4
+      - PreviousRun5
+      - PreviousRun6
+      - Volume0Name
+      - Volume0Serial
+      - Volume0Created
+      - Volume1Name
+      - Volume1Serial
+      - Volume1Created
+      - Directories
+      - FilesLoaded
+      - ParsingError
+
+timeline:
+  - id: executed
+    message: "Program {process.name} was executed (last run {timestamp})"
+
+relationships:
+  - id: executed
+    source: process.name
+    target: file.path
+    type: recorded in

@@ -1,0 +1,44 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: Parsing of SRUDB.dat (SRUM) with SrumECmd
+  os: windows
+
+configuration:
+  module: srum_ecmd
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: windows
+
+tool: 
+  path: net9/SrumECmd.exe
+  cmd: -f "{input_file}" --csv "{output_dir}"
+  source: https://ericzimmerman.github.io/
+  version: 2026.5.0
+
+input:
+  type: file
+  name: SRUDB\.dat
+  path: Windows/System32/sru
+
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{extracted_endpoint}--{module}-"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+splunk:
+  'windows:srum:ecmd':
+    name_rex: r"\.csv$"
+    path_suffix: 'srum_ecmd'
+    sourcetype: 'windows:srum:ecmd'
+    host_rex: r"([\w\.-]+?)--"
+    artifact: "SRUM"

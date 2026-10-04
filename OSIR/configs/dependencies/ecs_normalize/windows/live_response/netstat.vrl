@@ -1,29 +1,41 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : netstat
+# Version    : 1.0
 # Windows netstat → ECS only
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
-# Keep raw event
+# [normalization] encode_json(.) -> event.original
 .event.original = encode_json(.)
 
-.event.dataset  = "windows.netstat"
-.event.module   = "windows"
-.event.kind     = "event"
+# [normalization] windows.netstat -> event.dataset
+.event.dataset = "windows.netstat"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['network'] -> event.category
 .event.category = ["network"]
-.event.type     = ["info"]
 
-# -----------------------------------------------------------------------------
-# type  → event.code / event.action
-# -----------------------------------------------------------------------------
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
 
+# [custom]
 if exists(.type) {
     t = to_string(del(.type)) ?? ""
     .event.code   = t
     .event.action = downcase(t)
 }
-
-# -----------------------------------------------------------------------------
-# protocol → network.transport / network.protocol
-# -----------------------------------------------------------------------------
 
 if exists(.protocol) {
     proto_raw = to_string(del(.protocol)) ?? ""
@@ -33,16 +45,11 @@ if exists(.protocol) {
     .network.protocol  = proto_l
 }
 
-# -----------------------------------------------------------------------------
-# state → network.state
-# -----------------------------------------------------------------------------
-
 if exists(.state) {
     state_raw = to_string(del(.state)) ?? ""
     .network.state = state_raw
 }
 
-# Direction hint for LISTENING
 if exists(.network.state) {
     s = downcase(to_string(.network.state) ?? "")
 
@@ -51,17 +58,12 @@ if exists(.network.state) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# pid → process.pid
-# -----------------------------------------------------------------------------
-
 if exists(.pid) {
     pid_raw = to_string(del(.pid)) ?? ""
     pid_i   = to_int(pid_raw) ?? null
 
     .process.pid = pid_i
 }
-
 
 if exists(.local_address) {
     raw = to_string(del(.local_address)) ?? ""
@@ -79,7 +81,6 @@ if exists(.local_address) {
         .source.ip   = ip
         .source.port = port_i
 
-        # Optional: store full original form in ECS-ish place
         .source.address = raw
     }
 }

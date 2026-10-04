@@ -22,20 +22,21 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint:
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 optional:
   dissector: linux_udev_rules
 
 splunk:
   'linux:udev_rules':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: udev_rules
     sourcetype: 'linux:udev_rules'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     artifact: "udev_rules"

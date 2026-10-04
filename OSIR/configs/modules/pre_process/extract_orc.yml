@@ -24,16 +24,25 @@ input:
   type: file
   paths:
     - r"DFIR-ORC(?:-\w+)?_(?:Server|WorkStation|DomainController)_([\w.\-]+?)(?:_\w+)*\.(?:7z|json|log)$"
+    - r"ORC_(?:Server|WorkStation|DomainController)_([\w.\-]+?)_General\.7z$"
 output:
   type: multiple_files
   format: raw
 optional:
   password: avproof
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"_([^_]+?)_General\.7z$"
+        - r"(?:Server|WorkStation|DomainController)_([^_]+?)(?:_\w+)*\.(?:7z|json|log)$"
+      default: "UNKNOWN"
+
 splunk:
   'windows:live_response:systeminfo':
-      name_rex: (?i)^systeminfo(?:_.+)?\.csv$
-      path_rex: '.*\/extract_orc.*'
-      host_rex: "\/Endpoint_(.*?)\/"
+      name_rex: r"(?i)^systeminfo(?:_.+)?\.csv$"
+      path_rex: r".*\/extract_orc.*"
+      host_rex: r"\/Endpoint_(.*?)\/"
       sourcetype: _json               
       timestamp_path:
         - "timestamp" 
@@ -41,9 +50,9 @@ splunk:
       normalize:
         - ecs_normalize/windows/live_response/systeminfo.vrl    
   'windows:live_response:processes':
-      name_rex: (?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$
-      path_rex: '.*\/extract_orc.*'
-      host_rex: "\/Endpoint_(.*?)\/"
+      name_rex: r"(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$"
+      path_rex: r".*\/extract_orc.*"
+      host_rex: r"\/Endpoint_(.*?)\/"
       sourcetype: _json          
       timestamp_path:
         - "timestamp" 
@@ -51,10 +60,10 @@ splunk:
       normalize:
         - ecs_normalize/windows/live_response/ps1_processes.vrl         
   'filesystem:ntfs:info':
-    name_rex: NTFSInfo.*.csv$
-    path_rex: '.*\/extract_orc.*'
+    name_rex: r"NTFSInfo.*.csv$"
+    path_rex: r".*\/extract_orc.*"
     sourcetype: 'filesystem:ntfs:info'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
@@ -62,18 +71,18 @@ splunk:
     normalize:
       - ecs_normalize/windows/NTFSInfo.vrl        
   'filesystem:ntfs:usn':
-    name_rex: USNInfo.*.csv$
-    path_rex: '.*\/extract_orc.*'
+    name_rex: r"USNInfo.*.csv$"
+    path_rex: r".*\/extract_orc.*"
     sourcetype: 'filesystem:ntfs:usn'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path: 
         - "TimeStamp"
     timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
   'filesystem:ntfs:i30':
-    name_rex: I30Info.*.csv$
-    path_rex: '.*\/extract_orc.*'
+    name_rex: r"I30Info.*.csv$"
+    path_rex: r".*\/extract_orc.*"
     sourcetype: 'filesystem:ntfs:i30'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
@@ -81,26 +90,28 @@ splunk:
     normalize:
       - ecs_normalize/windows/NTFSInfo_i30.vrl
   'windows:live_response:autoruns':
-    name_rex: autoruns.*csv$
-    path_rex: '.*\/extract_orc.*'
+    name_rex: r"autoruns.*csv$"
+    path_rex: r".*\/extract_orc.*"
     sourcetype: 'windows:autoruns'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
       - ecs_normalize/windows/live_response/autoruns.vrl                   
   'orc:collected_files':
-    name_rex: GetThis.csv$
-    path_rex: '.*\/extract_orc.*'
+    name_rex: r"GetThis.csv$"
+    path_rex: r".*\/extract_orc.*"
     sourcetype: 'orc:collected_files'
-    host_rex: "\/Endpoint_(.*?)\/"
-    timestamp_path: 
-        - "CreationDate"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    host_rex: r"\/Endpoint_(.*?)\/"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/collected_files.vrl
   'orc:csv':
-    name_rex: \.csv$
-    path_rex: '.*\/extract_orc.*'
+    name_rex: r"\.csv$"
+    path_rex: r".*\/extract_orc.*"
     sourcetype: 'orc:files'
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     artifact: "Orc"

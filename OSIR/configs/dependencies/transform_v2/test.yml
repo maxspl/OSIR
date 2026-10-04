@@ -5,5 +5,5 @@ metadata:
   description: test ECS normalization
 
 transformation:
-  - custom: |2-
-        .event.code = .Event.System.EventID."#text"
+  - set:
+      event.code: .Event.System.EventID."#text"

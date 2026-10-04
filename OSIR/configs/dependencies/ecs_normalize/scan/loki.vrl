@@ -1,240 +1,358 @@
-###############################
+##############################################################
+# Module VRL : loki
+# Version    : 1.0
 # Loki-RS ECS normalization
-# Input: Loki-RS JSONL output (one LogEvent per line)
-###############################
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
-# Keep the original Loki-RS payload before normalization.
-if !exists(.event.original) {
-    .event.original = encode_json!(.)
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."event.severity") {
+  .event.severity = get!(., path: ["event.severity"])
+  del(."event.severity")
+}
+if exists(."log.level") {
+  .log.level = get!(., path: ["log.level"])
+  del(."log.level")
+}
+if exists(."event.kind") {
+  .event.kind = get!(., path: ["event.kind"])
+  del(."event.kind")
 }
 
-###############################
-# Base event metadata
-###############################
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# [normalization] loki -> event.module
 .event.module = "loki"
+
+# [normalization] Nextron Systems -> observer.vendor
 .observer.vendor = "Nextron Systems"
+
+# [normalization] Loki-RS -> observer.product
 .observer.product = "Loki-RS"
+
+# [normalization] scanner -> observer.type
 .observer.type = "scanner"
 
-# Loki-RS timestamps are RFC3339 with nanoseconds and an offset
-# (2026-07-26T15:09:53.289129040+00:00): normalize to the format the indexer
-# expects for every OSIR sourcetype.
-if exists(.timestamp) {
-    ts = to_string(.timestamp) ?? null
-    if ts != null && ts != "" {
-        parsed_ts = parse_timestamp(ts, format: "%+") ?? null
-        if parsed_ts != null {
-            .timestamp = format_timestamp!(parsed_ts, format: "%Y-%m-%dT%H:%M:%SZ")
-        }
-    }
+# [normalization] format_timestamp!(parse_timestamp!(to_string!(.timestamp), format: "%+"), format: "%Y-%m-%dT%H:%M:%SZ") -> timestamp
+if (parse_timestamp(to_string!(.timestamp), format: "%+") ?? null) != null && exists(.timestamp) {
+  .timestamp = format_timestamp!(parse_timestamp!(to_string!(.timestamp), format: "%+"), format: "%Y-%m-%dT%H:%M:%SZ")
 }
 
-# Scan host. Loki-RS always runs on the OSIR agent against a collected tree, so
-# this is the scanner, never the compromised endpoint: the real host is set by
-# the indexer from the output file name (host_rex). Unlike THOR there is no
-# fallback to .host.name here, it would always be wrong.
-if exists(.hostname) {
-    observer_hostname = to_string(.hostname) ?? null
-    if observer_hostname != null && observer_hostname != "" {
-        .observer.hostname = observer_hostname
-    }
+# [normalization] to_string!(.hostname) -> observer.hostname
+if exists(.hostname) && (to_string(.hostname) ?? "") != "" {
+  .observer.hostname = to_string!(.hostname)
 }
 
+# [normalization] downcase!(to_string!(.level)) -> log.level
 if exists(.level) {
-    level = downcase(to_string!(.level))
-    .log.level = level
-
-    # Loki-RS levels are score based (alert >= 80, warning >= 60, notice >= 40
-    # by default): expose them on the ECS severity scale as well.
-    if level == "alert" {
-        .event.severity = 90
-    } else if level == "warning" {
-        .event.severity = 70
-    } else if level == "notice" {
-        .event.severity = 50
-    } else if level == "error" {
-        .event.severity = 40
-    } else {
-        .event.severity = 10
-    }
+  .log.level = downcase!(to_string!(.level))
 }
 
+# [normalization] 90 -> event.severity
+if .log.level == "alert" {
+  .event.severity = 90
+}
+
+# [normalization] 70 -> event.severity
+if .log.level == "warning" {
+  .event.severity = 70
+}
+
+# [normalization] 50 -> event.severity
+if .log.level == "notice" {
+  .event.severity = 50
+}
+
+# [normalization] 40 -> event.severity
+if .log.level == "error" {
+  .event.severity = 40
+}
+
+# [normalization] 10 -> event.severity
+if !exists(.event.severity) && exists(.log.level) {
+  .event.severity = 10
+}
+
+# [normalization] to_string(.message) ?? null -> message
 if exists(.message) {
-    .message = to_string(.message) ?? null
+  .message = to_string(.message) ?? null
 }
 
-###############################
-# Score
-###############################
-# The score is the sum of every match reason, it drives the level above.
-if exists(.score) {
-    # Scores are integers serialized as floats (75.0): expose them as integers,
-    # ECS risk_score readers and the Splunk dashboards expect 75, not "75.0".
-    score_float = to_float(.score) ?? null
-    if score_float != null {
-        score = to_int(score_float)
-        .event.risk_score = score
-        .loki.score = score
-    }
+# [normalization] to_int(to_float(.score) ?? 0.0) -> event.risk_score
+if exists(.score) && (to_float(.score) ?? null) != null {
+  .event.risk_score = to_int(to_float(.score) ?? 0.0)
 }
 
-###############################
-# Event categorization
-###############################
-# A Loki-RS line is either a finding (file/process match) or scan telemetry
-# (start, end, progress, errors): only the findings are alerts.
-event_type = downcase(to_string(.event_type) ?? "info")
-
-if event_type == "file_match" {
-    .event.kind = "alert"
-    .event.category = ["file", "malware"]
-    .event.type = ["info"]
-    .event.action = "loki-file-match"
-    .event.dataset = "loki.filescan"
-} else if event_type == "process_match" {
-    .event.kind = "alert"
-    .event.category = ["process", "malware"]
-    .event.type = ["info"]
-    .event.action = "loki-process-match"
-    .event.dataset = "loki.processcheck"
-} else if event_type == "scan_start" {
-    .event.kind = "event"
-    .event.category = ["process"]
-    .event.type = ["start"]
-    .event.action = "loki-scan-start"
-    .event.dataset = "loki.scan"
-} else if event_type == "scan_end" {
-    .event.kind = "event"
-    .event.category = ["process"]
-    .event.type = ["end"]
-    .event.action = "loki-scan-end"
-    .event.dataset = "loki.scan"
-} else if event_type == "error" {
-    .event.kind = "event"
-    .event.category = ["process"]
-    .event.type = ["error"]
-    .event.action = "loki-scan-error"
-    .event.dataset = "loki.scan"
-} else {
-    .event.kind = "event"
-    .event.category = ["process"]
-    .event.type = ["info"]
-    .event.action = "loki-scan-info"
-    .event.dataset = "loki.scan"
+# [normalization] to_int(to_float(.score) ?? 0.0) -> loki.score
+if exists(.score) && (to_float(.score) ?? null) != null {
+  .loki.score = to_int(to_float(.score) ?? 0.0)
 }
 
-###############################
-# File fields
-###############################
-if exists(.file_path) {
-    file_path = to_string(.file_path) ?? null
-    if file_path != null && file_path != "" {
-        .file.path = file_path
-        .file.name = basename!(file_path)
-
-        extension = split(basename!(file_path), ".")
-        if length(extension) > 1 {
-            .file.extension = downcase!(to_string!(extension[-1]))
-        }
-    }
+# [normalization] downcase(to_string(.event_type) ?? "info") -> event_type_lower
+if exists(.event_type) {
+  .event_type_lower = downcase(to_string(.event_type) ?? "info")
 }
 
-# Loki-RS reports the magic-based type ("ARBITRARY BINARY DATA", "PE", ...),
-# which is exactly what makes a renamed sample stand out.
+# [normalization] alert -> event.kind
+if .event_type_lower == "file_match" {
+  .event.kind = "alert"
+}
+
+# [normalization] ['file', 'malware'] -> event.category
+if .event_type_lower == "file_match" {
+  .event.category = ["file", "malware"]
+}
+
+# [normalization] ['info'] -> event.type
+if .event_type_lower == "file_match" {
+  .event.type = ["info"]
+}
+
+# [normalization] loki-file-match -> event.action
+if .event_type_lower == "file_match" {
+  .event.action = "loki-file-match"
+}
+
+# [normalization] loki.filescan -> event.dataset
+if .event_type_lower == "file_match" {
+  .event.dataset = "loki.filescan"
+}
+
+# [normalization] alert -> event.kind
+if .event_type_lower == "process_match" {
+  .event.kind = "alert"
+}
+
+# [normalization] ['process', 'malware'] -> event.category
+if .event_type_lower == "process_match" {
+  .event.category = ["process", "malware"]
+}
+
+# [normalization] ['info'] -> event.type
+if .event_type_lower == "process_match" {
+  .event.type = ["info"]
+}
+
+# [normalization] loki-process-match -> event.action
+if .event_type_lower == "process_match" {
+  .event.action = "loki-process-match"
+}
+
+# [normalization] loki.processcheck -> event.dataset
+if .event_type_lower == "process_match" {
+  .event.dataset = "loki.processcheck"
+}
+
+# [normalization] event -> event.kind
+if .event_type_lower == "scan_start" {
+  .event.kind = "event"
+}
+
+# [normalization] ['process'] -> event.category
+if .event_type_lower == "scan_start" {
+  .event.category = ["process"]
+}
+
+# [normalization] ['start'] -> event.type
+if .event_type_lower == "scan_start" {
+  .event.type = ["start"]
+}
+
+# [normalization] loki-scan-start -> event.action
+if .event_type_lower == "scan_start" {
+  .event.action = "loki-scan-start"
+}
+
+# [normalization] loki.scan -> event.dataset
+if .event_type_lower == "scan_start" {
+  .event.dataset = "loki.scan"
+}
+
+# [normalization] event -> event.kind
+if .event_type_lower == "scan_end" {
+  .event.kind = "event"
+}
+
+# [normalization] ['process'] -> event.category
+if .event_type_lower == "scan_end" {
+  .event.category = ["process"]
+}
+
+# [normalization] ['end'] -> event.type
+if .event_type_lower == "scan_end" {
+  .event.type = ["end"]
+}
+
+# [normalization] loki-scan-end -> event.action
+if .event_type_lower == "scan_end" {
+  .event.action = "loki-scan-end"
+}
+
+# [normalization] loki.scan -> event.dataset
+if .event_type_lower == "scan_end" {
+  .event.dataset = "loki.scan"
+}
+
+# [normalization] event -> event.kind
+if .event_type_lower == "error" {
+  .event.kind = "event"
+}
+
+# [normalization] ['process'] -> event.category
+if .event_type_lower == "error" {
+  .event.category = ["process"]
+}
+
+# [normalization] ['error'] -> event.type
+if .event_type_lower == "error" {
+  .event.type = ["error"]
+}
+
+# [normalization] loki-scan-error -> event.action
+if .event_type_lower == "error" {
+  .event.action = "loki-scan-error"
+}
+
+# [normalization] loki.scan -> event.dataset
+if .event_type_lower == "error" {
+  .event.dataset = "loki.scan"
+}
+
+# [normalization] event -> event.kind
+if !exists(.event.kind) {
+  .event.kind = "event"
+}
+
+# [normalization] ['process'] -> event.category
+if !exists(.event.kind) {
+  .event.category = ["process"]
+}
+
+# [normalization] ['info'] -> event.type
+if !exists(.event.kind) {
+  .event.type = ["info"]
+}
+
+# [normalization] loki-scan-info -> event.action
+if !exists(.event.kind) {
+  .event.action = "loki-scan-info"
+}
+
+# [normalization] loki.scan -> event.dataset
+if !exists(.event.kind) {
+  .event.dataset = "loki.scan"
+}
+
+# [deletion] event_type_lower
+del(.event_type_lower)
+
+# [normalization] to_string(.file_path) ?? null -> file.path
+if exists(.file_path) && (to_string(.file_path) ?? "") != "" {
+  .file.path = to_string(.file_path) ?? null
+}
+
+# [normalization] basename!(to_string!(.file_path)) -> file.name
+if exists(.file_path) && (to_string(.file_path) ?? "") != "" {
+  .file.name = basename!(to_string!(.file_path))
+}
+
+# [normalization] downcase!(to_string!(split(basename!(to_string!(.file_path)), ".")[-1])) -> file.extension
+if exists(.file_path) && (to_string(.file_path) ?? "") != "" && length(split(basename!(to_string!(.file_path)), ".")) > 1 {
+  .file.extension = downcase!(to_string!(split(basename!(to_string!(.file_path)), ".")[-1]))
+}
+
+# [normalization] to_string(.file_type) ?? null -> file.type
 if exists(.file_type) {
-    .file.type = to_string(.file_type) ?? null
+  .file.type = to_string(.file_type) ?? null
 }
 
-if exists(.file_size) {
-    file_size = to_int(.file_size) ?? null
-    if file_size != null {
-        .file.size = file_size
-    }
+# [normalization] to_int(.file_size) ?? null -> file.size
+if exists(.file_size) && (to_int(.file_size) ?? null) != null {
+  .file.size = to_int(.file_size) ?? null
 }
 
+# [normalization] to_string(.md5) ?? null -> file.hash.md5
 if exists(.md5) {
-    .file.hash.md5 = to_string(.md5) ?? null
+  .file.hash.md5 = to_string(.md5) ?? null
 }
 
+# [normalization] to_string(.sha1) ?? null -> file.hash.sha1
 if exists(.sha1) {
-    .file.hash.sha1 = to_string(.sha1) ?? null
+  .file.hash.sha1 = to_string(.sha1) ?? null
 }
 
+# [normalization] to_string(.sha256) ?? null -> file.hash.sha256
 if exists(.sha256) {
-    .file.hash.sha256 = to_string(.sha256) ?? null
+  .file.hash.sha256 = to_string(.sha256) ?? null
 }
 
+# [normalization] to_string(.file_created) ?? null -> file.created
 if exists(.file_created) {
-    .file.created = to_string(.file_created) ?? null
+  .file.created = to_string(.file_created) ?? null
 }
 
+# [normalization] to_string(.file_modified) ?? null -> file.mtime
 if exists(.file_modified) {
-    .file.mtime = to_string(.file_modified) ?? null
+  .file.mtime = to_string(.file_modified) ?? null
 }
 
+# [normalization] to_string(.file_accessed) ?? null -> file.accessed
 if exists(.file_accessed) {
-    .file.accessed = to_string(.file_accessed) ?? null
+  .file.accessed = to_string(.file_accessed) ?? null
 }
 
-###############################
-# Process fields
-###############################
-# Only filled by the ProcessCheck module (disabled in the OSIR modules, which
-# scan collected filesystems), kept so a live scan normalizes the same way.
-if exists(.pid) {
-    pid = to_int(.pid) ?? null
-    if pid != null {
-        .process.pid = pid
-    }
+# [normalization] to_int(.pid) ?? null -> process.pid
+if exists(.pid) && (to_int(.pid) ?? null) != null {
+  .process.pid = to_int(.pid) ?? null
 }
 
+# [normalization] to_string(.process_name) ?? null -> process.name
 if exists(.process_name) {
-    .process.name = to_string(.process_name) ?? null
+  .process.name = to_string(.process_name) ?? null
 }
 
-if exists(.start_time) {
-    start_time = to_int(.start_time) ?? null
-    if start_time != null {
-        .process.start = format_timestamp!(from_unix_timestamp!(start_time), format: "%Y-%m-%dT%H:%M:%SZ")
-    }
+# [normalization] format_timestamp!(from_unix_timestamp!(to_int!(.start_time)), format: "%Y-%m-%dT%H:%M:%SZ") -> process.start
+if exists(.start_time) && (to_int(.start_time) ?? null) != null {
+  .process.start = format_timestamp!(from_unix_timestamp!(to_int!(.start_time)), format: "%Y-%m-%dT%H:%M:%SZ")
 }
 
+# [normalization] to_string(.run_time) ?? null -> loki.process.run_time
 if exists(.run_time) {
-    .loki.process.run_time = to_string(.run_time) ?? null
+  .loki.process.run_time = to_string(.run_time) ?? null
 }
 
-if exists(.memory_bytes) {
-    memory_bytes = to_int(.memory_bytes) ?? null
-    if memory_bytes != null {
-        .loki.process.memory_bytes = memory_bytes
-    }
+# [normalization] to_int(.memory_bytes) ?? null -> loki.process.memory_bytes
+if exists(.memory_bytes) && (to_int(.memory_bytes) ?? null) != null {
+  .loki.process.memory_bytes = to_int(.memory_bytes) ?? null
 }
 
-if exists(.cpu_usage) {
-    cpu_usage = to_float(.cpu_usage) ?? null
-    if cpu_usage != null {
-        .loki.process.cpu_usage = cpu_usage
-    }
+# [normalization] to_float(.cpu_usage) ?? null -> loki.process.cpu_usage
+if exists(.cpu_usage) && (to_float(.cpu_usage) ?? null) != null {
+  .loki.process.cpu_usage = to_float(.cpu_usage) ?? null
 }
 
-if exists(.connection_count) {
-    connection_count = to_int(.connection_count) ?? null
-    if connection_count != null {
-        .loki.process.connection_count = connection_count
-    }
+# [normalization] to_int(.connection_count) ?? null -> loki.process.connection_count
+if exists(.connection_count) && (to_int(.connection_count) ?? null) != null {
+  .loki.process.connection_count = to_int(.connection_count) ?? null
 }
 
+# [normalization] listening_ports -> loki.process.listening_ports
 if exists(.listening_ports) {
-    .loki.process.listening_ports = .listening_ports
+  .loki.process.listening_ports = .listening_ports
 }
 
-###############################
-# Match reasons
-###############################
-# Loki-RS reports every reason that contributed to the score (YARA rule, hash
-# IOC, filename IOC, C2 IOC...). The first one is promoted to the ECS rule.*
-# fields - same layout as the THOR "_1" primary match - the whole list stays
-# under loki.reasons.
+# [custom]
 if exists(.reasons) {
     reasons = array(.reasons) ?? []
     .loki.reasons_count = length(reasons)
@@ -246,12 +364,6 @@ if exists(.reasons) {
             reason_message = to_string(primary.message) ?? ""
             .event.reason = reason_message
 
-            # Loki-RS encodes the match type in the reason sentence:
-            #   "YARA match with rule <rulename>"
-            #   "HASH match with IOC HASH: <hash>"
-            #   "File Name IOC matched PATTERN: <pattern>"
-            # Split it so .rule.name holds the signature identity (as THOR does
-            # with rulename_1) and .rule.ruleset the source that fired.
             if starts_with(reason_message, "YARA match with rule ") {
                 .rule.name = replace(reason_message, "YARA match with rule ", "")
                 .rule.ruleset = "yara"
@@ -294,15 +406,12 @@ if exists(.reasons) {
     .loki.reasons = reasons
 }
 
-# Structured context, only used by the remote/syslog outputs today. Kept as a
-# nested object so nothing is lost if a future version fills it.
+# [normalization] context -> loki.context
 if exists(.context) {
-    .loki.context = .context
+  .loki.context = .context
 }
 
-###############################
-# Cleanup top-level duplicated fields
-###############################
+# [deletion] hostname, level, event_type, score, file_path, file_type, file_size, md5, sha1, sha256, file_created, file_modified, file_accessed, pid, process_name, start_time, run_time, memory_bytes, cpu_usage, connection_count, listening_ports, reasons, context
 del(.hostname)
 del(.level)
 del(.event_type)

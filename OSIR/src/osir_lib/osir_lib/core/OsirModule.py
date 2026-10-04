@@ -11,6 +11,7 @@ from osir_lib.core.model.OsirToolModel import OsirToolModel
 from osir_lib.core.OsirInput import OsirInput
 from osir_lib.core.OsirOutput import OsirOutput
 from osir_lib.core.OsirTool import OsirTool
+from osir_lib.core.OsirPathTransformerMixin import OsirPathTransformerMixin
 from osir_lib.logger import AppLogger
 
 logger = AppLogger().get_logger()
@@ -25,16 +26,30 @@ class OsirModule(OsirModuleModel):
             tool (OsirTool): The forensic tool/binary logic associated with this module.
             input (OsirInput): The source file or data to be processed.
             output (OsirOutput): The destination and formatting logic for results.
-            endpoint_name (str): The name of the workstation or source of the artifact.
-            user_name (str): Optional user extracted from input path/configured regex.
+            extracted_values (dict): Every value declared under the `extracted`
+                section, keyed by extraction name. Each one is exposed as an
+                `{extracted_<name>}` placeholder in tool, output and splunk
+                constant templates.
+            endpoint_name (str): Shortcut to the `endpoint` extraction.
+            user_name (str): Shortcut to the `user` extraction.
     """
     case_path: Path = None
     _module_filepath: Optional[str] = None
     tool: Optional[OsirTool] = None
     input: Optional[OsirInput] = None
     output: Optional[OsirOutput] = None
+    extracted_values: Optional[dict] = None
     endpoint_name: Optional[str] = None
     user_name: Optional[str] = None
+
+    @property
+    def extracted_placeholders(self) -> dict:
+        """The extracted values as template replacements: every extraction
+        named X is exposed as `{extracted_X}`."""
+        return {
+            f"extracted_{name}": value
+            for name, value in (self.extracted_values or {}).items()
+        }
 
     def __init__(self, **data):
         """
@@ -61,8 +76,10 @@ class OsirModule(OsirModuleModel):
             Returns:
                 OsirModule: The fully linked and updated module instance.
         """
-        self.endpoint_name = self._calculate_endpoint_name()
-        self.user_name = self._calculate_user_name()
+        extracted_values = self._extract_values()
+        self.extracted_values = extracted_values
+        self.endpoint_name = extracted_values.get('endpoint', 'UNKNOWN')
+        self.user_name = extracted_values.get('user', 'UNKNOWN_USER')
 
         for child in [self.input, self.output]:
             if child:
@@ -78,7 +95,93 @@ class OsirModule(OsirModuleModel):
             self.tool._context = self
             self.tool.update()
 
+        self._update_splunk_constants()
+
         return self
+
+    def _extract_values(self) -> dict:
+        """
+            Runs every extraction declared under `extracted` against the
+            input path: patterns are tried in order (first capture group
+            wins), `default` is the fallback.
+
+        Returns:
+            dict: The extracted values, keyed by extraction name.
+        """
+        values: dict = {}
+
+        if not self.extracted or not self.input or not self.input.match:
+            return values
+
+        input_match_str = str(self.input.match)
+
+        for entry in self.extracted:
+            values[entry.name] = self._extract_value(entry, input_match_str)
+
+        return values
+
+    @staticmethod
+    def _extract_value(entry, input_match_str: str) -> str:
+        """
+            Extracts one named value from the input path.
+
+        Args:
+            entry (OsirExtractedEntry): The extraction entry (name,
+                patterns, default).
+            input_match_str (str): The input path to match against.
+
+        Returns:
+            str: The first capture group of the first matching pattern,
+            or the entry default.
+        """
+        if not entry.patterns:
+            return entry.default or 'UNKNOWN'
+
+        try:
+            for pattern in entry.patterns:
+                if pattern.startswith(('r"', "r'")):
+                    pattern = pattern[2:-1]
+
+                match = re.search(pattern, input_match_str)
+
+                if match and match.groups():
+                    return match.group(1)
+
+        except Exception as e:
+            logger.error(f"Error extracting {entry.name}: {e}")
+
+        return entry.default or 'UNKNOWN'
+
+    def _update_splunk_constants(self) -> None:
+        """
+            Resolves the `constant` maps of the splunk configuration the
+            same way tool and output templates are resolved: every
+            placeholder — including the `{extracted_<name>}` values — is
+            substituted with the runtime values.
+        """
+        if not self.splunk:
+            return
+
+        replacements = {
+            "input_file": str(self.input.match_updated) if self.input else "",
+            "input_dir": str(self.input.match_updated) if self.input else "",
+            "output_dir": str(self.output.output_dir) if self.output else "",
+            "output_file": str(self.output.output_file) if self.output else "",
+            "output_filename": str(self.output.filename) if self.output else "",
+            "case_name": self.case_name,
+            "case_path": str(self.case_path) if self.case_path else "",
+            **self.extracted_placeholders,
+        }
+
+        for params in self.splunk.values():
+            if not isinstance(params, dict):
+                continue
+            constants = params.get('constant') or params.get('constants')
+            if not isinstance(constants, dict):
+                continue
+            for key, value in constants.items():
+                if isinstance(value, str):
+                    constants[key] = OsirPathTransformerMixin.safe_format(value, **replacements)
 
     @model_validator(mode='after')
     def validate_module_if_internal(self) -> 'OsirModuleModel':
@@ -150,68 +253,3 @@ class OsirModule(OsirModuleModel):
         except FileNotFoundError:
             return False
 
-    def _calculate_endpoint_name(self) -> str:
-        """
-            Parse the input file path (or other match string) to extract the originating
-            endpoint/hostname using a fallback regex strategy.
-
-            Returns:
-                str: The extracted endpoint/hostname if found, otherwise "UNKNOWN".
-        """
-        if not self.endpoint or not self.input or not self.input.match:
-            return 'UNKNOWN'
-
-        if not self.endpoint.patterns:
-            return self.endpoint.default
-        
-        input_match_str = str(self.input.match)
-
-        try:
-            for pattern in self.endpoint.patterns:
-                if pattern.startswith(('r"', "r'")):
-                    pattern = pattern[2:-1]
-
-                endpoint_match = re.search(pattern, input_match_str)
-
-                if endpoint_match and endpoint_match.groups():
-                    return endpoint_match.group(1)
-
-        except Exception as e:
-            logger.error(f"Error extracting endpoint: {e}")
-        
-        if self.endpoint.default:
-            return self.endpoint.default
-        else:
-            return "UNKNOWN"
-        
-    def _calculate_user_name(self) -> str:
-        """
-            Parse the input file path (or other match string) to extract the user
-            with the optional `user` YAML section.
-
-            This intentionally does not modify endpoint extraction behavior.
-        """
-        if not self.user or not self.input or not self.input.match:
-            return 'UNKNOWN_USER'
-
-        if not self.user.patterns:
-            return self.user.default or 'UNKNOWN_USER'
-
-        input_match_str = str(self.input.match)
-
-        try:
-            for pattern in self.user.patterns:
-                if pattern.startswith(('r"', "r'")):
-                    pattern = pattern[2:-1]
-
-                user_match = re.search(pattern, input_match_str)
-
-                if user_match and user_match.groups():
-                    return user_match.group(1)
-
-        except Exception as e:
-            logger.error(f"Error extracting user: {e}")
-
-        if self.user.default:
-            return self.user.default
-        return "UNKNOWN_USER"

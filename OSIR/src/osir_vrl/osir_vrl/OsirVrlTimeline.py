@@ -21,7 +21,10 @@ class OsirVrlCondition(BaseModel):
 
 
 class OsirVrlRelationship(BaseModel):
+    """A relationship attached to a timeline entry: `id` is the id of the
+    timeline element the relationship belongs to."""
     model_config = {"extra": "forbid"}
+    id:     str
     source: str
     target: str
     type:   str
@@ -29,15 +32,16 @@ class OsirVrlRelationship(BaseModel):
 
 class OsirVrlTimelineEntry(BaseModel):
     model_config = {"extra": "forbid"}
+    id:            Optional[str]               = None
     message:       str
-    conditions:    list[OsirVrlCondition]    = []
-    relationships: list[OsirVrlRelationship] = []
+    conditions:    list[OsirVrlCondition]      = []
 
-    def to_vrl(self) -> str:
+    def to_vrl(self, relationships: Optional[list[OsirVrlRelationship]] = None) -> str:
+        rels = relationships or []
         guards   = self._build_guards()
         template = self._build_template()
         body: list[str] = [f".message = {template}"]
-        for rel in self.relationships:
+        for rel in rels:
             body.append('if !is_array(.relationships) { .relationships = [] }')
             body.append(
                 f'.relationships = push!(.relationships, {{'

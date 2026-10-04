@@ -31,7 +31,7 @@
 <link href="../../_static/OSIR_LOGO.png" rel="icon"/>
 <link href="../../search.html" rel="search" title="Search"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
-<link href="hives_hkcu.html" rel="next" title="hives_hkcu"/>
+<link href="orc_log.html" rel="next" title="orc_log"/>
 <link href="collect_info_orc.html" rel="prev" title="collect_info_orc"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
@@ -248,27 +248,17 @@
 </ul>
 </li>
 <li class="toctree-l2 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="index.html">Windows<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
-<li class="toctree-l3"><a class="reference internal" href="amcache.html">amcache</a></li>
 <li class="toctree-l3"><a class="reference internal" href="anssi_decode.html">anssi_decode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="browsers.html">browsers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="collect_info_orc.html">collect_info_orc</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">evtx</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hives_hkcu.html">hives_hkcu</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hives_hklm.html">hives_hklm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="jump_list.html">jump_list</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lnk.html">lnk</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mft.html">mft</a></li>
 <li class="toctree-l3"><a class="reference internal" href="orc_log.html">orc_log</a></li>
 <li class="toctree-l3"><a class="reference internal" href="orc_outcome.html">orc_outcome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="powershell_history.html">powershell_history</a></li>
-<li class="toctree-l3"><a class="reference internal" href="prefetch.html">prefetch</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pstree_live_response.html">pstree_live_response</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pstree_sysmon.html">pstree_sysmon</a></li>
-<li class="toctree-l3"><a class="reference internal" href="recycle_bin.html">recycle_bin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shell_bags.html">shell_bags</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shimcache.html">shimcache</a></li>
 <li class="toctree-l3"><a class="reference internal" href="srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="win_memory.html">win_memory</a></li>
@@ -354,6 +344,25 @@
 <li class="toctree-l4"><a class="reference internal" href="live_response/win_routes.html">win_routes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/amcache.html">amcache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/evtx_ecmd.html">evtx_ecmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/hives_hkcu.html">hives_hkcu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/hives_hklm.html">hives_hklm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/jump_list.html">jump_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/lnk.html">lnk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/mft.html">mft</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/prefetch.html">prefetch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/recent_file_cache.html">recent_file_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/recycle_bin.html">recycle_bin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/shell_bags.html">shell_bags</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/shimcache.html">shimcache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/sqlecmd.html">sqlecmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/srum_ecmd.html">srum_ecmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/sum.html">sum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/wxt.html">wxt</a></li>
 </ul>
 </li>
 </ul>
@@ -531,12 +540,12 @@
 <p>In Splunk you can find the result of the module after
 ingestion with the following sourcetype:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">\.evtx.*\.jsonl$</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:powershell</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">PowerShell\.evtx.*\.jsonl$</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:powershell:operational</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">PowerShell.*Operational\.evtx.*\.jsonl$</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:security</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">Security\.evtx.*\.jsonl$</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:sysmon</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">Sysmon.*\.evtx.*\.jsonl$</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:system</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">System\.evtx.*\.jsonl$</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"\.evtx.*\.jsonl$"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:powershell</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"PowerShell\.evtx.*\.jsonl$"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:powershell:operational</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"PowerShell.*Operational\.evtx.*\.jsonl$"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:security</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"Security\.evtx.*\.jsonl$"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:sysmon</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"Sysmon.*\.evtx.*\.jsonl$"</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:evtx:system</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"System\.evtx.*\.jsonl$"</span></code></p></li>
 </ul>
 </div>
 <section id="description">
@@ -545,9 +554,9 @@ ingestion with the following sourcetype:</p>
 </section>
 <section id="timeline">
 <h2>Timeline</h2>
-<table class="docutils align-default">
+<span id="tl-windows-evtx-evtx-9"></span><span id="tl-windows-evtx-evtx-8"></span><span id="tl-windows-evtx-evtx-7"></span><span id="tl-windows-evtx-evtx-6"></span><span id="tl-windows-evtx-evtx-5"></span><span id="tl-windows-evtx-evtx-3"></span><span id="tl-windows-evtx-evtx-2"></span><span id="tl-windows-evtx-evtx-1"></span><span id="tl-windows-evtx-evtx-5156"></span><span id="tl-windows-evtx-evtx-5154"></span><span id="tl-windows-evtx-evtx-5145-2"></span><span id="tl-windows-evtx-evtx-5145"></span><span id="tl-windows-evtx-evtx-25"></span><span id="tl-windows-evtx-evtx-21"></span><span id="tl-windows-evtx-evtx-1149"></span><span id="tl-windows-evtx-evtx-4825"></span><span id="tl-windows-evtx-evtx-4799"></span><span id="tl-windows-evtx-evtx-4798"></span><span id="tl-windows-evtx-evtx-4776-2"></span><span id="tl-windows-evtx-evtx-4776"></span><span id="tl-windows-evtx-evtx-4771"></span><span id="tl-windows-evtx-evtx-4769-2"></span><span id="tl-windows-evtx-evtx-4769"></span><span id="tl-windows-evtx-evtx-4768-2"></span><span id="tl-windows-evtx-evtx-4768"></span><span id="tl-windows-evtx-evtx-4727"></span><span id="tl-windows-evtx-evtx-4726"></span><span id="tl-windows-evtx-evtx-4725"></span><span id="tl-windows-evtx-evtx-4723-2"></span><span id="tl-windows-evtx-evtx-4723"></span><span id="tl-windows-evtx-evtx-4722"></span><span id="tl-windows-evtx-evtx-4720"></span><span id="tl-windows-evtx-evtx-4689"></span><span id="tl-windows-evtx-evtx-4688"></span><span id="tl-windows-evtx-evtx-4672"></span><span id="tl-windows-evtx-evtx-4662"></span><span id="tl-windows-evtx-evtx-4657"></span><span id="tl-windows-evtx-evtx-4648-2"></span><span id="tl-windows-evtx-evtx-4648"></span><span id="tl-windows-evtx-evtx-4634"></span><span id="tl-windows-evtx-evtx-4625-2"></span><span id="tl-windows-evtx-evtx-4625"></span><span id="tl-windows-evtx-evtx-4624-2"></span><span id="tl-windows-evtx-evtx-4624"></span><table class="docutils align-default" id="tl-windows-evtx-evtx-10">
 <thead>
-<tr class="row-odd"><th class="head"><p>action.id</p></th>
+<tr class="row-odd"><th class="head"><p>Relation</p></th>
 <th class="head"><p>Message</p></th>
 </tr>
 </thead>
@@ -558,245 +567,584 @@ ingestion with the following sourcetype:</p>
 <tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Hostname:</span> <span class="pre">{host.name}</span> <span class="pre">-</span> <span class="pre">{action.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4624</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4624">evtx-4624</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">(LogonType</span> <span class="pre">{action.properties.LogonType})</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4624</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4624-2">evtx-4624-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">from</span> <span class="pre">IP</span> <span class="pre">{source.ip}</span> <span class="pre">(LogonType</span> <span class="pre">{action.properties.LogonType})</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4625</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4625">evtx-4625</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">(LogonType</span> <span class="pre">{action.properties.LogonType})</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4625</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4625-2">evtx-4625-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">from</span> <span class="pre">IP</span> <span class="pre">{source.ip}</span> <span class="pre">(LogonType</span> <span class="pre">{action.properties.LogonType})</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4634</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4634">evtx-4634</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">logged</span> <span class="pre">off</span> <span class="pre">from</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4648</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4648">evtx-4648</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">attempted</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{action.properties.TargetServerName}</span> <span class="pre">using</span> <span class="pre">explicit</span> <span class="pre">credentials</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4648</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4648-2">evtx-4648-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">attempted</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">using</span> <span class="pre">explicit</span> <span class="pre">credentials</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4657</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4657">evtx-4657</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">modified</span> <span class="pre">the</span> <span class="pre">value</span> <span class="pre">{action.properties.ObjectValueName}</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">registry</span> <span class="pre">key</span> <span class="pre">{action.properties.ObjectName}</span> <span class="pre">to</span> <span class="pre">{action.properties.NewValue}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4662</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4662">evtx-4662</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">accessed</span> <span class="pre">the</span> <span class="pre">object</span> <span class="pre">{action.properties.ObjectName}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4672</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4672">evtx-4672</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">with</span> <span class="pre">special</span> <span class="pre">privileges</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4688</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4688">evtx-4688</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">executed</span> <span class="pre">{process.command_line}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4689</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4689">evtx-4689</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{process.name}</span> <span class="pre">exited.</span> <span class="pre">It</span> <span class="pre">was</span> <span class="pre">executed</span> <span class="pre">by</span> <span class="pre">{user.domain}\\{user.name}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4720</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4720">evtx-4720</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">created</span> <span class="pre">account</span> <span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4722</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4722">evtx-4722</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">enabled</span> <span class="pre">account</span> <span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4723</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4723">evtx-4723</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">changed</span> <span class="pre">their</span> <span class="pre">password</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4723</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4723-2">evtx-4723-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">change</span> <span class="pre">their</span> <span class="pre">password</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4725</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4725">evtx-4725</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">disabled</span> <span class="pre">account</span> <span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4726</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4726">evtx-4726</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">deleted</span> <span class="pre">account</span> <span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4727</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4727">evtx-4727</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">created</span> <span class="pre">group</span> <span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4768</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4768">evtx-4768</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">authenticate</span> <span class="pre">from</span> <span class="pre">{source.ip}</span> <span class="pre">(Error</span> <span class="pre">Code:</span> <span class="pre">{action.properties.Status})</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4768</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4768-2">evtx-4768-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">successfully</span> <span class="pre">authenticated</span> <span class="pre">from</span> <span class="pre">{source.ip}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4769</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4769">evtx-4769</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">was</span> <span class="pre">denied</span> <span class="pre">a</span> <span class="pre">service</span> <span class="pre">ticket</span> <span class="pre">for</span> <span class="pre">{action.properties.ServiceName}</span> <span class="pre">from</span> <span class="pre">{source.ip}</span> <span class="pre">(Error</span> <span class="pre">Code:</span> <span class="pre">{action.properties.Status})</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4769</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4769-2">evtx-4769-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">was</span> <span class="pre">granted</span> <span class="pre">a</span> <span class="pre">service</span> <span class="pre">ticket</span> <span class="pre">for</span> <span class="pre">{action.properties.ServiceName}</span> <span class="pre">from</span> <span class="pre">{source.ip}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4771</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4771">evtx-4771</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetUserName}</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">authenticate</span> <span class="pre">from</span> <span class="pre">{source.ip}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4776</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4776">evtx-4776</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetUserName}</span> <span class="pre">failed</span> <span class="pre">to</span> <span class="pre">authenticate</span> <span class="pre">on</span> <span class="pre">{action.properties.Workstation}</span> <span class="pre">(Reason:</span> <span class="pre">{action.properties.Status})</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4776</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4776-2">evtx-4776-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.TargetUserName}</span> <span class="pre">successfully</span> <span class="pre">authenticated</span> <span class="pre">on</span> <span class="pre">{action.properties.Workstation}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4798</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4798">evtx-4798</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">enumerated</span> <span class="pre">local</span> <span class="pre">groups</span> <span class="pre">of</span> <span class="pre">{action.properties.TargetDomainName}\\{action.properties.TargetUserName}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4799</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4799">evtx-4799</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">enumerated</span> <span class="pre">members</span> <span class="pre">of</span> <span class="pre">local</span> <span class="pre">group</span> <span class="pre">{action.properties.TargetUserName}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4825</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-4825">evtx-4825</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Authenticated</span> <span class="pre">user</span> <span class="pre">{user.name}</span> <span class="pre">was</span> <span class="pre">denied</span> <span class="pre">the</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">Remote</span> <span class="pre">Desktop</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">from</span> <span class="pre">IP</span> <span class="pre">{action.properties.ClientAddress}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1149</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-1149">evtx-1149</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">successfully</span> <span class="pre">authenticated</span> <span class="pre">over</span> <span class="pre">RDP</span> <span class="pre">to</span> <span class="pre">{host.name}</span> <span class="pre">from</span> <span class="pre">IP</span> <span class="pre">{source.ip}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">21</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-21">evtx-21</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">opened</span> <span class="pre">session</span> <span class="pre">{action.properties.SessionID}</span> <span class="pre">on</span> <span class="pre">{host.name}</span> <span class="pre">(source:</span> <span class="pre">{action.properties.Address})</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">22</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">session</span> <span class="pre">{action.properties.SessionID}</span> <span class="pre">shell</span> <span class="pre">started</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">23</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">logged</span> <span class="pre">off</span> <span class="pre">session</span> <span class="pre">{action.properties.SessionID}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">24</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">disconnected</span> <span class="pre">from</span> <span class="pre">session</span> <span class="pre">{action.properties.SessionID}</span> <span class="pre">on</span> <span class="pre">{host.name}</span> <span class="pre">(source:</span> <span class="pre">{action.properties.Address})</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">25</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-25">evtx-25</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">reconnected</span> <span class="pre">to</span> <span class="pre">session</span> <span class="pre">{action.properties.SessionID}</span> <span class="pre">on</span> <span class="pre">{host.name}</span> <span class="pre">(source:</span> <span class="pre">{action.properties.Address})</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">5145</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-5145">evtx-5145</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">was</span> <span class="pre">granted</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">{action.properties.ShareName}\\{action.properties.RelativeTargetName}</span> <span class="pre">from</span> <span class="pre">IP</span> <span class="pre">{source.ip}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">5145</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-5145-2">evtx-5145-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">was</span> <span class="pre">denied</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">{action.properties.ShareName}\\{action.properties.RelativeTargetName}</span> <span class="pre">from</span> <span class="pre">IP</span> <span class="pre">{source.ip}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">5154</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-5154">evtx-5154</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.Application}</span> <span class="pre">was</span> <span class="pre">allowed</span> <span class="pre">to</span> <span class="pre">listen</span> <span class="pre">on</span> <span class="pre">{source.ip}:{source.port}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">5156</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-5156">evtx-5156</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{host.name}</span> <span class="pre">allowed</span> <span class="pre">a</span> <span class="pre">connection</span> <span class="pre">from</span> <span class="pre">{source.ip}:{source.port}</span> <span class="pre">to</span> <span class="pre">{destination.ip}:{destination.port}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4103</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">executed</span> <span class="pre">PowerShell</span> <span class="pre">code</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4104</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{user.domain}\\{user.name}</span> <span class="pre">executed</span> <span class="pre">PowerShell</span> <span class="pre">code</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">4105</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Started</span> <span class="pre">invocation</span> <span class="pre">of</span> <span class="pre">PowerShell</span> <span class="pre">ScriptBlock</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4106</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Completed</span> <span class="pre">invocation</span> <span class="pre">of</span> <span class="pre">PowerShell</span> <span class="pre">ScriptBlock</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">5382</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Vault</span> <span class="pre">credentials</span> <span class="pre">were</span> <span class="pre">read</span> <span class="pre">by</span> <span class="pre">{action.properties.SubjectUserName}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">40961</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PowerShell</span> <span class="pre">console</span> <span class="pre">is</span> <span class="pre">starting</span> <span class="pre">up</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">40962</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">PowerShell</span> <span class="pre">console</span> <span class="pre">is</span> <span class="pre">ready</span> <span class="pre">for</span> <span class="pre">user</span> <span class="pre">input</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">53504</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Windows</span> <span class="pre">PowerShell</span> <span class="pre">has</span> <span class="pre">started</span> <span class="pre">an</span> <span class="pre">IPC</span> <span class="pre">listening</span> <span class="pre">thread</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-1">evtx-1</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{process.executable}</span> <span class="pre">created</span> <span class="pre">by</span> <span class="pre">{user.name}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">2</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-2">evtx-2</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{process.executable}</span> <span class="pre">changed</span> <span class="pre">the</span> <span class="pre">creation</span> <span class="pre">time</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">file</span> <span class="pre">{file.name}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">3</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-3">evtx-3</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Network</span> <span class="pre">connection</span> <span class="pre">from</span> <span class="pre">{source.ip}</span> <span class="pre">to</span> <span class="pre">{destination.ip}:{destination.port}</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">4</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Sysmon</span> <span class="pre">service</span> <span class="pre">state</span> <span class="pre">changed</span> <span class="pre">to</span> <span class="pre">{action.properties.State}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">5</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-5">evtx-5</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{process.executable}</span> <span class="pre">terminated</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">6</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-6">evtx-6</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Driver</span> <span class="pre">{process.executable}</span> <span class="pre">loaded</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">7</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-7">evtx-7</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{process.executable}</span> <span class="pre">loaded</span> <span class="pre">image</span> <span class="pre">{action.properties.ImageLoaded}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">8</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-8">evtx-8</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{action.properties.SourceImage}</span> <span class="pre">created</span> <span class="pre">a</span> <span class="pre">thread</span> <span class="pre">in</span> <span class="pre">process</span> <span class="pre">{action.properties.TargetImage}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">9</span></code></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-9">evtx-9</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Process</span> <span class="pre">{process.executable}</span> <span class="pre">read</span> <span class="pre">on</span> <span class="pre">{action.properties.Device}</span> <span class="pre">device</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">10</span></code></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#rel-windows-evtx-evtx-10">evtx-10</a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.SourceImage}</span> <span class="pre">was</span> <span class="pre">granted</span> <span class="pre">{action.properties.GrantedAccess}</span> <span class="pre">access</span> <span class="pre">to</span> <span class="pre">{action.properties.TargetImage}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">11</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{file.name}</span> <span class="pre">created</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">12</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">key</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">created</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">12</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">value</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">created</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">12</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">key</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">deleted</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">12</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">value</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">deleted</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">13</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">key</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">set</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">14</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">key</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">renamed</span> <span class="pre">to</span> <span class="pre">{action.properties.NewName}</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">14</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Registry</span> <span class="pre">value</span> <span class="pre">{action.properties.TargetObject}</span> <span class="pre">renamed</span> <span class="pre">to</span> <span class="pre">{action.properties.NewName}</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">15</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.Image}</span> <span class="pre">added</span> <span class="pre">a</span> <span class="pre">named</span> <span class="pre">stream</span> <span class="pre">to</span> <span class="pre">file</span> <span class="pre">{action.properties.TargetFilename}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">16</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Sysmon</span> <span class="pre">configuration</span> <span class="pre">was</span> <span class="pre">updated</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">17</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Pipe</span> <span class="pre">{action.properties.PipeName}</span> <span class="pre">created</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">18</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Pipe</span> <span class="pre">{action.properties.PipeName}</span> <span class="pre">connected</span> <span class="pre">by</span> <span class="pre">{process.executable}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">19</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.User}</span> <span class="pre">created</span> <span class="pre">WMI</span> <span class="pre">Event</span> <span class="pre">Filter</span> <span class="pre">{action.properties.Name}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">20</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.User}</span> <span class="pre">{action.properties.Operation}</span> <span class="pre">WMI</span> <span class="pre">Consumer</span> <span class="pre">{action.properties.Name}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">21</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{action.properties.User}</span> <span class="pre">bound</span> <span class="pre">WMI</span> <span class="pre">Consumer</span> <span class="pre">{action.properties.Consumer}</span> <span class="pre">to</span> <span class="pre">Event</span> <span class="pre">Filter</span> <span class="pre">{action.properties.Filter}</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">22</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">{host.name}</span> <span class="pre">performed</span> <span class="pre">a</span> <span class="pre">DNS</span> <span class="pre">query</span> <span class="pre">for</span> <span class="pre">name</span> <span class="pre">{dns.question.name}</span> <span class="pre">(status:</span> <span class="pre">{dns.response_code})</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1000</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">An</span> <span class="pre">anti-malware</span> <span class="pre">scan</span> <span class="pre">started</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1001</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">An</span> <span class="pre">anti-malware</span> <span class="pre">scan</span> <span class="pre">finished</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">1002</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">An</span> <span class="pre">anti-malware</span> <span class="pre">scan</span> <span class="pre">was</span> <span class="pre">stopped</span> <span class="pre">before</span> <span class="pre">it</span> <span class="pre">finished</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">1150</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Microsoft</span> <span class="pre">Defender</span> <span class="pre">Antivirus</span> <span class="pre">client</span> <span class="pre">is</span> <span class="pre">up</span> <span class="pre">and</span> <span class="pre">running</span> <span class="pre">in</span> <span class="pre">a</span> <span class="pre">healthy</span> <span class="pre">state</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">26</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Windows</span> <span class="pre">Update</span> <span class="pre">successfully</span> <span class="pre">found</span> <span class="pre">updates</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">263</span></code></p></td>
+<tr class="row-even"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">W32time</span> <span class="pre">Service</span> <span class="pre">configuration</span> <span class="pre">parameters</span> <span class="pre">have</span> <span class="pre">been</span> <span class="pre">updated</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">15</span></code></p></td>
+<tr class="row-odd"><td></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">Updated</span> <span class="pre">Windows</span> <span class="pre">Defender</span> <span class="pre">status</span> <span class="pre">successfully</span> <span class="pre">to</span> <span class="pre">SECURITY_PRODUCT_STATE_ON</span> <span class="pre">on</span> <span class="pre">{host.name}</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="relationships">
+<h2>Relationships</h2>
+<span id="rel-windows-evtx-evtx-9"></span><span id="rel-windows-evtx-evtx-8"></span><span id="rel-windows-evtx-evtx-7"></span><span id="rel-windows-evtx-evtx-6"></span><span id="rel-windows-evtx-evtx-5"></span><span id="rel-windows-evtx-evtx-3"></span><span id="rel-windows-evtx-evtx-2"></span><span id="rel-windows-evtx-evtx-1"></span><span id="rel-windows-evtx-evtx-5156"></span><span id="rel-windows-evtx-evtx-5154"></span><span id="rel-windows-evtx-evtx-5145-2"></span><span id="rel-windows-evtx-evtx-5145"></span><span id="rel-windows-evtx-evtx-25"></span><span id="rel-windows-evtx-evtx-21"></span><span id="rel-windows-evtx-evtx-1149"></span><span id="rel-windows-evtx-evtx-4825"></span><span id="rel-windows-evtx-evtx-4799"></span><span id="rel-windows-evtx-evtx-4798"></span><span id="rel-windows-evtx-evtx-4776-2"></span><span id="rel-windows-evtx-evtx-4776"></span><span id="rel-windows-evtx-evtx-4771"></span><span id="rel-windows-evtx-evtx-4769-2"></span><span id="rel-windows-evtx-evtx-4769"></span><span id="rel-windows-evtx-evtx-4768-2"></span><span id="rel-windows-evtx-evtx-4768"></span><span id="rel-windows-evtx-evtx-4727"></span><span id="rel-windows-evtx-evtx-4726"></span><span id="rel-windows-evtx-evtx-4725"></span><span id="rel-windows-evtx-evtx-4723-2"></span><span id="rel-windows-evtx-evtx-4723"></span><span id="rel-windows-evtx-evtx-4722"></span><span id="rel-windows-evtx-evtx-4720"></span><span id="rel-windows-evtx-evtx-4689"></span><span id="rel-windows-evtx-evtx-4688"></span><span id="rel-windows-evtx-evtx-4672"></span><span id="rel-windows-evtx-evtx-4662"></span><span id="rel-windows-evtx-evtx-4657"></span><span id="rel-windows-evtx-evtx-4648-2"></span><span id="rel-windows-evtx-evtx-4648"></span><span id="rel-windows-evtx-evtx-4634"></span><span id="rel-windows-evtx-evtx-4625-2"></span><span id="rel-windows-evtx-evtx-4625"></span><span id="rel-windows-evtx-evtx-4624-2"></span><span id="rel-windows-evtx-evtx-4624"></span><table class="docutils align-default" id="rel-windows-evtx-evtx-10">
+<thead>
+<tr class="row-odd"><th class="head"><p>Relation</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4624">evtx-4624</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4624-2">evtx-4624-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4624-2">evtx-4624-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connected</span> <span class="pre">from</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4625">evtx-4625</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4625-2">evtx-4625-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4625-2">evtx-4625-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connected</span> <span class="pre">from</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4634">evtx-4634</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">off</span> <span class="pre">from</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4648">evtx-4648</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetServerName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">attempted</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4648-2">evtx-4648-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">attempted</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4657">evtx-4657</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.ObjectName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">modified</span> <span class="pre">registry</span> <span class="pre">value</span> <span class="pre">from</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4662">evtx-4662</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.ObjectName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">accessed</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4672">evtx-4672</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4688">evtx-4688</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4688">evtx-4688</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4688">evtx-4688</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4688">evtx-4688</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uses</span> <span class="pre">executable</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4688">evtx-4688</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4688">evtx-4688</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">started</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4689">evtx-4689</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4720">evtx-4720</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetDomainName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">created</span> <span class="pre">account</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4722">evtx-4722</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetDomainName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">enabled</span> <span class="pre">account</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4723">evtx-4723</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">changed</span> <span class="pre">their</span> <span class="pre">password</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4723-2">evtx-4723-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">change</span> <span class="pre">their</span> <span class="pre">password</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4725">evtx-4725</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">disabled</span> <span class="pre">account</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4726">evtx-4726</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deleted</span> <span class="pre">account</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4727">evtx-4727</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">created</span> <span class="pre">group</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4768">evtx-4768</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4768-2">evtx-4768-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4769">evtx-4769</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.ServiceName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">was</span> <span class="pre">denied</span> <span class="pre">a</span> <span class="pre">ticket</span> <span class="pre">for</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4769-2">evtx-4769-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.ServiceName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">was</span> <span class="pre">granted</span> <span class="pre">a</span> <span class="pre">ticket</span> <span class="pre">for</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4771">evtx-4771</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">authenticate</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4776">evtx-4776</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.Workstation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">log</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4776-2">evtx-4776-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.Workstation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4798">evtx-4798</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">enumerated</span> <span class="pre">local</span> <span class="pre">groups</span> <span class="pre">of</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4799">evtx-4799</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetUserName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">enumerated</span> <span class="pre">members</span> <span class="pre">of</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-4825">evtx-4825</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">was</span> <span class="pre">denied</span> <span class="pre">RDP</span> <span class="pre">access</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1149">evtx-1149</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">authenticated</span> <span class="pre">over</span> <span class="pre">RDP</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1149">evtx-1149</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connected</span> <span class="pre">from</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-21">evtx-21</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-25">evtx-25</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">logged</span> <span class="pre">on</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-5145">evtx-5145</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.RelativeTargetName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">accessed</span> <span class="pre">shared</span> <span class="pre">file</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-5145-2">evtx-5145-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.RelativeTargetName</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">to</span> <span class="pre">access</span> <span class="pre">shared</span> <span class="pre">file</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-5154">evtx-5154</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.Application</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">listened</span> <span class="pre">to</span> <span class="pre">port</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-5156">evtx-5156</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">destination.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connected</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1">evtx-1</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1">evtx-1</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1">evtx-1</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uses</span> <span class="pre">executable</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1">evtx-1</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">uses</span> <span class="pre">executable</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1">evtx-1</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-1">evtx-1</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.parent.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.command_line</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">started</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-2">evtx-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">changed</span> <span class="pre">creation</span> <span class="pre">time</span> <span class="pre">of</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-2">evtx-2</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-3">evtx-3</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">destination.ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connected</span> <span class="pre">to</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-5">evtx-5</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">terminated</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-6">evtx-6</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loaded</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-7">evtx-7</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-7">evtx-7</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.ImageLoaded</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">loaded</span> <span class="pre">image</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-8">evtx-8</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.SourceImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-8">evtx-8</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-8">evtx-8</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.SourceImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">created</span> <span class="pre">thread</span> <span class="pre">in</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-9">evtx-9</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-9">evtx-9</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">process.executable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.Device</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">read</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-10">evtx-10</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.SourceImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-10">evtx-10</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">executed</span> <span class="pre">on</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-evtx-evtx-10">evtx-10</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.SourceImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.TargetImage</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">was</span> <span class="pre">granted</span> <span class="pre">access</span> <span class="pre">to</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -1455,6 +1803,7 @@ ingestion with the following sourcetype:</p>
 <ul>
 <li><a :data-current="activeSection === '#description'" class="reference internal" href="#description">Description</a></li>
 <li><a :data-current="activeSection === '#timeline'" class="reference internal" href="#timeline">Timeline</a></li>
+<li><a :data-current="activeSection === '#relationships'" class="reference internal" href="#relationships">Relationships</a></li>
 <li><a :data-current="activeSection === '#fields'" class="reference internal" href="#fields">Fields</a></li>
 </ul>
 </div>

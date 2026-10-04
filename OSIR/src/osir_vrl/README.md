@@ -16,10 +16,10 @@ Each config mirrors the path of the normalizer it drives:
 
 | Module                    | Role                                                                                             |
 |---------------------------|--------------------------------------------------------------------------------------------------|
-| `OsirVrlModel`            | Root model: `metadata` + `source` + `transformation` + `timeline`; renders the full VRL program |
-| `OsirVrlBlock`            | One item of `transformation`: a `set` / `translate` / `delete` / `custom` block, expanded into linear entries |
+| `OsirVrlModel`            | Root model: `metadata` + `source` + `transformation` + `timeline` + `relationships`; renders the full VRL program |
+| `OsirVrlBlock`            | One item of `transformation`: a `set` / `constant` / `translate` / `delete` / `custom` block, expanded into linear entries |
 | `OsirVrlTransformation`   | One linear entry: renders its VRL lines (assignment, translation lookup, deletion, raw code) with its guard and error handling |
-| `OsirVrlTimeline`         | Timeline entries: `message` + `relationships` + `conditions`                                     |
+| `OsirVrlTimeline`         | Timeline entries (`id` + `message` + `conditions`) and `relationships` (attached to a timeline entry through its `id`) |
 | `OsirVrlUtils`            | `extract_vrl_fields`, `render_value`, `condition_guard`                                          |
 
 Public API: `OsirVrlModel.from_yaml(path)`, `.to_vrl()`, `.save_vrl(path)`,
@@ -59,6 +59,10 @@ transformation:                  # ordered list of blocks: first entry = first V
       - field: event.kind
         value: event             # {field, value}   -> .event.kind == "event"
 
+  - constant:                    # literal values only: the shorthand of `set` + `value:`
+      event.dataset: windows.shellbags
+      event.category: [file]     # strings, numbers, booleans, lists
+
   - translate:
       mapping:
         action.name: event.id    # target -> source (one or more targets)
@@ -77,14 +81,17 @@ transformation:                  # ordered list of blocks: first entry = first V
       }
 
 timeline:                        # rendered after the transformations, guarded per entry
-  - message: "{user.name} logged on to {host.name}"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: logged on to
+  - id: logon-4624              # referenced by the relationships below
+    message: "{user.name} logged on to {host.name}"
     conditions:
       - field: event.id
         value: 4624
+
+relationships:                   # after timeline, one entry per relationship
+  - id: logon-4624              # id of the timeline element it belongs to
+    source: user.name
+    target: host.name
+    type: logged on to
 ```
 
 ### Conventions
@@ -95,14 +102,25 @@ timeline:                        # rendered after the transformations, guarded p
 - **Sources are written without a leading dot** (`Event.System.TimeCreated`,
   not `.Event.System.TimeCreated`). The model accepts both and always
   renders `.path`.
+- **Fields without an ECS mapping go to `labels.<field>`** (snake_case),
+  the ECS key-value map for custom data — not to an ad-hoc
+  `*.Ext.<module>.*` namespace. Example: `BagPath` → `labels.bag_path`,
+  `HasExplored` → `labels.has_explored`.
+- **No `to_string!(del(.Source))` in set sources**: reference the source
+  plainly (`labels.bag_path: BagPath`) — parsed values are strings by
+  default — and list the consumed source fields in a final `delete` block
+  instead of deleting them inline. Conversions use the operation form
+  (`operation: to_int`, `operation: parse_timestamp`).
+- **In raw VRL, narrow an already-string value with `string!`** (a type
+  assertion), not `to_string!` (a conversion): `val = string!(.labels.value)`.
 
 ### Block semantics
 
 - `transformation` is a **linear program**: blocks render in list order,
   entries within a block in mapping order. Order is semantics — a later
   block sees the fields set by an earlier one.
-- A block takes **exactly one** kind (`set` / `translate` / `delete` /
-  `custom`); anything else is a validation error.
+- A block takes **exactly one** kind (`set` / `constant` / `translate` /
+  `delete` / `custom`); anything else is a validation error.
 - `filter` (raw VRL) and `conditions` (declarative) sit **at the block
   level**, next to the kind key, and guard **every entry** of the block.
   They never appear inside an entry.
@@ -130,6 +148,16 @@ Rendering rules:
 - **guard dedup**: a default `exists(.src)` is omitted when the block
   filter/conditions already contain a *positive* `exists(.src)` —
   `!exists(.src)` does not count.
+
+### `constant` blocks
+
+A mapping `target: value` where every spec is a **literal value** — the
+shorthand of a `set` entry written in the explicit `{value: ...}` form.
+A plain string is a value, never a source reference (the opposite of the
+`set` shorthand). Rendering is identical to a `set` value entry: a direct
+assignment with no default guard, wrapped in the optional block-level
+`filter`/`conditions`. Scalar values (string, number, boolean) and lists
+are supported.
 
 ### `translate` blocks (v1 structure)
 
@@ -165,15 +193,22 @@ if exists(."Event.System.EventID") { .Event.System.EventID = get!(., path: ["Eve
 
 This is intended for flattened inputs (XML/JSONL). It never triggers for
 `conditions` (they reference real event paths), plain-path sources, or
-`custom` blocks.
+`custom` blocks. Timeline message templates and relationship
+`source`/`target` fields also trigger it: an event may carry a value like
+`user.name` behind a single flat key (e.g. a splunk constant injected at
+ingestion time) while the timeline references the nested path.
 
 ### Timeline
 
 Rendered after all transformations, one block per entry, guarded by its
 conditions plus `exists()` on every `{field}` referenced in the message
 template. Entries are sorted by number of conditions (most specific
-first). `relationships` are pushed into `.relationships` as
-`{source, target, type}` objects.
+first). Inline `relationships` are gone: they live in the root
+`relationships` section (after `timeline`) and each one carries the `id`
+of the timeline element it belongs to. Relationships referencing an
+unknown (or duplicated) timeline `id` fail validation. At render time a
+relationship is pushed into `.relationships` as a `{source, target,
+type}` object inside the guarded block of its timeline entry.
 
 ## Generating and verifying
 

@@ -24,12 +24,13 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint: 
-  patterns:
-    - r"/Endpoint_(.*?)/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"/Endpoint_(.*?)/"
+      default: "UNKNOWN"
 
 
 optional:
@@ -37,9 +38,9 @@ optional:
 
 splunk:
   'windows:live_response:dns_cache':
-    name_rex: --win_dns_cache\.jsonl$
+    name_rex: r"--win_dns_cache\.jsonl$"
     path_suffix: win_dns_cache
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     artifact: "DNS_CACHE"
     normalize:
       - ecs_normalize/windows/live_response/dns_cache.vrl

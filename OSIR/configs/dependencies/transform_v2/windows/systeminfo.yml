@@ -1,0 +1,115 @@
+metadata:
+  version: "1.0"
+  id: systeminfo
+  author: Typ
+  description: Windows system information (dfir-ogre systeminfo JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.dataset:
+        value: windows.systeminfo
+      event.module:
+        value: windows
+      event.kind:
+        value: state
+      event.category:
+        value: [host]
+      event.type:
+        value: [info]
+      event.provider:
+        value: "Windows System Information"
+      event.outcome:
+        value: success
+
+  - set:
+      host.name: host_name
+      os.name: os_name
+      os.version: os_version
+      os.full:
+        source: 'to_string!(.os_name) + " " + to_string!(.os_version)'
+      labels.os_manufacturer: os_manufacturer
+      labels.os_configuration: os_configuration
+      labels.os_build_type: os_build_type
+      labels.registered_owner: registered_owner
+      labels.registered_organization: registered_organization
+      labels.product_id: product_id
+      event.start:
+        source: system_boot_time
+        operation: parse_timestamp
+        parameters:
+          format: "%d/%m/%Y, %H:%M:%S"
+      timestamp:
+        source: system_boot_time
+        operation: parse_timestamp
+        parameters:
+          format: "%d/%m/%Y, %H:%M:%S"
+      labels.original_install_date: original_install_date
+      labels.system_manufacturer: system_manufacturer
+      labels.system_model: system_model
+      labels.system_type: system_type
+      labels.processors: processors
+      labels.bios_version: bios_version
+      labels.windows_directory: windows_directory
+      labels.system_directory: system_directory
+      labels.boot_device: boot_device
+      labels.system_locale: system_locale
+      labels.input_locale: input_locale
+      labels.time_zone: time_zone
+      labels.total_physical_memory: total_physical_memory
+      labels.available_physical_memory: available_physical_memory
+      labels.virtual_memory_max_size: virtual_memory_max_size
+      labels.virtual_memory_available: virtual_memory_available
+      labels.virtual_memory_in_use: virtual_memory_in_use
+      labels.page_file_location: page_file_location
+      labels.domain: domain
+      labels.logon_server: logon_server
+      labels.hotfix: hotfix
+      labels.network_cards: network_cards
+      labels.hyper_v_requirements: hyper_v_requirements
+    filter: exists(.host_name) && exists(.os_name)
+
+  - delete:
+      - host_name
+      - os_name
+      - os_version
+      - os_manufacturer
+      - os_configuration
+      - os_build_type
+      - registered_owner
+      - registered_organization
+      - product_id
+      - original_install_date
+      - system_boot_time
+      - system_manufacturer
+      - system_model
+      - system_type
+      - processors
+      - bios_version
+      - windows_directory
+      - system_directory
+      - boot_device
+      - system_locale
+      - input_locale
+      - time_zone
+      - total_physical_memory
+      - available_physical_memory
+      - virtual_memory_max_size
+      - virtual_memory_available
+      - virtual_memory_in_use
+      - page_file_location
+      - domain
+      - logon_server
+      - hotfix
+      - network_cards
+      - hyper_v_requirements
+      - ogre_md
+
+timeline:
+  - id: host-state
+    message: "Host {host.name} runs {os.full} (booted on {timestamp})"
+    conditions:
+      - field: host.name
+        exists: true

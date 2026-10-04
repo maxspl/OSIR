@@ -4,14 +4,14 @@ extract_orc
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``filesystem:ntfs:i30`` | name_rex: ``I30Info.*.csv$``
-   * ``filesystem:ntfs:info`` | name_rex: ``NTFSInfo.*.csv$``
-   * ``filesystem:ntfs:usn`` | name_rex: ``USNInfo.*.csv$``
-   * ``orc:collected_files`` | name_rex: ``GetThis.csv$``
-   * ``orc:files`` | name_rex: ``\.csv$``
-   * ``windows:autoruns`` | name_rex: ``autoruns.*csv$``
-   * ``_json`` | name_rex: ``(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$``
-   * ``_json`` | name_rex: ``(?i)^systeminfo(?:_.+)?\.csv$``
+   * ``filesystem:ntfs:i30`` | name_rex: ``r"I30Info.*.csv$"``
+   * ``filesystem:ntfs:info`` | name_rex: ``r"NTFSInfo.*.csv$"``
+   * ``filesystem:ntfs:usn`` | name_rex: ``r"USNInfo.*.csv$"``
+   * ``orc:collected_files`` | name_rex: ``r"GetThis.csv$"``
+   * ``orc:files`` | name_rex: ``r"\.csv$"``
+   * ``windows:autoruns`` | name_rex: ``r"autoruns.*csv$"``
+   * ``_json`` | name_rex: ``r"(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$"``
+   * ``_json`` | name_rex: ``r"(?i)^systeminfo(?:_.+)?\.csv$"``
 
 Description
 -----------
@@ -40,6 +40,29 @@ No timeline messages.
 **``windows/live_response/autoruns.yml``**
 
 No timeline messages.
+
+Relationships
+-------------
+
+**``windows/live_response/systeminfo.yml``**
+
+No relationships.
+
+**``windows/live_response/ps1_processes.yml``**
+
+No relationships.
+
+**``windows/NTFSInfo.yml``**
+
+No relationships.
+
+**``windows/NTFSInfo_i30.yml``**
+
+No relationships.
+
+**``windows/live_response/autoruns.yml``**
+
+No relationships.
 
 Fields
 ------

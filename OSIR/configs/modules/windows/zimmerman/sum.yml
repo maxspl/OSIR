@@ -1,0 +1,43 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: Parsing of Microsoft User Access Logs (UAL) with SumECmd
+  os: windows
+
+configuration:
+  module: sum
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: windows
+
+tool: 
+  path: net9/SumECmd.exe
+  cmd: -d "{input_dir}" --csv "{output_dir}"
+  source: https://ericzimmerman.github.io/
+  version: 2026.5.0
+
+input:
+  type: dir
+  path: Windows/System32/LogFiles/SUM
+
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{extracted_endpoint}--{module}-"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+splunk:
+  'windows:ual':
+    name_rex: r"\.csv$"
+    path_suffix: 'sum'
+    sourcetype: 'windows:ual'
+    host_rex: r"([\w\.-]+?)--"
+    artifact: "UAL"

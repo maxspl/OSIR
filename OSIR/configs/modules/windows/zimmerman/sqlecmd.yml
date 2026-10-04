@@ -1,0 +1,51 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: Parsing of browser SQLite files (Chrome, Edge, Firefox...) with SQLECmd maps
+  os: windows
+
+configuration:
+  module: sqlecmd
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: windows
+
+tool: 
+  path: net9/SQLECmd/SQLECmd.exe
+  cmd: -f "{input_file}" --csv "{output_dir}"
+  source: https://ericzimmerman.github.io/
+  version: 2026.5.0
+
+input:
+  type: file
+  paths:
+    - r"/User Data/[^/]+/(History|Cookies|Downloads|Network/Cookies)$"
+    - r"/Profiles/[^/]+/(places\.sqlite|cookies\.sqlite)$"
+
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{extracted_endpoint}--{extracted_user}--{module}-"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+  - user:
+      patterns:
+        - r"Users\/([^\/]+)"
+      default: "UNKNOWN"
+
+splunk:
+  'browser:sqlecmd':
+    name_rex: r"\.csv$"
+    path_suffix: 'sqlecmd'
+    sourcetype: 'browser:sqlecmd'
+    host_rex: r"([\w\.-]+?)--"
+    user_rex: r"--([^-]+)--sqlecmd"
+    artifact: "Browsers"

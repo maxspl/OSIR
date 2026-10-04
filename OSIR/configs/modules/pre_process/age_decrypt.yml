@@ -18,10 +18,10 @@ tool:
   source: 
   version: 
   cmd: >-
-    --decrypt -i /OSIR/OSIR/configs/dependencies/encryption/key.age -o {output_dir}/{endpoint_name} {input_file} &&
-    outdir="{output_dir}/$(printf '%s' "{endpoint_name}" | sed 's/\.tar\.gz$//')" &&
+    --decrypt -i /OSIR/OSIR/configs/dependencies/encryption/key.age -o {output_dir}/{extracted_endpoint} {input_file} &&
+    outdir="{output_dir}/$(printf '%s' "{extracted_endpoint}" | sed 's/\.tar\.gz$//')" &&
     mkdir -p "$outdir" &&
-    tar -zxvf "{output_dir}/{endpoint_name}" -C "$outdir" &&
+    tar -zxvf "{output_dir}/{extracted_endpoint}" -C "$outdir" &&
     mv "{input_file}" "{output_dir}/"
 
 input:
@@ -33,7 +33,8 @@ output:
   type: multiple_files
   format: raw
 
-endpoint: 
-  patterns:
-    - r"\/([^\/]+)\.age"
-  default: "NOT_FOUND"
+extracted:
+  - endpoint:
+      patterns:
+        - r"\/([^\/]+)\.age"
+      default: "NOT_FOUND"

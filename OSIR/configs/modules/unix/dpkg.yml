@@ -21,18 +21,19 @@ input:
 output:
   type: single_file
   format: json
-  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+  filename: "{extracted_endpoint}--{module}-{input_file}.jsonl"
 
-endpoint: 
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'linux:dpkg':
-    name_rex: dpkg.*\.jsonl$
+    name_rex: r"dpkg.*\.jsonl$"
     sourcetype: 'linux:dpkg'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     timestamp_path: 
         - "_time"
     timestamp_format: "%Y-%m-%d %H:%M:%S"

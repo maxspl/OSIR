@@ -4,7 +4,7 @@ activities_cache
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:activitiescache`` | name_rex: ``--activities_cache\.jsonl$``
+   * ``windows:activitiescache`` | name_rex: ``r"--activities_cache\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

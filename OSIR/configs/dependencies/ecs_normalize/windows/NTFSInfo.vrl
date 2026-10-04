@@ -1,70 +1,73 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : NTFSInfo
+# Version    : 1.0
 # Windows NTFSInfoFull_detail CSV → ECS-ish
 #
-# Columns:
-# ComputerName,VolumeID,File,ParentName,FullName,Extension,SizeInBytes,
-# Attributes,CreationDate,LastModificationDate,LastAccessDate,LastAttrChangeDate,
-# FileNameCreationDate,FileNameLastModificationDate,FileNameLastAccessDate,
-# FileNameLastAttrModificationDate,USN,FRN,ParentFRN,ExtendedAttribute,ADS,
-# FilenameID,DataID,RecordInUse,ShortName,MD5,SHA1,FirstBytes,OwnerId,OwnerSid,
-# Owner,Version,CompanyName,ProductName,OriginalFileName,Platform,TimeStamp,
-# SubSystem,FileType,FileOS,FilenameFlags,SHA256,PeSHA1,PeSHA256,SecDescrID,
-# EASize,SecurityDirectory,AuthenticodeStatus,AuthenticodeSigner,
-# AuthenticodeSignerThumbprint,AuthenticodeCA,AuthenticodeCAThumbprint,PeMD5,
-# FilenameIndex,DataIndex,SnapshotID,SSDeep,TLSH,SignedHash,
-# SecurityDirectorySize,SecurityDirectorySignatureSize
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
-
-# Ensure .event exists
+# [normalization] {} -> event
 if !exists(.event) {
   .event = {}
 }
 
-# Keep original event 
+# [normalization] encode_json!(.) -> event.original
 .event.original = encode_json!(.)
 
-# -----------------------------------------------------------------------------
-# ECS scaffolding
-# -----------------------------------------------------------------------------
-.event.dataset  = "windows.ntfsinfo"
-.event.module   = "windows"
-.event.kind     = "state"
+# [normalization] windows.ntfsinfo -> event.dataset
+.event.dataset = "windows.ntfsinfo"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['file'] -> event.category
 .event.category = ["file"]
-.event.type     = ["info"]
-.event.action   = "ntfs_file"
-.event.code     = "ntfs_file"
-.event.outcome  = "success"
+
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] ntfs_file -> event.action
+.event.action = "ntfs_file"
+
+# [normalization] ntfs_file -> event.code
+.event.code = "ntfs_file"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows NTFSInfo (detail) -> event.provider
 .event.provider = "Windows NTFSInfo (detail)"
 
-# -----------------------------------------------------------------------------
-# Host / volume
-# -----------------------------------------------------------------------------
-
-# ComputerName → host.name
+# [normalization] to_string!(del(.ComputerName)) -> host.name
 if exists(.ComputerName) {
   .host.name = to_string!(del(.ComputerName))
 }
 
-# VolumeID → file.Ext.ntfs.volume_id
+# [normalization] to_string!(del(.VolumeID)) -> file.Ext.ntfs.volume_id
 if exists(.VolumeID) {
   .file.Ext.ntfs.volume_id = to_string!(del(.VolumeID))
 }
 
-# -----------------------------------------------------------------------------
-# Path / names / size / attributes
-# -----------------------------------------------------------------------------
-
-# FullName is the full path when present
+# [custom]
 full_raw = null
+
 if exists(.FullName) {
   full_raw = to_string!(del(.FullName))
 }
+
 if full_raw != null && full_raw != "" {
   .file.path = full_raw
 }
 
-# File (name only)
 if exists(.File) {
   fname_raw = to_string!(del(.File))
   if fname_raw != "" {
@@ -72,18 +75,14 @@ if exists(.File) {
   }
 }
 
-# ParentName → file.directory (normalize directory, preserve raw in event.original)
 if exists(.ParentName) {
   pn_raw = to_string!(del(.ParentName))
   if pn_raw != "" {
     dir_norm = pn_raw
 
-    # NTFSInfo often appends "\r" or "\f" at the end (stream/type markers),
-    # strip those for the *normalized* directory, but keep the raw in event.original
     if ends_with(dir_norm, "\\r") || ends_with(dir_norm, "\\f") {
       len = length(dir_norm)
       if len > 2 {
-        # keep everything except the last 2 characters ("\r" or "\f")
         dir_norm = slice!(dir_norm, 0, len - 2)
       }
     }
@@ -92,7 +91,6 @@ if exists(.ParentName) {
   }
 }
 
-# If FullName was empty, reconstruct path from directory + name
 if !exists(.file.path) && exists(.file.name) {
   fname = to_string!(.file.name)
 
@@ -108,27 +106,21 @@ if !exists(.file.path) && exists(.file.name) {
       .file.path = fname
     }
   } else {
-    # No directory, only name
     .file.path = fname
   }
 }
 
-
-# Extension → file.extension (without dot)
 if exists(.Extension) {
   ext_raw = to_string!(del(.Extension))
   if ext_raw != "" {
-    # strip leading dot if any
     if starts_with(ext_raw, ".") {
       .file.extension = slice!(ext_raw, 1)
     } else {
       .file.extension = ext_raw
     }
-    # raw value is already preserved in event.original.Extension
   }
 }
 
-# SizeInBytes → file.size
 if exists(.SizeInBytes) {
   sb_raw = to_string!(del(.SizeInBytes))
   if sb_raw != "" {
@@ -141,21 +133,13 @@ if exists(.SizeInBytes) {
   }
 }
 
-# Attributes → NTFS attribute string
 if exists(.Attributes) {
   attr_raw = to_string!(del(.Attributes))
   if attr_raw != "" {
     .file.attributes = attr_raw
-    # raw is already in event.original.Attributes
   }
 }
 
-# -----------------------------------------------------------------------------
-# Timestamps on the file (standard times)
-# Format: 2025-01-19 01:24:39.695
-# -----------------------------------------------------------------------------
-
-# CreationDate → file.ctime
 if exists(.CreationDate) {
   cd_raw = to_string!(del(.CreationDate))
   if cd_raw != "" {
@@ -168,7 +152,6 @@ if exists(.CreationDate) {
   }
 }
 
-# LastModificationDate → file.mtime
 if exists(.LastModificationDate) {
   lmd_raw = to_string!(del(.LastModificationDate))
   if lmd_raw != "" {
@@ -181,7 +164,6 @@ if exists(.LastModificationDate) {
   }
 }
 
-# LastAccessDate → file.atime
 if exists(.LastAccessDate) {
   lad_raw = to_string!(del(.LastAccessDate))
   if lad_raw != "" {
@@ -194,7 +176,6 @@ if exists(.LastAccessDate) {
   }
 }
 
-# LastAttrChangeDate → MFT change time (ECS has no direct field, keep in Ext)
 if exists(.LastAttrChangeDate) {
   lac_raw = to_string!(del(.LastAttrChangeDate))
   if lac_raw != "" {
@@ -206,10 +187,6 @@ if exists(.LastAttrChangeDate) {
     }
   }
 }
-
-# -----------------------------------------------------------------------------
-# Timestamps on the filename metadata (FN attribute)
-# -----------------------------------------------------------------------------
 
 if exists(.FileNameCreationDate) {
   fnc_raw = to_string!(del(.FileNameCreationDate))
@@ -258,10 +235,6 @@ if exists(.FileNameLastAttrModificationDate) {
     }
   }
 }
-
-# -----------------------------------------------------------------------------
-# NTFS IDs / metadata
-# -----------------------------------------------------------------------------
 
 if exists(.USN) {
   usn_raw = to_string!(del(.USN))
@@ -321,7 +294,6 @@ if exists(.RecordInUse) {
     } else if riu_l == "n" || riu_l == "no" || riu_l == "false" {
       .file.Ext.ntfs.record_in_use = false
     } else {
-      # Only keep raw when we don't understand the value
       .file.Ext.ntfs.record_in_use_raw = riu_raw
     }
   }
@@ -333,10 +305,6 @@ if exists(.ShortName) {
     .file.Ext.ntfs.short_name = sn_raw
   }
 }
-
-# -----------------------------------------------------------------------------
-# Hashes & content preview
-# -----------------------------------------------------------------------------
 
 if exists(.MD5) {
   md5_raw = to_string!(del(.MD5))
@@ -387,7 +355,6 @@ if exists(.FirstBytes) {
   }
 }
 
-# SSDeep / TLSH / SignedHash
 if exists(.SSDeep) {
   ssdeep_raw = to_string!(del(.SSDeep))
   if ssdeep_raw != "" {
@@ -409,10 +376,6 @@ if exists(.SignedHash) {
   }
 }
 
-# -----------------------------------------------------------------------------
-# Ownership
-# -----------------------------------------------------------------------------
-
 if exists(.OwnerId) {
   oid_raw = to_string!(del(.OwnerId))
   if oid_raw != "" {
@@ -433,10 +396,6 @@ if exists(.Owner) {
     .file.owner = own_raw
   }
 }
-
-# -----------------------------------------------------------------------------
-# File version / PE metadata
-# -----------------------------------------------------------------------------
 
 if exists(.Version) {
   ver_raw = to_string!(del(.Version))
@@ -507,10 +466,6 @@ if exists(.FilenameFlags) {
     .file.Ext.ntfs.filename_flags = fflags_raw
   }
 }
-
-# -----------------------------------------------------------------------------
-# Security / Authenticode
-# -----------------------------------------------------------------------------
 
 if exists(.SecDescrID) {
   sdid_raw = to_string!(del(.SecDescrID))
@@ -603,10 +558,6 @@ if exists(.AuthenticodeCAThumbprint) {
   }
 }
 
-# -----------------------------------------------------------------------------
-# Misc indexes / snapshot
-# -----------------------------------------------------------------------------
-
 if exists(.FilenameIndex) {
   fi_raw = to_string!(del(.FilenameIndex))
   if fi_raw != "" {
@@ -628,11 +579,8 @@ if exists(.SnapshotID) {
   }
 }
 
-# -----------------------------------------------------------------------------
-# Fallback .timestamp from available file times
-# Order: file.mtime > file.atime > file.ctime
-# -----------------------------------------------------------------------------
 ts_value  = null
+
 ts_source = null
 
 if exists(.file.mtime) {

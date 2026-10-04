@@ -1,49 +1,57 @@
-# -----------------------------------------------------------------------------
-# Windows Routes 
-#   Input fields:
-#     type, index, mac_address, name,
-#     destination, netmask, gateway, interface, metric
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : routes
+# Version    : 1.0
+# Windows Routes
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Keep raw event 
+# transformations
 # -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.routes -> event.dataset
+.event.dataset = "windows.routes"
 
-.event.dataset  = "windows.routes"
-.event.module   = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-# Routing table & interface snapshot
-.event.kind     = "state"
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['network', 'configuration'] -> event.category
 .event.category = ["network", "configuration"]
-.event.type     = ["info", "routing"]
 
-.event.outcome  = "success"
+# [normalization] ['info', 'routing'] -> event.type
+.event.type = ["info", "routing"]
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows routes -> event.provider
 .event.provider = "Windows routes"
 
-.network.type     = "ipv4"
+# [normalization] ipv4 -> network.type
+.network.type = "ipv4"
+
+# [normalization] ip -> network.protocol
 .network.protocol = "ip"
 
-# -----------------------------------------------------------------------------
-# Basic event classification from "type"
-# -----------------------------------------------------------------------------
-
+# [custom]
 rec_type = null
+
 if exists(.type) {
     rec_type = to_string!(del(.type))
     .event.code   = rec_type
     .event.action = downcase(rec_type)
 }
-
-# -----------------------------------------------------------------------------
-# Common: interface index (if present)
-# -----------------------------------------------------------------------------
 
 if exists(.index) {
     idx_raw = to_string!(del(.index))
@@ -56,19 +64,13 @@ if exists(.index) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# route_interface records → interface inventory
-# -----------------------------------------------------------------------------
-
 if rec_type == "route_interface" {
-    # Human interface name
     if exists(.name) {
         iface_name = to_string!(del(.name))
         .host.Ext.routes.interface_name = iface_name
         .observer.name = iface_name
     }
 
-    # MAC address: "b4 2e 99 ec a4 6d" → "b4:2e:99:ec:a4:6d"
     if exists(.mac_address) {
         mac_raw = to_string!(del(.mac_address))
         .host.Ext.routes.interface_mac_raw = mac_raw
@@ -76,17 +78,11 @@ if rec_type == "route_interface" {
         mac_norm = downcase(replace(mac_raw, " ", ":"))
         .host.Ext.routes.interface_mac = mac_norm
 
-        # Simple ECS-style host.mac list with one value for this event
         .host.mac = [mac_norm]
     }
 }
 
-# -----------------------------------------------------------------------------
-# ipv4_route records → routing table entries
-# -----------------------------------------------------------------------------
-
 if rec_type == "ipv4_route" {
-    # Destination + netmask → route destination/netmask (Ext)
     if exists(.destination) {
         dest = to_string!(del(.destination))
         .network.Ext.route.destination = dest
@@ -97,11 +93,9 @@ if rec_type == "ipv4_route" {
         .network.Ext.route.netmask = mask
     }
 
-    # Gateway / next hop
     if exists(.gateway) {
         gw_raw = to_string!(del(.gateway))
 
-        # "On-link" = no real gateway, directly reachable
         if gw_raw == "On-link" {
             .network.Ext.route.gateway = gw_raw
             .network.Ext.route.on_link = true
@@ -111,16 +105,13 @@ if rec_type == "ipv4_route" {
         }
     }
 
-    # Interface IP used for this route
     if exists(.interface) {
         iface_ip = to_string!(del(.interface))
         .network.Ext.route.interface_ip = iface_ip
 
-        # Simple ECS-style host.ip list with one value for this event
         .host.ip = [iface_ip]
     }
 
-    # Metric
     if exists(.metric) {
         metric_raw = to_string!(del(.metric))
         metric_int = parse_int(metric_raw) ?? null

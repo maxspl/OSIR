@@ -1,49 +1,54 @@
-# -----------------------------------------------------------------------------
-# Sysinternals Tcpvcon 
-#   Input fields:
-#     type, protocol, process_name, pid, state,
-#     local_address, remote_address
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : tcpvcon
+# Version    : 1.0
+# Sysinternals Tcpvcon
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Keep raw event 
+# transformations
 # -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.tcpvcon -> event.dataset
+.event.dataset = "windows.tcpvcon"
 
-.event.dataset  = "windows.tcpvcon"
-.event.module   = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-# Connection snapshot on the host
-.event.kind     = "state"
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['network'] -> event.category
 .event.category = ["network"]
-.event.type     = ["info", "connection"]
 
-.event.outcome  = "success"
+# [normalization] ['info', 'connection'] -> event.type
+.event.type = ["info", "connection"]
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Sysinternals Tcpvcon -> event.provider
 .event.provider = "Sysinternals Tcpvcon"
 
-# We'll refine network.type below based on IP family
+# [normalization] ip -> network.protocol
 .network.protocol = "ip"
 
-# -----------------------------------------------------------------------------
-# Basic event classification from "type"
-# -----------------------------------------------------------------------------
-
+# [custom]
 rec_type = null
+
 if exists(.type) {
     rec_type = to_string!(del(.type))
     .event.code   = rec_type
     .event.action = downcase(rec_type)
 }
-
-# -----------------------------------------------------------------------------
-# Protocol → network.transport / protocol
-# -----------------------------------------------------------------------------
 
 if exists(.protocol) {
     proto_raw = to_string!(del(.protocol))
@@ -53,14 +58,12 @@ if exists(.protocol) {
     .network.protocol  = proto_l
 }
 
-# -----------------------------------------------------------------------------
-# Process info
-# -----------------------------------------------------------------------------
-
+# [normalization] to_string!(del(.process_name)) -> process.name
 if exists(.process_name) {
-    .process.name = to_string!(del(.process_name))
+  .process.name = to_string!(del(.process_name))
 }
 
+# [custom]
 if exists(.pid) {
     pid_raw = to_string!(del(.pid))
     pid_int = parse_int(pid_raw) ?? null
@@ -72,31 +75,21 @@ if exists(.pid) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Connection state
-# -----------------------------------------------------------------------------
-
 if exists(.state) {
     state_raw = to_string!(del(.state))
     state_l   = downcase(state_raw)
 
-    # Keep raw state under network.Ext
     .network.Ext.tcp_state = state_raw
 
-    # Use state as a better event.action than "tcpvcon_connection"
     .event.action = state_l
 
-    # Simple direction hint for listeners
     if state_l == "listening" {
         .network.direction = "ingress"
     }
 }
 
-# -----------------------------------------------------------------------------
-# Local / remote addresses → source/destination
-# -----------------------------------------------------------------------------
-
 local_ip  = null
+
 remote_ip = null
 
 if exists(.local_address) {
@@ -113,8 +106,8 @@ if exists(.remote_address) {
     }
 }
 
-# Infer IP family for network.type
 ip_sample = null
+
 if local_ip != null && local_ip != "" {
     ip_sample = local_ip
 } else if remote_ip != null && remote_ip != "" {

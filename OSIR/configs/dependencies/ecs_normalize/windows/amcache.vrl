@@ -1,643 +1,937 @@
-# =============================================================================
-# Windows Amcache CSV → ECS-ish generic normalizer
-# Handles all Amcache views generically, without view-specific blocks
-# =============================================================================
+##############################################################
+# Module VRL : amcache
+# Version    : 1.0
+# Amcache artifacts (AmcacheParser CSV + dfir-ogre Amcache.hve JSONL) → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
 # -----------------------------------------------------------------------------
-# Ensure .event exists and keep original event
+# normalize dotted fields
 # -----------------------------------------------------------------------------
-if !exists(.event) {
-  .event = {}
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
+}
+if exists(."file.hash.sha1") {
+  .file.hash.sha1 = get!(., path: ["file.hash.sha1"])
+  del(."file.hash.sha1")
+}
+if exists(."labels.friendly_name") {
+  .labels.friendly_name = get!(., path: ["labels.friendly_name"])
+  del(."labels.friendly_name")
 }
 
-if !exists(.event.original) {
-  .event.original = encode_json!(.)
-}
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
 
-# =============================================================================
-# Generic FILE mapping (unassociated entries, drive binaries, shortcuts, etc.)
-# =============================================================================
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
 
-# Paths (priority: FullPath, then LnkName, then KeyName)
-if exists(.FullPath) && !exists(.file.path) {
-  .file.path = to_string!(del(.FullPath))
-}
+# [normalization] windows.amcache -> event.dataset
+.event.dataset = "windows.amcache"
 
-if exists(.LnkName) && !exists(.file.path) {
-  .file.path = to_string!(del(.LnkName))
-}
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-if exists(.KeyName) && !exists(.file.path) {
-  .file.path = to_string!(del(.KeyName))
-}
+# [normalization] event -> event.kind
+.event.kind = "event"
 
-# Directory
-if exists(.Directory) && !exists(.file.directory) {
-  .file.directory = to_string!(del(.Directory))
-}
+# [normalization] ['file', 'driver', 'device'] -> event.category
+.event.category = ["file", "driver", "device"]
 
-# Name / FileExtension
-if exists(.Name) && !exists(.file.name) {
-  .file.name = to_string!(del(.Name))
-}
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
 
-if exists(.FileExtension) {
-  ext_raw = to_string!(del(.FileExtension))
-  if ext_raw != "" {
-    .file.extension = replace(ext_raw, ".", "")
-    .file.Ext.amcache.extension_raw = ext_raw
-  }
-}
+# [normalization] Windows AmCache -> event.provider
+.event.provider = "Windows AmCache"
 
-# If we have a file.path but no file.name, derive basename
-if exists(.file.path) && !exists(.file.name) {
-  fp = to_string!(.file.path)
-  parts = split!(fp, "\\\\")
-  plen = length(parts)
-  if plen > 0 {
-    idx = plen - 1
-    last_part = get!(parts, [idx])
-    .file.name = last_part
-  }
-}
+# [normalization] success -> event.outcome
+.event.outcome = "success"
 
-# LnkName as metadata
-if exists(.LnkName) {
-  .file.lnk_name = to_string!(del(.LnkName))
-}
-
-# Size / ImageSize / Size (unassociated)
-if exists(.Size) {
-  sz_raw = to_string!(del(.Size))
-  sz_val = parse_int(sz_raw) ?? null
-  if sz_val != null {
-    .file.size = sz_val
+# [normalization] FileKeyLastWriteTimestamp -> timestamp
+if exists(.FullPath) && exists(.FileKeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.FileKeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .timestamp = _result
   } else {
-    .file.Ext.amcache.size_raw = sz_raw
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
   }
 }
 
-if exists(.ImageSize) {
-  is_raw = to_string!(del(.ImageSize))
-  is_val = parse_int(is_raw) ?? null
-  if is_val != null {
-    .file.size = is_val
+# [normalization] FileKeyLastWriteTimestamp -> registry.mtime
+if exists(.FullPath) && exists(.FileKeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.FileKeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .registry.mtime = _result
   } else {
-    .file.Ext.amcache.image_size_raw = is_raw
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
   }
 }
 
-# Hashes
-if exists(.SHA1) {
-  sha1_raw = to_string!(del(.SHA1))
-  if sha1_raw != "" {
-    .file.hash.sha1 = sha1_raw
-  }
+# [normalization] Amcache -> registry.hive
+if exists(.FullPath) {
+  .registry.hive = "Amcache"
 }
 
-# Product / version / description
-if exists(.ProductName) && !exists(.file.product) {
-  .file.product = to_string!(del(.ProductName))
+# [normalization] FullPath -> file.path
+if exists(.FullPath) {
+  .file.path = .FullPath
 }
 
-if exists(.ProductVersion) && !exists(.file.product_version) {
-  .file.product_version = to_string!(del(.ProductVersion))
+# [normalization] Name -> file.name
+if exists(.FullPath) && exists(.Name) {
+  .file.name = .Name
 }
 
-if exists(.Version) && !exists(.file.version) {
-  .file.version = to_string!(del(.Version))
-}
-
-if exists(.Description) && !exists(.file.description) {
-  .file.description = to_string!(del(.Description))
-}
-
-if exists(.Language) {
-  .file.Ext.amcache.language = to_string!(del(.Language))
-}
-
-if exists(.BinaryType) {
-  .file.Ext.amcache.binary_type = to_string!(del(.BinaryType))
-}
-
-if exists(.BinFileVersion) {
-  .file.Ext.amcache.bin_file_version = to_string!(del(.BinFileVersion))
-}
-
-if exists(.BinProductVersion) {
-  .file.Ext.amcache.bin_product_version = to_string!(del(.BinProductVersion))
-}
-
-# USN
-if exists(.Usn) {
-  usn_raw = to_string!(del(.Usn))
-  usn_val = parse_int(usn_raw) ?? null
-  if usn_val != null {
-    .file.Ext.amcache.usn = usn_val
+# [normalization] Size -> file.size
+if exists(.FullPath) && exists(.Size) {
+  _result, err = to_int(.Size)
+  if err == null {
+    .file.size = _result
   } else {
-    .file.Ext.amcache.usn_raw = usn_raw
+    log("[amcache] échec de l'opération to_int sur file.size : " + err, level: "warn")
   }
 }
 
-# Application / program metadata
-if exists(.ApplicationName) {
-  .file.Ext.amcache.application_name = to_string!(del(.ApplicationName))
+# [normalization] FileExtension -> file.extension
+if exists(.FullPath) && exists(.FileExtension) {
+  .file.extension = .FileExtension
 }
 
-if exists(.ProgramId) {
-  .file.Ext.amcache.program_id = to_string!(del(.ProgramId))
+# [normalization] SHA1 -> file.hash.sha1
+if exists(.FullPath) && exists(.SHA1) {
+  .file.hash.sha1 = .SHA1
 }
 
-if exists(.LongPathHash) {
-  .file.Ext.amcache.long_path_hash = to_string!(del(.LongPathHash))
+# [normalization] Description -> file.description
+if exists(.FullPath) && exists(.Description) {
+  .file.description = .Description
 }
 
-# Booleans: IsOsComponent, IsPeFile
-if exists(.IsOsComponent) {
-  raw = to_string!(del(.IsOsComponent))
-  .file.Ext.amcache.is_os_component_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .file.Ext.amcache.is_os_component = true
-  } else if low == "false" {
-    .file.Ext.amcache.is_os_component = false
+# [normalization] Version -> file.version
+if exists(.FullPath) && exists(.Version) {
+  .file.version = .Version
+}
+
+# [normalization] LinkDate -> file.mtime
+if exists(.FullPath) && exists(.LinkDate) {
+  _result, err = parse_timestamp(.LinkDate, format: "%F %T")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
   }
 }
 
-if exists(.IsPeFile) {
-  raw = to_string!(del(.IsPeFile))
-  .file.Ext.amcache.is_pe_file_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .file.Ext.amcache.is_pe_file = true
-  } else if low == "false" {
-    .file.Ext.amcache.is_pe_file = false
+# [normalization] ApplicationName -> labels.application_name
+if exists(.FullPath) && exists(.ApplicationName) {
+  .labels.application_name = .ApplicationName
+}
+
+# [normalization] ProgramId -> labels.program_id
+if exists(.FullPath) && exists(.ProgramId) {
+  .labels.program_id = .ProgramId
+}
+
+# [normalization] IsOsComponent -> labels.is_os_component
+if exists(.FullPath) && exists(.IsOsComponent) {
+  _result, err = to_bool(.IsOsComponent)
+  if err == null {
+    .labels.is_os_component = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_os_component : " + err, level: "warn")
   }
 }
 
-# -----------------------------------------------------------------------------
-# Generic DEVICE mapping (DeviceContainers, DevicePnps)
-# -----------------------------------------------------------------------------
-
-# Device identity / naming
-if exists(.ModelId) && !exists(.device.id) {
-  mid = to_string!(del(.ModelId))
-  .device.id = mid
-  .device.Ext.amcache.model_id = mid
-}
-
-if exists(.FriendlyName) && !exists(.device.name) {
-  fn = to_string!(del(.FriendlyName))
-  .device.name = fn
-  .device.Ext.amcache.friendly_name = fn
-}
-
-if exists(.ModelName) && !exists(.device.model) {
-  .device.model = to_string!(del(.ModelName))
-}
-
-if exists(.ModelNumber) {
-  .device.Ext.amcache.model_number = to_string!(del(.ModelNumber))
-}
-
-if exists(.Manufacturer) && !exists(.device.manufacturer) {
-  .device.manufacturer = to_string!(del(.Manufacturer))
-}
-
-if exists(.PrimaryCategory) {
-  pc = to_string!(del(.PrimaryCategory))
-  if pc != "" {
-    .device.type = pc
-    .device.Ext.amcache.primary_category = pc
+# [normalization] IsPeFile -> labels.is_pe_file
+if exists(.FullPath) && exists(.IsPeFile) {
+  _result, err = to_bool(.IsPeFile)
+  if err == null {
+    .labels.is_pe_file = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_pe_file : " + err, level: "warn")
   }
 }
 
-if exists(.Categories) {
-  .device.Ext.amcache.categories_raw = to_string!(del(.Categories))
+# [normalization] BinaryType -> labels.binary_type
+if exists(.FullPath) && exists(.BinaryType) {
+  .labels.binary_type = .BinaryType
 }
 
-if exists(.DiscoveryMethod) {
-  .device.Ext.amcache.discovery_method = to_string!(del(.DiscoveryMethod))
+# [normalization] ProductName -> labels.product_name
+if exists(.FullPath) && exists(.ProductName) {
+  .labels.product_name = .ProductName
 }
 
-if exists(.Icon) {
-  .device.Ext.amcache.icon_resource = to_string!(del(.Icon))
+# [normalization] ProductVersion -> labels.product_version
+if exists(.FullPath) && exists(.ProductVersion) {
+  .labels.product_version = .ProductVersion
 }
 
-# Container / PnP relations
-if exists(.ContainerId) && !exists(.device.id) {
-  cid = to_string!(del(.ContainerId))
-  .device.id = cid
-  .device.Ext.amcache.container_id = cid
+# [normalization] BinFileVersion -> labels.bin_file_version
+if exists(.FullPath) && exists(.BinFileVersion) {
+  .labels.bin_file_version = .BinFileVersion
 }
 
-if exists(.Class) {
-  cls = to_string!(del(.Class))
-  .device.type = cls
-  .device.Ext.amcache.class = cls
+# [normalization] BinProductVersion -> labels.bin_product_version
+if exists(.FullPath) && exists(.BinProductVersion) {
+  .labels.bin_product_version = .BinProductVersion
 }
 
-if exists(.ClassGuid) {
-  .device.Ext.amcache.class_guid = to_string!(del(.ClassGuid))
+# [normalization] LongPathHash -> labels.long_path_hash
+if exists(.FullPath) && exists(.LongPathHash) {
+  .labels.long_path_hash = .LongPathHash
 }
 
-if exists(.BusReportedDescription) {
-  .device.Ext.amcache.bus_reported_description = to_string!(del(.BusReportedDescription))
+# [normalization] Usn -> labels.usn
+if exists(.FullPath) && exists(.Usn) {
+  _result, err = to_int(.Usn)
+  if err == null {
+    .labels.usn = _result
+  } else {
+    log("[amcache] échec de l'opération to_int sur labels.usn : " + err, level: "warn")
+  }
 }
 
-if exists(.Enumerator) {
-  .device.Ext.amcache.enumerator = to_string!(del(.Enumerator))
+# [normalization] Language -> labels.language
+if exists(.FullPath) && exists(.Language) {
+  .labels.language = .Language
 }
 
+# [normalization] OriginalFileName -> labels.original_file_name
+if exists(.FullPath) && exists(.OriginalFileName) {
+  .labels.original_file_name = .OriginalFileName
+}
+
+# [normalization] KeyLastWriteTimestamp -> timestamp
+if exists(.ModelId) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] KeyLastWriteTimestamp -> registry.mtime
+if exists(.ModelId) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] Amcache -> registry.hive
+if exists(.ModelId) {
+  .registry.hive = "Amcache"
+}
+
+# [normalization] KeyName -> labels.key_name
+if exists(.ModelId) && exists(.KeyName) {
+  .labels.key_name = .KeyName
+}
+
+# [normalization] Manufacturer -> device.manufacturer
+if exists(.ModelId) && exists(.Manufacturer) {
+  .device.manufacturer = .Manufacturer
+}
+
+# [normalization] ModelName -> device.model.name
+if exists(.ModelId) && exists(.ModelName) {
+  .device.model.name = .ModelName
+}
+
+# [normalization] ModelNumber -> labels.model_number
+if exists(.ModelId) && exists(.ModelNumber) {
+  .labels.model_number = .ModelNumber
+}
+
+# [normalization] ModelId -> labels.model_id
+if exists(.ModelId) {
+  .labels.model_id = .ModelId
+}
+
+# [normalization] FriendlyName -> labels.friendly_name
+if exists(.ModelId) && exists(.FriendlyName) {
+  .labels.friendly_name = .FriendlyName
+}
+
+# [normalization] Categories -> labels.categories
+if exists(.ModelId) && exists(.Categories) {
+  .labels.categories = .Categories
+}
+
+# [normalization] PrimaryCategory -> labels.primary_category
+if exists(.ModelId) && exists(.PrimaryCategory) {
+  .labels.primary_category = .PrimaryCategory
+}
+
+# [normalization] DiscoveryMethod -> labels.discovery_method
+if exists(.ModelId) && exists(.DiscoveryMethod) {
+  .labels.discovery_method = .DiscoveryMethod
+}
+
+# [normalization] Icon -> labels.icon
+if exists(.ModelId) && exists(.Icon) {
+  .labels.icon = .Icon
+}
+
+# [normalization] IsActive -> labels.is_active
+if exists(.ModelId) && exists(.IsActive) {
+  _result, err = to_bool(.IsActive)
+  if err == null {
+    .labels.is_active = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_active : " + err, level: "warn")
+  }
+}
+
+# [normalization] IsConnected -> labels.is_connected
+if exists(.ModelId) && exists(.IsConnected) {
+  _result, err = to_bool(.IsConnected)
+  if err == null {
+    .labels.is_connected = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_connected : " + err, level: "warn")
+  }
+}
+
+# [normalization] IsMachineContainer -> labels.is_machine_container
+if exists(.ModelId) && exists(.IsMachineContainer) {
+  _result, err = to_bool(.IsMachineContainer)
+  if err == null {
+    .labels.is_machine_container = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_machine_container : " + err, level: "warn")
+  }
+}
+
+# [normalization] IsNetworked -> labels.is_networked
+if exists(.ModelId) && exists(.IsNetworked) {
+  _result, err = to_bool(.IsNetworked)
+  if err == null {
+    .labels.is_networked = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_networked : " + err, level: "warn")
+  }
+}
+
+# [normalization] IsPaired -> labels.is_paired
+if exists(.ModelId) && exists(.IsPaired) {
+  _result, err = to_bool(.IsPaired)
+  if err == null {
+    .labels.is_paired = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_paired : " + err, level: "warn")
+  }
+}
+
+# [normalization] State -> labels.state
+if exists(.ModelId) && exists(.State) {
+  _result, err = to_int(.State)
+  if err == null {
+    .labels.state = _result
+  } else {
+    log("[amcache] échec de l'opération to_int sur labels.state : " + err, level: "warn")
+  }
+}
+
+# [normalization] KeyLastWriteTimestamp -> timestamp
+if exists(.HWID) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] KeyLastWriteTimestamp -> registry.mtime
+if exists(.HWID) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] Amcache -> registry.hive
 if exists(.HWID) {
-  .device.Ext.amcache.hwid = to_string!(del(.HWID))
+  .registry.hive = "Amcache"
 }
 
-if exists(.ParentId) {
-  .device.Ext.amcache.parent_id = to_string!(del(.ParentId))
+# [normalization] KeyName -> labels.key_name
+if exists(.HWID) && exists(.KeyName) {
+  .labels.key_name = .KeyName
 }
 
-if exists(.Stackid) {
-  .device.Ext.amcache.stack_id = to_string!(del(.Stackid))
+# [normalization] BusReportedDescription -> labels.bus_reported_description
+if exists(.HWID) && exists(.BusReportedDescription) {
+  .labels.bus_reported_description = .BusReportedDescription
 }
 
-# Device state / problem codes
-if exists(.ProblemCode) {
-  pr_raw = to_string!(del(.ProblemCode))
-  pr_val = parse_int(pr_raw) ?? null
-  if pr_val != null {
-    .device.Ext.amcache.problem_code = pr_val
+# [normalization] Class -> labels.class
+if exists(.HWID) && exists(.Class) {
+  .labels.class = .Class
+}
+
+# [normalization] ClassGuid -> labels.class_guid
+if exists(.HWID) && exists(.ClassGuid) {
+  .labels.class_guid = .ClassGuid
+}
+
+# [normalization] Compid -> labels.compid
+if exists(.HWID) && exists(.Compid) {
+  .labels.compid = .Compid
+}
+
+# [normalization] ContainerId -> labels.container_id
+if exists(.HWID) && exists(.ContainerId) {
+  .labels.container_id = .ContainerId
+}
+
+# [normalization] Description -> labels.description
+if exists(.HWID) && exists(.Description) {
+  .labels.description = .Description
+}
+
+# [normalization] DriverId -> labels.driver_id
+if exists(.HWID) && exists(.DriverId) {
+  .labels.driver_id = .DriverId
+}
+
+# [normalization] DriverName -> labels.driver_name
+if exists(.HWID) && exists(.DriverName) {
+  .labels.driver_name = .DriverName
+}
+
+# [normalization] DriverVerDate -> labels.driver_ver_date
+if exists(.HWID) && exists(.DriverVerDate) {
+  _result, err = parse_timestamp(.DriverVerDate, format: "%m-%d-%Y")
+  if err == null {
+    .labels.driver_ver_date = _result
   } else {
-    .device.Ext.amcache.problem_code_raw = pr_raw
+    log("[amcache] échec de l'opération parse_timestamp sur labels.driver_ver_date : " + err, level: "warn")
   }
 }
 
-if exists(.InstallState) {
-  is_raw = to_string!(del(.InstallState))
-  is_val = parse_int(is_raw) ?? null
-  if is_val != null {
-    .device.Ext.amcache.install_state = is_val
+# [normalization] DriverVerVersion -> labels.driver_ver_version
+if exists(.HWID) && exists(.DriverVerVersion) {
+  .labels.driver_ver_version = .DriverVerVersion
+}
+
+# [normalization] Enumerator -> labels.enumerator
+if exists(.HWID) && exists(.Enumerator) {
+  .labels.enumerator = .Enumerator
+}
+
+# [normalization] HWID -> labels.hwid
+if exists(.HWID) {
+  .labels.hwid = .HWID
+}
+
+# [normalization] Inf -> labels.inf
+if exists(.HWID) && exists(.Inf) {
+  .labels.inf = .Inf
+}
+
+# [normalization] InstallState -> labels.install_state
+if exists(.HWID) && exists(.InstallState) {
+  _result, err = to_int(.InstallState)
+  if err == null {
+    .labels.install_state = _result
   } else {
-    .device.Ext.amcache.install_state_raw = is_raw
+    log("[amcache] échec de l'opération to_int sur labels.install_state : " + err, level: "warn")
   }
 }
 
-if exists(.State) {
-  st_raw = to_string!(del(.State))
-  st_val = parse_int(st_raw) ?? null
-  if st_val != null {
-    .device.Ext.amcache.state = st_val
+# [normalization] Manufacturer -> labels.manufacturer
+if exists(.HWID) && exists(.Manufacturer) {
+  .labels.manufacturer = .Manufacturer
+}
+
+# [normalization] MatchingId -> labels.matching_id
+if exists(.HWID) && exists(.MatchingId) {
+  .labels.matching_id = .MatchingId
+}
+
+# [normalization] Model -> labels.model
+if exists(.HWID) && exists(.Model) {
+  .labels.model = .Model
+}
+
+# [normalization] ParentId -> labels.parent_id
+if exists(.HWID) && exists(.ParentId) {
+  .labels.parent_id = .ParentId
+}
+
+# [normalization] ProblemCode -> labels.problem_code
+if exists(.HWID) && exists(.ProblemCode) {
+  _result, err = to_int(.ProblemCode)
+  if err == null {
+    .labels.problem_code = _result
   } else {
-    .device.Ext.amcache.state_raw = st_raw
+    log("[amcache] échec de l'opération to_int sur labels.problem_code : " + err, level: "warn")
   }
 }
 
-# Device boolean flags
-if exists(.IsActive) {
-  raw = to_string!(del(.IsActive))
-  .device.Ext.amcache.is_active_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .device.Ext.amcache.is_active = true
-  } else if low == "false" {
-    .device.Ext.amcache.is_active = false
+# [normalization] Provider -> labels.provider
+if exists(.HWID) && exists(.Provider) {
+  .labels.provider = .Provider
+}
+
+# [normalization] Service -> labels.service
+if exists(.HWID) && exists(.Service) {
+  .labels.service = .Service
+}
+
+# [normalization] Stackid -> labels.stackid
+if exists(.HWID) && exists(.Stackid) {
+  .labels.stackid = .Stackid
+}
+
+# [normalization] KeyLastWriteTimestamp -> timestamp
+if exists(.DriverCheckSum) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
   }
 }
 
-if exists(.IsConnected) {
-  raw = to_string!(del(.IsConnected))
-  .device.Ext.amcache.is_connected_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .device.Ext.amcache.is_connected = true
-  } else if low == "false" {
-    .device.Ext.amcache.is_connected = false
+# [normalization] KeyLastWriteTimestamp -> registry.mtime
+if exists(.DriverCheckSum) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
   }
 }
 
-if exists(.IsMachineContainer) {
-  raw = to_string!(del(.IsMachineContainer))
-  .device.Ext.amcache.is_machine_container_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .device.Ext.amcache.is_machine_container = true
-  } else if low == "false" {
-    .device.Ext.amcache.is_machine_container = false
-  }
-}
-
-if exists(.IsNetworked) {
-  raw = to_string!(del(.IsNetworked))
-  .device.Ext.amcache.is_networked_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .device.Ext.amcache.is_networked = true
-  } else if low == "false" {
-    .device.Ext.amcache.is_networked = false
-  }
-}
-
-if exists(.IsPaired) {
-  raw = to_string!(del(.IsPaired))
-  .device.Ext.amcache.is_paired_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .device.Ext.amcache.is_paired = true
-  } else if low == "false" {
-    .device.Ext.amcache.is_paired = false
-  }
-}
-
-# -----------------------------------------------------------------------------
-# DRIVER-related mapping (DriveBinaries, DriverPackages, PnP)
-# -----------------------------------------------------------------------------
-
-# Driver name / company / product
-if exists(.DriverName) {
-  dn = to_string!(del(.DriverName))
-  .file.Ext.amcache.driver.name = dn
-}
-
-if exists(.DriverCompany) {
-  .file.Ext.amcache.driver.company = to_string!(del(.DriverCompany))
-}
-
-if exists(.Product) && !exists(.file.product) {
-  .file.product = to_string!(del(.Product))
-}
-
-# Version fields
-if exists(.DriverVersion) {
-  .file.Ext.amcache.driver.version = to_string!(del(.DriverVersion))
-}
-
-if exists(.DriverVerVersion) {
-  .file.Ext.amcache.driver.version_string = to_string!(del(.DriverVerVersion))
-}
-
-if exists(.WdfVersion) {
-  .file.Ext.amcache.driver.wdf_version = to_string!(del(.WdfVersion))
-}
-
-# IDs / packages / inf / service / provider
-if exists(.DriverId) {
-  .file.Ext.amcache.driver.id = to_string!(del(.DriverId))
-}
-
-if exists(.DriverPackageStrongName) {
-  .file.Ext.amcache.driver.package_strong_name = to_string!(del(.DriverPackageStrongName))
-}
-
-if exists(.DriverType) {
-  .file.Ext.amcache.driver.type = to_string!(del(.DriverType))
-}
-
-if exists(.Inf) {
-  .file.Ext.amcache.driver.inf = to_string!(del(.Inf))
-}
-
-if exists(.Service) {
-  .file.Ext.amcache.driver.service = to_string!(del(.Service))
-}
-
-if exists(.Provider) {
-  .file.Ext.amcache.driver.provider = to_string!(del(.Provider))
-}
-
-if exists(.SubmissionId) {
-  .file.Ext.amcache.driver_package_submission_id = to_string!(del(.SubmissionId))
-}
-
-if exists(.Hwids) {
-  .file.Ext.amcache.driver_package_hwids_raw = to_string!(del(.Hwids))
-}
-
-if exists(.SYSFILE) {
-  .file.Ext.amcache.driver_package_sysfile_raw = to_string!(del(.SYSFILE))
-}
-
-if exists(.MatchingId) {
-  .file.Ext.amcache.matching_id = to_string!(del(.MatchingId))
-}
-
-# Driver checksum
+# [normalization] Amcache -> registry.hive
 if exists(.DriverCheckSum) {
-  cs_raw = to_string!(del(.DriverCheckSum))
-  cs_val = parse_int(cs_raw) ?? null
-  if cs_val != null {
-    .file.Ext.amcache.driver.checksum = cs_val
+  .registry.hive = "Amcache"
+}
+
+# [normalization] KeyName -> labels.key_name
+if exists(.DriverCheckSum) && exists(.KeyName) {
+  .labels.key_name = .KeyName
+}
+
+# [normalization] DriverTimeStamp -> labels.driver_time_stamp
+if exists(.DriverCheckSum) && exists(.DriverTimeStamp) {
+  _result, err = parse_timestamp(.DriverTimeStamp, format: "%F %T")
+  if err == null {
+    .labels.driver_time_stamp = _result
   } else {
-    .file.Ext.amcache.driver.checksum_raw = cs_raw
+    log("[amcache] échec de l'opération parse_timestamp sur labels.driver_time_stamp : " + err, level: "warn")
   }
 }
 
-# Driver booleans
-if exists(.DriverInBox) {
-  raw = to_string!(del(.DriverInBox))
-  .file.Ext.amcache.driver.inbox_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .file.Ext.amcache.driver.inbox = true
-  } else if low == "false" {
-    .file.Ext.amcache.driver.inbox = false
+# [normalization] DriverLastWriteTime -> labels.driver_last_write_time
+if exists(.DriverCheckSum) && exists(.DriverLastWriteTime) {
+  _result, err = parse_timestamp(.DriverLastWriteTime, format: "%F %T")
+  if err == null {
+    .labels.driver_last_write_time = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur labels.driver_last_write_time : " + err, level: "warn")
   }
 }
 
-if exists(.DriverIsKernelMode) {
-  raw = to_string!(del(.DriverIsKernelMode))
-  .file.Ext.amcache.driver.is_kernel_mode_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .file.Ext.amcache.driver.is_kernel_mode = true
-  } else if low == "false" {
-    .file.Ext.amcache.driver.is_kernel_mode = false
+# [normalization] DriverName -> labels.driver_name
+if exists(.DriverCheckSum) && exists(.DriverName) {
+  .labels.driver_name = .DriverName
+}
+
+# [normalization] DriverInBox -> labels.driver_in_box
+if exists(.DriverCheckSum) && exists(.DriverInBox) {
+  _result, err = to_bool(.DriverInBox)
+  if err == null {
+    .labels.driver_in_box = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.driver_in_box : " + err, level: "warn")
   }
 }
 
-if exists(.DriverSigned) {
-  raw = to_string!(del(.DriverSigned))
-  .file.Ext.amcache.driver.signed_raw = raw
-  low = downcase(raw)
-  if low == "true" {
-    .file.Ext.amcache.driver.signed = true
-  } else if low == "false" {
-    .file.Ext.amcache.driver.signed = false
+# [normalization] DriverIsKernelMode -> labels.driver_is_kernel_mode
+if exists(.DriverCheckSum) && exists(.DriverIsKernelMode) {
+  _result, err = to_bool(.DriverIsKernelMode)
+  if err == null {
+    .labels.driver_is_kernel_mode = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.driver_is_kernel_mode : " + err, level: "warn")
   }
 }
+
+# [normalization] DriverSigned -> labels.driver_signed
+if exists(.DriverCheckSum) && exists(.DriverSigned) {
+  _result, err = to_bool(.DriverSigned)
+  if err == null {
+    .labels.driver_signed = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.driver_signed : " + err, level: "warn")
+  }
+}
+
+# [normalization] DriverCheckSum -> labels.driver_check_sum
+if exists(.DriverCheckSum) {
+  .labels.driver_check_sum = .DriverCheckSum
+}
+
+# [normalization] DriverCompany -> labels.driver_company
+if exists(.DriverCheckSum) && exists(.DriverCompany) {
+  .labels.driver_company = .DriverCompany
+}
+
+# [normalization] DriverId -> labels.driver_id
+if exists(.DriverCheckSum) && exists(.DriverId) {
+  .labels.driver_id = .DriverId
+}
+
+# [normalization] DriverPackageStrongName -> labels.driver_package_strong_name
+if exists(.DriverCheckSum) && exists(.DriverPackageStrongName) {
+  .labels.driver_package_strong_name = .DriverPackageStrongName
+}
+
+# [normalization] DriverType -> labels.driver_type
+if exists(.DriverCheckSum) && exists(.DriverType) {
+  .labels.driver_type = .DriverType
+}
+
+# [normalization] DriverVersion -> labels.driver_version
+if exists(.DriverCheckSum) && exists(.DriverVersion) {
+  .labels.driver_version = .DriverVersion
+}
+
+# [normalization] ImageSize -> labels.image_size
+if exists(.DriverCheckSum) && exists(.ImageSize) {
+  _result, err = to_int(.ImageSize)
+  if err == null {
+    .labels.image_size = _result
+  } else {
+    log("[amcache] échec de l'opération to_int sur labels.image_size : " + err, level: "warn")
+  }
+}
+
+# [normalization] Inf -> labels.inf
+if exists(.DriverCheckSum) && exists(.Inf) {
+  .labels.inf = .Inf
+}
+
+# [normalization] Product -> labels.product
+if exists(.DriverCheckSum) && exists(.Product) {
+  .labels.product = .Product
+}
+
+# [normalization] ProductVersion -> labels.product_version
+if exists(.DriverCheckSum) && exists(.ProductVersion) {
+  .labels.product_version = .ProductVersion
+}
+
+# [normalization] Service -> labels.service
+if exists(.DriverCheckSum) && exists(.Service) {
+  .labels.service = .Service
+}
+
+# [normalization] WdfVersion -> labels.wdf_version
+if exists(.DriverCheckSum) && exists(.WdfVersion) {
+  .labels.wdf_version = .WdfVersion
+}
+
+# [normalization] KeyLastWriteTimestamp -> timestamp
+if exists(.SubmissionId) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] KeyLastWriteTimestamp -> registry.mtime
+if exists(.SubmissionId) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] Amcache -> registry.hive
+if exists(.SubmissionId) {
+  .registry.hive = "Amcache"
+}
+
+# [normalization] KeyName -> labels.key_name
+if exists(.SubmissionId) && exists(.KeyName) {
+  .labels.key_name = .KeyName
+}
+
+# [normalization] Date -> labels.date
+if exists(.SubmissionId) && exists(.Date) {
+  _result, err = parse_timestamp(.Date, format: "%F %T")
+  if err == null {
+    .labels.date = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur labels.date : " + err, level: "warn")
+  }
+}
+
+# [normalization] Class -> labels.class
+if exists(.SubmissionId) && exists(.Class) {
+  .labels.class = .Class
+}
+
+# [normalization] Directory -> labels.directory
+if exists(.SubmissionId) && exists(.Directory) {
+  .labels.directory = .Directory
+}
+
+# [normalization] DriverInBox -> labels.driver_in_box
+if exists(.SubmissionId) && exists(.DriverInBox) {
+  _result, err = to_bool(.DriverInBox)
+  if err == null {
+    .labels.driver_in_box = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.driver_in_box : " + err, level: "warn")
+  }
+}
+
+# [normalization] Hwids -> labels.hwids
+if exists(.SubmissionId) && exists(.Hwids) {
+  .labels.hwids = .Hwids
+}
+
+# [normalization] Inf -> labels.inf
+if exists(.SubmissionId) && exists(.Inf) {
+  .labels.inf = .Inf
+}
+
+# [normalization] Provider -> labels.provider
+if exists(.SubmissionId) && exists(.Provider) {
+  .labels.provider = .Provider
+}
+
+# [normalization] SubmissionId -> labels.submission_id
+if exists(.SubmissionId) {
+  .labels.submission_id = .SubmissionId
+}
+
+# [normalization] SYSFILE -> labels.sysfile
+if exists(.SubmissionId) && exists(.SYSFILE) {
+  .labels.sysfile = .SYSFILE
+}
+
+# [normalization] Version -> labels.version
+if exists(.SubmissionId) && exists(.Version) {
+  .labels.version = .Version
+}
+
+# [normalization] KeyLastWriteTimestamp -> timestamp
+if exists(.LnkName) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] KeyLastWriteTimestamp -> registry.mtime
+if exists(.LnkName) && exists(.KeyLastWriteTimestamp) {
+  _result, err = parse_timestamp(.KeyLastWriteTimestamp, format: "%F %T")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] Amcache -> registry.hive
+if exists(.LnkName) {
+  .registry.hive = "Amcache"
+}
+
+# [normalization] KeyName -> labels.key_name
+if exists(.LnkName) && exists(.KeyName) {
+  .labels.key_name = .KeyName
+}
+
+# [normalization] LnkName -> file.path
+if exists(.LnkName) {
+  .file.path = .LnkName
+}
+
+# [normalization] Amcache -> registry.hive
+if exists(.path) && exists(.mtime) {
+  .registry.hive = "Amcache"
+}
+
+# [normalization] replace(to_string!(.path), pattern: "\\\\", with: "\\") -> registry.path
+if exists(.path) && exists(.mtime) {
+  .registry.path = replace(to_string!(.path), pattern: "\\\\", with: "\\")
+}
+
+# [normalization] name -> registry.value
+if exists(.path) && exists(.mtime) && exists(.name) {
+  .registry.value = .name
+}
+
+# [normalization] type -> registry.data.type
+if exists(.path) && exists(.mtime) && exists(.type) {
+  .registry.data.type = .type
+}
+
+# [normalization] data -> labels.value_data
+if exists(.path) && exists(.mtime) && exists(.data) {
+  .labels.value_data = .data
+}
+
+# [normalization] mtime -> timestamp
+if exists(.path) && exists(.mtime) {
+  _result, err = parse_timestamp(.mtime, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] mtime -> registry.mtime
+if exists(.path) && exists(.mtime) {
+  _result, err = parse_timestamp(.mtime, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[amcache] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] size -> labels.value_size
+if exists(.path) && exists(.mtime) && exists(.size) {
+  _result, err = to_int(.size)
+  if err == null {
+    .labels.value_size = _result
+  } else {
+    log("[amcache] échec de l'opération to_int sur labels.value_size : " + err, level: "warn")
+  }
+}
+
+# [normalization] is_placeholder -> labels.is_placeholder
+if exists(.path) && exists(.mtime) && exists(.is_placeholder) {
+  _result, err = to_bool(.is_placeholder)
+  if err == null {
+    .labels.is_placeholder = _result
+  } else {
+    log("[amcache] échec de l'opération to_bool sur labels.is_placeholder : " + err, level: "warn")
+  }
+}
+
+# [deletion] ApplicationName, ProgramId, FileKeyLastWriteTimestamp, SHA1, IsOsComponent, FullPath, Name, FileExtension, LinkDate, ProductName, Size, Version, ProductVersion, LongPathHash, BinaryType, IsPeFile, BinFileVersion, BinProductVersion, Usn, Language, Description, OriginalFileName, KeyName, KeyLastWriteTimestamp, Categories, DiscoveryMethod, FriendlyName, Icon, IsActive, IsConnected, IsMachineContainer, IsNetworked, IsPaired, Manufacturer, ModelId, ModelName, ModelNumber, PrimaryCategory, State, BusReportedDescription, Class, ClassGuid, Compid, ContainerId, DriverId, DriverPackageStrongName, DriverName, DriverVerDate, DriverVerVersion, Enumerator, HWID, Inf, InstallState, MatchingId, Model, ParentId, ProblemCode, Provider, Service, Stackid, DriverTimeStamp, DriverLastWriteTime, DriverInBox, DriverIsKernelMode, DriverSigned, DriverCheckSum, DriverCompany, DriverType, DriverVersion, ImageSize, Product, WdfVersion, Date, Directory, Hwids, SubmissionId, SYSFILE, LnkName, path, mtime, name, data, type, size, is_placeholder, ogre_md
+del(.ApplicationName)
+del(.ProgramId)
+del(.FileKeyLastWriteTimestamp)
+del(.SHA1)
+del(.IsOsComponent)
+del(.FullPath)
+del(.Name)
+del(.FileExtension)
+del(.LinkDate)
+del(.ProductName)
+del(.Size)
+del(.Version)
+del(.ProductVersion)
+del(.LongPathHash)
+del(.BinaryType)
+del(.IsPeFile)
+del(.BinFileVersion)
+del(.BinProductVersion)
+del(.Usn)
+del(.Language)
+del(.Description)
+del(.OriginalFileName)
+del(.KeyName)
+del(.KeyLastWriteTimestamp)
+del(.Categories)
+del(.DiscoveryMethod)
+del(.FriendlyName)
+del(.Icon)
+del(.IsActive)
+del(.IsConnected)
+del(.IsMachineContainer)
+del(.IsNetworked)
+del(.IsPaired)
+del(.Manufacturer)
+del(.ModelId)
+del(.ModelName)
+del(.ModelNumber)
+del(.PrimaryCategory)
+del(.State)
+del(.BusReportedDescription)
+del(.Class)
+del(.ClassGuid)
+del(.Compid)
+del(.ContainerId)
+del(.DriverId)
+del(.DriverPackageStrongName)
+del(.DriverName)
+del(.DriverVerDate)
+del(.DriverVerVersion)
+del(.Enumerator)
+del(.HWID)
+del(.Inf)
+del(.InstallState)
+del(.MatchingId)
+del(.Model)
+del(.ParentId)
+del(.ProblemCode)
+del(.Provider)
+del(.Service)
+del(.Stackid)
+del(.DriverTimeStamp)
+del(.DriverLastWriteTime)
+del(.DriverInBox)
+del(.DriverIsKernelMode)
+del(.DriverSigned)
+del(.DriverCheckSum)
+del(.DriverCompany)
+del(.DriverType)
+del(.DriverVersion)
+del(.ImageSize)
+del(.Product)
+del(.WdfVersion)
+del(.Date)
+del(.Directory)
+del(.Hwids)
+del(.SubmissionId)
+del(.SYSFILE)
+del(.LnkName)
+del(.path)
+del(.mtime)
+del(.name)
+del(.data)
+del(.type)
+del(.size)
+del(.is_placeholder)
+del(.ogre_md)
 
 # -----------------------------------------------------------------------------
-# Timestamp RAW fields for Amcache
-# (we only store raw here; parsing is done in a unified fallback block later)
+# timeline
 # -----------------------------------------------------------------------------
-
-if exists(.KeyLastWriteTimestamp) {
-  .event.Ext.amcache.key_last_write_raw = to_string!(del(.KeyLastWriteTimestamp))
+if exists(.file.path) && exists(.file.hash.sha1) {
+  .message = "Amcache file entry exists for " + to_string!(.file.path) + " (SHA1 " + to_string!(.file.hash.sha1) + ")"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.file.path), "target": to_string!(.file.hash.sha1), "type": "hashed as"})
 }
-
-if exists(.FileKeyLastWriteTimestamp) {
-  .event.Ext.amcache.file_key_last_write_raw = to_string!(del(.FileKeyLastWriteTimestamp))
-}
-
-if exists(.DriverLastWriteTime) {
-  .event.Ext.amcache.driver_last_write_raw = to_string!(del(.DriverLastWriteTime))
-}
-
-if exists(.DriverTimeStamp) {
-  .event.Ext.amcache.driver_timestamp_raw = to_string!(del(.DriverTimeStamp))
-}
-
-if exists(.LinkDate) {
-  .event.Ext.amcache.link_date_raw = to_string!(del(.LinkDate))
-}
-
-if exists(.Date) {
-  .event.Ext.amcache.date_raw = to_string!(del(.Date))
-}
-
-if exists(.DriverVerDate) {
-  .event.Ext.amcache.driver_ver_date_raw = to_string!(del(.DriverVerDate))
-}
-
-# =============================================================================
-# Timestamp fallback resolution (Amcache-specific)
-# Sets .timestamp and ensures .event.created, records .event.Ext.timestamp_source
-# =============================================================================
-
-ts_value = null
-ts_source = ""
-
-# 1. Prefer existing .event.created if already set
-if exists(.event.created) {
-  ts_value = .event.created
-  ts_source = "event.created"
-}
-
-# Helper: try parse a raw timestamp field if ts_value is still null
-# priority chain for Amcache:
-#   key_last_write_raw
-#   file_key_last_write_raw
-#   driver_last_write_raw
-#   driver_timestamp_raw
-#   link_date_raw
-#   date_raw
-#   driver_ver_date_raw
-
-if ts_value == null && exists(.event.Ext.amcache.key_last_write_raw) {
-  raw = to_string!(.event.Ext.amcache.key_last_write_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.key_last_write_raw"
-    }
-  }
-}
-
-if ts_value == null && exists(.event.Ext.amcache.file_key_last_write_raw) {
-  raw = to_string!(.event.Ext.amcache.file_key_last_write_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.file_key_last_write_raw"
-    }
-  }
-}
-
-if ts_value == null && exists(.event.Ext.amcache.driver_last_write_raw) {
-  raw = to_string!(.event.Ext.amcache.driver_last_write_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.driver_last_write_raw"
-    }
-  }
-}
-
-if ts_value == null && exists(.event.Ext.amcache.driver_timestamp_raw) {
-  raw = to_string!(.event.Ext.amcache.driver_timestamp_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.driver_timestamp_raw"
-    }
-  }
-}
-
-if ts_value == null && exists(.event.Ext.amcache.link_date_raw) {
-  raw = to_string!(.event.Ext.amcache.link_date_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.link_date_raw"
-    }
-  }
-}
-
-if ts_value == null && exists(.event.Ext.amcache.date_raw) {
-  raw = to_string!(.event.Ext.amcache.date_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.date_raw"
-    }
-  }
-}
-
-if ts_value == null && exists(.event.Ext.amcache.driver_ver_date_raw) {
-  raw = to_string!(.event.Ext.amcache.driver_ver_date_raw)
-  if raw != "" {
-    v = parse_timestamp(raw, "%F %T%.f") ?? parse_timestamp(raw, "%F %T") ?? null
-    if v != null {
-      ts_value = v
-      ts_source = "amcache.driver_ver_date_raw"
-    }
-  }
-}
-
-# Final application of timestamp if we found any
-if ts_value != null {
-  .timestamp = ts_value
-
-  if !exists(.event.created) {
-    .event.created = ts_value
-  }
-
-  .event.Ext.timestamp_source = ts_source
-}
-
-# =============================================================================
-# Event-level defaults for generic Amcache
-# =============================================================================
-
-if !exists(.event.dataset) {
-  .event.dataset = "windows.amcache"
-}
-
-if !exists(.event.module) {
-  .event.module = "windows"
-}
-
-if !exists(.event.provider) {
-  .event.provider = "Windows Amcache (generic)"
-}
-
-if !exists(.event.kind) {
-  .event.kind = "state"
-}
-
-if !exists(.event.category) {
-  .event.category = ["file"]
-}
-
-if !exists(.event.type) {
-  .event.type = ["info"]
-}
-
-if !exists(.event.outcome) {
-  .event.outcome = "success"
+if .labels.is_connected == true && exists(.labels.friendly_name) {
+  .message = "Device " + to_string!(.labels.friendly_name) + " was connected"
 }

@@ -4,7 +4,7 @@ win_tcpvcon
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:win_tcpvcon`` | name_rex: ``--win_tcpvcon\.jsonl$``
+   * ``windows:live_response:win_tcpvcon`` | name_rex: ``r"--win_tcpvcon\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

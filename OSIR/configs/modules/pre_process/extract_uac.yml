@@ -35,7 +35,8 @@ optional:
   # Leave empty to let the module recover it from the sibling UAC .log file
   password:
 
-endpoint: 
-  patterns:
-    - r"(?:.*[\\/])?[^-]+-(.*)-[^-]+-[^-]+$"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"(?:.*[\\/])?[^-]+-(.*)-[^-]+-[^-]+$"
+      default: "UNKNOWN"

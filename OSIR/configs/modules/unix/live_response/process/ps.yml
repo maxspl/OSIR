@@ -30,17 +30,18 @@ output:
   type: single_file
   format: json
   output_dir: "{case_path}/live_response/process"
-  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+  filename: "{extracted_endpoint}--{module}-{input_file}.jsonl"
 
-endpoint: 
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'linux:live_response:ps':
-    name_rex: ps.*\.jsonl$
+    name_rex: r"ps.*\.jsonl$"
     path_suffix: process
     sourcetype: 'linux:live_response:process:ps'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     artifact: ps

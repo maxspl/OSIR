@@ -13,7 +13,7 @@ class OsirOutputModel(BaseModel):
             type (str): The category of output (e.g., 'file', 'dir', 'multiple_files').
             format (str): The data format of the result (e.g., 'json', 'csv', 'txt').
             output_dir (str): The target directory for the results.
-            output_file (str): The specific filename for the result.
+            filename (str): The specific filename for the result.
             output_prefix (str): An optional prefix applied to all files in 
                 'multiple_files' mode to avoid naming collisions.
     """
@@ -22,10 +22,10 @@ class OsirOutputModel(BaseModel):
     type: Optional[OUTPUT_TYPE] = None
     format: Optional[str] = None
     output_dir: Optional[str] = None
-    output_file: Optional[str] = None
+    filename: Optional[str] = None
     output_prefix: Optional[str] = None
 
-    @field_validator("output_dir", "output_file", mode="before")
+    @field_validator("output_dir", "filename", mode="before")
     @classmethod
     def cast_path_to_str(cls, v):
         """
@@ -62,7 +62,7 @@ class OsirOutputModel(BaseModel):
 
     @property
     def file(self):
-        return self.output_file
+        return self.filename
 
     @property
     def dir(self):

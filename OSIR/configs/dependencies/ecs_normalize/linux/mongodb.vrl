@@ -1,122 +1,96 @@
-
+##############################################################
+# Module VRL : mongodb
+# Version    : 1.0
 # OSIR - MongoDB log normalizer
-# 
-# Schema:
-#     Source :
-#     [
-#         {
-#         "t": <Datetime>, // timestamp
-#         "s": <String>, // severity
-#         "c": <String>, // component
-#         "id": <Integer>, // unique identifier
-#         "ctx": <String>, // context
-#         "svc": <String>, // service
-#         "msg": <String>, // message body
-#         "attr": <Object>, // additional attributes (optional)
-#         "tags": <Array of strings>, // tags (optional)
-#         "truncated": <Object>, // truncation info (if truncated)
-#         "size": <Object> // original size of entry (if truncated)
-#         }
-#         ...
-#     ]
-# 
-#     Destination :
-# 
-#     [
-#         {
-#         "timestamp": <Datetime>, // timestamp
-#         "event.severity": <String>, // severity
-#         "event.kind": <String>, // component
-#         "event.id": <Integer>, // unique identifier
-#         "event.context": <String>, // context
-#         "service.name": <String>, // service
-#         "message": <String>, // message body
-#         "log.extra": <Object>, // additional attributes (optional)
-#         "log.tags": <Array of strings>, // tags (optional)
-#         "log.truncated": <Object>, // truncation info (if truncated)
-#         "log.size": <Object> // original size of entry (if truncated)
-#         }
-#         ...
-#     ]
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
-# Mapping timestamp
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."event.severity") {
+  .event.severity = get!(., path: ["event.severity"])
+  del(."event.severity")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] get(.t, ["$date"]) ?? null -> timestamp
 if exists(.t) {
-    t_val, err = get(.t, ["$date"])
-    if t_val != null {
-        .timestamp = t_val
-    }
-    del(.t)
+  .timestamp = get(.t, ["$date"]) ?? null
 }
 
-if exists(.s) {
-    s_val = del(.s)
-    if s_val != null {
-        s_str = to_string!(s_val)
-        .event.severity = if s_str == "F" {
-            "fatal"
-        } else if s_str == "E" {
-            "error"
-        } else if s_str == "W" {
-            "warning"
-        } else if s_str == "I" {
-            "informational"
-        } else if starts_with(s_str, "D") {
-            "debug" + " " + s_str
-        } else {
-            s_str
-        }
-    }
+# [deletion] t
+del(.t)
+
+# [normalization] fatal -> event.severity
+if .s == "F" {
+  .event.severity = "fatal"
 }
 
-# Mapping event.kind
+# [normalization] error -> event.severity
+if .s == "E" {
+  .event.severity = "error"
+}
+
+# [normalization] warning -> event.severity
+if .s == "W" {
+  .event.severity = "warning"
+}
+
+# [normalization] informational -> event.severity
+if .s == "I" {
+  .event.severity = "informational"
+}
+
+# [normalization] "debug " + string!(.s) -> event.severity
+if !exists(.event.severity) && starts_with(string!(.s), "D") && exists(.s) {
+  .event.severity = "debug " + string!(.s)
+}
+
+# [normalization] string!(.s) -> event.severity
+if !exists(.event.severity) && exists(.s) {
+  .event.severity = string!(.s)
+}
+
+# [deletion] s
+del(.s)
+
+# [normalization] to_string!(del(.c)) -> event.kind
 if exists(.c) {
-    c_val = del(.c)
-    if c_val != null {
-        .event.kind = to_string!(c_val)
-    }
+  .event.kind = to_string!(del(.c))
 }
 
-# Mapping event.id
+# [normalization] del(.id) -> event.id
 if exists(.id) {
-    id_val = del(.id)
-    if id_val != null {
-        .event.id = id_val
-    }
+  .event.id = del(.id)
 }
 
-# Mapping event.context
+# [normalization] to_string!(del(.ctx)) -> event.context
 if exists(.ctx) {
-    ctx_val = del(.ctx)
-    if ctx_val != null {
-        .event.context = to_string!(ctx_val)
-    }
+  .event.context = to_string!(del(.ctx))
 }
 
-# Mapping service.name
+# [normalization] to_string!(del(.svc)) -> service.name
 if exists(.svc) {
-    svc_val = del(.svc)
-    if svc_val != null {
-        .service.name = to_string!(svc_val)
-    }
+  .service.name = to_string!(del(.svc))
 }
 
-# Mapping message
+# [normalization] to_string!(del(.msg)) -> message
 if exists(.msg) {
-    msg_val = del(.msg)
-    if msg_val != null {
-        .message = to_string!(msg_val)
-    }
+  .message = to_string!(del(.msg))
 }
 
-# Mapping log.extra (champ optionnel)
+# [normalization] del(.attr) -> log
 if exists(.attr) {
-    attr_val = del(.attr)
-    if attr_val != null {
-        .log = attr_val
-    }
+  .log = del(.attr)
 }
 
-# Mapping source.address et source.ip depuis remote
+# [custom]
 if exists(.log.remote) {
     remote_val = to_string!(.log.remote)
     parts = split(remote_val, ":")
@@ -128,7 +102,6 @@ if exists(.log.remote) {
     del(.log.remote)
 }
 
-# Mapping UUID
 if exists(.log.uuid.uuid) {
     uuid_val, err = get(.log.uuid.uuid, ["$uuid"])
     if uuid_val != null {
@@ -137,26 +110,17 @@ if exists(.log.uuid.uuid) {
     del(.log.uuid.uuid)
 }
 
-# Mapping log.tags (champ optionnel)
+# [normalization] del(.tags) -> log.tags
 if exists(.tags) {
-    tags_val = del(.tags)
-    if tags_val != null {
-        .log.tags = tags_val
-    }
+  .log.tags = del(.tags)
 }
 
-# Mapping log.truncated (optionnal)
+# [normalization] del(.truncated) -> log.truncated
 if exists(.truncated) {
-    truncated_val = del(.truncated)
-    if truncated_val != null {
-        .log.truncated = truncated_val
-    }
+  .log.truncated = del(.truncated)
 }
 
-# Mapping log.size (optionnal)
+# [normalization] del(.size) -> log.size
 if exists(.size) {
-    size_val = del(.size)
-    if size_val != null {
-        .log.size = size_val
-    }
+  .log.size = del(.size)
 }

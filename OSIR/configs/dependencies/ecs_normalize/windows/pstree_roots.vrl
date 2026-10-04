@@ -1,24 +1,40 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : pstree_roots
+# Version    : 1.0
 # Windows live response – process tree roots → ECS
-# Source: pstree_live_response JSONL
-# Fields: root_exe, root_pid, root_time, tree_id
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
+# [normalization] windows.pstree_live_response -> event.dataset
 .event.dataset = "windows.pstree_live_response"
-.event.module  = "windows"
 
-.event.kind     = "event"
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['process'] -> event.category
 .event.category = ["process"]
-.event.type     = ["info"]
-.event.action   = "process_tree_root"
-.event.outcome  = "success"
 
-# -----------------------------------------------------------------------------
-# tree_id → .pstree.tree_id
-# -----------------------------------------------------------------------------
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
 
+# [normalization] process_tree_root -> event.action
+.event.action = "process_tree_root"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [custom]
 if exists(.tree_id) {
-    # tree_id can be int already or string → normalize to int if possible
     tree_id_val = to_int(.tree_id) ?? null
 
     if tree_id_val != null {
@@ -29,10 +45,6 @@ if exists(.tree_id) {
 
     del(.tree_id)
 }
-
-# -----------------------------------------------------------------------------
-# root_pid → .process.pid + .pstree.root_pid
-# -----------------------------------------------------------------------------
 
 if exists(.root_pid) {
     root_pid_val = to_int(.root_pid) ?? null
@@ -47,10 +59,6 @@ if exists(.root_pid) {
     del(.root_pid)
 }
 
-# -----------------------------------------------------------------------------
-# root_exe → .process.executable / .process.name + .pstree.root_exe
-# -----------------------------------------------------------------------------
-
 if exists(.root_exe) {
     exe = to_string!(del(.root_exe))
 
@@ -61,19 +69,12 @@ if exists(.root_exe) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# root_time (RFC3339 with microseconds + offset) → timestamp / process.start
-# Example: "2024-04-26T16:06:10.676711+00:00"
-# -----------------------------------------------------------------------------
-
 if exists(.root_time) {
     rt_raw = to_string!(del(.root_time))
 
-    # "%+" = RFC3339 (handles fractional seconds + timezone offset)
     ts = parse_timestamp(rt_raw, format: "%+") ?? null
 
     if ts != null {
-        # Use root_time as main event timestamp and process start
         .timestamp      = ts
         .event.created  = ts
         .process.start  = ts

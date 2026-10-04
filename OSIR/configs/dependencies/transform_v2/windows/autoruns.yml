@@ -1,0 +1,119 @@
+metadata:
+  version: "1.0"
+  id: autoruns
+  author: Typ
+  description: Persistence artifacts (dfir-ogre autoruns + registry autoruns JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.dataset:
+        value: windows.autoruns
+      event.module:
+        value: windows
+      event.kind:
+        value: event
+      event.category:
+        value: [process, registry]
+      event.type:
+        value: [info]
+      event.provider:
+        value: "Windows Autoruns (dfir-ogre)"
+      event.outcome:
+        value: success
+
+  # -- OGRE autoruns (autoruns.csv harvest) input -------------------------------
+
+  # entry_location, entry_name, entry, category, profile, image_path,
+  # launch_string, hashes, time, ...
+  - set:
+      registry.path: entry_location
+      process.executable: image_path
+      process.command_line: launch_string
+      file.path: image_path
+      file.hash.md5: md5
+      file.hash.sha1: sha1
+      file.hash.sha256: sha256
+      labels.pe_sha1: pe_sha1
+      labels.pe_sha256: pe_sha256
+      labels.entry_name: entry_name
+      labels.entry: entry
+      labels.category: category
+      labels.profile: profile
+      labels.description: description
+      labels.company: company
+      labels.signer: signer
+      labels.version: version
+      labels.imp: imp
+      timestamp:
+        source: time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+    filter: exists(.entry_location)
+
+  # -- OGRE registry autoruns (hive plugin) input ------------------------------
+
+  # type, values, key_path, key_modif_time, key_security, ogre_md
+  - set:
+      registry.path: key_path
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      timestamp:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      labels.autoruns_type: type
+      labels.values: values
+      labels.key_security: key_security
+    filter: exists(.key_path)
+
+  - delete:
+      - entry_location
+      - entry_name
+      - entry
+      - category
+      - profile
+      - description
+      - company
+      - signer
+      - version
+      - launch_string
+      - md5
+      - sha1
+      - sha256
+      - pe_sha1
+      - pe_sha256
+      - imp
+      - time
+      - ogre_md
+      - key_path
+      - key_modif_time
+      - key_security
+      - type
+      - values
+
+timeline:
+  - id: autoruns-entry
+    message: "Autoruns entry {process.executable} registered at {registry.path}"
+    conditions:
+      - field: registry.path
+        exists: true
+
+  - id: autoruns-key
+    message: "Autoruns registry key {registry.path} of type {labels.autoruns_type} exists"
+    conditions:
+      - field: labels.autoruns_type
+        exists: true
+
+relationships:
+  - id: autoruns-entry
+    source: registry.path
+    target: process.executable
+    type: launches

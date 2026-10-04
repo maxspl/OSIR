@@ -4,7 +4,7 @@ win_bits
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:bits`` | name_rex: ``--win_bits\.jsonl$``
+   * ``windows:live_response:bits`` | name_rex: ``r"--win_bits\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

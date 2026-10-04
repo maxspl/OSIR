@@ -4,7 +4,7 @@ powershell_history
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:powershell_history`` | name_rex: ``\.jsonl$``
+   * ``windows:powershell_history`` | name_rex: ``r"\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

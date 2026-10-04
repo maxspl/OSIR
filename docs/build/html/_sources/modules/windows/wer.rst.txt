@@ -4,7 +4,7 @@ wer
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:wer`` | name_rex: ``--wer\.jsonl$``
+   * ``windows:wer`` | name_rex: ``r"--wer\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

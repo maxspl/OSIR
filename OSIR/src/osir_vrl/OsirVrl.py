@@ -1,27 +1,29 @@
 import sys
-from os.path import dirname, abspath, join, isfile, isdir
+from os.path import dirname, join, isfile, isdir
 import os
 
-# Add parent directory to path so we can import osir_vrl
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
-
-from osir_vrl.osir_vrl.OsirVrlModel import OsirVrlModel
+from osir_lib.core.FileManager import FileManager
+from osir_lib.core.OsirConstants import OSIR_PATHS
+from osir_vrl.OsirVrlModel import OsirVrlModel
 
 
 class OsirVrl:
     """Class to generate VRL configurations from YAML transform files."""
-    
-    DEFAULT_TRANSFORM_DIR = "/home/typ/Desktop/OSIR/OSIR/configs/dependencies/transform"
-    DEFAULT_ECS_DIR = "/home/typ/Desktop/OSIR/OSIR/configs/dependencies/ecs_normalize"
-    
+
+    # Resolved from OSIR_HOME (cf. OsirConstants), like every other OSIR path:
+    #   <OSIR_HOME>/OSIR/configs/dependencies/transform_v2
+    #   <OSIR_HOME>/OSIR/configs/dependencies/ecs_normalize
+    DEFAULT_TRANSFORM_DIR = str(OSIR_PATHS.DEPENDENCIES_DIR / "transform_v2")
+    DEFAULT_ECS_DIR = str(OSIR_PATHS.DEPENDENCIES_DIR / "ecs_normalize")
+
     @classmethod
     def from_yaml(cls, yaml_path: str, vrl_path: str = None) -> "OsirVrlModel":
         """Convert a YAML file to OsirVrlModel and optionally save to VRL.
-        
+
         Args:
             yaml_path: Path to the YAML configuration file
             vrl_path: Optional path to save the generated VRL file
-            
+
         Returns:
             OsirVrlModel instance
         """
@@ -29,41 +31,39 @@ class OsirVrl:
         if vrl_path:
             model.save_vrl(vrl_path)
         return model
-    
+
     @classmethod
     def _get_yaml_files(cls, directory: str) -> list[str]:
         """Recursively find all YAML files in a directory.
-        
+
         Args:
             directory: Root directory to search
-            
+
         Returns:
             List of paths to YAML files
         """
-        yaml_files = []
-        for root, dirs, files in os.walk(directory):
-            for file in files:
-                if file.endswith('.yml') or file.endswith('.yaml'):
-                    yaml_files.append(join(root, file))
-        return yaml_files
-    
+        return [
+            join(directory, rel)
+            for rel in FileManager.get_yaml_files(directory, relative=True)
+        ]
+
     @classmethod
     def _yaml_to_vrl_path(cls, yaml_path: str, transform_dir: str, ecs_dir: str) -> str:
         """Convert a YAML file path to the corresponding VRL path.
-        
+
         Preserves the directory structure relative to transform_dir.
-        
+
         Example:
-            transform_dir = /configs/dependencies/transform
-            yaml_path = /configs/dependencies/transform/windows/defender.yml
+            transform_dir = /configs/dependencies/transform_v2
+            yaml_path = /configs/dependencies/transform_v2/windows/defender.yml
             ecs_dir = /configs/dependencies/ecs_normalize
             -> /configs/dependencies/ecs_normalize/windows/defender.vrl
-        
+
         Args:
             yaml_path: Path to the YAML file
             transform_dir: Root directory of transform configs
             ecs_dir: Root directory for ECS normalize output
-            
+
         Returns:
             Path to the VRL file
         """
@@ -73,7 +73,7 @@ class OsirVrl:
         vrl_rel_path = os.path.splitext(rel_path)[0] + '.vrl'
         # Join with ecs_dir
         return join(ecs_dir, vrl_rel_path)
-    
+
     @classmethod
     def generate_from_directory(
         cls,
@@ -82,7 +82,7 @@ class OsirVrl:
         force: bool = False
     ) -> dict[str, str]:
         """Generate all VRL files from YAML files in a directory.
-        
+
         Args:
             transform_dir: Directory containing YAML transform configs
                         (default: DEFAULT_TRANSFORM_DIR)
@@ -90,7 +90,7 @@ class OsirVrl:
                     (default: DEFAULT_ECS_DIR)
             force: If True, overwrite existing VRL files
                     (default: False)
-            
+
         Returns:
             Dictionary mapping YAML paths to generated VRL paths
         """
@@ -98,38 +98,38 @@ class OsirVrl:
             transform_dir = cls.DEFAULT_TRANSFORM_DIR
         if ecs_dir is None:
             ecs_dir = cls.DEFAULT_ECS_DIR
-        
+
         yaml_files = cls._get_yaml_files(transform_dir)
         generated = {}
-        
+
         for yaml_path in yaml_files:
             vrl_path = cls._yaml_to_vrl_path(yaml_path, transform_dir, ecs_dir)
-            
+
             # Create output directory if it doesn't exist
             vrl_dir = dirname(vrl_path)
             if not isdir(vrl_dir):
                 os.makedirs(vrl_dir, exist_ok=True)
-            
+
             # Skip if VRL file exists and force is False
             if not force and isfile(vrl_path):
                 print(f"Skipping {yaml_path} -> {vrl_path} (already exists)")
                 continue
-            
+
             # Convert and save
             model = OsirVrlModel.from_yaml(yaml_path)
             model.save_vrl(vrl_path)
             generated[yaml_path] = vrl_path
             print(f"Generated: {yaml_path} -> {vrl_path}")
-        
+
         return generated
-    
+
     @classmethod
     def generate_all(cls, force: bool = False) -> dict[str, str]:
         """Generate all VRL configurations from the default transform directory.
-        
+
         Args:
             force: If True, overwrite existing VRL files
-            
+
         Returns:
             Dictionary mapping YAML paths to generated VRL paths
         """
@@ -138,7 +138,7 @@ class OsirVrl:
 
 def main():
     """Generate all VRL configurations from transform directory."""
-    OsirVrl.generate_all(force=False)
+    OsirVrl.generate_all(force=True)
     print("\nAll VRL configurations generated successfully!")
 
 

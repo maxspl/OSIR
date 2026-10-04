@@ -1,258 +1,466 @@
-###########################
+##############################################################
+# Module VRL : hayabusa
+# Version    : 1.0
 # HAYABUSA COMMON MAPPING #
-###########################
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
-# Keep original payload first
-if !exists(.event.original) {
-    .event.original = encode_json!(.)
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."log.level") {
+  .log.level = get!(., path: ["log.level"])
+  del(."log.level")
+}
+if exists(."event.dataset") {
+  .event.dataset = get!(., path: ["event.dataset"])
+  del(."event.dataset")
+}
+if exists(."hayabusa.extra.IpPort") {
+  .hayabusa.extra.IpPort = get!(., path: ["hayabusa.extra.IpPort"])
+  del(."hayabusa.extra.IpPort")
+}
+if exists(."hayabusa.details.Path") {
+  .hayabusa.details.Path = get!(., path: ["hayabusa.details.Path"])
+  del(."hayabusa.details.Path")
+}
+if exists(."hayabusa.extra.Product Name") {
+  .hayabusa.extra."Product Name" = get!(., path: ["hayabusa.extra.Product Name"])
+  del(."hayabusa.extra.Product Name")
+}
+if exists(."hayabusa.extra.Product Version") {
+  .hayabusa.extra."Product Version" = get!(., path: ["hayabusa.extra.Product Version"])
+  del(."hayabusa.extra.Product Version")
+}
+if exists(."hayabusa.details.Proc") {
+  .hayabusa.details.Proc = get!(., path: ["hayabusa.details.Proc"])
+  del(."hayabusa.details.Proc")
+}
+if exists(."hayabusa.extra.ProcessId") {
+  .hayabusa.extra.ProcessId = get!(., path: ["hayabusa.extra.ProcessId"])
+  del(."hayabusa.extra.ProcessId")
+}
+if exists(."source.ip") {
+  .source.ip = get!(., path: ["source.ip"])
+  del(."source.ip")
+}
+if exists(."user.name") {
+  .user.name = get!(., path: ["user.name"])
+  del(."user.name")
+}
+if exists(."user.target.name") {
+  .user.target.name = get!(., path: ["user.target.name"])
+  del(."user.target.name")
+}
+if exists(."process.executable") {
+  .process.executable = get!(., path: ["process.executable"])
+  del(."process.executable")
+}
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
 }
 
-# Timestamp
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# [custom]
 if exists(.Timestamp) {
     ts = to_string!(del(.Timestamp))
     parsed_ts = parse_timestamp!(ts, format: "%Y-%m-%d %H:%M:%S%.f %:z")
     .timestamp = format_timestamp!(parsed_ts, format: "%Y-%m-%dT%H:%M:%SZ")
 }
 
-# Generic ECS
+# [normalization] event -> event.kind
 .event.kind = "event"
+
+# [normalization] hayabusa -> event.module
 .event.module = "hayabusa"
+
+# [normalization] hayabusa -> agent.type
 .agent.type = "hayabusa"
 
-# Rule / detection title
+# [normalization] del(.RuleTitle) -> rule.name
 if exists(.RuleTitle) {
-    .rule.name = del(.RuleTitle)
-    .event.reason = .rule.name
+  .rule.name = del(.RuleTitle)
 }
 
-# Level
+# [normalization] .rule.name -> event.reason
+if exists(.rule.name) {
+  .event.reason = .rule.name
+}
+
+# [normalization] downcase(string!(.Level)) -> log.level
 if exists(.Level) {
-    lvl = downcase(string!(del(.Level)))
-    .log.level = lvl
-    .hayabusa.level = lvl
-
-    if lvl == "crit" || lvl == "critical" {
-        .event.severity = 90
-    } else if lvl == "high" {
-        .event.severity = 75
-    } else if lvl == "med" || lvl == "medium" {
-        .event.severity = 50
-    } else if lvl == "low" {
-        .event.severity = 25
-    }
+  .log.level = downcase(string!(.Level))
 }
 
-# Host
+# [normalization] downcase(string!(.Level)) -> hayabusa.level
+if exists(.Level) {
+  .hayabusa.level = downcase(string!(.Level))
+}
+
+# [deletion] Level
+del(.Level)
+
+# [normalization] 90 -> event.severity
+if .log.level == "crit" || .log.level == "critical" {
+  .event.severity = 90
+}
+
+# [normalization] 75 -> event.severity
+if .log.level == "high" {
+  .event.severity = 75
+}
+
+# [normalization] 50 -> event.severity
+if .log.level == "med" || .log.level == "medium" {
+  .event.severity = 50
+}
+
+# [normalization] 25 -> event.severity
+if .log.level == "low" {
+  .event.severity = 25
+}
+
+# [normalization] del(.Computer) -> host.name
 if exists(.Computer) {
-    .host.name = del(.Computer)
+  .host.name = del(.Computer)
 }
 
-# Channel
+# [normalization] .Channel -> hayabusa.channel
 if exists(.Channel) {
-    ch = del(.Channel)
-    .hayabusa.channel = ch
-    .winlog.channel = ch
-
-    ch_lower = downcase(string!(ch))
-    if ch_lower == "sec" {
-        .event.dataset = "windows.security"
-    } else if ch_lower == "sys" {
-        .event.dataset = "windows.system"
-    } else if ch_lower == "defender" {
-        .event.dataset = "windows.defender"
-    } else {
-        .event.dataset = "hayabusa." + ch_lower
-    }
+  .hayabusa.channel = .Channel
 }
 
-# Event ID / Record ID
+# [normalization] .Channel -> winlog.channel
+if exists(.Channel) {
+  .winlog.channel = .Channel
+}
+
+# [normalization] downcase(string!(.Channel)) -> channel_lower
+if exists(.Channel) {
+  .channel_lower = downcase(string!(.Channel))
+}
+
+# [deletion] Channel
+del(.Channel)
+
+# [normalization] windows.security -> event.dataset
+if .channel_lower == "sec" {
+  .event.dataset = "windows.security"
+}
+
+# [normalization] windows.system -> event.dataset
+if .channel_lower == "sys" {
+  .event.dataset = "windows.system"
+}
+
+# [normalization] windows.defender -> event.dataset
+if .channel_lower == "defender" {
+  .event.dataset = "windows.defender"
+}
+
+# [normalization] "hayabusa." + string!(.channel_lower) -> event.dataset
+if !exists(.event.dataset) && exists(.channel_lower) {
+  .event.dataset = "hayabusa." + string!(.channel_lower)
+}
+
+# [deletion] channel_lower
+del(.channel_lower)
+
+# [normalization] to_string!(.EventID) -> event.code
 if exists(.EventID) {
-    eid = to_string!(del(.EventID))
-    .event.code = eid
-    .winlog.event_id = eid
+  .event.code = to_string!(.EventID)
 }
 
+# [normalization] to_string!(.EventID) -> winlog.event_id
+if exists(.EventID) {
+  .winlog.event_id = to_string!(.EventID)
+}
+
+# [deletion] EventID
+del(.EventID)
+
+# [normalization] to_string!(del(.RecordID)) -> winlog.record_id
 if exists(.RecordID) {
-    .winlog.record_id = to_string!(del(.RecordID))
+  .winlog.record_id = to_string!(del(.RecordID))
 }
 
-# Preserve raw Hayabusa sections
+# [normalization] del(.Details) -> hayabusa.details
 if exists(.Details) {
-    .hayabusa.details = del(.Details)
+  .hayabusa.details = del(.Details)
 }
+
+# [normalization] del(.ExtraFieldInfo) -> hayabusa.extra
 if exists(.ExtraFieldInfo) {
-    .hayabusa.extra = del(.ExtraFieldInfo)
+  .hayabusa.extra = del(.ExtraFieldInfo)
 }
 
-#####################################
-# GENERIC DETAILS / EXTRA MAPPINGS  #
-#####################################
-
-# Subject user
+# [normalization] .hayabusa.extra.SubjectUserName -> user.name
 if exists(.hayabusa.extra.SubjectUserName) {
-    .user.name = .hayabusa.extra.SubjectUserName
+  .user.name = .hayabusa.extra.SubjectUserName
 }
+
+# [normalization] .hayabusa.extra.SubjectDomainName -> user.domain
 if exists(.hayabusa.extra.SubjectDomainName) {
-    .user.domain = .hayabusa.extra.SubjectDomainName
+  .user.domain = .hayabusa.extra.SubjectDomainName
 }
+
+# [normalization] .hayabusa.extra.SubjectUserSid -> user.id
 if exists(.hayabusa.extra.SubjectUserSid) {
-    .user.id = .hayabusa.extra.SubjectUserSid
+  .user.id = .hayabusa.extra.SubjectUserSid
 }
+
+# [normalization] .hayabusa.extra.SubjectLogonId -> winlog.subject.logon_id
 if exists(.hayabusa.extra.SubjectLogonId) {
-    .winlog.subject.logon_id = .hayabusa.extra.SubjectLogonId
+  .winlog.subject.logon_id = .hayabusa.extra.SubjectLogonId
 }
 
-# Target user
-if exists(.hayabusa.details.TgtUser) {
-    .user.target.name = .hayabusa.details.TgtUser
-}
-if exists(.hayabusa.extra.TargetUserName) {
-    .user.target.name = .hayabusa.extra.TargetUserName
-}
+# [normalization] .hayabusa.extra.TargetDomainName -> user.target.domain
 if exists(.hayabusa.extra.TargetDomainName) {
-    .user.target.domain = .hayabusa.extra.TargetDomainName
-}
-if exists(.hayabusa.extra.TargetUserSid) {
-    .user.target.id = .hayabusa.extra.TargetUserSid
-}
-if exists(.hayabusa.extra.TargetSid) {
-    .user.target.id = .hayabusa.extra.TargetSid
+  .user.target.domain = .hayabusa.extra.TargetDomainName
 }
 
-# Source system / IP
+# [normalization] .hayabusa.details.SrcComp -> source.domain
 if exists(.hayabusa.details.SrcComp) {
-    .source.domain = .hayabusa.details.SrcComp
+  .source.domain = .hayabusa.details.SrcComp
 }
+
+# [normalization] .hayabusa.details.SrcIP -> source.ip
 if exists(.hayabusa.details.SrcIP) {
-    .source.ip = .hayabusa.details.SrcIP
+  .source.ip = .hayabusa.details.SrcIP
 }
+
+# [normalization] to_string!(.hayabusa.extra.IpPort) -> source.port
 if exists(.hayabusa.extra.IpPort) {
-    .source.port = to_string!(.hayabusa.extra.IpPort)
+  .source.port = to_string!(.hayabusa.extra.IpPort)
 }
 
-# Auth / logon
+# [normalization] .hayabusa.details.AuthPkg -> winlog.logon.authentication_package
 if exists(.hayabusa.details.AuthPkg) {
-    .winlog.logon.authentication_package = .hayabusa.details.AuthPkg
+  .winlog.logon.authentication_package = .hayabusa.details.AuthPkg
 }
+
+# [normalization] .hayabusa.details.Type -> winlog.logon.type
 if exists(.hayabusa.details.Type) {
-    .winlog.logon.type = .hayabusa.details.Type
+  .winlog.logon.type = .hayabusa.details.Type
 }
+
+# [normalization] .hayabusa.extra.LogonProcessName -> winlog.logon.process.name
 if exists(.hayabusa.extra.LogonProcessName) {
-    .winlog.logon.process.name = .hayabusa.extra.LogonProcessName
+  .winlog.logon.process.name = .hayabusa.extra.LogonProcessName
 }
+
+# [normalization] .hayabusa.extra.KeyLength -> winlog.logon.key_length
 if exists(.hayabusa.extra.KeyLength) {
-    .winlog.logon.key_length = .hayabusa.extra.KeyLength
+  .winlog.logon.key_length = .hayabusa.extra.KeyLength
 }
 
-# Process / file path
+# [normalization] .hayabusa.details.Path -> process.executable
 if exists(.hayabusa.details.Path) {
-    .process.executable = .hayabusa.details.Path
-    .file.path = .hayabusa.details.Path
-    .file.name = basename!(.hayabusa.details.Path)
-}
-if exists(.hayabusa.details.Proc) && .hayabusa.details.Proc != "-" {
-    .process.executable = .hayabusa.details.Proc
-}
-if exists(.hayabusa.extra.ProcessId) {
-    pid = to_int(.hayabusa.extra.ProcessId) ?? null
-    if pid != null && pid != 0 {
-        .process.pid = pid
-    }
+  .process.executable = .hayabusa.details.Path
 }
 
-# Service info
+# [normalization] .hayabusa.details.Path -> file.path
+if exists(.hayabusa.details.Path) {
+  .file.path = .hayabusa.details.Path
+}
+
+# [normalization] basename!(.hayabusa.details.Path) -> file.name
+if exists(.hayabusa.details.Path) {
+  .file.name = basename!(.hayabusa.details.Path)
+}
+
+# [normalization] .hayabusa.details.Svc -> service.display_name
 if exists(.hayabusa.details.Svc) {
-    .service.display_name = .hayabusa.details.Svc
+  .service.display_name = .hayabusa.details.Svc
 }
+
+# [normalization] .hayabusa.details.Acct -> service.account
 if exists(.hayabusa.details.Acct) {
-    .service.account = .hayabusa.details.Acct
+  .service.account = .hayabusa.details.Acct
 }
+
+# [normalization] .hayabusa.details.StartType -> service.start_type
 if exists(.hayabusa.details.StartType) {
-    .service.start_type = .hayabusa.details.StartType
+  .service.start_type = .hayabusa.details.StartType
 }
+
+# [normalization] .hayabusa.extra.ServiceType -> service.type
 if exists(.hayabusa.extra.ServiceType) {
-    .service.type = .hayabusa.extra.ServiceType
+  .service.type = .hayabusa.extra.ServiceType
 }
 
-# Defender extra info
+# [normalization] .hayabusa.extra."Product Name" -> observer.product
 if exists(.hayabusa.extra."Product Name") {
-    .observer.product = .hayabusa.extra."Product Name"
+  .observer.product = .hayabusa.extra."Product Name"
 }
+
+# [normalization] .hayabusa.extra."Product Version" -> observer.version
 if exists(.hayabusa.extra."Product Version") {
-    .observer.version = .hayabusa.extra."Product Version"
+  .observer.version = .hayabusa.extra."Product Version"
 }
 
-# Status / failure
+# [normalization] .hayabusa.extra.FailureReason -> error.message
 if exists(.hayabusa.extra.FailureReason) {
-    .error.message = .hayabusa.extra.FailureReason
+  .error.message = .hayabusa.extra.FailureReason
 }
+
+# [normalization] .hayabusa.extra.Status -> winlog.status
 if exists(.hayabusa.extra.Status) {
-    .winlog.status = .hayabusa.extra.Status
+  .winlog.status = .hayabusa.extra.Status
 }
+
+# [normalization] .hayabusa.extra.SubStatus -> winlog.sub_status
 if exists(.hayabusa.extra.SubStatus) {
-    .winlog.sub_status = .hayabusa.extra.SubStatus
+  .winlog.sub_status = .hayabusa.extra.SubStatus
 }
 
-#####################################
-# EVENT-SPECIFIC MAPPINGS           #
-#####################################
-
-# 4625 - Failed logon
-if exists(.event.code) && .event.code == "4625" {
-    .event.category = ["authentication"]
-    .event.type = ["start", "denied"]
-    .event.action = "logon_failed"
-    .event.outcome = "failure"
-
-    if exists(.source.ip) {
-        .related.ip = [ .source.ip ]
-    }
-
-    if exists(.user.target.name) && !exists(.user.name) {
-        .user.name = .user.target.name
-    }
-
-    if exists(.user.name) {
-        .related.user = [ .user.name ]
-    }
+# [normalization] .hayabusa.details.TgtUser -> user.target.name
+if exists(.hayabusa.details.TgtUser) {
+  .user.target.name = .hayabusa.details.TgtUser
 }
 
-# 4724 - Password reset by admin
-if exists(.event.code) && .event.code == "4724" {
-    .event.category = ["iam"]
-    .event.type = ["change"]
-    .event.action = "password_reset_attempt"
-
-    if exists(.user.target.name) {
-        .related.user = [ .user.target.name ]
-    }
+# [normalization] .hayabusa.extra.TargetUserName -> user.target.name
+if exists(.hayabusa.extra.TargetUserName) {
+  .user.target.name = .hayabusa.extra.TargetUserName
 }
 
-# 7045 - Service installation
-if exists(.event.code) && .event.code == "7045" {
-    .event.category = ["process", "persistence"]
-    .event.type = ["creation", "start"]
-    .event.action = "service_installed"
-
-    if exists(.process.executable) && !exists(.file.name) {
-        .file.name = basename!(.process.executable)
-    }
-
-    if exists(.file.path) {
-        .related.files = [ .file.path ]
-    }
+# [normalization] .hayabusa.extra.TargetUserSid -> user.target.id
+if exists(.hayabusa.extra.TargetUserSid) {
+  .user.target.id = .hayabusa.extra.TargetUserSid
 }
 
-# 5010 - Defender malware / PUA scanning disabled
-if exists(.event.code) && .event.code == "5010" {
-    .event.category = ["malware", "configuration"]
-    .event.type = ["change"]
-    .event.action = "defender_scanning_disabled"
+# [normalization] .hayabusa.extra.TargetSid -> user.target.id
+if exists(.hayabusa.extra.TargetSid) {
+  .user.target.id = .hayabusa.extra.TargetSid
 }
 
-# 6038 - NTLMv1 logon between client and server
-if exists(.event.code) && .event.code == "6038" {
-    .event.category = ["authentication"]
-    .event.type = ["protocol"]
-    .event.action = "ntlmv1_authentication_detected"
+# [normalization] .hayabusa.details.Proc -> process.executable
+if exists(.hayabusa.details.Proc) && .hayabusa.details.Proc != "-" {
+  .process.executable = .hayabusa.details.Proc
+}
+
+# [normalization] to_int(.hayabusa.extra.ProcessId) ?? null -> process.pid
+if (to_int(.hayabusa.extra.ProcessId) ?? 0) != 0 && exists(.hayabusa.extra.ProcessId) {
+  .process.pid = to_int(.hayabusa.extra.ProcessId) ?? null
+}
+
+# [normalization] ['authentication'] -> event.category
+if .event.code == "4625" {
+  .event.category = ["authentication"]
+}
+
+# [normalization] ['start', 'denied'] -> event.type
+if .event.code == "4625" {
+  .event.type = ["start", "denied"]
+}
+
+# [normalization] logon_failed -> event.action
+if .event.code == "4625" {
+  .event.action = "logon_failed"
+}
+
+# [normalization] failure -> event.outcome
+if .event.code == "4625" {
+  .event.outcome = "failure"
+}
+
+# [normalization] [.source.ip] -> related.ip
+if .event.code == "4625" && exists(.source.ip) {
+  .related.ip = [.source.ip]
+}
+
+# [normalization] .user.target.name -> user.name
+if .event.code == "4625" && !exists(.user.name) && exists(.user.target.name) {
+  .user.name = .user.target.name
+}
+
+# [normalization] [.user.name] -> related.user
+if .event.code == "4625" && exists(.user.name) {
+  .related.user = [.user.name]
+}
+
+# [normalization] ['iam'] -> event.category
+if .event.code == "4724" {
+  .event.category = ["iam"]
+}
+
+# [normalization] ['change'] -> event.type
+if .event.code == "4724" {
+  .event.type = ["change"]
+}
+
+# [normalization] password_reset_attempt -> event.action
+if .event.code == "4724" {
+  .event.action = "password_reset_attempt"
+}
+
+# [normalization] [.user.target.name] -> related.user
+if .event.code == "4724" && exists(.user.target.name) {
+  .related.user = [.user.target.name]
+}
+
+# [normalization] ['process', 'persistence'] -> event.category
+if .event.code == "7045" {
+  .event.category = ["process", "persistence"]
+}
+
+# [normalization] ['creation', 'start'] -> event.type
+if .event.code == "7045" {
+  .event.type = ["creation", "start"]
+}
+
+# [normalization] service_installed -> event.action
+if .event.code == "7045" {
+  .event.action = "service_installed"
+}
+
+# [normalization] basename!(.process.executable) -> file.name
+if .event.code == "7045" && !exists(.file.name) && exists(.process.executable) {
+  .file.name = basename!(.process.executable)
+}
+
+# [normalization] [.file.path] -> related.files
+if .event.code == "7045" && exists(.file.path) {
+  .related.files = [.file.path]
+}
+
+# [normalization] ['malware', 'configuration'] -> event.category
+if .event.code == "5010" {
+  .event.category = ["malware", "configuration"]
+}
+
+# [normalization] ['change'] -> event.type
+if .event.code == "5010" {
+  .event.type = ["change"]
+}
+
+# [normalization] defender_scanning_disabled -> event.action
+if .event.code == "5010" {
+  .event.action = "defender_scanning_disabled"
+}
+
+# [normalization] ['authentication'] -> event.category
+if .event.code == "6038" {
+  .event.category = ["authentication"]
+}
+
+# [normalization] ['protocol'] -> event.type
+if .event.code == "6038" {
+  .event.type = ["protocol"]
+}
+
+# [normalization] ntlmv1_authentication_detected -> event.action
+if .event.code == "6038" {
+  .event.action = "ntlmv1_authentication_detected"
 }

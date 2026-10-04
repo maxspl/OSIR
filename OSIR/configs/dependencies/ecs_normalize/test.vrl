@@ -1,2 +1,25 @@
+##############################################################
+# Module VRL : test
+# Version    : 1.0
+# test ECS normalization
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."Event.System.EventID.#text") {
+  .Event.System.EventID."#text" = get!(., path: ["Event.System.EventID.#text"])
+  del(."Event.System.EventID.#text")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] .Event.System.EventID."#text" -> event.code
+if exists(.Event.System.EventID."#text") {
   .event.code = .Event.System.EventID."#text"
+}

@@ -1,37 +1,44 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : dns_records
+# Version    : 1.0
 # Windows enumlocs → ECS-ish host/volume inventory
-#   Input fields:
-#     type, volume_id, status, filesystem,
-#     entries, MountedVolume, PhysicalDriveVolume,
-#     DiskInterfaceVolume, Snapshot, parameters
-# -----------------------------------------------------------------------------
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Keep raw event 
+# transformations
 # -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.enumlocs -> event.dataset
+.event.dataset = "windows.enumlocs"
 
-.event.dataset  = "windows.enumlocs"
-.event.module   = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-# Inventory / configuration snapshot of local volumes
-.event.kind     = "state"
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['host', 'configuration'] -> event.category
 .event.category = ["host", "configuration"]
-.event.type     = ["info", "inventory"]
 
-.event.outcome  = "success"
+# [normalization] ['info', 'inventory'] -> event.type
+.event.type = ["info", "inventory"]
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows enumlocs volume inventory -> event.provider
 .event.provider = "Windows enumlocs volume inventory"
 
-# -----------------------------------------------------------------------------
-# Basic event classification from "type"
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.type) {
     type_raw = to_string!(del(.type))
     type_l   = downcase(type_raw)
@@ -40,59 +47,49 @@ if exists(.type) {
     .event.action = type_l
 }
 
-# -----------------------------------------------------------------------------
-# Volume core properties
-# -----------------------------------------------------------------------------
-
+# [normalization] to_string!(del(.volume_id)) -> host.Ext.enumlocs.volume.id
 if exists(.volume_id) {
-    .host.Ext.enumlocs.volume.id = to_string!(del(.volume_id))
+  .host.Ext.enumlocs.volume.id = to_string!(del(.volume_id))
 }
 
+# [normalization] to_string!(del(.filesystem)) -> host.Ext.enumlocs.volume.filesystem
 if exists(.filesystem) {
-    .host.Ext.enumlocs.volume.filesystem = to_string!(del(.filesystem))
+  .host.Ext.enumlocs.volume.filesystem = to_string!(del(.filesystem))
 }
 
+# [normalization] to_string!(del(.status)) -> host.Ext.enumlocs.volume.status
 if exists(.status) {
-    .host.Ext.enumlocs.volume.status = to_string!(del(.status))
+  .host.Ext.enumlocs.volume.status = to_string!(del(.status))
 }
 
-# -----------------------------------------------------------------------------
-# Mounted volumes and device paths
-# -----------------------------------------------------------------------------
-
-# Raw enumlocs "entries" array (we keep it for completeness)
+# [normalization] del(.entries) -> host.Ext.enumlocs.volume.entries
 if exists(.entries) {
-    .host.Ext.enumlocs.volume.entries = del(.entries)
+  .host.Ext.enumlocs.volume.entries = del(.entries)
 }
 
-# High-level lists from enumlocs
+# [normalization] del(.MountedVolume) -> host.Ext.enumlocs.volume.mounted_volumes
 if exists(.MountedVolume) {
-    .host.Ext.enumlocs.volume.mounted_volumes = del(.MountedVolume)
+  .host.Ext.enumlocs.volume.mounted_volumes = del(.MountedVolume)
 }
 
+# [normalization] del(.PhysicalDriveVolume) -> host.Ext.enumlocs.volume.physical_drive_volume_raw
 if exists(.PhysicalDriveVolume) {
-    pd_list = del(.PhysicalDriveVolume)
-    .host.Ext.enumlocs.volume.physical_drive_volume_raw = pd_list
+  .host.Ext.enumlocs.volume.physical_drive_volume_raw = del(.PhysicalDriveVolume)
 }
 
+# [normalization] del(.DiskInterfaceVolume) -> host.Ext.enumlocs.volume.disk_interface_volume_raw
 if exists(.DiskInterfaceVolume) {
-    di_list = del(.DiskInterfaceVolume)
-    .host.Ext.enumlocs.volume.disk_interface_volume_raw = di_list
+  .host.Ext.enumlocs.volume.disk_interface_volume_raw = del(.DiskInterfaceVolume)
 }
 
+# [normalization] del(.Snapshot) -> host.Ext.enumlocs.volume.snapshots
 if exists(.Snapshot) {
-    snaps = del(.Snapshot)
-    .host.Ext.enumlocs.volume.snapshots = snaps
+  .host.Ext.enumlocs.volume.snapshots = del(.Snapshot)
 }
 
-# -----------------------------------------------------------------------------
-# Parameters → host / os / user context
-# -----------------------------------------------------------------------------
-
-# We never del the whole "parameters" object at once – only individual keys.
+# [custom]
 if exists(.parameters) {
 
-    # Start time → event.start (if parseable)
     if exists(.parameters."Start time") {
         start_raw = to_string!(del(.parameters."Start time"))
         ts = parse_timestamp(start_raw, "%+") ?? null
@@ -104,7 +101,6 @@ if exists(.parameters) {
         }
     }
 
-    # Computer name → host.name (if not already set)
     if exists(.parameters."Computer name") {
         comp_name = to_string!(del(.parameters."Computer name"))
 
@@ -114,19 +110,16 @@ if exists(.parameters) {
         .host.Ext.enumlocs.computer_name = comp_name
     }
 
-    # Operating system → host.os.*
     if exists(.parameters."Operating system") {
         os_full = to_string!(del(.parameters."Operating system"))
         .host.os.full = os_full
         .host.Ext.enumlocs.operating_system = os_full
     }
 
-    # User → user.* + elevation flag
     if exists(.parameters."User") {
         user_raw = to_string!(del(.parameters."User"))
         .host.Ext.enumlocs.user_raw = user_raw
 
-        # Detect "(elevated)" marker
         if contains(user_raw, " (elevated)") {
             .user.Ext.elevated = true
             user_clean = replace(user_raw, " (elevated)", "")
@@ -134,7 +127,6 @@ if exists(.parameters) {
             user_clean = user_raw
         }
 
-        # Split "domain\\user" into domain + name if possible
         parts = split!(user_clean, "\\\\")
         if length(parts) == 2 {
             dom  = parts[0]
@@ -147,20 +139,17 @@ if exists(.parameters) {
         }
     }
 
-    # System type (e.g. "WorkStation")
     if exists(.parameters."System type") {
         sys_type = to_string!(del(.parameters."System type"))
         .host.type = sys_type
         .host.Ext.enumlocs.system_type = sys_type
     }
 
-    # System tags (comma / space separated string)
     if exists(.parameters."System tags") {
         sys_tags_raw = to_string!(del(.parameters."System tags"))
         .host.Ext.enumlocs.system_tags_raw = sys_tags_raw
     }
 
-    # Log file / Syslog paths (often "<Empty>" but we keep them)
     if exists(.parameters."Log file") {
         log_file = to_string!(del(.parameters."Log file"))
         .host.Ext.enumlocs.log_file = log_file

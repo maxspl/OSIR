@@ -1,22 +1,30 @@
-# =============================================================================
+##############################################################
+# Module VRL : iis
+# Version    : 1.0
 # IIS parsed JSON -> ECS-ish normalizer (STRICT VRL compatible)
-# =============================================================================
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Ensure .event exists and keep original event
+# transformations
 # -----------------------------------------------------------------------------
+
+# [normalization] {} -> event
 if !exists(.event) {
   .event = {}
 }
 
+# [normalization] encode_json!(.) -> event.original
 if !exists(.event.original) {
   .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Timestamp handling
-# -----------------------------------------------------------------------------
+# [custom]
 ts_value = null
+
 ts_source = null
 
 if ts_value == null && exists(.ts) && .ts != null {
@@ -71,19 +79,25 @@ if ts_value != null {
   .event.Ext.timestamp_source = ts_source
 }
 
-# -----------------------------------------------------------------------------
-# Event metadata
-# -----------------------------------------------------------------------------
+# [normalization] event -> event.kind
 .event.kind = "event"
+
+# [normalization] ['web'] -> event.category
 .event.category = ["web"]
+
+# [normalization] ['access'] -> event.type
 .event.type = ["access"]
+
+# [normalization] iis.access -> event.dataset
 .event.dataset = "iis.access"
+
+# [normalization] iis -> event.module
 .event.module = "iis"
+
+# [normalization] unknown -> event.outcome
 .event.outcome = "unknown"
 
-# -----------------------------------------------------------------------------
-# Host
-# -----------------------------------------------------------------------------
+# [custom]
 if exists(.hostname) && .hostname != null {
   hn = to_string!(.hostname)
   if hn != "" {
@@ -100,9 +114,6 @@ if exists(.domain) && .domain != null {
   del(.domain)
 }
 
-# -----------------------------------------------------------------------------
-# IIS site / server
-# -----------------------------------------------------------------------------
 if exists(.site_name) && .site_name != null {
   sn = to_string!(.site_name)
   if sn != "" {
@@ -120,9 +131,6 @@ if exists(.server_name) && .server_name != null {
   del(.server_name)
 }
 
-# -----------------------------------------------------------------------------
-# Log file
-# -----------------------------------------------------------------------------
 if exists(.source) && .source != null {
   .log.file.path = to_string!(.source)
   del(.source)
@@ -133,9 +141,6 @@ if exists(._source) && ._source != null {
   del(._source)
 }
 
-# -----------------------------------------------------------------------------
-# Client / server IPs
-# -----------------------------------------------------------------------------
 if exists(.client_ip) && .client_ip != null {
   cip = to_string!(.client_ip)
   if cip != "" {
@@ -154,7 +159,6 @@ if exists(.server_ip) && .server_ip != null {
   del(.server_ip)
 }
 
-# Port
 if exists(.s_port) && .s_port != null {
   p_raw = to_string!(.s_port)
   p = to_int(p_raw) ?? null
@@ -171,9 +175,6 @@ if exists(.s_port) && .s_port != null {
   del(.s_port)
 }
 
-# -----------------------------------------------------------------------------
-# User
-# -----------------------------------------------------------------------------
 if exists(.username) && .username != null {
   u = to_string!(.username)
   if u != "" {
@@ -182,9 +183,6 @@ if exists(.username) && .username != null {
   del(.username)
 }
 
-# -----------------------------------------------------------------------------
-# HTTP request
-# -----------------------------------------------------------------------------
 if exists(.request_method) && .request_method != null {
   m = upcase(to_string!(.request_method))
   if m != "" {
@@ -235,9 +233,6 @@ if exists(.request_size_bytes) && .request_size_bytes != null {
   del(.request_size_bytes)
 }
 
-# -----------------------------------------------------------------------------
-# HTTP response + outcome
-# -----------------------------------------------------------------------------
 if exists(.service_status_code) && .service_status_code != null {
   sc_raw = to_string!(.service_status_code)
   sc = to_int(sc_raw) ?? -1
@@ -276,9 +271,6 @@ if exists(.response_size_bytes) && .response_size_bytes != null {
   del(.response_size_bytes)
 }
 
-# -----------------------------------------------------------------------------
-# IIS status extensions
-# -----------------------------------------------------------------------------
 if exists(.sc_substatus) && .sc_substatus != null {
   sub_raw = to_string!(.sc_substatus)
   sub = to_int(sub_raw) ?? null
@@ -309,9 +301,6 @@ if exists(.win32_status_code) && .win32_status_code != null {
   del(.win32_status_code)
 }
 
-# -----------------------------------------------------------------------------
-# Duration
-# -----------------------------------------------------------------------------
 if exists(.process_time_ms) && .process_time_ms != null {
   rt_raw = to_string!(.process_time_ms)
   rt = to_int(rt_raw) ?? null
@@ -327,9 +316,6 @@ if exists(.process_time_ms) && .process_time_ms != null {
   del(.process_time_ms)
 }
 
-# -----------------------------------------------------------------------------
-# Referrer + User-Agent
-# -----------------------------------------------------------------------------
 if exists(.cs_referer) && .cs_referer != null {
   ref = to_string!(.cs_referer)
   if ref != "" && ref != "-" {
@@ -373,9 +359,6 @@ if exists(.cs_user_agent) && .cs_user_agent != null {
   del(.cs_user_agent)
 }
 
-# -----------------------------------------------------------------------------
-# Misc IIS / ingestion metadata
-# -----------------------------------------------------------------------------
 if exists(.format) && .format != null {
   .event.Ext.iis.format = to_string!(.format)
   del(.format)
@@ -415,17 +398,17 @@ if exists(._type) && ._type != null {
   del(._type)
 }
 
+# [normalization] del(._recorddescriptor) -> event.Ext.iis.recorddescriptor
 if exists(._recorddescriptor) {
   .event.Ext.iis.recorddescriptor = del(._recorddescriptor)
 }
 
+# [normalization] del(._classification) -> event.Ext.iis.classification
 if exists(._classification) && ._classification != null {
   .event.Ext.iis.classification = del(._classification)
 }
 
-# -----------------------------------------------------------------------------
-# Loopback tagging
-# -----------------------------------------------------------------------------
+# [custom]
 if exists(.client.ip) {
   ip = to_string!(.client.ip)
   if ip == "::1" || ip == "127.0.0.1" {

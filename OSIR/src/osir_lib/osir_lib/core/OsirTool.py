@@ -106,11 +106,11 @@ class OsirTool(OsirToolModel, OsirPathTransformerMixin):
                 "input_dir": str(ctx.input.match_updated),
                 "output_dir": str(ctx.output.output_dir),
                 "output_file": str(ctx.output.output_file),
+                "output_filename": str(ctx.output.filename),
                 "case_name": ctx.case_name,
                 "master_host": agent_config.smb_host,
-                "endpoint_name": ctx.endpoint_name,
-                "user_name": ctx.user_name,
-                "case_path": ctx.case_path
+                "case_path": ctx.case_path,
+                **getattr(ctx, "extracted_placeholders", {}),
             }
 
             self.cmd = self.safe_format(self.cmd, **replacements)

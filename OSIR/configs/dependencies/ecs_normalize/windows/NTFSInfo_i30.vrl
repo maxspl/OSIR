@@ -1,52 +1,63 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : NTFSInfo_i30
+# Version    : 1.0
 # Windows NTFS Filename-only CSV → ECS-ish
 #
-# Columns:
-# ComputerName,VolumeID,CarvedEntry,FRN,ParentFRN,Name,FilenameFlags,
-# FileNameCreationDate,FileNameLastModificationDate,FileNameLastAccessDate,
-# FileNameLastAttrModificationDate,SnapshotID,DataSize
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
-# Ensure .event exists
+# [normalization] {} -> event
 if !exists(.event) {
   .event = {}
 }
 
-# Keep original event once 
+# [normalization] encode_json!(.) -> event.original
 .event.original = encode_json!(.)
 
-# -----------------------------------------------------------------------------
-# ECS scaffolding
-# -----------------------------------------------------------------------------
-.event.dataset  = "windows.ntfsinfo.filename"
-.event.module   = "windows"
-.event.kind     = "state"
+# [normalization] windows.ntfsinfo.filename -> event.dataset
+.event.dataset = "windows.ntfsinfo.filename"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['file'] -> event.category
 .event.category = ["file"]
-.event.type     = ["info"]
-.event.action   = "ntfs_filename"
-.event.code     = "ntfs_filename"
-.event.outcome  = "success"
+
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] ntfs_filename -> event.action
+.event.action = "ntfs_filename"
+
+# [normalization] ntfs_filename -> event.code
+.event.code = "ntfs_filename"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows NTFS Filename (detail) -> event.provider
 .event.provider = "Windows NTFS Filename (detail)"
 
-# -----------------------------------------------------------------------------
-# Host / volume
-# -----------------------------------------------------------------------------
-
-# ComputerName → host.name
+# [normalization] to_string!(del(.ComputerName)) -> host.name
 if exists(.ComputerName) {
   .host.name = to_string!(del(.ComputerName))
 }
 
-# VolumeID → file.Ext.ntfs.volume_id
+# [normalization] to_string!(del(.VolumeID)) -> file.Ext.ntfs.volume_id
 if exists(.VolumeID) {
   .file.Ext.ntfs.volume_id = to_string!(del(.VolumeID))
 }
 
-# -----------------------------------------------------------------------------
-# Basic NTFS filename info
-# -----------------------------------------------------------------------------
-
-# CarvedEntry (Y/N or similar)
+# [custom]
 if exists(.CarvedEntry) {
   ce_raw = to_string!(del(.CarvedEntry))
   if ce_raw != "" {
@@ -61,7 +72,6 @@ if exists(.CarvedEntry) {
   }
 }
 
-# FRN / ParentFRN
 if exists(.FRN) {
   frn_raw = to_string!(del(.FRN))
   if frn_raw != "" {
@@ -76,7 +86,6 @@ if exists(.ParentFRN) {
   }
 }
 
-# Name → file.name
 if exists(.Name) {
   name_raw = to_string!(del(.Name))
   if name_raw != "" {
@@ -84,7 +93,6 @@ if exists(.Name) {
   }
 }
 
-# FilenameFlags
 if exists(.FilenameFlags) {
   fflags_raw = to_string!(del(.FilenameFlags))
   if fflags_raw != "" {
@@ -92,11 +100,6 @@ if exists(.FilenameFlags) {
   }
 }
 
-# -----------------------------------------------------------------------------
-# Filename timestamps (FN attribute)
-# -----------------------------------------------------------------------------
-
-# FileNameCreationDate
 if exists(.FileNameCreationDate) {
   fnc_raw = to_string!(del(.FileNameCreationDate))
   if fnc_raw != "" {
@@ -109,7 +112,6 @@ if exists(.FileNameCreationDate) {
   }
 }
 
-# FileNameLastModificationDate
 if exists(.FileNameLastModificationDate) {
   fnlm_raw = to_string!(del(.FileNameLastModificationDate))
   if fnlm_raw != "" {
@@ -122,7 +124,6 @@ if exists(.FileNameLastModificationDate) {
   }
 }
 
-# FileNameLastAccessDate
 if exists(.FileNameLastAccessDate) {
   fnla_raw = to_string!(del(.FileNameLastAccessDate))
   if fnla_raw != "" {
@@ -135,7 +136,6 @@ if exists(.FileNameLastAccessDate) {
   }
 }
 
-# FileNameLastAttrModificationDate
 if exists(.FileNameLastAttrModificationDate) {
   fnlac_raw = to_string!(del(.FileNameLastAttrModificationDate))
   if fnlac_raw != "" {
@@ -148,10 +148,6 @@ if exists(.FileNameLastAttrModificationDate) {
   }
 }
 
-# -----------------------------------------------------------------------------
-# Snapshot / size
-# -----------------------------------------------------------------------------
-
 if exists(.SnapshotID) {
   sid_raw = to_string!(del(.SnapshotID))
   if sid_raw != "" {
@@ -159,7 +155,6 @@ if exists(.SnapshotID) {
   }
 }
 
-# DataSize → file.size
 if exists(.DataSize) {
   ds_raw = to_string!(del(.DataSize))
   if ds_raw != "" {
@@ -172,11 +167,8 @@ if exists(.DataSize) {
   }
 }
 
-# -----------------------------------------------------------------------------
-# Fallback .timestamp from filename times
-# Prefer fn_last_modification → fn_creation
-# -----------------------------------------------------------------------------
 ts_value  = null
+
 ts_source = null
 
 if exists(.file.Ext.ntfs.fn_last_modification) {

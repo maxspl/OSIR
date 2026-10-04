@@ -2,241 +2,231 @@ metadata:
   version: "1.0"
   id: shell_bags
   author: Typ
-  description: Windows ShellBags CSV
+  description: Windows ShellBags CSV (SBECmd) → ECS
 
 transformation:
-  - custom: |2-
-      if !exists(.event) || !exists(.event.original) {
-          .event.original = encode_json!(.)
-      }
+  # -- SBECmd (Zimmerman) CSV input ------------------------------------------
+
   - set:
-      event.dataset:
-        value: windows.shellbags
-      event.module:
-        value: windows
-      event.kind:
-        value: state
-      event.category:
-        value: [file]
-      event.type:
-        value: [info]
-      event.outcome:
-        value: success
-      event.provider:
-        value: Windows ShellBags (registry)
-      event.code:
-        value: shell_bag
-      event.action:
-        value: shell_bag
-  - custom: |2-
-      if exists(.BagPath) {
-          bag_path = to_string!(del(.BagPath))
-          .file.Ext.shellbags.bag_path = bag_path
-      }
+      timestamp: 
+        source: LastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastWriteTime) && .LastWriteTime != ""
+
   - set:
-      file.Ext.shellbags.absolute_path: to_string!(del(.AbsolutePath))
-  - custom: |2-
-      if exists(.Slot) {
-          slot_raw = to_string!(del(.Slot))
-          slot_int = parse_int(slot_raw) ?? null
-          if slot_int != null {
-              .file.Ext.shellbags.slot = slot_int
-          } else {
-              .file.Ext.shellbags.slot_raw = slot_raw
-          }
-      }
+      timestamp: 
+        source: FirstInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.FirstInteracted) && .FirstInteracted != ""
 
-      if exists(.NodeSlot) {
-          nslot_raw = to_string!(del(.NodeSlot))
-          nslot_int = parse_int(nslot_raw) ?? null
-          if nslot_int != null {
-              .file.Ext.shellbags.node_slot = nslot_int
-          } else {
-              .file.Ext.shellbags.node_slot_raw = nslot_raw
-          }
-      }
+  - set: 
+      timestamp: 
+        source: LastInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastInteracted) && .LastInteracted != ""
 
-      if exists(.MRUPosition) {
-          mru_raw = to_string!(del(.MRUPosition))
-          mru_int = parse_int(mru_raw) ?? null
-          if mru_int != null {
-              .file.Ext.shellbags.mru_position = mru_int
-          } else {
-              .file.Ext.shellbags.mru_position_raw = mru_raw
-          }
-      }
+  - set:
+      labels.bag_path: BagPath
+      labels.absolute_path: AbsolutePath
+      labels.shell_type: ShellType
+      labels.value: Value
 
-      if exists(.ChildBags) {
-          cb_raw = to_string!(del(.ChildBags))
-          cb_int = parse_int(cb_raw) ?? null
-          if cb_int != null {
-              .file.Ext.shellbags.child_bags = cb_int
-          } else {
-              .file.Ext.shellbags.child_bags_raw = cb_raw
-          }
-      }
 
-      if exists(.ShellType) {
-          shell_type = to_string!(del(.ShellType))
-          .file.Ext.shellbags.shell_type = shell_type
-      }
+  - set:
+      labels.misc: Miscellaneous
+    filter: exists(.Miscellaneous) && .Miscellaneous != ""
 
-      if exists(.Value) {
-          val = to_string!(del(.Value))
-          .file.Ext.shellbags.value = val
+  - set:
+      file.name: Value
+    filter: .labels.shell_type == "File"
 
-          if !exists(.file.path) {
-              if starts_with(val, "\\\\") || contains(val, ":\\") {
-                  .file.path = val
-              }
-          }
+  - set:
+      file.directory: Value
+    filter: .labels.shell_type == "Directory"
 
-          if !exists(.file.name) && val != "" {
-              .file.name = val
-          }
-      }
+  - set:
+      labels.slot:
+        source: Slot
+        operation: to_int
+      labels.node_slot:
+        source: NodeSlot
+        operation: to_int
+      labels.mru_position:
+        source: MRUPosition
+        operation: to_int
+      labels.child_bags:
+        source: ChildBags
+        operation: to_int
+      labels.mft_sequence:
+        source: MFTSequenceNumber
+        operation: to_int
+      labels.extension_block_count:
+        source: ExtensionBlockCount
+        operation: to_int
+      labels.has_explored:
+        source: HasExplored
+        operation: to_bool
+      labels.last_write_time:
+        source: LastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      labels.first_interacted:
+        source: FirstInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      labels.last_interacted:
+        source: LastInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
 
-      if exists(.CreatedOn) {
-          c_raw = to_string!(del(.CreatedOn))
-          if c_raw != "" {
-              c_ts = parse_timestamp(c_raw, "%F %T") ?? null
-              if c_ts != null {
-                  .file.created = c_ts
-              } else {
-                  .file.Ext.shellbags.created_on_raw = c_raw
-              }
-          }
-      }
+  - set:
+      file.created:
+        source: CreatedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.mtime:
+        source: ModifiedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.accessed:
+        source: AccessedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.inode:
+        source: MFTEntry
+        operation: to_int
 
-      if exists(.ModifiedOn) {
-          m_raw = to_string!(del(.ModifiedOn))
-          if m_raw != "" {
-              m_ts = parse_timestamp(m_raw, "%F %T") ?? null
-              if m_ts != null {
-                  .file.mtime = m_ts
-              } else {
-                  .file.Ext.shellbags.modified_on_raw = m_raw
-              }
-          }
-      }
+  - set:
+      registry.hive:
+        value: HKCU
+      registry.mtime:
+        source: LastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      registry.path:
+        source: '"HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\" + replace(to_string!(.BagPath), pattern: "\\\\", with: "\\")'
 
-      if exists(.AccessedOn) {
-          a_raw = to_string!(del(.AccessedOn))
-          if a_raw != "" {
-              a_ts = parse_timestamp(a_raw, "%F %T") ?? null
-              if a_ts != null {
-                  .file.accessed = a_ts
-              } else {
-                  .file.Ext.shellbags.accessed_on_raw = a_raw
-              }
-          }
-      }
+  # -- OGRE (dfir-ogre registry shell_bag plugin) input ----------------------
 
-      if exists(.LastWriteTime) {
-          lw_raw = to_string!(del(.LastWriteTime))
-          if lw_raw != "" {
-              lw_ts = parse_timestamp(lw_raw, "%F %T") ?? null
-              if lw_ts != null {
-                  .file.Ext.shellbags.last_write_time = lw_ts
-              } else {
-                  .file.Ext.shellbags.last_write_time_raw = lw_raw
-              }
-          }
-      }
+  - set:
+      labels.value: name
+      labels.shell_type: type
+      labels.localized_name: localized_name
+      labels.description: description
+      labels.key_security: key_security
+      file.inode: file_reference
 
-      if exists(.FirstInteracted) {
-          fi_raw = to_string!(del(.FirstInteracted))
-          if fi_raw != "" {
-              fi_ts = parse_timestamp(fi_raw, "%F %T") ?? null
-              if fi_ts != null {
-                  .file.Ext.shellbags.first_interacted = fi_ts
-              } else {
-                  .file.Ext.shellbags.first_interacted_raw = fi_raw
-              }
-          }
-      }
+  - set:
+      labels.absolute_path:
+        source: 'replace(to_string!(.path), pattern: "\\\\", with: "\\")'
+    filter: exists(.path)
 
-      if exists(.LastInteracted) {
-          li_raw = to_string!(del(.LastInteracted))
-          if li_raw != "" {
-              li_ts = parse_timestamp(li_raw, "%F %T") ?? null
-              if li_ts != null {
-                  .file.Ext.shellbags.last_interacted = li_ts
-              } else {
-                  .file.Ext.shellbags.last_interacted_raw = li_raw
-              }
-          }
-      }
+  - set:
+      timestamp:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.mtime:
+        source: modification_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.accessed:
+        source: access_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.created:
+        source: creation_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
 
-      timestamp_value = null
+  - set:
+      registry.path:
+        source: 'replace(to_string!(.key_path), pattern: "\\\\", with: "\\")'
+    filter: exists(.key_path)
 
-      timestamp_source = null
+  # OGRE entries have no HasExplored source: default to true, but only
+  # when the SBECmd flavour has not set the label already
+  - set:
+      labels.has_explored:
+        value: true
+    filter: '!exists(.labels.has_explored)'
 
-      if exists(.file.Ext.shellbags.last_interacted) {
-          timestamp_value = .file.Ext.shellbags.last_interacted
-          timestamp_source = "last_interacted"
-      } else if exists(.file.Ext.shellbags.last_write_time) {
-          timestamp_value = .file.Ext.shellbags.last_write_time
-          timestamp_source = "registry_last_write_time"
-      } else if exists(.file.mtime) {
-          timestamp_value = .file.mtime
-          timestamp_source = "file_mtime"
-      } else if exists(.file.created) {
-          timestamp_value = .file.created
-          timestamp_source = "file_created"
-      }
+  - delete:
+      - BagPath
+      - AbsolutePath
+      - ShellType
+      - Value
+      - Miscellaneous
+      - Slot
+      - NodeSlot
+      - MRUPosition
+      - ChildBags
+      - MFTSequenceNumber
+      - ExtensionBlockCount
+      - MFTEntry
+      - CreatedOn
+      - ModifiedOn
+      - AccessedOn
+      - LastWriteTime
+      - FirstInteracted
+      - LastInteracted
+      - HasExplored
+      - name
+      - type
+      - path
+      - file_reference
+      - modification_time
+      - access_time
+      - creation_time
+      - key_path
+      - key_modif_time
+      - key_security
+      - ogre_md
+      - localized_name
+      - description
 
-      if timestamp_value != null {
-          .timestamp = timestamp_value
+timeline:
+  - id: interacted-with
+    message: "User {user.name} interacted with {labels.absolute_path}"
+    conditions:
+      - field: labels.has_explored
+        value: true
 
-          .event.Ext.timestamp_source = timestamp_source
-      }
+  - id: referenced
+    message: "Shellbag entry exists for {labels.absolute_path} (no evidence of user interaction)"
+    conditions:
+      - field: labels.has_explored
+        value: false
 
-      if exists(.MFTEntry) {
-          mfte_raw = to_string!(del(.MFTEntry))
-          mfte_int = parse_int(mfte_raw) ?? null
-          if mfte_int != null {
-              .file.inode = mfte_int
-          } else {
-              .file.Ext.shellbags.mft_entry_raw = mfte_raw
-          }
-      }
+relationships:
+  - id: interacted-with
+    source: user.name
+    target: labels.value
+    type: interacted with
 
-      if exists(.MFTSequenceNumber) {
-          mfts_raw = to_string!(del(.MFTSequenceNumber))
-          mfts_int = parse_int(mfts_raw) ?? null
-          if mfts_int != null {
-              .file.Ext.shellbags.mft_sequence = mfts_int
-          } else {
-              .file.Ext.shellbags.mft_sequence_raw = mfts_raw
-          }
-      }
-
-      if exists(.ExtensionBlockCount) {
-          ebc_raw = to_string!(del(.ExtensionBlockCount))
-          ebc_int = parse_int(ebc_raw) ?? null
-          if ebc_int != null {
-              .file.Ext.shellbags.extension_block_count = ebc_int
-          } else {
-              .file.Ext.shellbags.extension_block_count_raw = ebc_raw
-          }
-      }
-
-      if exists(.HasExplored) {
-          he_raw = to_string!(del(.HasExplored))
-          he_l   = downcase(he_raw)
-          .file.Ext.shellbags.has_explored_raw = he_raw
-
-          if he_l == "true" {
-              .file.Ext.shellbags.has_explored = true
-          } else if he_l == "false" {
-              .file.Ext.shellbags.has_explored = false
-          }
-      }
-
-      if exists(.Miscellaneous) {
-          misc = to_string!(del(.Miscellaneous))
-          if misc != "" {
-              .file.Ext.shellbags.misc = misc
-          }
-      }
+  - id: referenced
+    source: user.name
+    target: labels.value
+    type: referenced

@@ -1,27 +1,42 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : pstree_nodes
+# Version    : 1.0
 # Windows live response – process tree nodes → ECS
-# Source: pstree_live_response-nodes JSONL
-# Fields: ancestor_pids_path, cmdline, depth, exe, node_key, parent_key,
-#         path, pid, ppid, time, tree_id
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
+# [normalization] windows.pstree_nodes -> event.dataset
 .event.dataset = "windows.pstree_nodes"
-.event.module  = "windows"
 
-.event.kind     = "event"
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['process'] -> event.category
 .event.category = ["process"]
-.event.type     = ["info"]
-.event.action   = "process_tree_node"
-.event.outcome  = "success"
 
-# Keep original event 
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] process_tree_node -> event.action
+.event.action = "process_tree_node"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] encode_json!(.) -> event.original
 .event.original = encode_json!(.)
 
-# -----------------------------------------------------------------------------
-# Tree / node identifiers
-# -----------------------------------------------------------------------------
-
-# tree_id
+# [custom]
 if exists(.tree_id) {
     tid = to_int(.tree_id) ?? null
 
@@ -34,7 +49,6 @@ if exists(.tree_id) {
     del(.tree_id)
 }
 
-# node_key
 if exists(.node_key) {
     nk = to_int(.node_key) ?? null
 
@@ -47,7 +61,6 @@ if exists(.node_key) {
     del(.node_key)
 }
 
-# parent_key (can be null for roots; exists() will be false in that case)
 if exists(.parent_key) {
     pk = to_int(.parent_key) ?? null
 
@@ -60,7 +73,6 @@ if exists(.parent_key) {
     del(.parent_key)
 }
 
-# depth
 if exists(.depth) {
     d = to_int(.depth) ?? null
 
@@ -72,10 +84,6 @@ if exists(.depth) {
 
     del(.depth)
 }
-
-# -----------------------------------------------------------------------------
-# Process IDs (pid / ppid)
-# -----------------------------------------------------------------------------
 
 if exists(.pid) {
     pid_val = to_int(.pid) ?? null
@@ -103,10 +111,6 @@ if exists(.ppid) {
     del(.ppid)
 }
 
-# -----------------------------------------------------------------------------
-# Executable / command line
-# -----------------------------------------------------------------------------
-
 if exists(.exe) {
     exe = to_string!(del(.exe))
     if exe != "" {
@@ -116,7 +120,6 @@ if exists(.exe) {
     }
 }
 
-# cmdline can be null
 if exists(.cmdline) {
     cl = to_string!(.cmdline)
 
@@ -127,19 +130,12 @@ if exists(.cmdline) {
 
     del(.cmdline)
 } else {
-    # ensure we drop the null field if present
     del(.cmdline)
 }
-
-# -----------------------------------------------------------------------------
-# Time → timestamp / process.start
-# Example: "2024-04-26T16:06:28.918263+00:00"
-# -----------------------------------------------------------------------------
 
 if exists(.time) {
     t_raw = to_string!(.time)
 
-    # "%+" = RFC3339 with optional fractional seconds and timezone offset
     ts = parse_timestamp(t_raw, format: "%+") ?? null
 
     if ts != null {
@@ -153,10 +149,6 @@ if exists(.time) {
 
     del(.time)
 }
-
-# -----------------------------------------------------------------------------
-# Tree path info
-# -----------------------------------------------------------------------------
 
 if exists(.ancestor_pids_path) {
     ap = to_string!(del(.ancestor_pids_path))

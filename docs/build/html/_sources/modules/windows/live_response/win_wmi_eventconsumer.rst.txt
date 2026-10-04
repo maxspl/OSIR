@@ -4,7 +4,7 @@ win_wmi_eventconsumer
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:wmi_consummer`` | name_rex: ``--win_wmi_eventconsumer\.jsonl$``
+   * ``windows:live_response:wmi_consummer`` | name_rex: ``r"--win_wmi_eventconsumer\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

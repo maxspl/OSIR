@@ -1,143 +1,143 @@
 
 arp:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: arp
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 blkid:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: blkid
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 bodyfile:
-    name_rex: bodyfile.*\.jsonl$
+    name_rex: r"bodyfile.*\.jsonl$"
     sourcetype: _json
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path: 
         - "mtime"
     timestamp_format: "%s"
 boot:
-    name_rex: boot.*\.jsonl$
+    name_rex: r"boot.*\.jsonl$"
     sourcetype: _json
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
 df:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: df
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 dmidecode:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: dmidecode
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 dpkg:
-    name_rex: dpkg.*\.jsonl$
+    name_rex: r"dpkg.*\.jsonl$"
     sourcetype: _json
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path: 
         - "_time"
     timestamp_format: "%Y-%m-%d %H:%M:%S"
 env:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: env
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 findmnt:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: findmnt
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 free:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: free
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 iptables:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: iptables
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 journal:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: journal
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
     timestamp_path: 
         - "__REALTIME_TIMESTAMP"
 last:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: last
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
     timestamp_path: 
         - "login"
     timestamp_format: "%a %b %d %H:%M"
 lastlog:
-    name_rex: lastlog.*\.jsonl$
+    name_rex: r"lastlog.*\.jsonl$"
     sourcetype: _json
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path: 
         - "_time"
     timestamp_format: "%Y/%m/%d %H:%M:%S"
 lsblk:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: lsblk
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 lsmod:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: lsmod
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 lsusb:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: lsusb
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 mount:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: mount
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 ps:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: ps
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 sysctl:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: sysctl
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 syslog:
-    name_rex: syslog.*\.jsonl$
+    name_rex: r"syslog.*\.jsonl$"
     sourcetype: _json
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path: 
     - "_time"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
 systemctl:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: systemctl_luf
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
 top:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: top
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"
     timestamp_path: 
         - "time"
     timestamp_format: "%H:%M:%S"
 utmp:
-    name_rex: ^(utmp|btmp|wtmp)(\.\d+)?\.jsonl$
+    name_rex: r"^(utmp|btmp|wtmp)(\.\d+)?\.jsonl$"
     sourcetype: _json
-    host_rex: "\/Endpoint_(.*?)\/"
+    host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path: 
         - "tv_sec"
     timestamp_format: "%Y/%m/%d %H:%M:%S"
 vmstat:
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: vmstat
     sourcetype: _json
-    host_rex: _([\w\.-]+)--
+    host_rex: r"_([\w\.-]+)--"

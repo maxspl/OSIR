@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: net9/RBCmd.exe
-  cmd: -d '{input_dir}' --csv "{output_dir}" --csvf "{output_file}" -q 
+  cmd: -d '{input_dir}' --csv "{output_dir}" --csvf "{output_filename}" -q 
   source: https://github.com/EricZimmerman/RBCmd
   version: 1.6.0
 
@@ -26,19 +26,22 @@ input:
 output:
   type: single_file
   format: csv
-  output_file: "{endpoint_name}--{module}.csv"
+  filename: "{extracted_endpoint}--{module}.csv"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:recyclebin':
-    name_rex: \.csv$
+    name_rex: r"\.csv$"
     path_suffix: 'recycle_bin'
     sourcetype: 'windows:files:recyclebin'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     timestamp_path: 
-        - "DeletedOn"
-    timestamp_format: "%Y-%m-%d %H:%M:%S"
+        - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - ecs_normalize/windows/recycle_bin.vrl

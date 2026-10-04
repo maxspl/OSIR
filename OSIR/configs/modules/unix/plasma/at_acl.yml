@@ -22,20 +22,21 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint:
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 optional:
   dissector: linux_at_acl
 
 splunk:
   'linux:at_acl':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: at_acl
     sourcetype: 'linux:at_acl'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     artifact: "at_acl"

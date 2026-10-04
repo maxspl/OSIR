@@ -22,22 +22,23 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}.jsonl"
+  filename: "{extracted_endpoint}--{module}.jsonl"
 
-endpoint:
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 optional:
   dissector: linux_journal_auth
 
 splunk:
   'linux:journal_auth':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: journal_auth
     sourcetype: 'linux:journal_auth'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
     timestamp_path:
         - "journal_time"
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"

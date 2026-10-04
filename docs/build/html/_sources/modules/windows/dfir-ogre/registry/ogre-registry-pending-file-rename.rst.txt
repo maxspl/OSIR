@@ -4,7 +4,7 @@ ogre-registry-pending-file-rename
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:ogre:registry_pending_file_rename`` | name_rex: ``\.jsonl$``
+   * ``windows:ogre:registry_pending_file_rename`` | name_rex: ``r"\.jsonl$"``
 
 Description
 -----------
@@ -13,6 +13,11 @@ Parsing of pending\_rename - using ANSSI DFIR OGRE
 
 Timeline
 --------
+
+No transform configuration found for this module.
+
+Relationships
+-------------
 
 No transform configuration found for this module.
 

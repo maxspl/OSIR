@@ -1,53 +1,18 @@
+##############################################################
+# Module VRL : mft
+# Version    : 1.0
 # OSIR - MFT (Master File Table) normalizer
-## 
-## Schema:
-##     Source: CSV : 
-#      EntryNumber,SequenceNumber,InUse,ParentEntryNumber,ParentSequenceNumber,ParentPath,FileName,Extension,FileSize,ReferenceCount,ReparseTarget,IsDirectory,HasAds,IsAds,SI<FN,uSecZeros,Copied,SiFlags,NameType,Created0x10,Created0x30,LastModified0x10,LastModified0x30,LastRecordChange0x10,LastRecordChange0x30,LastAccess0x10,LastAccess0x30,UpdateSequenceNumber,LogfileSequenceNumber,SecurityId,ObjectIdFileDroid,LoggedUtilStream,ZoneIdContents,SourceFile
 #
-##     Destination: 
-#      {
-#        "mft.entry_number": <Integer>,
-#        "mft.sequence_number": <Integer>,
-#        "mft.in_use": <Boolean>,
-#        "mft.parent_entry_number": <Integer>,
-#        "mft.parent_sequence_number": <Integer>,
-#        "file.directory": <String>,
-#        "file.name": <String>,
-#        "file.extension": <String>,
-#        "file.size": <Integer>,
-#        "file.path": <String>,
-#        "file.target_path": <String>,
-#        "file.type": <String>,
-#        "file.attributes": <Array>,
-#        "file.created": <Datetime>,
-#        "file.mtime": <Datetime>,
-#        "file.ctime": <Datetime>,
-#        "file.accessed": <Datetime>,
-#        "mft.reference_count": <Integer>,
-#        "mft.has_ads": <Boolean>,
-#        "mft.is_ads": <Boolean>,
-#        "mft.si_less_than_fn": <Boolean>,
-#        "mft.usec_zeros": <Boolean>,
-#        "mft.copied": <Boolean>,
-#        "mft.name_type": <String>,
-#        "mft.created_fn": <Datetime>,
-#        "mft.modified_fn": <Datetime>,
-#        "mft.record_change_si": <Datetime>,
-#        "mft.record_change_fn": <Datetime>,
-#        "mft.accessed_fn": <Datetime>,
-#        "mft.update_sequence_number": <Integer>,
-#        "mft.logfile_sequence_number": <Integer>,
-#        "mft.security_id": <Integer>,
-#        "mft.object_id": <String>,
-#        "mft.logged_util_stream": <String>,
-#        "labels.zone_id": <String>,
-#        "event.dataset": <String>
-#      }
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
-# Parse CSV if needed (skip if already parsed)
-# . = parse_csv!(.message)
 
-# MFT Entry Information
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [custom]
 if exists(.EntryNumber) {
     .mft.entry_number = to_int!(.EntryNumber)
     del(.EntryNumber)
@@ -68,7 +33,6 @@ if exists(.InUse) {
     del(.InUse)
 }
 
-# Parent Information
 if exists(.ParentEntryNumber) {
     .mft.parent_entry_number = to_int!(.ParentEntryNumber)
     del(.ParentEntryNumber)
@@ -84,7 +48,6 @@ if exists(.ParentPath) {
     del(.ParentPath)
 }
 
-# File Information
 if exists(.FileName) {
     .file.name = to_string!(.FileName)
     del(.FileName)
@@ -103,12 +66,10 @@ if exists(.FileSize) {
     del(.FileSize)
 }
 
-# Build full path (using fallible assignment or string coercion)
 if exists(.file.directory) && exists(.file.name) {
     .file.path = to_string!(.file.directory) + "\\" + to_string!(.file.name)
 }
 
-# File Attributes
 if exists(.ReferenceCount) {
     .mft.reference_count = to_int!(.ReferenceCount)
     del(.ReferenceCount)
@@ -157,7 +118,6 @@ if exists(.IsAds) {
     del(.IsAds)
 }
 
-# MFT Metadata Flags
 if exists(."SI<FN") {
     si_fn_str = downcase(to_string!(."SI<FN"))
     .mft.si_less_than_fn = if si_fn_str == "true" || si_fn_str == "1" {
@@ -188,11 +148,9 @@ if exists(.Copied) {
     del(.Copied)
 }
 
-# SiFlags (File Attributes)
 if exists(.SiFlags) {
     flags_str = to_string!(.SiFlags)
     if flags_str != "" {
-        # Parse flags like "Archive, NotContentIndexed"
         .file.attributes = split(flags_str, ", ")
     }
     del(.SiFlags)
@@ -203,7 +161,6 @@ if exists(.NameType) {
     del(.NameType)
 }
 
-# Timestamps - $STANDARD_INFORMATION (0x10)
 if exists(.Created0x10) {
     created_si = to_string!(.Created0x10)
     if created_si != "" {
@@ -237,7 +194,6 @@ if exists(.LastAccess0x10) {
     del(.LastAccess0x10)
 }
 
-# Timestamps - $FILE_NAME (0x30)
 if exists(.Created0x30) {
     created_fn = to_string!(.Created0x30)
     if created_fn != "" {
@@ -270,7 +226,6 @@ if exists(.LastAccess0x30) {
     del(.LastAccess0x30)
 }
 
-# Additional MFT Metadata
 if exists(.UpdateSequenceNumber) {
     .mft.update_sequence_number = to_int!(.UpdateSequenceNumber)
     del(.UpdateSequenceNumber)
@@ -315,20 +270,25 @@ if exists(.SourceFile) {
     del(.SourceFile)
 }
 
-# Set event metadata
+# [normalization] event -> event.kind
 .event.kind = "event"
+
+# [normalization] ['file'] -> event.category
 .event.category = ["file"]
+
+# [normalization] ['info'] -> event.type
 .event.type = ["info"]
+
+# [normalization] mft -> event.module
 .event.module = "mft"
 
-# Use primary timestamp (Created0x10 or earliest available)
+# [custom]
 if exists(.file.created) {
     .timestamp = .file.created
 } else if exists(.mft.created_fn) {
     .timestamp = .mft.created_fn
 }
 
-# Anomaly Detection
 if exists(.mft.si_less_than_fn) && .mft.si_less_than_fn == true {
     .event.type = push(.event.type, "indicator")
     .threat.indicator.type = ["file"]

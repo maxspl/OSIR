@@ -4,7 +4,7 @@ IIS
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:iis`` | name_rex: ``--IIS\.jsonl$``
+   * ``windows:iis`` | name_rex: ``r"--IIS\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

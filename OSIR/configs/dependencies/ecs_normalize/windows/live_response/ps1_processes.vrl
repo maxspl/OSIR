@@ -1,63 +1,73 @@
-# =============================================================================
+##############################################################
+# Module VRL : ps1_processes
+# Version    : 1.0
 # Windows Process CSV (WMI + .NET Process) → ECS-ish normalization
-# =============================================================================
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Ensure .event exists and keep original event
+# transformations
 # -----------------------------------------------------------------------------
+
+# [normalization] {} -> event
 if !exists(.event) {
   .event = {}
 }
 
+# [normalization] encode_json!(.) -> event.original
 if !exists(.event.original) {
   .event.original = encode_json!(.)
 }
 
-# =============================================================================
-# Basic ECS scaffolding defaults
-# =============================================================================
-
+# [normalization] windows.process -> event.dataset
 if !exists(.event.dataset) {
   .event.dataset = "windows.process"
 }
 
+# [normalization] windows -> event.module
 if !exists(.event.module) {
   .event.module = "windows"
 }
 
+# [normalization] Windows Process (generic) -> event.provider
 if !exists(.event.provider) {
   .event.provider = "Windows Process (generic)"
 }
 
+# [normalization] state -> event.kind
 if !exists(.event.kind) {
   .event.kind = "state"
 }
 
+# [normalization] ['process'] -> event.category
 if !exists(.event.category) {
   .event.category = ["process"]
 }
 
+# [normalization] ['info'] -> event.type
 if !exists(.event.type) {
   .event.type = ["info"]
 }
 
+# [normalization] process_snapshot -> event.action
 if !exists(.event.action) {
   .event.action = "process_snapshot"
 }
 
+# [normalization] process_snapshot -> event.code
 if !exists(.event.code) {
   .event.code = "process_snapshot"
 }
 
+# [normalization] success -> event.outcome
 if !exists(.event.outcome) {
   .event.outcome = "success"
 }
 
-# =============================================================================
-# Host / machine info
-# =============================================================================
-
-# From WMI: PSComputerName, CSName
+# [custom]
 if exists(.PSComputerName) {
   pc = to_string!(del(.PSComputerName))
   if pc != "" && !exists(.host.name) {
@@ -72,7 +82,6 @@ if exists(.CSName) {
   }
 }
 
-# .NET: MachineName
 if exists(.MachineName) {
   mn = to_string!(del(.MachineName))
   if mn != "" && !exists(.host.name) {
@@ -80,21 +89,17 @@ if exists(.MachineName) {
   }
 }
 
-# Optional WindowsVersion
+# [normalization] to_string!(del(.WindowsVersion)) -> host.os.version
 if exists(.WindowsVersion) {
   .host.os.version = to_string!(del(.WindowsVersion))
 }
 
-# OSName from WMI
+# [normalization] to_string!(del(.OSName)) -> host.os.full
 if exists(.OSName) {
   .host.os.full = to_string!(del(.OSName))
 }
 
-# =============================================================================
-# Process identity (name, pid, ppid, exec, cmdline)
-# =============================================================================
-
-# Name / ProcessName
+# [custom]
 if exists(.ProcessName) {
   pn = to_string!(del(.ProcessName))
   if pn != "" {
@@ -109,7 +114,6 @@ if exists(.Name) && !exists(.process.name) {
   }
 }
 
-# PID: ProcessId (WMI) / Id (.NET)
 if exists(.ProcessId) {
   pid_raw = to_string!(del(.ProcessId))
   pid_val = parse_int(pid_raw) ?? null
@@ -130,7 +134,6 @@ if exists(.Id) && !exists(.process.pid) {
   }
 }
 
-# Parent PID (WMI)
 if exists(.ParentProcessId) {
   ppid_raw = to_string!(del(.ParentProcessId))
   ppid_val = parse_int(ppid_raw) ?? null
@@ -141,7 +144,6 @@ if exists(.ParentProcessId) {
   }
 }
 
-# Command line
 if exists(.CommandLine) {
   cmd = to_string!(del(.CommandLine))
   if cmd != "" {
@@ -149,7 +151,6 @@ if exists(.CommandLine) {
   }
 }
 
-# Executable / path
 if exists(.ExecutablePath) {
   ep = to_string!(del(.ExecutablePath))
   if ep != "" {
@@ -165,7 +166,6 @@ if exists(.Path) {
   .process.Ext.snapshot.path_raw = p_raw
 }
 
-# Derive process.name from executable if still missing
 if !exists(.process.name) && exists(.process.executable) {
   px = to_string!(.process.executable)
   parts = split!(px, "\\\\")
@@ -177,11 +177,6 @@ if !exists(.process.name) && exists(.process.executable) {
   }
 }
 
-# =============================================================================
-# Description / company / product / version
-# =============================================================================
-
-# Description (WMI)
 if exists(.Description) {
   desc = to_string!(del(.Description))
   if desc != "" {
@@ -189,7 +184,6 @@ if exists(.Description) {
   }
 }
 
-# Company (from .NET CSV)
 if exists(.Company) {
   comp = to_string!(del(.Company))
   if comp != "" {
@@ -197,33 +191,32 @@ if exists(.Company) {
   }
 }
 
-# Product / ProductVersion / FileVersion (from .NET)
+# [normalization] to_string!(del(.Product)) -> process.Ext.snapshot.product
 if exists(.Product) {
   .process.Ext.snapshot.product = to_string!(del(.Product))
 }
 
+# [normalization] to_string!(del(.FileVersion)) -> process.Ext.snapshot.file_version
 if exists(.FileVersion) {
   .process.Ext.snapshot.file_version = to_string!(del(.FileVersion))
 }
 
+# [normalization] to_string!(del(.ProductVersion)) -> process.Ext.snapshot.product_version
 if exists(.ProductVersion) {
   .process.Ext.snapshot.product_version = to_string!(del(.ProductVersion))
 }
 
-# CreationClassName, OSCreationClassName (WMI) – keep as extra metadata
+# [normalization] to_string!(del(.CreationClassName)) -> process.Ext.snapshot.creation_class_name
 if exists(.CreationClassName) {
   .process.Ext.snapshot.creation_class_name = to_string!(del(.CreationClassName))
 }
 
+# [normalization] to_string!(del(.OSCreationClassName)) -> process.Ext.snapshot.os_creation_class_name
 if exists(.OSCreationClassName) {
   .process.Ext.snapshot.os_creation_class_name = to_string!(del(.OSCreationClassName))
 }
 
-# =============================================================================
-# Handles / threads / session
-# =============================================================================
-
-# Handles / HandleCount (WMI)
+# [custom]
 if exists(.Handles) {
   h_raw = to_string!(del(.Handles))
   h_val = parse_int(h_raw) ?? null
@@ -244,7 +237,6 @@ if exists(.HandleCount) {
   }
 }
 
-# ThreadCount (WMI)
 if exists(.ThreadCount) {
   tc_raw = to_string!(del(.ThreadCount))
   tc_val = parse_int(tc_raw) ?? null
@@ -255,7 +247,6 @@ if exists(.ThreadCount) {
   }
 }
 
-# SessionId
 if exists(.SessionId) {
   sid_raw = to_string!(del(.SessionId))
   sid_val = parse_int(sid_raw) ?? null
@@ -266,11 +257,6 @@ if exists(.SessionId) {
   }
 }
 
-# =============================================================================
-# Memory-ish metrics (stored under process.Ext.snapshot)
-# =============================================================================
-
-# From WMI CSV: VM, WS, WorkingSetSize, VirtualSize
 if exists(.VM) {
   vm_raw = to_string!(del(.VM))
   vm_val = parse_int(vm_raw) ?? null
@@ -311,7 +297,6 @@ if exists(.VirtualSize) {
   }
 }
 
-# From .NET CSV: WorkingSet / WorkingSet64 / VirtualMemorySize / VirtualMemorySize64
 if exists(.WorkingSet) {
   ws2_raw = to_string!(del(.WorkingSet))
   ws2_val = parse_int(ws2_raw) ?? null
@@ -352,35 +337,32 @@ if exists(.VirtualMemorySize64) {
   }
 }
 
-# =============================================================================
-# CPU time / priority (stored in Ext)
-# =============================================================================
-
-# WMI: KernelModeTime, UserModeTime
+# [normalization] to_string!(del(.KernelModeTime)) -> process.Ext.snapshot.kernel_mode_time_raw
 if exists(.KernelModeTime) {
-  kmt_raw = to_string!(del(.KernelModeTime))
-  .process.Ext.snapshot.kernel_mode_time_raw = kmt_raw
+  .process.Ext.snapshot.kernel_mode_time_raw = to_string!(del(.KernelModeTime))
 }
 
+# [normalization] to_string!(del(.UserModeTime)) -> process.Ext.snapshot.user_mode_time_raw
 if exists(.UserModeTime) {
-  umt_raw = to_string!(del(.UserModeTime))
-  .process.Ext.snapshot.user_mode_time_raw = umt_raw
+  .process.Ext.snapshot.user_mode_time_raw = to_string!(del(.UserModeTime))
 }
 
-# .NET: TotalProcessorTime, UserProcessorTime, PrivilegedProcessorTime
+# [normalization] to_string!(del(.TotalProcessorTime)) -> process.Ext.snapshot.total_processor_time
 if exists(.TotalProcessorTime) {
   .process.Ext.snapshot.total_processor_time = to_string!(del(.TotalProcessorTime))
 }
 
+# [normalization] to_string!(del(.UserProcessorTime)) -> process.Ext.snapshot.user_processor_time
 if exists(.UserProcessorTime) {
   .process.Ext.snapshot.user_processor_time = to_string!(del(.UserProcessorTime))
 }
 
+# [normalization] to_string!(del(.PrivilegedProcessorTime)) -> process.Ext.snapshot.privileged_processor_time
 if exists(.PrivilegedProcessorTime) {
   .process.Ext.snapshot.privileged_processor_time = to_string!(del(.PrivilegedProcessorTime))
 }
 
-# BasePriority / Priority
+# [custom]
 if exists(.BasePriority) {
   bp_raw = to_string!(del(.BasePriority))
   bp_val = parse_int(bp_raw) ?? null
@@ -401,19 +383,17 @@ if exists(.Priority) {
   }
 }
 
+# [normalization] to_string!(del(.PriorityClass)) -> process.Ext.snapshot.priority_class
 if exists(.PriorityClass) {
   .process.Ext.snapshot.priority_class = to_string!(del(.PriorityClass))
 }
 
-# =============================================================================
-# Status / exit codes (.NET)
-# =============================================================================
-
+# [normalization] to_string!(del(.HasExited)) -> process.Ext.snapshot.has_exited_raw
 if exists(.HasExited) {
-  he_raw = to_string!(del(.HasExited))
-  .process.Ext.snapshot.has_exited_raw = he_raw
+  .process.Ext.snapshot.has_exited_raw = to_string!(del(.HasExited))
 }
 
+# [custom]
 if exists(.ExitCode) {
   ec_raw = to_string!(del(.ExitCode))
   ec_val = parse_int(ec_raw) ?? null
@@ -424,17 +404,6 @@ if exists(.ExitCode) {
   }
 }
 
-# =============================================================================
-# Timestamps – "proper" process time
-#
-# Primary:
-#   • WMI: CreationDate  → .process.start
-#   • .NET: StartTime    → .process.start
-#
-# Then we use .process.start → .timestamp / .event.created
-# =============================================================================
-
-# --- WMI CreationDate (CIM datetime like 20240426180618.356420+120) ---
 if exists(.CreationDate) {
   cd_raw = to_string!(del(.CreationDate))
   if cd_raw != "" {
@@ -465,7 +434,6 @@ if exists(.CreationDate) {
   }
 }
 
-# --- WMI TerminationDate (same CIM format) ---
 if exists(.TerminationDate) {
   td_raw = to_string!(del(.TerminationDate))
   if td_raw != "" {
@@ -495,7 +463,6 @@ if exists(.TerminationDate) {
   }
 }
 
-# InstallDate (WMI) – keep raw
 if exists(.InstallDate) {
   id_raw = to_string!(del(.InstallDate))
   if id_raw != "" {
@@ -503,7 +470,6 @@ if exists(.InstallDate) {
   }
 }
 
-# --- .NET StartTime ---
 if exists(.StartTime) {
   st_raw = to_string!(del(.StartTime))
   if st_raw != "" {
@@ -517,7 +483,6 @@ if exists(.StartTime) {
   }
 }
 
-# --- .NET ExitTime ---
 if exists(.ExitTime) {
   et_raw = to_string!(del(.ExitTime))
   if et_raw != "" {
@@ -530,12 +495,8 @@ if exists(.ExitTime) {
   }
 }
 
-# =============================================================================
-# Timestamp resolution for event
-#   • Primary: .process.start (if present)
-# =============================================================================
-
 ts_value = null
+
 ts_source = ""
 
 if exists(.process.start) {

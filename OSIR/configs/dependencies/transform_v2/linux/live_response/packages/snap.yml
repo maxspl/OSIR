@@ -11,14 +11,11 @@ transformation:
       package.reference: rev
       package.type: tracking
       package.vendor: publisher
-  - custom: |2-
-      if exists(.notes) {
-          .message = .Notes
-      }
+      message: Notes
   - delete:
       - name
       - version
       - rev
       - tracking
       - publisher
-      - notes
+      - Notes

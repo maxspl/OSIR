@@ -1,0 +1,216 @@
+metadata:
+  version: "1.0"
+  id: browsers
+  author: Typ
+  description: Browser artifacts (BrowserParser CSV + dfir-ogre chrome/firefox JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.dataset:
+        value: web.browser
+      event.module:
+        value: browser
+      event.kind:
+        value: event
+      event.category:
+        value: [web]
+      event.type:
+        value: [access, info]
+      event.provider:
+        value: "Browser artifacts"
+      event.outcome:
+        value: success
+
+  # -- BrowserParser (browsers module) input ----------------------------------
+
+  # history: url, title, visit_count, last_visit_time
+  - set:
+      url.original: url
+      labels.title: title
+      labels.visit_count:
+        source: visit_count
+        operation: to_int
+      timestamp:
+        source: last_visit_time
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.last_visit_time)
+
+  # downloads: filename, current_path, target_path, start_time, received_bytes,
+  #            total_bytes, end_time, opened, last_access_time, mime_type
+  - set:
+      file.name: filename
+      file.path: target_path
+      labels.current_path: current_path
+      file.size:
+        source: total_bytes
+        operation: to_int
+      labels.received_bytes:
+        source: received_bytes
+        operation: to_int
+      labels.opened:
+        source: opened
+        operation: to_bool
+      labels.mime_type: mime_type
+      timestamp:
+        source: start_time
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      event.start:
+        source: start_time
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.mtime:
+        source: end_time
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.accessed:
+        source: last_access_time
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.filename)
+
+  # searches: term, normalized_term
+  - set:
+      labels.search_term: term
+      labels.normalized_term: normalized_term
+
+  # -- OGRE (dfir-ogre chrome/firefox) input ----------------------------------
+
+  # history: url, title, visit_date, visit_count, hidden, referer, ogre_md
+  # visit_date is absent for URLs never visited: ogre_md marks the flavour,
+  # not visit_date
+  - set:
+      url.original: url
+      labels.title: title
+      labels.visit_count:
+        source: visit_count
+        operation: to_int
+      labels.hidden:
+        source: hidden
+        operation: to_int
+      labels.referer: referer
+    filter: exists(.ogre_md) && !exists(.target_path)
+
+  - set:
+      timestamp:
+        source: visit_date
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+    filter: exists(.visit_date) && .visit_date != ""
+
+  # downloads: target_path, url, received_bytes, total_bytes, start_time,
+  #            end_time, state, danger_type, interrupt_reason, opened, ogre_md
+  - set:
+      file.path: target_path
+      url.original: url
+      file.size:
+        source: total_bytes
+        operation: to_int
+      labels.received_bytes:
+        source: received_bytes
+        operation: to_int
+      labels.state: state
+      labels.danger_type: danger_type
+      labels.deleted:
+        source: deleted
+        operation: to_bool
+      labels.interrupt_reason: interrupt_reason
+      labels.opened:
+        source: opened
+        operation: to_bool
+      timestamp:
+        source: start_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      event.start:
+        source: start_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.mtime:
+        source: end_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+    filter: exists(.target_path) && !exists(.filename)
+
+  # basename() is fallible and Windows backslashes are not path separators:
+  # extract the file name from the OGRE download target_path
+  - custom: |2-
+      if exists(.target_path) && !exists(.filename) {
+          bn, berr = basename(replace(to_string!(.target_path), pattern: "\\", with: "/"))
+          if berr == null {
+              .file.name = bn
+          }
+      }
+
+  - delete:
+      - title
+      - visit_count
+      - last_visit_time
+      - filename
+      - current_path
+      - target_path
+      - start_time
+      - received_bytes
+      - total_bytes
+      - end_time
+      - opened
+      - last_access_time
+      - mime_type
+      - term
+      - normalized_term
+      - visit_date
+      - hidden
+      - referer
+      - ogre_md
+      - state
+      - danger_type
+      - interrupt_reason
+      - deleted
+
+timeline:
+  - id: visited
+    message: "User {user.name} visited {url.original}"
+    conditions:
+      - field: labels.visit_count
+        exists: true
+
+  - id: downloaded
+    message: "User {user.name} downloaded {file.name} to {file.path}"
+    conditions:
+      - field: file.path
+        exists: true
+
+  - id: searched
+    message: "User {user.name} searched for {labels.search_term}"
+    conditions:
+      - field: labels.search_term
+        exists: true
+
+relationships:
+  - id: visited
+    source: user.name
+    target: url.original
+    type: visited
+
+  - id: downloaded
+    source: user.name
+    target: file.path
+    type: downloaded to
+
+  - id: searched
+    source: user.name
+    target: labels.search_term
+    type: searched for

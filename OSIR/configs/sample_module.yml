@@ -19,5 +19,9 @@ input:
 output:
   type: module_output_type
   format: module_output_format
-  output_file: module_output_name
-endpoint: module_endpoint_regex
+  filename: module_output_name
+extracted:
+  - endpoint:
+      patterns:
+        - r"module_endpoint_regex"
+      default: "UNKNOWN"

@@ -19,113 +19,148 @@ transformation:
         value: Loki-RS
       observer.type:
         value: scanner
-  - custom: |2-
-      if exists(.timestamp) {
-          ts = to_string(.timestamp) ?? null
-          if ts != null && ts != "" {
-              parsed_ts = parse_timestamp(ts, format: "%+") ?? null
-              if parsed_ts != null {
-                  .timestamp = format_timestamp!(parsed_ts, format: "%Y-%m-%dT%H:%M:%SZ")
-              }
-          }
-      }
-
-      if exists(.hostname) {
-          observer_hostname = to_string(.hostname) ?? null
-          if observer_hostname != null && observer_hostname != "" {
-              .observer.hostname = observer_hostname
-          }
-      }
-
-      if exists(.level) {
-          level = downcase(to_string!(.level))
-          .log.level = level
-
-          if level == "alert" {
-              .event.severity = 90
-          } else if level == "warning" {
-              .event.severity = 70
-          } else if level == "notice" {
-              .event.severity = 50
-          } else if level == "error" {
-              .event.severity = 40
-          } else {
-              .event.severity = 10
-          }
-      }
+  # timestamp: reformatted only when the %+ format parses
+  - set:
+      timestamp: 'format_timestamp!(parse_timestamp!(to_string!(.timestamp), format: "%+"), format: "%Y-%m-%dT%H:%M:%SZ")'
+    filter: '(parse_timestamp(to_string!(.timestamp), format: "%+") ?? null) != null'
+  - set:
+      observer.hostname: to_string!(.hostname)
+    filter: 'exists(.hostname) && (to_string(.hostname) ?? "") != ""'
+  - set:
+      log.level: downcase!(to_string!(.level))
+  - set:
+      event.severity:
+        value: 90
+    conditions:
+      - field: log.level
+        value: alert
+  - set:
+      event.severity:
+        value: 70
+    conditions:
+      - field: log.level
+        value: warning
+  - set:
+      event.severity:
+        value: 50
+    conditions:
+      - field: log.level
+        value: notice
+  - set:
+      event.severity:
+        value: 40
+    conditions:
+      - field: log.level
+        value: error
+  - set:
+      event.severity:
+        value: 10
+    filter: '!exists(.event.severity) && exists(.log.level)'
   - set:
       message: to_string(.message) ?? null
-  - custom: |2-
-      if exists(.score) {
-          score_float = to_float(.score) ?? null
-          if score_float != null {
-              score = to_int(score_float)
-              .event.risk_score = score
-              .loki.score = score
-          }
-      }
-
-      event_type = downcase(to_string(.event_type) ?? "info")
-
-      if event_type == "file_match" {
-          .event.kind = "alert"
-          .event.category = ["file", "malware"]
-          .event.type = ["info"]
-          .event.action = "loki-file-match"
-          .event.dataset = "loki.filescan"
-      } else if event_type == "process_match" {
-          .event.kind = "alert"
-          .event.category = ["process", "malware"]
-          .event.type = ["info"]
-          .event.action = "loki-process-match"
-          .event.dataset = "loki.processcheck"
-      } else if event_type == "scan_start" {
-          .event.kind = "event"
-          .event.category = ["process"]
-          .event.type = ["start"]
-          .event.action = "loki-scan-start"
-          .event.dataset = "loki.scan"
-      } else if event_type == "scan_end" {
-          .event.kind = "event"
-          .event.category = ["process"]
-          .event.type = ["end"]
-          .event.action = "loki-scan-end"
-          .event.dataset = "loki.scan"
-      } else if event_type == "error" {
-          .event.kind = "event"
-          .event.category = ["process"]
-          .event.type = ["error"]
-          .event.action = "loki-scan-error"
-          .event.dataset = "loki.scan"
-      } else {
-          .event.kind = "event"
-          .event.category = ["process"]
-          .event.type = ["info"]
-          .event.action = "loki-scan-info"
-          .event.dataset = "loki.scan"
-      }
-
-      if exists(.file_path) {
-          file_path = to_string(.file_path) ?? null
-          if file_path != null && file_path != "" {
-              .file.path = file_path
-              .file.name = basename!(file_path)
-
-              extension = split(basename!(file_path), ".")
-              if length(extension) > 1 {
-                  .file.extension = downcase!(to_string!(extension[-1]))
-              }
-          }
-      }
+  - set:
+      event.risk_score: 'to_int(to_float(.score) ?? 0.0)'
+      loki.score: 'to_int(to_float(.score) ?? 0.0)'
+    filter: 'exists(.score) && (to_float(.score) ?? null) != null'
+  # event type categorization (default: scan-info)
+  - set:
+      event_type_lower: 'downcase(to_string(.event_type) ?? "info")'
+  - set:
+      event.kind:
+        value: alert
+      event.category:
+        value: [file, malware]
+      event.type:
+        value: [info]
+      event.action:
+        value: loki-file-match
+      event.dataset:
+        value: loki.filescan
+    conditions:
+      - field: event_type_lower
+        value: file_match
+  - set:
+      event.kind:
+        value: alert
+      event.category:
+        value: [process, malware]
+      event.type:
+        value: [info]
+      event.action:
+        value: loki-process-match
+      event.dataset:
+        value: loki.processcheck
+    conditions:
+      - field: event_type_lower
+        value: process_match
+  - set:
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [start]
+      event.action:
+        value: loki-scan-start
+      event.dataset:
+        value: loki.scan
+    conditions:
+      - field: event_type_lower
+        value: scan_start
+  - set:
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [end]
+      event.action:
+        value: loki-scan-end
+      event.dataset:
+        value: loki.scan
+    conditions:
+      - field: event_type_lower
+        value: scan_end
+  - set:
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [error]
+      event.action:
+        value: loki-scan-error
+      event.dataset:
+        value: loki.scan
+    conditions:
+      - field: event_type_lower
+        value: error
+  - set:
+      event.kind:
+        value: event
+      event.category:
+        value: [process]
+      event.type:
+        value: [info]
+      event.action:
+        value: loki-scan-info
+      event.dataset:
+        value: loki.scan
+    filter: '!exists(.event.kind)'
+  - delete:
+      - event_type_lower
+  - set:
+      file.path: to_string(.file_path) ?? null
+      file.name: basename!(to_string!(.file_path))
+    filter: 'exists(.file_path) && (to_string(.file_path) ?? "") != ""'
+  - set:
+      file.extension: 'downcase!(to_string!(split(basename!(to_string!(.file_path)), ".")[-1]))'
+    filter: 'exists(.file_path) && (to_string(.file_path) ?? "") != "" && length(split(basename!(to_string!(.file_path)), ".")) > 1'
   - set:
       file.type: to_string(.file_type) ?? null
-  - custom: |2-
-      if exists(.file_size) {
-          file_size = to_int(.file_size) ?? null
-          if file_size != null {
-              .file.size = file_size
-          }
-      }
+  - set:
+      file.size: 'to_int(.file_size) ?? null'
+    filter: 'exists(.file_size) && (to_int(.file_size) ?? null) != null'
   - set:
       file.hash.md5: to_string(.md5) ?? null
       file.hash.sha1: to_string(.sha1) ?? null
@@ -133,45 +168,25 @@ transformation:
       file.created: to_string(.file_created) ?? null
       file.mtime: to_string(.file_modified) ?? null
       file.accessed: to_string(.file_accessed) ?? null
-  - custom: |2-
-      if exists(.pid) {
-          pid = to_int(.pid) ?? null
-          if pid != null {
-              .process.pid = pid
-          }
-      }
+  - set:
+      process.pid: 'to_int(.pid) ?? null'
+    filter: 'exists(.pid) && (to_int(.pid) ?? null) != null'
   - set:
       process.name: to_string(.process_name) ?? null
-  - custom: |2-
-      if exists(.start_time) {
-          start_time = to_int(.start_time) ?? null
-          if start_time != null {
-              .process.start = format_timestamp!(from_unix_timestamp!(start_time), format: "%Y-%m-%dT%H:%M:%SZ")
-          }
-      }
+  - set:
+      process.start: 'format_timestamp!(from_unix_timestamp!(to_int!(.start_time)), format: "%Y-%m-%dT%H:%M:%SZ")'
+    filter: 'exists(.start_time) && (to_int(.start_time) ?? null) != null'
   - set:
       loki.process.run_time: to_string(.run_time) ?? null
-  - custom: |2-
-      if exists(.memory_bytes) {
-          memory_bytes = to_int(.memory_bytes) ?? null
-          if memory_bytes != null {
-              .loki.process.memory_bytes = memory_bytes
-          }
-      }
-
-      if exists(.cpu_usage) {
-          cpu_usage = to_float(.cpu_usage) ?? null
-          if cpu_usage != null {
-              .loki.process.cpu_usage = cpu_usage
-          }
-      }
-
-      if exists(.connection_count) {
-          connection_count = to_int(.connection_count) ?? null
-          if connection_count != null {
-              .loki.process.connection_count = connection_count
-          }
-      }
+  - set:
+      loki.process.memory_bytes: 'to_int(.memory_bytes) ?? null'
+    filter: 'exists(.memory_bytes) && (to_int(.memory_bytes) ?? null) != null'
+  - set:
+      loki.process.cpu_usage: 'to_float(.cpu_usage) ?? null'
+    filter: 'exists(.cpu_usage) && (to_float(.cpu_usage) ?? null) != null'
+  - set:
+      loki.process.connection_count: 'to_int(.connection_count) ?? null'
+    filter: 'exists(.connection_count) && (to_int(.connection_count) ?? null) != null'
   - set:
       loki.process.listening_ports: listening_ports
   - custom: |2-

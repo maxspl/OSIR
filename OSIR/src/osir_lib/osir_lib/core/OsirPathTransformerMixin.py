@@ -126,7 +126,7 @@ class OsirPathTransformerMixin:
             Performs placeholder substitution in strings using direct replacement.
 
             Args:
-                text (str): The template string (e.g., "results_{endpoint_name}.csv").
+                text (str): The template string (e.g., "results_{extracted_endpoint}.csv").
                 **kwargs: Key-value pairs for substitution.
 
             Returns:

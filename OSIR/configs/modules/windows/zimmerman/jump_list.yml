@@ -15,7 +15,7 @@ configuration:
 
 tool: 
   path: net9/JLECmd.exe
-  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_file}" -q --all --fd
+  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_filename}" -q --all --fd
   source: https://ericzimmerman.github.io/
   version: 1.5
 
@@ -28,19 +28,20 @@ input:
 output:
   type: single_file
   format: csv
-  output_file: "{endpoint_name}--{module}.csv"
+  filename: "{extracted_endpoint}--{module}.csv"
 
-endpoint: 
-  patterns:
-    - r"/Endpoint_(.*?)/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"/Endpoint_(.*?)/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:jumplist':
-    name_rex: \.csv$
+    name_rex: r"\.csv$"
     path_suffix: 'jump_list'
     sourcetype: 'windows:files:jumplist'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     artifact: "JumpList"
     timestamp_path:
       - "timestamp" 

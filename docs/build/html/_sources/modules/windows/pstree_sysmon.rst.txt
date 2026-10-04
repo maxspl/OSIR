@@ -4,7 +4,7 @@ pstree_sysmon
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:sysmon:pstree`` | name_rex: ``nodes\.jsonl$``
+   * ``windows:sysmon:pstree`` | name_rex: ``r"nodes\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

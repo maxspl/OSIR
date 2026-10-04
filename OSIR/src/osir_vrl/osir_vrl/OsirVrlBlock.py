@@ -4,7 +4,7 @@ from pydantic import BaseModel, PrivateAttr, field_validator, model_validator
 from .OsirVrlTimeline import OsirVrlCondition
 from .OsirVrlTransformation import OsirVrlTransformation
 
-BLOCK_KINDS = ("set", "translate", "delete", "custom")
+BLOCK_KINDS = ("set", "constant", "translate", "delete", "custom")
 
 # guards live on the block, next to its kind key, never inside an entry
 _BLOCK_GUARD_KEYS = ("filter", "conditions")
@@ -19,6 +19,9 @@ class OsirVrlBlock(BaseModel):
                    string (a field path / VRL expression used as source) or
                    a mapping with `source` / `value` / `operation` /
                    `parameters` / `on_error`
+      - constant:  mapping `target: value`, every spec being a literal
+                   value (string, number, boolean, list) — the shorthand of
+                   a `set` entry written as `{value: ...}`
       - translate: `mapping: {target: source}` + shared `dictionary` and
                    optional `fallback`
       - delete:    list of field names to `del()`
@@ -33,6 +36,7 @@ class OsirVrlBlock(BaseModel):
     """
     model_config = {"extra": "forbid"}
     set:       Optional[dict[str, Any]] = None
+    constant:  Optional[dict[str, Any]] = None
     translate: Optional[dict[str, Any]] = None
     delete:    Optional[list[str]]      = None
     custom:    Optional[str]            = None
@@ -69,6 +73,19 @@ class OsirVrlBlock(BaseModel):
                     **self._entry_spec(spec),
                 })
                 for target, spec in self.set.items()
+            ]
+        elif kind == "constant":
+            if not self.constant:
+                raise ValueError("constant block takes at least one target")
+            self._entries = [
+                OsirVrlTransformation.model_validate({
+                    "type": "normalization",
+                    "target": target,
+                    "value": spec,
+                    "filter": self.filter,
+                    "conditions": self.conditions,
+                })
+                for target, spec in self.constant.items()
             ]
         elif kind == "translate":
             self._validate_translate_shape()

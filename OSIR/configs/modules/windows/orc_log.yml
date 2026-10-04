@@ -30,10 +30,10 @@ output:
 
 splunk:
   'orc:log':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: orc_log
     sourcetype: 'orc:log'
-    host_rex: orc_log_(.+)_\d{8}_\d{6}\.jsonl$
+    host_rex: r"orc_log_(.+)_\d{8}_\d{6}\.jsonl$"
     timestamp_path:
       - "ts"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"

@@ -1,95 +1,83 @@
-# =============================================================================
-# Windows JumpList CSV (automaticDestinations & customDestinations) 
+##############################################################
+# Module VRL : jump_list
+# Version    : 1.0
+# Windows JumpList CSV (automaticDestinations & customDestinations)
 #
-# Variants:
-# 1) automaticDestinations-ms:
-#    SourceFile,SourceCreated,SourceModified,SourceAccessed,
-#    AppId,AppIdDescription,HasSps,DestListVersion,LastUsedEntryNumber,MRU,
-#    EntryNumber,CreationTime,LastModified,Hostname,MacAddress,Path,
-#    InteractionCount,PinStatus,FileBirthDroid,FileDroid,VolumeBirthDroid,
-#    VolumeDroid,TargetCreated,TargetModified,TargetAccessed,
-#    FileSize,RelativePath,WorkingDirectory,FileAttributes,HeaderFlags,
-#    DriveType,VolumeSerialNumber,VolumeLabel,LocalPath,CommonPath,
-#    TargetIDAbsolutePath,TargetMFTEntryNumber,TargetMFTSequenceNumber,
-#    MachineID,MachineMACAddress,TrackerCreatedOn,ExtraBlocksPresent,
-#    Arguments,Notes
-#
-# 2) customDestinations-ms:
-#    SourceFile,SourceCreated,SourceModified,SourceAccessed,
-#    AppId,AppIdDescription,EntryName,
-#    TargetCreated,TargetModified,TargetAccessed,
-#    FileSize,RelativePath,WorkingDirectory,FileAttributes,HeaderFlags,
-#    DriveType,VolumeSerialNumber,VolumeLabel,LocalPath,CommonPath,
-#    TargetIDAbsolutePath,TargetMFTEntryNumber,TargetMFTSequenceNumber,
-#    MachineID,MachineMACAddress,TrackerCreatedOn,ExtraBlocksPresent,Arguments
-# =============================================================================
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Ensure .event exists and keep original event
+# transformations
 # -----------------------------------------------------------------------------
+
+# [normalization] {} -> event
 if !exists(.event) {
   .event = {}
 }
 
+# [normalization] encode_json!(.) -> event.original
 if !exists(.event.original) {
   .event.original = encode_json!(.)
 }
 
-# =============================================================================
-# Basic ECS scaffolding defaults
-# =============================================================================
-
+# [normalization] windows.jumplist -> event.dataset
 if !exists(.event.dataset) {
   .event.dataset = "windows.jumplist"
 }
 
+# [normalization] windows -> event.module
 if !exists(.event.module) {
   .event.module = "windows"
 }
 
+# [normalization] Windows JumpList (generic) -> event.provider
 if !exists(.event.provider) {
   .event.provider = "Windows JumpList (generic)"
 }
 
+# [normalization] state -> event.kind
 if !exists(.event.kind) {
   .event.kind = "state"
 }
 
+# [normalization] ['process'] -> event.category
 if !exists(.event.category) {
   .event.category = ["process"]
 }
 
+# [normalization] ['info'] -> event.type
 if !exists(.event.type) {
   .event.type = ["info"]
 }
 
+# [normalization] jumplist -> event.action
 if !exists(.event.action) {
   .event.action = "jumplist"
 }
 
+# [normalization] jumplist -> event.code
 if !exists(.event.code) {
   .event.code = "jumplist"
 }
 
+# [normalization] success -> event.outcome
 if !exists(.event.outcome) {
   .event.outcome = "success"
 }
 
-# =============================================================================
-# Source JumpList file metadata
-# =============================================================================
-
-# SourceFile = path to the .automaticDestinations-ms / .customDestinations-ms file
+# [normalization] to_string!(del(.SourceFile)) -> event.Ext.jumplist.source_file
 if exists(.SourceFile) {
   .event.Ext.jumplist.source_file = to_string!(del(.SourceFile))
 }
 
-# HasSps
+# [normalization] to_string!(del(.HasSps)) -> event.Ext.jumplist.has_sps
 if exists(.HasSps) {
   .event.Ext.jumplist.has_sps = to_string!(del(.HasSps))
 }
 
-# DestListVersion
+# [custom]
 if exists(.DestListVersion) {
   dlv_raw = to_string!(del(.DestListVersion))
   dlv_val = parse_int(dlv_raw) ?? null
@@ -100,40 +88,37 @@ if exists(.DestListVersion) {
   }
 }
 
-# ExtraBlocksPresent
+# [normalization] to_string!(del(.ExtraBlocksPresent)) -> event.Ext.jumplist.extra_blocks_present
 if exists(.ExtraBlocksPresent) {
   .event.Ext.jumplist.extra_blocks_present = to_string!(del(.ExtraBlocksPresent))
 }
 
-# HeaderFlags
+# [normalization] to_string!(del(.HeaderFlags)) -> event.Ext.jumplist.header_flags
 if exists(.HeaderFlags) {
   .event.Ext.jumplist.header_flags = to_string!(del(.HeaderFlags))
 }
 
-# FileAttributes (attributes of target / container)
+# [normalization] to_string!(del(.FileAttributes)) -> file.attributes
 if exists(.FileAttributes) {
   .file.attributes = to_string!(del(.FileAttributes))
 }
 
-# =============================================================================
-# App / jumplist identity
-# =============================================================================
-
-# AppId & description
+# [normalization] to_string!(del(.AppId)) -> event.Ext.jumplist.app_id
 if exists(.AppId) {
   .event.Ext.jumplist.app_id = to_string!(del(.AppId))
 }
 
+# [normalization] to_string!(del(.AppIdDescription)) -> event.Ext.jumplist.app_description
 if exists(.AppIdDescription) {
   .event.Ext.jumplist.app_description = to_string!(del(.AppIdDescription))
 }
 
-# customDestinations EntryName
+# [normalization] to_string!(del(.EntryName)) -> event.Ext.jumplist.entry_name
 if exists(.EntryName) {
   .event.Ext.jumplist.entry_name = to_string!(del(.EntryName))
 }
 
-# automaticDestinations MRU / EntryNumber / LastUsedEntryNumber
+# [custom]
 if exists(.MRU) {
   mru_raw = to_string!(del(.MRU))
   mru_val = parse_int(mru_raw) ?? null
@@ -164,7 +149,6 @@ if exists(.EntryNumber) {
   }
 }
 
-# InteractionCount
 if exists(.InteractionCount) {
   ic_raw = to_string!(del(.InteractionCount))
   ic_val = parse_int(ic_raw) ?? null
@@ -175,7 +159,6 @@ if exists(.InteractionCount) {
   }
 }
 
-# PinStatus
 if exists(.PinStatus) {
   ps_raw = to_string!(del(.PinStatus))
   .event.Ext.jumplist.pin_status_raw = ps_raw
@@ -187,16 +170,12 @@ if exists(.PinStatus) {
   }
 }
 
-# Notes (automaticDestinations)
+# [normalization] to_string!(del(.Notes)) -> event.Ext.jumplist.notes
 if exists(.Notes) {
   .event.Ext.jumplist.notes = to_string!(del(.Notes))
 }
 
-# =============================================================================
-# Host / machine information
-# =============================================================================
-
-# Hostname / MacAddress
+# [custom]
 if exists(.Hostname) {
   hn = to_string!(del(.Hostname))
   if hn != "" && !exists(.host.name) {
@@ -211,7 +190,6 @@ if exists(.MacAddress) {
   }
 }
 
-# MachineID / MachineMACAddress (source machine)
 if exists(.MachineID) {
   mid = to_string!(del(.MachineID))
   .host.id = mid
@@ -227,17 +205,6 @@ if exists(.MachineMACAddress) {
   }
 }
 
-# =============================================================================
-# Target path mapping (file.*)
-# =============================================================================
-
-# Preferred order for final file.path:
-#   1. Path (primary jump list target path)
-#   2. TargetIDAbsolutePath
-#   3. LocalPath
-#   4. CommonPath
-
-# 1) Path
 if exists(.Path) {
   p_raw = to_string!(del(.Path))
   if p_raw != "" && !exists(.file.path) {
@@ -246,7 +213,6 @@ if exists(.Path) {
   .file.Ext.jumplist.path_raw = p_raw
 }
 
-# 2) TargetIDAbsolutePath
 if exists(.TargetIDAbsolutePath) {
   tid_raw = to_string!(del(.TargetIDAbsolutePath))
   if tid_raw != "" && !exists(.file.path) {
@@ -255,7 +221,6 @@ if exists(.TargetIDAbsolutePath) {
   .file.Ext.jumplist.target_id_absolute_path = tid_raw
 }
 
-# 3) LocalPath
 if exists(.LocalPath) {
   lp_raw = to_string!(del(.LocalPath))
   if lp_raw != "" && !exists(.file.path) {
@@ -264,7 +229,6 @@ if exists(.LocalPath) {
   .file.Ext.jumplist.local_path = lp_raw
 }
 
-# 4) CommonPath
 if exists(.CommonPath) {
   cp_raw = to_string!(del(.CommonPath))
   if cp_raw != "" && !exists(.file.path) {
@@ -273,21 +237,22 @@ if exists(.CommonPath) {
   .file.Ext.jumplist.common_path = cp_raw
 }
 
-# RelativePath & WorkingDirectory
+# [normalization] to_string!(del(.RelativePath)) -> file.Ext.jumplist.relative_path
 if exists(.RelativePath) {
   .file.Ext.jumplist.relative_path = to_string!(del(.RelativePath))
 }
 
+# [normalization] to_string!(del(.WorkingDirectory)) -> file.Ext.jumplist.working_directory
 if exists(.WorkingDirectory) {
   .file.Ext.jumplist.working_directory = to_string!(del(.WorkingDirectory))
 }
 
-# Arguments (launch arguments)
+# [normalization] to_string!(del(.Arguments)) -> file.Ext.jumplist.arguments
 if exists(.Arguments) {
   .file.Ext.jumplist.arguments = to_string!(del(.Arguments))
 }
 
-# Derive file.name from file.path if missing
+# [custom]
 if exists(.file.path) && !exists(.file.name) {
   fp = to_string!(.file.path)
   parts = split!(fp, "\\\\")
@@ -299,10 +264,6 @@ if exists(.file.path) && !exists(.file.name) {
   }
 }
 
-# =============================================================================
-# File size
-# =============================================================================
-
 if exists(.FileSize) {
   fs_raw = to_string!(del(.FileSize))
   fs_val = parse_int(fs_raw) ?? null
@@ -313,58 +274,52 @@ if exists(.FileSize) {
   }
 }
 
-# =============================================================================
-# Drive / volume info
-# =============================================================================
-
+# [normalization] to_string!(del(.DriveType)) -> file.Ext.jumplist.drive_type
 if exists(.DriveType) {
   .file.Ext.jumplist.drive_type = to_string!(del(.DriveType))
 }
 
+# [normalization] to_string!(del(.VolumeSerialNumber)) -> file.Ext.jumplist.volume_serial_number
 if exists(.VolumeSerialNumber) {
   .file.Ext.jumplist.volume_serial_number = to_string!(del(.VolumeSerialNumber))
 }
 
+# [normalization] to_string!(del(.VolumeLabel)) -> file.Ext.jumplist.volume_label
 if exists(.VolumeLabel) {
   .file.Ext.jumplist.volume_label = to_string!(del(.VolumeLabel))
 }
 
-# Droid / BirthDroid GUIDs
+# [normalization] to_string!(del(.FileBirthDroid)) -> file.Ext.jumplist.file_birth_droid
 if exists(.FileBirthDroid) {
   .file.Ext.jumplist.file_birth_droid = to_string!(del(.FileBirthDroid))
 }
 
+# [normalization] to_string!(del(.FileDroid)) -> file.Ext.jumplist.file_droid
 if exists(.FileDroid) {
   .file.Ext.jumplist.file_droid = to_string!(del(.FileDroid))
 }
 
+# [normalization] to_string!(del(.VolumeBirthDroid)) -> file.Ext.jumplist.volume_birth_droid
 if exists(.VolumeBirthDroid) {
   .file.Ext.jumplist.volume_birth_droid = to_string!(del(.VolumeBirthDroid))
 }
 
+# [normalization] to_string!(del(.VolumeDroid)) -> file.Ext.jumplist.volume_droid
 if exists(.VolumeDroid) {
   .file.Ext.jumplist.volume_droid = to_string!(del(.VolumeDroid))
 }
 
-# =============================================================================
-# Target MFT info
-# =============================================================================
-
+# [normalization] to_string!(del(.TargetMFTEntryNumber)) -> file.Ext.jumplist.target_mft_entry_number
 if exists(.TargetMFTEntryNumber) {
   .file.Ext.jumplist.target_mft_entry_number = to_string!(del(.TargetMFTEntryNumber))
 }
 
+# [normalization] to_string!(del(.TargetMFTSequenceNumber)) -> file.Ext.jumplist.target_mft_sequence_number
 if exists(.TargetMFTSequenceNumber) {
   .file.Ext.jumplist.target_mft_sequence_number = to_string!(del(.TargetMFTSequenceNumber))
 }
 
-# =============================================================================
-# Timestamps
-# =============================================================================
-
-# Helper pattern: parse timestamp or keep *_raw
-
-# SourceCreated
+# [custom]
 if exists(.SourceCreated) {
   raw = to_string!(del(.SourceCreated))
   if raw != "" {
@@ -377,7 +332,6 @@ if exists(.SourceCreated) {
   }
 }
 
-# SourceModified
 if exists(.SourceModified) {
   raw = to_string!(del(.SourceModified))
   if raw != "" {
@@ -390,7 +344,6 @@ if exists(.SourceModified) {
   }
 }
 
-# SourceAccessed
 if exists(.SourceAccessed) {
   raw = to_string!(del(.SourceAccessed))
   if raw != "" {
@@ -403,7 +356,6 @@ if exists(.SourceAccessed) {
   }
 }
 
-# CreationTime (entry creation)
 if exists(.CreationTime) {
   raw = to_string!(del(.CreationTime))
   if raw != "" {
@@ -416,7 +368,6 @@ if exists(.CreationTime) {
   }
 }
 
-# LastModified (entry modification)
 if exists(.LastModified) {
   raw = to_string!(del(.LastModified))
   if raw != "" {
@@ -429,7 +380,6 @@ if exists(.LastModified) {
   }
 }
 
-# TargetCreated → file.created
 if exists(.TargetCreated) {
   raw = to_string!(del(.TargetCreated))
   if raw != "" {
@@ -445,7 +395,6 @@ if exists(.TargetCreated) {
   }
 }
 
-# TargetModified → file.mtime
 if exists(.TargetModified) {
   raw = to_string!(del(.TargetModified))
   if raw != "" {
@@ -459,7 +408,6 @@ if exists(.TargetModified) {
   }
 }
 
-# TargetAccessed → file.atime
 if exists(.TargetAccessed) {
   raw = to_string!(del(.TargetAccessed))
   if raw != "" {
@@ -473,7 +421,6 @@ if exists(.TargetAccessed) {
   }
 }
 
-# TrackerCreatedOn
 if exists(.TrackerCreatedOn) {
   raw = to_string!(del(.TrackerCreatedOn))
   if raw != "" {
@@ -486,12 +433,8 @@ if exists(.TrackerCreatedOn) {
   }
 }
 
-# =============================================================================
-# Timestamp fallback for .timestamp
-#   1. event.Ext.jumplist.entry_last_modified => last time the file has been opened
-# =============================================================================
-
 ts_value = null
+
 ts_source = ""
 
 if exists(.event.Ext.jumplist.entry_last_modified) {

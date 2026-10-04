@@ -1,0 +1,147 @@
+##############################################################
+# Module VRL : recycle_bin
+# Version    : 1.0
+# Recycle bin artifacts (RBCmd CSV + dfir-ogre recycle_bin JSONL) → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
+
+# [normalization] windows.recycle_bin -> event.dataset
+.event.dataset = "windows.recycle_bin"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['file'] -> event.category
+.event.category = ["file"]
+
+# [normalization] ['deletion'] -> event.type
+.event.type = ["deletion"]
+
+# [normalization] Windows Recycle Bin -> event.provider
+.event.provider = "Windows Recycle Bin"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] DeletedOn -> timestamp
+if exists(.DeletedOn) {
+  _result, err = parse_timestamp(.DeletedOn, format: "%F %T")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[recycle_bin] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] FileName -> file.path
+if exists(.DeletedOn) && exists(.FileName) {
+  .file.path = .FileName
+}
+
+# [normalization] FileSize -> file.size
+if exists(.DeletedOn) && exists(.FileSize) {
+  _result, err = to_int(.FileSize)
+  if err == null {
+    .file.size = _result
+  } else {
+    log("[recycle_bin] échec de l'opération to_int sur file.size : " + err, level: "warn")
+  }
+}
+
+# [normalization] FileType -> labels.file_type
+if exists(.DeletedOn) && exists(.FileType) {
+  .labels.file_type = .FileType
+}
+
+# [normalization] SourceName -> labels.source_name
+if exists(.DeletedOn) && exists(.SourceName) {
+  .labels.source_name = .SourceName
+}
+
+# [normalization] path -> file.path
+if exists(.path) && exists(.uninstall_date) {
+  .file.path = .path
+}
+
+# [normalization] size -> file.size
+if exists(.path) && exists(.uninstall_date) && exists(.size) {
+  _result, err = to_int(.size)
+  if err == null {
+    .file.size = _result
+  } else {
+    log("[recycle_bin] échec de l'opération to_int sur file.size : " + err, level: "warn")
+  }
+}
+
+# [normalization] header -> labels.header
+if exists(.path) && exists(.uninstall_date) && exists(.header) {
+  _result, err = to_int(.header)
+  if err == null {
+    .labels.header = _result
+  } else {
+    log("[recycle_bin] échec de l'opération to_int sur labels.header : " + err, level: "warn")
+  }
+}
+
+# [normalization] uninstall_date -> timestamp
+if exists(.path) && exists(.uninstall_date) {
+  _result, err = parse_timestamp(.uninstall_date, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[recycle_bin] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [custom]
+rb_src = null
+if exists(.SourceName) {
+    rb_src = to_string!(.SourceName)
+} else if exists(.ogre_md.archive_filename) {
+    rb_src = to_string!(.ogre_md.archive_filename)
+}
+if rb_src != null {
+    rb, rberr = parse_regex(to_string!(rb_src), r'\$RECYCLE\.BIN[/\\](?<sid>[^/\\]+)[/\\]')
+    if rberr == null {
+        .user.id = rb.sid
+    }
+}
+
+# [deletion] SourceName, FileType, FileName, FileSize, DeletedOn, path, size, header, uninstall_date, ogre_md
+del(.SourceName)
+del(.FileType)
+del(.FileName)
+del(.FileSize)
+del(.DeletedOn)
+del(.path)
+del(.size)
+del(.header)
+del(.uninstall_date)
+del(.ogre_md)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.file.path) && exists(.timestamp) {
+  .message = "File " + to_string!(.file.path) + " was deleted on " + to_string!(.timestamp)
+}

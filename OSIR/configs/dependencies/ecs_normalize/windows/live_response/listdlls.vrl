@@ -1,34 +1,44 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : listdlls
+# Version    : 1.0
 # Sysinternals ListDLLs → ECS
-#   Input fields:
-#     type, process_name, pid, base_address, size, path
-# -----------------------------------------------------------------------------
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Keep raw event (ECS best practice) - do this FIRST
+# transformations
 # -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.listdlls -> event.dataset
+.event.dataset = "windows.listdlls"
 
-.event.dataset  = "windows.listdlls"
-.event.module   = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-.event.kind     = "event"
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['process'] -> event.category
 .event.category = ["process"]
-.event.type     = ["info"]
-.event.outcome  = "success"
 
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Sysinternals ListDLLs -> event.provider
 .event.provider = "Sysinternals ListDLLs"
 
-# -----------------------------------------------------------------------------
-# Basic event classification from "type"
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.type) {
     type_raw = to_string!(del(.type))
     type_l   = downcase(type_raw)
@@ -37,17 +47,14 @@ if exists(.type) {
     .event.action = type_l
 }
 
-# -----------------------------------------------------------------------------
-# Process info
-# -----------------------------------------------------------------------------
-
+# [normalization] del(.process_name) -> process.name
 if exists(.process_name) {
-    .process.name = del(.process_name)
+  .process.name = del(.process_name)
 }
 
+# [custom]
 if exists(.pid) {
     pid_raw = to_string!(del(.pid))
-    # parse_int is fallible → handle with ??
     pid_int = parse_int(pid_raw) ?? null
 
     if pid_int != null {
@@ -57,21 +64,14 @@ if exists(.pid) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# DLL / module info
-# -----------------------------------------------------------------------------
-
 if exists(.path) {
     dll_path = to_string!(del(.path))
 
-    # ECS dll.* and file.* mirrors
     .dll.path  = dll_path
     .file.path = dll_path
 
-    # Normalize separators for basename()
     dll_path_norm = replace(dll_path, "\\", "/")
 
-    # basename is fallible → handle with ??
     dll_name = basename(dll_path_norm) ?? null
 
     if dll_name != null {
@@ -79,7 +79,6 @@ if exists(.path) {
         .file.name = dll_name
     }
 
-    # If the module path looks like the main executable, set process.executable
     if exists(.process.name) {
         proc_name  = to_string!(.process.name)
         dll_lower  = downcase(dll_path)
@@ -91,16 +90,14 @@ if exists(.path) {
     }
 }
 
-# Base address of the loaded module (non-standard ECS → dll.Ext.*)
+# [normalization] to_string!(del(.base_address)) -> dll.Ext.base_address
 if exists(.base_address) {
-    base_addr_raw = to_string!(del(.base_address))
-    .dll.Ext.base_address = base_addr_raw
+  .dll.Ext.base_address = to_string!(del(.base_address))
 }
 
-# Region size (hex string → integer if possible) in dll.Ext
+# [custom]
 if exists(.size) {
     size_raw = to_string!(del(.size))
-    # parse_int is fallible → handle with ??
     size_int = parse_int(size_raw) ?? null
 
     if size_int != null {

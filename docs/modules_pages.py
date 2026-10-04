@@ -55,6 +55,11 @@ Timeline
 
 {timeline_section}
 
+Relationships
+-------------
+
+{relationships_section}
+
 Fields
 ------
 
@@ -104,27 +109,145 @@ def _spec_original(spec):
     return source or ""
 
 
-def timeline_rst(config_data):
-    """Timeline as a two-column table: the action.id condition value (when
-    the entry has one) and the message."""
+def _anchor(anchor_prefix, kind, id_):
+    """rst internal target name for a timeline ('tl') or relationship
+    ('rel') id, unique per config to avoid collisions on multi-config pages."""
+    safe = re.sub(r"[^a-zA-Z0-9-]", "-", str(id_))
+    return f"{kind}-{anchor_prefix}-{safe}"
+
+
+def _condition_value(entry, field):
+    """Value of the condition on `field` in one timeline entry, if any."""
+    for cond in entry.get("conditions") or []:
+        if cond.get("field") == field and cond.get("value") is not None:
+            return cond.get("value")
+    return None
+
+
+def _common_condition_fields(entries):
+    """Condition fields present in EVERY timeline entry, in first-seen
+    order. Fields shared by only part of the entries are ignored."""
+    ordered = []
+    common = None
+    for entry in entries:
+        fields = [
+            cond.get("field")
+            for cond in entry.get("conditions") or []
+            if cond.get("field")
+        ]
+        field_set = set(fields)
+        common = field_set if common is None else common & field_set
+        for field in fields:
+            if field not in ordered:
+                ordered.append(field)
+    if not common:
+        return []
+    return [field for field in ordered if field in common]
+
+
+def timeline_rst(config_data, anchor_prefix=None, rel_ids=None):
+    """Timeline table.
+
+    Columns:
+      - one column per condition field shared by EVERY timeline entry,
+        holding the entry's condition value (no such column when no field
+        is common to all entries)
+      - 'Relation': the entry id, hyperlinked to the matching relationship
+        of the same config when one exists
+      - the message
+    """
     entries = config_data.get("timeline") or []
     if not entries:
         return "No timeline messages."
-    lines = [
+
+    rel_ids = set(rel_ids or [])
+    common_fields = _common_condition_fields(entries)
+
+    lines = []
+    if anchor_prefix:
+        targets = []
+        for entry in entries:
+            if not entry.get("id"):
+                continue
+            # ids can repeat in a config: each anchor must be unique for reST
+            target = f".. _{_anchor(anchor_prefix, 'tl', entry['id'])}:"
+            if target not in targets:
+                targets.append(target)
+        if targets:
+            lines += targets + [""]
+
+    header = common_fields + ["Relation", "Message"]
+    lines += [
         ".. list-table::",
         "   :header-rows: 1",
         "",
-        "   * - action.id",
-        "     - Message",
+        "   * - " + "\n     - ".join(header),
     ]
     for entry in entries:
-        action_id = ""
-        for cond in entry.get("conditions") or []:
-            if cond.get("field") == "action.id" and cond.get("value") is not None:
-                action_id = str(cond.get("value"))
-                break
-        lines.append("   * - " + (_literal(action_id) if action_id else ""))
-        lines.append("     - " + _literal(entry.get("message", "")))
+        cells = []
+        for field in common_fields:
+            value = _condition_value(entry, field)
+            cells.append(_literal(value) if value is not None else "")
+        entry_id = entry.get("id")
+        if entry_id and entry_id in rel_ids:
+            cells.append(
+                f"`{rst_inline_safe(str(entry_id))} "
+                f"<{_anchor(anchor_prefix, 'rel', entry_id)}_>`_"
+            )
+        else:
+            cells.append(_literal(entry_id) if entry_id else "")
+        cells.append(_literal(entry.get("message", "")))
+        lines.append("   * - " + "\n     - ".join(cells))
+    return "\n".join(lines)
+
+
+def relationships_rst(config_data, anchor_prefix=None, tl_ids=None):
+    """Relationships table: one row per relationship. The 'Relation' column
+    holds the relationship id, hyperlinked back to the matching Timeline
+    entry of the same config when one exists."""
+    relationships = config_data.get("relationships") or []
+    if not relationships:
+        return "No relationships."
+
+    tl_ids = set(tl_ids or [])
+
+    lines = []
+    if anchor_prefix:
+        targets = []
+        for rel in relationships:
+            if not rel.get("id"):
+                continue
+            # ids can repeat in a config: each anchor must be unique for reST
+            target = f".. _{_anchor(anchor_prefix, 'rel', rel['id'])}:"
+            if target not in targets:
+                targets.append(target)
+        if targets:
+            lines += targets + [""]
+
+    lines += [
+        ".. list-table::",
+        "   :header-rows: 1",
+        "",
+        "   * - Relation",
+        "     - Source",
+        "     - Target",
+        "     - Type",
+    ]
+    for rel in relationships:
+        rel_id = rel.get("id")
+        if rel_id and rel_id in tl_ids:
+            relation = (
+                f"`{rst_inline_safe(str(rel_id))} "
+                f"<{_anchor(anchor_prefix, 'tl', rel_id)}_>`_"
+            )
+        else:
+            relation = _literal(rel_id) if rel_id else ""
+        lines.append(
+            "   * - " + relation
+            + "\n     - " + _literal(rel.get("source", ""))
+            + "\n     - " + _literal(rel.get("target", ""))
+            + "\n     - " + _literal(rel.get("type", ""))
+        )
     return "\n".join(lines)
 
 
@@ -227,6 +350,41 @@ def ingestion_tip(splunk):
     return "\n".join(lines)
 
 
+def _per_config_sections(configs):
+    """Render the Timeline and Relationships sections for each transform
+    config. Timeline entry ids and relationship ids cross-link within the
+    same config; anchors are prefixed by the config path so multi-config
+    pages don't collide."""
+    if not configs:
+        no_config = "No transform configuration found for this module."
+        return no_config, no_config
+    timeline_blocks = []
+    relationship_blocks = []
+    for rel in configs:
+        with open(os.path.join(TRANSFORM_V2, rel), encoding="utf-8") as fh:
+            data = yaml.safe_load(fh) or {}
+        anchor_prefix = os.path.splitext(rel)[0].replace(os.sep, "-")
+        tl_ids = [
+            entry.get("id")
+            for entry in data.get("timeline") or []
+            if entry.get("id")
+        ]
+        rel_ids = [
+            rel_.get("id")
+            for rel_ in data.get("relationships") or []
+            if rel_.get("id")
+        ]
+        timeline = timeline_rst(data, anchor_prefix, rel_ids)
+        relationships = relationships_rst(data, anchor_prefix, tl_ids)
+        if len(configs) > 1:
+            intro = f"**{_literal(rel)}**\n\n"
+            timeline = intro + timeline
+            relationships = intro + relationships
+        timeline_blocks.append(timeline)
+        relationship_blocks.append(relationships)
+    return "\n\n".join(timeline_blocks), "\n\n".join(relationship_blocks)
+
+
 def generate_module_page(yml_path, category, subcategory, module_info):
     with open(yml_path, encoding="utf-8") as fh:
         content = yaml.safe_load(fh) or {}
@@ -237,12 +395,14 @@ def generate_module_page(yml_path, category, subcategory, module_info):
     description = rst_inline_safe(metadata.get("description", ""))
 
     configs = transform_configs_for(content)
+    timeline_section, relationships_section = _per_config_sections(configs)
     page = TEMPLATE.format(
         title=title,
         title_underline="=" * len(title),
         description=description,
         ingestion_tip=ingestion_tip(content.get("splunk", {}) or {}),
-        timeline_section=_per_config(configs, timeline_rst),
+        timeline_section=timeline_section,
+        relationships_section=relationships_section,
         fields_section=_per_config(configs, fields_rst),
     )
 
@@ -268,6 +428,7 @@ SUBCATEGORY_TITLES = {
     "live_response": "Live Response",
     "plasma": "Plasma",
     "registry": "Registry",
+    "zimmerman": "Zimmerman",
 }
 
 

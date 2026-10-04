@@ -1,21 +1,39 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : wmi_eventconsumer
+# Version    : 1.0
 # Windows WMI Event Consumers → ECS
-# Input: win_wmi_eventconsumer JSONL (type = "wmi_eventconsumer")
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
+# [normalization] windows.wmi_eventconsumer -> event.dataset
 .event.dataset = "windows.wmi_eventconsumer"
-.event.module  = "windows"
 
-.event.kind     = "event"
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['configuration'] -> event.category
 .event.category = ["configuration"]
-.event.type     = ["info"]
-.event.action   = "wmi_eventconsumer"
-.event.outcome  = "success"
 
-# -----------------------------------------------------------------------------
-# Host mapping (PSComputerName / MachineName / __SERVER / UNCServerName)
-# -----------------------------------------------------------------------------
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
 
+# [normalization] wmi_eventconsumer -> event.action
+.event.action = "wmi_eventconsumer"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [custom]
 host_name = null
 
 if exists(.PSComputerName) {
@@ -44,43 +62,46 @@ if host_name != null && host_name != "" {
     .host.name = host_name
 }
 
-# Also keep some host-related details in wmi.* if still useful
 if exists(.host.name) {
     .wmi.event_consumer.host = .host.name
 }
 
-# If MachineName / __SERVER / UNCServerName remain (e.g. empty when checked above)
+# [normalization] to_string!(del(.MachineName)) -> wmi.event_consumer.machine_name
 if exists(.MachineName) {
-    .wmi.event_consumer.machine_name = to_string!(del(.MachineName))
+  .wmi.event_consumer.machine_name = to_string!(del(.MachineName))
 }
+
+# [normalization] to_string!(del(.__SERVER)) -> wmi.event_consumer.server
 if exists(.__SERVER) {
-    .wmi.event_consumer.server = to_string!(del(.__SERVER))
+  .wmi.event_consumer.server = to_string!(del(.__SERVER))
 }
+
+# [normalization] to_string!(del(.UNCServerName)) -> wmi.event_consumer.unc_server_name
 if exists(.UNCServerName) {
-    .wmi.event_consumer.unc_server_name = to_string!(del(.UNCServerName))
+  .wmi.event_consumer.unc_server_name = to_string!(del(.UNCServerName))
 }
 
-# -----------------------------------------------------------------------------
-# WMI class / meta info (__CLASS, __SUPERCLASS, __DERIVATION, etc.)
-# -----------------------------------------------------------------------------
-
+# [normalization] to_string!(del(.__CLASS)) -> wmi.event_consumer.class
 if exists(.__CLASS) {
-    cls = to_string!(del(.__CLASS))
-    .wmi.event_consumer.class = cls
+  .wmi.event_consumer.class = to_string!(del(.__CLASS))
 }
 
+# [normalization] to_string!(del(.__SUPERCLASS)) -> wmi.event_consumer.superclass
 if exists(.__SUPERCLASS) {
-    .wmi.event_consumer.superclass = to_string!(del(.__SUPERCLASS))
+  .wmi.event_consumer.superclass = to_string!(del(.__SUPERCLASS))
 }
 
+# [normalization] to_string!(del(.__DYNASTY)) -> wmi.event_consumer.dynasty
 if exists(.__DYNASTY) {
-    .wmi.event_consumer.dynasty = to_string!(del(.__DYNASTY))
+  .wmi.event_consumer.dynasty = to_string!(del(.__DYNASTY))
 }
 
+# [normalization] to_string!(del(.__DERIVATION)) -> wmi.event_consumer.derivation
 if exists(.__DERIVATION) {
-    .wmi.event_consumer.derivation = to_string!(del(.__DERIVATION))
+  .wmi.event_consumer.derivation = to_string!(del(.__DERIVATION))
 }
 
+# [custom]
 if exists(.__GENUS) {
     raw = to_string!(del(.__GENUS))
     genus = to_int(raw) ?? null
@@ -91,18 +112,22 @@ if exists(.__GENUS) {
     }
 }
 
+# [normalization] to_string!(del(.__NAMESPACE)) -> wmi.event_consumer.namespace
 if exists(.__NAMESPACE) {
-    .wmi.event_consumer.namespace = to_string!(del(.__NAMESPACE))
+  .wmi.event_consumer.namespace = to_string!(del(.__NAMESPACE))
 }
 
+# [normalization] to_string!(del(.__PATH)) -> wmi.event_consumer.path
 if exists(.__PATH) {
-    .wmi.event_consumer.path = to_string!(del(.__PATH))
+  .wmi.event_consumer.path = to_string!(del(.__PATH))
 }
 
+# [normalization] to_string!(del(.__RELPATH)) -> wmi.event_consumer.relpath
 if exists(.__RELPATH) {
-    .wmi.event_consumer.relpath = to_string!(del(.__RELPATH))
+  .wmi.event_consumer.relpath = to_string!(del(.__RELPATH))
 }
 
+# [custom]
 if exists(.__PROPERTY_COUNT) {
     raw = to_string!(del(.__PROPERTY_COUNT))
     cnt = to_int(raw) ?? null
@@ -113,35 +138,25 @@ if exists(.__PROPERTY_COUNT) {
     }
 }
 
-# Source "type" field (router hint)
+# [normalization] to_string!(del(.type)) -> wmi.event_consumer.source_type
 if exists(.type) {
-    .wmi.event_consumer.source_type = to_string!(del(.type))
+  .wmi.event_consumer.source_type = to_string!(del(.type))
 }
 
-# -----------------------------------------------------------------------------
-# Generic consumer identity (Name, CreatorSID)
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.Name) {
     name = to_string!(del(.Name))
     .wmi.event_consumer.name = name
 
-    # Use as event.id if nothing set yet
     if !exists(.event.id) && name != "" {
         .event.id = name
     }
 }
 
 if exists(.CreatorSID) {
-    # Example: "{1, 5, 0, 0...}" → keep raw
     .wmi.event_consumer.creator_sid_raw = to_string!(del(.CreatorSID))
 }
 
-# -----------------------------------------------------------------------------
-# CommandLineEventConsumer-specific fields
-# -----------------------------------------------------------------------------
-
-# ExecutablePath → process.executable / process.name
 if exists(.ExecutablePath) {
     exe = to_string!(del(.ExecutablePath))
     if exe != "" {
@@ -152,7 +167,6 @@ if exists(.ExecutablePath) {
     }
 }
 
-# CommandLineTemplate → process.command_line (template)
 if exists(.CommandLineTemplate) {
     cmd_tpl = to_string!(del(.CommandLineTemplate))
     if cmd_tpl != "" {
@@ -161,7 +175,6 @@ if exists(.CommandLineTemplate) {
     }
 }
 
-# WorkingDirectory → process.working_directory
 if exists(.WorkingDirectory) {
     wd = to_string!(del(.WorkingDirectory))
     if wd != "" {
@@ -170,16 +183,17 @@ if exists(.WorkingDirectory) {
     }
 }
 
-# DesktopName / WindowTitle
+# [normalization] to_string!(del(.DesktopName)) -> wmi.event_consumer.desktop_name
 if exists(.DesktopName) {
-    .wmi.event_consumer.desktop_name = to_string!(del(.DesktopName))
+  .wmi.event_consumer.desktop_name = to_string!(del(.DesktopName))
 }
 
+# [normalization] to_string!(del(.WindowTitle)) -> wmi.event_consumer.window_title
 if exists(.WindowTitle) {
-    .wmi.event_consumer.window_title = to_string!(del(.WindowTitle))
+  .wmi.event_consumer.window_title = to_string!(del(.WindowTitle))
 }
 
-# ShowWindowCommand (integer or raw)
+# [custom]
 if exists(.ShowWindowCommand) {
     raw = to_string!(del(.ShowWindowCommand))
     val = to_int(raw) ?? null
@@ -189,10 +203,6 @@ if exists(.ShowWindowCommand) {
         .wmi.event_consumer.show_window_command_raw = raw
     }
 }
-
-# -----------------------------------------------------------------------------
-# Coordinates / sizes (X/Y... fields)
-# -----------------------------------------------------------------------------
 
 if exists(.XCoordinate) {
     raw = to_string!(del(.XCoordinate))
@@ -254,17 +264,12 @@ if exists(.YSize) {
     }
 }
 
-# FillAttribute raw (rarely used)
 if exists(.FillAttribute) {
     raw = to_string!(del(.FillAttribute))
     if raw != "" {
         .wmi.event_consumer.fill_attribute = raw
     }
 }
-
-# -----------------------------------------------------------------------------
-# Boolean flags (CreateNewConsole, RunInteractively, etc.)
-# -----------------------------------------------------------------------------
 
 if exists(.CreateNewConsole) {
     raw = to_string!(del(.CreateNewConsole))
@@ -330,10 +335,6 @@ if exists(.UseDefaultErrorMode) {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Timeouts / queues / priority
-# -----------------------------------------------------------------------------
-
 if exists(.KillTimeout) {
     raw = to_string!(del(.KillTimeout))
     v = to_int(raw) ?? null
@@ -363,11 +364,6 @@ if exists(.Priority) {
         .wmi.event_consumer.priority_raw = raw
     }
 }
-
-# -----------------------------------------------------------------------------
-# NTEventLogEventConsumer-specific fields
-# (Category, EventID, EventType, SourceName, etc.)
-# -----------------------------------------------------------------------------
 
 if exists(.Category) {
     raw = to_string!(del(.Category))

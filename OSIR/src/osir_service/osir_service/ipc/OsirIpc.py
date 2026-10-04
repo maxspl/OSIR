@@ -298,7 +298,7 @@ class OsirIpc(BaseModel):
                 module_instance = OsirModuleModel.from_name(files_module)
                 module_instance.input.match = str(file_path)
                 if endpoint_name:
-                    module_instance.endpoint.default = endpoint_name
+                    module_instance.set_extracted_default('endpoint', endpoint_name)
                 handler_uuid = handler_manager.run_task(module_instance, case_name=case_name, handler_uuid=handler_uuid)
 
         if folders_input:
@@ -311,14 +311,14 @@ class OsirIpc(BaseModel):
                     module_instance = OsirModuleModel.from_name(folders_modules)
                     module_instance.input.match = str(folder_path)
                     if endpoint_name:
-                        module_instance.endpoint.default = endpoint_name
+                        module_instance.set_extracted_default('endpoint', endpoint_name)
                     handler_uuid = handler_manager.run_task(module_instance, case_name=case_name, handler_uuid=handler_uuid)
                 if files_in_folder_modules:
                     for file in FileManager.get_subfiles(folder_path):
                         module_instance = OsirModuleModel.from_name(files_in_folder_modules)
                         module_instance.input.match = str(file)
                         if endpoint_name:
-                            module_instance.endpoint.default = endpoint_name
+                            module_instance.set_extracted_default('endpoint', endpoint_name)
                         handler_uuid = handler_manager.run_task(module_instance, case_name=case_name, handler_uuid=handler_uuid)
 
         # The 'advanced' flow forces the modules and watches no directory: no watchdog will

@@ -4,7 +4,7 @@ win_arp_cache
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:arp_cache`` | name_rex: ``--win_arp_cache\.jsonl$``
+   * ``windows:live_response:arp_cache`` | name_rex: ``r"--win_arp_cache\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

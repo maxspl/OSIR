@@ -21,18 +21,19 @@ input:
 output:
   type: single_file
   format: jsonl
-  output_file: "{endpoint_name}--{module}-username_changed_by_parser.jsonl"
+  filename: "{extracted_endpoint}--{module}-username_changed_by_parser.jsonl"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:powershell_history':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: powershell_history
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     artifact: "POWERSHELL"
     normalize:
       - ecs_normalize/windows/powershell_history.vrl   

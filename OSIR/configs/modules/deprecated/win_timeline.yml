@@ -26,9 +26,10 @@ input:
 output:
   type: multiple_files
   format: csv
-  output_prefix: "{endpoint_name}--{module}-"
+  output_prefix: "{extracted_endpoint}--{module}-"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"

@@ -1,36 +1,55 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : systeminfo
+# Version    : 1.0
 # Windows systeminfo → ECS-ish
-# Handles both English and French CSV headers
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
+# -----------------------------------------------------------------------------
+# transformations
 # -----------------------------------------------------------------------------
 
-# Ensure .event exists
+# [normalization] {} -> event
 if !exists(.event) {
   .event = {}
 }
 
-# Keep raw event (once)
+# [normalization] encode_json!(.) -> event.original
 if !exists(.event.original) {
   .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# ECS scaffolding
-# -----------------------------------------------------------------------------
-.event.dataset  = "windows.systeminfo"
-.event.module   = "windows"
-.event.kind     = "state"
+# [normalization] windows.systeminfo -> event.dataset
+.event.dataset = "windows.systeminfo"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['host'] -> event.category
 .event.category = ["host"]
-.event.type     = ["info"]
-.event.action   = "systeminfo"
-.event.code     = "systeminfo"
-.event.outcome  = "success"
+
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] systeminfo -> event.action
+.event.action = "systeminfo"
+
+# [normalization] systeminfo -> event.code
+.event.code = "systeminfo"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows Systeminfo -> event.provider
 .event.provider = "Windows Systeminfo"
 
-# -----------------------------------------------------------------------------
-# 1) Host name
-#     EN: "Host Name"
-#     FR: "Nom de l'hôte" (mojibake in sample: "Nom de l'h�te")
-# -----------------------------------------------------------------------------
+# [custom]
 host_name = null
 
 if exists(."Host Name") {
@@ -45,11 +64,6 @@ if host_name != null && host_name != "" {
   .host.name = host_name
 }
 
-# -----------------------------------------------------------------------------
-# 2) OS name
-#     EN: "OS Name"
-#     FR: "Nom du système d'exploitation" (sample mojibake: "Nom du syst�me d'exploitation")
-# -----------------------------------------------------------------------------
 os_name_raw = null
 
 if exists(."OS Name") {
@@ -64,12 +78,6 @@ if os_name_raw != null && os_name_raw != "" {
   .host.os.name = os_name_raw
 }
 
-# -----------------------------------------------------------------------------
-# 3) OS version
-#     EN: "OS Version"
-#     FR: "Version du système" (sample: "Version du syst�me")
-#     Example: "10.0.19045 N/A Build 19045"
-# -----------------------------------------------------------------------------
 os_version_raw = null
 
 if exists(."OS Version") {
@@ -81,7 +89,6 @@ if exists(."OS Version") {
 }
 
 if os_version_raw != null && os_version_raw != "" {
-  # Try to extract numeric version as first token
   parts = split!(os_version_raw, " ")
   if length(parts) > 0 {
     .host.os.version = to_string!(parts[0])
@@ -91,11 +98,6 @@ if os_version_raw != null && os_version_raw != "" {
   .host.os.Ext.systeminfo.version_raw = os_version_raw
 }
 
-# -----------------------------------------------------------------------------
-# 4) OS Manufacturer
-#     EN: "OS Manufacturer"
-#     FR: "Fabricant du système d'exploitation" (sample: "Fabricant du syst�me d'exploitation")
-# -----------------------------------------------------------------------------
 os_manufacturer_raw = null
 
 if exists(."OS Manufacturer") {
@@ -110,9 +112,6 @@ if os_manufacturer_raw != null && os_manufacturer_raw != "" {
   .host.os.Ext.systeminfo.manufacturer = os_manufacturer_raw
 }
 
-# -----------------------------------------------------------------------------
-# 5) OS configuration / build type
-# -----------------------------------------------------------------------------
 os_config_raw = null
 
 if exists(."OS Configuration") {
@@ -141,9 +140,6 @@ if os_build_type_raw != null && os_build_type_raw != "" {
   .host.os.Ext.systeminfo.build_type = os_build_type_raw
 }
 
-# -----------------------------------------------------------------------------
-# 6) Registered owner / organization / product ID
-# -----------------------------------------------------------------------------
 reg_owner_raw = null
 
 if exists(."Registered Owner") {
@@ -184,9 +180,6 @@ if product_id_raw != null && product_id_raw != "" {
   .host.os.Ext.systeminfo.product_id = product_id_raw
 }
 
-# -----------------------------------------------------------------------------
-# 7) System manufacturer / model / type
-# -----------------------------------------------------------------------------
 sys_manufacturer_raw = null
 
 if exists(."System Manufacturer") {
@@ -229,9 +222,6 @@ if sys_type_raw != null && sys_type_raw != "" {
   .host.architecture = sys_type_raw
 }
 
-# -----------------------------------------------------------------------------
-# 8) Processor(s)
-# -----------------------------------------------------------------------------
 proc_raw = null
 
 if exists(."Processor(s)") {
@@ -244,9 +234,6 @@ if proc_raw != null && proc_raw != "" {
   .host.cpu.Ext.systeminfo.processors_raw = proc_raw
 }
 
-# -----------------------------------------------------------------------------
-# 9) BIOS Version
-# -----------------------------------------------------------------------------
 bios_raw = null
 
 if exists(."BIOS Version") {
@@ -259,9 +246,6 @@ if bios_raw != null && bios_raw != "" {
   .host.firmware.Ext.systeminfo.bios_version = bios_raw
 }
 
-# -----------------------------------------------------------------------------
-# 10) Directories and boot device
-# -----------------------------------------------------------------------------
 win_dir_raw = null
 
 if exists(."Windows Directory") {
@@ -304,9 +288,6 @@ if boot_device_raw != null && boot_device_raw != "" {
   .host.Ext.systeminfo.boot_device = boot_device_raw
 }
 
-# -----------------------------------------------------------------------------
-# 11) Locale & timezone
-# -----------------------------------------------------------------------------
 sys_locale_raw = null
 
 if exists(."System Locale") {
@@ -348,11 +329,8 @@ if tz_raw != null && tz_raw != "" {
   .host.os.Ext.systeminfo.timezone = tz_raw
 }
 
-# -----------------------------------------------------------------------------
-# 12) Memory fields
-#     (we keep them raw, but group under host.Ext.systeminfo.*)
-# -----------------------------------------------------------------------------
 total_phys_raw = null
+
 if exists(."Total Physical Memory") {
   total_phys_raw = to_string!(del(."Total Physical Memory"))
 } else if exists(."Mémoire physique totale") {
@@ -360,11 +338,13 @@ if exists(."Total Physical Memory") {
 } else if exists(."M�moire physique totale") {
   total_phys_raw = to_string!(del(."M�moire physique totale"))
 }
+
 if total_phys_raw != null && total_phys_raw != "" {
   .host.Ext.systeminfo.total_physical_memory_raw = total_phys_raw
 }
 
 avail_phys_raw = null
+
 if exists(."Available Physical Memory") {
   avail_phys_raw = to_string!(del(."Available Physical Memory"))
 } else if exists(."Mémoire physique disponible") {
@@ -372,11 +352,13 @@ if exists(."Available Physical Memory") {
 } else if exists(."M�moire physique disponible") {
   avail_phys_raw = to_string!(del(."M�moire physique disponible"))
 }
+
 if avail_phys_raw != null && avail_phys_raw != "" {
   .host.Ext.systeminfo.available_physical_memory_raw = avail_phys_raw
 }
 
 vm_max_raw = null
+
 if exists(."Virtual Memory: Max Size") {
   vm_max_raw = to_string!(del(."Virtual Memory: Max Size"))
 } else if exists(."Mémoire virtuelle�: taille maximale") {
@@ -384,11 +366,13 @@ if exists(."Virtual Memory: Max Size") {
 } else if exists(."M�moire virtuelle�: taille maximale") {
   vm_max_raw = to_string!(del(."M�moire virtuelle�: taille maximale"))
 }
+
 if vm_max_raw != null && vm_max_raw != "" {
   .host.Ext.systeminfo.virtual_memory_max_raw = vm_max_raw
 }
 
 vm_avail_raw = null
+
 if exists(."Virtual Memory: Available") {
   vm_avail_raw = to_string!(del(."Virtual Memory: Available"))
 } else if exists(."Mémoire virtuelle�: disponible") {
@@ -396,11 +380,13 @@ if exists(."Virtual Memory: Available") {
 } else if exists(."M�moire virtuelle�: disponible") {
   vm_avail_raw = to_string!(del(."M�moire virtuelle�: disponible"))
 }
+
 if vm_avail_raw != null && vm_avail_raw != "" {
   .host.Ext.systeminfo.virtual_memory_available_raw = vm_avail_raw
 }
 
 vm_inuse_raw = null
+
 if exists(."Virtual Memory: In Use") {
   vm_inuse_raw = to_string!(del(."Virtual Memory: In Use"))
 } else if exists(."Mémoire virtuelle�: en cours d'utilisation") {
@@ -408,11 +394,13 @@ if exists(."Virtual Memory: In Use") {
 } else if exists(."M�moire virtuelle�: en cours d'utilisation") {
   vm_inuse_raw = to_string!(del(."M�moire virtuelle�: en cours d'utilisation"))
 }
+
 if vm_inuse_raw != null && vm_inuse_raw != "" {
   .host.Ext.systeminfo.virtual_memory_in_use_raw = vm_inuse_raw
 }
 
 pagefile_raw = null
+
 if exists(."Page File Location(s)") {
   pagefile_raw = to_string!(del(."Page File Location(s)"))
 } else if exists(."Emplacements des fichiers d'échange") {
@@ -420,24 +408,25 @@ if exists(."Page File Location(s)") {
 } else if exists(."Emplacements des fichiers d'�change") {
   pagefile_raw = to_string!(del(."Emplacements des fichiers d'�change"))
 }
+
 if pagefile_raw != null && pagefile_raw != "" {
   .host.Ext.systeminfo.pagefile_locations_raw = pagefile_raw
 }
 
-# -----------------------------------------------------------------------------
-# 13) Domain / logon server
-# -----------------------------------------------------------------------------
 domain_raw = null
+
 if exists(."Domain") {
   domain_raw = to_string!(del(."Domain"))
 } else if exists(."Domaine") {
   domain_raw = to_string!(del(."Domaine"))
 }
+
 if domain_raw != null && domain_raw != "" {
   .host.domain = domain_raw
 }
 
 logon_server_raw = null
+
 if exists(."Logon Server") {
   logon_server_raw = to_string!(del(."Logon Server"))
 } else if exists(."Serveur d'ouverture de session") {
@@ -445,14 +434,13 @@ if exists(."Logon Server") {
 } else if exists(."Serveur d'ouverture de session") {
   logon_server_raw = to_string!(del(."Serveur d'ouverture de session"))
 }
+
 if logon_server_raw != null && logon_server_raw != "" {
   .host.Ext.systeminfo.logon_server = logon_server_raw
 }
 
-# -----------------------------------------------------------------------------
-# 14) Hotfix(s)
-# -----------------------------------------------------------------------------
 hotfix_raw = null
+
 if exists(."Hotfix(s)") {
   hotfix_raw = to_string!(del(."Hotfix(s)"))
 } else if exists(."Correctif(s)") {
@@ -462,14 +450,13 @@ if exists(."Hotfix(s)") {
 } else if exists(."Corrections install�es.") {
   hotfix_raw = to_string!(del(."Corrections install�es."))
 }
+
 if hotfix_raw != null && hotfix_raw != "" {
   .host.Ext.systeminfo.hotfixes_raw = hotfix_raw
 }
 
-# -----------------------------------------------------------------------------
-# 15) Network card(s)
-# -----------------------------------------------------------------------------
 netcards_raw = null
+
 if exists(."Network Card(s)") {
   netcards_raw = to_string!(del(."Network Card(s)"))
 } else if exists(."Carte(s) réseau") {
@@ -477,40 +464,29 @@ if exists(."Network Card(s)") {
 } else if exists(."Carte(s) r�seau") {
   netcards_raw = to_string!(del(."Carte(s) r�seau"))
 }
+
 if netcards_raw != null && netcards_raw != "" {
   .host.Ext.systeminfo.network_cards_raw = netcards_raw
 }
 
-# -----------------------------------------------------------------------------
-# 16) Hyper-V Requirements
-# -----------------------------------------------------------------------------
 hyperv_raw = null
+
 if exists(."Hyper-V Requirements") {
   hyperv_raw = to_string!(del(."Hyper-V Requirements"))
 } else if exists(."Configuration requise pour Hyper-V") {
   hyperv_raw = to_string!(del(."Configuration requise pour Hyper-V"))
 }
+
 if hyperv_raw != null && hyperv_raw != "" {
   .host.Ext.systeminfo.hyperv_requirements_raw = hyperv_raw
 }
 
-# -----------------------------------------------------------------------------
-# 17) Original Install Date / System Boot Time → .timestamp
-#
-# We prefer System Boot Time (systeminfo snapshot ≈ current boot),
-# and fall back to Original Install Date if boot time parsing fails.
-#
-# EN: "Original Install Date", "System Boot Time"
-# FR: "Date d'installation originale", "Heure de démarrage du système"
-# -----------------------------------------------------------------------------
 ts_value  = null
+
 ts_source = null
 
-# Common helper: parse both US (MM/DD/YYYY, 12h) and EU (DD/MM/YYYY, 24h)
-# NOTE: must be inline, so we just duplicate the pattern where needed.
-
-# 17.1 System Boot Time (preferred)
 boot_raw = null
+
 if exists(."System Boot Time") {
   boot_raw = to_string!(del(."System Boot Time"))
 } else if exists(."Heure de démarrage du système") {
@@ -529,8 +505,8 @@ if boot_raw != null && boot_raw != "" && ts_value == null {
   }
 }
 
-# 17.2 Original Install Date (fallback)
 inst_raw = null
+
 if exists(."Original Install Date") {
   inst_raw = to_string!(del(."Original Install Date"))
 } else if exists(."Date d'installation originale") {
@@ -540,7 +516,6 @@ if exists(."Original Install Date") {
 }
 
 if inst_raw != null && inst_raw != "" {
-  # Store raw regardless
   .host.os.Ext.systeminfo.install_date_raw = inst_raw
 
   if ts_value == null {
@@ -552,7 +527,6 @@ if inst_raw != null && inst_raw != "" {
   }
 }
 
-# 17.3 Apply timestamp if we resolved one
 if ts_value != null {
   .timestamp = ts_value
 

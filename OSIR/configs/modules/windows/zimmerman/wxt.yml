@@ -1,0 +1,44 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: Parsing of Windows 10 Timeline database (ActivitiesCache.db) with WxTCmd
+  os: windows
+
+configuration:
+  module: wxt
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: windows
+
+tool: 
+  path: net9/WxTCmd.exe
+  cmd: -f "{input_file}" --csv "{output_dir}"
+  source: https://ericzimmerman.github.io/
+  version: 2026.5.0
+
+input:
+  type: file
+  paths:
+    - r"/ActivitiesCache\.db$"
+
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{extracted_endpoint}--{module}-"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+splunk:
+  'windows:timeline':
+    name_rex: r"\.csv$"
+    path_suffix: 'wxt'
+    sourcetype: 'windows:timeline'
+    host_rex: r"([\w\.-]+?)--"
+    artifact: "Windows Timeline"

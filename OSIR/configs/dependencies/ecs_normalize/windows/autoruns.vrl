@@ -1,0 +1,229 @@
+##############################################################
+# Module VRL : autoruns
+# Version    : 1.0
+# Persistence artifacts (dfir-ogre autoruns + registry autoruns JSONL) → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."process.executable") {
+  .process.executable = get!(., path: ["process.executable"])
+  del(."process.executable")
+}
+if exists(."registry.path") {
+  .registry.path = get!(., path: ["registry.path"])
+  del(."registry.path")
+}
+if exists(."labels.autoruns_type") {
+  .labels.autoruns_type = get!(., path: ["labels.autoruns_type"])
+  del(."labels.autoruns_type")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
+
+# [normalization] windows.autoruns -> event.dataset
+.event.dataset = "windows.autoruns"
+
+# [normalization] windows -> event.module
+.event.module = "windows"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['process', 'registry'] -> event.category
+.event.category = ["process", "registry"]
+
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] Windows Autoruns (dfir-ogre) -> event.provider
+.event.provider = "Windows Autoruns (dfir-ogre)"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] entry_location -> registry.path
+if exists(.entry_location) {
+  .registry.path = .entry_location
+}
+
+# [normalization] image_path -> process.executable
+if exists(.entry_location) && exists(.image_path) {
+  .process.executable = .image_path
+}
+
+# [normalization] launch_string -> process.command_line
+if exists(.entry_location) && exists(.launch_string) {
+  .process.command_line = .launch_string
+}
+
+# [normalization] image_path -> file.path
+if exists(.entry_location) && exists(.image_path) {
+  .file.path = .image_path
+}
+
+# [normalization] md5 -> file.hash.md5
+if exists(.entry_location) && exists(.md5) {
+  .file.hash.md5 = .md5
+}
+
+# [normalization] sha1 -> file.hash.sha1
+if exists(.entry_location) && exists(.sha1) {
+  .file.hash.sha1 = .sha1
+}
+
+# [normalization] sha256 -> file.hash.sha256
+if exists(.entry_location) && exists(.sha256) {
+  .file.hash.sha256 = .sha256
+}
+
+# [normalization] pe_sha1 -> labels.pe_sha1
+if exists(.entry_location) && exists(.pe_sha1) {
+  .labels.pe_sha1 = .pe_sha1
+}
+
+# [normalization] pe_sha256 -> labels.pe_sha256
+if exists(.entry_location) && exists(.pe_sha256) {
+  .labels.pe_sha256 = .pe_sha256
+}
+
+# [normalization] entry_name -> labels.entry_name
+if exists(.entry_location) && exists(.entry_name) {
+  .labels.entry_name = .entry_name
+}
+
+# [normalization] entry -> labels.entry
+if exists(.entry_location) && exists(.entry) {
+  .labels.entry = .entry
+}
+
+# [normalization] category -> labels.category
+if exists(.entry_location) && exists(.category) {
+  .labels.category = .category
+}
+
+# [normalization] profile -> labels.profile
+if exists(.entry_location) && exists(.profile) {
+  .labels.profile = .profile
+}
+
+# [normalization] description -> labels.description
+if exists(.entry_location) && exists(.description) {
+  .labels.description = .description
+}
+
+# [normalization] company -> labels.company
+if exists(.entry_location) && exists(.company) {
+  .labels.company = .company
+}
+
+# [normalization] signer -> labels.signer
+if exists(.entry_location) && exists(.signer) {
+  .labels.signer = .signer
+}
+
+# [normalization] version -> labels.version
+if exists(.entry_location) && exists(.version) {
+  .labels.version = .version
+}
+
+# [normalization] imp -> labels.imp
+if exists(.entry_location) && exists(.imp) {
+  .labels.imp = .imp
+}
+
+# [normalization] time -> timestamp
+if exists(.entry_location) && exists(.time) {
+  _result, err = parse_timestamp(.time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[autoruns] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] key_path -> registry.path
+if exists(.key_path) {
+  .registry.path = .key_path
+}
+
+# [normalization] key_modif_time -> registry.mtime
+if exists(.key_path) && exists(.key_modif_time) {
+  _result, err = parse_timestamp(.key_modif_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[autoruns] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] key_modif_time -> timestamp
+if exists(.key_path) && exists(.key_modif_time) {
+  _result, err = parse_timestamp(.key_modif_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[autoruns] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] type -> labels.autoruns_type
+if exists(.key_path) && exists(.type) {
+  .labels.autoruns_type = .type
+}
+
+# [normalization] values -> labels.values
+if exists(.key_path) && exists(.values) {
+  .labels.values = .values
+}
+
+# [normalization] key_security -> labels.key_security
+if exists(.key_path) && exists(.key_security) {
+  .labels.key_security = .key_security
+}
+
+# [deletion] entry_location, entry_name, entry, category, profile, description, company, signer, version, launch_string, md5, sha1, sha256, pe_sha1, pe_sha256, imp, time, ogre_md, key_path, key_modif_time, key_security, type, values
+del(.entry_location)
+del(.entry_name)
+del(.entry)
+del(.category)
+del(.profile)
+del(.description)
+del(.company)
+del(.signer)
+del(.version)
+del(.launch_string)
+del(.md5)
+del(.sha1)
+del(.sha256)
+del(.pe_sha1)
+del(.pe_sha256)
+del(.imp)
+del(.time)
+del(.ogre_md)
+del(.key_path)
+del(.key_modif_time)
+del(.key_security)
+del(.type)
+del(.values)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.registry.path) && exists(.process.executable) {
+  .message = "Autoruns entry " + to_string!(.process.executable) + " registered at " + to_string!(.registry.path)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.registry.path), "target": to_string!(.process.executable), "type": "launches"})
+}
+if exists(.labels.autoruns_type) && exists(.registry.path) {
+  .message = "Autoruns registry key " + to_string!(.registry.path) + " of type " + to_string!(.labels.autoruns_type) + " exists"
+}

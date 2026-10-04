@@ -5,77 +5,61 @@ metadata:
   description: OSIR - MongoDB log normalizer
 
 transformation:
+  # timestamp: MongoDB extended JSON {"$date": ...} in .t
+  - set:
+      timestamp: 'get(.t, ["$date"]) ?? null'
+    filter: exists(.t)
+  - delete:
+      - t
+  # severity: F/E/W/I mapped, D* kept as "debug <code>", anything else verbatim
+  - set:
+      event.severity:
+        value: fatal
+    conditions:
+      - field: s
+        value: F
+  - set:
+      event.severity:
+        value: error
+    conditions:
+      - field: s
+        value: E
+  - set:
+      event.severity:
+        value: warning
+    conditions:
+      - field: s
+        value: W
+  - set:
+      event.severity:
+        value: informational
+    conditions:
+      - field: s
+        value: I
+  - set:
+      event.severity: '"debug " + string!(.s)'
+    filter: '!exists(.event.severity) && starts_with(string!(.s), "D")'
+  - set:
+      event.severity: 'string!(.s)'
+    filter: '!exists(.event.severity) && exists(.s)'
+  - delete:
+      - s
+  - set:
+      event.kind: to_string!(del(.c))
+  - set:
+      event.id: del(.id)
+  - set:
+      event.context: to_string!(del(.ctx))
+  - set:
+      service.name: to_string!(del(.svc))
+  - set:
+      message: to_string!(del(.msg))
+  - set:
+      log: del(.attr)
+  # remote "ip:port" split and nested {"$uuid"} extraction: per-part parsing
+  # with no declarative equivalent (and the nested delete can't be expressed
+  # as a delete block without tripping the flat-field mechanism).
   - custom: |2-
-      if exists(.t) {
-          t_val, err = get(.t, ["$date"])
-          if t_val != null {
-              .timestamp = t_val
-          }
-          del(.t)
-      }
-
-      if exists(.s) {
-          s_val = del(.s)
-          if s_val != null {
-              s_str = to_string!(s_val)
-              .event.severity = if s_str == "F" {
-                  "fatal"
-              } else if s_str == "E" {
-                  "error"
-              } else if s_str == "W" {
-                  "warning"
-              } else if s_str == "I" {
-                  "informational"
-              } else if starts_with(s_str, "D") {
-                  "debug" + " " + s_str
-              } else {
-                  s_str
-              }
-          }
-      }
-
-      if exists(.c) {
-          c_val = del(.c)
-          if c_val != null {
-              .event.kind = to_string!(c_val)
-          }
-      }
-
-      if exists(.id) {
-          id_val = del(.id)
-          if id_val != null {
-              .event.id = id_val
-          }
-      }
-
-      if exists(.ctx) {
-          ctx_val = del(.ctx)
-          if ctx_val != null {
-              .event.context = to_string!(ctx_val)
-          }
-      }
-
-      if exists(.svc) {
-          svc_val = del(.svc)
-          if svc_val != null {
-              .service.name = to_string!(svc_val)
-          }
-      }
-
-      if exists(.msg) {
-          msg_val = del(.msg)
-          if msg_val != null {
-              .message = to_string!(msg_val)
-          }
-      }
-
-      if exists(.attr) {
-          attr_val = del(.attr)
-          if attr_val != null {
-              .log = attr_val
-          }
-      }
-
       if exists(.log.remote) {
           remote_val = to_string!(.log.remote)
           parts = split(remote_val, ":")
@@ -94,24 +78,9 @@ transformation:
           }
           del(.log.uuid.uuid)
       }
-
-      if exists(.tags) {
-          tags_val = del(.tags)
-          if tags_val != null {
-              .log.tags = tags_val
-          }
-      }
-
-      if exists(.truncated) {
-          truncated_val = del(.truncated)
-          if truncated_val != null {
-              .log.truncated = truncated_val
-          }
-      }
-
-      if exists(.size) {
-          size_val = del(.size)
-          if size_val != null {
-              .log.size = size_val
-          }
-      }
+  - set:
+      log.tags: del(.tags)
+  - set:
+      log.truncated: del(.truncated)
+  - set:
+      log.size: del(.size)

@@ -2038,25 +2038,16 @@ timeline:
       - field: action.name
 
   # ── Security - Logon/Logoff ───────────────────────────────────────────────
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} logged on to {host.name} (LogonType {action.properties.LogonType})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: host.name
-        type: logged on to
+  - id: evtx-4624
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} logged on to {host.name} (LogonType {action.properties.LogonType})"
     conditions:
       - field: action.id
         value: 4624
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} logged on to {host.name} from IP {source.ip} (LogonType {action.properties.LogonType})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: host.name
-        type: logged on to
-      - source: action.properties.TargetUserName
-        target: source.ip
-        type: connected from
+  - id: evtx-4624-2
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} logged on to {host.name} from IP {source.ip} (LogonType {action.properties.LogonType})"
     conditions:
       - field: action.id
         value: 4624
@@ -2064,25 +2055,16 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
       - field: source.ip
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} failed to log on to {host.name} (LogonType {action.properties.LogonType})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: host.name
-        type: failed to log on to
+  - id: evtx-4625
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} failed to log on to {host.name} (LogonType {action.properties.LogonType})"
     conditions:
       - field: action.id
         value: 4625
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} failed to log on to {host.name} from IP {source.ip} (LogonType {action.properties.LogonType})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: host.name
-        type: failed to log on to
-      - source: action.properties.TargetUserName
-        target: source.ip
-        type: connected from
+  - id: evtx-4625-2
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} failed to log on to {host.name} from IP {source.ip} (LogonType {action.properties.LogonType})"
     conditions:
       - field: action.id
         value: 4625
@@ -2090,33 +2072,24 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
       - field: source.ip
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} logged off from {host.name}"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: host.name
-        type: logged off from
+  - id: evtx-4634
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} logged off from {host.name}"
     conditions:
       - field: action.id
         value: 4634
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} attempted to log on to {action.properties.TargetServerName} using explicit credentials"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: action.properties.TargetServerName
-        type: attempted to log on to
+  - id: evtx-4648
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} attempted to log on to {action.properties.TargetServerName} using explicit credentials"
     conditions:
       - field: action.id
         value: 4648
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} attempted to log on to {host.name} using explicit credentials"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: host.name
-        type: attempted to log on to
+  - id: evtx-4648-2
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} attempted to log on to {host.name} using explicit credentials"
     conditions:
       - field: action.id
         value: 4648
@@ -2126,11 +2099,8 @@ timeline:
         value: localhost
 
   # ── Security - Registry ───────────────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} modified the value {action.properties.ObjectValueName} of the registry key {action.properties.ObjectName} to {action.properties.NewValue} on {host.name}"
-    relationships:
-      - source: user.name
-        target: action.properties.ObjectName
-        type: modified registry value from
+  - id: evtx-4657
+    message: "{user.domain}\\\\{user.name} modified the value {action.properties.ObjectValueName} of the registry key {action.properties.ObjectName} to {action.properties.NewValue} on {host.name}"
     conditions:
       - field: action.id
         value: 4657
@@ -2138,11 +2108,8 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── Security - Object Access ──────────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} accessed the object {action.properties.ObjectName} on {host.name}"
-    relationships:
-      - source: user.name
-        target: action.properties.ObjectName
-        type: accessed
+  - id: evtx-4662
+    message: "{user.domain}\\\\{user.name} accessed the object {action.properties.ObjectName} on {host.name}"
     conditions:
       - field: action.id
         value: 4662
@@ -2150,11 +2117,8 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── Security - Special Logon ──────────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} logged on to {host.name} with special privileges"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: logged on to
+  - id: evtx-4672
+    message: "{user.domain}\\\\{user.name} logged on to {host.name} with special privileges"
     conditions:
       - field: action.id
         value: 4672
@@ -2162,37 +2126,16 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── Security - Process ────────────────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} executed {process.command_line} on {host.name}"
-    relationships:
-      - source: user.name
-        target: process.command_line
-        type: executed
-      - source: user.name
-        target: process.parent.executable
-        type: executed
-      - source: process.command_line
-        target: host.name
-        type: executed on
-      - source: process.command_line
-        target: process.executable
-        type: uses executable
-      - source: process.parent.executable
-        target: host.name
-        type: executed on
-      - source: process.parent.executable
-        target: process.command_line
-        type: started
+  - id: evtx-4688
+    message: "{user.domain}\\\\{user.name} executed {process.command_line} on {host.name}"
     conditions:
       - field: action.id
         value: 4688
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "Process {process.name} exited. It was executed by {user.domain}\\\\{user.name} on {host.name}"
-    relationships:
-      - source: user.name
-        target: process.executable
-        type: executed
+  - id: evtx-4689
+    message: "Process {process.name} exited. It was executed by {user.domain}\\\\{user.name} on {host.name}"
     conditions:
       - field: action.id
         value: 4689
@@ -2200,33 +2143,24 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── Security - Account Management ────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} created account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} on {host.name}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetDomainName
-        type: created account
+  - id: evtx-4720
+    message: "{user.domain}\\\\{user.name} created account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} on {host.name}"
     conditions:
       - field: action.id
         value: 4720
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{user.domain}\\\\{user.name} enabled account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetDomainName
-        type: enabled account
+  - id: evtx-4722
+    message: "{user.domain}\\\\{user.name} enabled account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName}"
     conditions:
       - field: action.id
         value: 4722
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{user.domain}\\\\{user.name} changed their password on {host.name}"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: changed their password on
+  - id: evtx-4723
+    message: "{user.domain}\\\\{user.name} changed their password on {host.name}"
     conditions:
       - field: action.id
         value: 4723
@@ -2235,11 +2169,8 @@ timeline:
       - field: action.outcome
         value: success
 
-  - message: "{user.domain}\\\\{user.name} failed to change their password on {host.name}"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: failed to change their password on
+  - id: evtx-4723-2
+    message: "{user.domain}\\\\{user.name} failed to change their password on {host.name}"
     conditions:
       - field: action.id
         value: 4723
@@ -2248,33 +2179,24 @@ timeline:
       - field: action.outcome
         value: failure
 
-  - message: "{user.domain}\\\\{user.name} disabled account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetUserName
-        type: disabled account
+  - id: evtx-4725
+    message: "{user.domain}\\\\{user.name} disabled account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName}"
     conditions:
       - field: action.id
         value: 4725
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{user.domain}\\\\{user.name} deleted account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} on {host.name}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetUserName
-        type: deleted account
+  - id: evtx-4726
+    message: "{user.domain}\\\\{user.name} deleted account {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} on {host.name}"
     conditions:
       - field: action.id
         value: 4726
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{user.domain}\\\\{user.name} created group {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetUserName
-        type: created group
+  - id: evtx-4727
+    message: "{user.domain}\\\\{user.name} created group {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName}"
     conditions:
       - field: action.id
         value: 4727
@@ -2282,22 +2204,16 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── Security - Kerberos ───────────────────────────────────────────────────
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} failed to authenticate from {source.ip} (Error Code: {action.properties.Status})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: source.ip
-        type: failed to log on to
+  - id: evtx-4768
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} failed to authenticate from {source.ip} (Error Code: {action.properties.Status})"
     conditions:
       - field: action.id
         value: 4768
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} successfully authenticated from {source.ip}"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: source.ip
-        type: logged on to
+  - id: evtx-4768-2
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} successfully authenticated from {source.ip}"
     conditions:
       - field: action.id
         value: 4768
@@ -2306,22 +2222,16 @@ timeline:
       - field: action.outcome
         value: success
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} was denied a service ticket for {action.properties.ServiceName} from {source.ip} (Error Code: {action.properties.Status})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: action.properties.ServiceName
-        type: was denied a ticket for
+  - id: evtx-4769
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} was denied a service ticket for {action.properties.ServiceName} from {source.ip} (Error Code: {action.properties.Status})"
     conditions:
       - field: action.id
         value: 4769
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} was granted a service ticket for {action.properties.ServiceName} from {source.ip}"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: action.properties.ServiceName
-        type: was granted a ticket for
+  - id: evtx-4769-2
+    message: "{action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} was granted a service ticket for {action.properties.ServiceName} from {source.ip}"
     conditions:
       - field: action.id
         value: 4769
@@ -2330,22 +2240,16 @@ timeline:
       - field: action.outcome
         value: success
 
-  - message: "{action.properties.TargetUserName} failed to authenticate from {source.ip}"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: source.ip
-        type: failed to authenticate on
+  - id: evtx-4771
+    message: "{action.properties.TargetUserName} failed to authenticate from {source.ip}"
     conditions:
       - field: action.id
         value: 4771
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{action.properties.TargetUserName} failed to authenticate on {action.properties.Workstation} (Reason: {action.properties.Status})"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: action.properties.Workstation
-        type: failed to log on to
+  - id: evtx-4776
+    message: "{action.properties.TargetUserName} failed to authenticate on {action.properties.Workstation} (Reason: {action.properties.Status})"
     conditions:
       - field: action.id
         value: 4776
@@ -2354,11 +2258,8 @@ timeline:
       - field: action.outcome
         value: failure
 
-  - message: "{action.properties.TargetUserName} successfully authenticated on {action.properties.Workstation}"
-    relationships:
-      - source: action.properties.TargetUserName
-        target: action.properties.Workstation
-        type: logged on to
+  - id: evtx-4776-2
+    message: "{action.properties.TargetUserName} successfully authenticated on {action.properties.Workstation}"
     conditions:
       - field: action.id
         value: 4776
@@ -2368,22 +2269,16 @@ timeline:
         value: success
 
   # ── Security - Group Enumeration ──────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} enumerated local groups of {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} on {host.name}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetUserName
-        type: enumerated local groups of
+  - id: evtx-4798
+    message: "{user.domain}\\\\{user.name} enumerated local groups of {action.properties.TargetDomainName}\\\\{action.properties.TargetUserName} on {host.name}"
     conditions:
       - field: action.id
         value: 4798
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{user.domain}\\\\{user.name} enumerated members of local group {action.properties.TargetUserName} on {host.name}"
-    relationships:
-      - source: user.name
-        target: action.properties.TargetUserName
-        type: enumerated members of
+  - id: evtx-4799
+    message: "{user.domain}\\\\{user.name} enumerated members of local group {action.properties.TargetUserName} on {host.name}"
     conditions:
       - field: action.id
         value: 4799
@@ -2391,11 +2286,8 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── Security - RDP ────────────────────────────────────────────────────────
-  - message: "Authenticated user {user.name} was denied the access to Remote Desktop to {host.name} from IP {action.properties.ClientAddress}"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: was denied RDP access to
+  - id: evtx-4825
+    message: "Authenticated user {user.name} was denied the access to Remote Desktop to {host.name} from IP {action.properties.ClientAddress}"
     conditions:
       - field: action.id
         value: 4825
@@ -2403,25 +2295,16 @@ timeline:
         value: Microsoft-Windows-Security-Auditing
 
   # ── TerminalServices - RDP (UserData payloads) ────────────────────────────
-  - message: "{user.domain}\\\\{user.name} successfully authenticated over RDP to {host.name} from IP {source.ip}"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: authenticated over RDP to
-      - source: user.name
-        target: source.ip
-        type: connected from
+  - id: evtx-1149
+    message: "{user.domain}\\\\{user.name} successfully authenticated over RDP to {host.name} from IP {source.ip}"
     conditions:
       - field: action.id
         value: 1149
       - field: event.provider
         value: Microsoft-Windows-TerminalServices-RemoteConnectionManager
 
-  - message: "{user.domain}\\\\{user.name} opened session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: logged on to
+  - id: evtx-21
+    message: "{user.domain}\\\\{user.name} opened session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
     conditions:
       - field: action.id
         value: 21
@@ -2449,11 +2332,8 @@ timeline:
       - field: event.provider
         value: Microsoft-Windows-TerminalServices-LocalSessionManager
 
-  - message: "{user.domain}\\\\{user.name} reconnected to session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
-    relationships:
-      - source: user.name
-        target: host.name
-        type: logged on to
+  - id: evtx-25
+    message: "{user.domain}\\\\{user.name} reconnected to session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})"
     conditions:
       - field: action.id
         value: 25
@@ -2461,22 +2341,16 @@ timeline:
         value: Microsoft-Windows-TerminalServices-LocalSessionManager
 
   # ── Security - Network Share ──────────────────────────────────────────────
-  - message: "{user.domain}\\\\{user.name} was granted access to {action.properties.ShareName}\\\\{action.properties.RelativeTargetName} from IP {source.ip}"
-    relationships:
-      - source: user.name
-        target: action.properties.RelativeTargetName
-        type: accessed shared file
+  - id: evtx-5145
+    message: "{user.domain}\\\\{user.name} was granted access to {action.properties.ShareName}\\\\{action.properties.RelativeTargetName} from IP {source.ip}"
     conditions:
       - field: action.id
         value: 5145
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{user.domain}\\\\{user.name} was denied access to {action.properties.ShareName}\\\\{action.properties.RelativeTargetName} from IP {source.ip}"
-    relationships:
-      - source: user.name
-        target: action.properties.RelativeTargetName
-        type: failed to access shared file
+  - id: evtx-5145-2
+    message: "{user.domain}\\\\{user.name} was denied access to {action.properties.ShareName}\\\\{action.properties.RelativeTargetName} from IP {source.ip}"
     conditions:
       - field: action.id
         value: 5145
@@ -2486,22 +2360,16 @@ timeline:
         value: failure
 
   # ── Security - WFP Network ────────────────────────────────────────────────
-  - message: "{action.properties.Application} was allowed to listen on {source.ip}:{source.port} on {host.name}"
-    relationships:
-      - source: action.properties.Application
-        target: host.name
-        type: listened to port on
+  - id: evtx-5154
+    message: "{action.properties.Application} was allowed to listen on {source.ip}:{source.port} on {host.name}"
     conditions:
       - field: action.id
         value: 5154
       - field: event.provider
         value: Microsoft-Windows-Security-Auditing
 
-  - message: "{host.name} allowed a connection from {source.ip}:{source.port} to {destination.ip}:{destination.port}"
-    relationships:
-      - source: source.ip
-        target: destination.ip
-        type: connected to
+  - id: evtx-5156
+    message: "{host.name} allowed a connection from {source.ip}:{source.port} to {destination.ip}:{destination.port}"
     conditions:
       - field: action.id
         value: 5156
@@ -2566,51 +2434,24 @@ timeline:
         value: Microsoft-Windows-PowerShell
 
   # ── Sysmon ────────────────────────────────────────────────────────────────
-  - message: "Process {process.executable} created by {user.name} on {host.name}"
-    relationships:
-      - source: user.name
-        target: process.command_line
-        type: executed
-      - source: process.command_line
-        target: host.name
-        type: executed on
-      - source: process.command_line
-        target: process.executable
-        type: uses executable
-      - source: process.parent.command_line
-        target: process.parent.name
-        type: uses executable
-      - source: process.parent.command_line
-        target: host.name
-        type: executed on
-      - source: process.parent.command_line
-        target: process.command_line
-        type: started
+  - id: evtx-1
+    message: "Process {process.executable} created by {user.name} on {host.name}"
     conditions:
       - field: action.id
         value: 1
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Process {process.executable} changed the creation time of the file {file.name} on {host.name}"
-    relationships:
-      - source: process.executable
-        target: file.name
-        type: changed creation time of
-      - source: process.executable
-        target: host.name
-        type: executed on
+  - id: evtx-2
+    message: "Process {process.executable} changed the creation time of the file {file.name} on {host.name}"
     conditions:
       - field: action.id
         value: 2
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Network connection from {source.ip} to {destination.ip}:{destination.port} by {process.executable} on {host.name}"
-    relationships:
-      - source: source.ip
-        target: destination.ip
-        type: connected to
+  - id: evtx-3
+    message: "Network connection from {source.ip} to {destination.ip}:{destination.port} by {process.executable} on {host.name}"
     conditions:
       - field: action.id
         value: 3
@@ -2624,84 +2465,48 @@ timeline:
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Process {process.executable} terminated on {host.name}"
-    relationships:
-      - source: process.executable
-        target: host.name
-        type: terminated on
+  - id: evtx-5
+    message: "Process {process.executable} terminated on {host.name}"
     conditions:
       - field: action.id
         value: 5
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Driver {process.executable} loaded on {host.name}"
-    relationships:
-      - source: process.executable
-        target: host.name
-        type: loaded on
+  - id: evtx-6
+    message: "Driver {process.executable} loaded on {host.name}"
     conditions:
       - field: action.id
         value: 6
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Process {process.executable} loaded image {action.properties.ImageLoaded} on {host.name}"
-    relationships:
-      - source: process.executable
-        target: host.name
-        type: executed on
-      - source: process.executable
-        target: action.properties.ImageLoaded
-        type: loaded image
+  - id: evtx-7
+    message: "Process {process.executable} loaded image {action.properties.ImageLoaded} on {host.name}"
     conditions:
       - field: action.id
         value: 7
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Process {action.properties.SourceImage} created a thread in process {action.properties.TargetImage} on {host.name}"
-    relationships:
-      - source: action.properties.SourceImage
-        target: host.name
-        type: executed on
-      - source: action.properties.TargetImage
-        target: host.name
-        type: executed on
-      - source: action.properties.SourceImage
-        target: action.properties.TargetImage
-        type: created thread in
+  - id: evtx-8
+    message: "Process {action.properties.SourceImage} created a thread in process {action.properties.TargetImage} on {host.name}"
     conditions:
       - field: action.id
         value: 8
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "Process {process.executable} read on {action.properties.Device} device on {host.name}"
-    relationships:
-      - source: process.executable
-        target: host.name
-        type: executed on
-      - source: process.executable
-        target: action.properties.Device
-        type: read on
+  - id: evtx-9
+    message: "Process {process.executable} read on {action.properties.Device} device on {host.name}"
     conditions:
       - field: action.id
         value: 9
       - field: event.provider
         value: Microsoft-Windows-Sysmon
 
-  - message: "{action.properties.SourceImage} was granted {action.properties.GrantedAccess} access to {action.properties.TargetImage} on {host.name}"
-    relationships:
-      - source: action.properties.SourceImage
-        target: host.name
-        type: executed on
-      - source: action.properties.TargetImage
-        target: host.name
-        type: executed on
-      - source: action.properties.SourceImage
-        target: action.properties.TargetImage
-        type: was granted access to
+  - id: evtx-10
+    message: "{action.properties.SourceImage} was granted {action.properties.GrantedAccess} access to {action.properties.TargetImage} on {host.name}"
     conditions:
       - field: action.id
         value: 10
@@ -2882,3 +2687,265 @@ timeline:
         value: 15
       - field: event.provider
         value: SecurityCenter
+
+relationships:
+  - id: evtx-4624
+    source: action.properties.TargetUserName
+    target: host.name
+    type: logged on to
+  - id: evtx-4624-2
+    source: action.properties.TargetUserName
+    target: host.name
+    type: logged on to
+  - id: evtx-4624-2
+    source: action.properties.TargetUserName
+    target: source.ip
+    type: connected from
+  - id: evtx-4625
+    source: action.properties.TargetUserName
+    target: host.name
+    type: failed to log on to
+  - id: evtx-4625-2
+    source: action.properties.TargetUserName
+    target: host.name
+    type: failed to log on to
+  - id: evtx-4625-2
+    source: action.properties.TargetUserName
+    target: source.ip
+    type: connected from
+  - id: evtx-4634
+    source: action.properties.TargetUserName
+    target: host.name
+    type: logged off from
+  - id: evtx-4648
+    source: action.properties.TargetUserName
+    target: action.properties.TargetServerName
+    type: attempted to log on to
+  - id: evtx-4648-2
+    source: action.properties.TargetUserName
+    target: host.name
+    type: attempted to log on to
+  - id: evtx-4657
+    source: user.name
+    target: action.properties.ObjectName
+    type: modified registry value from
+  - id: evtx-4662
+    source: user.name
+    target: action.properties.ObjectName
+    type: accessed
+  - id: evtx-4672
+    source: user.name
+    target: host.name
+    type: logged on to
+  - id: evtx-4688
+    source: user.name
+    target: process.command_line
+    type: executed
+  - id: evtx-4688
+    source: user.name
+    target: process.parent.executable
+    type: executed
+  - id: evtx-4688
+    source: process.command_line
+    target: host.name
+    type: executed on
+  - id: evtx-4688
+    source: process.command_line
+    target: process.executable
+    type: uses executable
+  - id: evtx-4688
+    source: process.parent.executable
+    target: host.name
+    type: executed on
+  - id: evtx-4688
+    source: process.parent.executable
+    target: process.command_line
+    type: started
+  - id: evtx-4689
+    source: user.name
+    target: process.executable
+    type: executed
+  - id: evtx-4720
+    source: user.name
+    target: action.properties.TargetDomainName
+    type: created account
+  - id: evtx-4722
+    source: user.name
+    target: action.properties.TargetDomainName
+    type: enabled account
+  - id: evtx-4723
+    source: user.name
+    target: host.name
+    type: changed their password on
+  - id: evtx-4723-2
+    source: user.name
+    target: host.name
+    type: failed to change their password on
+  - id: evtx-4725
+    source: user.name
+    target: action.properties.TargetUserName
+    type: disabled account
+  - id: evtx-4726
+    source: user.name
+    target: action.properties.TargetUserName
+    type: deleted account
+  - id: evtx-4727
+    source: user.name
+    target: action.properties.TargetUserName
+    type: created group
+  - id: evtx-4768
+    source: action.properties.TargetUserName
+    target: source.ip
+    type: failed to log on to
+  - id: evtx-4768-2
+    source: action.properties.TargetUserName
+    target: source.ip
+    type: logged on to
+  - id: evtx-4769
+    source: action.properties.TargetUserName
+    target: action.properties.ServiceName
+    type: was denied a ticket for
+  - id: evtx-4769-2
+    source: action.properties.TargetUserName
+    target: action.properties.ServiceName
+    type: was granted a ticket for
+  - id: evtx-4771
+    source: action.properties.TargetUserName
+    target: source.ip
+    type: failed to authenticate on
+  - id: evtx-4776
+    source: action.properties.TargetUserName
+    target: action.properties.Workstation
+    type: failed to log on to
+  - id: evtx-4776-2
+    source: action.properties.TargetUserName
+    target: action.properties.Workstation
+    type: logged on to
+  - id: evtx-4798
+    source: user.name
+    target: action.properties.TargetUserName
+    type: enumerated local groups of
+  - id: evtx-4799
+    source: user.name
+    target: action.properties.TargetUserName
+    type: enumerated members of
+  - id: evtx-4825
+    source: user.name
+    target: host.name
+    type: was denied RDP access to
+  - id: evtx-1149
+    source: user.name
+    target: host.name
+    type: authenticated over RDP to
+  - id: evtx-1149
+    source: user.name
+    target: source.ip
+    type: connected from
+  - id: evtx-21
+    source: user.name
+    target: host.name
+    type: logged on to
+  - id: evtx-25
+    source: user.name
+    target: host.name
+    type: logged on to
+  - id: evtx-5145
+    source: user.name
+    target: action.properties.RelativeTargetName
+    type: accessed shared file
+  - id: evtx-5145-2
+    source: user.name
+    target: action.properties.RelativeTargetName
+    type: failed to access shared file
+  - id: evtx-5154
+    source: action.properties.Application
+    target: host.name
+    type: listened to port on
+  - id: evtx-5156
+    source: source.ip
+    target: destination.ip
+    type: connected to
+  - id: evtx-1
+    source: user.name
+    target: process.command_line
+    type: executed
+  - id: evtx-1
+    source: process.command_line
+    target: host.name
+    type: executed on
+  - id: evtx-1
+    source: process.command_line
+    target: process.executable
+    type: uses executable
+  - id: evtx-1
+    source: process.parent.command_line
+    target: process.parent.name
+    type: uses executable
+  - id: evtx-1
+    source: process.parent.command_line
+    target: host.name
+    type: executed on
+  - id: evtx-1
+    source: process.parent.command_line
+    target: process.command_line
+    type: started
+  - id: evtx-2
+    source: process.executable
+    target: file.name
+    type: changed creation time of
+  - id: evtx-2
+    source: process.executable
+    target: host.name
+    type: executed on
+  - id: evtx-3
+    source: source.ip
+    target: destination.ip
+    type: connected to
+  - id: evtx-5
+    source: process.executable
+    target: host.name
+    type: terminated on
+  - id: evtx-6
+    source: process.executable
+    target: host.name
+    type: loaded on
+  - id: evtx-7
+    source: process.executable
+    target: host.name
+    type: executed on
+  - id: evtx-7
+    source: process.executable
+    target: action.properties.ImageLoaded
+    type: loaded image
+  - id: evtx-8
+    source: action.properties.SourceImage
+    target: host.name
+    type: executed on
+  - id: evtx-8
+    source: action.properties.TargetImage
+    target: host.name
+    type: executed on
+  - id: evtx-8
+    source: action.properties.SourceImage
+    target: action.properties.TargetImage
+    type: created thread in
+  - id: evtx-9
+    source: process.executable
+    target: host.name
+    type: executed on
+  - id: evtx-9
+    source: process.executable
+    target: action.properties.Device
+    type: read on
+  - id: evtx-10
+    source: action.properties.SourceImage
+    target: host.name
+    type: executed on
+  - id: evtx-10
+    source: action.properties.TargetImage
+    target: host.name
+    type: executed on
+  - id: evtx-10
+    source: action.properties.SourceImage
+    target: action.properties.TargetImage
+    type: was granted access to

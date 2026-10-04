@@ -1,0 +1,43 @@
+metadata:
+  version: "1.0"
+  author: Typ
+  description: Parsing of Windows event logs with EvtxECmd (Zimmerman)
+  os: windows
+
+configuration:
+  module: evtx_ecmd
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: windows
+
+tool: 
+  path: net9/EvtxeCmd/EvtxECmd.exe
+  cmd: -d "{input_dir}" --csv "{output_dir}" --csvf "{output_filename}"
+  source: https://ericzimmerman.github.io/
+  version: 2026.5.0
+
+input:
+  type: dir
+  path: Windows/System32/winevt/Logs
+
+output:
+  type: single_file
+  format: csv
+  filename: "{extracted_endpoint}--{module}.csv"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+splunk:
+  'windows:evtx:ecmd':
+    name_rex: r"--evtx_ecmd\.csv$"
+    path_suffix: 'evtx_ecmd'
+    sourcetype: 'windows:evtx:ecmd'
+    host_rex: r"([\w\.-]+?)--"
+    artifact: "EVTX"

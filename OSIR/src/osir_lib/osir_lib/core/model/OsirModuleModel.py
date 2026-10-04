@@ -3,12 +3,12 @@ from pathlib import Path
 import sys
 import yaml
 import os
-from typing import Callable, Optional, Pattern
+from typing import Callable, List, Optional, Pattern
 from pydantic import BaseModel, PrivateAttr, ValidationError
 
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_lib.core.model.OsirEndpointModel import OsirEndpointModel
+from osir_lib.core.model.OsirExtractedModel import OsirExtractedEntry
 from osir_lib.core.model.OsirInputModel import OsirInputModel
 from osir_lib.core.model.OsirOutputModel import OsirOutputModel
 from osir_lib.core.model.OsirToolModel import OsirToolModel
@@ -35,9 +35,8 @@ class OsirModuleModel(BaseModel):
     tool: Optional[OsirToolModel] = None
     input: OsirInputModel
     output: OsirOutputModel
-    endpoint: Optional[OsirEndpointModel] = None
-    user: Optional[OsirEndpointModel] = None
-    
+    extracted: Optional[List[OsirExtractedEntry]] = None
+
     # TODO: REMOVE LEGACY
     splunk: Optional[dict] = None
 
@@ -108,6 +107,29 @@ class OsirModuleModel(BaseModel):
     @property
     def module_name(self):
         return self.configuration.module
+
+    def get_extracted(self, name: str) -> Optional[OsirExtractedEntry]:
+        """
+            Returns the extraction entry declared under `extracted` with
+            this name, or None when the module declares no such extraction.
+        """
+        for entry in self.extracted or []:
+            if entry.name == name:
+                return entry
+        return None
+
+    def set_extracted_default(self, name: str, value: str) -> None:
+        """
+            Overrides the default of one extraction entry; declares the
+            entry when the module does not extract it yet.
+        """
+        entry = self.get_extracted(name)
+        if entry is not None:
+            entry.default = value
+            return
+        if self.extracted is None:
+            self.extracted = []
+        self.extracted.append(OsirExtractedEntry(name=name, default=value))
 
     def find_and_load_internal_module(self, alt_module=None) -> Optional[Callable]:
         """

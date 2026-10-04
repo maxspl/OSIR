@@ -69,7 +69,7 @@ if module_output_type:
 if module_output_format:
     yaml_content['output']['format'] = module_output_format
 if module_output_name:
-    yaml_content['output']['output_file'] = module_output_name
+    yaml_content['output']['filename'] = module_output_name
 
 if module_endpoint_regex:
     yaml_content['endpoint'] = module_endpoint_regex

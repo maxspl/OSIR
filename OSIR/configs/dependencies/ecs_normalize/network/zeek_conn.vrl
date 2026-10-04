@@ -1,0 +1,275 @@
+##############################################################
+# Module VRL : zeek_conn
+# Version    : 1.0
+# Zeek Conn | Osir Transform description to normalize Zeek conn.log file.
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."id.orig_h") {
+  .id.orig_h = get!(., path: ["id.orig_h"])
+  del(."id.orig_h")
+}
+if exists(."id.orig_p") {
+  .id.orig_p = get!(., path: ["id.orig_p"])
+  del(."id.orig_p")
+}
+if exists(.") || starts_with!(to_string!(.id.orig_h), ") {
+  .") || starts_with!(to_string!(.id.orig_h), " = get!(., path: [") || starts_with!(to_string!(.id.orig_h), "])
+  del(.") || starts_with!(to_string!(.id.orig_h), ")
+}
+if exists(."id.resp_h") {
+  .id.resp_h = get!(., path: ["id.resp_h"])
+  del(."id.resp_h")
+}
+if exists(."id.resp_p") {
+  .id.resp_p = get!(., path: ["id.resp_p"])
+  del(."id.resp_p")
+}
+if exists(."event.status") {
+  .event.status = get!(., path: ["event.status"])
+  del(."event.status")
+}
+if exists(."event.action") {
+  .event.action = get!(., path: ["event.action"])
+  del(."event.action")
+}
+if exists(."source.ip") {
+  .source.ip = get!(., path: ["source.ip"])
+  del(."source.ip")
+}
+if exists(."source.port") {
+  .source.port = get!(., path: ["source.port"])
+  del(."source.port")
+}
+if exists(."destination.ip") {
+  .destination.ip = get!(., path: ["destination.ip"])
+  del(."destination.ip")
+}
+if exists(."destination.port") {
+  .destination.port = get!(., path: ["destination.port"])
+  del(."destination.port")
+}
+if exists(."network.protocol") {
+  .network.protocol = get!(., path: ["network.protocol"])
+  del(."network.protocol")
+}
+if exists(."network.transport") {
+  .network.transport = get!(., path: ["network.transport"])
+  del(."network.transport")
+}
+if exists(."network.bytes") {
+  .network.bytes = get!(., path: ["network.bytes"])
+  del(."network.bytes")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] parse_timestamp(.ts, "%s") ?? .ts -> timestamp
+if exists(.ts) {
+  .timestamp = parse_timestamp(.ts, "%s") ?? .ts
+}
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['network'] -> event.category
+.event.category = ["network"]
+
+# [normalization] ['connection'] -> event.type
+.event.type = ["connection"]
+
+# [normalization] zeek.conn -> event.dataset
+.event.dataset = "zeek.conn"
+
+# [normalization] zeek -> event.module
+.event.module = "zeek"
+
+# [normalization] to_string!(.uid) -> event.id
+if exists(.uid) {
+  .event.id = to_string!(.uid)
+}
+
+# [normalization] to_int!(float!(.duration)) -> event.duration
+if exists(.duration) {
+  .event.duration = to_int!(float!(.duration))
+}
+
+# [translation] conn_state -> event.action
+if exists(.conn_state) {
+  .event.action = get(value: {
+  "S0": "connection_attempt_no_reply",
+  "S1": "connection_established",
+  "SF": "connection_closed_normally",
+  "REJ": "connection_rejected",
+  "S2": "connection_closed_originator",
+  "S3": "connection_closed_responder",
+  "RSTO": "connection_reset_originator",
+  "RSTR": "connection_reset_responder",
+  "RSTOS0": "originator_reset_attempt",
+  "RSTRH": "responder_reset_attempt",
+  "SH": "fin_originator_no_reply",
+  "SHR": "fin_responder_no_reply",
+  "OTH": "no_syn_seen",
+}, path: [to_string!(.conn_state)]) ?? "unknown"
+}
+
+# [normalization] to_string!(.id.orig_h) -> source.ip
+if exists(.id.orig_h) {
+  .source.ip = to_string!(.id.orig_h)
+}
+
+# [normalization] to_int!(.id.orig_p) -> source.port
+if exists(.id.orig_p) {
+  .source.port = to_int!(.id.orig_p)
+}
+
+# [normalization] to_int!(.orig_bytes) -> source.bytes
+if exists(.orig_bytes) {
+  .source.bytes = to_int!(.orig_bytes)
+}
+
+# [normalization] to_int!(.orig_pkts) -> source.packets
+if exists(.orig_pkts) {
+  .source.packets = to_int!(.orig_pkts)
+}
+
+# [normalization] to_int!(.orig_ip_bytes) -> source.ip_bytes
+if exists(.orig_ip_bytes) {
+  .source.ip_bytes = to_int!(.orig_ip_bytes)
+}
+
+# [normalization] True -> source.internal
+if starts_with!(to_string!(.id.orig_h), "192.168.") || starts_with!(to_string!(.id.orig_h), "10.") || starts_with!(to_string!(.id.orig_h), "172.16.") {
+  .source.internal = true
+}
+
+# [normalization] to_string!(.id.resp_h) -> destination.ip
+if exists(.id.resp_h) {
+  .destination.ip = to_string!(.id.resp_h)
+}
+
+# [normalization] to_int!(.id.resp_p) -> destination.port
+if exists(.id.resp_p) {
+  .destination.port = to_int!(.id.resp_p)
+}
+
+# [normalization] to_int!(.resp_bytes) -> destination.bytes
+if exists(.resp_bytes) {
+  .destination.bytes = to_int!(.resp_bytes)
+}
+
+# [normalization] to_int!(.resp_pkts) -> destination.packets
+if exists(.resp_pkts) {
+  .destination.packets = to_int!(.resp_pkts)
+}
+
+# [normalization] to_int!(.resp_ip_bytes) -> destination.ip_bytes
+if exists(.resp_ip_bytes) {
+  .destination.ip_bytes = to_int!(.resp_ip_bytes)
+}
+
+# [normalization] downcase!(to_string!(.proto)) -> network.transport
+if exists(.proto) {
+  .network.transport = downcase!(to_string!(.proto))
+}
+
+# [normalization] downcase!(to_string!(.service)) -> network.protocol
+if exists(.service) {
+  .network.protocol = downcase!(to_string!(.service))
+}
+
+# [normalization] to_int!(.orig_bytes) + to_int!(.resp_bytes) -> network.bytes
+if exists(.orig_bytes) && exists(.resp_bytes) {
+  .network.bytes = to_int!(.orig_bytes) + to_int!(.resp_bytes)
+}
+
+# [normalization] to_int!(.orig_pkts)  + to_int!(.resp_pkts) -> network.packets
+if exists(.orig_pkts) && exists(.resp_pkts) {
+  .network.packets = to_int!(.orig_pkts)  + to_int!(.resp_pkts)
+}
+
+# [normalization] to_string!(.history) -> network.history
+if exists(.history) {
+  .network.history = to_string!(.history)
+}
+
+# [normalization] to_int!(.ip_proto) -> network.ip_proto
+if exists(.ip_proto) {
+  .network.ip_proto = to_int!(.ip_proto)
+}
+
+# [normalization] success -> event.status
+if .EventID == 4624 {
+  .event.status = "success"
+}
+
+# [normalization] failure -> event.status
+if .EventID == 4625 {
+  .event.status = "failure"
+}
+
+# [normalization] unknown -> event.status
+if !exists(.event.status) {
+  .event.status = "unknown"
+}
+
+# [deletion] ts, uid, id.orig_h, id.orig_p, id.resp_h, id.resp_p, proto, ip_proto, service, duration, orig_bytes, resp_bytes, orig_pkts, resp_pkts, orig_ip_bytes, resp_ip_bytes, missed_bytes, conn_state, history
+del(.ts)
+del(.uid)
+del(."id.orig_h")
+del(."id.orig_p")
+del(."id.resp_h")
+del(."id.resp_p")
+del(.proto)
+del(.ip_proto)
+del(.service)
+del(.duration)
+del(.orig_bytes)
+del(.resp_bytes)
+del(.orig_pkts)
+del(.resp_pkts)
+del(.orig_ip_bytes)
+del(.resp_ip_bytes)
+del(.missed_bytes)
+del(.conn_state)
+del(.history)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.event.action) && exists(.source.ip) && exists(.source.port) && exists(.destination.ip) && exists(.destination.port) {
+  .message = "Connection " + to_string!(.event.action) + " from " + to_string!(.source.ip) + ":" + to_string!(.source.port) + " to " + to_string!(.destination.ip) + ":" + to_string!(.destination.port)
+}
+if exists(.network.protocol) && exists(.event.action) && exists(.source.ip) && exists(.source.port) && exists(.destination.ip) && exists(.destination.port) {
+  .message = "Connection " + to_string!(.event.action) + " from " + to_string!(.source.ip) + ":" + to_string!(.source.port) + " to " + to_string!(.destination.ip) + ":" + to_string!(.destination.port) + " via " + to_string!(.network.protocol)
+}
+if exists(.network.bytes) && exists(.source.ip) && exists(.source.port) && exists(.destination.ip) && exists(.destination.port) && exists(.network.transport) {
+  .message = to_string!(.source.ip) + ":" + to_string!(.source.port) + " -> " + to_string!(.destination.ip) + ":" + to_string!(.destination.port) + " (" + to_string!(.network.transport) + ") " + to_string!(.network.bytes) + " bytes"
+}
+if .event.action == "connection_rejected" && exists(.source.ip) && exists(.source.port) && exists(.destination.ip) && exists(.destination.port) {
+  .message = to_string!(.source.ip) + ":" + to_string!(.source.port) + " -> " + to_string!(.destination.ip) + ":" + to_string!(.destination.port) + " — connection rejected"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.source.ip), "target": to_string!(.destination.ip), "type": "attempted to connect to"})
+}
+if .event.action == "connection_attempt_no_reply" && exists(.source.ip) && exists(.source.port) && exists(.destination.ip) && exists(.destination.port) && exists(.network.transport) {
+  .message = to_string!(.source.ip) + ":" + to_string!(.source.port) + " -> " + to_string!(.destination.ip) + ":" + to_string!(.destination.port) + " — no reply (" + to_string!(.network.transport) + ")"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.source.ip), "target": to_string!(.destination.ip), "type": "attempted to connect to"})
+}
+if .source.internal == true && exists(.network.bytes) && exists(.source.ip) && exists(.destination.ip) && exists(.destination.port) && exists(.network.transport) {
+  .message = "Internal host " + to_string!(.source.ip) + " -> " + to_string!(.destination.ip) + ":" + to_string!(.destination.port) + " (" + to_string!(.network.transport) + ") " + to_string!(.network.bytes) + " bytes"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.source.ip), "target": to_string!(.destination.ip), "type": "connected to"})
+}
+if .source.internal == true && exists(.network.protocol) && exists(.network.bytes) && exists(.source.ip) && exists(.destination.ip) && exists(.destination.port) {
+  .message = "Internal host " + to_string!(.source.ip) + " -> " + to_string!(.destination.ip) + ":" + to_string!(.destination.port) + " (" + to_string!(.network.protocol) + ") " + to_string!(.network.bytes) + " bytes"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.source.ip), "target": to_string!(.destination.ip), "type": "connected to"})
+}

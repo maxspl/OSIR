@@ -312,3 +312,139 @@ def test_block_entries_preserve_mapping_order():
     block = OsirVrlBlock.model_validate({"set": {"a": "x1", "b": "x2", "c": "x3"}})
     vrl = "\n".join(line for e in block.entries() for line in e.to_vrl())
     assert vrl.index(".a = ") < vrl.index(".b = ") < vrl.index(".c = ")
+
+
+# ── timeline relationships (root section, attached by timeline id) ────────────
+
+def _write_cfg(tmp_path, timeline: str, relationships: str = ""):
+    cfg = tmp_path / "cfg.yml"
+    cfg.write_text(
+        "metadata:\n"
+        '  version: "1.0"\n'
+        "  author: Typ\n"
+        "  description: test\n"
+        "transformation:\n"
+        "  - set:\n"
+        "      event.kind:\n"
+        "        value: event\n"
+        "timeline:\n"
+        f"{timeline}"
+        + (f"\nrelationships:\n{relationships}" if relationships else "")
+    )
+    return str(cfg)
+
+
+def test_relationship_attached_to_timeline_entry_by_id(tmp_path):
+    timeline = (
+        "  - id: logon\n"
+        '    message: "{user.name} logged on to {host.name}"\n'
+        "    conditions:\n"
+        "      - field: event.id\n"
+        "        value: 4624\n"
+    )
+    relationships = (
+        "  - id: logon\n"
+        "    source: user.name\n"
+        "    target: host.name\n"
+        "    type: logged on to\n"
+    )
+    vrl = OsirVrlModel.from_yaml(_write_cfg(tmp_path, timeline, relationships)).to_vrl()
+    assert 'push!(.relationships, {"source": to_string!(.user.name)' in vrl
+    # the push is rendered inside the guarded block of its timeline entry
+    assert vrl.index(".event.id == 4624") < vrl.index("push!(.relationships")
+
+
+def test_relationship_without_matching_timeline_entry_rejected(tmp_path):
+    timeline = (
+        "  - id: logon\n"
+        '    message: "{user.name} logged on to {host.name}"\n'
+    )
+    relationships = (
+        "  - id: logoff\n"
+        "    source: user.name\n"
+        "    target: host.name\n"
+        "    type: logged off from\n"
+    )
+    with pytest.raises(ValidationError):
+        OsirVrlModel.from_yaml(_write_cfg(tmp_path, timeline, relationships))
+
+
+def test_duplicate_timeline_id_rejected(tmp_path):
+    timeline = (
+        "  - id: logon\n"
+        '    message: "{user.name} logged on to {host.name}"\n'
+        "  - id: logon\n"
+        '    message: "{user.name} logged on to {host.name} again"\n'
+    )
+    with pytest.raises(ValidationError):
+        OsirVrlModel.from_yaml(_write_cfg(tmp_path, timeline))
+
+
+def test_inline_timeline_relationships_rejected(tmp_path):
+    # relationships no longer live inside a timeline entry
+    timeline = (
+        '  - message: "{user.name} logged on to {host.name}"\n'
+        "    relationships:\n"
+        "      - id: logon\n"
+        "        source: user.name\n"
+        "        target: host.name\n"
+        "        type: logged on to\n"
+    )
+    with pytest.raises(ValidationError):
+        OsirVrlModel.from_yaml(_write_cfg(tmp_path, timeline))
+
+
+# ── constant blocks (literal-value shorthand) ─────────────────────────────────
+
+def test_constant_block_renders_literal_assignments():
+    block = OsirVrlBlock.model_validate({"constant": {
+        "event.dataset": "windows.shellbags",
+        "event.kind": "state",
+        "event.category": ["file"],
+        "event.outcome": True,
+        "event.code": 4624,
+    }})
+    entries = block.entries()
+    assert [e.target for e in entries] == [
+        "event.dataset", "event.kind", "event.category", "event.outcome", "event.code"]
+    vrl = "\n".join(line for e in entries for line in e.to_vrl())
+    # direct assignments, no default source guard on a value
+    assert '.event.dataset = "windows.shellbags"' in vrl
+    assert '.event.kind = "state"' in vrl
+    assert '.event.category = ["file"]' in vrl
+    assert ".event.outcome = true" in vrl
+    assert ".event.code = 4624" in vrl
+    assert "exists(" not in vrl
+
+
+def test_constant_string_is_a_value_not_a_source():
+    # the opposite of the set shorthand: a plain string is a literal
+    block = OsirVrlBlock.model_validate({"constant": {"event.module": "windows"}})
+    entry = block.entries()[0]
+    assert entry.value == "windows"
+    assert entry.source is None
+
+
+def test_constant_block_level_guard():
+    block = OsirVrlBlock.model_validate({
+        "constant": {"event.environment": "production"},
+        "conditions": [{"field": "event.dataset", "value": "custom_log"}],
+    })
+    lines = block.entries()[0].to_vrl()
+    assert lines == [
+        'if .event.dataset == "custom_log" {',
+        '  .event.environment = "production"',
+        "}",
+    ]
+
+
+def test_constant_block_takes_at_least_one_target():
+    with pytest.raises(ValidationError):
+        OsirVrlBlock.model_validate({"constant": {}})
+
+
+def test_constant_block_requires_exactly_one_kind():
+    with pytest.raises(ValidationError):
+        OsirVrlBlock.model_validate({
+            "constant": {"a": "x"}, "delete": ["b"],
+        })

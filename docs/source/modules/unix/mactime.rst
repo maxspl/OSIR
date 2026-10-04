@@ -4,7 +4,7 @@ mactime
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``linux:files:bodyfile`` | name_rex: ``bodyfile.*\.jsonl$``
+   * ``linux:files:bodyfile`` | name_rex: ``r"bodyfile.*\.jsonl$"``
 
 Description
 -----------
@@ -17,7 +17,7 @@ Timeline
 .. list-table::
    :header-rows: 1
 
-   * - action.id
+   * - Relation
      - Message
    * - 
      - ``{file.name} — {event.action}``
@@ -37,6 +37,11 @@ Timeline
      - ``{file.name} ({file.size} bytes, mode {file.mode}) — Accessed by uid {file.uid}``
    * - 
      - ``{file.name} — No activity recorded``
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

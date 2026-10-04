@@ -26,9 +26,10 @@ input:
 
 output:
   type: None
-  output_dir: "{case_path}/virtual/Endpoint_{endpoint_name}"
+  output_dir: "{case_path}/virtual/Endpoint_{extracted_endpoint}"
 
-endpoint: 
-  patterns:
-    - r"([^\/]+).vhdx"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"([^\/]+).vhdx"
+      default: "UNKNOWN"

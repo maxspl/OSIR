@@ -1,0 +1,298 @@
+##############################################################
+# Module VRL : collected_files
+# Version    : 1.0
+# DFIR-ORC GetThis collected files CSV → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
+}
+if exists(."hash.md5") {
+  .hash.md5 = get!(., path: ["hash.md5"])
+  del(."hash.md5")
+}
+
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+.event.original = encode_json!(.)
+
+# [normalization] orc.collected_files -> event.dataset
+.event.dataset = "orc.collected_files"
+
+# [normalization] orc -> event.module
+.event.module = "orc"
+
+# [normalization] event -> event.kind
+.event.kind = "event"
+
+# [normalization] ['file'] -> event.category
+.event.category = ["file"]
+
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] DFIR-ORC GetThis -> event.provider
+.event.provider = "DFIR-ORC GetThis"
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] FullName -> file.path
+if exists(.FullName) {
+  .file.path = .FullName
+}
+
+# [normalization] SizeInBytes -> file.size
+if exists(.SizeInBytes) {
+  _result, err = to_int(.SizeInBytes)
+  if err == null {
+    .file.size = _result
+  } else {
+    log("[collected_files] échec de l'opération to_int sur file.size : " + err, level: "warn")
+  }
+}
+
+# [normalization] ComputerName -> host.name
+if exists(.ComputerName) {
+  .host.name = .ComputerName
+}
+
+# [normalization] VolumeID -> labels.volume_id
+if exists(.VolumeID) {
+  .labels.volume_id = .VolumeID
+}
+
+# [normalization] ParentFRN -> labels.parent_frn
+if exists(.ParentFRN) {
+  .labels.parent_frn = .ParentFRN
+}
+
+# [normalization] FRN -> labels.frn
+if exists(.FRN) {
+  .labels.frn = .FRN
+}
+
+# [normalization] AttrType -> labels.attr_type
+if exists(.AttrType) {
+  .labels.attr_type = .AttrType
+}
+
+# [normalization] AttrName -> labels.attr_name
+if exists(.AttrName) {
+  .labels.attr_name = .AttrName
+}
+
+# [normalization] AttrID -> labels.attr_id
+if exists(.AttrID) {
+  _result, err = to_int(.AttrID)
+  if err == null {
+    .labels.attr_id = _result
+  } else {
+    log("[collected_files] échec de l'opération to_int sur labels.attr_id : " + err, level: "warn")
+  }
+}
+
+# [normalization] ContentType -> labels.content_type
+if exists(.ContentType) {
+  .labels.content_type = .ContentType
+}
+
+# [normalization] SnapshotID -> labels.snapshot_id
+if exists(.SnapshotID) {
+  .labels.snapshot_id = .SnapshotID
+}
+
+# [normalization] FindMatch -> labels.find_match
+if exists(.FindMatch) {
+  .labels.find_match = .FindMatch
+}
+
+# [normalization] SampleName -> labels.sample_name
+if exists(.SampleName) {
+  .labels.sample_name = .SampleName
+}
+
+# [normalization] YaraRules -> labels.yara_rules
+if exists(.YaraRules) {
+  .labels.yara_rules = .YaraRules
+}
+
+# [normalization] RecordInUse -> labels.record_in_use
+if exists(.RecordInUse) {
+  .labels.record_in_use = .RecordInUse
+}
+
+# [normalization] CreationDate -> timestamp
+if exists(.CreationDate) && .CreationDate != "" {
+  _result, err = parse_timestamp(.CreationDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] CreationDate -> file.created
+if exists(.CreationDate) && .CreationDate != "" {
+  _result, err = parse_timestamp(.CreationDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .file.created = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur file.created : " + err, level: "warn")
+  }
+}
+
+# [normalization] LastModificationDate -> file.mtime
+if exists(.LastModificationDate) && .LastModificationDate != "" {
+  _result, err = parse_timestamp(.LastModificationDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] LastAccessDate -> file.accessed
+if exists(.LastAccessDate) && .LastAccessDate != "" {
+  _result, err = parse_timestamp(.LastAccessDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .file.accessed = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur file.accessed : " + err, level: "warn")
+  }
+}
+
+# [normalization] LastAttrChangeDate -> file.ctime
+if exists(.LastAttrChangeDate) && .LastAttrChangeDate != "" {
+  _result, err = parse_timestamp(.LastAttrChangeDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .file.ctime = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur file.ctime : " + err, level: "warn")
+  }
+}
+
+# [normalization] FileNameCreationDate -> labels.fn_creation_date
+if exists(.FileNameCreationDate) && .FileNameCreationDate != "" {
+  _result, err = parse_timestamp(.FileNameCreationDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .labels.fn_creation_date = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur labels.fn_creation_date : " + err, level: "warn")
+  }
+}
+
+# [normalization] FileNameLastModificationDate -> labels.fn_last_modification_date
+if exists(.FileNameLastModificationDate) && .FileNameLastModificationDate != "" {
+  _result, err = parse_timestamp(.FileNameLastModificationDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .labels.fn_last_modification_date = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur labels.fn_last_modification_date : " + err, level: "warn")
+  }
+}
+
+# [normalization] FileNameLastAccessDate -> labels.fn_last_access_date
+if exists(.FileNameLastAccessDate) && .FileNameLastAccessDate != "" {
+  _result, err = parse_timestamp(.FileNameLastAccessDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .labels.fn_last_access_date = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur labels.fn_last_access_date : " + err, level: "warn")
+  }
+}
+
+# [normalization] FileNameLastAttrModificationDate -> labels.fn_last_attr_modification_date
+if exists(.FileNameLastAttrModificationDate) && .FileNameLastAttrModificationDate != "" {
+  _result, err = parse_timestamp(.FileNameLastAttrModificationDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .labels.fn_last_attr_modification_date = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur labels.fn_last_attr_modification_date : " + err, level: "warn")
+  }
+}
+
+# [normalization] SampleCollectionDate -> labels.sample_collection_date
+if exists(.SampleCollectionDate) && .SampleCollectionDate != "" {
+  _result, err = parse_timestamp(.SampleCollectionDate, format: "%Y-%m-%d %H:%M:%S%.f")
+  if err == null {
+    .labels.sample_collection_date = _result
+  } else {
+    log("[collected_files] échec de l'opération parse_timestamp sur labels.sample_collection_date : " + err, level: "warn")
+  }
+}
+
+# [normalization] MD5 -> hash.md5
+if exists(.MD5) && .MD5 != "" {
+  .hash.md5 = .MD5
+}
+
+# [normalization] SHA1 -> hash.sha1
+if exists(.SHA1) && .SHA1 != "" {
+  .hash.sha1 = .SHA1
+}
+
+# [normalization] SHA256 -> hash.sha256
+if exists(.SHA256) && .SHA256 != "" {
+  .hash.sha256 = .SHA256
+}
+
+# [normalization] SSDeep -> hash.ssdeep
+if exists(.SSDeep) && .SSDeep != "" {
+  .hash.ssdeep = .SSDeep
+}
+
+# [normalization] TLSH -> labels.tlsh
+if exists(.TLSH) && .TLSH != "" {
+  .labels.tlsh = .TLSH
+}
+
+# [deletion] ComputerName, VolumeID, ParentFRN, FRN, FullName, SampleName, SizeInBytes, MD5, SHA1, SHA256, SSDeep, TLSH, FindMatch, ContentType, SampleCollectionDate, CreationDate, LastModificationDate, LastAccessDate, LastAttrChangeDate, FileNameCreationDate, FileNameLastModificationDate, FileNameLastAccessDate, FileNameLastAttrModificationDate, AttrType, AttrName, AttrID, SnapshotID, YaraRules, RecordInUse
+del(.ComputerName)
+del(.VolumeID)
+del(.ParentFRN)
+del(.FRN)
+del(.FullName)
+del(.SampleName)
+del(.SizeInBytes)
+del(.MD5)
+del(.SHA1)
+del(.SHA256)
+del(.SSDeep)
+del(.TLSH)
+del(.FindMatch)
+del(.ContentType)
+del(.SampleCollectionDate)
+del(.CreationDate)
+del(.LastModificationDate)
+del(.LastAccessDate)
+del(.LastAttrChangeDate)
+del(.FileNameCreationDate)
+del(.FileNameLastModificationDate)
+del(.FileNameLastAccessDate)
+del(.FileNameLastAttrModificationDate)
+del(.AttrType)
+del(.AttrName)
+del(.AttrID)
+del(.SnapshotID)
+del(.YaraRules)
+del(.RecordInUse)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if exists(.file.path) && exists(.hash.md5) {
+  .message = "File " + to_string!(.file.path) + " was collected by DFIR-ORC (MD5 " + to_string!(.hash.md5) + ")"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.file.path), "target": to_string!(.hash.md5), "type": "collected as"})
+}

@@ -1,30 +1,50 @@
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : dns_cache
+# Version    : 1.0
 # Keep raw event
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
+
 # -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# Basic ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.dns_cache -> event.dataset
+.event.dataset = "windows.dns_cache"
 
-.event.dataset     = "windows.dns_cache"
-.event.module      = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-.event.kind        = "event"
-.event.category    = ["network"]
-.event.type        = ["info"]
-.event.outcome     = "success"
+# [normalization] event -> event.kind
+.event.kind = "event"
 
-.event.provider    = "Windows DNS Cache"
-.dns.type          = "answer"
-.network.protocol  = "dns"
+# [normalization] ['network'] -> event.category
+.event.category = ["network"]
 
-# -----------------------------------------------------------------------------
-# Basic event classification from "type"
-# -----------------------------------------------------------------------------
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
 
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] Windows DNS Cache -> event.provider
+.event.provider = "Windows DNS Cache"
+
+# [normalization] answer -> dns.type
+.dns.type = "answer"
+
+# [normalization] dns -> network.protocol
+.network.protocol = "dns"
+
+# [custom]
 if exists(.type) {
     type_raw = to_string!(del(.type))
     type_l   = downcase(type_raw)
@@ -32,10 +52,6 @@ if exists(.type) {
     .event.code   = type_raw
     .event.action = type_l
 }
-
-# -----------------------------------------------------------------------------
-# Question name / domain (FR + EN)
-# -----------------------------------------------------------------------------
 
 qname = null
 
@@ -45,13 +61,11 @@ if exists(.record_name_) {
     qname = to_string!(del(.nom_denregistrement))
 }
 
-# Fallback: if no explicit record name, use domain as qname
 if qname == null && exists(.domain) {
     qname = to_string!(.domain)
 }
 
 if qname != null {
-    # Force a pure string so replace() is not fallible
     qname_str   = to_string!(qname)
     qname_clean = replace(qname_str, "Nom d'enregistrement. : ", "")
     qname_clean = replace(qname_clean, "Record Name . . . . . : ", "")
@@ -60,7 +74,6 @@ if qname != null {
     .dns.answers[0].name = qname_clean
 }
 
-# Domain field → dns.question.domain (cleaned same way)
 if exists(.domain) {
     domain_raw = to_string!(del(.domain))
 
@@ -69,10 +82,6 @@ if exists(.domain) {
 
     .dns.question.domain = domain_clean
 }
-
-# -----------------------------------------------------------------------------
-# Record type → dns.question.type / dns.answers[0].type
-# -----------------------------------------------------------------------------
 
 rt_raw = null
 
@@ -97,7 +106,6 @@ if rt_raw != null {
         } else if rt_int == 12 {
             rr_type = "PTR"
         } else {
-            # keep numeric as string for unknown types
             rr_type = to_string!(rt_int)
         }
     } else {
@@ -109,10 +117,6 @@ if rt_raw != null {
         .dns.answers[0].type = rr_type
     }
 }
-
-# -----------------------------------------------------------------------------
-# TTL → dns.answers[0].ttl
-# -----------------------------------------------------------------------------
 
 ttl_raw = null
 
@@ -132,10 +136,6 @@ if ttl_raw != null {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Data length → dns.answers[0].Ext.data_length
-# -----------------------------------------------------------------------------
-
 len_raw = null
 
 if exists(.longueur_de_donnes_) {
@@ -154,10 +154,6 @@ if len_raw != null {
     }
 }
 
-# -----------------------------------------------------------------------------
-# Section (Answer / Réponse) → dns.answers[0].Ext.section
-# -----------------------------------------------------------------------------
-
 section_raw = null
 
 if exists(.section_) {
@@ -168,33 +164,24 @@ if section_raw != null {
     .dns.answers[0].Ext.section = section_raw
 }
 
-# -----------------------------------------------------------------------------
-# Answer data (AAAA / CNAME / A / PTR, FR + EN)
-# -----------------------------------------------------------------------------
-
 answer_data = null
 
-# IPv6 AAAA
 if exists(.enregistrement_aaaa_) {
     answer_data = to_string!(del(.enregistrement_aaaa_))
 }
 
-# CNAME
 if exists(.enregistrement_cname) {
     answer_data = to_string!(del(.enregistrement_cname))
 }
 
-# A record (French "hôte")
 if exists(.enregistrement_hte) {
     answer_data = to_string!(del(.enregistrement_hte))
 }
 
-# PTR (FR)
 if exists(.enregistrement_ptr_) {
     answer_data = to_string!(del(.enregistrement_ptr_))
 }
 
-# PTR (EN)
 if exists(.ptr_record_) {
     answer_data = to_string!(del(.ptr_record_))
 }
@@ -202,7 +189,6 @@ if exists(.ptr_record_) {
 if answer_data != null {
     .dns.answers[0].data = answer_data
 
-    # If this is A/AAAA, also map to dns.resolved_ip
     if exists(.dns.answers[0].type) {
         atype = to_string!(.dns.answers[0].type)
 

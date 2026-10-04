@@ -59,8 +59,22 @@ transformation:
       network.packets: to_int!(.orig_pkts)  + to_int!(.resp_pkts)
       network.history: to_string!(.history)
       network.ip_proto: to_int!(.ip_proto)
-  - custom: |-
-      if .EventID == 4624 { .event.status = "success" } else if .EventID == 4625 { .event.status = "failure" } else { .event.status = "unknown" }
+  - set:
+      event.status:
+        value: success
+    conditions:
+      - field: EventID
+        value: 4624
+  - set:
+      event.status:
+        value: failure
+    conditions:
+      - field: EventID
+        value: 4625
+  - set:
+      event.status:
+        value: unknown
+    filter: '!exists(.event.status)'
   - delete:
       - ts
       - uid
@@ -91,38 +105,44 @@ timeline:
 - message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes'
   conditions:
   - field: network.bytes
-- message: Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.protocol}) {network.bytes} bytes
-  relationships:
-  - source: source.ip
-    target: destination.ip
-    type: connected to
+- id: zeek_conn-tl-1
+  message: Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.protocol}) {network.bytes} bytes
   conditions:
   - field: source.internal
     value: true
   - field: network.protocol
   - field: network.bytes
-- message: Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes
-  relationships:
-  - source: source.ip
-    target: destination.ip
-    type: connected to
+- id: zeek_conn-tl-2
+  message: Internal host {source.ip} -> {destination.ip}:{destination.port} ({network.transport}) {network.bytes} bytes
   conditions:
   - field: source.internal
     value: true
   - field: network.bytes
-- message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} — connection rejected'
-  relationships:
-  - source: source.ip
-    target: destination.ip
-    type: attempted to connect to
+- id: zeek_conn-connection_rejected
+  message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} — connection rejected'
   conditions:
   - field: event.action
     value: connection_rejected
-- message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} — no reply ({network.transport})'
-  relationships:
-  - source: source.ip
-    target: destination.ip
-    type: attempted to connect to
+- id: zeek_conn-connection_attempt_no_reply
+  message: '{source.ip}:{source.port} -> {destination.ip}:{destination.port} — no reply ({network.transport})'
   conditions:
   - field: event.action
     value: connection_attempt_no_reply
+
+relationships:
+- id: zeek_conn-tl-1
+  source: source.ip
+  target: destination.ip
+  type: connected to
+- id: zeek_conn-tl-2
+  source: source.ip
+  target: destination.ip
+  type: connected to
+- id: zeek_conn-connection_rejected
+  source: source.ip
+  target: destination.ip
+  type: attempted to connect to
+- id: zeek_conn-connection_attempt_no_reply
+  source: source.ip
+  target: destination.ip
+  type: attempted to connect to

@@ -30,16 +30,17 @@ output:
   type: multiple_files
   format: raw
 
-endpoint: 
-  patterns:
-    - r"\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:decode':
-    name_rex: 'decode_result_\w+\.csv'
+    name_rex: r"decode_result_\w+\.csv"
     sourcetype: 'anssi:decode'
-    host_rex: anssi_decode\/(.*?)\/
+    host_rex: r"anssi_decode\/(.*?)\/"
     timestamp_path: 
         - "FileNameLastModificationDate"
     timestamp_format: "%Y-%m-%d %H:%M:%S.%f"

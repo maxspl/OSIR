@@ -1,343 +1,499 @@
-###############################
+##############################################################
+# Module VRL : thor
+# Version    : 1.0
 # THOR / THOR-Lite ECS normalization
-# Input: THOR JSONL output
-###############################
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
-# Keep the original THOR payload before normalization.
-if !exists(.event.original) {
-    .event.original = encode_json!(.)
+# -----------------------------------------------------------------------------
+# normalize dotted fields
+# -----------------------------------------------------------------------------
+if exists(."event.dataset") {
+  .event.dataset = get!(., path: ["event.dataset"])
+  del(."event.dataset")
+}
+if exists(."rule.name") {
+  .rule.name = get!(., path: ["rule.name"])
+  del(."rule.name")
+}
+if exists(."event.action") {
+  .event.action = get!(., path: ["event.action"])
+  del(."event.action")
+}
+if exists(."file.path") {
+  .file.path = get!(., path: ["file.path"])
+  del(."file.path")
 }
 
-###############################
-# Base event metadata
-###############################
+# -----------------------------------------------------------------------------
+# transformations
+# -----------------------------------------------------------------------------
+
+# [normalization] encode_json!(.) -> event.original
+if !exists(.event.original) {
+  .event.original = encode_json!(.)
+}
+
+# [normalization] alert -> event.kind
 .event.kind = "alert"
+
+# [normalization] thor -> event.module
 .event.module = "thor"
+
+# [normalization] Nextron THOR -> event.provider
 .event.provider = "Nextron THOR"
+
+# [normalization] Nextron Systems -> observer.vendor
 .observer.vendor = "Nextron Systems"
+
+# [normalization] THOR -> observer.product
 .observer.product = "THOR"
+
+# [normalization] scanner -> observer.type
 .observer.type = "scanner"
 
-# THOR scan time. For EVTX findings, prefer the original event time as .timestamp
-# and keep the THOR scan time in event.created.
-if exists(.time) {
-    thor_time = to_string(.time) ?? null
-    if thor_time != null && thor_time != "" {
-        .timestamp = thor_time
-        .event.created = thor_time
-    }
+# [normalization] to_string(.time) ?? null -> timestamp
+if exists(.time) && (to_string(.time) ?? "") != "" {
+  .timestamp = to_string(.time) ?? null
 }
 
-if exists(.event_time) {
-    event_time = to_string(.event_time) ?? null
-    if event_time != null && event_time != "" {
-        if exists(.timestamp) {
-            .event.created = .timestamp
-        }
-        .timestamp = event_time
-    }
+# [normalization] to_string(.time) ?? null -> event.created
+if exists(.time) && (to_string(.time) ?? "") != "" {
+  .event.created = to_string(.time) ?? null
 }
 
-# Scanner hostname. In offline OSIR runs this is often the parser/agent host,
-# not necessarily the compromised endpoint.
-if exists(.hostname) {
-    observer_hostname = to_string(.hostname) ?? null
-    if observer_hostname != null && observer_hostname != "" {
-        .observer.hostname = observer_hostname
-    }
+# [normalization] .timestamp -> event.created
+if exists(.event_time) && (to_string(.event_time) ?? "") != "" && exists(.timestamp) {
+  .event.created = .timestamp
 }
 
-# Target host when THOR scanned an EVTX event.
-if exists(.event_computer) {
-    event_computer = to_string(.event_computer) ?? null
-    if event_computer != null && event_computer != "" {
-        .host.name = event_computer
-        .winlog.computer_name = event_computer
-    }
-} else if exists(.hostname) {
-    # Fallback only when no better target host exists.
-    host_name = to_string(.hostname) ?? null
-    if host_name != null && host_name != "" {
-        .host.name = host_name
-    }
+# [normalization] to_string(.event_time) ?? null -> timestamp
+if exists(.event_time) && (to_string(.event_time) ?? "") != "" {
+  .timestamp = to_string(.event_time) ?? null
 }
 
+# [normalization] to_string(.hostname) ?? null -> observer.hostname
+if exists(.hostname) && (to_string(.hostname) ?? "") != "" {
+  .observer.hostname = to_string(.hostname) ?? null
+}
+
+# [normalization] to_string(.event_computer) ?? null -> host.name
+if exists(.event_computer) && (to_string(.event_computer) ?? "") != "" {
+  .host.name = to_string(.event_computer) ?? null
+}
+
+# [normalization] to_string(.event_computer) ?? null -> winlog.computer_name
+if exists(.event_computer) && (to_string(.event_computer) ?? "") != "" {
+  .winlog.computer_name = to_string(.event_computer) ?? null
+}
+
+# [normalization] to_string(.hostname) ?? null -> host.name
+if !exists(.event_computer) && exists(.hostname) && (to_string(.hostname) ?? "") != "" {
+  .host.name = to_string(.hostname) ?? null
+}
+
+# [normalization] to_string(.level) ?? null -> log.level
 if exists(.level) {
-    .log.level = to_string(.level) ?? null
+  .log.level = to_string(.level) ?? null
 }
 
+# [normalization] "thor." + downcase!(to_string!(.module)) -> event.dataset
 if exists(.module) {
-    thor_module = downcase!(to_string!(.module))
-    .event.dataset = "thor." + thor_module
-    .log.logger = to_string!(.module)
-} else {
-    .event.dataset = "thor"
+  .event.dataset = "thor." + downcase!(to_string!(.module))
 }
 
+# [normalization] to_string!(.module) -> log.logger
+if exists(.module) {
+  .log.logger = to_string!(.module)
+}
+
+# [normalization] thor -> event.dataset
+if !exists(.event.dataset) {
+  .event.dataset = "thor"
+}
+
+# [normalization] to_string(.message) ?? null -> message
 if exists(.message) {
-    .message = to_string(.message) ?? null
+  .message = to_string(.message) ?? null
 }
 
+# [normalization] to_string(.scanid) ?? null -> thor.scan.id
 if exists(.scanid) {
-    .thor.scan.id = to_string(.scanid) ?? null
+  .thor.scan.id = to_string(.scanid) ?? null
 }
 
+# [normalization] to_string(.log_version) ?? null -> observer.version
 if exists(.log_version) {
-    .observer.version = to_string(.log_version) ?? null
-    .thor.log.version = to_string(.log_version) ?? null
+  .observer.version = to_string(.log_version) ?? null
 }
 
-###############################
-# Score / severity
-###############################
-if exists(.score) {
-    score = to_int(.score) ?? null
-    if score != null {
-        .event.risk_score = score
-        .event.severity = score
-        .thor.score = score
-    }
+# [normalization] to_string(.log_version) ?? null -> thor.log.version
+if exists(.log_version) {
+  .thor.log.version = to_string(.log_version) ?? null
 }
 
-if exists(.subscore_1) {
-    subscore = to_int(.subscore_1) ?? null
-    if subscore != null {
-        .rule.risk_score = subscore
-        .thor.primary.subscore = subscore
-    }
+# [normalization] to_int(.score) ?? null -> event.risk_score
+if exists(.score) && (to_int(.score) ?? null) != null {
+  .event.risk_score = to_int(.score) ?? null
 }
 
-###############################
-# Rule / signature metadata - primary match
-###############################
+# [normalization] to_int(.score) ?? null -> event.severity
+if exists(.score) && (to_int(.score) ?? null) != null {
+  .event.severity = to_int(.score) ?? null
+}
+
+# [normalization] to_int(.score) ?? null -> thor.score
+if exists(.score) && (to_int(.score) ?? null) != null {
+  .thor.score = to_int(.score) ?? null
+}
+
+# [normalization] to_int(.subscore_1) ?? null -> rule.risk_score
+if exists(.subscore_1) && (to_int(.subscore_1) ?? null) != null {
+  .rule.risk_score = to_int(.subscore_1) ?? null
+}
+
+# [normalization] to_int(.subscore_1) ?? null -> thor.primary.subscore
+if exists(.subscore_1) && (to_int(.subscore_1) ?? null) != null {
+  .thor.primary.subscore = to_int(.subscore_1) ?? null
+}
+
+# [normalization] to_string(.reason_1) ?? null -> event.reason
 if exists(.reason_1) {
-    .event.reason = to_string(.reason_1) ?? null
-    .thor.primary.reason = to_string(.reason_1) ?? null
+  .event.reason = to_string(.reason_1) ?? null
 }
 
+# [normalization] to_string(.reason_1) ?? null -> thor.primary.reason
+if exists(.reason_1) {
+  .thor.primary.reason = to_string(.reason_1) ?? null
+}
+
+# [normalization] to_string(.rulename_1) ?? null -> rule.name
 if exists(.rulename_1) {
-    .rule.name = to_string(.rulename_1) ?? null
-} else if exists(.reason_1) {
-    .rule.name = to_string(.reason_1) ?? null
+  .rule.name = to_string(.rulename_1) ?? null
 }
 
+# [normalization] to_string(.reason_1) ?? null -> rule.name
+if !exists(.rule.name) && exists(.reason_1) {
+  .rule.name = to_string(.reason_1) ?? null
+}
+
+# [normalization] to_string(.id_1) ?? null -> rule.id
 if exists(.id_1) {
-    .rule.id = to_string(.id_1) ?? null
+  .rule.id = to_string(.id_1) ?? null
 }
 
+# [normalization] to_string(.description_1) ?? null -> rule.description
 if exists(.description_1) {
-    .rule.description = to_string(.description_1) ?? null
+  .rule.description = to_string(.description_1) ?? null
 }
 
+# [normalization] [to_string!(.author_1)] -> rule.author
 if exists(.author_1) {
-    .rule.author = [to_string!(.author_1)]
+  .rule.author = [to_string!(.author_1)]
 }
 
+# [normalization] to_string(.ref_1) ?? null -> rule.reference
 if exists(.ref_1) {
-    .rule.reference = to_string(.ref_1) ?? null
+  .rule.reference = to_string(.ref_1) ?? null
 }
 
+# [normalization] to_string(.ruledate_1) ?? null -> rule.created
 if exists(.ruledate_1) {
-    .rule.created = to_string(.ruledate_1) ?? null
+  .rule.created = to_string(.ruledate_1) ?? null
 }
 
+# [normalization] to_string(.sigtype_1) ?? null -> rule.ruleset
 if exists(.sigtype_1) {
-    .rule.ruleset = to_string(.sigtype_1) ?? null
-    .thor.primary.signature.type = to_string(.sigtype_1) ?? null
+  .rule.ruleset = to_string(.sigtype_1) ?? null
 }
 
+# [normalization] to_string(.sigtype_1) ?? null -> thor.primary.signature.type
+if exists(.sigtype_1) {
+  .thor.primary.signature.type = to_string(.sigtype_1) ?? null
+}
+
+# [normalization] to_string(.sigclass_1) ?? null -> rule.category
 if exists(.sigclass_1) {
-    .rule.category = to_string(.sigclass_1) ?? null
-    .thor.primary.signature.class = to_string(.sigclass_1) ?? null
+  .rule.category = to_string(.sigclass_1) ?? null
 }
 
+# [normalization] to_string(.sigclass_1) ?? null -> thor.primary.signature.class
+if exists(.sigclass_1) {
+  .thor.primary.signature.class = to_string(.sigclass_1) ?? null
+}
+
+# [normalization] to_string(.falsepositives_1) ?? null -> thor.primary.false_positives
 if exists(.falsepositives_1) {
-    .thor.primary.false_positives = to_string(.falsepositives_1) ?? null
+  .thor.primary.false_positives = to_string(.falsepositives_1) ?? null
 }
 
-if exists(.tags_1) {
-    tags = to_string(.tags_1) ?? null
-    if tags != null && tags != "" {
-        .rule.tags = split!(tags, ",")
-        .thor.primary.tags = tags
-    }
+# [normalization] split!(to_string!(.tags_1), ",") -> rule.tags
+if exists(.tags_1) && (to_string(.tags_1) ?? "") != "" {
+  .rule.tags = split!(to_string!(.tags_1), ",")
 }
 
+# [normalization] to_string!(.tags_1) -> thor.primary.tags
+if exists(.tags_1) && (to_string(.tags_1) ?? "") != "" {
+  .thor.primary.tags = to_string!(.tags_1)
+}
+
+# [normalization] matched_1 -> thor.primary.matched
 if exists(.matched_1) {
-    .thor.primary.matched = .matched_1
+  .thor.primary.matched = .matched_1
 }
 
-if exists(.reasons_count) {
-    reasons_count = to_int(.reasons_count) ?? null
-    if reasons_count != null {
-        .thor.reasons_count = reasons_count
-    }
+# [normalization] to_int(.reasons_count) ?? null -> thor.reasons_count
+if exists(.reasons_count) && (to_int(.reasons_count) ?? null) != null {
+  .thor.reasons_count = to_int(.reasons_count) ?? null
 }
 
-###############################
-# Event categorization
-###############################
+# [normalization] downcase!(to_string!(.module)) -> module_lower
 if exists(.module) {
-    module_name = downcase!(to_string!(.module))
-
-    if module_name == "filescan" {
-        .event.category = ["file", "malware"]
-        .event.type = ["info"]
-        .event.action = "thor-filescan-match"
-    } else if module_name == "logscan" {
-        .event.category = ["file", "malware"]
-        .event.type = ["info"]
-        .event.action = "thor-logscan-match"
-    } else if module_name == "evtx" {
-        .event.category = ["malware"]
-        .event.type = ["info"]
-        .event.action = "thor-evtx-match"
-    } else {
-        .event.category = ["malware"]
-        .event.type = ["info"]
-        .event.action = "thor-match"
-    }
-} else {
-    .event.category = ["malware"]
-    .event.type = ["info"]
-    .event.action = "thor-match"
+  .module_lower = downcase!(to_string!(.module))
 }
 
-###############################
-# File fields
-###############################
-# Root "file" is the scanned object/log source. file_1 can be the matched file
-# or an extracted reference depending on the THOR module.
+# [normalization] ['file', 'malware'] -> event.category
+if .module_lower == "filescan" {
+  .event.category = ["file", "malware"]
+}
+
+# [normalization] ['info'] -> event.type
+if .module_lower == "filescan" {
+  .event.type = ["info"]
+}
+
+# [normalization] thor-filescan-match -> event.action
+if .module_lower == "filescan" {
+  .event.action = "thor-filescan-match"
+}
+
+# [normalization] ['file', 'malware'] -> event.category
+if .module_lower == "logscan" {
+  .event.category = ["file", "malware"]
+}
+
+# [normalization] ['info'] -> event.type
+if .module_lower == "logscan" {
+  .event.type = ["info"]
+}
+
+# [normalization] thor-logscan-match -> event.action
+if .module_lower == "logscan" {
+  .event.action = "thor-logscan-match"
+}
+
+# [normalization] ['malware'] -> event.category
+if .module_lower == "evtx" {
+  .event.category = ["malware"]
+}
+
+# [normalization] ['info'] -> event.type
+if .module_lower == "evtx" {
+  .event.type = ["info"]
+}
+
+# [normalization] thor-evtx-match -> event.action
+if .module_lower == "evtx" {
+  .event.action = "thor-evtx-match"
+}
+
+# [normalization] ['malware'] -> event.category
+if !exists(.event.action) {
+  .event.category = ["malware"]
+}
+
+# [normalization] ['info'] -> event.type
+if !exists(.event.action) {
+  .event.type = ["info"]
+}
+
+# [normalization] thor-match -> event.action
+if !exists(.event.action) {
+  .event.action = "thor-match"
+}
+
+# [deletion] module_lower
+del(.module_lower)
+
+# [normalization] to_string(.file) ?? null -> thor_file_path
 if exists(.file) {
-    file_path = to_string(.file) ?? null
-    del(.file)
-    if file_path != null && file_path != "" {
-        .file.path = file_path
-        .file.name = basename!(file_path)
-    }
+  .thor_file_path = to_string(.file) ?? null
 }
 
-if exists(.file_1) {
-    file_1_path = to_string(.file_1) ?? null
-    if file_1_path != null && file_1_path != "" {
-        .thor.primary.file.path = file_1_path
-        if !exists(.file.path) {
-            .file.path = file_1_path
-            .file.name = basename!(file_1_path)
-        }
-    }
+# [deletion] file
+del(.file)
+
+# [normalization] thor_file_path -> file.path
+if .thor_file_path != "" && exists(.thor_file_path) {
+  .file.path = .thor_file_path
 }
 
+# [normalization] basename!(.thor_file_path) -> file.name
+if .thor_file_path != "" && exists(.thor_file_path) {
+  .file.name = basename!(.thor_file_path)
+}
+
+# [deletion] thor_file_path
+del(.thor_file_path)
+
+# [normalization] to_string(.file_1) ?? null -> thor.primary.file.path
+if exists(.file_1) && (to_string(.file_1) ?? "") != "" {
+  .thor.primary.file.path = to_string(.file_1) ?? null
+}
+
+# [normalization] to_string(.file_1) ?? null -> file.path
+if !exists(.file.path) && exists(.file_1) && (to_string(.file_1) ?? "") != "" {
+  .file.path = to_string(.file_1) ?? null
+}
+
+# [normalization] basename!(to_string!(.file_1)) -> file.name
+if !exists(.file.path) && exists(.file_1) && (to_string(.file_1) ?? "") != "" {
+  .file.name = basename!(to_string!(.file_1))
+}
+
+# [normalization] to_string(.exists_1) ?? null -> thor.primary.file.exists
 if exists(.exists_1) {
-    .thor.primary.file.exists = to_string(.exists_1) ?? null
+  .thor.primary.file.exists = to_string(.exists_1) ?? null
 }
 
-# File extension / type.
-if exists(.ext) {
-    .file.extension = replace(to_string!(.ext), ".", "")
+# [normalization] replace(to_string!(.ext), ".", "") -> file.extension
+if exists(.ext) && exists(.", ") {
+  .file.extension = replace(to_string!(.ext), ".", "")
 }
 
+# [normalization] to_string(.type) ?? null -> file.type
 if exists(.type) {
-    .file.type = to_string(.type) ?? null
-} else if exists(.type_1) {
-    .file.type = to_string(.type_1) ?? null
+  .file.type = to_string(.type) ?? null
 }
 
-# Size.
+# [normalization] to_string(.type_1) ?? null -> file.type
+if !exists(.type) && exists(.type_1) {
+  .file.type = to_string(.type_1) ?? null
+}
+
+# [normalization] to_int(.size) ?? null -> file.size
 if exists(.size) {
-    file_size = to_int(.size) ?? null
-    if file_size != null {
-        .file.size = file_size
-    }
-} else if exists(.size_1) {
-    file_size = to_int(.size_1) ?? null
-    if file_size != null {
-        .file.size = file_size
-    }
+  .file.size = to_int(.size) ?? null
 }
 
-# Hashes.
+# [normalization] to_int(.size_1) ?? null -> file.size
+if !exists(.size) && exists(.size_1) && (to_int(.size_1) ?? null) != null {
+  .file.size = to_int(.size_1) ?? null
+}
+
+# [normalization] to_string(.md5) ?? null -> file.hash.md5
 if exists(.md5) {
-    .file.hash.md5 = to_string(.md5) ?? null
-} else if exists(.md5_1) {
-    .file.hash.md5 = to_string(.md5_1) ?? null
+  .file.hash.md5 = to_string(.md5) ?? null
 }
 
+# [normalization] to_string(.md5_1) ?? null -> file.hash.md5
+if !exists(.md5) && exists(.md5_1) {
+  .file.hash.md5 = to_string(.md5_1) ?? null
+}
+
+# [normalization] to_string(.sha1) ?? null -> file.hash.sha1
 if exists(.sha1) {
-    .file.hash.sha1 = to_string(.sha1) ?? null
-} else if exists(.sha1_1) {
-    .file.hash.sha1 = to_string(.sha1_1) ?? null
+  .file.hash.sha1 = to_string(.sha1) ?? null
 }
 
+# [normalization] to_string(.sha1_1) ?? null -> file.hash.sha1
+if !exists(.sha1) && exists(.sha1_1) {
+  .file.hash.sha1 = to_string(.sha1_1) ?? null
+}
+
+# [normalization] to_string(.sha256) ?? null -> file.hash.sha256
 if exists(.sha256) {
-    .file.hash.sha256 = to_string(.sha256) ?? null
-} else if exists(.sha256_1) {
-    .file.hash.sha256 = to_string(.sha256_1) ?? null
+  .file.hash.sha256 = to_string(.sha256) ?? null
 }
 
+# [normalization] to_string(.sha256_1) ?? null -> file.hash.sha256
+if !exists(.sha256) && exists(.sha256_1) {
+  .file.hash.sha256 = to_string(.sha256_1) ?? null
+}
+
+# [normalization] to_string(.permissions) ?? null -> file.mode
 if exists(.permissions) {
-    .file.mode = to_string(.permissions) ?? null
-} else if exists(.permissions_1) {
-    .file.mode = to_string(.permissions_1) ?? null
+  .file.mode = to_string(.permissions) ?? null
 }
 
+# [normalization] to_string(.permissions_1) ?? null -> file.mode
+if !exists(.permissions) && exists(.permissions_1) {
+  .file.mode = to_string(.permissions_1) ?? null
+}
+
+# [normalization] to_string(.owner) ?? null -> file.owner
 if exists(.owner) {
-    .file.owner = to_string(.owner) ?? null
-} else if exists(.owner_1) {
-    .file.owner = to_string(.owner_1) ?? null
+  .file.owner = to_string(.owner) ?? null
 }
 
+# [normalization] to_string(.owner_1) ?? null -> file.owner
+if !exists(.owner) && exists(.owner_1) {
+  .file.owner = to_string(.owner_1) ?? null
+}
+
+# [normalization] to_string(.group) ?? null -> file.group
 if exists(.group) {
-    .file.group = to_string(.group) ?? null
-} else if exists(.group_1) {
-    .file.group = to_string(.group_1) ?? null
+  .file.group = to_string(.group) ?? null
 }
 
+# [normalization] to_string(.group_1) ?? null -> file.group
+if !exists(.group) && exists(.group_1) {
+  .file.group = to_string(.group_1) ?? null
+}
+
+# [normalization] to_string(.firstbytes) ?? null -> thor.file.first_bytes
 if exists(.firstbytes) {
-    .thor.file.first_bytes = to_string(.firstbytes) ?? null
-} else if exists(.firstbytes_1) {
-    .thor.file.first_bytes = to_string(.firstbytes_1) ?? null
+  .thor.file.first_bytes = to_string(.firstbytes) ?? null
 }
 
-###############################
-# Windows event log fields
-###############################
-if exists(.event_id) {
-    event_id = to_int(.event_id) ?? null
-    if event_id != null {
-        .winlog.event_id = event_id
-        .event.code = to_string!(event_id)
-    } else {
-        .event.code = to_string(.event_id) ?? null
-    }
+# [normalization] to_string(.firstbytes_1) ?? null -> thor.file.first_bytes
+if !exists(.firstbytes) && exists(.firstbytes_1) {
+  .thor.file.first_bytes = to_string(.firstbytes_1) ?? null
 }
 
+# [normalization] to_int(.event_id) ?? null -> winlog.event_id
+if exists(.event_id) && (to_int(.event_id) ?? null) != null {
+  .winlog.event_id = to_int(.event_id) ?? null
+}
+
+# [normalization] to_string!(to_int!(.event_id)) -> event.code
+if exists(.event_id) && (to_int(.event_id) ?? null) != null {
+  .event.code = to_string!(to_int!(.event_id))
+}
+
+# [normalization] to_string(.event_id) ?? null -> event.code
+if exists(.event_id) && (to_int(.event_id) ?? null) == null {
+  .event.code = to_string(.event_id) ?? null
+}
+
+# [normalization] to_string(.event_level) ?? null -> winlog.level
 if exists(.event_level) {
-    .winlog.level = to_string(.event_level) ?? null
+  .winlog.level = to_string(.event_level) ?? null
 }
 
+# [normalization] to_string(.event_channel) ?? null -> winlog.channel
 if exists(.event_channel) {
-    .winlog.channel = to_string(.event_channel) ?? null
+  .winlog.channel = to_string(.event_channel) ?? null
 }
 
-###############################
-# Entry / raw match context
-###############################
+# [normalization] to_string(.entry) ?? .entry -> thor.entry
 if exists(.entry) {
-    .thor.entry = to_string(.entry) ?? .entry
+  .thor.entry = to_string(.entry) ?? .entry
 }
 
+# [normalization] to_string(.log_modified) ?? null -> thor.log.modified
 if exists(.log_modified) {
-    .thor.log.modified = to_string(.log_modified) ?? null
+  .thor.log.modified = to_string(.log_modified) ?? null
 }
 
+# [normalization] to_string(.log_accessed) ?? null -> thor.log.accessed
 if exists(.log_accessed) {
-    .thor.log.accessed = to_string(.log_accessed) ?? null
+  .thor.log.accessed = to_string(.log_accessed) ?? null
 }
 
-###############################
-# Cleanup top-level duplicated fields
-###############################
+# [deletion] time, hostname, level, module, scanid, score, subscore_1, reason_1, rulename_1, id_1, description_1, author_1, ref_1, ruledate_1, sigtype_1, sigclass_1, falsepositives_1, tags_1, matched_1, reasons_count, event_id, event_level, event_channel, event_computer, event_time, log_version, file_1, exists_1, ext, type, type_1, size, size_1, md5, md5_1, sha1, sha1_1, sha256, sha256_1, changed, changed_1, modified, modified_1, accessed, accessed_1, permissions, permissions_1, owner, owner_1, group, group_1, firstbytes, firstbytes_1, log_modified, log_accessed, entry
 del(.time)
 del(.hostname)
 del(.level)

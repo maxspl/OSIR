@@ -28,19 +28,20 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}--{module}-"
+  output_prefix: "{extracted_endpoint}--{module}-"
 
-endpoint: 
-  patterns:
-    - r"/Endpoint_(.*?)/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"/Endpoint_(.*?)/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:live_response:pstree':
-    name_rex: nodes\.jsonl$
+    name_rex: r"nodes\.jsonl$"
     path_suffix: 'pstree_live_response'
     sourcetype: 'windows:live_response:pstree'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"

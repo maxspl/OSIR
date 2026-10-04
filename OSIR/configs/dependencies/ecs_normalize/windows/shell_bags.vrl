@@ -1,292 +1,402 @@
-# -----------------------------------------------------------------------------
-# Windows ShellBags CSV 
-#   Columns / fields:
-#   BagPath, Slot, NodeSlot, MRUPosition, AbsolutePath, ShellType, Value,
-#   ChildBags, CreatedOn, ModifiedOn, AccessedOn, LastWriteTime,
-#   MFTEntry, MFTSequenceNumber, ExtensionBlockCount, FirstInteracted,
-#   LastInteracted, HasExplored, Miscellaneous
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : shell_bags
+# Version    : 1.0
+# Windows ShellBags CSV (SBECmd) → ECS
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
 
 # -----------------------------------------------------------------------------
-# Keep raw event first 
+# normalize dotted fields
 # -----------------------------------------------------------------------------
-if !exists(.event) || !exists(.event.original) {
-    .event.original = encode_json!(.)
+if exists(."labels.shell_type") {
+  .labels.shell_type = get!(., path: ["labels.shell_type"])
+  del(."labels.shell_type")
+}
+if exists(."labels.has_explored") {
+  .labels.has_explored = get!(., path: ["labels.has_explored"])
+  del(."labels.has_explored")
+}
+if exists(."user.name") {
+  .user.name = get!(., path: ["user.name"])
+  del(."user.name")
+}
+if exists(."labels.absolute_path") {
+  .labels.absolute_path = get!(., path: ["labels.absolute_path"])
+  del(."labels.absolute_path")
+}
+if exists(."labels.value") {
+  .labels.value = get!(., path: ["labels.value"])
+  del(."labels.value")
 }
 
 # -----------------------------------------------------------------------------
-# ECS scaffolding
+# transformations
 # -----------------------------------------------------------------------------
 
-.event.dataset  = "windows.shellbags"
-.event.module   = "windows"
+# [normalization] LastWriteTime -> timestamp
+if exists(.LastWriteTime) && .LastWriteTime != "" {
+  _result, err = parse_timestamp(.LastWriteTime, format: "%F %T%.f")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
 
-# Shellbags = user folder interaction / state
-.event.kind     = "state"
-.event.category = ["file"]
-.event.type     = ["info"]
+# [normalization] FirstInteracted -> timestamp
+if exists(.FirstInteracted) && .FirstInteracted != "" {
+  _result, err = parse_timestamp(.FirstInteracted, format: "%F %T%.f")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
 
-.event.outcome  = "success"
-.event.provider = "Windows ShellBags (registry)"
+# [normalization] LastInteracted -> timestamp
+if exists(.LastInteracted) && .LastInteracted != "" {
+  _result, err = parse_timestamp(.LastInteracted, format: "%F %T%.f")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
 
-# Generic action/code for this pipeline
-.event.code   = "shell_bag"
-.event.action = "shell_bag"
-
-# -----------------------------------------------------------------------------
-# Bag logical path / absolute path in Explorer
-# -----------------------------------------------------------------------------
-
+# [normalization] BagPath -> labels.bag_path
 if exists(.BagPath) {
-    bag_path = to_string!(del(.BagPath))
-    .file.Ext.shellbags.bag_path = bag_path
+  .labels.bag_path = .BagPath
 }
 
+# [normalization] AbsolutePath -> labels.absolute_path
 if exists(.AbsolutePath) {
-    abs_path = to_string!(del(.AbsolutePath))
-    .file.Ext.shellbags.absolute_path = abs_path
+  .labels.absolute_path = .AbsolutePath
 }
 
-# -----------------------------------------------------------------------------
-# MRU & slot info
-# -----------------------------------------------------------------------------
-
-if exists(.Slot) {
-    slot_raw = to_string!(del(.Slot))
-    slot_int = parse_int(slot_raw) ?? null
-    if slot_int != null {
-        .file.Ext.shellbags.slot = slot_int
-    } else {
-        .file.Ext.shellbags.slot_raw = slot_raw
-    }
-}
-
-if exists(.NodeSlot) {
-    nslot_raw = to_string!(del(.NodeSlot))
-    nslot_int = parse_int(nslot_raw) ?? null
-    if nslot_int != null {
-        .file.Ext.shellbags.node_slot = nslot_int
-    } else {
-        .file.Ext.shellbags.node_slot_raw = nslot_raw
-    }
-}
-
-if exists(.MRUPosition) {
-    mru_raw = to_string!(del(.MRUPosition))
-    mru_int = parse_int(mru_raw) ?? null
-    if mru_int != null {
-        .file.Ext.shellbags.mru_position = mru_int
-    } else {
-        .file.Ext.shellbags.mru_position_raw = mru_raw
-    }
-}
-
-if exists(.ChildBags) {
-    cb_raw = to_string!(del(.ChildBags))
-    cb_int = parse_int(cb_raw) ?? null
-    if cb_int != null {
-        .file.Ext.shellbags.child_bags = cb_int
-    } else {
-        .file.Ext.shellbags.child_bags_raw = cb_raw
-    }
-}
-
-# -----------------------------------------------------------------------------
-# Shell type & value (what Explorer showed)
-# -----------------------------------------------------------------------------
-
+# [normalization] ShellType -> labels.shell_type
 if exists(.ShellType) {
-    shell_type = to_string!(del(.ShellType))
-    .file.Ext.shellbags.shell_type = shell_type
+  .labels.shell_type = .ShellType
 }
 
+# [normalization] Value -> labels.value
 if exists(.Value) {
-    val = to_string!(del(.Value))
-    .file.Ext.shellbags.value = val
-
-    # If it looks like a real path/UNC and file.path isn't set yet, use it
-    if !exists(.file.path) {
-        if starts_with(val, "\\\\") || contains(val, ":\\") {
-            .file.path = val
-        }
-    }
-
-    # If we still don't have file.name, at least use Value as a name
-    if !exists(.file.name) && val != "" {
-        .file.name = val
-    }
+  .labels.value = .Value
 }
 
-# -----------------------------------------------------------------------------
-# Timestamps (Explorer / filesystem times)
-#   Format in sample: "2022-05-02 20:30:58"
-# -----------------------------------------------------------------------------
-
-# CreatedOn → file.created
-if exists(.CreatedOn) {
-    c_raw = to_string!(del(.CreatedOn))
-    if c_raw != "" {
-        c_ts = parse_timestamp(c_raw, "%F %T") ?? null
-        if c_ts != null {
-            .file.created = c_ts
-        } else {
-            .file.Ext.shellbags.created_on_raw = c_raw
-        }
-    }
+# [normalization] Miscellaneous -> labels.misc
+if exists(.Miscellaneous) && .Miscellaneous != "" {
+  .labels.misc = .Miscellaneous
 }
 
-# ModifiedOn → file.mtime
-if exists(.ModifiedOn) {
-    m_raw = to_string!(del(.ModifiedOn))
-    if m_raw != "" {
-        m_ts = parse_timestamp(m_raw, "%F %T") ?? null
-        if m_ts != null {
-            .file.mtime = m_ts
-        } else {
-            .file.Ext.shellbags.modified_on_raw = m_raw
-        }
-    }
+# [normalization] Value -> file.name
+if .labels.shell_type == "File" && exists(.Value) {
+  .file.name = .Value
 }
 
-# AccessedOn → file.accessed
-if exists(.AccessedOn) {
-    a_raw = to_string!(del(.AccessedOn))
-    if a_raw != "" {
-        a_ts = parse_timestamp(a_raw, "%F %T") ?? null
-        if a_ts != null {
-            .file.accessed = a_ts
-        } else {
-            .file.Ext.shellbags.accessed_on_raw = a_raw
-        }
-    }
+# [normalization] Value -> file.directory
+if .labels.shell_type == "Directory" && exists(.Value) {
+  .file.directory = .Value
 }
 
-# LastWriteTime → store as NTFS metadata-ish
-if exists(.LastWriteTime) {
-    lw_raw = to_string!(del(.LastWriteTime))
-    if lw_raw != "" {
-        lw_ts = parse_timestamp(lw_raw, "%F %T") ?? null
-        if lw_ts != null {
-            .file.Ext.shellbags.last_write_time = lw_ts
-        } else {
-            .file.Ext.shellbags.last_write_time_raw = lw_raw
-        }
-    }
+# [normalization] Slot -> labels.slot
+if exists(.Slot) {
+  _result, err = to_int(.Slot)
+  if err == null {
+    .labels.slot = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur labels.slot : " + err, level: "warn")
+  }
 }
 
-# FirstInteracted / LastInteracted → user interaction window
-if exists(.FirstInteracted) {
-    fi_raw = to_string!(del(.FirstInteracted))
-    if fi_raw != "" {
-        fi_ts = parse_timestamp(fi_raw, "%F %T") ?? null
-        if fi_ts != null {
-            .file.Ext.shellbags.first_interacted = fi_ts
-        } else {
-            .file.Ext.shellbags.first_interacted_raw = fi_raw
-        }
-    }
+# [normalization] NodeSlot -> labels.node_slot
+if exists(.NodeSlot) {
+  _result, err = to_int(.NodeSlot)
+  if err == null {
+    .labels.node_slot = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur labels.node_slot : " + err, level: "warn")
+  }
 }
 
-if exists(.LastInteracted) {
-    li_raw = to_string!(del(.LastInteracted))
-    if li_raw != "" {
-        li_ts = parse_timestamp(li_raw, "%F %T") ?? null
-        if li_ts != null {
-            .file.Ext.shellbags.last_interacted = li_ts
-        } else {
-            .file.Ext.shellbags.last_interacted_raw = li_raw
-        }
-    }
+# [normalization] MRUPosition -> labels.mru_position
+if exists(.MRUPosition) {
+  _result, err = to_int(.MRUPosition)
+  if err == null {
+    .labels.mru_position = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur labels.mru_position : " + err, level: "warn")
+  }
 }
 
-# -----------------------------------------------------------------------------
-# Promote a best-effort event timestamp
-# -----------------------------------------------------------------------------
-
-# Priority:
-#   1. last_interacted
-#   2. last_write_time
-#   3. file.mtime
-#   4. file.created
-
-timestamp_value = null
-timestamp_source = null
-
-if exists(.file.Ext.shellbags.last_interacted) {
-    timestamp_value = .file.Ext.shellbags.last_interacted
-    timestamp_source = "last_interacted"
-} else if exists(.file.Ext.shellbags.last_write_time) {
-    timestamp_value = .file.Ext.shellbags.last_write_time
-    timestamp_source = "registry_last_write_time"
-} else if exists(.file.mtime) {
-    timestamp_value = .file.mtime
-    timestamp_source = "file_mtime"
-} else if exists(.file.created) {
-    timestamp_value = .file.created
-    timestamp_source = "file_created"
+# [normalization] ChildBags -> labels.child_bags
+if exists(.ChildBags) {
+  _result, err = to_int(.ChildBags)
+  if err == null {
+    .labels.child_bags = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur labels.child_bags : " + err, level: "warn")
+  }
 }
 
-# Apply the timestamp if found
-if timestamp_value != null {
-    .timestamp = timestamp_value
-
-    # Track the origin
-    .event.Ext.timestamp_source = timestamp_source
-}
-
-# -----------------------------------------------------------------------------
-# NTFS MFT info
-# -----------------------------------------------------------------------------
-
-if exists(.MFTEntry) {
-    mfte_raw = to_string!(del(.MFTEntry))
-    mfte_int = parse_int(mfte_raw) ?? null
-    if mfte_int != null {
-        .file.inode = mfte_int
-    } else {
-        .file.Ext.shellbags.mft_entry_raw = mfte_raw
-    }
-}
-
+# [normalization] MFTSequenceNumber -> labels.mft_sequence
 if exists(.MFTSequenceNumber) {
-    mfts_raw = to_string!(del(.MFTSequenceNumber))
-    mfts_int = parse_int(mfts_raw) ?? null
-    if mfts_int != null {
-        .file.Ext.shellbags.mft_sequence = mfts_int
-    } else {
-        .file.Ext.shellbags.mft_sequence_raw = mfts_raw
-    }
+  _result, err = to_int(.MFTSequenceNumber)
+  if err == null {
+    .labels.mft_sequence = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur labels.mft_sequence : " + err, level: "warn")
+  }
 }
 
+# [normalization] ExtensionBlockCount -> labels.extension_block_count
 if exists(.ExtensionBlockCount) {
-    ebc_raw = to_string!(del(.ExtensionBlockCount))
-    ebc_int = parse_int(ebc_raw) ?? null
-    if ebc_int != null {
-        .file.Ext.shellbags.extension_block_count = ebc_int
-    } else {
-        .file.Ext.shellbags.extension_block_count_raw = ebc_raw
-    }
+  _result, err = to_int(.ExtensionBlockCount)
+  if err == null {
+    .labels.extension_block_count = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur labels.extension_block_count : " + err, level: "warn")
+  }
 }
 
-# -----------------------------------------------------------------------------
-# Flags / miscellaneous
-# -----------------------------------------------------------------------------
-
+# [normalization] HasExplored -> labels.has_explored
 if exists(.HasExplored) {
-    he_raw = to_string!(del(.HasExplored))
-    he_l   = downcase(he_raw)
-    .file.Ext.shellbags.has_explored_raw = he_raw
-
-    if he_l == "true" {
-        .file.Ext.shellbags.has_explored = true
-    } else if he_l == "false" {
-        .file.Ext.shellbags.has_explored = false
-    }
+  _result, err = to_bool(.HasExplored)
+  if err == null {
+    .labels.has_explored = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_bool sur labels.has_explored : " + err, level: "warn")
+  }
 }
 
-if exists(.Miscellaneous) {
-    misc = to_string!(del(.Miscellaneous))
-    if misc != "" {
-        .file.Ext.shellbags.misc = misc
-    }
+# [normalization] LastWriteTime -> labels.last_write_time
+if exists(.LastWriteTime) {
+  _result, err = parse_timestamp(.LastWriteTime, format: "%F %T%.f")
+  if err == null {
+    .labels.last_write_time = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur labels.last_write_time : " + err, level: "warn")
+  }
+}
+
+# [normalization] FirstInteracted -> labels.first_interacted
+if exists(.FirstInteracted) {
+  _result, err = parse_timestamp(.FirstInteracted, format: "%F %T%.f")
+  if err == null {
+    .labels.first_interacted = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur labels.first_interacted : " + err, level: "warn")
+  }
+}
+
+# [normalization] LastInteracted -> labels.last_interacted
+if exists(.LastInteracted) {
+  _result, err = parse_timestamp(.LastInteracted, format: "%F %T%.f")
+  if err == null {
+    .labels.last_interacted = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur labels.last_interacted : " + err, level: "warn")
+  }
+}
+
+# [normalization] CreatedOn -> file.created
+if exists(.CreatedOn) {
+  _result, err = parse_timestamp(.CreatedOn, format: "%F %T%.f")
+  if err == null {
+    .file.created = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur file.created : " + err, level: "warn")
+  }
+}
+
+# [normalization] ModifiedOn -> file.mtime
+if exists(.ModifiedOn) {
+  _result, err = parse_timestamp(.ModifiedOn, format: "%F %T%.f")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] AccessedOn -> file.accessed
+if exists(.AccessedOn) {
+  _result, err = parse_timestamp(.AccessedOn, format: "%F %T%.f")
+  if err == null {
+    .file.accessed = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur file.accessed : " + err, level: "warn")
+  }
+}
+
+# [normalization] MFTEntry -> file.inode
+if exists(.MFTEntry) {
+  _result, err = to_int(.MFTEntry)
+  if err == null {
+    .file.inode = _result
+  } else {
+    log("[shell_bags] échec de l'opération to_int sur file.inode : " + err, level: "warn")
+  }
+}
+
+# [normalization] HKCU -> registry.hive
+.registry.hive = "HKCU"
+
+# [normalization] LastWriteTime -> registry.mtime
+if exists(.LastWriteTime) {
+  _result, err = parse_timestamp(.LastWriteTime, format: "%F %T%.f")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] "HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\" + replace(to_string!(.BagPath), pattern: "\\\\", with: "\\") -> registry.path
+if exists(.BagPath) {
+  .registry.path = "HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\" + replace(to_string!(.BagPath), pattern: "\\\\", with: "\\")
+}
+
+# [normalization] name -> labels.value
+if exists(.name) {
+  .labels.value = .name
+}
+
+# [normalization] type -> labels.shell_type
+if exists(.type) {
+  .labels.shell_type = .type
+}
+
+# [normalization] localized_name -> labels.localized_name
+if exists(.localized_name) {
+  .labels.localized_name = .localized_name
+}
+
+# [normalization] description -> labels.description
+if exists(.description) {
+  .labels.description = .description
+}
+
+# [normalization] key_security -> labels.key_security
+if exists(.key_security) {
+  .labels.key_security = .key_security
+}
+
+# [normalization] file_reference -> file.inode
+if exists(.file_reference) {
+  .file.inode = .file_reference
+}
+
+# [normalization] replace(to_string!(.path), pattern: "\\\\", with: "\\") -> labels.absolute_path
+if exists(.path) {
+  .labels.absolute_path = replace(to_string!(.path), pattern: "\\\\", with: "\\")
+}
+
+# [normalization] key_modif_time -> timestamp
+if exists(.key_modif_time) {
+  _result, err = parse_timestamp(.key_modif_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .timestamp = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur timestamp : " + err, level: "warn")
+  }
+}
+
+# [normalization] key_modif_time -> registry.mtime
+if exists(.key_modif_time) {
+  _result, err = parse_timestamp(.key_modif_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .registry.mtime = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur registry.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] modification_time -> file.mtime
+if exists(.modification_time) {
+  _result, err = parse_timestamp(.modification_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .file.mtime = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur file.mtime : " + err, level: "warn")
+  }
+}
+
+# [normalization] access_time -> file.accessed
+if exists(.access_time) {
+  _result, err = parse_timestamp(.access_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .file.accessed = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur file.accessed : " + err, level: "warn")
+  }
+}
+
+# [normalization] creation_time -> file.created
+if exists(.creation_time) {
+  _result, err = parse_timestamp(.creation_time, format: "%Y-%m-%dT%H:%M:%S%.f%z")
+  if err == null {
+    .file.created = _result
+  } else {
+    log("[shell_bags] échec de l'opération parse_timestamp sur file.created : " + err, level: "warn")
+  }
+}
+
+# [normalization] replace(to_string!(.key_path), pattern: "\\\\", with: "\\") -> registry.path
+if exists(.key_path) {
+  .registry.path = replace(to_string!(.key_path), pattern: "\\\\", with: "\\")
+}
+
+# [normalization] True -> labels.has_explored
+if !exists(.labels.has_explored) {
+  .labels.has_explored = true
+}
+
+# [deletion] BagPath, AbsolutePath, ShellType, Value, Miscellaneous, Slot, NodeSlot, MRUPosition, ChildBags, MFTSequenceNumber, ExtensionBlockCount, MFTEntry, CreatedOn, ModifiedOn, AccessedOn, LastWriteTime, FirstInteracted, LastInteracted, HasExplored, name, type, path, file_reference, modification_time, access_time, creation_time, key_path, key_modif_time, key_security, ogre_md, localized_name, description
+del(.BagPath)
+del(.AbsolutePath)
+del(.ShellType)
+del(.Value)
+del(.Miscellaneous)
+del(.Slot)
+del(.NodeSlot)
+del(.MRUPosition)
+del(.ChildBags)
+del(.MFTSequenceNumber)
+del(.ExtensionBlockCount)
+del(.MFTEntry)
+del(.CreatedOn)
+del(.ModifiedOn)
+del(.AccessedOn)
+del(.LastWriteTime)
+del(.FirstInteracted)
+del(.LastInteracted)
+del(.HasExplored)
+del(.name)
+del(.type)
+del(.path)
+del(.file_reference)
+del(.modification_time)
+del(.access_time)
+del(.creation_time)
+del(.key_path)
+del(.key_modif_time)
+del(.key_security)
+del(.ogre_md)
+del(.localized_name)
+del(.description)
+
+# -----------------------------------------------------------------------------
+# timeline
+# -----------------------------------------------------------------------------
+if .labels.has_explored == true && exists(.user.name) && exists(.labels.absolute_path) {
+  .message = "User " + to_string!(.user.name) + " interacted with " + to_string!(.labels.absolute_path)
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.labels.value), "type": "interacted with"})
+}
+if .labels.has_explored == false && exists(.labels.absolute_path) {
+  .message = "Shellbag entry exists for " + to_string!(.labels.absolute_path) + " (no evidence of user interaction)"
+  if !is_array(.relationships) { .relationships = [] }
+  .relationships = push!(.relationships, {"source": to_string!(.user.name), "target": to_string!(.labels.value), "type": "referenced"})
 }

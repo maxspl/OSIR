@@ -32,7 +32,7 @@
 <link href="../../search.html" rel="search" title="Search"/>
 <link href="../../genindex.html" rel="index" title="Index"/>
 <link href="wer.html" rel="next" title="wer"/>
-<link href="shimcache.html" rel="prev" title="shimcache"/>
+<link href="restore_fs.html" rel="prev" title="restore_fs"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
@@ -248,27 +248,17 @@
 </ul>
 </li>
 <li class="toctree-l2 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="index.html">Windows<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
-<li class="toctree-l3"><a class="reference internal" href="amcache.html">amcache</a></li>
 <li class="toctree-l3"><a class="reference internal" href="anssi_decode.html">anssi_decode</a></li>
 <li class="toctree-l3"><a class="reference internal" href="browsers.html">browsers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="collect_info_orc.html">collect_info_orc</a></li>
 <li class="toctree-l3"><a class="reference internal" href="evtx.html">evtx</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hives_hkcu.html">hives_hkcu</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hives_hklm.html">hives_hklm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="jump_list.html">jump_list</a></li>
-<li class="toctree-l3"><a class="reference internal" href="lnk.html">lnk</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mft.html">mft</a></li>
 <li class="toctree-l3"><a class="reference internal" href="orc_log.html">orc_log</a></li>
 <li class="toctree-l3"><a class="reference internal" href="orc_outcome.html">orc_outcome</a></li>
 <li class="toctree-l3"><a class="reference internal" href="powershell_history.html">powershell_history</a></li>
-<li class="toctree-l3"><a class="reference internal" href="prefetch.html">prefetch</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pstree_live_response.html">pstree_live_response</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pstree_sysmon.html">pstree_sysmon</a></li>
-<li class="toctree-l3"><a class="reference internal" href="recycle_bin.html">recycle_bin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shell_bags.html">shell_bags</a></li>
-<li class="toctree-l3"><a class="reference internal" href="shimcache.html">shimcache</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="win_memory.html">win_memory</a></li>
@@ -354,6 +344,25 @@
 <li class="toctree-l4"><a class="reference internal" href="live_response/win_routes.html">win_routes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/amcache.html">amcache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/evtx_ecmd.html">evtx_ecmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/hives_hkcu.html">hives_hkcu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/hives_hklm.html">hives_hklm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/jump_list.html">jump_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/lnk.html">lnk</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/mft.html">mft</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/prefetch.html">prefetch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/recent_file_cache.html">recent_file_cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/recycle_bin.html">recycle_bin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/shell_bags.html">shell_bags</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/shimcache.html">shimcache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/sqlecmd.html">sqlecmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/srum_ecmd.html">srum_ecmd</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/sum.html">sum</a></li>
+<li class="toctree-l4"><a class="reference internal" href="zimmerman/wxt.html">wxt</a></li>
 </ul>
 </li>
 </ul>
@@ -531,7 +540,7 @@
 <p>In Splunk you can find the result of the module after
 ingestion with the following sourcetype:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">windows:files:srum</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">--srum-.*\.jsonl$</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">windows:files:srum</span></code> | name_rex: <code class="docutils literal notranslate"><span class="pre">r"--srum-.*\.jsonl$"</span></code></p></li>
 </ul>
 </div>
 <section id="description">
@@ -540,7 +549,39 @@ ingestion with the following sourcetype:</p>
 </section>
 <section id="timeline">
 <h2>Timeline</h2>
-<p>No timeline messages.</p>
+<table class="docutils align-default" id="tl-windows-srum-app-usage">
+<thead>
+<tr class="row-odd"><th class="head"><p>labels.app_id</p></th>
+<th class="head"><p>Relation</p></th>
+<th class="head"><p>Message</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td></td>
+<td><p><a class="reference internal" href="#rel-windows-srum-app-usage">app-usage</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Application</span> <span class="pre">{labels.app_id}</span> <span class="pre">was</span> <span class="pre">used</span> <span class="pre">by</span> <span class="pre">user</span> <span class="pre">{user.id}</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="relationships">
+<h2>Relationships</h2>
+<table class="docutils align-default" id="rel-windows-srum-app-usage">
+<thead>
+<tr class="row-odd"><th class="head"><p>Relation</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#tl-windows-srum-app-usage">app-usage</a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.app_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">used</span></code></p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="fields">
 <h2>Fields</h2>
@@ -551,26 +592,149 @@ ingestion with the following sourcetype:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
-<td></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">encode_json!(.)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.original</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"windows"</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"windows.srum"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.dataset</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"windows"</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">event.module</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"event"</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"event"</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">event.kind</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[info]</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.type</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[host]</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[process]</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">event.category</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
-<td></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[info]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.type</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"Windows</span> <span class="pre">System</span> <span class="pre">Resource</span> <span class="pre">Usage</span> <span class="pre">Monitor</span> <span class="pre">(SRUM)"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.provider</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"success"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.outcome</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parse_timestamp(timestamp)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(auto_inc_id)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.incremental_id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">app_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.app_id</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">user_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(facetime)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.face_time</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_cycle_time)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_cycle_time</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_cycle_time)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_cycle_time</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_context_switches)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_context_switches</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_context_switches)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_context_switches</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_bytes_read)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_bytes_read</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_bytes_written)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_bytes_written</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_bytes_read)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_bytes_read</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_bytes_written)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_bytes_written</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_num_read_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_num_read_operations</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_num_write_options)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_num_write_operations</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_num_read_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_num_read_operations</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_num_write_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_num_write_operations</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_number_of_flushes)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_number_of_flushes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_number_of_flushes)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_number_of_flushes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">collection_metadata</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.collection_metadata</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">parse_timestamp(timestamp)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(incremental_id)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.incremental_id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">app_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.app_id</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">user_id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user.id</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(face_time)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.face_time</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_cycle_time)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_cycle_time</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_cycle_time)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_cycle_time</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_context_switches)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_context_switches</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_context_switches)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_context_switches</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_bytes_read)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_bytes_read</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_bytes_written)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_bytes_written</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_bytes_read)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_bytes_read</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_bytes_written)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_bytes_written</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_num_read_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_num_read_operations</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_num_write_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_num_write_operations</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_num_read_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_num_read_operations</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_num_write_operations)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_num_write_operations</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(foreground_number_of_flushes)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.foreground_number_of_flushes</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">to_int(background_number_of_flushes)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.background_number_of_flushes</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ogre_md</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">labels.ogre_md</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -581,6 +745,7 @@ ingestion with the following sourcetype:</p>
 <ul>
 <li><a :data-current="activeSection === '#description'" class="reference internal" href="#description">Description</a></li>
 <li><a :data-current="activeSection === '#timeline'" class="reference internal" href="#timeline">Timeline</a></li>
+<li><a :data-current="activeSection === '#relationships'" class="reference internal" href="#relationships">Relationships</a></li>
 <li><a :data-current="activeSection === '#fields'" class="reference internal" href="#fields">Fields</a></li>
 </ul>
 </div>

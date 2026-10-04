@@ -32,9 +32,9 @@ output:
 
 splunk:
   'linux:app:mongodb':
-    name_rex: mongod.log$
+    name_rex: r"mongod.log$"
     sourcetype: 'linux:app:mongodb'
-    host_rex: "extract_uac\/(.*?)\/"
+    host_rex: r"extract_uac\/(.*?)\/"
     artifact: "mongodb"
     timestamp_path:
       - "timestamp" 

@@ -67,6 +67,17 @@ class OsirPaths(BaseModel):
 
     @computed_field
     @property
+    def DEPENDENCIES_DIR(self) -> Path:
+        """
+            Resolves the directory containing indexation and normalization
+            dependencies (indexer patterns, ECS normalize VRL, transforms).
+        """
+        if self.osir_home_env:
+            return self.base_dir.joinpath("OSIR/configs/dependencies/")
+        return Path("/OSIR/OSIR/configs/dependencies/")
+
+    @computed_field
+    @property
     def CASES_DIR(self) -> Path:
         """
             Resolves the shared storage location for case data and forensic outputs.

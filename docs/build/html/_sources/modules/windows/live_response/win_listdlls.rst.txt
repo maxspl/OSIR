@@ -4,7 +4,7 @@ win_listdlls
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:dll`` | name_rex: ``--win_listdlls\.jsonl$``
+   * ``windows:live_response:dll`` | name_rex: ``r"--win_listdlls\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

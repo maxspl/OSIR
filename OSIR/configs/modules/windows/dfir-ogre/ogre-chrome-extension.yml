@@ -18,7 +18,7 @@ tool:
   cmd: >-
     plugin
     --filename "{input_file}"
-    --computer_name "{endpoint_name}"
+    --computer_name "{extracted_endpoint}"
     --output_folder "{output_dir}"
     --plugin_config "/ogre/dfir-ogre-plugin-windows/configuration/chrome_extension.xml"
     --output_format jsonl
@@ -34,25 +34,29 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}--{user_name}--{module}-"
+  output_prefix: "{extracted_endpoint}--{extracted_user}--{module}-"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)\/"
-    - r"\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+        - r"\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
-user: 
-  patterns:
-    - r"Users\/([^\/]+)"
-  default: "UNKNOWN"
+  - user:
+      patterns:
+        - r"Users\/([^\/]+)"
+      default: "UNKNOWN"
 
 splunk:
   'windows:ogre:chrome_extension':
-    name_rex: '\.jsonl$'
+    name_rex: r"\.jsonl$"
     path_suffix: 'ogre-chrome-extension'
     sourcetype: 'windows:ogre:chrome_extension'
-    host_rex: ([\w\.-]+?)--
+    host_rex: r"([\w\.-]+?)--"
+    user_rex: r"--([^-]+)--ogre"
+    normalize:
+      - ecs_normalize/windows/browsers.vrl
     artifact: "chrome"
     timestamp_path:
       - "install_date" 

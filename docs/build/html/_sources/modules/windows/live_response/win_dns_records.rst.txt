@@ -4,7 +4,7 @@ win_dns_records
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:live_response:dns_records`` | name_rex: ``--dns_records\.jsonl$``
+   * ``windows:live_response:dns_records`` | name_rex: ``r"--dns_records\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------

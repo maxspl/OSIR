@@ -18,7 +18,7 @@ tool:
   cmd: >-
     plugin
     --filename "{input_file}"
-    --computer_name "{endpoint_name}"
+    --computer_name "{extracted_endpoint}"
     --output_folder "{output_dir}"
     --plugin_config "/ogre/dfir-ogre-plugin-windows/configuration/registry/amcache_files.xml"
     --output_format jsonl
@@ -34,20 +34,21 @@ input:
 output:
   type: multiple_files
   format: jsonl
-  output_prefix: "{endpoint_name}--{module}-"
+  output_prefix: "{extracted_endpoint}--{module}-"
 
-endpoint: 
-  patterns:
-    - r"restore_fs\/(.*?)\/"
-    - r"\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+        - r"\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'windows:ogre:registry_amcache_files':
-    name_rex: '\.jsonl$'
+    name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-amcache-files'
     sourcetype: 'windows:ogre:registry_amcache_files'
-    host_rex: ([\w\.-]+)--
+    host_rex: r"([\w\.-]+)--"
     artifact: "hive"
     timestamp_path:
       - "link_date" 

@@ -25,19 +25,20 @@ input:
 output:
   type: single_file
   format: json
-  output_file: "{endpoint_name}--{module}-{input_file}.jsonl"
+  filename: "{extracted_endpoint}--{module}-{input_file}.jsonl"
 
-endpoint: 
-  patterns:
-    - r"extract_uac\/Endpoint_(.*?)\/"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"extract_uac\/Endpoint_(.*?)\/"
+      default: "UNKNOWN"
 
 splunk:
   'linux:web_access':
-    name_rex: \.jsonl$
+    name_rex: r"\.jsonl$"
     path_suffix: web_access
     sourcetype: 'linux:web_access'
-    host_rex: -([\w\.-]+?)--
+    host_rex: r"-([\w\.-]+?)--"
     timestamp_path:
     - "ts"
     - "ts_raw"

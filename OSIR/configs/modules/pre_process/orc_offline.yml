@@ -17,7 +17,7 @@ tool:
   path: python.exe
   cmd: >-
     {drive}\OSIR\bin\dfir_orc_offline\DFIR_ORC_wrapper.py
-    -i "{input_file}" -o "{output_dir}" -e "{endpoint_name}"
+    -i "{input_file}" -o "{output_dir}" -e "{extracted_endpoint}"
   source: https://github.com/dfir-orc
   version: latest
 
@@ -30,7 +30,8 @@ output:
   type: multiple_files
   format: raw
 
-endpoint: 
-  patterns:
-    - r"\/([^\/]+)--"
-  default: "UNKNOWN"
+extracted:
+  - endpoint:
+      patterns:
+        - r"\/([^\/]+)--"
+      default: "UNKNOWN"

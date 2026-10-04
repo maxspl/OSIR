@@ -4,12 +4,12 @@ evtx
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:evtx`` | name_rex: ``\.evtx.*\.jsonl$``
-   * ``windows:evtx:powershell`` | name_rex: ``PowerShell\.evtx.*\.jsonl$``
-   * ``windows:evtx:powershell:operational`` | name_rex: ``PowerShell.*Operational\.evtx.*\.jsonl$``
-   * ``windows:evtx:security`` | name_rex: ``Security\.evtx.*\.jsonl$``
-   * ``windows:evtx:sysmon`` | name_rex: ``Sysmon.*\.evtx.*\.jsonl$``
-   * ``windows:evtx:system`` | name_rex: ``System\.evtx.*\.jsonl$``
+   * ``windows:evtx`` | name_rex: ``r"\.evtx.*\.jsonl$"``
+   * ``windows:evtx:powershell`` | name_rex: ``r"PowerShell\.evtx.*\.jsonl$"``
+   * ``windows:evtx:powershell:operational`` | name_rex: ``r"PowerShell.*Operational\.evtx.*\.jsonl$"``
+   * ``windows:evtx:security`` | name_rex: ``r"Security\.evtx.*\.jsonl$"``
+   * ``windows:evtx:sysmon`` | name_rex: ``r"Sysmon.*\.evtx.*\.jsonl$"``
+   * ``windows:evtx:system`` | name_rex: ``r"System\.evtx.*\.jsonl$"``
 
 Description
 -----------
@@ -19,175 +19,538 @@ Parsing of EVTX collected by DFIR ORC or in the filesystem
 Timeline
 --------
 
+.. _tl-windows-evtx-evtx-4624:
+.. _tl-windows-evtx-evtx-4624-2:
+.. _tl-windows-evtx-evtx-4625:
+.. _tl-windows-evtx-evtx-4625-2:
+.. _tl-windows-evtx-evtx-4634:
+.. _tl-windows-evtx-evtx-4648:
+.. _tl-windows-evtx-evtx-4648-2:
+.. _tl-windows-evtx-evtx-4657:
+.. _tl-windows-evtx-evtx-4662:
+.. _tl-windows-evtx-evtx-4672:
+.. _tl-windows-evtx-evtx-4688:
+.. _tl-windows-evtx-evtx-4689:
+.. _tl-windows-evtx-evtx-4720:
+.. _tl-windows-evtx-evtx-4722:
+.. _tl-windows-evtx-evtx-4723:
+.. _tl-windows-evtx-evtx-4723-2:
+.. _tl-windows-evtx-evtx-4725:
+.. _tl-windows-evtx-evtx-4726:
+.. _tl-windows-evtx-evtx-4727:
+.. _tl-windows-evtx-evtx-4768:
+.. _tl-windows-evtx-evtx-4768-2:
+.. _tl-windows-evtx-evtx-4769:
+.. _tl-windows-evtx-evtx-4769-2:
+.. _tl-windows-evtx-evtx-4771:
+.. _tl-windows-evtx-evtx-4776:
+.. _tl-windows-evtx-evtx-4776-2:
+.. _tl-windows-evtx-evtx-4798:
+.. _tl-windows-evtx-evtx-4799:
+.. _tl-windows-evtx-evtx-4825:
+.. _tl-windows-evtx-evtx-1149:
+.. _tl-windows-evtx-evtx-21:
+.. _tl-windows-evtx-evtx-25:
+.. _tl-windows-evtx-evtx-5145:
+.. _tl-windows-evtx-evtx-5145-2:
+.. _tl-windows-evtx-evtx-5154:
+.. _tl-windows-evtx-evtx-5156:
+.. _tl-windows-evtx-evtx-1:
+.. _tl-windows-evtx-evtx-2:
+.. _tl-windows-evtx-evtx-3:
+.. _tl-windows-evtx-evtx-5:
+.. _tl-windows-evtx-evtx-6:
+.. _tl-windows-evtx-evtx-7:
+.. _tl-windows-evtx-evtx-8:
+.. _tl-windows-evtx-evtx-9:
+.. _tl-windows-evtx-evtx-10:
+
 .. list-table::
    :header-rows: 1
 
-   * - action.id
+   * - Relation
      - Message
    * - 
      - ``Hostname: {host.name} - Source: {event.provider} - EventID: {action.id}``
    * - 
      - ``Hostname: {host.name} - {action.name}``
-   * - ``4624``
+   * - `evtx-4624 <rel-windows-evtx-evtx-4624_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} logged on to {host.name} (LogonType {action.properties.LogonType})``
-   * - ``4624``
+   * - `evtx-4624-2 <rel-windows-evtx-evtx-4624-2_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} logged on to {host.name} from IP {source.ip} (LogonType {action.properties.LogonType})``
-   * - ``4625``
+   * - `evtx-4625 <rel-windows-evtx-evtx-4625_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} failed to log on to {host.name} (LogonType {action.properties.LogonType})``
-   * - ``4625``
+   * - `evtx-4625-2 <rel-windows-evtx-evtx-4625-2_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} failed to log on to {host.name} from IP {source.ip} (LogonType {action.properties.LogonType})``
-   * - ``4634``
+   * - `evtx-4634 <rel-windows-evtx-evtx-4634_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} logged off from {host.name}``
-   * - ``4648``
+   * - `evtx-4648 <rel-windows-evtx-evtx-4648_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} attempted to log on to {action.properties.TargetServerName} using explicit credentials``
-   * - ``4648``
+   * - `evtx-4648-2 <rel-windows-evtx-evtx-4648-2_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} attempted to log on to {host.name} using explicit credentials``
-   * - ``4657``
+   * - `evtx-4657 <rel-windows-evtx-evtx-4657_>`_
      - ``{user.domain}\\{user.name} modified the value {action.properties.ObjectValueName} of the registry key {action.properties.ObjectName} to {action.properties.NewValue} on {host.name}``
-   * - ``4662``
+   * - `evtx-4662 <rel-windows-evtx-evtx-4662_>`_
      - ``{user.domain}\\{user.name} accessed the object {action.properties.ObjectName} on {host.name}``
-   * - ``4672``
+   * - `evtx-4672 <rel-windows-evtx-evtx-4672_>`_
      - ``{user.domain}\\{user.name} logged on to {host.name} with special privileges``
-   * - ``4688``
+   * - `evtx-4688 <rel-windows-evtx-evtx-4688_>`_
      - ``{user.domain}\\{user.name} executed {process.command_line} on {host.name}``
-   * - ``4689``
+   * - `evtx-4689 <rel-windows-evtx-evtx-4689_>`_
      - ``Process {process.name} exited. It was executed by {user.domain}\\{user.name} on {host.name}``
-   * - ``4720``
+   * - `evtx-4720 <rel-windows-evtx-evtx-4720_>`_
      - ``{user.domain}\\{user.name} created account {action.properties.TargetDomainName}\\{action.properties.TargetUserName} on {host.name}``
-   * - ``4722``
+   * - `evtx-4722 <rel-windows-evtx-evtx-4722_>`_
      - ``{user.domain}\\{user.name} enabled account {action.properties.TargetDomainName}\\{action.properties.TargetUserName}``
-   * - ``4723``
+   * - `evtx-4723 <rel-windows-evtx-evtx-4723_>`_
      - ``{user.domain}\\{user.name} changed their password on {host.name}``
-   * - ``4723``
+   * - `evtx-4723-2 <rel-windows-evtx-evtx-4723-2_>`_
      - ``{user.domain}\\{user.name} failed to change their password on {host.name}``
-   * - ``4725``
+   * - `evtx-4725 <rel-windows-evtx-evtx-4725_>`_
      - ``{user.domain}\\{user.name} disabled account {action.properties.TargetDomainName}\\{action.properties.TargetUserName}``
-   * - ``4726``
+   * - `evtx-4726 <rel-windows-evtx-evtx-4726_>`_
      - ``{user.domain}\\{user.name} deleted account {action.properties.TargetDomainName}\\{action.properties.TargetUserName} on {host.name}``
-   * - ``4727``
+   * - `evtx-4727 <rel-windows-evtx-evtx-4727_>`_
      - ``{user.domain}\\{user.name} created group {action.properties.TargetDomainName}\\{action.properties.TargetUserName}``
-   * - ``4768``
+   * - `evtx-4768 <rel-windows-evtx-evtx-4768_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} failed to authenticate from {source.ip} (Error Code: {action.properties.Status})``
-   * - ``4768``
+   * - `evtx-4768-2 <rel-windows-evtx-evtx-4768-2_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} successfully authenticated from {source.ip}``
-   * - ``4769``
+   * - `evtx-4769 <rel-windows-evtx-evtx-4769_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} was denied a service ticket for {action.properties.ServiceName} from {source.ip} (Error Code: {action.properties.Status})``
-   * - ``4769``
+   * - `evtx-4769-2 <rel-windows-evtx-evtx-4769-2_>`_
      - ``{action.properties.TargetDomainName}\\{action.properties.TargetUserName} was granted a service ticket for {action.properties.ServiceName} from {source.ip}``
-   * - ``4771``
+   * - `evtx-4771 <rel-windows-evtx-evtx-4771_>`_
      - ``{action.properties.TargetUserName} failed to authenticate from {source.ip}``
-   * - ``4776``
+   * - `evtx-4776 <rel-windows-evtx-evtx-4776_>`_
      - ``{action.properties.TargetUserName} failed to authenticate on {action.properties.Workstation} (Reason: {action.properties.Status})``
-   * - ``4776``
+   * - `evtx-4776-2 <rel-windows-evtx-evtx-4776-2_>`_
      - ``{action.properties.TargetUserName} successfully authenticated on {action.properties.Workstation}``
-   * - ``4798``
+   * - `evtx-4798 <rel-windows-evtx-evtx-4798_>`_
      - ``{user.domain}\\{user.name} enumerated local groups of {action.properties.TargetDomainName}\\{action.properties.TargetUserName} on {host.name}``
-   * - ``4799``
+   * - `evtx-4799 <rel-windows-evtx-evtx-4799_>`_
      - ``{user.domain}\\{user.name} enumerated members of local group {action.properties.TargetUserName} on {host.name}``
-   * - ``4825``
+   * - `evtx-4825 <rel-windows-evtx-evtx-4825_>`_
      - ``Authenticated user {user.name} was denied the access to Remote Desktop to {host.name} from IP {action.properties.ClientAddress}``
-   * - ``1149``
+   * - `evtx-1149 <rel-windows-evtx-evtx-1149_>`_
      - ``{user.domain}\\{user.name} successfully authenticated over RDP to {host.name} from IP {source.ip}``
-   * - ``21``
+   * - `evtx-21 <rel-windows-evtx-evtx-21_>`_
      - ``{user.domain}\\{user.name} opened session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})``
-   * - ``22``
+   * - 
      - ``{user.domain}\\{user.name} session {action.properties.SessionID} shell started on {host.name}``
-   * - ``23``
+   * - 
      - ``{user.domain}\\{user.name} logged off session {action.properties.SessionID} on {host.name}``
-   * - ``24``
+   * - 
      - ``{user.domain}\\{user.name} disconnected from session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})``
-   * - ``25``
+   * - `evtx-25 <rel-windows-evtx-evtx-25_>`_
      - ``{user.domain}\\{user.name} reconnected to session {action.properties.SessionID} on {host.name} (source: {action.properties.Address})``
-   * - ``5145``
+   * - `evtx-5145 <rel-windows-evtx-evtx-5145_>`_
      - ``{user.domain}\\{user.name} was granted access to {action.properties.ShareName}\\{action.properties.RelativeTargetName} from IP {source.ip}``
-   * - ``5145``
+   * - `evtx-5145-2 <rel-windows-evtx-evtx-5145-2_>`_
      - ``{user.domain}\\{user.name} was denied access to {action.properties.ShareName}\\{action.properties.RelativeTargetName} from IP {source.ip}``
-   * - ``5154``
+   * - `evtx-5154 <rel-windows-evtx-evtx-5154_>`_
      - ``{action.properties.Application} was allowed to listen on {source.ip}:{source.port} on {host.name}``
-   * - ``5156``
+   * - `evtx-5156 <rel-windows-evtx-evtx-5156_>`_
      - ``{host.name} allowed a connection from {source.ip}:{source.port} to {destination.ip}:{destination.port}``
-   * - ``4103``
+   * - 
      - ``{user.domain}\\{user.name} executed PowerShell code on {host.name}``
-   * - ``4104``
+   * - 
      - ``{user.domain}\\{user.name} executed PowerShell code on {host.name}``
-   * - ``4105``
+   * - 
      - ``Started invocation of PowerShell ScriptBlock on {host.name}``
-   * - ``4106``
+   * - 
      - ``Completed invocation of PowerShell ScriptBlock on {host.name}``
-   * - ``5382``
+   * - 
      - ``Vault credentials were read by {action.properties.SubjectUserName} on {host.name}``
-   * - ``40961``
+   * - 
      - ``PowerShell console is starting up on {host.name}``
-   * - ``40962``
+   * - 
      - ``PowerShell console is ready for user input on {host.name}``
-   * - ``53504``
+   * - 
      - ``Windows PowerShell has started an IPC listening thread on {host.name}``
-   * - ``1``
+   * - `evtx-1 <rel-windows-evtx-evtx-1_>`_
      - ``Process {process.executable} created by {user.name} on {host.name}``
-   * - ``2``
+   * - `evtx-2 <rel-windows-evtx-evtx-2_>`_
      - ``Process {process.executable} changed the creation time of the file {file.name} on {host.name}``
-   * - ``3``
+   * - `evtx-3 <rel-windows-evtx-evtx-3_>`_
      - ``Network connection from {source.ip} to {destination.ip}:{destination.port} by {process.executable} on {host.name}``
-   * - ``4``
+   * - 
      - ``Sysmon service state changed to {action.properties.State} on {host.name}``
-   * - ``5``
+   * - `evtx-5 <rel-windows-evtx-evtx-5_>`_
      - ``Process {process.executable} terminated on {host.name}``
-   * - ``6``
+   * - `evtx-6 <rel-windows-evtx-evtx-6_>`_
      - ``Driver {process.executable} loaded on {host.name}``
-   * - ``7``
+   * - `evtx-7 <rel-windows-evtx-evtx-7_>`_
      - ``Process {process.executable} loaded image {action.properties.ImageLoaded} on {host.name}``
-   * - ``8``
+   * - `evtx-8 <rel-windows-evtx-evtx-8_>`_
      - ``Process {action.properties.SourceImage} created a thread in process {action.properties.TargetImage} on {host.name}``
-   * - ``9``
+   * - `evtx-9 <rel-windows-evtx-evtx-9_>`_
      - ``Process {process.executable} read on {action.properties.Device} device on {host.name}``
-   * - ``10``
+   * - `evtx-10 <rel-windows-evtx-evtx-10_>`_
      - ``{action.properties.SourceImage} was granted {action.properties.GrantedAccess} access to {action.properties.TargetImage} on {host.name}``
-   * - ``11``
+   * - 
      - ``{file.name} created by {process.executable} on {host.name}``
-   * - ``12``
+   * - 
      - ``Registry key {action.properties.TargetObject} created by {process.executable} on {host.name}``
-   * - ``12``
+   * - 
      - ``Registry value {action.properties.TargetObject} created by {process.executable} on {host.name}``
-   * - ``12``
+   * - 
      - ``Registry key {action.properties.TargetObject} deleted by {process.executable} on {host.name}``
-   * - ``12``
+   * - 
      - ``Registry value {action.properties.TargetObject} deleted by {process.executable} on {host.name}``
-   * - ``13``
+   * - 
      - ``Registry key {action.properties.TargetObject} set by {process.executable} on {host.name}``
-   * - ``14``
+   * - 
      - ``Registry key {action.properties.TargetObject} renamed to {action.properties.NewName} by {process.executable} on {host.name}``
-   * - ``14``
+   * - 
      - ``Registry value {action.properties.TargetObject} renamed to {action.properties.NewName} by {process.executable} on {host.name}``
-   * - ``15``
+   * - 
      - ``{action.properties.Image} added a named stream to file {action.properties.TargetFilename} on {host.name}``
-   * - ``16``
+   * - 
      - ``Sysmon configuration was updated on {host.name}``
-   * - ``17``
+   * - 
      - ``Pipe {action.properties.PipeName} created by {process.executable} on {host.name}``
-   * - ``18``
+   * - 
      - ``Pipe {action.properties.PipeName} connected by {process.executable} on {host.name}``
-   * - ``19``
+   * - 
      - ``{action.properties.User} created WMI Event Filter {action.properties.Name} on {host.name}``
-   * - ``20``
+   * - 
      - ``{action.properties.User} {action.properties.Operation} WMI Consumer {action.properties.Name} on {host.name}``
-   * - ``21``
+   * - 
      - ``{action.properties.User} bound WMI Consumer {action.properties.Consumer} to Event Filter {action.properties.Filter} on {host.name}``
-   * - ``22``
+   * - 
      - ``{host.name} performed a DNS query for name {dns.question.name} (status: {dns.response_code})``
-   * - ``1000``
+   * - 
      - ``An anti-malware scan started on {host.name}``
-   * - ``1001``
+   * - 
      - ``An anti-malware scan finished on {host.name}``
-   * - ``1002``
+   * - 
      - ``An anti-malware scan was stopped before it finished on {host.name}``
-   * - ``1150``
+   * - 
      - ``Microsoft Defender Antivirus client is up and running in a healthy state on {host.name}``
-   * - ``26``
+   * - 
      - ``Windows Update successfully found updates on {host.name}``
-   * - ``263``
+   * - 
      - ``W32time Service configuration parameters have been updated on {host.name}``
-   * - ``15``
+   * - 
      - ``Updated Windows Defender status successfully to SECURITY_PRODUCT_STATE_ON on {host.name}``
+
+Relationships
+-------------
+
+.. _rel-windows-evtx-evtx-4624:
+.. _rel-windows-evtx-evtx-4624-2:
+.. _rel-windows-evtx-evtx-4625:
+.. _rel-windows-evtx-evtx-4625-2:
+.. _rel-windows-evtx-evtx-4634:
+.. _rel-windows-evtx-evtx-4648:
+.. _rel-windows-evtx-evtx-4648-2:
+.. _rel-windows-evtx-evtx-4657:
+.. _rel-windows-evtx-evtx-4662:
+.. _rel-windows-evtx-evtx-4672:
+.. _rel-windows-evtx-evtx-4688:
+.. _rel-windows-evtx-evtx-4689:
+.. _rel-windows-evtx-evtx-4720:
+.. _rel-windows-evtx-evtx-4722:
+.. _rel-windows-evtx-evtx-4723:
+.. _rel-windows-evtx-evtx-4723-2:
+.. _rel-windows-evtx-evtx-4725:
+.. _rel-windows-evtx-evtx-4726:
+.. _rel-windows-evtx-evtx-4727:
+.. _rel-windows-evtx-evtx-4768:
+.. _rel-windows-evtx-evtx-4768-2:
+.. _rel-windows-evtx-evtx-4769:
+.. _rel-windows-evtx-evtx-4769-2:
+.. _rel-windows-evtx-evtx-4771:
+.. _rel-windows-evtx-evtx-4776:
+.. _rel-windows-evtx-evtx-4776-2:
+.. _rel-windows-evtx-evtx-4798:
+.. _rel-windows-evtx-evtx-4799:
+.. _rel-windows-evtx-evtx-4825:
+.. _rel-windows-evtx-evtx-1149:
+.. _rel-windows-evtx-evtx-21:
+.. _rel-windows-evtx-evtx-25:
+.. _rel-windows-evtx-evtx-5145:
+.. _rel-windows-evtx-evtx-5145-2:
+.. _rel-windows-evtx-evtx-5154:
+.. _rel-windows-evtx-evtx-5156:
+.. _rel-windows-evtx-evtx-1:
+.. _rel-windows-evtx-evtx-2:
+.. _rel-windows-evtx-evtx-3:
+.. _rel-windows-evtx-evtx-5:
+.. _rel-windows-evtx-evtx-6:
+.. _rel-windows-evtx-evtx-7:
+.. _rel-windows-evtx-evtx-8:
+.. _rel-windows-evtx-evtx-9:
+.. _rel-windows-evtx-evtx-10:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Relation
+     - Source
+     - Target
+     - Type
+   * - `evtx-4624 <tl-windows-evtx-evtx-4624_>`_
+     - ``action.properties.TargetUserName``
+     - ``host.name``
+     - ``logged on to``
+   * - `evtx-4624-2 <tl-windows-evtx-evtx-4624-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``host.name``
+     - ``logged on to``
+   * - `evtx-4624-2 <tl-windows-evtx-evtx-4624-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``source.ip``
+     - ``connected from``
+   * - `evtx-4625 <tl-windows-evtx-evtx-4625_>`_
+     - ``action.properties.TargetUserName``
+     - ``host.name``
+     - ``failed to log on to``
+   * - `evtx-4625-2 <tl-windows-evtx-evtx-4625-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``host.name``
+     - ``failed to log on to``
+   * - `evtx-4625-2 <tl-windows-evtx-evtx-4625-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``source.ip``
+     - ``connected from``
+   * - `evtx-4634 <tl-windows-evtx-evtx-4634_>`_
+     - ``action.properties.TargetUserName``
+     - ``host.name``
+     - ``logged off from``
+   * - `evtx-4648 <tl-windows-evtx-evtx-4648_>`_
+     - ``action.properties.TargetUserName``
+     - ``action.properties.TargetServerName``
+     - ``attempted to log on to``
+   * - `evtx-4648-2 <tl-windows-evtx-evtx-4648-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``host.name``
+     - ``attempted to log on to``
+   * - `evtx-4657 <tl-windows-evtx-evtx-4657_>`_
+     - ``user.name``
+     - ``action.properties.ObjectName``
+     - ``modified registry value from``
+   * - `evtx-4662 <tl-windows-evtx-evtx-4662_>`_
+     - ``user.name``
+     - ``action.properties.ObjectName``
+     - ``accessed``
+   * - `evtx-4672 <tl-windows-evtx-evtx-4672_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``logged on to``
+   * - `evtx-4688 <tl-windows-evtx-evtx-4688_>`_
+     - ``user.name``
+     - ``process.command_line``
+     - ``executed``
+   * - `evtx-4688 <tl-windows-evtx-evtx-4688_>`_
+     - ``user.name``
+     - ``process.parent.executable``
+     - ``executed``
+   * - `evtx-4688 <tl-windows-evtx-evtx-4688_>`_
+     - ``process.command_line``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-4688 <tl-windows-evtx-evtx-4688_>`_
+     - ``process.command_line``
+     - ``process.executable``
+     - ``uses executable``
+   * - `evtx-4688 <tl-windows-evtx-evtx-4688_>`_
+     - ``process.parent.executable``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-4688 <tl-windows-evtx-evtx-4688_>`_
+     - ``process.parent.executable``
+     - ``process.command_line``
+     - ``started``
+   * - `evtx-4689 <tl-windows-evtx-evtx-4689_>`_
+     - ``user.name``
+     - ``process.executable``
+     - ``executed``
+   * - `evtx-4720 <tl-windows-evtx-evtx-4720_>`_
+     - ``user.name``
+     - ``action.properties.TargetDomainName``
+     - ``created account``
+   * - `evtx-4722 <tl-windows-evtx-evtx-4722_>`_
+     - ``user.name``
+     - ``action.properties.TargetDomainName``
+     - ``enabled account``
+   * - `evtx-4723 <tl-windows-evtx-evtx-4723_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``changed their password on``
+   * - `evtx-4723-2 <tl-windows-evtx-evtx-4723-2_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``failed to change their password on``
+   * - `evtx-4725 <tl-windows-evtx-evtx-4725_>`_
+     - ``user.name``
+     - ``action.properties.TargetUserName``
+     - ``disabled account``
+   * - `evtx-4726 <tl-windows-evtx-evtx-4726_>`_
+     - ``user.name``
+     - ``action.properties.TargetUserName``
+     - ``deleted account``
+   * - `evtx-4727 <tl-windows-evtx-evtx-4727_>`_
+     - ``user.name``
+     - ``action.properties.TargetUserName``
+     - ``created group``
+   * - `evtx-4768 <tl-windows-evtx-evtx-4768_>`_
+     - ``action.properties.TargetUserName``
+     - ``source.ip``
+     - ``failed to log on to``
+   * - `evtx-4768-2 <tl-windows-evtx-evtx-4768-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``source.ip``
+     - ``logged on to``
+   * - `evtx-4769 <tl-windows-evtx-evtx-4769_>`_
+     - ``action.properties.TargetUserName``
+     - ``action.properties.ServiceName``
+     - ``was denied a ticket for``
+   * - `evtx-4769-2 <tl-windows-evtx-evtx-4769-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``action.properties.ServiceName``
+     - ``was granted a ticket for``
+   * - `evtx-4771 <tl-windows-evtx-evtx-4771_>`_
+     - ``action.properties.TargetUserName``
+     - ``source.ip``
+     - ``failed to authenticate on``
+   * - `evtx-4776 <tl-windows-evtx-evtx-4776_>`_
+     - ``action.properties.TargetUserName``
+     - ``action.properties.Workstation``
+     - ``failed to log on to``
+   * - `evtx-4776-2 <tl-windows-evtx-evtx-4776-2_>`_
+     - ``action.properties.TargetUserName``
+     - ``action.properties.Workstation``
+     - ``logged on to``
+   * - `evtx-4798 <tl-windows-evtx-evtx-4798_>`_
+     - ``user.name``
+     - ``action.properties.TargetUserName``
+     - ``enumerated local groups of``
+   * - `evtx-4799 <tl-windows-evtx-evtx-4799_>`_
+     - ``user.name``
+     - ``action.properties.TargetUserName``
+     - ``enumerated members of``
+   * - `evtx-4825 <tl-windows-evtx-evtx-4825_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``was denied RDP access to``
+   * - `evtx-1149 <tl-windows-evtx-evtx-1149_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``authenticated over RDP to``
+   * - `evtx-1149 <tl-windows-evtx-evtx-1149_>`_
+     - ``user.name``
+     - ``source.ip``
+     - ``connected from``
+   * - `evtx-21 <tl-windows-evtx-evtx-21_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``logged on to``
+   * - `evtx-25 <tl-windows-evtx-evtx-25_>`_
+     - ``user.name``
+     - ``host.name``
+     - ``logged on to``
+   * - `evtx-5145 <tl-windows-evtx-evtx-5145_>`_
+     - ``user.name``
+     - ``action.properties.RelativeTargetName``
+     - ``accessed shared file``
+   * - `evtx-5145-2 <tl-windows-evtx-evtx-5145-2_>`_
+     - ``user.name``
+     - ``action.properties.RelativeTargetName``
+     - ``failed to access shared file``
+   * - `evtx-5154 <tl-windows-evtx-evtx-5154_>`_
+     - ``action.properties.Application``
+     - ``host.name``
+     - ``listened to port on``
+   * - `evtx-5156 <tl-windows-evtx-evtx-5156_>`_
+     - ``source.ip``
+     - ``destination.ip``
+     - ``connected to``
+   * - `evtx-1 <tl-windows-evtx-evtx-1_>`_
+     - ``user.name``
+     - ``process.command_line``
+     - ``executed``
+   * - `evtx-1 <tl-windows-evtx-evtx-1_>`_
+     - ``process.command_line``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-1 <tl-windows-evtx-evtx-1_>`_
+     - ``process.command_line``
+     - ``process.executable``
+     - ``uses executable``
+   * - `evtx-1 <tl-windows-evtx-evtx-1_>`_
+     - ``process.parent.command_line``
+     - ``process.parent.name``
+     - ``uses executable``
+   * - `evtx-1 <tl-windows-evtx-evtx-1_>`_
+     - ``process.parent.command_line``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-1 <tl-windows-evtx-evtx-1_>`_
+     - ``process.parent.command_line``
+     - ``process.command_line``
+     - ``started``
+   * - `evtx-2 <tl-windows-evtx-evtx-2_>`_
+     - ``process.executable``
+     - ``file.name``
+     - ``changed creation time of``
+   * - `evtx-2 <tl-windows-evtx-evtx-2_>`_
+     - ``process.executable``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-3 <tl-windows-evtx-evtx-3_>`_
+     - ``source.ip``
+     - ``destination.ip``
+     - ``connected to``
+   * - `evtx-5 <tl-windows-evtx-evtx-5_>`_
+     - ``process.executable``
+     - ``host.name``
+     - ``terminated on``
+   * - `evtx-6 <tl-windows-evtx-evtx-6_>`_
+     - ``process.executable``
+     - ``host.name``
+     - ``loaded on``
+   * - `evtx-7 <tl-windows-evtx-evtx-7_>`_
+     - ``process.executable``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-7 <tl-windows-evtx-evtx-7_>`_
+     - ``process.executable``
+     - ``action.properties.ImageLoaded``
+     - ``loaded image``
+   * - `evtx-8 <tl-windows-evtx-evtx-8_>`_
+     - ``action.properties.SourceImage``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-8 <tl-windows-evtx-evtx-8_>`_
+     - ``action.properties.TargetImage``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-8 <tl-windows-evtx-evtx-8_>`_
+     - ``action.properties.SourceImage``
+     - ``action.properties.TargetImage``
+     - ``created thread in``
+   * - `evtx-9 <tl-windows-evtx-evtx-9_>`_
+     - ``process.executable``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-9 <tl-windows-evtx-evtx-9_>`_
+     - ``process.executable``
+     - ``action.properties.Device``
+     - ``read on``
+   * - `evtx-10 <tl-windows-evtx-evtx-10_>`_
+     - ``action.properties.SourceImage``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-10 <tl-windows-evtx-evtx-10_>`_
+     - ``action.properties.TargetImage``
+     - ``host.name``
+     - ``executed on``
+   * - `evtx-10 <tl-windows-evtx-evtx-10_>`_
+     - ``action.properties.SourceImage``
+     - ``action.properties.TargetImage``
+     - ``was granted access to``
 
 Fields
 ------

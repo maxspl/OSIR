@@ -1,47 +1,44 @@
-# -----------------------------------------------------------------------------
-# ANSSI decode_result_C.csv 
-#   Input fields (CSV columns as JSON keys):
-#   ComputerName, VolumeID, File, ParentName, Extension, SizeInBytes, Attributes,
-#   CreationDate, LastModificationDate, LastAccessDate, LastAttrChangeDate,
-#   FileNameCreationDate, FileNameLastModificationDate, FileNameLastAccessDate,
-#   FileNameLastAttrModificationDate,
-#   SHA1, Version, OriginalFileName, Platform, TimeStamp, SubSystem, FileType,
-#   FileOS, PeSHA1, PeSHA256,
-#   AuthenticodeStatus, AuthenticodeSigner, AuthenticodeSignerThumbprint,
-#   AuthenticodeCA, AuthenticodeCAThumbprint,
-#   PeMD5, SnapshotID, SignedHash, VolumeInfo, FullPath,
-#   FilesCreatedAtSameTime, Analysis, Isolated, isolated_pval,
-#   Features, Path, path_pval, if_features_pval,
-#   db_features, features_core_pnt, db_features_pval, features_pval, final_score,
-#   WarningInListDLLs
-# -----------------------------------------------------------------------------
+##############################################################
+# Module VRL : anssi_decode
+# Version    : 1.0
+# ANSSI decode_result_C.csv
+#
+# Fichier généré automatiquement à partir de la configuration YAML.
+# Ne pas éditer directement — modifier la configuration source.
+##############################################################
+
 
 # -----------------------------------------------------------------------------
-# Keep raw event first
+# transformations
 # -----------------------------------------------------------------------------
+
+# [custom]
 if !exists(.event) || !exists(.event.original) {
     .event.original = encode_json!(.)
 }
 
-# -----------------------------------------------------------------------------
-# ECS scaffolding
-# -----------------------------------------------------------------------------
+# [normalization] windows.anssi_decode -> event.dataset
+.event.dataset = "windows.anssi_decode"
 
-.event.dataset  = "windows.anssi_decode"
-.event.module   = "windows"
+# [normalization] windows -> event.module
+.event.module = "windows"
 
-# This is a file inventory / scoring snapshot
-.event.kind     = "state"
+# [normalization] state -> event.kind
+.event.kind = "state"
+
+# [normalization] ['file'] -> event.category
 .event.category = ["file"]
-.event.type     = ["info"]
 
-.event.outcome  = "success"
+# [normalization] ['info'] -> event.type
+.event.type = ["info"]
+
+# [normalization] success -> event.outcome
+.event.outcome = "success"
+
+# [normalization] ANSSI decode -> event.provider
 .event.provider = "ANSSI decode"
 
-# -----------------------------------------------------------------------------
-# Host info
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.ComputerName) {
     comp = to_string!(del(.ComputerName))
     if !exists(.host.name) {
@@ -50,52 +47,45 @@ if exists(.ComputerName) {
     .host.Ext.anssi.computer_name = comp
 }
 
+# [normalization] to_string!(del(.VolumeID)) -> host.Ext.anssi.volume_id
 if exists(.VolumeID) {
-    vol = to_string!(del(.VolumeID))
-    .host.Ext.anssi.volume_id = vol
+  .host.Ext.anssi.volume_id = to_string!(del(.VolumeID))
 }
 
+# [normalization] to_string!(del(.VolumeInfo)) -> host.Ext.anssi.volume_info
 if exists(.VolumeInfo) {
-    vinfo = to_string!(del(.VolumeInfo))
-    .host.Ext.anssi.volume_info = vinfo
+  .host.Ext.anssi.volume_info = to_string!(del(.VolumeInfo))
 }
 
+# [normalization] to_string!(del(.SnapshotID)) -> host.Ext.anssi.snapshot_id
 if exists(.SnapshotID) {
-    snap_id = to_string!(del(.SnapshotID))
-    .host.Ext.anssi.snapshot_id = snap_id
+  .host.Ext.anssi.snapshot_id = to_string!(del(.SnapshotID))
 }
 
-# -----------------------------------------------------------------------------
-# Core file info
-# -----------------------------------------------------------------------------
-
-# Full path (canonical)
+# [normalization] to_string!(del(.FullPath)) -> file.path
 if exists(.FullPath) {
-    fp = to_string!(del(.FullPath))
-    .file.path = fp
+  .file.path = to_string!(del(.FullPath))
 }
 
-# Parent directory
+# [custom]
 if exists(.ParentName) {
     parent = to_string!(del(.ParentName))
     .file.directory = parent
     .file.Ext.anssi.parent_name = parent
 }
 
-# Base file name
+# [normalization] to_string!(del(.File)) -> file.name
 if exists(.File) {
-    fname = to_string!(del(.File))
-    .file.name = fname
+  .file.name = to_string!(del(.File))
 }
 
-# Extension (".dll" → "dll")
+# [custom]
 if exists(.Extension) {
     ext_raw = to_string!(del(.Extension))
     ext_norm = downcase(replace(ext_raw, ".", ""))
     .file.extension = ext_norm
 }
 
-# Size
 if exists(.SizeInBytes) {
     size_raw = to_string!(del(.SizeInBytes))
     size_int = parse_int(size_raw) ?? null
@@ -107,17 +97,11 @@ if exists(.SizeInBytes) {
     }
 }
 
-# Attributes
 if exists(.Attributes) {
     attrs = to_string!(del(.Attributes))
     .file.attributes = attrs
     .file.Ext.anssi.attributes_raw = attrs
 }
-
-# -----------------------------------------------------------------------------
-# File timestamps
-# -----------------------------------------------------------------------------
-# We only map the main ones to ECS; others stay under Ext.*
 
 if exists(.CreationDate) {
     cd_raw = to_string!(del(.CreationDate))
@@ -159,25 +143,27 @@ if exists(.LastAttrChangeDate) {
     }
 }
 
-# Filename timestamp variants – keep as raw under Ext
+# [normalization] to_string!(del(.FileNameCreationDate)) -> file.Ext.anssi.filename_creation_date
 if exists(.FileNameCreationDate) {
-    .file.Ext.anssi.filename_creation_date = to_string!(del(.FileNameCreationDate))
+  .file.Ext.anssi.filename_creation_date = to_string!(del(.FileNameCreationDate))
 }
+
+# [normalization] to_string!(del(.FileNameLastModificationDate)) -> file.Ext.anssi.filename_last_modification_date
 if exists(.FileNameLastModificationDate) {
-    .file.Ext.anssi.filename_last_modification_date = to_string!(del(.FileNameLastModificationDate))
+  .file.Ext.anssi.filename_last_modification_date = to_string!(del(.FileNameLastModificationDate))
 }
+
+# [normalization] to_string!(del(.FileNameLastAccessDate)) -> file.Ext.anssi.filename_last_access_date
 if exists(.FileNameLastAccessDate) {
-    .file.Ext.anssi.filename_last_access_date = to_string!(del(.FileNameLastAccessDate))
+  .file.Ext.anssi.filename_last_access_date = to_string!(del(.FileNameLastAccessDate))
 }
+
+# [normalization] to_string!(del(.FileNameLastAttrModificationDate)) -> file.Ext.anssi.filename_last_attr_modification_date
 if exists(.FileNameLastAttrModificationDate) {
-    .file.Ext.anssi.filename_last_attr_modification_date = to_string!(del(.FileNameLastAttrModificationDate))
+  .file.Ext.anssi.filename_last_attr_modification_date = to_string!(del(.FileNameLastAttrModificationDate))
 }
 
-# -----------------------------------------------------------------------------
-# Hashes & PE metadata
-# -----------------------------------------------------------------------------
-
-# Main file hash
+# [custom]
 if exists(.SHA1) {
     sha1 = to_string!(del(.SHA1))
     if sha1 != "" && sha1 != "NaN" {
@@ -185,7 +171,6 @@ if exists(.SHA1) {
     }
 }
 
-# PE hashes
 if exists(.PeSHA1) {
     p_sha1 = to_string!(del(.PeSHA1))
     if p_sha1 != "" && p_sha1 != "NaN" {
@@ -214,22 +199,22 @@ if exists(.SignedHash) {
     }
 }
 
-# Version info
+# [normalization] to_string!(del(.Version)) -> file.version
 if exists(.Version) {
-    ver = to_string!(del(.Version))
-    .file.version = ver
+  .file.version = to_string!(del(.Version))
 }
 
+# [normalization] to_string!(del(.OriginalFileName)) -> file.Ext.pe.original_file_name
 if exists(.OriginalFileName) {
-    ofn = to_string!(del(.OriginalFileName))
-    .file.Ext.pe.original_file_name = ofn
+  .file.Ext.pe.original_file_name = to_string!(del(.OriginalFileName))
 }
 
+# [normalization] to_string!(del(.Platform)) -> file.Ext.pe.platform
 if exists(.Platform) {
-    plat = to_string!(del(.Platform))
-    .file.Ext.pe.platform = plat
+  .file.Ext.pe.platform = to_string!(del(.Platform))
 }
 
+# [custom]
 if exists(.TimeStamp) {
     ts_raw = to_string!(del(.TimeStamp))
     ts_pe = parse_timestamp(ts_raw, "%+") ?? null
@@ -240,25 +225,22 @@ if exists(.TimeStamp) {
     }
 }
 
+# [normalization] to_string!(del(.SubSystem)) -> file.Ext.pe.subsystem
 if exists(.SubSystem) {
-    ss = to_string!(del(.SubSystem))
-    .file.Ext.pe.subsystem = ss
+  .file.Ext.pe.subsystem = to_string!(del(.SubSystem))
 }
 
+# [normalization] to_string!(del(.FileType)) -> file.Ext.pe.file_type
 if exists(.FileType) {
-    ftype = to_string!(del(.FileType))
-    .file.Ext.pe.file_type = ftype
+  .file.Ext.pe.file_type = to_string!(del(.FileType))
 }
 
+# [normalization] to_string!(del(.FileOS)) -> file.Ext.pe.file_os
 if exists(.FileOS) {
-    fos = to_string!(del(.FileOS))
-    .file.Ext.pe.file_os = fos
+  .file.Ext.pe.file_os = to_string!(del(.FileOS))
 }
 
-# -----------------------------------------------------------------------------
-# Authenticode / code signing
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.AuthenticodeStatus) {
     a_status = to_string!(del(.AuthenticodeStatus))
     .file.code_signature.status = a_status
@@ -266,36 +248,35 @@ if exists(.AuthenticodeStatus) {
 }
 
 signer_name = null
+
 if exists(.AuthenticodeSigner) {
     signer_name = to_string!(del(.AuthenticodeSigner))
     .file.code_signature.subject_name = signer_name
 }
 
 issuer_name = null
+
 if exists(.AuthenticodeCA) {
     issuer_name = to_string!(del(.AuthenticodeCA))
     .file.code_signature.issuer_name = issuer_name
 }
 
-# Exists flag: consider "Unknown" as "no reliable info"
+# [normalization] True -> file.code_signature.exists
 if signer_name != null || issuer_name != null {
-    .file.code_signature.exists = true
+  .file.code_signature.exists = true
 }
 
+# [normalization] to_string!(del(.AuthenticodeSignerThumbprint)) -> file.Ext.code_signature.signer_thumbprint
 if exists(.AuthenticodeSignerThumbprint) {
-    stp = to_string!(del(.AuthenticodeSignerThumbprint))
-    .file.Ext.code_signature.signer_thumbprint = stp
+  .file.Ext.code_signature.signer_thumbprint = to_string!(del(.AuthenticodeSignerThumbprint))
 }
 
+# [normalization] to_string!(del(.AuthenticodeCAThumbprint)) -> file.Ext.code_signature.ca_thumbprint
 if exists(.AuthenticodeCAThumbprint) {
-    ctp = to_string!(del(.AuthenticodeCAThumbprint))
-    .file.Ext.code_signature.ca_thumbprint = ctp
+  .file.Ext.code_signature.ca_thumbprint = to_string!(del(.AuthenticodeCAThumbprint))
 }
 
-# -----------------------------------------------------------------------------
-# ANSSI ML / scoring metadata
-# -----------------------------------------------------------------------------
-
+# [custom]
 if exists(.FilesCreatedAtSameTime) {
     fcts_raw = to_string!(del(.FilesCreatedAtSameTime))
     fcts_int = parse_int(fcts_raw) ?? null
@@ -306,54 +287,67 @@ if exists(.FilesCreatedAtSameTime) {
     }
 }
 
+# [normalization] to_string!(del(.Analysis)) -> file.Ext.anssi.analysis_flag
 if exists(.Analysis) {
-    .file.Ext.anssi.analysis_flag = to_string!(del(.Analysis))
+  .file.Ext.anssi.analysis_flag = to_string!(del(.Analysis))
 }
 
+# [normalization] to_string!(del(.Isolated)) -> file.Ext.anssi.isolated
 if exists(.Isolated) {
-    .file.Ext.anssi.isolated = to_string!(del(.Isolated))
+  .file.Ext.anssi.isolated = to_string!(del(.Isolated))
 }
 
+# [normalization] to_string!(del(.isolated_pval)) -> file.Ext.anssi.isolated_pval
 if exists(.isolated_pval) {
-    .file.Ext.anssi.isolated_pval = to_string!(del(.isolated_pval))
+  .file.Ext.anssi.isolated_pval = to_string!(del(.isolated_pval))
 }
 
+# [normalization] to_string!(del(.Features)) -> file.Ext.anssi.features
 if exists(.Features) {
-    .file.Ext.anssi.features = to_string!(del(.Features))
+  .file.Ext.anssi.features = to_string!(del(.Features))
 }
 
+# [normalization] to_string!(del(.Path)) -> file.Ext.anssi.path_model
 if exists(.Path) {
-    .file.Ext.anssi.path_model = to_string!(del(.Path))
+  .file.Ext.anssi.path_model = to_string!(del(.Path))
 }
 
+# [normalization] to_string!(del(.path_pval)) -> file.Ext.anssi.path_pval
 if exists(.path_pval) {
-    .file.Ext.anssi.path_pval = to_string!(del(.path_pval))
+  .file.Ext.anssi.path_pval = to_string!(del(.path_pval))
 }
 
+# [normalization] to_string!(del(.if_features_pval)) -> file.Ext.anssi.if_features_pval
 if exists(.if_features_pval) {
-    .file.Ext.anssi.if_features_pval = to_string!(del(.if_features_pval))
+  .file.Ext.anssi.if_features_pval = to_string!(del(.if_features_pval))
 }
 
+# [normalization] to_string!(del(.db_features)) -> file.Ext.anssi.db_features
 if exists(.db_features) {
-    .file.Ext.anssi.db_features = to_string!(del(.db_features))
+  .file.Ext.anssi.db_features = to_string!(del(.db_features))
 }
 
+# [normalization] to_string!(del(.features_core_pnt)) -> file.Ext.anssi.features_core_pnt
 if exists(.features_core_pnt) {
-    .file.Ext.anssi.features_core_pnt = to_string!(del(.features_core_pnt))
+  .file.Ext.anssi.features_core_pnt = to_string!(del(.features_core_pnt))
 }
 
+# [normalization] to_string!(del(.db_features_pval)) -> file.Ext.anssi.db_features_pval
 if exists(.db_features_pval) {
-    .file.Ext.anssi.db_features_pval = to_string!(del(.db_features_pval))
+  .file.Ext.anssi.db_features_pval = to_string!(del(.db_features_pval))
 }
 
+# [normalization] to_string!(del(.features_pval)) -> file.Ext.anssi.features_pval
 if exists(.features_pval) {
-    .file.Ext.anssi.features_pval = to_string!(del(.features_pval))
+  .file.Ext.anssi.features_pval = to_string!(del(.features_pval))
 }
 
+# [normalization] to_string!(del(.final_score)) -> file.Ext.anssi.final_score
 if exists(.final_score) {
-    .file.Ext.anssi.final_score = to_string!(del(.final_score))
+  .file.Ext.anssi.final_score = to_string!(del(.final_score))
 }
 
+# [normalization] to_string!(del(.WarningInListDLLs)) -> file.Ext.anssi.warning_in_listdlls
 if exists(.WarningInListDLLs) {
-    .file.Ext.anssi.warning_in_listdlls = to_string!(del(.WarningInListDLLs))
+  .file.Ext.anssi.warning_in_listdlls = to_string!(del(.WarningInListDLLs))
 }

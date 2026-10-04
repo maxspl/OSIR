@@ -4,7 +4,7 @@ dpkg_l
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``linux:live_response:packages:dpkg`` | name_rex: ``dpkg.*\.jsonl$``
+   * ``linux:live_response:packages:dpkg`` | name_rex: ``r"dpkg.*\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------
@@ -38,5 +43,7 @@ Fields
      - ``package.type``
    * - ``to_string!(.status)``
      - ``labels.package_status``
+   * - ``to_string!(.codes)``
+     - ``labels.package_codes``
    * - ``custom``
      - 

@@ -28,7 +28,7 @@ class ANSSI_Decode():
         self.case_path = case_path
         # Input directory, should be extracted_files/General/NTFSInfoFull_detail/
         self._ntfs_info_dir: str = module.input.match
-        self._endpoint: str = module.endpoint.patterns[0]
+        self._endpoint: str = module.get_extracted('endpoint').patterns[0]
 
         # Save cmd with place‑holders for further iterations
         self._cmd: str = self.module.tool.cmd
@@ -113,7 +113,7 @@ class ANSSI_Decode():
 
                 # Extract endpoint name using the same regex as _prepare_input
                 endpoint_name: Optional[str] = None
-                endpoint_regex = self.module.endpoint.patterns[0]
+                endpoint_regex = self.module.get_extracted('endpoint').patterns[0]
                 if endpoint_regex.startswith(('r"', "r'")):
                     endpoint_regex = endpoint_regex[2:-1]
                 match = re.search(endpoint_regex, ntfs_info_file)
@@ -251,7 +251,7 @@ class ANSSI_Decode():
         Returns:
             bool: True if the processing completes successfully, False otherwise.
         """
-        endpoint_regex = self.module.endpoint.patterns[0]
+        endpoint_regex = self.module.get_extracted('endpoint').patterns[0]
         if endpoint_regex.startswith(('r"', "r'")):
             endpoint_regex = endpoint_regex[2:-1]
         match = re.search(endpoint_regex, ntfs_info_file)

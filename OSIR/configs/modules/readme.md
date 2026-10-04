@@ -1,8 +1,9 @@
 Specific fields can be reused:
-	- {endpoint_name}: required to be specified in preprocessor
+	- {extracted_endpoint}: required to be specified in preprocessor
 	- {input_file_name} : input filename without extension (up to 2 extensions)
 	- {input_file} : used in cmd to specify input file
-	- {output_file} : used in cmd to specify output file
+	- {output_file} : used in cmd to specify output file (full path)
+	- {output_filename} : used in cmd to specify output file name only, without directory
 	- {module}: module name
 	- {case_directory}: name of the root directory of file processing
 	- processed_files: default directory used for Splunk indexing. Name cannot be modified

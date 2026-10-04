@@ -4,7 +4,7 @@ snap
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``linux:live_response:packages:snap`` | name_rex: ``snap.*\.jsonl$``
+   * ``linux:live_response:packages:snap`` | name_rex: ``r"snap.*\.jsonl$"``
 
 Description
 -----------
@@ -15,6 +15,11 @@ Timeline
 --------
 
 No timeline messages.
+
+Relationships
+-------------
+
+No relationships.
 
 Fields
 ------
@@ -34,5 +39,5 @@ Fields
      - ``package.type``
    * - ``publisher``
      - ``package.vendor``
-   * - ``custom``
-     - 
+   * - ``Notes``
+     - ``message``

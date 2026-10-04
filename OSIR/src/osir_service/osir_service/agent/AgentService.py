@@ -283,7 +283,7 @@ class CeleryWorker:
                     if module_instance.output.type == 'multiple_files':
                         output_path = module_instance.output.dir
                     elif module_instance.output.type != 'None':
-                        output_path = module_instance.output.file
+                        output_path = module_instance.output.output_file
                     else:
                         output_path = "N/A"
 
