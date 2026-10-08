@@ -29,13 +29,18 @@ input:
 output:
   type: single_file
   format: csv
-  output_file: "{endpoint_name}--{module}.csv"
+  output_file: "{endpoint_name}--{user_name}--{module}.csv"
 
 endpoint: 
   patterns:
     - r"/Endpoint_(.*?)/"
     - r"restore_fs\/(.*?)\/"  
-default: "UNKNOWN"
+  default: "UNKNOWN"
+
+user:
+  patterns:
+    - r"(?i)Users\/([^\/]+)\/"
+  default: "UNKNOWN_USER"
 
 splunk:
   'windows:lnk':
