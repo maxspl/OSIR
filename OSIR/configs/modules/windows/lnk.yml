@@ -34,7 +34,8 @@ output:
 endpoint: 
   patterns:
     - r"/Endpoint_(.*?)/"
-  default: "UNKNOWN"
+    - r"restore_fs\/(.*?)\/"  
+default: "UNKNOWN"
 
 splunk:
   'windows:lnk':
