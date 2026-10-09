@@ -9,9 +9,61 @@ DOCKER_COMPOSE_REPO=$MASTER_DIR/../$1
 start_docker=true
 
 is_wsl() {
-  # Vérifie si /proc/version contient "Microsoft"
+  # Check if /proc/version contains "Microsoft"
   grep -qEi "(microsoft|wsl)" /proc/version &> /dev/null
   return $?
+}
+
+is_systemd() {
+  # Check if PID 1 is systemd (WSL with systemd=true)
+  [ "$(ps -p 1 -o comm=)" = "systemd" ]
+}
+
+is_root_shared() {
+  # 'rshared' bind mounts from the docker-compose files require / to be a shared mount
+  findmnt -no PROPAGATION / 2> /dev/null | grep -q shared
+}
+
+check_wsl_docker(){
+    # On WSL, / is not a shared mount by default and starting containers
+    # fails with "it is not a shared mount"
+    if ! is_wsl; then
+        return 0
+    fi
+
+    # Without systemd, nothing starts the daemon on WSL boot: start it if needed
+    if ! is_systemd && ! docker info > /dev/null 2>&1; then
+        (echo >&2 "${INFO} Docker daemon is not running, starting it.")
+        sudo service docker start
+    fi
+
+    if is_root_shared; then
+        return 0
+    fi
+
+    if is_systemd; then
+        # With systemd=true, WSL keeps separate mount namespaces for sessions
+        # and services: a make-shared started here never reaches the Docker
+        # daemon's namespace. Only a WSL reconfiguration can fix it.
+        (echo >&2 "${ERROR} WSL runs with systemd enabled: the Docker daemon lives in a separate mount namespace.")
+        (echo >&2 "${ERROR} 'rshared' bind mounts cannot work in this state.")
+        (echo >&2 "${INFO} Update /etc/wsl.conf with:")
+        (echo >&2 "${INFO}   [boot]")
+        (echo >&2 "${INFO}   systemd=false")
+        (echo >&2 "${INFO}   command = mount --make-shared / && service docker start")
+        (echo >&2 "${INFO} Then from Windows run 'wsl --shutdown' and reopen WSL.")
+        exit 1
+    fi
+
+    (echo >&2 "${INFO} Making / a shared mount for 'rshared' bind mounts.")
+    sudo mount --make-shared /
+    if ! is_root_shared; then
+        (echo >&2 "${ERROR} Failed to make / a shared mount.")
+        exit 1
+    fi
+    (echo >&2 "${INFO} Note: this change is lost at each WSL restart. To make it persistent, add to /etc/wsl.conf:")
+    (echo >&2 "${INFO}   [boot]")
+    (echo >&2 "${INFO}   command = mount --make-shared / && service docker start")
 }
 
 start_docker_compose() {
@@ -26,11 +78,8 @@ start_docker_compose() {
         local var_name="$1"
         local var_value="$2"
 
-        if grep -q "^$var_name=" "$ENV_FILE"; then
-            sed -i "s|^$var_name=.*|$var_name=$var_value|" "$ENV_FILE"
-        else
-            echo "$var_name=$var_value" >> "$ENV_FILE"
-        fi
+        sed -i "/^$var_name=/d" "$ENV_FILE"
+        echo "$var_name=$var_value" >> "$ENV_FILE"
     }
 
     set_env_var "HOST_HOSTNAME" "$(hostname)"
@@ -79,6 +128,8 @@ check_container(){
 
 
 main(){
+    # Check WSL specifics (docker daemon, shared mount for 'rshared' binds)
+    check_wsl_docker
     # Check if docker containers are running
     check_container
 }

@@ -35,7 +35,7 @@ MASTER_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 SETUP_SCRIPT_PATH=$(realpath "$MASTER_DIR/../setup_scripts")
 CONF_PATH=$(realpath "$MASTER_DIR/../conf")
 
-debug_mode=false
+debug_mode=true
 config_mode=false # If set, nothing is ask to the user. Configuration is pulled from agent.yml
 offline_mode=false 
 

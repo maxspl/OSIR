@@ -46,6 +46,10 @@ const toaster = { position: 'top-right', max:5 }
 
       <OsirMenu />
 
+      <template #body>
+        <OsirMenu orientation="vertical" />
+      </template>
+
       <template #right>
         <UColorModeButton />
 
