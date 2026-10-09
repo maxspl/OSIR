@@ -756,7 +756,7 @@ main() {
         is_admin=$(echo $is_admin | tr -d '\r')
 
         if [ "$is_admin" != "True" ]; then
-            (echo >&2 "${ERROR} WSL must be launched as administrator.")
+            (echo >&2 "${ERROR} The current Windows session is not elevated. WSL inherits the Windows privileges of the terminal that started it. Open a Windows terminal as administrator, run 'wsl' from it, then relaunch this script from that session.")
             exit 1
         fi
     fi
