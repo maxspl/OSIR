@@ -1,0 +1,53 @@
+metadata:
+  version: "1.0"
+  id: pca_app_launch
+  author: Typ
+  description: Program Compatibility Assistant app launches (dfir-ogre pca_app_launch JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Program Compatibility Assistant (PCA)"
+
+  # timestamp (ISO 8601 UTC), executable_path, ogre_md
+  - set:
+      process.executable: executable_path
+      file.path: executable_path
+      file.name:
+        source: 'split!(to_string!(.executable_path), "\\")[-1]'
+      timestamp:
+        source: timestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.executable_path)
+
+  # host name from the ogre metadata, then drop ogre_md
+  - custom: |2-
+      if exists(.ogre_md) {
+          om = object!(.ogre_md)
+          if exists(om.computer) {
+              .host.name = to_string!(om.computer)
+          }
+          del(.ogre_md)
+      }
+
+  - delete:
+      - executable_path
+      - ogre_md
+
+timeline:
+  - id: app-launch
+    message: "Program {process.executable} was launched"
+    conditions:
+      - field: process.executable
+        exists: true
+
+relationships:
+  - id: app-launch
+    source: host.name
+    target: process.executable
+    type: launched

@@ -10,18 +10,6 @@ transformation:
           .event.original = encode_json!(.)
       }
   - set:
-      event.dataset:
-        value: windows.dns_cache
-      event.module:
-        value: windows
-      event.kind:
-        value: event
-      event.category:
-        value: [network]
-      event.type:
-        value: [info]
-      event.outcome:
-        value: success
       event.provider:
         value: Windows DNS Cache
       dns.type:
@@ -104,8 +92,8 @@ transformation:
 
       ttl_raw = null
 
-      if exists(.dure_de_vie_) {
-          ttl_raw = to_string!(del(.dure_de_vie_))
+      if exists(.duree_de_vie_) {
+          ttl_raw = to_string!(del(.duree_de_vie_))
       } else if exists(.time_to_live_) {
           ttl_raw = to_string!(del(.time_to_live_))
       }
@@ -114,16 +102,16 @@ transformation:
           ttl_int = parse_int(ttl_raw) ?? null
 
           if ttl_int != null {
-              .dns.answers[0].ttl = ttl_int
+              .action.properties.ttl = ttl_int
           } else {
-              .dns.answers[0].ttl = ttl_raw
+              .action.properties.ttl = ttl_raw
           }
       }
 
       len_raw = null
 
-      if exists(.longueur_de_donnes_) {
-          len_raw = to_string!(del(.longueur_de_donnes_))
+      if exists(.longueur_de_donnees_) {
+          len_raw = to_string!(del(.longueur_de_donnees_))
       } else if exists(.data_length_) {
           len_raw = to_string!(del(.data_length_))
       }
@@ -132,9 +120,9 @@ transformation:
           len_int = parse_int(len_raw) ?? null
 
           if len_int != null {
-              .dns.answers[0].Ext.data_length = len_int
+              .action.properties.data_length = len_int
           } else {
-              .dns.answers[0].Ext.data_length = len_raw
+              .action.properties.data_length = len_raw
           }
       }
 
@@ -145,7 +133,7 @@ transformation:
       }
 
       if section_raw != null {
-          .dns.answers[0].Ext.section = section_raw
+          .action.properties.section = section_raw
       }
 
       answer_data = null

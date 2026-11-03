@@ -6,20 +6,8 @@ metadata:
 
 transformation:
   - set:
-      event.dataset:
-        value: windows.pstree_nodes
-      event.module:
-        value: windows
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [info]
       event.action:
         value: process_tree_node
-      event.outcome:
-        value: success
       event.original: encode_json!(.)
   - custom: |2-
       if exists(.tree_id) {

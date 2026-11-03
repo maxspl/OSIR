@@ -24,15 +24,15 @@
 <title>Supported Modules | Orchestration Software for Incident Response</title>
 <meta content="Supported Modules | Orchestration Software for Incident Response" property="og:title"/>
 <meta content="Supported Modules | Orchestration Software for Incident Response" name="twitter:title"/>
-<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="_static/OSIR_LOGO.png" rel="icon"/>
 <link href="search.html" rel="search" title="Search"/>
 <link href="genindex.html" rel="index" title="Index"/>
 <link href="modules/index.html" rel="next" title="Modules"/>
-<link href="config/modules.html" rel="prev" title="Modules"/>
+<link href="field_search.html" rel="prev" title="Field Search"/>
 </head>
 <body :class="{ 'overflow-hidden': showSidebar }" class="min-h-screen font-sans antialiased bg-background text-foreground" x-data="{ showSidebar: false, showScrollTop: false }">
 <div @click.self="showSidebar = false" class="fixed inset-0 z-50 overflow-hidden bg-background/80 backdrop-blur-sm md:hidden" x-cloak="" x-show="showSidebar"></div><div class="relative flex flex-col min-h-screen" id="page"><a class="absolute top-0 left-0 z-[100] block bg-background p-4 text-xl transition -translate-x-full opacity-0 focus:translate-x-0 focus:opacity-100" href="#content">
@@ -106,6 +106,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="field_search.html">Field Search</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Supported Modules</a></li>
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/index.html">Modules<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/common/index.html">Common<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -133,13 +134,9 @@
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/scan/index.html">Scan<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -259,9 +256,12 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/artemis/index.html">Windows / Artemis<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -338,12 +338,15 @@
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/sysinternals/index.html">Windows / Sysinternals<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -548,7 +551,7 @@
 <tbody>
 <tr class="row-even"><td><p>generic</p></td>
 <td><p>age_decrypt.yml</p></td>
-<td><p>Used to decrypt age files. Don’t forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.</p></td>
+<td><p>Used to decrypt age files. Don’t forget to put the key in /OSIR/OSIR/configs/transform/encryption/key.age.</p></td>
 <td><p>maxspl</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
@@ -571,22 +574,14 @@
 <td><p>json2splunk-rs</p></td>
 </tr>
 <tr class="row-odd"><td><p>generic</p></td>
-<td><p>loki_orc.yml</p></td>
-<td><p>YARA/IOC scan of the filesystem rebuilt from a DFIR ORC collection (output of the restore_fs module) using Loki-RS.</p></td>
+<td><p>loki.yml</p></td>
+<td><p>YARA/IOC scan of the filesystem using Loki-RS.</p></td>
 <td><p>maxspl</p></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>loki-rs/loki_scan.sh</p></td>
 </tr>
 <tr class="row-even"><td><p>generic</p></td>
-<td><p>loki_uac.yml</p></td>
-<td><p>YARA/IOC scan of the files collected by UAC (output of the extract_uac module) using Loki-RS.</p></td>
-<td><p>maxspl</p></td>
-<td><p>1.0</p></td>
-<td><p>external</p></td>
-<td><p>loki-rs/loki_scan.sh</p></td>
-</tr>
-<tr class="row-odd"><td><p>generic</p></td>
 <td><p>mongodb.yml</p></td>
 <td><p>Splunk logs ingestion of Mongodb logs.</p></td>
 <td><p>Typ</p></td>
@@ -594,45 +589,21 @@
 <td><p>external</p></td>
 <td><p>json2splunk-rs</p></td>
 </tr>
+<tr class="row-odd"><td><p>generic</p></td>
+<td><p>thor.yml</p></td>
+<td><p>Scan of file system using Thor (requires Forensic license).</p></td>
+<td><p>maxspl</p></td>
+<td><p>2.0</p></td>
+<td><p>external</p></td>
+<td><p>thor/thor-linux-64</p></td>
+</tr>
 <tr class="row-even"><td><p>generic</p></td>
-<td><p>thor_lite_orc.yml</p></td>
+<td><p>thor_lite.yml</p></td>
 <td><p>Scan of collected file using Thor Lite.</p></td>
 <td><p>maxspl</p></td>
 <td><p>1.0</p></td>
 <td><p>external</p></td>
 <td><p>thor-lite/thor-lite-linux-64</p></td>
-</tr>
-<tr class="row-odd"><td><p>generic</p></td>
-<td><p>thor_lite_uac.yml</p></td>
-<td><p>Scan of collected file using Thor Lite.</p></td>
-<td><p>maxspl</p></td>
-<td><p>1.0</p></td>
-<td><p>external</p></td>
-<td><p>thor-lite/thor-lite-linux-64</p></td>
-</tr>
-<tr class="row-even"><td><p>generic</p></td>
-<td><p>thor_orc.yml</p></td>
-<td><p>Scan of collected DFIR ORC (output of restore_fs module) file using Thor (requires Forensic license).</p></td>
-<td><p>maxspl</p></td>
-<td><p>2.0</p></td>
-<td><p>external</p></td>
-<td><p>thor/thor-linux-64</p></td>
-</tr>
-<tr class="row-odd"><td><p>generic</p></td>
-<td><p>thor_orc_ram.yml</p></td>
-<td><p>Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).</p></td>
-<td><p>maxspl</p></td>
-<td><p>2.0</p></td>
-<td><p>external</p></td>
-<td><p>thor/thor-linux-64</p></td>
-</tr>
-<tr class="row-even"><td><p>generic</p></td>
-<td><p>thor_uac.yml</p></td>
-<td><p>Scan of collected UAC (output of extract_uac module) files using Thor (requires Forensic license).</p></td>
-<td><p>Typ</p></td>
-<td><p>2.0</p></td>
-<td><p>external</p></td>
-<td><p>thor/thor-linux-64</p></td>
 </tr>
 <tr class="row-odd"><td><p>generic</p></td>
 <td><p>thor_update.yml</p></td>
@@ -669,7 +640,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>arp.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command arp or arp -a</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -725,7 +696,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>blkid.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command blkid</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -789,7 +760,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>df.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command df and df -h</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -797,7 +768,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>dmidecode.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command dmidecode</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -829,7 +800,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>dpkg_l.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command dpkg -l</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -845,7 +816,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>env.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command env</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -861,7 +832,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>findmnt.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command findmnt</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -869,7 +840,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>free.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command free</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -925,7 +896,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>ip_route.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command ip route</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -933,7 +904,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>iptables.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command iptables</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -989,7 +960,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>last.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command last and lastb</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1013,7 +984,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>lsblk.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lsblk</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1021,7 +992,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>lscpu.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lscpu</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1029,7 +1000,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>lsmod.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lsmod</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1037,7 +1008,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>lsusb.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command lsusb</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1061,7 +1032,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>mount.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command mount</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1069,7 +1040,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>netstat.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command netstat</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1077,7 +1048,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>nmcli.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command nmcli</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1117,7 +1088,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>ps.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command ps and ps -ef</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1149,7 +1120,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>snap.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command snap</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1189,7 +1160,7 @@
 <tr class="row-even"><td><p>unix</p></td>
 <td><p>sysctl.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command sysctl -a</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1213,7 +1184,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>systemctl_luf.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command systemctl list-unit-files</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1245,7 +1216,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>top.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command top and top -b</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1325,7 +1296,7 @@
 <tr class="row-odd"><td><p>unix</p></td>
 <td><p>vmstat.yml</p></td>
 <td><p>Kelly Brazil - JsonConverter - Parsing the output of the command vmstat</p></td>
-<td><p>Kelly Brazil</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>cat</p></td>
@@ -1452,7 +1423,7 @@
 </tr>
 <tr class="row-odd"><td><p>windows</p></td>
 <td><p>dfir_orc_decrypt.yml</p></td>
-<td><p>Used to decrypt age files. Don’t forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/DFIRORC_key.pem.</p></td>
+<td><p>Used to decrypt age files. Don’t forget to put the key in /OSIR/OSIR/configs/transform/encryption/DFIRORC_key.pem.</p></td>
 <td><p>maxspl</p></td>
 <td><p>3.0</p></td>
 <td><p>external</p></td>
@@ -1475,6 +1446,14 @@
 <td><p>evtx_dump</p></td>
 </tr>
 <tr class="row-even"><td><p>windows</p></td>
+<td><p>evtx_ecmd.yml</p></td>
+<td><p>Parsing of Windows event logs with EvtxECmd (Zimmerman)</p></td>
+<td><p>Typ</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/EvtxeCmd/EvtxECmd.exe</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>extract_orc.yml</p></td>
 <td><p>Used to execute internal pre-processing for DFIR-ORC capture</p></td>
 <td><p>maxspl</p></td>
@@ -1482,7 +1461,7 @@
 <td><p>internal, external</p></td>
 <td><p>7zz</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>hayabusa.yml</p></td>
 <td><p>Hayabusa scan of evtx files</p></td>
 <td><p>maxspl</p></td>
@@ -1490,7 +1469,7 @@
 <td><p>external</p></td>
 <td><p>hayabusa/hayabusa-3.0.1-lin-x64-gnu</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>hives_hkcu.yml</p></td>
 <td><p>Parsing of registry hives artifact.</p></td>
 <td><p>maxspl</p></td>
@@ -1498,7 +1477,7 @@
 <td><p>external</p></td>
 <td><p>net9/RECmd/RECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>hives_hklm.yml</p></td>
 <td><p>Parsing of registry hives artifact.</p></td>
 <td><p>maxspl</p></td>
@@ -1506,7 +1485,7 @@
 <td><p>external</p></td>
 <td><p>net9/RECmd/RECmd.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>indexer.yml</p></td>
 <td><p>Splunk logs ingestion (DFIR ORC and UAC) using module-specific json2splunk configuration instead of dependencies/\*_indexer_patterns.yml</p></td>
 <td><p>maxspl</p></td>
@@ -1514,7 +1493,7 @@
 <td><p>internal</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>jump_list.yml</p></td>
 <td><p>Parsing of jump list artifact.</p></td>
 <td><p>maxspl</p></td>
@@ -1522,7 +1501,7 @@
 <td><p>external</p></td>
 <td><p>net9/JLECmd.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>lnk.yml</p></td>
 <td><p>Parsing of lnk artifact.</p></td>
 <td><p>maxspl</p></td>
@@ -1530,7 +1509,7 @@
 <td><p>external</p></td>
 <td><p>net9/LECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>log2timeline_plaso.yml</p></td>
 <td><p>run log2timeline to create a Plaso storage file</p></td>
 <td><p>maxspl</p></td>
@@ -1538,7 +1517,7 @@
 <td><p>external</p></td>
 <td><p>docker</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>mft.yml</p></td>
 <td><p>Parsing of $MFT artifact.</p></td>
 <td><p>Typ</p></td>
@@ -1546,7 +1525,7 @@
 <td><p>external</p></td>
 <td><p>net9/MFTECmd.exe</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-activity-cache.yml</p></td>
 <td><p>Parsing of activity_cache - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1554,7 +1533,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-autoruns.yml</p></td>
 <td><p>Parsing of autoruns - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1562,7 +1541,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-chrome-download-history.yml</p></td>
 <td><p>Parsing of browser_download_history - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1570,7 +1549,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-chrome-extension.yml</p></td>
 <td><p>Parsing of chrome_extension - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1578,7 +1557,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-chrome-history.yml</p></td>
 <td><p>Parsing of browser_history - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1586,7 +1565,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-evt.yml</p></td>
 <td><p>Parsing of evt - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1594,7 +1573,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-evtx.yml</p></td>
 <td><p>Parsing of EVTX collected by DFIR ORC or in the filesystem - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1602,7 +1581,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-firefox-download-history.yml</p></td>
 <td><p>Parsing of browser_download_history - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1610,7 +1589,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-firefox-extension.yml</p></td>
 <td><p>Parsing of firefox_extension - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1618,7 +1597,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-firefox-history.yml</p></td>
 <td><p>Parsing of browser_history - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1626,7 +1605,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-hive-amcache-hve.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1634,7 +1613,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-hive-bcd-template.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1642,7 +1621,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-hive-components.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1650,7 +1629,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-hive-default.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1658,7 +1637,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-hive-elam.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1666,7 +1645,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-hive-ntuser-dat.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1674,7 +1653,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-hive-sam.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1682,7 +1661,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-hive-software.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1690,7 +1669,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-hive-system.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1698,7 +1677,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-hive-usrclass-dat.yml</p></td>
 <td><p>Parsing of reg_keys - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1706,7 +1685,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-list-dll.yml</p></td>
 <td><p>Parsing of listdlls - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1714,7 +1693,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-lnk-batched.yml</p></td>
 <td><p>Parsing of lnk - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1722,7 +1701,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-pca-app-launch.yml</p></td>
 <td><p>Parsing of pca_app_launch - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1730,7 +1709,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-pca-general-record.yml</p></td>
 <td><p>Parsing of pca_general_record - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1738,7 +1717,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-prefetch.yml</p></td>
 <td><p>Parsing of prefetch - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1746,7 +1725,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-recycle-bin.yml</p></td>
 <td><p>Parsing of recycle_bin - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1754,7 +1733,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-acmru.yml</p></td>
 <td><p>Parsing of acmru - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1762,7 +1741,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-amcache-driver.yml</p></td>
 <td><p>Parsing of amcache_driver - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1770,7 +1749,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-amcache-files.yml</p></td>
 <td><p>Parsing of amcache_file - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1778,7 +1757,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-amcache-program.yml</p></td>
 <td><p>Parsing of amcache_program - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1786,7 +1765,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-antifishing-file.yml</p></td>
 <td><p>Parsing of antifishing_file - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1794,7 +1773,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-app-compat-cache.yml</p></td>
 <td><p>Parsing of app_compat_cache - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1802,7 +1781,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-autoruns-software.yml</p></td>
 <td><p>Parsing of reg_autoruns - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1810,7 +1789,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-autoruns-system.yml</p></td>
 <td><p>Parsing of autorun_hive - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1818,7 +1797,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-autoruns-user.yml</p></td>
 <td><p>Parsing of reg_autoruns - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1826,7 +1805,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-bamdam.yml</p></td>
 <td><p>Parsing of bam_dam - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1834,7 +1813,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-certificates-software.yml</p></td>
 <td><p>Parsing of x509_cert - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1842,7 +1821,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-certificates-users.yml</p></td>
 <td><p>Parsing of x509_cert - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1850,7 +1829,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-clsid-software.yml</p></td>
 <td><p>Parsing of clsid - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1858,7 +1837,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-clsid-users.yml</p></td>
 <td><p>Parsing of clsid - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1866,7 +1845,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-mass-storage-system.yml</p></td>
 <td><p>Parsing of mass_storage - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1874,7 +1853,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-mui-cache.yml</p></td>
 <td><p>Parsing of mui_cache - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1882,7 +1861,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-network-configuration.yml</p></td>
 <td><p>Parsing of network_config - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1890,7 +1869,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-pending-file-rename.yml</p></td>
 <td><p>Parsing of pending_rename - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1898,7 +1877,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-recent-app.yml</p></td>
 <td><p>Parsing of recent_app - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1906,7 +1885,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-reg-system-info.yml</p></td>
 <td><p>Parsing of reg_systeminfo - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1914,7 +1893,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-run-mru.yml</p></td>
 <td><p>Parsing of run_mru - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1922,7 +1901,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-scheduled-task.yml</p></td>
 <td><p>Parsing of scheduled_tasks - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1930,7 +1909,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-services-control-set.yml</p></td>
 <td><p>Parsing of services - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1938,7 +1917,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-shell-bag.yml</p></td>
 <td><p>Parsing of shellbags - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1946,7 +1925,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-shim-database.yml</p></td>
 <td><p>Parsing of shim_db - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1954,7 +1933,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-snapshot-exclude.yml</p></td>
 <td><p>Parsing of backup_exclude - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1962,7 +1941,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-subject-interface-package.yml</p></td>
 <td><p>Parsing of subject_interface_package - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1970,7 +1949,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-registry-user-assist.yml</p></td>
 <td><p>Parsing of user_assist - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1978,7 +1957,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-registry-user-profile.yml</p></td>
 <td><p>Parsing of user_profile - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1986,7 +1965,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-srum.yml</p></td>
 <td><p>Parsing of srum - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -1994,7 +1973,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-system-info.yml</p></td>
 <td><p>Parsing of systeminfo - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -2002,7 +1981,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-tcp-connection.yml</p></td>
 <td><p>Parsing of tcpvcon - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -2010,7 +1989,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-usn-info.yml</p></td>
 <td><p>Parsing of usninfo - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -2018,7 +1997,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-volstat.yml</p></td>
 <td><p>Parsing of volstats - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -2026,7 +2005,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>ogre-vss-snapshot.yml</p></td>
 <td><p>Parsing of vss_snapshot - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -2034,7 +2013,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>ogre-wer.yml</p></td>
 <td><p>Parsing of wer - using ANSSI DFIR OGRE</p></td>
 <td><p>maxspl</p></td>
@@ -2042,7 +2021,7 @@
 <td><p>external</p></td>
 <td><p>/app/ogre-venv/bin/dfir-ogre</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>orc_indexer.yml</p></td>
 <td><p>Splunk logs ingestion (ORC) using json2splunk configuration from dependencies/orc_indexer_patterns.yml</p></td>
 <td><p>maxspl</p></td>
@@ -2050,7 +2029,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>orc_log.yml</p></td>
 <td><p>Parse the DFIR ORC execution log (DFIR-ORC_\*.log) for run parameters, archives, commands and their outcome</p></td>
 <td><p>maxspl</p></td>
@@ -2058,7 +2037,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>orc_offline.yml</p></td>
 <td><p>Used to execute DFIR ORC on dd capture</p></td>
 <td><p>maxspl</p></td>
@@ -2066,7 +2045,7 @@
 <td><p>external</p></td>
 <td><p>python.exe</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>orc_outcome.yml</p></td>
 <td><p>Process DFIR ORC outcome and outline json files.</p></td>
 <td><p>maxspl</p></td>
@@ -2074,7 +2053,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>powershell_history.yml</p></td>
 <td><p>Parse ConsoleHost_history.txt</p></td>
 <td><p>maxspl</p></td>
@@ -2082,23 +2061,23 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>prefetch.yml</p></td>
 <td><p>Eric Zimmerman - PECmd.exe</p></td>
-<td><p>Eric Zimmerman</p></td>
+<td><p>Typ</p></td>
+<td><p>2.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/PECmd.exe</p></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>prefetch_orc.yml</p></td>
+<td><p>Eric Zimmerman - PECmd.exe</p></td>
+<td><p>Typ</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>net9/PECmd.exe</p></td>
 </tr>
 <tr class="row-odd"><td><p>windows</p></td>
-<td><p>prefetch_orc.yml</p></td>
-<td><p>Eric Zimmerman - PECmd.exe</p></td>
-<td><p>Eric Zimmerman</p></td>
-<td><p>2.0</p></td>
-<td><p>external</p></td>
-<td><p>net9/PECmd.exe</p></td>
-</tr>
-<tr class="row-even"><td><p>windows</p></td>
 <td><p>pstree_live_response.yml</p></td>
 <td><p>Parse processes1.csv to produce pstree</p></td>
 <td><p>maxspl</p></td>
@@ -2106,7 +2085,7 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>pstree_security.yml</p></td>
 <td><p>Parse output of EVTX module to build process tree from security.evtx - event ID 4688</p></td>
 <td><p>maxspl</p></td>
@@ -2114,13 +2093,21 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>pstree_sysmon.yml</p></td>
 <td><p>Parse output of EVTX module to build process tree from the Sysmon operational channel - event ID 1</p></td>
 <td><p>maxspl</p></td>
 <td><p>2.0</p></td>
 <td><p>external</p></td>
 <td><p>python</p></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>recent_file_cache.yml</p></td>
+<td><p>Parsing of RecentFileCache.bcf with RecentFileCacheParser</p></td>
+<td><p>maxspl</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/RecentFileCacheParser.exe</p></td>
 </tr>
 <tr class="row-odd"><td><p>windows</p></td>
 <td><p>recycle_bin.yml</p></td>
@@ -2155,6 +2142,14 @@
 <td><p>net9/AppCompatCacheParser.exe</p></td>
 </tr>
 <tr class="row-odd"><td><p>windows</p></td>
+<td><p>sqlecmd.yml</p></td>
+<td><p>Parsing of browser SQLite files (Chrome, Edge, Firefox…) with SQLECmd maps</p></td>
+<td><p>Typ</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/SQLECmd/SQLECmd.exe</p></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>srum.yml</p></td>
 <td><p>Parsing of SRUM artifact.</p></td>
 <td><p>maxspl</p></td>
@@ -2162,7 +2157,23 @@
 <td><p>external</p></td>
 <td><p>artemis</p></td>
 </tr>
+<tr class="row-odd"><td><p>windows</p></td>
+<td><p>srum_ecmd.yml</p></td>
+<td><p>Parsing of SRUDB.dat (SRUM) with SrumECmd</p></td>
+<td><p>Typ</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/SrumECmd.exe</p></td>
+</tr>
 <tr class="row-even"><td><p>windows</p></td>
+<td><p>sum.yml</p></td>
+<td><p>Parsing of Microsoft User Access Logs (UAL) with SumECmd</p></td>
+<td><p>Typ</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/SumECmd.exe</p></td>
+</tr>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>test_process_dir.yml</p></td>
 <td><p>description</p></td>
 <td><p>maxspl</p></td>
@@ -2170,7 +2181,7 @@
 <td><p>external</p></td>
 <td><p>process_dir</p></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>test_process_dir_multiple_output.yml</p></td>
 <td><p>test_process_dir_multiple_output</p></td>
 <td><p>maxspl</p></td>
@@ -2178,7 +2189,7 @@
 <td><p>external</p></td>
 <td><p>process_dir_multiple_output</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>webserver.yml</p></td>
 <td><p>Parse webserver access,certificates,error,hosts,logs from UAC [root] using Dissect plugin</p></td>
 <td><p>Typ</p></td>
@@ -2186,7 +2197,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>wer.yml</p></td>
 <td><p>Parse .wer files</p></td>
 <td><p>maxspl</p></td>
@@ -2194,7 +2205,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_arp_cache.yml</p></td>
 <td><p>Parse arp_cache.txt from DFIR ORC (arp -a command)</p></td>
 <td><p>maxspl</p></td>
@@ -2202,7 +2213,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_bits.yml</p></td>
 <td><p>Parse BITS_jobs.txt from DFIR ORC (bitsadmin.exe /list /allusers /verbose command)</p></td>
 <td><p>maxspl</p></td>
@@ -2210,7 +2221,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_dns_cache.yml</p></td>
 <td><p>Parse dns_cache.txt from DFIR ORC (ipconfig.exe /displaydns command). Output fields lang depends on the system lang</p></td>
 <td><p>maxspl</p></td>
@@ -2218,7 +2229,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_dns_records.yml</p></td>
 <td><p>Parse DNS_records.txt from DFIR ORC (custom ps1 command)</p></td>
 <td><p>maxspl</p></td>
@@ -2226,7 +2237,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_enumlocs.yml</p></td>
 <td><p>Parse Enumlocs.txt from DFIR ORC</p></td>
 <td><p>maxspl</p></td>
@@ -2234,7 +2245,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_handle.yml</p></td>
 <td><p>Parse handle from DFIR ORC (handle.exe /a command)</p></td>
 <td><p>maxspl</p></td>
@@ -2242,7 +2253,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_listdlls.yml</p></td>
 <td><p>Parse Listdlls.txt from DFIR ORC (Listdlls.exe command)</p></td>
 <td><p>maxspl</p></td>
@@ -2250,7 +2261,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_memory.yml</p></td>
 <td><p>Parsing of Windows memory dump.</p></td>
 <td><p>maxspl</p></td>
@@ -2258,7 +2269,7 @@
 <td><p>internal, external</p></td>
 <td><p>memprocfs/memprocfs</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_netstat.yml</p></td>
 <td><p>Parse netstat.txt from DFIR ORC (netstat.exe -a -n -o command)</p></td>
 <td><p>maxspl</p></td>
@@ -2266,7 +2277,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_routes.yml</p></td>
 <td><p>Parse routes.txt from DFIR ORC (route.exe PRINT command)</p></td>
 <td><p>maxspl</p></td>
@@ -2274,7 +2285,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_tcpvcon.yml</p></td>
 <td><p>Parse routes.txt from DFIR ORC (Tcpvcon.exe -a -n -c command)</p></td>
 <td><p>maxspl</p></td>
@@ -2282,7 +2293,7 @@
 <td><p>internal</p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p>windows</p></td>
+<tr class="row-even"><td><p>windows</p></td>
 <td><p>win_timeline.yml</p></td>
 <td><p>Parsing of Windows Timeline (ActivitiesCache.db) artifact. Tool from Nihith (<a class="reference external" href="https://github.com/bolisettynihith/ActivitiesCacheParser">https://github.com/bolisettynihith/ActivitiesCacheParser</a>)</p></td>
 <td><p>maxspl</p></td>
@@ -2290,13 +2301,21 @@
 <td><p>external</p></td>
 <td><p>python</p></td>
 </tr>
-<tr class="row-even"><td><p>windows</p></td>
+<tr class="row-odd"><td><p>windows</p></td>
 <td><p>win_wmi_eventconsumer.yml</p></td>
 <td><p>Parse EventConsumer.txt from DFIR ORC (powershell.exe Get-WMIObject -Namespace rootSubscription -Class __EventConsumer command)</p></td>
 <td><p>maxspl</p></td>
 <td><p>2.0</p></td>
 <td><p>internal</p></td>
 <td></td>
+</tr>
+<tr class="row-even"><td><p>windows</p></td>
+<td><p>wxt.yml</p></td>
+<td><p>Parsing of Windows 10 Timeline database (ActivitiesCache.db) with WxTCmd</p></td>
+<td><p>Typ</p></td>
+<td><p>1.0</p></td>
+<td><p>external</p></td>
+<td><p>net9/WxTCmd.exe</p></td>
 </tr>
 </tbody>
 </table>
@@ -2307,15 +2326,15 @@
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 9.1.0</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
 <script src="_static/documentation_options.js?v=d45e8c67"></script>
-<script src="_static/doctools.js?v=fd6eb6e6"></script>
-<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-<script defer="defer" src="_static/theme.js?v=5db23cf8"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="_static/theme.js?v=49cc6205"></script>
 <script src="_static/sidebar-scroll.js?v=2c5053c4"></script>
 </body>
 </html>

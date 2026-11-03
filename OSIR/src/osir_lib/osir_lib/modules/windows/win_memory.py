@@ -44,7 +44,8 @@ class Memory_Processor():
 
     def _move_memprocfs_script(self):
         # Paths
-        source_file = "/OSIR/OSIR/configs/dependencies/win_memprocfs_pythonexec_sample.py"
+        # The pythonexec script ships next to this module
+        source_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "win_memprocfs_pythonexec_sample.py")
         destination_dir = "/tmp"
         output_dir = os.path.join("/OSIR/cases", self._case_path, self.module.module_name, self.module.endpoint_name)
         os.makedirs(output_dir, exist_ok=True)

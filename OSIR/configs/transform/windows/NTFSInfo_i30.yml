@@ -2,165 +2,98 @@ metadata:
   version: "1.0"
   id: NTFSInfo_i30
   author: Typ
-  description: Windows NTFS Filename-only CSV → ECS-ish
+  description: Windows NTFS Filename-only CSV (NTFSInfo i30) → ECS
 
 transformation:
   - set:
-      event:
-        value: {}
-    conditions:
-      - field: event
-        exists: false
-  - set:
       event.original: encode_json!(.)
-      event.dataset:
-        value: windows.ntfsinfo.filename
-      event.module:
-        value: windows
-      event.kind:
-        value: state
-      event.category:
-        value: [file]
-      event.type:
-        value: [info]
+
+  - set:
       event.action:
         value: ntfs_filename
-      event.code:
-        value: ntfs_filename
-      event.outcome:
-        value: success
       event.provider:
         value: Windows NTFS Filename (detail)
-      host.name: to_string!(del(.ComputerName))
-      file.Ext.ntfs.volume_id: to_string!(del(.VolumeID))
+
+  - set:
+      file.name: Name
+      file.size:
+        source: DataSize
+        operation: to_int
+      host.name: ComputerName
+
+  # $FILE_NAME attribute timestamps, ECS-style naming on the fn_* attributes:
+  # fn_created, fn_mtime, fn_accessed, fn_ctime (attribute/metadata change)
+  - set:
+      file.fn_created:
+        source: FileNameCreationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.FileNameCreationDate) && .FileNameCreationDate != ""
+
+  - set:
+      file.fn_mtime:
+        source: FileNameLastModificationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.FileNameLastModificationDate) && .FileNameLastModificationDate != ""
+
+  - set:
+      file.fn_accessed:
+        source: FileNameLastAccessDate
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.FileNameLastAccessDate) && .FileNameLastAccessDate != ""
+
+  - set:
+      file.fn_ctime:
+        source: FileNameLastAttrModificationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.FileNameLastAttrModificationDate) && .FileNameLastAttrModificationDate != ""
+
+  # complementary info: action.properties, not event
+  - set:
+      action.properties.VolumeID: VolumeID
+      action.properties.FRN: FRN
+      action.properties.ParentFRN: ParentFRN
+      action.properties.FilenameFlags: FilenameFlags
+      action.properties.SnapshotID: SnapshotID
+      action.properties.CarvedEntry: CarvedEntry
+
+  # primary timestamp: FN last modification, FN creation as fallback
   - custom: |2-
-      if exists(.CarvedEntry) {
-        ce_raw = to_string!(del(.CarvedEntry))
-        if ce_raw != "" {
-          ce_l = downcase!(ce_raw)
-          if ce_l == "y" || ce_l == "yes" || ce_l == "true" {
-            .file.Ext.ntfs.carved = true
-          } else if ce_l == "n" || ce_l == "no" || ce_l == "false" {
-            .file.Ext.ntfs.carved = false
-          } else {
-            .file.Ext.ntfs.carved_raw = ce_raw
-          }
-        }
-      }
-
-      if exists(.FRN) {
-        frn_raw = to_string!(del(.FRN))
-        if frn_raw != "" {
-          .file.Ext.ntfs.frn = frn_raw
-        }
-      }
-
-      if exists(.ParentFRN) {
-        pfrn_raw = to_string!(del(.ParentFRN))
-        if pfrn_raw != "" {
-          .file.Ext.ntfs.parent_frn = pfrn_raw
-        }
-      }
-
-      if exists(.Name) {
-        name_raw = to_string!(del(.Name))
-        if name_raw != "" {
-          .file.name = name_raw
-        }
-      }
-
-      if exists(.FilenameFlags) {
-        fflags_raw = to_string!(del(.FilenameFlags))
-        if fflags_raw != "" {
-          .file.Ext.ntfs.filename_flags = fflags_raw
-        }
-      }
-
-      if exists(.FileNameCreationDate) {
-        fnc_raw = to_string!(del(.FileNameCreationDate))
-        if fnc_raw != "" {
-          fnc = parse_timestamp(fnc_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnc_raw, "%F %T", "UTC") ?? null
-          if fnc != null {
-            .file.Ext.ntfs.fn_creation = fnc
-          } else {
-            .file.Ext.ntfs.fn_creation_raw = fnc_raw
-          }
-        }
-      }
-
-      if exists(.FileNameLastModificationDate) {
-        fnlm_raw = to_string!(del(.FileNameLastModificationDate))
-        if fnlm_raw != "" {
-          fnlm = parse_timestamp(fnlm_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnlm_raw, "%F %T", "UTC") ?? null
-          if fnlm != null {
-            .file.Ext.ntfs.fn_last_modification = fnlm
-          } else {
-            .file.Ext.ntfs.fn_last_modification_raw = fnlm_raw
-          }
-        }
-      }
-
-      if exists(.FileNameLastAccessDate) {
-        fnla_raw = to_string!(del(.FileNameLastAccessDate))
-        if fnla_raw != "" {
-          fnla = parse_timestamp(fnla_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnla_raw, "%F %T", "UTC") ?? null
-          if fnla != null {
-            .file.Ext.ntfs.fn_last_access = fnla
-          } else {
-            .file.Ext.ntfs.fn_last_access_raw = fnla_raw
-          }
-        }
-      }
-
-      if exists(.FileNameLastAttrModificationDate) {
-        fnlac_raw = to_string!(del(.FileNameLastAttrModificationDate))
-        if fnlac_raw != "" {
-          fnlac = parse_timestamp(fnlac_raw, "%F %T%.f", "UTC") ?? parse_timestamp(fnlac_raw, "%F %T", "UTC") ?? null
-          if fnlac != null {
-            .file.Ext.ntfs.fn_last_attr_change = fnlac
-          } else {
-            .file.Ext.ntfs.fn_last_attr_change_raw = fnlac_raw
-          }
-        }
-      }
-
-      if exists(.SnapshotID) {
-        sid_raw = to_string!(del(.SnapshotID))
-        if sid_raw != "" {
-          .event.Ext.ntfs.snapshot_id = sid_raw
-        }
-      }
-
-      if exists(.DataSize) {
-        ds_raw = to_string!(del(.DataSize))
-        if ds_raw != "" {
-          ds_int = parse_int(ds_raw) ?? null
-          if ds_int != null {
-            .file.size = ds_int
-          } else {
-            .file.Ext.ntfs.data_size_raw = ds_raw
-          }
-        }
-      }
-
-      ts_value  = null
-
+      ts_value = null
       ts_source = null
-
-      if exists(.file.Ext.ntfs.fn_last_modification) {
-        ts_value  = .file.Ext.ntfs.fn_last_modification
-        ts_source = "ntfs_fn_last_modification"
-      } else if exists(.file.Ext.ntfs.fn_creation) {
-        ts_value  = .file.Ext.ntfs.fn_creation
-        ts_source = "ntfs_fn_creation"
+      if exists(.file.fn_mtime) {
+          ts_value = .file.fn_mtime
+          ts_source = "fn_mtime"
+      } else if exists(.file.fn_created) {
+          ts_value = .file.fn_created
+          ts_source = "fn_created"
       }
-
       if ts_value != null {
-        .timestamp = ts_value
-
-        if !exists(.event.created) {
-          .event.created = ts_value
-        }
-
-        .event.Ext.timestamp_source = ts_source
+          .timestamp = ts_value
+          if !exists(.event.created) {
+              .event.created = ts_value
+          }
+          .action.properties.timestamp_source = ts_source
       }
+
+  - delete:
+      - ComputerName
+      - VolumeID
+      - CarvedEntry
+      - FRN
+      - ParentFRN
+      - Name
+      - FilenameFlags
+      - FileNameCreationDate
+      - FileNameLastModificationDate
+      - FileNameLastAccessDate
+      - FileNameLastAttrModificationDate
+      - SnapshotID
+      - DataSize

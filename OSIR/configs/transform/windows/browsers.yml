@@ -2,35 +2,19 @@ metadata:
   version: "1.0"
   id: browsers
   author: Typ
-  description: Browser artifacts (BrowserParser CSV + dfir-ogre chrome/firefox JSONL) → ECS
+  description: Browser artifacts (BrowserParser CSV) → ECS
 
 transformation:
   - set:
       event.original: encode_json!(.)
 
-  - set:
-      event.dataset:
-        value: web.browser
-      event.module:
-        value: browser
-      event.kind:
-        value: event
-      event.category:
-        value: [web]
-      event.type:
-        value: [access, info]
-      event.provider:
-        value: "Browser artifacts"
-      event.outcome:
-        value: success
-
-  # -- BrowserParser (browsers module) input ----------------------------------
-
-  # history: url, title, visit_count, last_visit_time
+  # history: url, title, visit_count, last_visit_time — chrome/edge
+  # timestamps are UTC (Chromium 1601 epoch): force an explicit UTC parse,
+  # a naive parse would apply the local timezone and shift every date
   - set:
       url.original: url
-      labels.title: title
-      labels.visit_count:
+      action.properties.title: title
+      action.properties.visit_count:
         source: visit_count
         operation: to_int
       timestamp:
@@ -38,122 +22,227 @@ transformation:
         operation: parse_timestamp
         parameters:
           format: "%F %T%.f"
+          timezone: "UTC"
     filter: exists(.last_visit_time)
 
+  # history (firefox): id, url, title, host, visit_count, last_visit_date,
+  #                    description, preview_image_url — id is the moz_places
+  #                    id, same identifier space as places_id in the other
+  #                    firefox tables (inputhistory, metadata, downloads)
+  - set:
+      url.original: url
+      action.properties.title: title
+      action.properties.host: host
+      action.properties.visit_count:
+        source: visit_count
+        operation: to_int
+      action.properties.description: description
+      action.properties.preview_image_url: preview_image_url
+      action.properties.places_id:
+        source: id
+        operation: to_int
+      timestamp:
+        source: last_visit_date
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+    filter: exists(.last_visit_date)
+
   # downloads: filename, current_path, target_path, start_time, received_bytes,
-  #            total_bytes, end_time, opened, last_access_time, mime_type
+  #            total_bytes, end_time, opened, last_access_time, mime_type —
+  #            chrome/edge timestamps are UTC (Chromium 1601 epoch): force an
+  #            explicit UTC parse, a naive parse would apply the local timezone
   - set:
       file.name: filename
       file.path: target_path
-      labels.current_path: current_path
+      action.properties.current_path: current_path
       file.size:
         source: total_bytes
         operation: to_int
-      labels.received_bytes:
+      action.properties.received_bytes:
         source: received_bytes
         operation: to_int
-      labels.opened:
+      action.properties.opened:
         source: opened
         operation: to_bool
-      labels.mime_type: mime_type
+      file.mime_type: mime_type
       timestamp:
         source: start_time
         operation: parse_timestamp
         parameters:
           format: "%F %T%.f"
+          timezone: "UTC"
       event.start:
         source: start_time
         operation: parse_timestamp
         parameters:
           format: "%F %T%.f"
+          timezone: "UTC"
       file.mtime:
         source: end_time
         operation: parse_timestamp
         parameters:
           format: "%F %T%.f"
+          timezone: "UTC"
+      event.end:
+        source: end_time
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+          timezone: "UTC"
       file.accessed:
         source: last_access_time
         operation: parse_timestamp
         parameters:
           format: "%F %T%.f"
+          timezone: "UTC"
     filter: exists(.filename)
 
   # searches: term, normalized_term
   - set:
-      labels.search_term: term
-      labels.normalized_term: normalized_term
+      action.properties.term: term
+      action.properties.normalized_term: normalized_term
 
-  # -- OGRE (dfir-ogre chrome/firefox) input ----------------------------------
-
-  # history: url, title, visit_date, visit_count, hidden, referer, ogre_md
-  # visit_date is absent for URLs never visited: ogre_md marks the flavour,
-  # not visit_date
+  # visited_links (chrome/edge): top_level_url, frame_url, visit_count
   - set:
-      url.original: url
-      labels.title: title
-      labels.visit_count:
+      url.original: frame_url
+      action.properties.top_level_url: top_level_url
+      action.properties.visit_count:
         source: visit_count
         operation: to_int
-      labels.hidden:
-        source: hidden
-        operation: to_int
-      labels.referer: referer
-    filter: exists(.ogre_md) && !exists(.target_path)
+    filter: exists(.frame_url) && exists(.top_level_url)
 
+  # inputhistory (firefox): places_id, url, input
   - set:
+      url.original: url
+      action.properties.term: input
+    filter: exists(.input)
+
+  # places_id: pivot between firefox history/metadata/inputhistory entries
+  - set:
+      action.properties.places_id:
+        source: places_id
+        operation: to_int
+
+  # downloads (firefox): places_id, filename, download_url, endTime, size,
+  #                       deleted, canceled
+  - set:
+      file.name: filename
+      url.original: download_url
+      file.size:
+        source: size
+        operation: to_int
+      action.properties.deleted:
+        source: deleted
+        operation: to_bool
+      action.properties.canceled:
+        source: canceled
+        operation: to_bool
+      timestamp:
+        source: endTime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+      event.end:
+        source: endTime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+      file.mtime:
+        source: endTime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+    filter: exists(.download_url)
+
+  # historyvisits (firefox): from_visit, place_id, url, visit_date, visit_type —
+  # place_id is the moz_places id, same identifier space as places_id in the
+  # other firefox tables
+  - set:
+      url.original: url
+      action.properties.from_visit:
+        source: from_visit
+        operation: to_int
+      action.properties.places_id:
+        source: place_id
+        operation: to_int
+      action.properties.visit_type: visit_type
       timestamp:
         source: visit_date
         operation: parse_timestamp
         parameters:
-          format: "%Y-%m-%dT%H:%M:%S%.f%z"
-    filter: exists(.visit_date) && .visit_date != ""
+          format: "%Y-%m-%dT%H:%M:%S"
+    filter: exists(.visit_date) && exists(.place_id)
 
-  # downloads: target_path, url, received_bytes, total_bytes, start_time,
-  #            end_time, state, danger_type, interrupt_reason, opened, ogre_md
+  # bookmarks (firefox): title, dateAdded, lastModified
   - set:
-      file.path: target_path
-      url.original: url
-      file.size:
-        source: total_bytes
-        operation: to_int
-      labels.received_bytes:
-        source: received_bytes
-        operation: to_int
-      labels.state: state
-      labels.danger_type: danger_type
-      labels.deleted:
-        source: deleted
-        operation: to_bool
-      labels.interrupt_reason: interrupt_reason
-      labels.opened:
-        source: opened
-        operation: to_bool
+      action.properties.title: title
       timestamp:
-        source: start_time
+        source: dateAdded
         operation: parse_timestamp
         parameters:
-          format: "%Y-%m-%dT%H:%M:%S%.f%z"
-      event.start:
-        source: start_time
+          format: "%Y-%m-%dT%H:%M:%S"
+      action.properties.last_modified:
+        source: lastModified
         operation: parse_timestamp
         parameters:
-          format: "%Y-%m-%dT%H:%M:%S%.f%z"
-      file.mtime:
-        source: end_time
-        operation: parse_timestamp
-        parameters:
-          format: "%Y-%m-%dT%H:%M:%S%.f%z"
-    filter: exists(.target_path) && !exists(.filename)
+          format: "%Y-%m-%dT%H:%M:%S"
+    filter: exists(.dateAdded)
 
-  # basename() is fallible and Windows backslashes are not path separators:
-  # extract the file name from the OGRE download target_path
-  - custom: |2-
-      if exists(.target_path) && !exists(.filename) {
-          bn, berr = basename(replace(to_string!(.target_path), pattern: "\\", with: "/"))
-          if berr == null {
-              .file.name = bn
-          }
-      }
+  # cookies (firefox): name, value, host, expiry, lastAccessed, creationTime
+  - set:
+      action.properties.name: name
+      action.properties.value: value
+      action.properties.host: host
+      action.properties.expiry:
+        source: expiry
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+      action.properties.last_accessed:
+        source: lastAccessed
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+      action.properties.creation_time:
+        source: creationTime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+      timestamp:
+        source: creationTime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S"
+    filter: exists(.creationTime)
+
+  # metadata (firefox): places_id, url, title, host, visit_count,
+  #                     total_view_time_miliseconds, typing_time_miliseconds,
+  #                     key_presses, scrolling_time_miliseconds,
+  #                     scrolling_distance_mm
+  - set:
+      url.original: url
+      action.properties.title: title
+      action.properties.host: host
+      action.properties.visit_count:
+        source: visit_count
+        operation: to_int
+      action.properties.total_view_time_ms:
+        source: total_view_time_miliseconds
+        operation: to_int
+      action.properties.typing_time_ms:
+        source: typing_time_miliseconds
+        operation: to_int
+      action.properties.key_presses:
+        source: key_presses
+        operation: to_int
+      action.properties.scrolling_time_ms:
+        source: scrolling_time_miliseconds
+        operation: to_int
+      action.properties.scrolling_distance_mm:
+        source: scrolling_distance_mm
+        operation: to_int
+    filter: exists(.total_view_time_miliseconds)
 
   - delete:
       - title
@@ -171,20 +260,42 @@ transformation:
       - mime_type
       - term
       - normalized_term
+      - frame_url
+      - top_level_url
+      - input
+      - places_id
+      - download_url
+      - endTime
+      - size
+      - canceled
+      - id
+      - host
+      - last_visit_date
+      - description
+      - preview_image_url
+      - from_visit
+      - place_id
       - visit_date
-      - hidden
-      - referer
-      - ogre_md
-      - state
-      - danger_type
-      - interrupt_reason
+      - visit_type
+      - dateAdded
+      - lastModified
+      - name
+      - value
+      - expiry
+      - lastAccessed
+      - creationTime
+      - total_view_time_miliseconds
+      - typing_time_miliseconds
+      - key_presses
+      - scrolling_time_miliseconds
+      - scrolling_distance_mm
       - deleted
 
 timeline:
   - id: visited
     message: "User {user.name} visited {url.original}"
     conditions:
-      - field: labels.visit_count
+      - field: action.properties.visit_count
         exists: true
 
   - id: downloaded
@@ -193,10 +304,32 @@ timeline:
       - field: file.path
         exists: true
 
-  - id: searched
-    message: "User {user.name} searched for {labels.search_term}"
+  - id: firefox-downloaded
+    message: "User {user.name} downloaded {file.name} from {url.original}"
     conditions:
-      - field: labels.search_term
+      - field: file.name
+        exists: true
+      - field: url.original
+        exists: true
+      - field: file.path
+        exists: false
+
+  - id: visited-ff-historyvisits
+    message: "User {user.name} visited {url.original}"
+    conditions:
+      - field: action.properties.visit_type
+        exists: true
+
+  - id: bookmarked
+    message: "User {user.name} bookmarked {action.properties.title}"
+    conditions:
+      - field: action.properties.last_modified
+        exists: true
+
+  - id: searched
+    message: "User {user.name} searched for {action.properties.term}"
+    conditions:
+      - field: action.properties.term
         exists: true
 
 relationships:
@@ -210,7 +343,22 @@ relationships:
     target: file.path
     type: downloaded to
 
+  - id: firefox-downloaded
+    source: user.name
+    target: url.original
+    type: downloaded
+
+  - id: visited-ff-historyvisits
+    source: user.name
+    target: url.original
+    type: visited
+
+  - id: bookmarked
+    source: user.name
+    target: action.properties.title
+    type: bookmarked
+
   - id: searched
     source: user.name
-    target: labels.search_term
+    target: action.properties.term
     type: searched for

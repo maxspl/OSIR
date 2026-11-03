@@ -20,10 +20,6 @@ transformation:
       }
 
   - set:
-      event.kind:
-        value: event
-      event.module:
-        value: hayabusa
       agent.type:
         value: hayabusa
 
@@ -67,24 +63,6 @@ transformation:
       channel_lower: downcase(string!(.Channel))
   - delete:
       - Channel
-  - set:
-      event.dataset:
-        value: windows.security
-    conditions:
-      - field: channel_lower
-        value: sec
-  - set:
-      event.dataset:
-        value: windows.system
-    conditions:
-      - field: channel_lower
-        value: sys
-  - set:
-      event.dataset:
-        value: windows.defender
-    conditions:
-      - field: channel_lower
-        value: defender
   - set:
       event.dataset: '"hayabusa." + string!(.channel_lower)'
     filter: '!exists(.event.dataset) && exists(.channel_lower)'
@@ -147,14 +125,8 @@ transformation:
 
   # event-code categorization
   - set:
-      event.category:
-        value: [authentication]
-      event.type:
-        value: [start, denied]
       event.action:
         value: logon_failed
-      event.outcome:
-        value: failure
     conditions:
       - field: event.code
         value: '4625'
@@ -177,10 +149,6 @@ transformation:
         value: '4625'
 
   - set:
-      event.category:
-        value: [iam]
-      event.type:
-        value: [change]
       event.action:
         value: password_reset_attempt
     conditions:
@@ -193,10 +161,6 @@ transformation:
         value: '4724'
 
   - set:
-      event.category:
-        value: [process, persistence]
-      event.type:
-        value: [creation, start]
       event.action:
         value: service_installed
     conditions:
@@ -216,10 +180,6 @@ transformation:
         value: '7045'
 
   - set:
-      event.category:
-        value: [malware, configuration]
-      event.type:
-        value: [change]
       event.action:
         value: defender_scanning_disabled
     conditions:
@@ -227,10 +187,6 @@ transformation:
         value: '5010'
 
   - set:
-      event.category:
-        value: [authentication]
-      event.type:
-        value: [protocol]
       event.action:
         value: ntlmv1_authentication_detected
     conditions:

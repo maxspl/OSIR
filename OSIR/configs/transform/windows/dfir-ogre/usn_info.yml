@@ -1,0 +1,92 @@
+metadata:
+  version: "1.1"
+  id: usn_info
+  author: Typ
+  description: Windows NTFS USN Journal (dfir-ogre usn_info JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows NTFS USN Journal (detail)"
+
+  # computer_name, usn_number, sequence_number, record_number, ...,
+  # file, file_path, timestamp (ISO), reason (array), file_attributes_* (bool)
+  # NOTE: file.name must be set before file.path: the root "file" string is
+  # converted to an object by the first nested assignment.
+  - set:
+      file.name: file
+      file.path: file_path
+      host.name: computer_name
+      action.properties.usn_number: usn_number
+      action.properties.sequence_number: sequence_number
+      action.properties.record_number: record_number
+      action.properties.parent_sequence_number: parent_sequence_number
+      action.properties.parent_record_number: parent_record_number
+      action.properties.volume_id: volume_id
+      action.properties.snapshot_id: snapshot_id
+      action.properties.reason: reason
+    filter: exists(.usn_number)
+
+  - set:
+      timestamp:
+        source: timestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.usn_number) && exists(.timestamp) && !is_nullish(.timestamp)
+
+  # reason: array of USN reasons -> event.action pipe-separated then downcased
+  - set:
+      event.action:
+        source: reason
+        operation: join
+        parameters:
+          separator: "|"
+    filter: exists(.usn_number) && exists(.reason) && !is_nullish(.reason)
+
+  - set:
+      event.action:
+        source: event.action
+        operation: downcase
+    filter: exists(.usn_number) && exists(.reason)
+
+  # every remaining ogre field moves verbatim to action.properties:
+  # file_attributes_* (archive, compressed, directory, hidden, ...)
+  - custom: |2-
+      known = ["event", "action", "user", "host", "file", "timestamp", "computer_name", "usn_number", "sequence_number", "record_number", "parent_sequence_number", "parent_record_number", "file", "file_path", "reason", "volume_id", "snapshot_id", "ogre_md"]
+      rest = .
+      ap = {}
+      for_each(keys(rest)) -> |_, k| {
+          if !includes(known, k) {
+              v = get!(rest, [k])
+              ap = set!(ap, [k], v)
+              rest = remove!(rest, [k])
+          }
+      }
+      . = rest
+      .action.properties = merge(object(.action.properties) ?? {}, ap)
+
+  - delete:
+      - computer_name
+      - usn_number
+      - sequence_number
+      - record_number
+      - parent_sequence_number
+      - parent_record_number
+      - file_path
+      - reason
+      - volume_id
+      - snapshot_id
+      - ogre_md
+
+timeline:
+  - id: usn-record
+    message: "USN record for file {file.name}: {event.action}"
+    conditions:
+      - field: file.name
+        exists: true
+      - field: event.action
+        exists: true

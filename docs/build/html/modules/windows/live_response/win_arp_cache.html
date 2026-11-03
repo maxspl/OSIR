@@ -24,8 +24,8 @@
 <title>win_arp_cache | Orchestration Software for Incident Response</title>
 <meta content="win_arp_cache | Orchestration Software for Incident Response" property="og:title"/>
 <meta content="win_arp_cache | Orchestration Software for Incident Response" name="twitter:title"/>
-<link href="../../../_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
-<link href="../../../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="../../../_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="../../../_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="../../../_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="../../../_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="../../../_static/OSIR_LOGO.png" rel="icon"/>
@@ -106,6 +106,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1 current" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../index.html">Modules<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul class="current" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../common/index.html">Common<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -133,13 +134,9 @@
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../../scan/index.html">Scan<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="../../scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -259,9 +256,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../win_memory.html">win_memory</a></li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../artemis/index.html">Windows / Artemis<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="../artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../dfir-ogre/index.html">Windows / DFIR-OGRE<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l4"><a class="reference internal" href="../dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -338,12 +338,15 @@
 <li class="toctree-l4"><a class="reference internal" href="win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../sysinternals/index.html">Windows / Sysinternals<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="../sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -565,26 +568,8 @@ ingestion with the following sourcetype:</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"windows.arp_cache"</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.dataset</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"windows"</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.module</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"state"</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.kind</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[network]</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.category</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[info,</span> <span class="pre">arp]</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.type</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"success"</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">event.outcome</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">encode_json!(.)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">event.original</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"Windows</span> <span class="pre">ARP</span> <span class="pre">Cache"</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">event.provider</span></code></p></td>
@@ -595,14 +580,29 @@ ingestion with the following sourcetype:</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">"ipv4"</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">network.type</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
-<td></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.type</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to_string!(del(.interface_index))</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">network.Ext.arp.interface_index</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interface_ip</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">source.ip</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">custom</span></code></p></td>
-<td></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[to_string!(.interface_ip)]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host.ip</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interface_index</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.interface_index</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ip_address</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">destination.ip</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">downcase(replace(to_string!(.mac_address),</span> <span class="pre">"-",</span> <span class="pre">":"))</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">destination.mac</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">"ipv6"</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network.type</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">entry_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">action.properties.entry_type_raw</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -623,15 +623,15 @@ ingestion with the following sourcetype:</p>
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 9.1.0</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
 <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
-<script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
-<script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-<script defer="defer" src="../../../_static/theme.js?v=5db23cf8"></script>
+<script src="../../../_static/doctools.js?v=9bcbadda"></script>
+<script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="../../../_static/theme.js?v=49cc6205"></script>
 <script src="../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
 </body>
 </html>

@@ -24,8 +24,8 @@
 <title>src.osir_service.osir_service.postgres package | Orchestration Software for Incident Response</title>
 <meta content="src.osir_service.osir_service.postgres package | Orchestration Software for Incident Response" property="og:title"/>
 <meta content="src.osir_service.osir_service.postgres package | Orchestration Software for Incident Response" name="twitter:title"/>
-<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="_static/OSIR_LOGO.png" rel="icon"/>
@@ -106,6 +106,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/index.html">Modules<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/common/index.html">Common<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -133,13 +134,9 @@
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/scan/index.html">Scan<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -259,9 +256,12 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/artemis/index.html">Windows / Artemis<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -338,12 +338,15 @@
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/sysinternals/index.html">Windows / Sysinternals<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -547,7 +550,9 @@
 <li class="toctree-l3"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.case_uuid"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel.case_uuid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.exists_on_disk"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel.exists_on_disk</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel.model_computed_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel.model_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.name"><code class="docutils literal notranslate"><span class="pre">OsirDbCaseModel.name</span></code></a></li>
 </ul>
 </li>
@@ -559,7 +564,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.case_uuid"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.case_uuid</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.created_at"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.created_at</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.handler_id"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.handler_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.model_computed_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.model_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.modules"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.modules</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.processing_status"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.processing_status</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.task_count"><code class="docutils literal notranslate"><span class="pre">OsirDbHandlerModel.task_count</span></code></a></li>
@@ -576,7 +583,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.mem_pct"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.mem_pct</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.mem_total_mb"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.mem_total_mb</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.mem_used_mb"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.mem_used_mb</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.model_computed_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.model_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.swap_pct"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.swap_pct</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.ts"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.ts</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.worker_rss_mb"><code class="docutils literal notranslate"><span class="pre">OsirDbMetricsModel.worker_rss_mb</span></code></a></li>
@@ -601,7 +610,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.get_logs"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.get_logs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.handler_id"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.handler_id</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.input"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.model_computed_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.model_fields</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.module"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.module</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.output"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.processing_status"><code class="docutils literal notranslate"><span class="pre">OsirDbTaskModel.processing_status</span></code></a></li>
@@ -625,7 +636,7 @@
 <span id="src-osir-service-osir-service-postgres-osirdb-module"></span><h2>src.osir_service.osir_service.postgres.OsirDb module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDb.OsirDb">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDb.</span></span><span class="sig-name descname"><span class="pre">OsirDb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OSIR_db'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5432</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDb.html#OsirDb"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDb.</span></span><span class="sig-name descname"><span class="pre">OsirDb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'OSIR_db'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5432</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDb.html#OsirDb"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDb.OsirDb.__init__">
@@ -664,7 +675,7 @@ reconnection/retry semantics as execute_query.</p>
 <span id="src-osir-service-osir-service-postgres-osirdbcase-module"></span><h2>src.osir_service.osir_service.postgres.OsirDbCase module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbCase.OsirDbCase">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbCase.</span></span><span class="sig-name descname"><span class="pre">OsirDbCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbCase.html#OsirDbCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbCase.</span></span><span class="sig-name descname"><span class="pre">OsirDbCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbCase.html#OsirDbCase"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Manages the lifecycle of forensic cases within the PostgreSQL database.</p>
 <p>The OsirDbCase handles the creation, retrieval, and deletion of case
@@ -720,13 +731,13 @@ data collision between different investigations.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbCase.OsirDbCase.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel" title="src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel"><span class="pre">OsirDbCaseModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbCase.html#OsirDbCase.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel" title="src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel"><span class="pre">OsirDbCaseModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbCase.html#OsirDbCase.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Retrieves a case UUID based on either the ID or the name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The UUID of the case.</p></li>
-<li><p><strong>name</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The name of the case.</p></li>
+<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – The UUID of the case.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The name of the case.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -759,23 +770,24 @@ data collision between different investigations.</p>
 <span id="src-osir-service-osir-service-postgres-osirdbconstants-module"></span><h2>src.osir_service.osir_service.postgres.OsirDbConstants module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbConstants.ProcessingStatus">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbConstants.</span></span><span class="sig-name descname"><span class="pre">ProcessingStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbConstants.html#ProcessingStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbConstants.</span></span><span class="sig-name descname"><span class="pre">ProcessingStatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbConstants.html#ProcessingStatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbConstants.ProcessingStatus.PROCESSING_DONE">
-<span class="sig-name descname"><span class="pre">PROCESSING_DONE</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processing_done'</span></span></dt>
+<span class="sig-name descname"><span class="pre">PROCESSING_DONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processing_done'</span></em></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbConstants.ProcessingStatus.PROCESSING_FAILED">
-<span class="sig-name descname"><span class="pre">PROCESSING_FAILED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processing_failed'</span></span></dt>
+<span class="sig-name descname"><span class="pre">PROCESSING_FAILED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processing_failed'</span></em></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbConstants.ProcessingStatus.PROCESSING_STARTED">
-<span class="sig-name descname"><span class="pre">PROCESSING_STARTED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processing_started'</span></span></dt>
+<span class="sig-name descname"><span class="pre">PROCESSING_STARTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'processing_started'</span></em></dt>
 <dd></dd></dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbConstants.ProcessingStatus.TASK_CREATED">
-<span class="sig-name descname"><span class="pre">TASK_CREATED</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'task_created'</span></span></dt>
+<span class="sig-name descname"><span class="pre">TASK_CREATED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'task_created'</span></em></dt>
 <dd></dd></dl>
 </dd></dl>
 </section>
@@ -783,7 +795,7 @@ data collision between different investigations.</p>
 <span id="src-osir-service-osir-service-postgres-osirdbhandler-module"></span><h2>src.osir_service.osir_service.postgres.OsirDbHandler module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbHandler.</span></span><span class="sig-name descname"><span class="pre">OsirDbHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbHandler.html#OsirDbHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbHandler.</span></span><span class="sig-name descname"><span class="pre">OsirDbHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbHandler.html#OsirDbHandler"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Manages high-level execution handlers within the OSIR database.</p>
 <p>A ‘Handler’ represents a grouped execution of one or more forensic modules
@@ -801,7 +813,7 @@ for a specific case.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbHandler.OsirDbHandler.create">
-<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel" title="src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel"><span class="pre">OsirDbHandlerModel</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbHandler.html#OsirDbHandler.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">handler_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel" title="src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel"><span class="pre">OsirDbHandlerModel</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbHandler.html#OsirDbHandler.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Registers a new execution handler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -809,7 +821,7 @@ for a specific case.</p>
 <li><p><strong>case_uuid</strong> (<em>str</em>) – The UUID of the investigation case.</p></li>
 <li><p><strong>modules</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Names of the modules included in this execution.</p></li>
 <li><p><strong>task_ids</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – Initial Celery task IDs associated with this handler.</p></li>
-<li><p><strong>handler_id</strong> (<em>uuid.UUID</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – A specific UUID to use, otherwise a new one is generated.</p></li>
+<li><p><strong>handler_id</strong> (<em>uuid.UUID</em><em>, </em><em>optional</em>) – A specific UUID to use, otherwise a new one is generated.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -841,8 +853,8 @@ orchestration view painfully slow to serialize and transfer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Fetch a single handler by its UUID.</p></li>
-<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Fetch all handlers of a case.</p></li>
+<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><em>optional</em>) – Fetch a single handler by its UUID.</p></li>
+<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – Fetch all handlers of a case.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -935,7 +947,7 @@ never blocked by this guard).</p>
 <span id="src-osir-service-osir-service-postgres-osirdbmetrics-module"></span><h2>src.osir_service.osir_service.postgres.OsirDbMetrics module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbMetrics.OsirDbMetrics">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbMetrics.</span></span><span class="sig-name descname"><span class="pre">OsirDbMetrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbMetrics.html#OsirDbMetrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbMetrics.</span></span><span class="sig-name descname"><span class="pre">OsirDbMetrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbMetrics.html#OsirDbMetrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Stores and retrieves host resource samples (RAM/CPU/load) reported by
 agents, used by the web UI to graph the load of each agent over time.</p>
@@ -959,13 +971,13 @@ rows are pruned past a retention window so it never grows unbounded.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>agent</strong> (<em>str</em>) – The reporting agent’s hostname.</p></li>
-<li><p><strong>mem_pct</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Used RAM as a percentage (0-100).</p></li>
-<li><p><strong>mem_used_mb</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Used RAM in MB.</p></li>
-<li><p><strong>mem_total_mb</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Total RAM in MB.</p></li>
-<li><p><strong>swap_pct</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Used swap as a percentage (0-100).</p></li>
-<li><p><strong>cpu_pct</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – CPU usage as a percentage (0-100).</p></li>
-<li><p><strong>loadavg</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – 1-minute load average.</p></li>
-<li><p><strong>worker_rss_mb</strong> (<em>float</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Resident memory of the agent’s
+<li><p><strong>mem_pct</strong> (<em>float</em><em>, </em><em>optional</em>) – Used RAM as a percentage (0-100).</p></li>
+<li><p><strong>mem_used_mb</strong> (<em>float</em><em>, </em><em>optional</em>) – Used RAM in MB.</p></li>
+<li><p><strong>mem_total_mb</strong> (<em>float</em><em>, </em><em>optional</em>) – Total RAM in MB.</p></li>
+<li><p><strong>swap_pct</strong> (<em>float</em><em>, </em><em>optional</em>) – Used swap as a percentage (0-100).</p></li>
+<li><p><strong>cpu_pct</strong> (<em>float</em><em>, </em><em>optional</em>) – CPU usage as a percentage (0-100).</p></li>
+<li><p><strong>loadavg</strong> (<em>float</em><em>, </em><em>optional</em>) – 1-minute load average.</p></li>
+<li><p><strong>worker_rss_mb</strong> (<em>float</em><em>, </em><em>optional</em>) – Resident memory of the agent’s
 worker processes in MB.</p></li>
 </ul>
 </dd>
@@ -982,7 +994,7 @@ worker processes in MB.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>window_seconds</strong> (<em>int</em>) – Size of the time window to return.</p></li>
-<li><p><strong>agent</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Restrict to a single agent’s samples.</p></li>
+<li><p><strong>agent</strong> (<em>str</em><em>, </em><em>optional</em>) – Restrict to a single agent’s samples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1019,7 +1031,7 @@ worker processes in MB.</p></li>
 <span id="src-osir-service-osir-service-postgres-osirdbtask-module"></span><h2>src.osir_service.osir_service.postgres.OsirDbTask module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbTask.</span></span><span class="sig-name descname"><span class="pre">OsirDbTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbTask.html#OsirDbTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_service.osir_service.postgres.OsirDbTask.</span></span><span class="sig-name descname"><span class="pre">OsirDbTask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_osir</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbTask.html#OsirDbTask"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Manages the lifecycle of tasks stored in the PostgreSQL ‘osir_tasks’ table,
 including table creation, task creation, retrieval, updates, and deletion.</p>
@@ -1043,7 +1055,7 @@ then younger tasks are released one by one.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>case_uuid</strong> (<em>str</em>) – The UUID of the case.</p></li>
 <li><p><strong>input</strong> (<em>str</em>) – The input string to check for duplicates.</p></li>
-<li><p><strong>exclude_task_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Current task UUID. When set,
+<li><p><strong>exclude_task_id</strong> (<em>str</em><em>, </em><em>optional</em>) – Current task UUID. When set,
 it is used both to exclude the current task and to apply a
 deterministic ordering between active tasks.</p></li>
 </ul>
@@ -1068,8 +1080,8 @@ deterministic ordering between active tasks.</p></li>
 <li><p><strong>module</strong> (<em>str</em>) – The specific module responsible for the execution.</p></li>
 <li><p><strong>input</strong> (<em>str</em>) – The input data or configuration for the task.</p></li>
 <li><p><strong>output</strong> (<em>str</em>) – The output path of the module</p></li>
-<li><p><strong>task_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – A specific UUID for the task. If None, a new UUID is generated.</p></li>
-<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The handler this task belongs to. Stored on the task row so handler -&gt; tasks lookups are simple indexed queries.</p></li>
+<li><p><strong>task_id</strong> (<em>str</em><em>, </em><em>optional</em>) – A specific UUID for the task. If None, a new UUID is generated.</p></li>
+<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The handler this task belongs to. Stored on the task row so handler -&gt; tasks lookups are simple indexed queries.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1132,9 +1144,9 @@ if they do not already exist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>task_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The ID of the specific task to delete.</p></li>
-<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The UUID of the case to delete all related tasks for.</p></li>
-<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – The ID of the handler whose tasks should be deleted.</p></li>
+<li><p><strong>task_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The ID of the specific task to delete.</p></li>
+<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – The UUID of the case to delete all related tasks for.</p></li>
+<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><em>optional</em>) – The ID of the handler whose tasks should be deleted.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1153,7 +1165,7 @@ if they do not already exist.</p>
 </dd></dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.filter_already_processed">
-<span class="sig-name descname"><span class="pre">filter_already_processed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set"><span class="pre">set</span></a></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbTask.html#OsirDbTask.filter_already_processed"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-name descname"><span class="pre">filter_already_processed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">case_uuid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">→</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="reference internal" href="_modules/src/osir_service/osir_service/postgres/OsirDbTask.html#OsirDbTask.filter_already_processed"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Returns the subset of (module, input) pairs that already have a
 NON-failed (ie.status is anything other than FAILURE/REVOKED)
 task for this case</p>
@@ -1169,7 +1181,7 @@ task for this case</p>
 <dd class="field-even"><p>The subset of <cite>pairs</cite> already handled (non-failed).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set" title="src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set">set</a></p>
+<dd class="field-odd"><p>set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1217,14 +1229,14 @@ task for this case</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>case_uuid</strong> (<em>str</em><em> or </em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Filter tasks by a specific case UUID or list of UUIDs.
+<li><p><strong>case_uuid</strong> (<em>str</em><em> or </em><em>List</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Filter tasks by a specific case UUID or list of UUIDs.
 If None, returns tasks from all cases.</p></li>
-<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Filter tasks by a specific handler ID.</p></li>
-<li><p><strong>processing_status</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Include only tasks with these statuses.</p></li>
-<li><p><strong>exclude_status</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Exclude tasks with these statuses.</p></li>
-<li><p><strong>input_filter</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Filter tasks by input path (LIKE pattern).</p></li>
+<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter tasks by a specific handler ID.</p></li>
+<li><p><strong>processing_status</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Include only tasks with these statuses.</p></li>
+<li><p><strong>exclude_status</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Exclude tasks with these statuses.</p></li>
+<li><p><strong>input_filter</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter tasks by input path (LIKE pattern).</p></li>
 <li><p><strong>page</strong> (<em>int</em>) – Page number for pagination (1-indexed).</p></li>
-<li><p><strong>module</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Filter tasks by module name.</p></li>
+<li><p><strong>module</strong> (<em>str</em><em>, </em><em>optional</em>) – Filter tasks by module name.</p></li>
 <li><p><strong>page_size</strong> (<em>int</em>) – Number of items per page.</p></li>
 </ul>
 </dd>
@@ -1285,8 +1297,8 @@ and tracebacks live in celery_taskmeta.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>task_id</strong> (<em>str</em>) – The UUID of the task.</p></li>
-<li><p><strong>agent</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Worker name executing the task.</p></li>
-<li><p><strong>output</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Resolved output path of the module.</p></li>
+<li><p><strong>agent</strong> (<em>str</em><em>, </em><em>optional</em>) – Worker name executing the task.</p></li>
+<li><p><strong>output</strong> (<em>str</em><em>, </em><em>optional</em>) – Resolved output path of the module.</p></li>
 </ul>
 </dd>
 </dl>
@@ -1315,8 +1327,8 @@ in SQL on the effective (celery-joined) statuses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Scope to a single handler.</p></li>
-<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><a class="reference internal" href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional" title="src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.optional"><em>optional</em></a>) – Scope to a whole case (used when
+<li><p><strong>handler_id</strong> (<em>str</em><em>, </em><em>optional</em>) – Scope to a single handler.</p></li>
+<li><p><strong>case_uuid</strong> (<em>str</em><em>, </em><em>optional</em>) – Scope to a whole case (used when
 handler_id is not provided).</p></li>
 </ul>
 </dd>
@@ -1465,15 +1477,15 @@ execution (queued, prefetched or waiting for a retry),
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 9.1.0</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
 <script src="_static/documentation_options.js?v=d45e8c67"></script>
-<script src="_static/doctools.js?v=fd6eb6e6"></script>
-<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-<script defer="defer" src="_static/theme.js?v=5db23cf8"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="_static/theme.js?v=49cc6205"></script>
 <script src="_static/sidebar-scroll.js?v=2c5053c4"></script>
 </body>
 </html>

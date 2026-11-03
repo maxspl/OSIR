@@ -44,12 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:registry_antifishing_file':
+  'windows:registry:antifishing_file':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-antifishing-file'
-    sourcetype: 'windows:ogre:registry_antifishing_file'
+    sourcetype: 'ogre:windows:registry:antifishing_file'
     host_rex: r"([\w\.-]+)--"
     artifact: "hive"
     timestamp_path:
-      - "timestamp" 
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/dfir-ogre/registry/registry.vrl

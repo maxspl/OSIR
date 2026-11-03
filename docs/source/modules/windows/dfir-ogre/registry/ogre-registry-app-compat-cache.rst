@@ -4,7 +4,7 @@ ogre-registry-app-compat-cache
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:ogre:registry_app_compat_cache`` | name_rex: ``r"\.jsonl$"``
+   * ``ogre:windows:registry:app_compat_cache`` | name_rex: ``r"\.jsonl$"``
 
 Description
 -----------
@@ -14,34 +14,22 @@ Parsing of app\_compat\_cache - using ANSSI DFIR OGRE
 Timeline
 --------
 
-.. _tl-windows-hives-registry-value:
+.. _tl-windows-dfir-ogre-registry-app_compat_cache-shimcache-entry:
 
 .. list-table::
    :header-rows: 1
 
-   * - registry.path
+   * - file.path
      - Relation
      - Message
    * - 
-     - `registry-value <rel-windows-hives-registry-value_>`_
-     - ``Registry value {registry.value} exists in key {registry.path}``
+     - ``shimcache-entry``
+     - ``ShimCache entry exists for {file.path}``
 
 Relationships
 -------------
 
-.. _rel-windows-hives-registry-value:
-
-.. list-table::
-   :header-rows: 1
-
-   * - Relation
-     - Source
-     - Target
-     - Type
-   * - `registry-value <tl-windows-hives-registry-value_>`_
-     - ``registry.path``
-     - ``registry.value``
-     - ``contains``
+No relationships.
 
 Fields
 ------
@@ -53,67 +41,17 @@ Fields
      - ECS field
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.registry"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[registry]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
-   * - ``"Windows Registry"``
+   * - ``"Windows AppCompatCache (ShimCache)"``
      - ``event.provider``
-   * - ``"success"``
-     - ``event.outcome``
-   * - ``KeyPath``
+   * - ``path``
+     - ``file.path``
+   * - ``split!(replace(to_string!(.path), pattern: "\\", with: "/"), "/")[-1]``
+     - ``file.name``
+   * - ``to_int(index)``
+     - ``action.properties.index``
+   * - ``replace(to_string!(.key_path), pattern: "\\\\", with: "\\")``
      - ``registry.path``
-   * - ``ValueName``
-     - ``registry.value``
-   * - ``ValueType``
-     - ``registry.data.type``
-   * - ``HiveType``
-     - ``registry.hive``
-   * - ``HivePath``
-     - ``labels.hive_path``
-   * - ``Description``
-     - ``labels.description``
-   * - ``Category``
-     - ``labels.category``
-   * - ``Comment``
-     - ``labels.comment``
-   * - ``ValueData``
-     - ``labels.value_data``
-   * - ``ValueData2``
-     - ``labels.value_data2``
-   * - ``ValueData3``
-     - ``labels.value_data3``
-   * - ``to_bool(Recursive)``
-     - ``labels.recursive``
-   * - ``to_bool(Deleted)``
-     - ``labels.deleted``
-   * - ``PluginDetailFile``
-     - ``labels.plugin_detail_file``
-   * - ``parse_timestamp(LastWriteTimestamp)``
-     - ``timestamp``
-   * - ``replace(to_string!(.path), pattern: "\\\\", with: "\\")``
-     - ``registry.path``
-   * - ``name``
-     - ``registry.value``
-   * - ``type``
-     - ``registry.data.type``
-   * - ``data``
-     - ``labels.value_data``
-   * - ``parse_timestamp(mtime)``
+   * - ``parse_timestamp(key_modif_time)``
      - ``registry.mtime``
-   * - ``parse_timestamp(mtime)``
+   * - ``parse_timestamp(modification_date)``
      - ``timestamp``
-   * - ``to_int(size)``
-     - ``labels.value_size``
-   * - ``to_bool(is_placeholder)``
-     - ``labels.is_placeholder``
-   * - ``security_descriptor``
-     - ``labels.security_descriptor``
-   * - ``ogre_md``
-     - ``labels.ogre_md``

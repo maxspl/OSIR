@@ -17,22 +17,10 @@ transformation:
       - field: event.original
         exists: false
   - set:
-      event.dataset:
-        value: windows.systeminfo
-      event.module:
-        value: windows
-      event.kind:
-        value: state
-      event.category:
-        value: [host]
-      event.type:
-        value: [info]
       event.action:
         value: systeminfo
       event.code:
         value: systeminfo
-      event.outcome:
-        value: success
       event.provider:
         value: Windows Systeminfo
   - custom: |2-
@@ -81,7 +69,7 @@ transformation:
         } else {
           .host.os.version = os_version_raw
         }
-        .host.os.Ext.systeminfo.version_raw = os_version_raw
+        .action.properties.version_raw = os_version_raw
       }
 
       os_manufacturer_raw = null
@@ -95,7 +83,7 @@ transformation:
       }
 
       if os_manufacturer_raw != null && os_manufacturer_raw != "" {
-        .host.os.Ext.systeminfo.manufacturer = os_manufacturer_raw
+        .action.properties.manufacturer = os_manufacturer_raw
       }
 
       os_config_raw = null
@@ -109,7 +97,7 @@ transformation:
       }
 
       if os_config_raw != null && os_config_raw != "" {
-        .host.os.Ext.systeminfo.configuration = os_config_raw
+        .action.properties.configuration = os_config_raw
       }
 
       os_build_type_raw = null
@@ -123,7 +111,7 @@ transformation:
       }
 
       if os_build_type_raw != null && os_build_type_raw != "" {
-        .host.os.Ext.systeminfo.build_type = os_build_type_raw
+        .action.properties.build_type = os_build_type_raw
       }
 
       reg_owner_raw = null
@@ -137,7 +125,7 @@ transformation:
       }
 
       if reg_owner_raw != null && reg_owner_raw != "" {
-        .host.os.Ext.systeminfo.registered_owner = reg_owner_raw
+        .action.properties.registered_owner = reg_owner_raw
       }
 
       reg_org_raw = null
@@ -151,7 +139,7 @@ transformation:
       }
 
       if reg_org_raw != null && reg_org_raw != "" {
-        .host.os.Ext.systeminfo.registered_organization = reg_org_raw
+        .action.properties.registered_organization = reg_org_raw
       }
 
       product_id_raw = null
@@ -163,7 +151,7 @@ transformation:
       }
 
       if product_id_raw != null && product_id_raw != "" {
-        .host.os.Ext.systeminfo.product_id = product_id_raw
+        .action.properties.product_id = product_id_raw
       }
 
       sys_manufacturer_raw = null
@@ -177,7 +165,7 @@ transformation:
       }
 
       if sys_manufacturer_raw != null && sys_manufacturer_raw != "" {
-        .host.Ext.systeminfo.system_manufacturer = sys_manufacturer_raw
+        .action.properties.system_manufacturer = sys_manufacturer_raw
       }
 
       sys_model_raw = null
@@ -191,7 +179,7 @@ transformation:
       }
 
       if sys_model_raw != null && sys_model_raw != "" {
-        .host.Ext.systeminfo.system_model = sys_model_raw
+        .action.properties.system_model = sys_model_raw
       }
 
       sys_type_raw = null
@@ -217,7 +205,7 @@ transformation:
       }
 
       if proc_raw != null && proc_raw != "" {
-        .host.cpu.Ext.systeminfo.processors_raw = proc_raw
+        .action.properties.processors_raw = proc_raw
       }
 
       bios_raw = null
@@ -229,7 +217,7 @@ transformation:
       }
 
       if bios_raw != null && bios_raw != "" {
-        .host.firmware.Ext.systeminfo.bios_version = bios_raw
+        .action.properties.bios_version = bios_raw
       }
 
       win_dir_raw = null
@@ -243,7 +231,7 @@ transformation:
       }
 
       if win_dir_raw != null && win_dir_raw != "" {
-        .host.os.Ext.systeminfo.windows_directory = win_dir_raw
+        .action.properties.windows_directory = win_dir_raw
       }
 
       sys_dir_raw = null
@@ -257,7 +245,7 @@ transformation:
       }
 
       if sys_dir_raw != null && sys_dir_raw != "" {
-        .host.os.Ext.systeminfo.system_directory = sys_dir_raw
+        .action.properties.system_directory = sys_dir_raw
       }
 
       boot_device_raw = null
@@ -271,7 +259,7 @@ transformation:
       }
 
       if boot_device_raw != null && boot_device_raw != "" {
-        .host.Ext.systeminfo.boot_device = boot_device_raw
+        .action.properties.boot_device = boot_device_raw
       }
 
       sys_locale_raw = null
@@ -285,7 +273,7 @@ transformation:
       }
 
       if sys_locale_raw != null && sys_locale_raw != "" {
-        .host.os.Ext.systeminfo.system_locale = sys_locale_raw
+        .action.properties.system_locale = sys_locale_raw
       }
 
       input_locale_raw = null
@@ -299,7 +287,7 @@ transformation:
       }
 
       if input_locale_raw != null && input_locale_raw != "" {
-        .host.os.Ext.systeminfo.input_locale = input_locale_raw
+        .action.properties.input_locale = input_locale_raw
       }
 
       tz_raw = null
@@ -312,7 +300,7 @@ transformation:
 
       if tz_raw != null && tz_raw != "" {
         .event.timezone = tz_raw
-        .host.os.Ext.systeminfo.timezone = tz_raw
+        .action.properties.timezone = tz_raw
       }
 
       total_phys_raw = null
@@ -326,7 +314,7 @@ transformation:
       }
 
       if total_phys_raw != null && total_phys_raw != "" {
-        .host.Ext.systeminfo.total_physical_memory_raw = total_phys_raw
+        .action.properties.total_physical_memory_raw = total_phys_raw
       }
 
       avail_phys_raw = null
@@ -340,7 +328,7 @@ transformation:
       }
 
       if avail_phys_raw != null && avail_phys_raw != "" {
-        .host.Ext.systeminfo.available_physical_memory_raw = avail_phys_raw
+        .action.properties.available_physical_memory_raw = avail_phys_raw
       }
 
       vm_max_raw = null
@@ -354,7 +342,7 @@ transformation:
       }
 
       if vm_max_raw != null && vm_max_raw != "" {
-        .host.Ext.systeminfo.virtual_memory_max_raw = vm_max_raw
+        .action.properties.virtual_memory_max_raw = vm_max_raw
       }
 
       vm_avail_raw = null
@@ -368,7 +356,7 @@ transformation:
       }
 
       if vm_avail_raw != null && vm_avail_raw != "" {
-        .host.Ext.systeminfo.virtual_memory_available_raw = vm_avail_raw
+        .action.properties.virtual_memory_available_raw = vm_avail_raw
       }
 
       vm_inuse_raw = null
@@ -382,7 +370,7 @@ transformation:
       }
 
       if vm_inuse_raw != null && vm_inuse_raw != "" {
-        .host.Ext.systeminfo.virtual_memory_in_use_raw = vm_inuse_raw
+        .action.properties.virtual_memory_in_use_raw = vm_inuse_raw
       }
 
       pagefile_raw = null
@@ -396,7 +384,7 @@ transformation:
       }
 
       if pagefile_raw != null && pagefile_raw != "" {
-        .host.Ext.systeminfo.pagefile_locations_raw = pagefile_raw
+        .action.properties.pagefile_locations_raw = pagefile_raw
       }
 
       domain_raw = null
@@ -422,7 +410,7 @@ transformation:
       }
 
       if logon_server_raw != null && logon_server_raw != "" {
-        .host.Ext.systeminfo.logon_server = logon_server_raw
+        .action.properties.logon_server = logon_server_raw
       }
 
       hotfix_raw = null
@@ -438,7 +426,7 @@ transformation:
       }
 
       if hotfix_raw != null && hotfix_raw != "" {
-        .host.Ext.systeminfo.hotfixes_raw = hotfix_raw
+        .action.properties.hotfixes_raw = hotfix_raw
       }
 
       netcards_raw = null
@@ -452,7 +440,7 @@ transformation:
       }
 
       if netcards_raw != null && netcards_raw != "" {
-        .host.Ext.systeminfo.network_cards_raw = netcards_raw
+        .action.properties.network_cards_raw = netcards_raw
       }
 
       hyperv_raw = null
@@ -464,7 +452,7 @@ transformation:
       }
 
       if hyperv_raw != null && hyperv_raw != "" {
-        .host.Ext.systeminfo.hyperv_requirements_raw = hyperv_raw
+        .action.properties.hyperv_requirements_raw = hyperv_raw
       }
 
       ts_value  = null
@@ -487,7 +475,7 @@ transformation:
           ts_value  = ts
           ts_source = "systeminfo_boot_time"
         } else {
-          .host.Ext.systeminfo.boot_time_raw = boot_raw
+          .action.properties.boot_time_raw = boot_raw
         }
       }
 
@@ -502,7 +490,7 @@ transformation:
       }
 
       if inst_raw != null && inst_raw != "" {
-        .host.os.Ext.systeminfo.install_date_raw = inst_raw
+        .action.properties.install_date_raw = inst_raw
 
         if ts_value == null {
           its = parse_timestamp(inst_raw, "%m/%d/%Y, %I:%M:%S %p") ?? parse_timestamp(inst_raw, "%d/%m/%Y, %T") ?? null
@@ -520,5 +508,5 @@ transformation:
           .event.created = ts_value
         }
 
-        .event.Ext.timestamp_source = ts_source
+        .action.properties.timestamp_source = ts_source
       }

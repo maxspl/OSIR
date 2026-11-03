@@ -9,9 +9,9 @@ extract_orc
    * ``filesystem:ntfs:usn`` | name_rex: ``r"USNInfo.*.csv$"``
    * ``orc:collected_files`` | name_rex: ``r"GetThis.csv$"``
    * ``orc:files`` | name_rex: ``r"\.csv$"``
-   * ``windows:autoruns`` | name_rex: ``r"autoruns.*csv$"``
    * ``_json`` | name_rex: ``r"(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$"``
    * ``_json`` | name_rex: ``r"(?i)^systeminfo(?:_.+)?\.csv$"``
+   * ``windows:sysinternals:autoruns`` | name_rex: ``r"autoruns.*csv$"``
 
 Description
 -----------
@@ -33,6 +33,22 @@ No timeline messages.
 
 No timeline messages.
 
+**``windows/NTFSInfo_usn.yml``**
+
+.. _tl-windows-NTFSInfo_usn-usn-record:
+
+.. list-table::
+   :header-rows: 1
+
+   * - file.name
+     - event.action
+     - Relation
+     - Message
+   * - 
+     - 
+     - ``usn-record``
+     - ``USN record for file {file.name}: {event.action}``
+
 **``windows/NTFSInfo_i30.yml``**
 
 No timeline messages.
@@ -40,6 +56,18 @@ No timeline messages.
 **``windows/live_response/autoruns.yml``**
 
 No timeline messages.
+
+**``windows/collected_files.yml``**
+
+.. _tl-windows-collected_files-collected:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Relation
+     - Message
+   * - `collected <rel-windows-collected_files-collected_>`_
+     - ``File {file.path} was collected by DFIR-ORC (MD5 {hash.md5})``
 
 Relationships
 -------------
@@ -56,6 +84,10 @@ No relationships.
 
 No relationships.
 
+**``windows/NTFSInfo_usn.yml``**
+
+No relationships.
+
 **``windows/NTFSInfo_i30.yml``**
 
 No relationships.
@@ -63,6 +95,22 @@ No relationships.
 **``windows/live_response/autoruns.yml``**
 
 No relationships.
+
+**``windows/collected_files.yml``**
+
+.. _rel-windows-collected_files-collected:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Relation
+     - Source
+     - Target
+     - Type
+   * - `collected <tl-windows-collected_files-collected_>`_
+     - ``file.path``
+     - ``hash.md5``
+     - ``collected as``
 
 Fields
 ------
@@ -78,22 +126,10 @@ Fields
      - ``event``
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.systeminfo"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[host]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"systeminfo"``
      - ``event.action``
    * - ``"systeminfo"``
      - ``event.code``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``"Windows Systeminfo"``
      - ``event.provider``
    * - ``custom``
@@ -110,24 +146,12 @@ Fields
      - ``event``
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.process"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
    * - ``"Windows Process (generic)"``
      - ``event.provider``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[process]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"process_snapshot"``
      - ``event.action``
    * - ``"process_snapshot"``
      - ``event.code``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``custom``
      - 
    * - ``to_string!(del(.WindowsVersion))``
@@ -137,33 +161,33 @@ Fields
    * - ``custom``
      - 
    * - ``to_string!(del(.Product))``
-     - ``process.Ext.snapshot.product``
+     - ``action.properties.product``
    * - ``to_string!(del(.FileVersion))``
-     - ``process.Ext.snapshot.file_version``
+     - ``action.properties.file_version``
    * - ``to_string!(del(.ProductVersion))``
-     - ``process.Ext.snapshot.product_version``
+     - ``action.properties.product_version``
    * - ``to_string!(del(.CreationClassName))``
-     - ``process.Ext.snapshot.creation_class_name``
+     - ``action.properties.creation_class_name``
    * - ``to_string!(del(.OSCreationClassName))``
-     - ``process.Ext.snapshot.os_creation_class_name``
+     - ``action.properties.os_creation_class_name``
    * - ``custom``
      - 
    * - ``to_string!(del(.KernelModeTime))``
-     - ``process.Ext.snapshot.kernel_mode_time_raw``
+     - ``action.properties.kernel_mode_time_raw``
    * - ``to_string!(del(.UserModeTime))``
-     - ``process.Ext.snapshot.user_mode_time_raw``
+     - ``action.properties.user_mode_time_raw``
    * - ``to_string!(del(.TotalProcessorTime))``
-     - ``process.Ext.snapshot.total_processor_time``
+     - ``action.properties.total_processor_time``
    * - ``to_string!(del(.UserProcessorTime))``
-     - ``process.Ext.snapshot.user_processor_time``
+     - ``action.properties.user_processor_time``
    * - ``to_string!(del(.PrivilegedProcessorTime))``
-     - ``process.Ext.snapshot.privileged_processor_time``
+     - ``action.properties.privileged_processor_time``
    * - ``custom``
      - 
    * - ``to_string!(del(.PriorityClass))``
-     - ``process.Ext.snapshot.priority_class``
+     - ``action.properties.priority_class``
    * - ``to_string!(del(.HasExited))``
-     - ``process.Ext.snapshot.has_exited_raw``
+     - ``action.properties.has_exited_raw``
    * - ``custom``
      - 
 
@@ -174,34 +198,172 @@ Fields
 
    * - Original
      - ECS field
-   * - ``{}``
-     - ``event``
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.ntfsinfo"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[file]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"ntfs_file"``
      - ``event.action``
-   * - ``"ntfs_file"``
-     - ``event.code``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``"Windows NTFSInfo (detail)"``
      - ``event.provider``
-   * - ``to_string!(del(.ComputerName))``
+   * - ``File``
+     - ``file.name``
+   * - ``to_int(SizeInBytes)``
+     - ``file.size``
+   * - ``Attributes``
+     - ``file.attributes``
+   * - ``Owner``
+     - ``file.owner``
+   * - ``ComputerName``
      - ``host.name``
-   * - ``to_string!(del(.VolumeID))``
-     - ``file.Ext.ntfs.volume_id``
+   * - ``FullName``
+     - ``file.path``
+   * - ``parse_timestamp(CreationDate)``
+     - ``file.created``
+   * - ``parse_timestamp(LastModificationDate)``
+     - ``file.mtime``
+   * - ``parse_timestamp(LastAccessDate)``
+     - ``file.accessed``
+   * - ``parse_timestamp(LastAttrChangeDate)``
+     - ``file.ctime``
+   * - ``parse_timestamp(FileNameCreationDate)``
+     - ``file.fn_created``
+   * - ``parse_timestamp(FileNameLastModificationDate)``
+     - ``file.fn_mtime``
+   * - ``parse_timestamp(FileNameLastAccessDate)``
+     - ``file.fn_accessed``
+   * - ``parse_timestamp(FileNameLastAttrModificationDate)``
+     - ``file.fn_ctime``
+   * - ``MD5``
+     - ``hash.md5``
+   * - ``SHA1``
+     - ``hash.sha1``
+   * - ``SHA256``
+     - ``hash.sha256``
+   * - ``SSDeep``
+     - ``hash.ssdeep``
+   * - ``Version``
+     - ``pe.file_version``
+   * - ``CompanyName``
+     - ``pe.company``
+   * - ``ProductName``
+     - ``pe.product``
+   * - ``OriginalFileName``
+     - ``pe.original_file_name``
+   * - ``AuthenticodeSigner``
+     - ``code_signature.subject_name``
+   * - ``AuthenticodeCA``
+     - ``code_signature.issuer_name``
    * - ``custom``
      - 
+   * - ``custom``
+     - 
+   * - ``VolumeID``
+     - ``action.properties.VolumeID``
+   * - ``USN``
+     - ``action.properties.USN``
+   * - ``FRN``
+     - ``action.properties.FRN``
+   * - ``ParentFRN``
+     - ``action.properties.ParentFRN``
+   * - ``ExtendedAttribute``
+     - ``action.properties.ExtendedAttribute``
+   * - ``ADS``
+     - ``action.properties.ADS``
+   * - ``FilenameID``
+     - ``action.properties.FilenameID``
+   * - ``DataID``
+     - ``action.properties.DataID``
+   * - ``RecordInUse``
+     - ``action.properties.RecordInUse``
+   * - ``ShortName``
+     - ``action.properties.ShortName``
+   * - ``PeSHA1``
+     - ``action.properties.PeSHA1``
+   * - ``PeSHA256``
+     - ``action.properties.PeSHA256``
+   * - ``PeMD5``
+     - ``action.properties.PeMD5``
+   * - ``FirstBytes``
+     - ``action.properties.FirstBytes``
+   * - ``TLSH``
+     - ``action.properties.TLSH``
+   * - ``SignedHash``
+     - ``action.properties.SignedHash``
+   * - ``OwnerId``
+     - ``action.properties.OwnerId``
+   * - ``OwnerSid``
+     - ``action.properties.OwnerSid``
+   * - ``Platform``
+     - ``action.properties.Platform``
+   * - ``TimeStamp``
+     - ``action.properties.TimeStamp``
+   * - ``SubSystem``
+     - ``action.properties.SubSystem``
+   * - ``FileType``
+     - ``action.properties.FileType``
+   * - ``FileOS``
+     - ``action.properties.FileOS``
+   * - ``FilenameFlags``
+     - ``action.properties.FilenameFlags``
+   * - ``SecDescrID``
+     - ``action.properties.SecDescrID``
+   * - ``EASize``
+     - ``action.properties.EASize``
+   * - ``SecurityDirectory``
+     - ``action.properties.SecurityDirectory``
+   * - ``SecurityDirectorySize``
+     - ``action.properties.SecurityDirectorySize``
+   * - ``SecurityDirectorySignatureSize``
+     - ``action.properties.SecurityDirectorySignatureSize``
+   * - ``AuthenticodeStatus``
+     - ``action.properties.AuthenticodeStatus``
+   * - ``AuthenticodeSignerThumbprint``
+     - ``action.properties.AuthenticodeSignerThumbprint``
+   * - ``AuthenticodeCAThumbprint``
+     - ``action.properties.AuthenticodeCAThumbprint``
+   * - ``FilenameIndex``
+     - ``action.properties.FilenameIndex``
+   * - ``DataIndex``
+     - ``action.properties.DataIndex``
+   * - ``SnapshotID``
+     - ``action.properties.SnapshotID``
+   * - ``custom``
+     - 
+
+**``windows/NTFSInfo_usn.yml``**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"Windows NTFS USN Journal (detail)"``
+     - ``event.provider``
+   * - ``File``
+     - ``file.name``
+   * - ``FullPath``
+     - ``file.path``
+   * - ``FileAttributes``
+     - ``file.attributes``
+   * - ``ComputerName``
+     - ``host.name``
+   * - ``USN``
+     - ``action.properties.USN``
+   * - ``FRN``
+     - ``action.properties.FRN``
+   * - ``ParentFRN``
+     - ``action.properties.ParentFRN``
+   * - ``VolumeID``
+     - ``action.properties.VolumeID``
+   * - ``SnapshotID``
+     - ``action.properties.SnapshotID``
+   * - ``parse_timestamp(TimeStamp)``
+     - ``timestamp``
+   * - ``downcase(Reason)``
+     - ``event.action``
+   * - ``Reason``
+     - ``action.properties.Reason``
 
 **``windows/NTFSInfo_i30.yml``**
 
@@ -210,32 +372,38 @@ Fields
 
    * - Original
      - ECS field
-   * - ``{}``
-     - ``event``
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.ntfsinfo.filename"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[file]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"ntfs_filename"``
      - ``event.action``
-   * - ``"ntfs_filename"``
-     - ``event.code``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``"Windows NTFS Filename (detail)"``
      - ``event.provider``
-   * - ``to_string!(del(.ComputerName))``
+   * - ``Name``
+     - ``file.name``
+   * - ``to_int(DataSize)``
+     - ``file.size``
+   * - ``ComputerName``
      - ``host.name``
-   * - ``to_string!(del(.VolumeID))``
-     - ``file.Ext.ntfs.volume_id``
+   * - ``parse_timestamp(FileNameCreationDate)``
+     - ``file.fn_created``
+   * - ``parse_timestamp(FileNameLastModificationDate)``
+     - ``file.fn_mtime``
+   * - ``parse_timestamp(FileNameLastAccessDate)``
+     - ``file.fn_accessed``
+   * - ``parse_timestamp(FileNameLastAttrModificationDate)``
+     - ``file.fn_ctime``
+   * - ``VolumeID``
+     - ``action.properties.VolumeID``
+   * - ``FRN``
+     - ``action.properties.FRN``
+   * - ``ParentFRN``
+     - ``action.properties.ParentFRN``
+   * - ``FilenameFlags``
+     - ``action.properties.FilenameFlags``
+   * - ``SnapshotID``
+     - ``action.properties.SnapshotID``
+   * - ``CarvedEntry``
+     - ``action.properties.CarvedEntry``
    * - ``custom``
      - 
 
@@ -270,3 +438,75 @@ Fields
      - ``event.provider``
    * - ``custom``
      - 
+
+**``windows/collected_files.yml``**
+
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``"DFIR-ORC GetThis"``
+     - ``event.provider``
+   * - ``FullName``
+     - ``file.path``
+   * - ``to_int(SizeInBytes)``
+     - ``file.size``
+   * - ``ComputerName``
+     - ``host.name``
+   * - ``parse_timestamp(CreationDate)``
+     - ``timestamp``
+   * - ``parse_timestamp(CreationDate)``
+     - ``file.created``
+   * - ``parse_timestamp(LastModificationDate)``
+     - ``file.mtime``
+   * - ``parse_timestamp(LastAccessDate)``
+     - ``file.accessed``
+   * - ``parse_timestamp(LastAttrChangeDate)``
+     - ``file.ctime``
+   * - ``parse_timestamp(FileNameCreationDate)``
+     - ``file.fn_created``
+   * - ``parse_timestamp(FileNameLastModificationDate)``
+     - ``file.fn_mtime``
+   * - ``parse_timestamp(FileNameLastAccessDate)``
+     - ``file.fn_accessed``
+   * - ``parse_timestamp(FileNameLastAttrModificationDate)``
+     - ``file.fn_ctime``
+   * - ``MD5``
+     - ``hash.md5``
+   * - ``SHA1``
+     - ``hash.sha1``
+   * - ``SHA256``
+     - ``hash.sha256``
+   * - ``SSDeep``
+     - ``hash.ssdeep``
+   * - ``VolumeID``
+     - ``action.properties.VolumeID``
+   * - ``ParentFRN``
+     - ``action.properties.ParentFRN``
+   * - ``FRN``
+     - ``action.properties.FRN``
+   * - ``AttrType``
+     - ``action.properties.AttrType``
+   * - ``AttrName``
+     - ``action.properties.AttrName``
+   * - ``AttrID``
+     - ``action.properties.AttrID``
+   * - ``ContentType``
+     - ``action.properties.ContentType``
+   * - ``SnapshotID``
+     - ``action.properties.SnapshotID``
+   * - ``FindMatch``
+     - ``action.properties.FindMatch``
+   * - ``SampleName``
+     - ``action.properties.SampleName``
+   * - ``YaraRules``
+     - ``action.properties.YaraRules``
+   * - ``RecordInUse``
+     - ``action.properties.RecordInUse``
+   * - ``TLSH``
+     - ``action.properties.TLSH``
+   * - ``SampleCollectionDate``
+     - ``action.properties.SampleCollectionDate``

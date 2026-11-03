@@ -31,15 +31,5 @@ Fields
      - ECS field
    * - ``encode_json(.)``
      - ``event.original``
-   * - ``"windows.netstat"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[network]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``custom``
      - 

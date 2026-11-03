@@ -9,9 +9,11 @@ Subcategories
 .. raw:: html
 
    <div class="module-cards">
+   <a class="module-card" href="artemis/index.html"><span class="module-card-title">Artemis</span><span class="module-card-desc">1 module</span></a>
    <a class="module-card" href="dfir-ogre/index.html"><span class="module-card-title">DFIR-OGRE</span><span class="module-card-desc">62 modules</span></a>
    <a class="module-card" href="dissect/index.html"><span class="module-card-title">Dissect</span><span class="module-card-desc">2 modules</span></a>
-   <a class="module-card" href="live_response/index.html"><span class="module-card-title">Live Response</span><span class="module-card-desc">11 modules</span></a>
+   <a class="module-card" href="live_response/index.html"><span class="module-card-title">Live Response</span><span class="module-card-desc">8 modules</span></a>
+   <a class="module-card" href="sysinternals/index.html"><span class="module-card-title">Sysinternals</span><span class="module-card-desc">3 modules</span></a>
    <a class="module-card" href="zimmerman/index.html"><span class="module-card-title">Zimmerman</span><span class="module-card-desc">16 modules</span></a>
    </div>
 
@@ -32,7 +34,6 @@ Modules
    <a class="module-card" href="pstree_security.html"><span class="module-card-title">Pstree Security</span><span class="module-card-desc">Parse output of EVTX module to build process tree from security.evtx - event ID 4688</span></a>
    <a class="module-card" href="pstree_sysmon.html"><span class="module-card-title">Pstree Sysmon</span><span class="module-card-desc">Parse output of EVTX module to build process tree from the Sysmon operational channel - event ID 1</span></a>
    <a class="module-card" href="restore_fs.html"><span class="module-card-title">Restore Fs</span><span class="module-card-desc">Restore original filesystem structure from DFIR ORC triage</span></a>
-   <a class="module-card" href="srum.html"><span class="module-card-title">Srum</span><span class="module-card-desc">Parsing of SRUM artifact.</span></a>
    <a class="module-card" href="wer.html"><span class="module-card-title">Wer</span><span class="module-card-desc">Parse .wer files</span></a>
    <a class="module-card" href="win_memory.html"><span class="module-card-title">Win Memory</span><span class="module-card-desc">Parsing of Windows memory dump.</span></a>
    </div>
@@ -52,10 +53,11 @@ Modules
    pstree_security
    pstree_sysmon
    restore_fs
-   srum
    wer
    win_memory
+   artemis/index
    dfir-ogre/index
    dissect/index
    live_response/index
+   sysinternals/index
    zimmerman/index

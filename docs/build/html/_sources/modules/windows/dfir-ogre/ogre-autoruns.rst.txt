@@ -4,7 +4,7 @@ ogre-autoruns
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:ogre:autoruns`` | name_rex: ``r"\.jsonl$"``
+   * ``ogre:windows:sysinternals:autoruns`` | name_rex: ``r"\.jsonl$"``
 
 Description
 -----------
@@ -14,23 +14,22 @@ Parsing of autoruns - using ANSSI DFIR OGRE
 Timeline
 --------
 
-.. _tl-windows-autoruns-autoruns-entry:
-.. _tl-windows-autoruns-autoruns-key:
+.. _tl-windows-dfir-ogre-autoruns-autoruns-entry:
 
 .. list-table::
    :header-rows: 1
 
-   * - Relation
+   * - registry.path
+     - Relation
      - Message
-   * - `autoruns-entry <rel-windows-autoruns-autoruns-entry_>`_
+   * - 
+     - `autoruns-entry <rel-windows-dfir-ogre-autoruns-autoruns-entry_>`_
      - ``Autoruns entry {process.executable} registered at {registry.path}``
-   * - ``autoruns-key``
-     - ``Autoruns registry key {registry.path} of type {labels.autoruns_type} exists``
 
 Relationships
 -------------
 
-.. _rel-windows-autoruns-autoruns-entry:
+.. _rel-windows-dfir-ogre-autoruns-autoruns-entry:
 
 .. list-table::
    :header-rows: 1
@@ -39,7 +38,7 @@ Relationships
      - Source
      - Target
      - Type
-   * - `autoruns-entry <tl-windows-autoruns-autoruns-entry_>`_
+   * - `autoruns-entry <tl-windows-dfir-ogre-autoruns-autoruns-entry_>`_
      - ``registry.path``
      - ``process.executable``
      - ``launches``
@@ -54,20 +53,8 @@ Fields
      - ECS field
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.autoruns"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[process, registry]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"Windows Autoruns (dfir-ogre)"``
      - ``event.provider``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``entry_location``
      - ``registry.path``
    * - ``image_path``
@@ -83,42 +70,26 @@ Fields
    * - ``sha256``
      - ``file.hash.sha256``
    * - ``pe_sha1``
-     - ``labels.pe_sha1``
+     - ``action.properties.pe_sha1``
    * - ``pe_sha256``
-     - ``labels.pe_sha256``
+     - ``action.properties.pe_sha256``
    * - ``entry_name``
-     - ``labels.entry_name``
+     - ``action.properties.entry_name``
    * - ``entry``
-     - ``labels.entry``
+     - ``action.properties.entry``
    * - ``category``
-     - ``labels.category``
+     - ``action.properties.category``
    * - ``profile``
-     - ``labels.profile``
+     - ``action.properties.profile``
    * - ``description``
-     - ``labels.description``
+     - ``action.properties.description``
    * - ``company``
-     - ``labels.company``
+     - ``action.properties.company``
    * - ``signer``
-     - ``labels.signer``
+     - ``action.properties.signer``
    * - ``version``
-     - ``labels.version``
+     - ``action.properties.version``
    * - ``imp``
-     - ``labels.imp``
+     - ``action.properties.imp``
    * - ``parse_timestamp(time)``
      - ``timestamp``
-   * - ``ogre_md``
-     - ``labels.ogre_md``
-   * - ``key_path``
-     - ``registry.path``
-   * - ``parse_timestamp(key_modif_time)``
-     - ``registry.mtime``
-   * - ``parse_timestamp(key_modif_time)``
-     - ``timestamp``
-   * - ``type``
-     - ``labels.autoruns_type``
-   * - ``values``
-     - ``labels.values``
-   * - ``key_security``
-     - ``labels.key_security``
-   * - ``ogre_md``
-     - ``labels.ogre_md``

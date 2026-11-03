@@ -1,0 +1,56 @@
+metadata:
+  version: "1.0"
+  id: bam_dam
+  author: Typ
+  description: Windows BAM/DAM (dfir-ogre registry bam_dam JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows BAM/DAM (Background Activity Monitor)"
+
+  # -- OGRE (dfir-ogre registry bam_dam) input -----------------------------------
+
+  # exec_path, user_sid, exec_time, key_path, key_modif_time, key_security,
+  # ogre_md
+  - set:
+      process.executable: exec_path
+      user.id: user_sid
+      registry.path:
+        source: 'replace(to_string!(.key_path), pattern: "\\\\", with: "\\")'
+      registry.hive:
+        value: HKLM
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+
+  - set:
+      timestamp:
+        source: exec_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+    filter: exists(.exec_time) && .exec_time != ""
+
+  - delete:
+      - exec_path
+      - user_sid
+      - exec_time
+      - key_path
+      - key_modif_time
+      - ogre_md
+
+timeline:
+  - id: executed
+    message: "User {user.id} executed {process.executable} (last run {timestamp})"
+
+relationships:
+  - id: executed
+    source: user.id
+    target: process.executable
+    type: executed

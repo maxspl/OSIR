@@ -1,0 +1,50 @@
+metadata:
+  version: "1.0"
+  id: amcache
+  author: Typ
+  description: Amcache artifacts (dfir-ogre Amcache.hve JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows AmCache"
+
+  # registry value records: path, name, data, type, size, mtime, ...
+  - set:
+      registry.hive:
+        value: Amcache
+      registry.path:
+        source: 'replace(to_string!(.path), pattern: "\\\\", with: "\\")'
+      registry.value: name
+      registry.data.type: type
+      action.properties.data: data
+      timestamp:
+        source: mtime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      registry.mtime:
+        source: mtime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      action.properties.size:
+        source: size
+        operation: to_int
+      action.properties.is_placeholder:
+        source: is_placeholder
+        operation: to_bool
+    filter: exists(.path) && exists(.mtime)
+
+  - delete:
+      - path
+      - mtime
+      - name
+      - data
+      - type
+      - size
+      - is_placeholder
+      - ogre_md

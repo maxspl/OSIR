@@ -29,20 +29,8 @@ Fields
 
    * - Original
      - ECS field
-   * - ``"windows.pstree_nodes"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[process]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"process_tree_node"``
      - ``event.action``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``encode_json!(.)``
      - ``event.original``
    * - ``custom``

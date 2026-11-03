@@ -1,0 +1,181 @@
+metadata:
+  version: "1.0"
+  id: prefetch
+  author: Typ
+  description: Windows Prefetch JSONL (PECmd) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Prefetch"
+      event.action:
+        value: prefetch_entry
+
+  - set:
+      process.name: ExecutableName
+      action.properties.Hash: Hash
+      action.properties.Version: Version
+
+  # SourceFilename carries the full collection-side path
+  # (\\server\share\...\restore_fs\<endpoint>\): keep only the part from the
+  # mount point onward (C\Windows\Prefetch\ORC_X6~1.PF); fall back to the
+  # raw value when no restore_fs prefix is present
+  - custom: |2-
+      if exists(.SourceFilename) {
+          sf = to_string!(.SourceFilename)
+          m, merr = parse_regex(sf, r'(?i)restore_fs[\\/][^\\/]+[\\/](?<rest>.+)$')
+          if merr == null {
+              .file.path = m.rest
+          } else {
+              .file.path = sf
+          }
+      }
+
+  - set:
+      timestamp:
+        source: LastRun
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      event.start:
+        source: LastRun
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.LastRun:
+        source: LastRun
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+
+  - set:
+      file.created:
+        source: SourceCreated
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.mtime:
+        source: SourceModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.accessed:
+        source: SourceAccessed
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.size:
+        source: Size
+        operation: to_int
+
+  - set:
+      action.properties.RunCount:
+        source: RunCount
+        operation: to_int
+      action.properties.PreviousRun0:
+        source: PreviousRun0
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.PreviousRun1:
+        source: PreviousRun1
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.PreviousRun2:
+        source: PreviousRun2
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.PreviousRun3:
+        source: PreviousRun3
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.PreviousRun4:
+        source: PreviousRun4
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.PreviousRun5:
+        source: PreviousRun5
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.PreviousRun6:
+        source: PreviousRun6
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+
+  - set:
+      action.properties.Volume0Name: Volume0Name
+      action.properties.Volume0Serial: Volume0Serial
+      action.properties.Volume1Name: Volume1Name
+      action.properties.Volume1Serial: Volume1Serial
+
+  - set:
+      action.properties.Volume0Created:
+        source: Volume0Created
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.Volume1Created:
+        source: Volume1Created
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+
+  - set:
+      action.properties.Directories:
+        source: Directories
+        operation: split
+        parameters:
+          pattern: ", "
+      action.properties.FilesLoaded:
+        source: FilesLoaded
+        operation: split
+        parameters:
+          pattern: ", "
+
+
+  - delete:
+      - SourceFilename
+      - SourceCreated
+      - SourceModified
+      - SourceAccessed
+      - ExecutableName
+      - Hash
+      - Size
+      - Version
+      - RunCount
+      - LastRun
+      - PreviousRun0
+      - PreviousRun1
+      - PreviousRun2
+      - PreviousRun3
+      - PreviousRun4
+      - PreviousRun5
+      - PreviousRun6
+      - Volume0Name
+      - Volume0Serial
+      - Volume0Created
+      - Volume1Name
+      - Volume1Serial
+      - Volume1Created
+      - Directories
+      - FilesLoaded
+      - ParsingError
+
+timeline:
+  - id: executed
+    message: "Program {process.name} was executed (last run {timestamp})"
+
+relationships:
+  - id: executed
+    source: process.name
+    target: file.path
+    type: recorded in

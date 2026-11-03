@@ -20,10 +20,10 @@ src.osir\_lib.osir\_lib.core.model.OsirConfigurationModel module
    :show-inheritance:
    :undoc-members:
 
-src.osir\_lib.osir\_lib.core.model.OsirEndpointModel module
------------------------------------------------------------
+src.osir\_lib.osir\_lib.core.model.OsirExtractedModel module
+------------------------------------------------------------
 
-.. automodule:: src.osir_lib.osir_lib.core.model.OsirEndpointModel
+.. automodule:: src.osir_lib.osir_lib.core.model.OsirExtractedModel
    :members:
    :show-inheritance:
    :undoc-members:

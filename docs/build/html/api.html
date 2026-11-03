@@ -24,8 +24,8 @@
 <title>API Documentation | Orchestration Software for Incident Response</title>
 <meta content="API Documentation | Orchestration Software for Incident Response" property="og:title"/>
 <meta content="API Documentation | Orchestration Software for Incident Response" name="twitter:title"/>
-<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="_static/OSIR_LOGO.png" rel="icon"/>
@@ -106,6 +106,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/index.html">Modules<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/common/index.html">Common<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -133,13 +134,9 @@
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/scan/index.html">Scan<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -259,9 +256,12 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/artemis/index.html">Windows / Artemis<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -338,12 +338,15 @@
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/sysinternals/index.html">Windows / Sysinternals<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -599,6 +602,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a><ul>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#submodules">Submodules</a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrl">src.osir_vrl.osir_vrl.OsirVrl module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlBlock">src.osir_vrl.osir_vrl.OsirVrlBlock module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlModel">src.osir_vrl.osir_vrl.OsirVrlModel module</a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlTimeline">src.osir_vrl.osir_vrl.OsirVrlTimeline module</a></li>
@@ -607,19 +611,6 @@
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl">Module contents</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#module-src.osir_vrl.OsirVrl">src.osir_vrl.OsirVrl module</a><ul>
-<li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl"><code class="docutils literal notranslate"><span class="pre">OsirVrl</span></code></a><ul>
-<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.DEFAULT_ECS_DIR"><code class="docutils literal notranslate"><span class="pre">OsirVrl.DEFAULT_ECS_DIR</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.DEFAULT_TRANSFORM_DIR"><code class="docutils literal notranslate"><span class="pre">OsirVrl.DEFAULT_TRANSFORM_DIR</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirVrl.from_yaml()</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.generate_all"><code class="docutils literal notranslate"><span class="pre">OsirVrl.generate_all()</span></code></a></li>
-<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.generate_from_directory"><code class="docutils literal notranslate"><span class="pre">OsirVrl.generate_from_directory()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#module-src.osir_vrl">Module contents</a></li>
@@ -813,6 +804,18 @@
 <li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.osir_vrl.html">src.osir_vrl.osir_vrl package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrl">src.osir_vrl.osir_vrl.OsirVrl module</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl"><code class="docutils literal notranslate"><span class="pre">OsirVrl</span></code></a><ul>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.DEFAULT_ECS_DIR"><code class="docutils literal notranslate"><span class="pre">OsirVrl.DEFAULT_ECS_DIR</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.DEFAULT_TRANSFORM_DIR"><code class="docutils literal notranslate"><span class="pre">OsirVrl.DEFAULT_TRANSFORM_DIR</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirVrl.from_yaml()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.generate_all"><code class="docutils literal notranslate"><span class="pre">OsirVrl.generate_all()</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.generate_from_directory"><code class="docutils literal notranslate"><span class="pre">OsirVrl.generate_from_directory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlBlock">src.osir_vrl.osir_vrl.OsirVrlBlock module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.conditions"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.conditions</span></code></a></li>
@@ -821,7 +824,9 @@
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.delete"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.delete</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.entries"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.entries()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.filter</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_post_init"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.model_post_init()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.set"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.set</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.translate"><code class="docutils literal notranslate"><span class="pre">OsirVrlBlock.translate</span></code></a></li>
@@ -832,7 +837,9 @@
 <li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlModel">src.osir_vrl.osir_vrl.OsirVrlModel module</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.id"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.id</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlMetadata.type</span></code></a></li>
 </ul>
 </li>
@@ -840,7 +847,9 @@
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.entries"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.entries</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.from_yaml()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.metadata"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.metadata</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.relationships"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.relationships</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.save_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.save_vrl()</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.source"><code class="docutils literal notranslate"><span class="pre">OsirVrlModel.source</span></code></a></li>
@@ -851,7 +860,9 @@
 </li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.internal"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.internal</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.raw"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.raw</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.tools"><code class="docutils literal notranslate"><span class="pre">OsirVrlSource.tools</span></code></a></li>
 </ul>
@@ -862,13 +873,17 @@
 <li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.exists"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.exists</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.field"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.field</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.value"><code class="docutils literal notranslate"><span class="pre">OsirVrlCondition.value</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l5"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship</span></code></a><ul>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.id"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.id</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.source"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.source</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.target"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.target</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.type"><code class="docutils literal notranslate"><span class="pre">OsirVrlRelationship.type</span></code></a></li>
@@ -878,7 +893,9 @@
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.conditions"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.conditions</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.id"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.id</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.message"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.message</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.to_vrl"><code class="docutils literal notranslate"><span class="pre">OsirVrlTimelineEntry.to_vrl()</span></code></a></li>
 </ul>
 </li>
@@ -890,7 +907,9 @@
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.dictionary"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.dictionary</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.fallback"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.fallback</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.filter"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.filter</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.model_computed_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_config"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.model_config</span></code></a></li>
+<li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_fields"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.model_fields</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.on_error"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.on_error</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.operation"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.operation</span></code></a></li>
 <li class="toctree-l6"><a class="reference internal" href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.parameters"><code class="docutils literal notranslate"><span class="pre">OsirVrlTransformation.parameters</span></code></a></li>
@@ -915,19 +934,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.html#module-src.osir_vrl.OsirVrl">src.osir_vrl.OsirVrl module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl"><code class="docutils literal notranslate"><span class="pre">OsirVrl</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.DEFAULT_ECS_DIR"><code class="docutils literal notranslate"><span class="pre">OsirVrl.DEFAULT_ECS_DIR</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.DEFAULT_TRANSFORM_DIR"><code class="docutils literal notranslate"><span class="pre">OsirVrl.DEFAULT_TRANSFORM_DIR</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.from_yaml"><code class="docutils literal notranslate"><span class="pre">OsirVrl.from_yaml()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.generate_all"><code class="docutils literal notranslate"><span class="pre">OsirVrl.generate_all()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.generate_from_directory"><code class="docutils literal notranslate"><span class="pre">OsirVrl.generate_from_directory()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="src.osir_vrl.html#src.osir_vrl.OsirVrl.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="src.osir_vrl.html#module-src.osir_vrl">Module contents</a></li>
 </ul>
 </li>
@@ -940,15 +946,15 @@
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 9.1.0</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
 <script src="_static/documentation_options.js?v=d45e8c67"></script>
-<script src="_static/doctools.js?v=fd6eb6e6"></script>
-<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-<script defer="defer" src="_static/theme.js?v=5db23cf8"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="_static/theme.js?v=49cc6205"></script>
 <script src="_static/sidebar-scroll.js?v=2c5053c4"></script>
 </body>
 </html>

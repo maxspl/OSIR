@@ -29,20 +29,8 @@ Fields
 
    * - Original
      - ECS field
-   * - ``"windows.wmi_eventconsumer"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[configuration]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"wmi_eventconsumer"``
      - ``event.action``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``custom``
      - 
    * - ``to_string!(del(.MachineName))``

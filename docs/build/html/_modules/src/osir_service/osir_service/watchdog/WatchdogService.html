@@ -26,8 +26,8 @@
   <title>src.osir_service.osir_service.watchdog.WatchdogService | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="src.osir_service.osir_service.watchdog.WatchdogService | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="src.osir_service.osir_service.watchdog.WatchdogService | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/tables.css" />
   <link rel="icon" href="../../../../../_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -583,39 +586,39 @@
 
     <div id="content" role="main">
       <h1>Source code for src.osir_service.osir_service.watchdog.WatchdogService</h1><div class="highlight"><pre>
-<span></span><code><span id="line-1"><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-</span><span id="line-2"><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-</span><span id="line-3"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-</span><span id="line-4"><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-</span><span id="line-5"><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
-</span><span id="line-6"><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">re</span>
+</span><span id="line-2"><span class="kn">import</span> <span class="nn">time</span>
+</span><span id="line-3"><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="line-4"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="line-5"><span class="kn">import</span> <span class="nn">threading</span>
+</span><span id="line-6"><span class="kn">import</span> <span class="nn">copy</span>
 </span><span id="line-7">
-</span><span id="line-8"><span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
-</span><span id="line-9"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="line-10"><span class="kn">from</span><span class="w"> </span><span class="nn">threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Timer</span>
-</span><span id="line-11"><span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+</span><span id="line-8"><span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+</span><span id="line-9"><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span><span id="line-10"><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Timer</span>
+</span><span id="line-11"><span class="kn">import</span> <span class="nn">uuid</span>
 </span><span id="line-12">
-</span><span id="line-13"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_osir_path</span>
-</span><span id="line-14"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="line-13"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirUtils</span> <span class="kn">import</span> <span class="n">normalize_osir_path</span>
+</span><span id="line-14"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirUtils</span> <span class="kn">import</span> <span class="p">(</span>
 </span><span id="line-15">    <span class="n">compute_file_xxh3_128_prefix</span><span class="p">,</span>
 </span><span id="line-16">    <span class="n">compute_file_xxh3_128_full</span><span class="p">,</span>
 </span><span id="line-17"><span class="p">)</span>
-</span><span id="line-18"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-</span><span id="line-19"><span class="kn">from</span><span class="w"> </span><span class="nn">watchdog.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirCreatedEvent</span><span class="p">,</span> <span class="n">FileCreatedEvent</span>
-</span><span id="line-20"><span class="kn">from</span><span class="w"> </span><span class="nn">watchdog.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
-</span><span id="line-21"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">remove_placeholders</span>
-</span><span id="line-22"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
-</span><span id="line-23"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
-</span><span id="line-24"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+</span><span id="line-18"><span class="kn">from</span> <span class="nn">osir_lib.core.model.OsirModuleModel</span> <span class="kn">import</span> <span class="n">OsirModuleModel</span>
+</span><span id="line-19"><span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">DirCreatedEvent</span><span class="p">,</span> <span class="n">FileCreatedEvent</span>
+</span><span id="line-20"><span class="kn">from</span> <span class="nn">watchdog.events</span> <span class="kn">import</span> <span class="n">FileSystemEventHandler</span>
+</span><span id="line-21"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirUtils</span> <span class="kn">import</span> <span class="n">remove_placeholders</span>
+</span><span id="line-22"><span class="kn">from</span> <span class="nn">osir_service.orchestration.TaskService</span> <span class="kn">import</span> <span class="n">TaskService</span>
+</span><span id="line-23"><span class="kn">from</span> <span class="nn">osir_service.postgres.OsirDb</span> <span class="kn">import</span> <span class="n">OsirDb</span>
+</span><span id="line-24"><span class="kn">from</span> <span class="nn">osir_lib.logger</span> <span class="kn">import</span> <span class="n">AppLogger</span>
 </span><span id="line-25">
-</span><span id="line-26"><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+</span><span id="line-26"><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 </span><span id="line-27">
 </span><span id="line-28"><span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 </span><span id="line-29">
 </span><span id="line-30">
 </span><span id="line-31"><span class="n">HASH_DEDUP_ENABLED</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># manual switch to disable xxh3_128 hash of input files to detect duplicates</span>
 </span><span id="line-32">
-</span><span id="line-33"><span class="k">class</span><span class="w"> </span><span class="nc">_CompiledRule</span><span class="p">:</span>
+</span><span id="line-33"><span class="k">class</span> <span class="nc">_CompiledRule</span><span class="p">:</span>
 </span><span id="line-34"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-compiled module rule for O(1) hot-path dispatch.&quot;&quot;&quot;</span>
 </span><span id="line-35">    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
 </span><span id="line-36">        <span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="s1">&#39;module_name&#39;</span><span class="p">,</span> <span class="s1">&#39;input_type&#39;</span><span class="p">,</span>
@@ -627,7 +630,7 @@
 </span><span id="line-42">        <span class="s1">&#39;task_name&#39;</span><span class="p">,</span> <span class="s1">&#39;queue&#39;</span><span class="p">,</span> <span class="s1">&#39;processor_os&#39;</span><span class="p">,</span> <span class="s1">&#39;base_dump&#39;</span><span class="p">,</span>
 </span><span id="line-43">    <span class="p">)</span>
 </span><span id="line-44">
-</span><span id="line-45">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="line-45">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="line-46">        <span class="bp">self</span><span class="p">,</span>
 </span><span id="line-47">        <span class="n">module</span><span class="p">,</span>
 </span><span id="line-48">        <span class="n">module_name</span><span class="p">,</span>
@@ -671,7 +674,7 @@
 </span><span id="line-86">        <span class="bp">self</span><span class="o">.</span><span class="n">base_dump</span> <span class="o">=</span> <span class="n">base_dump</span>
 </span><span id="line-87">
 </span><span id="line-88">
-</span><span id="line-89"><span class="k">class</span><span class="w"> </span><span class="nc">_LegacyRule</span><span class="p">:</span>
+</span><span id="line-89"><span class="k">class</span> <span class="nc">_LegacyRule</span><span class="p">:</span>
 </span><span id="line-90"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-compiled legacy module rule.&quot;&quot;&quot;</span>
 </span><span id="line-91">    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
 </span><span id="line-92">        <span class="s1">&#39;module_instance&#39;</span><span class="p">,</span> <span class="s1">&#39;module_name&#39;</span><span class="p">,</span> <span class="s1">&#39;input_type&#39;</span><span class="p">,</span> <span class="s1">&#39;module_path&#39;</span><span class="p">,</span>
@@ -681,7 +684,7 @@
 </span><span id="line-96">        <span class="s1">&#39;regex_has_pattern&#39;</span><span class="p">,</span>
 </span><span id="line-97">    <span class="p">)</span>
 </span><span id="line-98">
-</span><span id="line-99">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="line-99">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="line-100">        <span class="bp">self</span><span class="p">,</span>
 </span><span id="line-101">        <span class="n">module_instance</span><span class="p">,</span>
 </span><span id="line-102">        <span class="n">module_name</span><span class="p">,</span>
@@ -715,12 +718,12 @@
 </span><span id="line-130">
 <div class="viewcode-block" id="CaseSnapshot">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.CaseSnapshot">[docs]</a>
-</span><span id="line-131"><span class="k">class</span><span class="w"> </span><span class="nc">CaseSnapshot</span><span class="p">:</span>
+</span><span id="line-131"><span class="k">class</span> <span class="nc">CaseSnapshot</span><span class="p">:</span>
 </span><span id="line-132"><span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterative directory snapshot used for change detection between scan cycles.&quot;&quot;&quot;</span>
 </span><span id="line-133">
 <div class="viewcode-block" id="CaseSnapshot.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.CaseSnapshot.__init__">[docs]</a>
-</span><span id="line-134">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">):</span>
+</span><span id="line-134">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">):</span>
 </span><span id="line-135">        <span class="c1"># Normalize to str: os.scandir yields str paths, so the synthetic</span>
 </span><span id="line-136">        <span class="c1"># root entry must be a str too. A PosixPath here leaks into</span>
 </span><span id="line-137">        <span class="c1"># DirCreatedEvent.src_path and breaks substring matching in the</span>
@@ -732,7 +735,7 @@
 </span><span id="line-142">
 <div class="viewcode-block" id="CaseSnapshot.scan_directory">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.CaseSnapshot.scan_directory">[docs]</a>
-</span><span id="line-143">    <span class="k">def</span><span class="w"> </span><span class="nf">scan_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-143">    <span class="k">def</span> <span class="nf">scan_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-144"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Scan the full directory tree iteratively and store as a set.&quot;&quot;&quot;</span>
 </span><span id="line-145">        <span class="n">entries</span><span class="p">:</span> <span class="nb">set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 </span><span id="line-146">        <span class="n">entries</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">case_path</span><span class="p">,</span> <span class="s1">&#39;directory&#39;</span><span class="p">))</span>
@@ -759,7 +762,7 @@
 </span><span id="line-166">
 <div class="viewcode-block" id="CaseSnapshot.get_entries_set">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.CaseSnapshot.get_entries_set">[docs]</a>
-</span><span id="line-167">    <span class="k">def</span><span class="w"> </span><span class="nf">get_entries_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+</span><span id="line-167">    <span class="k">def</span> <span class="nf">get_entries_set</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
 </span><span id="line-168">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span></div>
 </div>
 
@@ -767,14 +770,14 @@
 </span><span id="line-170">
 <div class="viewcode-block" id="ModuleHandler">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler">[docs]</a>
-</span><span id="line-171"><span class="k">class</span><span class="w"> </span><span class="nc">ModuleHandler</span><span class="p">(</span><span class="n">FileSystemEventHandler</span><span class="p">):</span>
+</span><span id="line-171"><span class="k">class</span> <span class="nc">ModuleHandler</span><span class="p">(</span><span class="n">FileSystemEventHandler</span><span class="p">):</span>
 </span><span id="line-172"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-173"><span class="sd">    Handles file system events to trigger processing modules based on file or directory changes.</span>
 </span><span id="line-174"><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="line-175">
 <div class="viewcode-block" id="ModuleHandler.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.__init__">[docs]</a>
-</span><span id="line-176">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="line-176">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 </span><span id="line-177">        <span class="bp">self</span><span class="p">,</span>
 </span><span id="line-178">        <span class="n">case_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 </span><span id="line-179">        <span class="n">cooldown_period</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -880,7 +883,7 @@
 </span><span id="line-278">    <span class="c1"># ------------------------------------------------------------------</span>
 </span><span id="line-279">
 </span><span id="line-280">    <span class="nd">@staticmethod</span>
-</span><span id="line-281">    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_glob_anchors</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="line-281">    <span class="k">def</span> <span class="nf">_extract_glob_anchors</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="line-282"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract a literal extension or basename anchor from a glob pattern.&quot;&quot;&quot;</span>
 </span><span id="line-283">        <span class="n">last_seg</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 </span><span id="line-284">
@@ -908,7 +911,7 @@
 </span><span id="line-306">        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
 </span><span id="line-307">
 </span><span id="line-308">    <span class="nd">@staticmethod</span>
-</span><span id="line-309">    <span class="k">def</span><span class="w"> </span><span class="nf">_glob_to_compiled_re</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">:</span>
+</span><span id="line-309">    <span class="k">def</span> <span class="nf">_glob_to_compiled_re</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">:</span>
 </span><span id="line-310"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a glob pattern (Path.match semantics) to a compiled regex.</span>
 </span><span id="line-311">
 </span><span id="line-312"><span class="sd">        Relative patterns match from the right; absolute patterns match from the left.</span>
@@ -945,7 +948,7 @@
 </span><span id="line-343">        <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;(?:^|/)&#39;</span> <span class="o">+</span> <span class="n">body</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span>
 </span><span id="line-344">
 </span><span id="line-345">    <span class="nd">@staticmethod</span>
-</span><span id="line-346">    <span class="k">def</span><span class="w"> </span><span class="nf">_has_top_level_alternation</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-346">    <span class="k">def</span> <span class="nf">_has_top_level_alternation</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-347"><span class="w">        </span><span class="sd">&quot;&quot;&quot;True if a &#39;|&#39; exists outside of any group (...) or character class [...].&quot;&quot;&quot;</span>
 </span><span id="line-348">        <span class="n">depth</span> <span class="o">=</span> <span class="mi">0</span>
 </span><span id="line-349">        <span class="n">in_class</span> <span class="o">=</span> <span class="kc">False</span>
@@ -972,7 +975,7 @@
 </span><span id="line-370">        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-371">
 </span><span id="line-372">    <span class="nd">@staticmethod</span>
-</span><span id="line-373">    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_regex_anchors</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="line-373">    <span class="k">def</span> <span class="nf">_extract_regex_anchors</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 </span><span id="line-374"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract literal extension anchors from a regex pattern.</span>
 </span><span id="line-375">
 </span><span id="line-376"><span class="sd">        The file index is keyed on os.path.splitext()[1], so only the LAST</span>
@@ -1007,7 +1010,7 @@
 </span><span id="line-405">        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
 </span><span id="line-406">
 </span><span id="line-407">    <span class="nd">@staticmethod</span>
-</span><span id="line-408">    <span class="k">def</span><span class="w"> </span><span class="nf">_literal_tail_basename</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-408">    <span class="k">def</span> <span class="nf">_literal_tail_basename</span><span class="p">(</span><span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-409"><span class="w">        </span><span class="sd">&quot;&quot;&quot;If the regex ends with &#39;/&lt;literal&gt;$&#39;, return the unescaped literal.</span>
 </span><span id="line-410">
 </span><span id="line-411"><span class="sd">        Returns None when the tail contains any active regex construct</span>
@@ -1053,7 +1056,7 @@
 </span><span id="line-451">        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
 </span><span id="line-452">
 </span><span id="line-453">    <span class="nd">@staticmethod</span>
-</span><span id="line-454">    <span class="k">def</span><span class="w"> </span><span class="nf">_combine_patterns</span><span class="p">(</span><span class="n">compiled_patterns</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-454">    <span class="k">def</span> <span class="nf">_combine_patterns</span><span class="p">(</span><span class="n">compiled_patterns</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-455"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge several compiled patterns into one alternation usable as a</span>
 </span><span id="line-456"><span class="sd">        cheap pre-filter (single C-level scan instead of N python-level</span>
 </span><span id="line-457"><span class="sd">        searches). Returns None when merging would be unsafe (backrefs,</span>
@@ -1086,7 +1089,7 @@
 </span><span id="line-484">            <span class="k">return</span> <span class="kc">None</span>
 </span><span id="line-485">        
 </span><span id="line-486">    <span class="nd">@staticmethod</span>
-</span><span id="line-487">    <span class="k">def</span><span class="w"> </span><span class="nf">_is_under_or_equal</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-487">    <span class="k">def</span> <span class="nf">_is_under_or_equal</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-488"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-489"><span class="sd">        Fast path containment check.</span>
 </span><span id="line-490">
@@ -1100,7 +1103,7 @@
 </span><span id="line-498">        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
 </span><span id="line-499">            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-500">
-</span><span id="line-501">    <span class="k">def</span><span class="w"> </span><span class="nf">_consume_tasks_pushed_by_module</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+</span><span id="line-501">    <span class="k">def</span> <span class="nf">_consume_tasks_pushed_by_module</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 </span><span id="line-502"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-503"><span class="sd">        Return task counters since the previous scan iteration, then reset them.</span>
 </span><span id="line-504"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1109,7 +1112,7 @@
 </span><span id="line-507">            <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_pushed_by_module</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 </span><span id="line-508">            <span class="k">return</span> <span class="n">counters</span>
 </span><span id="line-509">
-</span><span id="line-510">    <span class="k">def</span><span class="w"> </span><span class="nf">_is_barrier_consumer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_abs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-510">    <span class="k">def</span> <span class="nf">_is_barrier_consumer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_abs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-511"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-512"><span class="sd">        True when this is a directory-input module whose input directory lies</span>
 </span><span id="line-513"><span class="sd">        under the output directory of a hold_consumers barrier producer.</span>
@@ -1123,7 +1126,7 @@
 </span><span id="line-521">                <span class="k">return</span> <span class="kc">True</span>
 </span><span id="line-522">        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-523">
-</span><span id="line-524">    <span class="k">def</span><span class="w"> </span><span class="nf">_barriers_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-524">    <span class="k">def</span> <span class="nf">_barriers_pending</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-525"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-526"><span class="sd">        True while at least one hold_consumers barrier producer still has a</span>
 </span><span id="line-527"><span class="sd">        task in a non-terminal state for this case.</span>
@@ -1167,7 +1170,7 @@
 </span><span id="line-565">            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to parse hold_consumers barrier status: row=</span><span class="si">{</span><span class="n">row</span><span class="si">!r}</span><span class="s2">, error=</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-566">            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-567">
-</span><span id="line-568">    <span class="k">def</span><span class="w"> </span><span class="nf">_compile_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_instances</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OsirModuleModel</span><span class="p">]):</span>
+</span><span id="line-568">    <span class="k">def</span> <span class="nf">_compile_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_instances</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OsirModuleModel</span><span class="p">]):</span>
 </span><span id="line-569"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-570"><span class="sd">        Pre-compile all module rules once at startup.</span>
 </span><span id="line-571"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1336,7 +1339,7 @@
 </span><span id="line-734">
 <div class="viewcode-block" id="ModuleHandler.monitor_directory">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.monitor_directory">[docs]</a>
-</span><span id="line-735">    <span class="k">def</span><span class="w"> </span><span class="nf">monitor_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">reprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stop_event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="line-735">    <span class="k">def</span> <span class="nf">monitor_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">reprocess</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stop_event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="line-736"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-737"><span class="sd">        Monitors the directory for changes at specified intervals.</span>
 </span><span id="line-738"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1474,7 +1477,7 @@
 </span><span id="line-869">    <span class="c1"># File stability gate</span>
 </span><span id="line-870">    <span class="c1"># ------------------------------------------------------------------</span>
 </span><span id="line-871">
-</span><span id="line-872">    <span class="k">def</span><span class="w"> </span><span class="nf">_is_file_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-872">    <span class="k">def</span> <span class="nf">_is_file_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-873"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True when a file is safe to process without blocking.</span>
 </span><span id="line-874">
 </span><span id="line-875"><span class="sd">        Stable means either:</span>
@@ -1516,7 +1519,7 @@
 </span><span id="line-911">        <span class="bp">self</span><span class="o">.</span><span class="n">_file_stability_state</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">mtime_ns</span><span class="p">,</span> <span class="n">stable_since</span><span class="p">)</span>
 </span><span id="line-912">        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-913">
-</span><span id="line-914">    <span class="k">def</span><span class="w"> </span><span class="nf">_queue_compiled_file_task_when_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">_CompiledRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-914">    <span class="k">def</span> <span class="nf">_queue_compiled_file_task_when_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">_CompiledRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-915"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Queue a compiled-rule file task only when its input is stable.&quot;&quot;&quot;</span>
 </span><span id="line-916">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_file_stable</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
 </span><span id="line-917">            <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending_lock</span><span class="p">:</span>
@@ -1532,7 +1535,7 @@
 </span><span id="line-927">        <span class="p">)</span>
 </span><span id="line-928">        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-929">
-</span><span id="line-930">    <span class="k">def</span><span class="w"> </span><span class="nf">_queue_legacy_file_task_when_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-930">    <span class="k">def</span> <span class="nf">_queue_legacy_file_task_when_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-931"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Buffer a legacy file task only when its input is stable.</span>
 </span><span id="line-932">
 </span><span id="line-933"><span class="sd">        Like compiled tasks, stable legacy matches are buffered so the</span>
@@ -1552,7 +1555,7 @@
 </span><span id="line-947">        <span class="p">)</span>
 </span><span id="line-948">        <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-949">
-</span><span id="line-950">    <span class="k">def</span><span class="w"> </span><span class="nf">_release_stable_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="line-950">    <span class="k">def</span> <span class="nf">_release_stable_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="line-951"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Release delayed file tasks whose input became stable.&quot;&quot;&quot;</span>
 </span><span id="line-952">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unstable_lock</span><span class="p">:</span>
 </span><span id="line-953">            <span class="n">delayed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_unstable_file_tasks</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
@@ -1591,11 +1594,11 @@
 </span><span id="line-986">
 </span><span id="line-987">        <span class="k">return</span> <span class="n">released</span>
 </span><span id="line-988">
-</span><span id="line-989">    <span class="k">def</span><span class="w"> </span><span class="nf">_has_unstable_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-989">    <span class="k">def</span> <span class="nf">_has_unstable_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-990">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unstable_lock</span><span class="p">:</span>
 </span><span id="line-991">            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_unstable_file_tasks</span><span class="p">)</span>
 </span><span id="line-992">
-</span><span id="line-993">    <span class="k">def</span><span class="w"> </span><span class="nf">_unstable_file_task_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="line-993">    <span class="k">def</span> <span class="nf">_unstable_file_task_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="line-994">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_unstable_lock</span><span class="p">:</span>
 </span><span id="line-995">            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_unstable_file_tasks</span><span class="p">)</span>
 </span><span id="line-996">
@@ -1603,7 +1606,7 @@
 </span><span id="line-998">    <span class="c1"># Event dispatch</span>
 </span><span id="line-999">    <span class="c1"># ------------------------------------------------------------------</span>
 </span><span id="line-1000">
-</span><span id="line-1001">    <span class="k">def</span><span class="w"> </span><span class="nf">_dispatch_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">src_abs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">_CompiledRule</span><span class="p">):</span>
+</span><span id="line-1001">    <span class="k">def</span> <span class="nf">_dispatch_rule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">src_abs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">_CompiledRule</span><span class="p">):</span>
 </span><span id="line-1002"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Match one pre-compiled rule against an event and trigger processing if it matches.</span>
 </span><span id="line-1003">
 </span><span id="line-1004"><span class="sd">        Hot-path ordering: the (C-level) regex search runs FIRST as a cheap</span>
@@ -1652,7 +1655,7 @@
 </span><span id="line-1047">
 <div class="viewcode-block" id="ModuleHandler.on_created">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.on_created">[docs]</a>
-</span><span id="line-1048">    <span class="k">def</span><span class="w"> </span><span class="nf">on_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+</span><span id="line-1048">    <span class="k">def</span> <span class="nf">on_created</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 </span><span id="line-1049"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Dispatch a file/directory creation event to all matching module rules.&quot;&quot;&quot;</span>
 </span><span id="line-1050">        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="s1">&#39;src_path&#39;</span><span class="p">):</span>
 </span><span id="line-1051">            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Event without path, ignored.&quot;</span><span class="p">)</span>
@@ -1725,7 +1728,7 @@
 </span><span id="line-1118">                    <span class="p">)</span></div>
 
 </span><span id="line-1119">
-</span><span id="line-1120">    <span class="k">def</span><span class="w"> </span><span class="nf">_on_created_legacy</span><span class="p">(</span>
+</span><span id="line-1120">    <span class="k">def</span> <span class="nf">_on_created_legacy</span><span class="p">(</span>
 </span><span id="line-1121">        <span class="bp">self</span><span class="p">,</span>
 </span><span id="line-1122">        <span class="n">event</span><span class="p">,</span>
 </span><span id="line-1123">        <span class="n">rule</span><span class="p">:</span> <span class="n">_LegacyRule</span><span class="p">,</span>
@@ -1829,7 +1832,7 @@
 </span><span id="line-1221">                <span class="k">if</span> <span class="n">name_hint</span> <span class="ow">and</span> <span class="n">file_regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">basename</span><span class="p">):</span>
 </span><span id="line-1222">                    <span class="bp">self</span><span class="o">.</span><span class="n">_mark_and_process_legacy</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">rule</span><span class="p">)</span>
 </span><span id="line-1223">
-</span><span id="line-1224">    <span class="k">def</span><span class="w"> </span><span class="nf">_mark_and_process_legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">_LegacyRule</span><span class="p">):</span>
+</span><span id="line-1224">    <span class="k">def</span> <span class="nf">_mark_and_process_legacy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">_LegacyRule</span><span class="p">):</span>
 </span><span id="line-1225"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Dedup-guarded process() for legacy file matches.&quot;&quot;&quot;</span>
 </span><span id="line-1226">        <span class="n">file_module_pair</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="p">,</span> <span class="n">rule</span><span class="o">.</span><span class="n">module_name</span><span class="p">)</span>
 </span><span id="line-1227">        <span class="k">if</span> <span class="n">file_module_pair</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_processed</span><span class="p">:</span>
@@ -1843,7 +1846,7 @@
 </span><span id="line-1235">
 <div class="viewcode-block" id="ModuleHandler.handle_directory_event">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.handle_directory_event">[docs]</a>
-</span><span id="line-1236">    <span class="k">def</span><span class="w"> </span><span class="nf">handle_directory_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
+</span><span id="line-1236">    <span class="k">def</span> <span class="nf">handle_directory_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 </span><span id="line-1237"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-1238"><span class="sd">        Processes directory events that match configured patterns and sets up checks for idleness.</span>
 </span><span id="line-1239"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1883,14 +1886,14 @@
 </span><span id="line-1273">        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> Directory &#39;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">src_path</span><span class="si">}</span><span class="s2">&#39; is busy&quot;</span><span class="p">)</span></div>
 
 </span><span id="line-1274">
-</span><span id="line-1275">    <span class="k">def</span><span class="w"> </span><span class="nf">_get_directory_mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="line-1275">    <span class="k">def</span> <span class="nf">_get_directory_mtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 </span><span id="line-1276"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return directory mtime.&quot;&quot;&quot;</span>
 </span><span id="line-1277">        <span class="k">try</span><span class="p">:</span>
 </span><span id="line-1278">            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">st_mtime</span>
 </span><span id="line-1279">        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
 </span><span id="line-1280">            <span class="k">return</span> <span class="mf">0.0</span>
 </span><span id="line-1281">
-</span><span id="line-1282">    <span class="k">def</span><span class="w"> </span><span class="nf">_check_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
+</span><span id="line-1282">    <span class="k">def</span> <span class="nf">_check_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 </span><span id="line-1283">        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checking if </span><span class="si">{</span><span class="n">module_instance</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> idle is not parent of another idle&quot;</span><span class="p">)</span>
 </span><span id="line-1284">
 </span><span id="line-1285">        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
@@ -1907,7 +1910,7 @@
 </span><span id="line-1296">
 </span><span id="line-1297">        <span class="k">return</span> <span class="kc">True</span>
 </span><span id="line-1298">
-</span><span id="line-1299">    <span class="k">def</span><span class="w"> </span><span class="nf">_check_for_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
+</span><span id="line-1299">    <span class="k">def</span> <span class="nf">_check_for_idle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 </span><span id="line-1300"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-1301"><span class="sd">        Checks if the directory has been idle and triggers processing if idle.</span>
 </span><span id="line-1302"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1957,7 +1960,7 @@
 </span><span id="line-1346">
 <div class="viewcode-block" id="ModuleHandler.process">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.WatchdogService.ModuleHandler.process">[docs]</a>
-</span><span id="line-1347">    <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_match</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
+</span><span id="line-1347">    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_match</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 </span><span id="line-1348"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-1349"><span class="sd">        Initiates processing of a file or directory based on the module configuration.</span>
 </span><span id="line-1350"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1974,7 +1977,7 @@
 </span><span id="line-1361">        <span class="bp">self</span><span class="o">.</span><span class="n">_push_task</span><span class="p">(</span><span class="n">module_instance</span><span class="p">)</span></div>
 
 </span><span id="line-1362">
-</span><span id="line-1363">    <span class="k">def</span><span class="w"> </span><span class="nf">_push_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
+</span><span id="line-1363">    <span class="k">def</span> <span class="nf">_push_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">):</span>
 </span><span id="line-1364"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-1365"><span class="sd">        Pushes a task to the task queue.</span>
 </span><span id="line-1366"><span class="sd">        &quot;&quot;&quot;</span>
@@ -1994,7 +1997,7 @@
 </span><span id="line-1380">    <span class="c1"># Batched file-task flush</span>
 </span><span id="line-1381">    <span class="c1"># ------------------------------------------------------------------</span>
 </span><span id="line-1382">
-</span><span id="line-1383">    <span class="k">def</span><span class="w"> </span><span class="nf">_hash_for_dedup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;_CompiledRule&#39;</span><span class="p">]):</span>
+</span><span id="line-1383">    <span class="k">def</span> <span class="nf">_hash_for_dedup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s1">&#39;_CompiledRule&#39;</span><span class="p">]):</span>
 </span><span id="line-1384"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute (path, rule, size, hash_mode, hash) for one pending file.</span>
 </span><span id="line-1385">
 </span><span id="line-1386"><span class="sd">        Returns hash fields as None on failure; the file is then pushed</span>
@@ -2021,7 +2024,7 @@
 </span><span id="line-1407">            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="n">module_name</span><span class="si">}</span><span class="s2"> - Hash dedup failed for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-1408">            <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">rule</span><span class="p">,</span> <span class="n">file_size</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 </span><span id="line-1409">
-</span><span id="line-1410">    <span class="k">def</span><span class="w"> </span><span class="nf">_flush_pending_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-1410">    <span class="k">def</span> <span class="nf">_flush_pending_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-1411"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Hand the pending buffer to the background flush executor.</span>
 </span><span id="line-1412">
 </span><span id="line-1413"><span class="sd">        Hashing + dedup + bulk push run on a worker thread so the scan loop</span>
@@ -2042,7 +2045,7 @@
 </span><span id="line-1428">        <span class="k">if</span> <span class="n">wait</span><span class="p">:</span>
 </span><span id="line-1429">            <span class="bp">self</span><span class="o">.</span><span class="n">_drain_flushes</span><span class="p">()</span>
 </span><span id="line-1430">
-</span><span id="line-1431">    <span class="k">def</span><span class="w"> </span><span class="nf">_flush_pending_legacy_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-1431">    <span class="k">def</span> <span class="nf">_flush_pending_legacy_file_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wait</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-1432"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Flush buffered legacy file tasks.</span>
 </span><span id="line-1433">
 </span><span id="line-1434"><span class="sd">        Runs the cross-run dedup check once for the whole buffer, </span>
@@ -2076,7 +2079,7 @@
 </span><span id="line-1462">        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">module_instance</span> <span class="ow">in</span> <span class="n">to_push</span><span class="p">:</span>
 </span><span id="line-1463">            <span class="bp">self</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">)</span>
 </span><span id="line-1464">
-</span><span id="line-1465">    <span class="k">def</span><span class="w"> </span><span class="nf">_drain_flushes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-1465">    <span class="k">def</span> <span class="nf">_drain_flushes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-1466"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait for all in-flight flush batches; surface their errors.&quot;&quot;&quot;</span>
 </span><span id="line-1467">        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_futures_lock</span><span class="p">:</span>
 </span><span id="line-1468">            <span class="n">futures</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_futures</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flush_futures</span><span class="p">,</span> <span class="p">[]</span>
@@ -2087,7 +2090,7 @@
 </span><span id="line-1473">            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
 </span><span id="line-1474">                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Batch flush failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-1475">
-</span><span id="line-1476">    <span class="k">def</span><span class="w"> </span><span class="nf">_process_pending_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pending</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="line-1476">    <span class="k">def</span> <span class="nf">_process_pending_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pending</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 </span><span id="line-1477"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Hash a batch of matched files in parallel, deduplicate, then push</span>
 </span><span id="line-1478"><span class="sd">        the surviving tasks in one bulk operation (single DB insert + single</span>
 </span><span id="line-1479"><span class="sd">        AMQP producer). Returns the number of tasks pushed.&quot;&quot;&quot;</span>
@@ -2195,7 +2198,7 @@
 </span><span id="line-1581">    <span class="c1"># Dedup helpers</span>
 </span><span id="line-1582">    <span class="c1"># ------------------------------------------------------------------</span>
 </span><span id="line-1583">
-</span><span id="line-1584">    <span class="k">def</span><span class="w"> </span><span class="nf">_check_duplicate_by_hash</span><span class="p">(</span>
+</span><span id="line-1584">    <span class="k">def</span> <span class="nf">_check_duplicate_by_hash</span><span class="p">(</span>
 </span><span id="line-1585">        <span class="bp">self</span><span class="p">,</span>
 </span><span id="line-1586">        <span class="n">module_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 </span><span id="line-1587">        <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2265,16 +2268,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="../../../../../_static/theme.js?v=5db23cf8"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="../../../../../_static/theme.js?v=49cc6205"></script>
     <script src="../../../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

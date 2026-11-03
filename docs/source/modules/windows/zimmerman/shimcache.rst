@@ -4,7 +4,7 @@ shimcache
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:registry:hklm:shimcache`` | name_rex: ``r"\.csv$"``
+   * ``eztools:windows:shimcache`` | name_rex: ``r"\.csv$"``
 
 Description
 -----------
@@ -14,7 +14,7 @@ Parsing of ShimCache artifact.
 Timeline
 --------
 
-.. _tl-windows-shimcache-shimcache-entry:
+.. _tl-windows-zimmerman-shimcache-shimcache-entry:
 
 .. list-table::
    :header-rows: 1
@@ -23,13 +23,13 @@ Timeline
      - Relation
      - Message
    * - 
-     - `shimcache-entry <rel-windows-shimcache-shimcache-entry_>`_
+     - `shimcache-entry <rel-windows-zimmerman-shimcache-shimcache-entry_>`_
      - ``ShimCache entry exists for {file.path}``
 
 Relationships
 -------------
 
-.. _rel-windows-shimcache-shimcache-entry:
+.. _rel-windows-zimmerman-shimcache-shimcache-entry:
 
 .. list-table::
    :header-rows: 1
@@ -38,9 +38,9 @@ Relationships
      - Source
      - Target
      - Type
-   * - `shimcache-entry <tl-windows-shimcache-shimcache-entry_>`_
+   * - `shimcache-entry <tl-windows-zimmerman-shimcache-shimcache-entry_>`_
      - ``file.path``
-     - ``labels.executed``
+     - ``action.properties.Executed``
      - ``executed``
 
 Fields
@@ -53,20 +53,8 @@ Fields
      - ECS field
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.shimcache"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[file]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"Windows AppCompatCache (ShimCache)"``
      - ``event.provider``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``Path``
      - ``file.path``
    * - ``parse_timestamp(LastModifiedTimeUTC)``
@@ -74,12 +62,12 @@ Fields
    * - ``parse_timestamp(LastModifiedTimeUTC)``
      - ``timestamp``
    * - ``to_int(ControlSet)``
-     - ``labels.control_set``
+     - ``action.properties.ControlSet``
    * - ``to_int(CacheEntryPosition)``
-     - ``labels.cache_entry_position``
+     - ``action.properties.CacheEntryPosition``
    * - ``to_bool(Executed)``
-     - ``labels.executed``
+     - ``action.properties.Executed``
    * - ``to_bool(Duplicate)``
-     - ``labels.duplicate``
+     - ``action.properties.Duplicate``
    * - ``SourceFile``
-     - ``labels.source_file``
+     - ``action.properties.SourceFile``

@@ -1,0 +1,354 @@
+metadata:
+  version: "1.0"
+  id: amcache
+  author: Typ
+  description: Amcache artifacts (AmcacheParser CSV) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows AmCache"
+
+  # UnassociatedFileEntries: FullPath, Name, SHA1, Size, LinkDate, ...
+  - set:
+      timestamp:
+        source: FileKeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.mtime:
+        source: FileKeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.hive:
+        value: Amcache
+      file.path: FullPath
+      file.name: Name
+      file.size:
+        source: Size
+        operation: to_int
+      file.extension: FileExtension
+      hash.sha1: SHA1
+      file.description: Description
+      file.version: Version
+      file.mtime:
+        source: LinkDate
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.ApplicationName: ApplicationName
+      action.properties.ProgramId: ProgramId
+      action.properties.IsOsComponent:
+        source: IsOsComponent
+        operation: to_bool
+      action.properties.IsPeFile:
+        source: IsPeFile
+        operation: to_bool
+      action.properties.BinaryType: BinaryType
+      action.properties.ProductName: ProductName
+      action.properties.ProductVersion: ProductVersion
+      action.properties.BinFileVersion: BinFileVersion
+      action.properties.BinProductVersion: BinProductVersion
+      action.properties.LongPathHash: LongPathHash
+      action.properties.Usn:
+        source: Usn
+        operation: to_int
+      action.properties.Language: Language
+      action.properties.OriginalFileName: OriginalFileName
+    filter: exists(.FullPath)
+
+  # DeviceContainers: KeyName, FriendlyName, Manufacturer, ModelId, ...
+  - set:
+      timestamp:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.mtime:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.hive:
+        value: Amcache
+      action.properties.KeyName: KeyName
+      device.manufacturer: Manufacturer
+      device.model.name: ModelName
+      action.properties.ModelNumber: ModelNumber
+      action.properties.ModelId: ModelId
+      action.properties.FriendlyName: FriendlyName
+      action.properties.Categories: Categories
+      action.properties.PrimaryCategory: PrimaryCategory
+      action.properties.DiscoveryMethod: DiscoveryMethod
+      action.properties.Icon: Icon
+      action.properties.IsActive:
+        source: IsActive
+        operation: to_bool
+      action.properties.IsConnected:
+        source: IsConnected
+        operation: to_bool
+      action.properties.IsMachineContainer:
+        source: IsMachineContainer
+        operation: to_bool
+      action.properties.IsNetworked:
+        source: IsNetworked
+        operation: to_bool
+      action.properties.IsPaired:
+        source: IsPaired
+        operation: to_bool
+      action.properties.State:
+        source: State
+        operation: to_int
+    filter: exists(.ModelId)
+
+  # DevicePnps: HWID, Class, DriverName, DriverVerDate, ...
+  - set:
+      timestamp:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.mtime:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.hive:
+        value: Amcache
+      action.properties.KeyName: KeyName
+      action.properties.BusReportedDescription: BusReportedDescription
+      action.properties.Class: Class
+      action.properties.ClassGuid: ClassGuid
+      action.properties.Compid: Compid
+      action.properties.ContainerId: ContainerId
+      action.properties.Description: Description
+      action.properties.DriverId: DriverId
+      action.properties.DriverName: DriverName
+      action.properties.DriverVerDate:
+        source: DriverVerDate
+        operation: parse_timestamp
+        parameters:
+          format: "%m-%d-%Y"
+      action.properties.DriverVerVersion: DriverVerVersion
+      action.properties.Enumerator: Enumerator
+      action.properties.HWID: HWID
+      action.properties.Inf: Inf
+      action.properties.InstallState:
+        source: InstallState
+        operation: to_int
+      action.properties.Manufacturer: Manufacturer
+      action.properties.MatchingId: MatchingId
+      action.properties.Model: Model
+      action.properties.ParentId: ParentId
+      action.properties.ProblemCode:
+        source: ProblemCode
+        operation: to_int
+      action.properties.Provider: Provider
+      action.properties.Service: Service
+      action.properties.Stackid: Stackid
+    filter: exists(.HWID)
+
+  # DriveBinaries: DriverCheckSum, DriverSigned, ImageSize, ...
+  - set:
+      timestamp:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.mtime:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.hive:
+        value: Amcache
+      action.properties.KeyName: KeyName
+      action.properties.DriverTimeStamp:
+        source: DriverTimeStamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.DriverLastWriteTime:
+        source: DriverLastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.DriverName: DriverName
+      action.properties.DriverInBox:
+        source: DriverInBox
+        operation: to_bool
+      action.properties.DriverIsKernelMode:
+        source: DriverIsKernelMode
+        operation: to_bool
+      action.properties.DriverSigned:
+        source: DriverSigned
+        operation: to_bool
+      action.properties.DriverCheckSum: DriverCheckSum
+      action.properties.DriverCompany: DriverCompany
+      action.properties.DriverId: DriverId
+      action.properties.DriverPackageStrongName: DriverPackageStrongName
+      action.properties.DriverType: DriverType
+      action.properties.DriverVersion: DriverVersion
+      action.properties.ImageSize:
+        source: ImageSize
+        operation: to_int
+      action.properties.Inf: Inf
+      action.properties.Product: Product
+      action.properties.ProductVersion: ProductVersion
+      action.properties.Service: Service
+      action.properties.WdfVersion: WdfVersion
+    filter: exists(.DriverCheckSum)
+
+  # DriverPackages: SubmissionId, SYSFILE, Hwids, ...
+  - set:
+      timestamp:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.mtime:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.hive:
+        value: Amcache
+      action.properties.KeyName: KeyName
+      action.properties.Date:
+        source: Date
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.Class: Class
+      action.properties.Directory: Directory
+      action.properties.DriverInBox:
+        source: DriverInBox
+        operation: to_bool
+      action.properties.Hwids: Hwids
+      action.properties.Inf: Inf
+      action.properties.Provider: Provider
+      action.properties.SubmissionId: SubmissionId
+      action.properties.SYSFILE: SYSFILE
+      action.properties.Version: Version
+    filter: exists(.SubmissionId)
+
+  # ShortCuts: LnkName
+  - set:
+      timestamp:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.mtime:
+        source: KeyLastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      registry.hive:
+        value: Amcache
+      action.properties.KeyName: KeyName
+      file.path: LnkName
+    filter: exists(.LnkName)
+
+  - delete:
+      - ApplicationName
+      - ProgramId
+      - FileKeyLastWriteTimestamp
+      - SHA1
+      - IsOsComponent
+      - FullPath
+      - Name
+      - FileExtension
+      - LinkDate
+      - ProductName
+      - Size
+      - Version
+      - ProductVersion
+      - LongPathHash
+      - BinaryType
+      - IsPeFile
+      - BinFileVersion
+      - BinProductVersion
+      - Usn
+      - Language
+      - Description
+      - OriginalFileName
+      - KeyName
+      - KeyLastWriteTimestamp
+      - Categories
+      - DiscoveryMethod
+      - FriendlyName
+      - Icon
+      - IsActive
+      - IsConnected
+      - IsMachineContainer
+      - IsNetworked
+      - IsPaired
+      - Manufacturer
+      - ModelId
+      - ModelName
+      - ModelNumber
+      - PrimaryCategory
+      - State
+      - BusReportedDescription
+      - Class
+      - ClassGuid
+      - Compid
+      - ContainerId
+      - DriverId
+      - DriverPackageStrongName
+      - DriverName
+      - DriverVerDate
+      - DriverVerVersion
+      - Enumerator
+      - HWID
+      - Inf
+      - InstallState
+      - MatchingId
+      - Model
+      - ParentId
+      - ProblemCode
+      - Provider
+      - Service
+      - Stackid
+      - DriverTimeStamp
+      - DriverLastWriteTime
+      - DriverInBox
+      - DriverIsKernelMode
+      - DriverSigned
+      - DriverCheckSum
+      - DriverCompany
+      - DriverType
+      - DriverVersion
+      - ImageSize
+      - Product
+      - WdfVersion
+      - Date
+      - Directory
+      - Hwids
+      - SubmissionId
+      - SYSFILE
+      - LnkName
+
+timeline:
+  - id: file-entry
+    message: "Amcache file entry exists for {file.path} (SHA1 {hash.sha1})"
+    conditions:
+      - field: file.path
+        exists: true
+
+  - id: device-connected
+    message: "Device {action.properties.FriendlyName} was connected"
+    conditions:
+      - field: action.properties.IsConnected
+        value: true
+
+relationships:
+  - id: file-entry
+    source: file.path
+    target: hash.sha1
+    type: hashed as

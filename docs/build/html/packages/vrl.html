@@ -24,8 +24,8 @@
 <title>OSIR Vrl | Orchestration Software for Incident Response</title>
 <meta content="OSIR Vrl | Orchestration Software for Incident Response" property="og:title"/>
 <meta content="OSIR Vrl | Orchestration Software for Incident Response" name="twitter:title"/>
-<link href="../_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
-<link href="../_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="../_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="../_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="../_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="../_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="../_static/OSIR_LOGO.png" rel="icon"/>
@@ -106,6 +106,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/index.html">Modules<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/common/index.html">Common<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -133,13 +134,9 @@
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/scan/index.html">Scan<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -259,9 +256,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/windows/artemis/index.html">Windows / Artemis<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -338,12 +338,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/windows/sysinternals/index.html">Windows / Sysinternals<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="../modules/windows/zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -539,11 +542,11 @@
 (VRL) programs. A configuration describes <em>what</em> to normalize; the package
 generates the <em>how</em> — guards, error handling, cleanup — as a single <code class="docutils literal notranslate"><span class="pre">.vrl</span></code>
 file. This wrapper is mainly use to know the structure of the parsed element and how to query them.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">configs</span><span class="o">/</span><span class="n">dependencies</span><span class="o">/</span><span class="n">transform_v2</span><span class="o">/**.</span><span class="n">yml</span>   <span class="o">--</span><span class="p">(</span><span class="n">OsirVrlModel</span><span class="o">.</span><span class="n">to_vrl</span><span class="p">)</span><span class="o">--&gt;</span>  <span class="o">*.</span><span class="n">vrl</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="n">configs</span><span class="o">/</span><span class="n">transform</span><span class="o">/**.</span><span class="n">yml</span>   <span class="o">--</span><span class="p">(</span><span class="n">OsirVrlModel</span><span class="o">.</span><span class="n">to_vrl</span><span class="p">)</span><span class="o">--&gt;</span>  <span class="o">*.</span><span class="n">vrl</span>
 </span></code></pre></div>
 </div>
 <p>Each config mirrors the path of the normalizer it drives:
-<code class="docutils literal notranslate"><span class="pre">transform_v2/windows/amcache.yml</span></code> ↔ <code class="docutils literal notranslate"><span class="pre">ecs_normalize/windows/amcache.vrl</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">transform/windows/amcache.yml</span></code> ↔ <code class="docutils literal notranslate"><span class="pre">transform/.vrl/windows/amcache.vrl</span></code> (generated, gitignored)</p>
 <section id="modules">
 <h3>Modules</h3>
 <table class="docutils align-default">
@@ -650,17 +653,20 @@ lives in <code class="docutils literal notranslate"><span class="pre">metadata.d
 <li><p><strong>Sources are written without a leading dot</strong> (<code class="docutils literal notranslate"><span class="pre">Event.System.TimeCreated</span></code>,
 not <code class="docutils literal notranslate"><span class="pre">.Event.System.TimeCreated</span></code>). The model accepts both and always
 renders <code class="docutils literal notranslate"><span class="pre">.path</span></code>.</p></li>
-<li><p><strong>Fields without an ECS mapping go to <code class="docutils literal notranslate"><span class="pre">labels.&lt;field&gt;</span></code></strong> (snake_case),
-the ECS key-value map for custom data — not to an ad-hoc
-<code class="docutils literal notranslate"><span class="pre">*.Ext.&lt;module&gt;.*</span></code> namespace. Example: <code class="docutils literal notranslate"><span class="pre">BagPath</span></code> → <code class="docutils literal notranslate"><span class="pre">labels.bag_path</span></code>,
-<code class="docutils literal notranslate"><span class="pre">HasExplored</span></code> → <code class="docutils literal notranslate"><span class="pre">labels.has_explored</span></code>.</p></li>
+<li><p><strong>Fields without an ECS mapping go to <code class="docutils literal notranslate"><span class="pre">action.properties.&lt;source</span> <span class="pre">field&gt;</span></code></strong>
+(the source field name, verbatim) — not to an ad-hoc
+<code class="docutils literal notranslate"><span class="pre">*.Ext.&lt;module&gt;.*</span></code> namespace. Example: <code class="docutils literal notranslate"><span class="pre">BagPath</span></code> →
+<code class="docutils literal notranslate"><span class="pre">action.properties.BagPath</span></code>, <code class="docutils literal notranslate"><span class="pre">HasExplored</span></code> → <code class="docutils literal notranslate"><span class="pre">action.properties.HasExplored</span></code>.</p></li>
 <li><p><strong>No <code class="docutils literal notranslate"><span class="pre">to_string!(del(.Source))</span></code> in set sources</strong>: reference the source
-plainly (<code class="docutils literal notranslate"><span class="pre">labels.bag_path:</span> <span class="pre">BagPath</span></code>) — parsed values are strings by
+plainly (<code class="docutils literal notranslate"><span class="pre">action.properties.BagPath:</span> <span class="pre">BagPath</span></code>) — parsed values are strings by
 default — and list the consumed source fields in a final <code class="docutils literal notranslate"><span class="pre">delete</span></code> block
 instead of deleting them inline. Conversions use the operation form
 (<code class="docutils literal notranslate"><span class="pre">operation:</span> <span class="pre">to_int</span></code>, <code class="docutils literal notranslate"><span class="pre">operation:</span> <span class="pre">parse_timestamp</span></code>).</p></li>
 <li><p><strong>In raw VRL, narrow an already-string value with <code class="docutils literal notranslate"><span class="pre">string!</span></code></strong> (a type
-assertion), not <code class="docutils literal notranslate"><span class="pre">to_string!</span></code> (a conversion): <code class="docutils literal notranslate"><span class="pre">val</span> <span class="pre">=</span> <span class="pre">string!(.labels.value)</span></code>.</p></li>
+assertion), not <code class="docutils literal notranslate"><span class="pre">to_string!</span></code> (a conversion): <code class="docutils literal notranslate"><span class="pre">val</span> <span class="pre">=</span> <span class="pre">string!(.action.properties.value)</span></code>.</p></li>
+<li><p><strong>A final cleanup section drops null values</strong>: the model appends
+<code class="docutils literal notranslate"><span class="pre">.</span> <span class="pre">=</span> <span class="pre">compact!(.,</span> <span class="pre">recursive:</span> <span class="pre">true)</span></code> after the timeline, so nulls (absent
+dissect fields, unmatched entries) never reach the index.</p></li>
 </ul>
 </section>
 <section id="block-semantics">
@@ -738,7 +744,7 @@ the other blocks cannot express. A custom block must not declare a
 (<code class="docutils literal notranslate"><span class="pre">to_int!(.Event.System.EventID)</span></code>, <code class="docutils literal notranslate"><span class="pre">!exists(.file.path)</span></code>), the model
 assumes the raw event may hold it as a single flat key
 (<code class="docutils literal notranslate"><span class="pre">"Event.System.EventID"</span></code>) and prepends a normalization section:</p>
-<div class="highlight-vrl notranslate"><div class="highlight"><pre><span></span><code><span id="line-1">if exists(."Event.System.EventID") { .Event.System.EventID = get!(., path: ["Event.System.EventID"]) }
+<div class="highlight-rust notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="k">if</span><span class="w"> </span><span class="n">exists</span><span class="p">(.</span><span class="s">"Event.System.EventID"</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">.</span><span class="n">Event</span><span class="p">.</span><span class="n">System</span><span class="p">.</span><span class="n">EventID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get</span><span class="o">!</span><span class="p">(.,</span><span class="w"> </span><span class="n">path</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s">"Event.System.EventID"</span><span class="p">])</span><span class="w"> </span><span class="p">}</span>
 </span></code></pre></div>
 </div>
 <p>This is intended for flattened inputs (XML/JSONL). It never triggers for
@@ -765,10 +771,10 @@ relationship is pushed into <code class="docutils literal notranslate"><span cla
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span id="line-1"><span class="c1"># compile one config to VRL</span>
 </span><span id="line-2">python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import sys; sys.path.insert(0, 'src'); \</span>
 </span><span id="line-3"><span class="s2">  from osir_vrl.osir_vrl.OsirVrlModel import OsirVrlModel; \</span>
-</span><span id="line-4"><span class="s2">  OsirVrlModel.from_yaml('configs/dependencies/transform_v2/linux/mactime.yml').save_vrl('/tmp/out.vrl')"</span>
+</span><span id="line-4"><span class="s2">  OsirVrlModel.from_yaml('configs/transform/linux/mactime.yml').save_vrl('/tmp/out.vrl')"</span>
 </span><span id="line-5">
 </span><span id="line-6"><span class="c1"># verify: every config loads, generates, and its VRL compiles with vector</span>
-</span><span id="line-7"><span class="nb">cd</span><span class="w"> </span>OSIR<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/test_transform_v2.py<span class="w"> </span>-q
+</span><span id="line-7"><span class="nb">cd</span><span class="w"> </span>OSIR<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/osir_vrl/test_transform.py<span class="w"> </span>-q
 </span><span id="line-8">
 </span><span id="line-9"><span class="c1"># full suite (OSIR_PATH must be set for test_modules)</span>
 </span><span id="line-10">python3<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/<span class="w"> </span>-q
@@ -777,7 +783,7 @@ relationship is pushed into <code class="docutils literal notranslate"><span cla
 </span><span id="line-13">vector<span class="w"> </span>vrl<span class="w"> </span>-p<span class="w"> </span>/tmp/out.vrl<span class="w"> </span>-i<span class="w"> </span>event.json<span class="w"> </span>-o
 </span></code></pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">tests/test_transform_v2.py</span></code> walks every <code class="docutils literal notranslate"><span class="pre">transform_v2/**/*.yml</span></code>, asserts
+<p><code class="docutils literal notranslate"><span class="pre">tests/osir_vrl/test_transform.py</span></code> walks every <code class="docutils literal notranslate"><span class="pre">transform/**/*.yml</span></code>, asserts
 each generates a VRL that compiles with the <code class="docutils literal notranslate"><span class="pre">vector</span></code> CLI (skipped when
 vector is absent), and fails loudly on legacy formats (<code class="docutils literal notranslate"><span class="pre">pipeline</span></code>/<code class="docutils literal notranslate"><span class="pre">stages</span></code>
 or the flat pre-block <code class="docutils literal notranslate"><span class="pre">transformations</span></code> list).</p>
@@ -812,15 +818,15 @@ or the flat pre-block <code class="docutils literal notranslate"><span class="pr
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 9.1.0</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
 <script src="../_static/documentation_options.js?v=d45e8c67"></script>
-<script src="../_static/doctools.js?v=fd6eb6e6"></script>
-<script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
-<script defer="defer" src="../_static/theme.js?v=5db23cf8"></script>
+<script src="../_static/doctools.js?v=9bcbadda"></script>
+<script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="../_static/theme.js?v=49cc6205"></script>
 <script src="../_static/sidebar-scroll.js?v=2c5053c4"></script>
 </body>
 </html>

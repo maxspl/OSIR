@@ -4,7 +4,7 @@ shell_bags
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:registry:hku:shellbags`` | name_rex: ``r"\.csv$"``
+   * ``eztools:windows:registry:shell_bags`` | name_rex: ``r"\.csv$"``
 
 Description
 -----------
@@ -14,27 +14,27 @@ Parsing of shell bags artifact.
 Timeline
 --------
 
-.. _tl-windows-shell_bags-interacted-with:
-.. _tl-windows-shell_bags-referenced:
+.. _tl-windows-zimmerman-shell_bags-interacted-with:
+.. _tl-windows-zimmerman-shell_bags-referenced:
 
 .. list-table::
    :header-rows: 1
 
-   * - labels.has_explored
+   * - action.properties.HasExplored
      - Relation
      - Message
    * - ``True``
-     - `interacted-with <rel-windows-shell_bags-interacted-with_>`_
-     - ``User {user.name} interacted with {labels.absolute_path}``
+     - `interacted-with <rel-windows-zimmerman-shell_bags-interacted-with_>`_
+     - ``User {user.name} interacted with {action.properties.AbsolutePath}``
    * - ``False``
-     - `referenced <rel-windows-shell_bags-referenced_>`_
-     - ``Shellbag entry exists for {labels.absolute_path} (no evidence of user interaction)``
+     - `referenced <rel-windows-zimmerman-shell_bags-referenced_>`_
+     - ``Shellbag entry exists for {action.properties.AbsolutePath} (no evidence of user interaction)``
 
 Relationships
 -------------
 
-.. _rel-windows-shell_bags-interacted-with:
-.. _rel-windows-shell_bags-referenced:
+.. _rel-windows-zimmerman-shell_bags-interacted-with:
+.. _rel-windows-zimmerman-shell_bags-referenced:
 
 .. list-table::
    :header-rows: 1
@@ -43,13 +43,13 @@ Relationships
      - Source
      - Target
      - Type
-   * - `interacted-with <tl-windows-shell_bags-interacted-with_>`_
+   * - `interacted-with <tl-windows-zimmerman-shell_bags-interacted-with_>`_
      - ``user.name``
-     - ``labels.value``
+     - ``action.properties.value``
      - ``interacted with``
-   * - `referenced <tl-windows-shell_bags-referenced_>`_
+   * - `referenced <tl-windows-zimmerman-shell_bags-referenced_>`_
      - ``user.name``
-     - ``labels.value``
+     - ``action.properties.value``
      - ``referenced``
 
 Fields
@@ -60,6 +60,8 @@ Fields
 
    * - Original
      - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
    * - ``parse_timestamp(LastWriteTime)``
      - ``timestamp``
    * - ``parse_timestamp(FirstInteracted)``
@@ -67,39 +69,39 @@ Fields
    * - ``parse_timestamp(LastInteracted)``
      - ``timestamp``
    * - ``BagPath``
-     - ``labels.bag_path``
+     - ``action.properties.BagPath``
    * - ``AbsolutePath``
-     - ``labels.absolute_path``
+     - ``action.properties.AbsolutePath``
    * - ``ShellType``
-     - ``labels.shell_type``
+     - ``action.properties.shell_type``
    * - ``Value``
-     - ``labels.value``
+     - ``action.properties.value``
    * - ``Miscellaneous``
-     - ``labels.misc``
+     - ``action.properties.Miscellaneous``
    * - ``Value``
      - ``file.name``
    * - ``Value``
      - ``file.directory``
    * - ``to_int(Slot)``
-     - ``labels.slot``
+     - ``action.properties.Slot``
    * - ``to_int(NodeSlot)``
-     - ``labels.node_slot``
+     - ``action.properties.NodeSlot``
    * - ``to_int(MRUPosition)``
-     - ``labels.mru_position``
+     - ``action.properties.MRUPosition``
    * - ``to_int(ChildBags)``
-     - ``labels.child_bags``
+     - ``action.properties.ChildBags``
    * - ``to_int(MFTSequenceNumber)``
-     - ``labels.mft_sequence``
+     - ``action.properties.MFTSequenceNumber``
    * - ``to_int(ExtensionBlockCount)``
-     - ``labels.extension_block_count``
+     - ``action.properties.ExtensionBlockCount``
    * - ``to_bool(HasExplored)``
-     - ``labels.has_explored``
+     - ``action.properties.HasExplored``
    * - ``parse_timestamp(LastWriteTime)``
-     - ``labels.last_write_time``
+     - ``action.properties.LastWriteTime``
    * - ``parse_timestamp(FirstInteracted)``
-     - ``labels.first_interacted``
+     - ``action.properties.FirstInteracted``
    * - ``parse_timestamp(LastInteracted)``
-     - ``labels.last_interacted``
+     - ``action.properties.LastInteracted``
    * - ``parse_timestamp(CreatedOn)``
      - ``file.created``
    * - ``parse_timestamp(ModifiedOn)``
@@ -114,33 +116,3 @@ Fields
      - ``registry.mtime``
    * - ``"HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\" + replace(to_string!(.BagPath), pattern: "\\\\", with: "\\")``
      - ``registry.path``
-   * - ``name``
-     - ``labels.value``
-   * - ``type``
-     - ``labels.shell_type``
-   * - ``localized_name``
-     - ``labels.localized_name``
-   * - ``description``
-     - ``labels.description``
-   * - ``key_security``
-     - ``labels.key_security``
-   * - ``ogre_md``
-     - ``labels.ogre_md``
-   * - ``file_reference``
-     - ``file.inode``
-   * - ``replace(to_string!(.path), pattern: "\\\\", with: "\\")``
-     - ``labels.absolute_path``
-   * - ``parse_timestamp(key_modif_time)``
-     - ``timestamp``
-   * - ``parse_timestamp(key_modif_time)``
-     - ``registry.mtime``
-   * - ``parse_timestamp(modification_time)``
-     - ``file.mtime``
-   * - ``parse_timestamp(access_time)``
-     - ``file.accessed``
-   * - ``parse_timestamp(creation_time)``
-     - ``file.created``
-   * - ``replace(to_string!(.key_path), pattern: "\\\\", with: "\\")``
-     - ``registry.path``
-   * - ``true``
-     - ``labels.has_explored``

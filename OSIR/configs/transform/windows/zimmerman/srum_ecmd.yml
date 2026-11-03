@@ -1,0 +1,138 @@
+metadata:
+  version: "1.0"
+  id: srum_ecmd
+  author: Typ
+  description: Windows SRUM (SrumECmd CSV) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows System Resource Usage Monitor (SRUM)"
+
+  # Id, Timestamp, ExeInfo, ExeInfoDescription, ExeTimestamp, SidType, Sid,
+  # UserName, UserId, AppId, FaceTime, Foreground*/Background*, then
+  # table-specific columns (NetworkUsages, NetworkConnections, EnergyUsage,
+  # AppTimelineProvider, PushNotifications, vfuprov, ...)
+  - set:
+      timestamp:
+        source: Timestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S"
+      action.properties.auto_inc_id:
+        source: Id
+        operation: to_int
+      action.properties.app_id: AppId
+      action.properties.exe_info: ExeInfo
+      action.properties.exe_info_description: ExeInfoDescription
+      action.properties.exe_timestamp: ExeTimestamp
+      user.id: Sid
+      user.name: UserName
+      action.properties.user_id:
+        source: UserId
+        operation: to_int
+      action.properties.facetime:
+        source: FaceTime
+        operation: to_int
+      action.properties.foreground_cycle_time:
+        source: ForegroundCycleTime
+        operation: to_int
+      action.properties.background_cycle_time:
+        source: BackgroundCycleTime
+        operation: to_int
+      action.properties.foreground_context_switches:
+        source: ForegroundContextSwitches
+        operation: to_int
+      action.properties.background_context_switches:
+        source: BackgroundContextSwitches
+        operation: to_int
+      action.properties.foreground_bytes_read:
+        source: ForegroundBytesRead
+        operation: to_int
+      action.properties.foreground_bytes_written:
+        source: ForegroundBytesWritten
+        operation: to_int
+      action.properties.background_bytes_read:
+        source: BackgroundBytesRead
+        operation: to_int
+      action.properties.background_bytes_written:
+        source: BackgroundBytesWritten
+        operation: to_int
+      action.properties.foreground_num_read_operations:
+        source: ForegroundNumReadOperations
+        operation: to_int
+      action.properties.foreground_num_write_options:
+        source: ForegroundNumWriteOperations
+        operation: to_int
+      action.properties.background_num_read_operations:
+        source: BackgroundNumReadOperations
+        operation: to_int
+      action.properties.background_num_write_operations:
+        source: BackgroundNumWriteOperations
+        operation: to_int
+      action.properties.foreground_number_of_flushes:
+        source: ForegroundNumberOfFlushes
+        operation: to_int
+      action.properties.background_number_of_flushes:
+        source: BackgroundNumberOfFlushes
+        operation: to_int
+    filter: exists(.Id) && exists(.Timestamp)
+
+  # every other SrumECmd table field moves verbatim to action.properties
+  # (SidType, BytesReceived, BytesSent, InterfaceLuid, ProfileName, EndTime,
+  # DurationMs, CycleCount, ChargeLevel, ...)
+  - custom: |2-
+      known = ["event", "action", "user", "timestamp", "Id", "Timestamp", "ExeInfo", "ExeInfoDescription", "ExeTimestamp", "Sid", "UserName", "UserId", "AppId", "FaceTime", "ForegroundCycleTime", "BackgroundCycleTime", "ForegroundContextSwitches", "BackgroundContextSwitches", "ForegroundBytesRead", "ForegroundBytesWritten", "BackgroundBytesRead", "BackgroundBytesWritten", "ForegroundNumReadOperations", "ForegroundNumWriteOperations", "BackgroundNumReadOperations", "BackgroundNumWriteOperations", "ForegroundNumberOfFlushes", "BackgroundNumberOfFlushes"]
+      rest = .
+      ap = {}
+      for_each(keys(rest)) -> |_, k| {
+          if !includes(known, k) {
+              v = get!(rest, [k])
+              ap = set!(ap, [k], v)
+              rest = remove!(rest, [k])
+          }
+      }
+      . = rest
+      .action.properties = merge(object(.action.properties) ?? {}, ap)
+
+  - delete:
+      - Id
+      - Timestamp
+      - ExeInfo
+      - ExeInfoDescription
+      - ExeTimestamp
+      - Sid
+      - UserName
+      - UserId
+      - AppId
+      - FaceTime
+      - ForegroundCycleTime
+      - BackgroundCycleTime
+      - ForegroundContextSwitches
+      - BackgroundContextSwitches
+      - ForegroundBytesRead
+      - ForegroundBytesWritten
+      - BackgroundBytesRead
+      - BackgroundBytesWritten
+      - ForegroundNumReadOperations
+      - ForegroundNumWriteOperations
+      - BackgroundNumReadOperations
+      - BackgroundNumWriteOperations
+      - ForegroundNumberOfFlushes
+      - BackgroundNumberOfFlushes
+
+timeline:
+  - id: app-usage
+    message: "Application {action.properties.app_id} was used by user {user.id}"
+    conditions:
+      - field: action.properties.app_id
+        exists: true
+
+relationships:
+  - id: app-usage
+    source: user.id
+    target: action.properties.app_id
+    type: used

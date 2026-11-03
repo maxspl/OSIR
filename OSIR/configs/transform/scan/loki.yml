@@ -11,8 +11,6 @@ transformation:
       - field: event.original
         exists: false
   - set:
-      event.module:
-        value: loki
       observer.vendor:
         value: Nextron Systems
       observer.product:
@@ -66,86 +64,38 @@ transformation:
   - set:
       event_type_lower: 'downcase(to_string(.event_type) ?? "info")'
   - set:
-      event.kind:
-        value: alert
-      event.category:
-        value: [file, malware]
-      event.type:
-        value: [info]
       event.action:
         value: loki-file-match
-      event.dataset:
-        value: loki.filescan
     conditions:
       - field: event_type_lower
         value: file_match
   - set:
-      event.kind:
-        value: alert
-      event.category:
-        value: [process, malware]
-      event.type:
-        value: [info]
       event.action:
         value: loki-process-match
-      event.dataset:
-        value: loki.processcheck
     conditions:
       - field: event_type_lower
         value: process_match
   - set:
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [start]
       event.action:
         value: loki-scan-start
-      event.dataset:
-        value: loki.scan
     conditions:
       - field: event_type_lower
         value: scan_start
   - set:
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [end]
       event.action:
         value: loki-scan-end
-      event.dataset:
-        value: loki.scan
     conditions:
       - field: event_type_lower
         value: scan_end
   - set:
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [error]
       event.action:
         value: loki-scan-error
-      event.dataset:
-        value: loki.scan
     conditions:
       - field: event_type_lower
         value: error
   - set:
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [info]
       event.action:
         value: loki-scan-info
-      event.dataset:
-        value: loki.scan
     filter: '!exists(.event.kind)'
   - delete:
       - event_type_lower

@@ -1,5 +1,9 @@
 import time
-from typing import TYPE_CHECKING, Optional, Self
+from typing import TYPE_CHECKING, Optional
+try:
+    from typing import Self  # Python 3.11+
+except ImportError:  # pragma: no cover
+    from typing_extensions import Self
 from pydantic import BaseModel, PrivateAttr
 from osir_lib.logger.logger import CustomLogger
 from osir_lib.logger import AppLogger

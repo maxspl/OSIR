@@ -11,6 +11,7 @@ Run from the docs/ directory, like modules_summary.py.
 """
 
 import html as html_mod
+import json
 import os
 import posixpath
 import re
@@ -22,8 +23,8 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 MODULES_SRC = os.path.normpath(
     os.path.join(BASE, "..", "OSIR", "configs", "modules")
 )
-TRANSFORM_V2 = os.path.normpath(
-    os.path.join(BASE, "..", "OSIR", "configs", "dependencies", "transform_v2")
+TRANSFORM_SRC = os.path.normpath(
+    os.path.join(BASE, "..", "OSIR", "configs", "transform")
 )
 OUT_DIR = os.path.join(BASE, "source", "modules")
 
@@ -70,16 +71,16 @@ Fields
 # ── transform configuration sections ────────────────────────────────────────
 
 def transform_configs_for(content):
-    """Transform_v2 configs feeding this module, from its splunk
-    ``normalize`` lists (``ecs_normalize/<path>.vrl`` ->
-    ``transform_v2/<path>.yml``), deduplicated in reference order."""
+    """Transform configs feeding this module, from its splunk ``normalize``
+    lists (``.vrl/<path>.vrl`` files generated from configs/transform),
+    deduplicated in reference order."""
     configs = []
     for params in (content.get("splunk") or {}).values():
         for path in (params or {}).get("normalize") or []:
-            if not isinstance(path, str) or not path.startswith("ecs_normalize/"):
+            if not isinstance(path, str) or not path.startswith(".vrl/"):
                 continue
-            rel = path[len("ecs_normalize/"):].rsplit(".", 1)[0] + ".yml"
-            if rel not in configs and os.path.isfile(os.path.join(TRANSFORM_V2, rel)):
+            rel = path[len(".vrl/") : -len(".vrl")] + ".yml"
+            if rel not in configs and os.path.isfile(os.path.join(TRANSFORM_SRC, rel)):
                 configs.append(rel)
     return configs
 
@@ -285,7 +286,7 @@ def _per_config(configs, render):
         return "No transform configuration found for this module."
     blocks = []
     for rel in configs:
-        with open(os.path.join(TRANSFORM_V2, rel), encoding="utf-8") as fh:
+        with open(os.path.join(TRANSFORM_SRC, rel), encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
         part = render(data)
         if len(configs) > 1:
@@ -361,7 +362,7 @@ def _per_config_sections(configs):
     timeline_blocks = []
     relationship_blocks = []
     for rel in configs:
-        with open(os.path.join(TRANSFORM_V2, rel), encoding="utf-8") as fh:
+        with open(os.path.join(TRANSFORM_SRC, rel), encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
         anchor_prefix = os.path.splitext(rel)[0].replace(os.sep, "-")
         tl_ids = [
@@ -496,7 +497,10 @@ def generate_index(pages_by_location, module_info):
     categories = sorted({category for category, _ in pages_by_location})
 
     # Root index: one card per category
-    category_cards = []
+    category_cards = [
+        card("../field_search.html", FIELD_SEARCH_TITLE,
+             "Search normalization fields (original or ECS) and sources"),
+    ]
     for category in categories:
         count = sum(
             len(docnames)
@@ -590,6 +594,306 @@ def generate_index(pages_by_location, module_info):
             )
 
 
+# ── field search page ────────────────────────────────────────────────────────
+
+FIELD_SEARCH_TITLE = "Field Search"
+
+FIELD_SEARCH_HTML = r"""
+<style>
+  .vfs { margin: 1rem 0; }
+  .vfs input[type="search"] { width: 100%; box-sizing: border-box; padding: .6rem .9rem; font-size: 1rem; }
+  .vfs .vfs-hint { font-size: .9em; opacity: .85; }
+  .vfs .vfs-chip { display: inline-block; border: 1px solid rgba(128,128,128,.45); border-radius: 999px;
+                   padding: .1rem .6rem; margin: .25rem .15rem 0 0; font-size: .82em; cursor: pointer; }
+  .vfs .vfs-chip:hover { background: rgba(128,128,128,.15); }
+  .vfs .vfs-count { font-weight: 600; margin: .8rem 0 .2rem; }
+  .vfs details { border: 1px solid rgba(128,128,128,.35); border-radius: 6px; margin: .5rem 0; padding: .45rem .8rem; }
+  .vfs summary { cursor: pointer; }
+  .vfs .vfs-cfg { font-weight: 600; }
+  .vfs .vfs-id, .vfs .vfs-desc, .vfs .vfs-mods { opacity: .75; font-size: .85em; }
+  .vfs table { width: 100%; border-collapse: collapse; font-size: .88em; margin: .5rem 0 .2rem; }
+  .vfs th { text-align: left; font-size: .78em; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+  .vfs th, .vfs td { text-align: left; padding: .3rem .5rem; border-bottom: 1px solid rgba(128,128,128,.25); vertical-align: top; }
+  .vfs code { word-break: break-all; }
+  .vfs .badge { display: inline-block; border-radius: 3px; padding: 0 .45rem; font-size: .78em; white-space: nowrap; }
+  .vfs .k-mapped { background: rgba(59,130,246,.18); color: #1d4ed8; }
+  .vfs .k-constant { background: rgba(128,128,128,.2); }
+  .vfs .k-translate { background: rgba(147,51,234,.18); color: #7e22ce; }
+  .vfs .k-delete { background: rgba(220,38,38,.15); color: #b91c1c; }
+  .vfs .deleted { opacity: .6; }
+</style>
+<div class="vfs">
+  <p class="vfs-hint">
+    Search a <b>normalized (ECS) field</b> or an <b>original source field</b> — both sides of every
+    mapping are searched. Type a <b>source name</b> to list all the fields it produces, or try an
+    example below:
+  </p>
+  <input id="vfs-q" type="search" autocomplete="off" aria-label="Field search"
+         placeholder="Search a field (original or ECS) or a source…">
+  <div>
+    <span class="vfs-chip" data-q="process.name">process.name</span>
+    <span class="vfs-chip" data-q="eventid">eventid</span>
+    <span class="vfs-chip" data-q="source.ip">source.ip</span>
+    <span class="vfs-chip" data-q="evtx">source: evtx</span>
+    <span class="vfs-chip" data-q="amcache">source: amcache</span>
+  </div>
+  <p class="vfs-count" id="vfs-count"></p>
+  <h3>Sources</h3>
+  <div id="vfs-srcs"></div>
+  <div id="vfs-fields-wrap" style="display:none">
+    <h3>Matching fields</h3>
+    <table>
+      <thead><tr><th>Original</th><th>Normalized (ECS)</th><th>Kind</th><th>Source config</th></tr></thead>
+      <tbody id="vfs-fields-body"></tbody>
+    </table>
+  </div>
+</div>
+<script>
+(function () {
+  var DATA = __VFS_INDEX__;
+  var FIELDS_CAP = 400, PER_SRC_CAP = 200;
+  var input = document.getElementById("vfs-q");
+  var countEl = document.getElementById("vfs-count");
+  var srcBox = document.getElementById("vfs-srcs");
+  var wrap = document.getElementById("vfs-fields-wrap");
+  var tbody = document.getElementById("vfs-fields-body");
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function badge(k) {
+    return '<span class="badge k-' + k + '">' + (k === "delete" ? "deleted" : k) + "</span>";
+  }
+
+  // Original + normalized + kind cells (shared by both tables)
+  function cells(f) {
+    var o, n;
+    if (f.k === "delete") {
+      o = '<span class="deleted"><code>' + esc(f.o) + "</code></span>";
+      n = '<span class="deleted">— deleted —</span>';
+    } else {
+      o = f.o ? "<code>" + esc(f.o) + "</code>" : "";
+      n = f.n ? "<code>" + esc(f.n) + "</code>" : "";
+    }
+    return "<td>" + o + "</td><td>" + n + "</td><td>" + badge(f.k) + "</td>";
+  }
+
+  function rowHtml(f, withSource, idx) {
+    var srcCell = withSource
+      ? '<td><a href="#vfs-src-' + idx + '"><code>' + esc(DATA[idx].cfg) + "</code></a></td>"
+      : "";
+    return "<tr>" + cells(f) + srcCell + "</tr>";
+  }
+
+  function match(f, q) {
+    return f.n.toLowerCase().indexOf(q) !== -1 || f.o.toLowerCase().indexOf(q) !== -1;
+  }
+
+  function render() {
+    var q = input.value.trim().toLowerCase();
+    var totalFields = 0, matchedFields = 0, matchedSrcs = 0;
+    var flatRows = [];
+    var srcHtml = "";
+
+    DATA.forEach(function (src, idx) {
+      totalFields += src.fields.length;
+      var hits = q ? src.fields.filter(function (f) { return match(f, q); }) : [];
+      matchedFields += hits.length;
+      var metaHit = q && (src.cfg + " " + src.id + " " + src.desc + " " + src.mods.join(" "))
+        .toLowerCase().indexOf(q) !== -1;
+
+      if (q && !hits.length && !metaHit) return;
+      matchedSrcs += 1;
+
+      var shown = q ? (hits.length ? hits : src.fields) : null;
+      var label = '<span class="vfs-cfg">' + esc(src.cfg) + "</span>";
+      if (src.id) label += ' <span class="vfs-id">(' + esc(src.id) + ")</span>";
+      if (src.desc) label += '<br><span class="vfs-desc">' + esc(src.desc) + "</span>";
+      if (src.mods.length) label += '<div class="vfs-mods">modules: ' + esc(src.mods.join(", ")) + "</div>";
+      label += " — <b>" + (q ? hits.length + " / " + src.fields.length : src.fields.length) + " field(s)</b>";
+
+      srcHtml += '<details id="vfs-src-' + idx + '"' +
+        (q && hits.length && hits.length < src.fields.length ? " open" : "") + ">";
+        srcHtml += "<summary>" + label + "</summary>";
+        if (shown && shown.length) {
+          srcHtml += '<table><thead><tr><th>Original</th><th>Normalized (ECS)</th><th>Kind</th></tr></thead><tbody>';
+          shown.slice(0, PER_SRC_CAP).forEach(function (f) { srcHtml += rowHtml(f, false, idx); });
+          if (shown.length > PER_SRC_CAP) {
+            srcHtml += "<tr><td colspan='3'>… " + (shown.length - PER_SRC_CAP) + " more</td></tr>";
+          }
+          srcHtml += "</tbody></table>";
+        }
+      srcHtml += "</details>";
+
+      hits.forEach(function (f) {
+        if (flatRows.length < FIELDS_CAP) {
+          flatRows.push(rowHtml(f, true, idx));
+        }
+      });
+    });
+
+    if (!q) {
+      countEl.textContent = DATA.length + " sources · " + totalFields +
+        " field mappings indexed — type to search.";
+      wrap.style.display = "none";
+      tbody.innerHTML = "";
+    } else {
+      countEl.textContent = matchedFields + " matching mapping(s) in " + matchedSrcs +
+        " source(s)" + (matchedFields > FIELDS_CAP ? " — first " + FIELDS_CAP + " shown" : "");
+      wrap.style.display = flatRows.length ? "block" : "none";
+      tbody.innerHTML = flatRows.join("");
+    }
+    if (!srcHtml) {
+      srcHtml = "<p><i>No matching source — this field may not be normalized.</i></p>";
+    }
+    srcBox.innerHTML = srcHtml;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".vfs-chip"), function (chip) {
+    chip.addEventListener("click", function () {
+      input.value = chip.getAttribute("data-q");
+      render();
+      input.focus();
+    });
+  });
+  input.addEventListener("input", render);
+  input.addEventListener("search", render);
+  render();
+})();
+</script>
+"""
+
+# One row per (source config, original expression, normalized target): later
+# duplicates in a config (e.g. a field set twice) collapse into the first one.
+def _field_rows(config_data):
+    def stringify(v):
+        if isinstance(v, (dict, list)):
+            v = json.dumps(v, ensure_ascii=False)
+        v = str(v)
+        return v[:120] + "…" if len(v) > 120 else v
+
+    rows = []
+    seen = set()
+    for row in _raw_field_rows(config_data):
+        key = (row["o"], row["n"], row["k"])
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(row)
+    return rows
+
+
+def _stringify(v):
+    """Compact searchable string for constant values."""
+    if isinstance(v, (dict, list)):
+        v = json.dumps(v, ensure_ascii=False)
+    v = str(v)
+    return v[:120] + "…" if len(v) > 120 else v
+
+
+def _raw_field_rows(config_data):
+    rows = []
+    for block in config_data.get("transformation") or []:
+        if "set" in block:
+            for target, spec in (block.get("set") or {}).items():
+                if isinstance(spec, dict) and spec.get("value") is not None:
+                    rows.append({"o": "constant: " + _stringify(spec["value"]), "n": target, "k": "constant"})
+                elif isinstance(spec, str):
+                    rows.append({"o": spec, "n": target, "k": "mapping"})
+                elif isinstance(spec, dict) and spec.get("source") is not None:
+                    orig = str(spec["source"])
+                    if spec.get("operation"):
+                        orig = f"{spec['operation']}({orig})"
+                    rows.append({"o": orig, "n": target, "k": "mapping"})
+        elif "translate" in block:
+            for target, orig in (block["translate"].get("mapping") or {}).items():
+                rows.append({"o": str(orig), "n": target, "k": "translate"})
+        elif "delete" in block:
+            for orig in block["delete"] or []:
+                rows.append({"o": str(orig), "n": "", "k": "delete"})
+    return rows
+
+def _modules_by_config():
+    """Reverse map: transform config path (relative, .vrl stripped) ->
+    sorted list of module docnames whose splunk.normalize reference it."""
+    usage = {}
+    for root, dirs, files in os.walk(MODULES_SRC):
+        if "deprecated" in os.path.relpath(root, MODULES_SRC).split(os.sep):
+            continue
+        for file_name in sorted(files):
+            if not file_name.endswith(".yml"):
+                continue
+            path = os.path.join(root, file_name)
+            try:
+                with open(path, encoding="utf-8") as fh:
+                    content = yaml.safe_load(fh) or {}
+            except Exception:
+                continue
+            module = os.path.splitext(os.path.relpath(path, MODULES_SRC).replace(os.sep, "/"))[0]
+            for params in (content.get("splunk") or {}).values():
+                for path_vrl in (params or {}).get("normalize") or []:
+                    if isinstance(path_vrl, str) and path_vrl.startswith(".vrl/") and path_vrl.endswith(".vrl"):
+                        rel = path_vrl[len(".vrl/"):-len(".vrl")]
+                        usage.setdefault(rel, [])
+                        if module not in usage[rel]:
+                            usage[rel].append(module)
+    return usage
+
+
+def generate_field_search_page():
+    """Write the 'Field Search' page: an embedded index of every transform's
+    field mappings (original -> ECS) plus a client-side filter UI, so the
+    normalizations can be searched by field or by source without a server."""
+    if not os.path.isdir(TRANSFORM_SRC):
+        return
+
+    usage = _modules_by_config()
+    sources = []
+    for root, dirs, files in os.walk(TRANSFORM_SRC):
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        rel_dir = os.path.relpath(root, TRANSFORM_SRC)
+        for file_name in sorted(files):
+            if not file_name.endswith(".yml") or file_name == "test.yml":
+                continue
+            yml_path = os.path.join(root, file_name)
+            with open(yml_path, encoding="utf-8") as fh:
+                config = yaml.safe_load(fh) or {}
+            fields = _field_rows(config)
+            if not fields:
+                continue
+            rel_noext = os.path.splitext(os.path.normpath(
+                os.path.join(rel_dir, file_name)).replace(os.sep, "/"))[0]
+            meta = config.get("metadata") or {}
+            sources.append({
+                "cfg": rel_noext,
+                "id": meta.get("id", ""),
+                "desc": meta.get("description", ""),
+                "mods": usage.get(rel_noext, []),
+                "fields": fields,
+            })
+
+    index = json.dumps(sources, ensure_ascii=True).replace("</", "<\\/")
+    html = FIELD_SEARCH_HTML.replace("__VFS_INDEX__", index)
+
+    title = FIELD_SEARCH_TITLE
+    lines = [
+        title, "=" * len(title), "", "",
+        ".. raw:: html", "",
+    ]
+    lines += ["    " + line if line else "" for line in html.rstrip().split("\n")]
+    lines.append("")
+    # Lives outside source/modules/ so the sidebar attaches it to the
+    # 'Available Modules' section, not inside Modules.
+    path = os.path.join(os.path.dirname(OUT_DIR), "field_search.rst")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(lines))
+
+
 def main():
     if not os.path.isdir(MODULES_SRC):
         raise SystemExit(f"Modules directory not found: {MODULES_SRC}")
@@ -622,6 +926,7 @@ def main():
             )
             count += 1
 
+    generate_field_search_page()
     generate_index(pages_by_location, module_info)
     print(f"Generated {count} module pages in {OUT_DIR}")
 

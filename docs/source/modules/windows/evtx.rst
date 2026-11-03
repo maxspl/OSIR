@@ -71,7 +71,7 @@ Timeline
    * - Relation
      - Message
    * - 
-     - ``Hostname: {host.name} - Source: {event.provider} - EventID: {action.id}``
+     - ``Hostname: {host.name} - Source: {event.provider} - EventID: {event.id}``
    * - 
      - ``Hostname: {host.name} - {action.name}``
    * - `evtx-4624 <rel-windows-evtx-evtx-4624_>`_
@@ -560,10 +560,10 @@ Fields
 
    * - Original
      - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
    * - ``.Event.System.TimeCreated."#attributes".SystemTime``
      - ``timestamp``
-   * - ``Event.System``
-     - ``action.system``
    * - ``Event.EventData``
      - ``action.properties``
    * - ``Event.EventData.Attributes``
@@ -610,6 +610,28 @@ Fields
      - ``action.properties.Subject``
    * - ``Event.EventData.TransmittedServices``
      - ``action.properties.TransmittedServices``
+   * - ``.Event.System.Provider."#attributes".Guid``
+     - ``action.properties.provider_guid``
+   * - ``to_int(Event.System.Version)``
+     - ``action.properties.version``
+   * - ``to_int(Event.System.Level)``
+     - ``action.properties.level``
+   * - ``to_int(Event.System.Task)``
+     - ``action.properties.task``
+   * - ``to_int(Event.System.Opcode)``
+     - ``action.properties.opcode``
+   * - ``Event.System.Keywords``
+     - ``action.properties.keywords``
+   * - ``.Event.System.Correlation."#attributes".ActivityID``
+     - ``action.properties.activity_id``
+   * - ``to_int(.Event.System.Execution."#attributes".ProcessID)``
+     - ``process.pid``
+   * - ``to_int(.Event.System.Execution."#attributes".ThreadID)``
+     - ``file.thread.id``
+   * - ``.Event.System.Security."#attributes".UserID``
+     - ``user.id``
+   * - ``custom``
+     - 
    * - ``custom``
      - 
    * - ``Event.EventData.Image``
@@ -624,6 +646,8 @@ Fields
      - ``action.properties.ErrorCode``
    * - ``Event.EventData.ProcessName``
      - ``action.properties.ProcessName``
+   * - ``Event.EventData.CallerProcessName``
+     - ``process.name``
    * - ``to_int!(.Event.System.EventID."#text")``
      - ``event.code``
    * - ``to_int!(.Event.System.EventID)``
@@ -694,8 +718,6 @@ Fields
      - ``file.path``
    * - ``Event.System.Channel``
      - ``action.type``
-   * - ``event.code``
-     - ``action.id``
    * - ``.Event.System.Provider."#attributes".Name``
      - ``event.provider``
    * - ``Event.System.Computer``
@@ -952,14 +974,6 @@ Fields
      - ``destination.ip``
    * - ``Event.EventData.AuthenticationServer``
      - ``destination.domain``
-   * - ``"success"``
-     - ``action.outcome``
-   * - ``"failure"``
-     - ``action.outcome``
-   * - ``"success"``
-     - ``event.outcome``
-   * - ``"failure"``
-     - ``event.outcome``
    * - ``Event.EventData.RuleName``
      - ``rule.name``
    * - ``"network-traffic"``

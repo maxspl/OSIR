@@ -24,8 +24,8 @@
 <title>src.osir_lib.osir_lib.modules.windows.live_response package | Orchestration Software for Incident Response</title>
 <meta content="src.osir_lib.osir_lib.modules.windows.live_response package | Orchestration Software for Incident Response" property="og:title"/>
 <meta content="src.osir_lib.osir_lib.modules.windows.live_response package | Orchestration Software for Incident Response" name="twitter:title"/>
-<link href="_static/pygments.css?v=e72c8e07" rel="stylesheet" type="text/css"/>
-<link href="_static/theme.css?v=d6d7c91b" rel="stylesheet" type="text/css"/>
+<link href="_static/pygments.css?v=8d216cef" rel="stylesheet" type="text/css"/>
+<link href="_static/theme.css?v=009055c6" rel="stylesheet" type="text/css"/>
 <link href="_static/module-cards.css?v=438e39cc" rel="stylesheet" type="text/css"/>
 <link href="_static/tables.css" rel="stylesheet" type="text/css"/>
 <link href="_static/OSIR_LOGO.png" rel="icon"/>
@@ -106,6 +106,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/index.html">Modules<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/common/index.html">Common<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -133,13 +134,9 @@
 </li>
 <li class="toctree-l2" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/scan/index.html">Scan<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -259,9 +256,12 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/artemis/index.html">Windows / Artemis<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -338,12 +338,15 @@
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/sysinternals/index.html">Windows / Sysinternals<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3" x-data="{ expanded: $el.classList.contains('current') ? true : false }"><a :class="{ 'expanded' : expanded }" @click="expanded = !expanded" class="reference internal expandable" href="modules/windows/zimmerman/index.html">Windows / Zimmerman<button @click.prevent.stop="expanded = !expanded" type="button" x-cloak=""><span class="sr-only"></span><svg fill="currentColor" height="18px" stroke="none" viewbox="0 0 24 24" width="18px" xmlns="http://www.w3.org/2000/svg"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path></svg></button></a><ul x-cloak="" x-show="expanded">
@@ -546,7 +549,7 @@
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-arp-cache-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser.ArpCacheParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser.</span></span><span class="sig-name descname"><span class="pre">ArpCacheParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/arp_cache_parser.html#ArpCacheParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser.</span></span><span class="sig-name descname"><span class="pre">ArpCacheParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/arp_cache_parser.html#ArpCacheParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse ARP cache output into structured records.</p>
 <p>This parser is <strong>locale-agnostic</strong>: it does not depend on English labels
@@ -605,7 +608,7 @@ Example object:</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-bits-jobs-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.bits_jobs_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.bits_jobs_parser.BitsJobsParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.bits_jobs_parser.</span></span><span class="sig-name descname"><span class="pre">BitsJobsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/bits_jobs_parser.html#BitsJobsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.bits_jobs_parser.</span></span><span class="sig-name descname"><span class="pre">BitsJobsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/bits_jobs_parser.html#BitsJobsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse <code class="docutils literal notranslate"><span class="pre">bitsadmin</span></code> output into structured JSONL job records.</p>
 <dl class="simple">
@@ -638,7 +641,7 @@ Example object:</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-dns-cache-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.dns_cache_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.dns_cache_parser.DnsCacheParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.dns_cache_parser.</span></span><span class="sig-name descname"><span class="pre">DnsCacheParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/dns_cache_parser.html#DnsCacheParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.dns_cache_parser.</span></span><span class="sig-name descname"><span class="pre">DnsCacheParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/dns_cache_parser.html#DnsCacheParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse <cite>ipconfig /displaydns</cite> output into structured JSONL records.</p>
 <p>Each DNS cache block in the input becomes one JSON object with fields
@@ -683,7 +686,7 @@ single DNS cache entry.</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-dns-records-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.dns_records_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.dns_records_parser.DnsRecordsParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.dns_records_parser.</span></span><span class="sig-name descname"><span class="pre">DnsRecordsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/dns_records_parser.html#DnsRecordsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.dns_records_parser.</span></span><span class="sig-name descname"><span class="pre">DnsRecordsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/dns_records_parser.html#DnsRecordsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse DNS zone record listings into structured JSONL output.</p>
 <p>This parser is intended for command-line style DNS zone dumps that follow
@@ -737,7 +740,7 @@ single DNS record. Unknown or malformed lines are skipped.</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-enumlocs-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.enumlocs_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.enumlocs_parser.EnumLocsParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.enumlocs_parser.</span></span><span class="sig-name descname"><span class="pre">EnumLocsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/enumlocs_parser.html#EnumLocsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.enumlocs_parser.</span></span><span class="sig-name descname"><span class="pre">EnumLocsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/enumlocs_parser.html#EnumLocsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse NTFSUtil EnumLocs output into per-volume JSONL records.</p>
 <dl class="simple">
@@ -780,7 +783,7 @@ including a parameters dict copied from the global Parameters section.</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-handle-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.handle_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.handle_parser.HandleParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.handle_parser.</span></span><span class="sig-name descname"><span class="pre">HandleParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/handle_parser.html#HandleParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.handle_parser.</span></span><span class="sig-name descname"><span class="pre">HandleParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/handle_parser.html#HandleParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse Sysinternals handle.exe output into structured JSONL records.</p>
 <dl class="py method">
@@ -807,7 +810,7 @@ single open handle, enriched with the owning process context.</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-listdlls-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.listdlls_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.listdlls_parser.ListDllsParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.listdlls_parser.</span></span><span class="sig-name descname"><span class="pre">ListDllsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/listdlls_parser.html#ListDllsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.listdlls_parser.</span></span><span class="sig-name descname"><span class="pre">ListDllsParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/listdlls_parser.html#ListDllsParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse Sysinternals listdlls output into structured JSONL records.</p>
 <p>The parser extracts the list of loaded DLLs (or EXEs) for each process.</p>
@@ -844,7 +847,7 @@ loaded module (DLL, EXE, etc.), annotated with its owning process.</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-netstat-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.netstat_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.netstat_parser.NetstatParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.netstat_parser.</span></span><span class="sig-name descname"><span class="pre">NetstatParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/netstat_parser.html#NetstatParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.netstat_parser.</span></span><span class="sig-name descname"><span class="pre">NetstatParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/netstat_parser.html#NetstatParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse netstat -ano output (supports French/International variants).</p>
 <p>The parser extracts active TCP/UDP connections and emits one JSON object
@@ -880,7 +883,7 @@ each describing a network connection with fields:</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-routes-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.routes_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.RoutesParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.</span></span><span class="sig-name descname"><span class="pre">RoutesParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/routes_parser.html#RoutesParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.routes_parser.</span></span><span class="sig-name descname"><span class="pre">RoutesParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/routes_parser.html#RoutesParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse Windows <cite>route print</cite> output (supports localized output).</p>
 <dl class="simple">
@@ -902,7 +905,7 @@ each describing a network connection with fields:</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-tcpvcon-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.tcpvcon_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.tcpvcon_parser.TcpvconParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.tcpvcon_parser.</span></span><span class="sig-name descname"><span class="pre">TcpvconParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/tcpvcon_parser.html#TcpvconParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.tcpvcon_parser.</span></span><span class="sig-name descname"><span class="pre">TcpvconParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/tcpvcon_parser.html#TcpvconParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse Sysinternals <cite>tcpvcon -accepteula -n -c</cite> CSV output.</p>
 <p>Sysinternals tcpvcon can export active TCP/UDP connections in CSV format.
@@ -938,7 +941,7 @@ This parser expects that format and converts each row into a JSON object.</p>
 <span id="src-osir-lib-osir-lib-modules-windows-live-response-wmi-eventconsumer-parser-module"></span><h2>src.osir_lib.osir_lib.modules.windows.live_response.wmi_eventconsumer_parser module</h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.osir_lib.osir_lib.modules.windows.live_response.wmi_eventconsumer_parser.WmiEventConsumerParser">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.wmi_eventconsumer_parser.</span></span><span class="sig-name descname"><span class="pre">WmiEventConsumerParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/wmi_eventconsumer_parser.html#WmiEventConsumerParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.osir_lib.osir_lib.modules.windows.live_response.wmi_eventconsumer_parser.</span></span><span class="sig-name descname"><span class="pre">WmiEventConsumerParser</span></span><a class="reference internal" href="_modules/src/osir_lib/osir_lib/modules/windows/live_response/wmi_eventconsumer_parser.html#WmiEventConsumerParser"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parse WMI <cite>EventConsumer</cite> text blocks into structured JSONL.</p>
 <p>This parser ingests output similar to:</p>
@@ -1070,15 +1073,15 @@ values into lists. Any unmatched lines are stored in <cite>_raw_extra</cite>.</p
 </div><footer class="py-6 border-t border-border md:py-0">
 <div class="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
 <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 9.1.0</a></p>
+<p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ Built with <a class="font-medium underline underline-offset-4" href="https://www.sphinx-doc.org" rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
 </div>
 <script src="_static/documentation_options.js?v=d45e8c67"></script>
-<script src="_static/doctools.js?v=fd6eb6e6"></script>
-<script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-<script defer="defer" src="_static/theme.js?v=5db23cf8"></script>
+<script src="_static/doctools.js?v=9bcbadda"></script>
+<script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+<script defer="defer" src="_static/theme.js?v=49cc6205"></script>
 <script src="_static/sidebar-scroll.js?v=2c5053c4"></script>
 </body>
 </html>

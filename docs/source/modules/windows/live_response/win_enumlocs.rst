@@ -31,37 +31,25 @@ Fields
      - ECS field
    * - ``custom``
      - 
-   * - ``"windows.enumlocs"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[host, configuration]``
-     - ``event.category``
-   * - ``[info, inventory]``
-     - ``event.type``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``"Windows enumlocs volume inventory"``
      - ``event.provider``
    * - ``custom``
      - 
    * - ``to_string!(del(.volume_id))``
-     - ``host.Ext.enumlocs.volume.id``
+     - ``action.properties.volume_id``
    * - ``to_string!(del(.filesystem))``
-     - ``host.Ext.enumlocs.volume.filesystem``
+     - ``action.properties.volume_filesystem``
    * - ``to_string!(del(.status))``
-     - ``host.Ext.enumlocs.volume.status``
+     - ``action.properties.volume_status``
    * - ``del(.entries)``
-     - ``host.Ext.enumlocs.volume.entries``
+     - ``action.properties.volume_entries``
    * - ``del(.MountedVolume)``
-     - ``host.Ext.enumlocs.volume.mounted_volumes``
+     - ``action.properties.volume_mounted_volumes``
    * - ``del(.PhysicalDriveVolume)``
-     - ``host.Ext.enumlocs.volume.physical_drive_volume_raw``
+     - ``action.properties.volume_physical_drive_volume_raw``
    * - ``del(.DiskInterfaceVolume)``
-     - ``host.Ext.enumlocs.volume.disk_interface_volume_raw``
+     - ``action.properties.volume_disk_interface_volume_raw``
    * - ``del(.Snapshot)``
-     - ``host.Ext.enumlocs.volume.snapshots``
+     - ``action.properties.volume_snapshots``
    * - ``custom``
      - 

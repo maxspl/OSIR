@@ -6,20 +6,8 @@ metadata:
 
 transformation:
   - set:
-      event.dataset:
-        value: windows.pstree_live_response
-      event.module:
-        value: windows
-      event.kind:
-        value: event
-      event.category:
-        value: [process]
-      event.type:
-        value: [info]
       event.action:
         value: process_tree_root
-      event.outcome:
-        value: success
   - custom: |2-
       if exists(.tree_id) {
           tree_id_val = to_int(.tree_id) ?? null

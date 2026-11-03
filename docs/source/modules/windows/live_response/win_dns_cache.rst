@@ -31,18 +31,6 @@ Fields
      - ECS field
    * - ``custom``
      - 
-   * - ``"windows.dns_cache"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[network]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``"Windows DNS Cache"``
      - ``event.provider``
    * - ``"answer"``

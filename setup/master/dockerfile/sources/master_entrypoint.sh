@@ -11,6 +11,7 @@ safe_install() {
 # Run the installations
 safe_install "/OSIR/OSIR/src/osir_service/"
 safe_install "/OSIR/OSIR/src/osir_lib/"
+safe_install "/OSIR/OSIR/src/osir_vrl/"
 
 # Execute the CMD
 exec "$@"

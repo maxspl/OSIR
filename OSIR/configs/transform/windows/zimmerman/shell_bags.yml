@@ -1,0 +1,167 @@
+metadata:
+  version: "1.0"
+  id: shell_bags
+  author: Typ
+  description: Windows ShellBags (SBECmd CSV) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  # -- SBECmd (Zimmerman) CSV input ------------------------------------------
+
+  - set:
+      timestamp:
+        source: LastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastWriteTime) && .LastWriteTime != ""
+
+  - set:
+      timestamp:
+        source: FirstInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.FirstInteracted) && .FirstInteracted != ""
+
+  - set:
+      timestamp:
+        source: LastInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastInteracted) && .LastInteracted != ""
+
+  - set:
+      action.properties.BagPath: BagPath
+      action.properties.AbsolutePath: AbsolutePath
+      action.properties.shell_type: ShellType
+      action.properties.value: Value
+
+  - set:
+      action.properties.Miscellaneous: Miscellaneous
+    filter: exists(.Miscellaneous) && .Miscellaneous != ""
+
+  - set:
+      file.name: Value
+    filter: .action.properties.shell_type == "File"
+
+  - set:
+      file.directory: Value
+    filter: .action.properties.shell_type == "Directory"
+
+  - set:
+      action.properties.Slot:
+        source: Slot
+        operation: to_int
+      action.properties.NodeSlot:
+        source: NodeSlot
+        operation: to_int
+      action.properties.MRUPosition:
+        source: MRUPosition
+        operation: to_int
+      action.properties.ChildBags:
+        source: ChildBags
+        operation: to_int
+      action.properties.MFTSequenceNumber:
+        source: MFTSequenceNumber
+        operation: to_int
+      action.properties.ExtensionBlockCount:
+        source: ExtensionBlockCount
+        operation: to_int
+      action.properties.HasExplored:
+        source: HasExplored
+        operation: to_bool
+      action.properties.LastWriteTime:
+        source: LastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      action.properties.FirstInteracted:
+        source: FirstInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      action.properties.LastInteracted:
+        source: LastInteracted
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+
+  - set:
+      file.created:
+        source: CreatedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.mtime:
+        source: ModifiedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.accessed:
+        source: AccessedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      file.inode:
+        source: MFTEntry
+        operation: to_int
+
+  - set:
+      registry.hive:
+        value: HKCU
+      registry.mtime:
+        source: LastWriteTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+      registry.path:
+        source: '"HKCU\\Local Settings\\Software\\Microsoft\\Windows\\Shell\\" + replace(to_string!(.BagPath), pattern: "\\\\", with: "\\")'
+
+  - delete:
+      - BagPath
+      - AbsolutePath
+      - ShellType
+      - Value
+      - Miscellaneous
+      - Slot
+      - NodeSlot
+      - MRUPosition
+      - ChildBags
+      - MFTSequenceNumber
+      - ExtensionBlockCount
+      - MFTEntry
+      - CreatedOn
+      - ModifiedOn
+      - AccessedOn
+      - LastWriteTime
+      - FirstInteracted
+      - LastInteracted
+      - HasExplored
+
+timeline:
+  - id: interacted-with
+    message: "User {user.name} interacted with {action.properties.AbsolutePath}"
+    conditions:
+      - field: action.properties.HasExplored
+        value: true
+
+  - id: referenced
+    message: "Shellbag entry exists for {action.properties.AbsolutePath} (no evidence of user interaction)"
+    conditions:
+      - field: action.properties.HasExplored
+        value: false
+
+relationships:
+  - id: interacted-with
+    source: user.name
+    target: action.properties.value
+    type: interacted with
+
+  - id: referenced
+    source: user.name
+    target: action.properties.value
+    type: referenced

@@ -9,7 +9,7 @@ import pytest
 from osir_vrl.OsirVrlModel import OsirVrlModel  # noqa: E402
 
 OSIR_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-TRANSFORM_V2 = os.path.join(OSIR_ROOT, "configs", "dependencies", "transform_v2")
+TRANSFORM_DIR = os.path.join(OSIR_ROOT, "configs", "transform")
 
 # legacy configs migrated to the new transformations/timeline format
 EXPECTED_CONFIGS = {
@@ -27,15 +27,15 @@ VECTOR = shutil.which("vector")
 
 
 def _yaml_files() -> list:
-    return sorted(glob.glob(os.path.join(TRANSFORM_V2, "**", "*.yml"), recursive=True))
+    return sorted(glob.glob(os.path.join(TRANSFORM_DIR, "**", "*.yml"), recursive=True))
 
 
 def test_migrated_configs_present():
-    found = {os.path.relpath(p, TRANSFORM_V2) for p in _yaml_files()}
+    found = {os.path.relpath(p, TRANSFORM_DIR) for p in _yaml_files()}
     assert EXPECTED_CONFIGS <= found, f"missing migrated configs: {EXPECTED_CONFIGS - found}"
 
 
-@pytest.mark.parametrize("path", _yaml_files(), ids=lambda p: os.path.relpath(p, TRANSFORM_V2))
+@pytest.mark.parametrize("path", _yaml_files(), ids=lambda p: os.path.relpath(p, TRANSFORM_DIR))
 def test_migrated_config_loads_and_generates(path):
     model = OsirVrlModel.from_yaml(path)
     assert model.transformation, "no transformation blocks migrated"
@@ -50,9 +50,9 @@ def test_migrated_config_loads_and_generates(path):
 
 
 @pytest.mark.skipif(VECTOR is None, reason="vector CLI not available")
-@pytest.mark.parametrize("path", _yaml_files(), ids=lambda p: os.path.relpath(p, TRANSFORM_V2))
+@pytest.mark.parametrize("path", _yaml_files(), ids=lambda p: os.path.relpath(p, TRANSFORM_DIR))
 def test_migrated_config_vrl_compiles(path, tmp_path):
-    rel = os.path.relpath(path, TRANSFORM_V2)
+    rel = os.path.relpath(path, TRANSFORM_DIR)
     if rel in KNOWN_BROKEN_VRL:
         pytest.skip("pre-existing bug: the original dns_records.vrl does not compile either")
     OsirVrlModel.from_yaml(path).save_vrl(str(tmp_path / "out.vrl"))

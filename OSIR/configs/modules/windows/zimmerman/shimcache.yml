@@ -39,11 +39,11 @@ splunk:
   'windows:shimcache':
     name_rex: r"\.csv$"
     path_suffix: 'shimcache'
-    sourcetype: 'windows:registry:hklm:shimcache'
+    sourcetype: 'eztools:windows:shimcache'
     host_rex: r"([\w\.-]+)--"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "ShimCache"
     normalize:
-      - ecs_normalize/windows/shimcache.vrl    
+      - .vrl/windows/zimmerman/shimcache.vrl    

@@ -1,0 +1,71 @@
+metadata:
+  version: "1.0"
+  id: handle
+  author: Typ
+  description: Sysinternals Handle (live response JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: Sysinternals Handle
+
+  # -- live response Handle input -----------------------------------------------
+  # type, handle_id, handle_type, name, process_name, pid, rights, user
+  # (user is DOMAIN\user, possibly with a leading backslash; handle_type is
+  # capitalized by Sysinternals: File, Directory, Process, Thread, Key, ...)
+
+  - set:
+      process.name: process_name
+      process.pid:
+        source: pid
+        operation: to_int
+      action.properties.pid: pid
+      action.properties.handle_id: handle_id
+      action.properties.handle_type: handle_type
+      action.properties.name: name
+      action.properties.rights: rights
+      action.properties.user: user
+
+  # user: DOMAIN\user -> user.name (last segment), user.domain (everything
+  # before, leading backslash stripped)
+  - set:
+      user.name:
+        source: 'split!(to_string!(.action.properties.user), "\\")[-1]'
+    filter: exists(.user) && .user != ""
+
+  - set:
+      user.domain:
+        source: 'get!(parse_regex(to_string!(.action.properties.user), r''^(?:\\)?(?<domain>[^\\]+(?:\\[^\\]+)*)\\(?<name>[^\\]+)$'') ?? { "domain": "" }, ["domain"])'
+    filter: exists(.user) && .user != "" && contains(to_string!(.action.properties.user), "\\")
+
+  - set:
+      user.full_name:
+        source: 'to_string!(.user.domain) + "\\" + to_string!(.user.name)'
+    filter: exists(.user.domain) && exists(.user.name)
+
+  # file / directory handles: the object name is a path
+  - set:
+      file.path: name
+    filter: exists(.name) && (.handle_type == "File" || .handle_type == "Directory")
+
+  - set:
+      event.category:
+        value: [file]
+    filter: exists(.handle_type) && (.handle_type == "File" || .handle_type == "Directory")
+
+  - set:
+      event.category:
+        value: [process]
+    filter: exists(.handle_type) && (.handle_type == "Process" || .handle_type == "Thread")
+
+  - delete:
+      - type
+      - handle_id
+      - handle_type
+      - name
+      - process_name
+      - pid
+      - rights

@@ -1,6 +1,6 @@
 metadata:
   version: "2.0"
-  author: Eric Zimmerman
+  author: Typ
   description: Eric Zimmerman - PECmd.exe
   os: windows
 
@@ -38,11 +38,11 @@ splunk:
   'windows:prefetch':
     name_rex: r"\.jsonl$"
     path_suffix: 'prefetch'
-    sourcetype: 'windows:files:prefetch'
+    sourcetype: 'eztools:windows:prefetch'
     host_rex: r"([\w\.-]+)--"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "Prefetch"
     normalize:
-      - ecs_normalize/windows/prefetch.vrl
+      - .vrl/windows/zimmerman/prefetch.vrl

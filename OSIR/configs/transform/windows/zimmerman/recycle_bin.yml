@@ -1,0 +1,55 @@
+metadata:
+  version: "1.0"
+  id: recycle_bin
+  author: Typ
+  description: Recycle bin artifacts (RBCmd CSV) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Recycle Bin"
+
+  # SourceName, FileType, FileName, FileSize, DeletedOn
+  - set:
+      timestamp:
+        source: DeletedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      file.path: FileName
+      file.size:
+        source: FileSize
+        operation: to_int
+      action.properties.FileType: FileType
+      action.properties.SourceName: SourceName
+    filter: exists(.DeletedOn)
+
+  # $RECYCLE.BIN\<SID>\$I... : extract the owner SID from SourceName
+  - custom: |2-
+      rb_src = null
+      if exists(.SourceName) {
+          rb_src = to_string!(.SourceName)
+      }
+      if rb_src != null {
+          rb, rberr = parse_regex(to_string!(rb_src), r'\$RECYCLE\.BIN[/\\](?<sid>[^/\\]+)[/\\]')
+          if rberr == null {
+              .user.id = rb.sid
+          }
+      }
+
+  - delete:
+      - SourceName
+      - FileType
+      - FileName
+      - FileSize
+      - DeletedOn
+
+timeline:
+  - id: deleted
+    message: "File {file.path} was deleted"
+    conditions:
+      - field: file.path
+        exists: true

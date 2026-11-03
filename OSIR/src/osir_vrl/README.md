@@ -6,11 +6,11 @@ generates the *how* — guards, error handling, cleanup — as a single `.vrl`
 file. This wrapper is mainly use to know the structure of the parsed element and how to query them.
 
 ```
-configs/dependencies/transform_v2/**.yml   --(OsirVrlModel.to_vrl)-->  *.vrl
+configs/transform/**.yml   --(OsirVrlModel.to_vrl)-->  *.vrl
 ```
 
 Each config mirrors the path of the normalizer it drives:
-`transform_v2/windows/amcache.yml` ↔ `ecs_normalize/windows/amcache.vrl`.
+`transform/windows/amcache.yml` ↔ `transform/.vrl/windows/amcache.vrl` (generated, gitignored)
 
 ## Modules
 
@@ -102,17 +102,21 @@ relationships:                   # after timeline, one entry per relationship
 - **Sources are written without a leading dot** (`Event.System.TimeCreated`,
   not `.Event.System.TimeCreated`). The model accepts both and always
   renders `.path`.
-- **Fields without an ECS mapping go to `labels.<field>`** (snake_case),
-  the ECS key-value map for custom data — not to an ad-hoc
-  `*.Ext.<module>.*` namespace. Example: `BagPath` → `labels.bag_path`,
-  `HasExplored` → `labels.has_explored`.
+- **Fields without an ECS mapping go to `action.properties.<source field>`**
+  (the source field name, verbatim) — not to an ad-hoc
+  `*.Ext.<module>.*` namespace. Example: `BagPath` →
+  `action.properties.BagPath`, `HasExplored` → `action.properties.HasExplored`.
 - **No `to_string!(del(.Source))` in set sources**: reference the source
-  plainly (`labels.bag_path: BagPath`) — parsed values are strings by
+  plainly (`action.properties.BagPath: BagPath`) — parsed values are strings by
   default — and list the consumed source fields in a final `delete` block
   instead of deleting them inline. Conversions use the operation form
   (`operation: to_int`, `operation: parse_timestamp`).
 - **In raw VRL, narrow an already-string value with `string!`** (a type
-  assertion), not `to_string!` (a conversion): `val = string!(.labels.value)`.
+  assertion), not `to_string!` (a conversion): `val = string!(.action.properties.value)`.
+- **A final cleanup section drops null values**: the model appends
+  `. = compact!(., recursive: true)` after the timeline, so nulls (absent
+  dissect fields, unmatched entries) never reach the index.
+
 
 ### Block semantics
 
@@ -187,7 +191,7 @@ When a **source expression or a filter** references a *dotted* field
 assumes the raw event may hold it as a single flat key
 (`"Event.System.EventID"`) and prepends a normalization section:
 
-```vrl
+```rust
 if exists(."Event.System.EventID") { .Event.System.EventID = get!(., path: ["Event.System.EventID"]) }
 ```
 
@@ -216,10 +220,10 @@ type}` object inside the guarded block of its timeline entry.
 # compile one config to VRL
 python3 -c "import sys; sys.path.insert(0, 'src'); \
   from osir_vrl.osir_vrl.OsirVrlModel import OsirVrlModel; \
-  OsirVrlModel.from_yaml('configs/dependencies/transform_v2/linux/mactime.yml').save_vrl('/tmp/out.vrl')"
+  OsirVrlModel.from_yaml('configs/transform/linux/mactime.yml').save_vrl('/tmp/out.vrl')"
 
 # verify: every config loads, generates, and its VRL compiles with vector
-cd OSIR && python3 -m pytest tests/test_transform_v2.py -q
+cd OSIR && python3 -m pytest tests/osir_vrl/test_transform.py -q
 
 # full suite (OSIR_PATH must be set for test_modules)
 python3 -m pytest tests/ -q
@@ -228,7 +232,7 @@ python3 -m pytest tests/ -q
 vector vrl -p /tmp/out.vrl -i event.json -o
 ```
 
-`tests/test_transform_v2.py` walks every `transform_v2/**/*.yml`, asserts
+`tests/osir_vrl/test_transform.py` walks every `transform/**/*.yml`, asserts
 each generates a VRL that compiles with the `vector` CLI (skipped when
 vector is absent), and fails loudly on legacy formats (`pipeline`/`stages`
 or the flat pre-block `transformations` list).

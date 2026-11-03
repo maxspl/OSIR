@@ -1,0 +1,64 @@
+metadata:
+  version: "1.0"
+  id: hives
+  author: Typ
+  description: Registry artifacts (dfir-ogre hive JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Registry"
+
+  # path, mtime, name, data, type, size, is_placeholder,
+  # security_descriptor, ogre_md
+  - set:
+      registry.path:
+        source: 'replace(to_string!(.path), pattern: "\\\\", with: "\\")'
+      registry.value: name
+      registry.data.type: type
+      action.properties.value_data: data
+      registry.mtime:
+        source: mtime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      timestamp:
+        source: mtime
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      action.properties.size:
+        source: size
+        operation: to_int
+      action.properties.is_placeholder:
+        source: is_placeholder
+        operation: to_bool
+      key_security: security_descriptor
+    filter: exists(.path) && exists(.mtime)
+
+  - delete:
+      - path
+      - mtime
+      - name
+      - data
+      - type
+      - size
+      - is_placeholder
+      - security_descriptor
+      - ogre_md
+
+timeline:
+  - id: registry-value
+    message: "Registry value {registry.value} exists in key {registry.path}"
+    conditions:
+      - field: registry.path
+        exists: true
+
+relationships:
+  - id: registry-value
+    source: registry.path
+    target: registry.value
+    type: contains

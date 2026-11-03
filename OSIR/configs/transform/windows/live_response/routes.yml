@@ -10,18 +10,6 @@ transformation:
           .event.original = encode_json!(.)
       }
   - set:
-      event.dataset:
-        value: windows.routes
-      event.module:
-        value: windows
-      event.kind:
-        value: state
-      event.category:
-        value: [network, configuration]
-      event.type:
-        value: [info, routing]
-      event.outcome:
-        value: success
       event.provider:
         value: Windows routes
       network.type:
@@ -33,8 +21,7 @@ transformation:
 
       if exists(.type) {
           rec_type = to_string!(del(.type))
-          .event.code   = rec_type
-          .event.action = downcase(rec_type)
+          .action.properties.type = rec_type
       }
 
       if exists(.index) {
@@ -42,25 +29,64 @@ transformation:
           idx_int = parse_int(idx_raw) ?? null
 
           if idx_int != null {
-              .host.Ext.routes.interface_index = idx_int
+              .action.properties.interface_index = idx_int
           } else {
-              .host.Ext.routes.interface_index = idx_raw
+              .action.properties.interface_index = idx_raw
+          }
+      }
+
+      if rec_type == "ipv6_route" {
+          .network.type = "ipv6"
+
+          if exists(.destination) {
+              dest6 = to_string!(del(.destination))
+              .action.properties.destination = dest6
+              if dest6 == "On-link" {
+                  .action.properties.on_link = true
+              }
+          }
+
+          if exists(.gateway) {
+              gw6 = to_string!(del(.gateway))
+              if gw6 != "" {
+                  .action.properties.gateway = gw6
+              }
+          }
+
+          if exists(.interface_index) {
+              idx6_raw = to_string!(del(.interface_index))
+              idx6_int = parse_int(idx6_raw) ?? null
+              if idx6_int != null {
+                  .action.properties.interface_index = idx6_int
+              } else {
+                  .action.properties.interface_index = idx6_raw
+              }
+          }
+
+          if exists(.metric) {
+              metric6_raw = to_string!(del(.metric))
+              metric6_int = parse_int(metric6_raw) ?? null
+              if metric6_int != null {
+                  .action.properties.metric = metric6_int
+              } else {
+                  .action.properties.metric = metric6_raw
+              }
           }
       }
 
       if rec_type == "route_interface" {
           if exists(.name) {
               iface_name = to_string!(del(.name))
-              .host.Ext.routes.interface_name = iface_name
+              .action.properties.interface_name = iface_name
               .observer.name = iface_name
           }
 
           if exists(.mac_address) {
               mac_raw = to_string!(del(.mac_address))
-              .host.Ext.routes.interface_mac_raw = mac_raw
+              .action.properties.interface_mac_raw = mac_raw
 
               mac_norm = downcase(replace(mac_raw, " ", ":"))
-              .host.Ext.routes.interface_mac = mac_norm
+              .action.properties.interface_mac = mac_norm
 
               .host.mac = [mac_norm]
           }
@@ -69,29 +95,29 @@ transformation:
       if rec_type == "ipv4_route" {
           if exists(.destination) {
               dest = to_string!(del(.destination))
-              .network.Ext.route.destination = dest
+              .action.properties.destination = dest
           }
 
           if exists(.netmask) {
               mask = to_string!(del(.netmask))
-              .network.Ext.route.netmask = mask
+              .action.properties.netmask = mask
           }
 
           if exists(.gateway) {
               gw_raw = to_string!(del(.gateway))
 
               if gw_raw == "On-link" {
-                  .network.Ext.route.gateway = gw_raw
-                  .network.Ext.route.on_link = true
+                  .action.properties.gateway = gw_raw
+                  .action.properties.on_link = true
               } else {
                   .network.next_hop = gw_raw
-                  .network.Ext.route.gateway = gw_raw
+                  .action.properties.gateway = gw_raw
               }
           }
 
           if exists(.interface) {
               iface_ip = to_string!(del(.interface))
-              .network.Ext.route.interface_ip = iface_ip
+              .action.properties.interface_ip = iface_ip
 
               .host.ip = [iface_ip]
           }
@@ -101,9 +127,9 @@ transformation:
               metric_int = parse_int(metric_raw) ?? null
 
               if metric_int != null {
-                  .network.Ext.route.metric = metric_int
+                  .action.properties.metric = metric_int
               } else {
-                  .network.Ext.route.metric = metric_raw
+                  .action.properties.metric = metric_raw
               }
           }
       }

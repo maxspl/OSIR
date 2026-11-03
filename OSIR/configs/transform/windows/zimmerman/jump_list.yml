@@ -1,0 +1,268 @@
+metadata:
+  version: "1.0"
+  id: jump_list
+  author: Typ
+  description: Windows JumpList CSV (JLEcmd automaticDestinations & customDestinations) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: Windows JumpList (generic)
+      event.action:
+        value: jumplist
+
+  # -- JLEcmd (Zimmerman) input --------------------------------------------------
+  # automaticDestinations and customDestinations share the same column set,
+  # minus the DestList fields (HasSps, DestListVersion, LastUsedEntryNumber,
+  # MRU, EntryNumber, InteractionCount, PinStatus) and EntryName on the custom
+  # flavour. Timestamps carry no fractional seconds.
+
+  - set:
+      action.properties.SourceFile: SourceFile
+      action.properties.AppId: AppId
+      action.properties.AppIdDescription: AppIdDescription
+      action.properties.HasSps:
+        source: HasSps
+        operation: to_bool
+      action.properties.DestListVersion:
+        source: DestListVersion
+        operation: to_int
+      action.properties.LastUsedEntryNumber:
+        source: LastUsedEntryNumber
+        operation: to_int
+      action.properties.MRU:
+        source: MRU
+        operation: to_int
+      action.properties.InteractionCount:
+        source: InteractionCount
+        operation: to_int
+      action.properties.PinStatus:
+        source: PinStatus
+        operation: to_bool
+      action.properties.EntryName: EntryName
+      action.properties.ExtraBlocksPresent: ExtraBlocksPresent
+      action.properties.HeaderFlags: HeaderFlags
+      action.properties.Arguments: Arguments
+      action.properties.Notes: Notes
+      action.properties.RelativePath: RelativePath
+      action.properties.WorkingDirectory: WorkingDirectory
+      action.properties.DriveType: DriveType
+      action.properties.VolumeSerialNumber: VolumeSerialNumber
+      action.properties.VolumeLabel: VolumeLabel
+      action.properties.FileBirthDroid: FileBirthDroid
+      action.properties.FileDroid: FileDroid
+      action.properties.VolumeBirthDroid: VolumeBirthDroid
+      action.properties.VolumeDroid: VolumeDroid
+      action.properties.TargetMFTEntryNumber: TargetMFTEntryNumber
+      action.properties.TargetMFTSequenceNumber: TargetMFTSequenceNumber
+      action.properties.Path: Path
+      action.properties.TargetIDAbsolutePath: TargetIDAbsolutePath
+      action.properties.LocalPath: LocalPath
+      action.properties.CommonPath: CommonPath
+      file.attributes: FileAttributes
+      event.sequence:
+        source: EntryNumber
+        operation: to_int
+
+  # host: Hostname wins, MachineID / MACs as fallbacks
+  - set:
+      host.name: Hostname
+    filter: exists(.Hostname) && .Hostname != ""
+
+  - set:
+      host.mac: MacAddress
+    filter: exists(.MacAddress) && .MacAddress != ""
+
+  - set:
+      host.id: MachineID
+    filter: exists(.MachineID) && .MachineID != ""
+
+  - set:
+      host.name: MachineID
+    filter: exists(.MachineID) && .MachineID != "" && !exists(.host.name)
+
+  - set:
+      host.mac: MachineMACAddress
+    filter: exists(.MachineMACAddress) && .MachineMACAddress != "" && !exists(.host.mac)
+
+  # file.path: first non-empty of Path, TargetIDAbsolutePath, LocalPath, CommonPath
+  - set:
+      file.path: Path
+    filter: exists(.Path) && .Path != ""
+
+  - set:
+      file.path: TargetIDAbsolutePath
+    filter: exists(.TargetIDAbsolutePath) && .TargetIDAbsolutePath != "" && !exists(.file.path)
+
+  - set:
+      file.path: LocalPath
+    filter: exists(.LocalPath) && .LocalPath != "" && !exists(.file.path)
+
+  - set:
+      file.path: CommonPath
+    filter: exists(.CommonPath) && .CommonPath != "" && !exists(.file.path)
+
+  - set:
+      file.name:
+        source: 'split!(to_string!(.file.path), "\\")[-1]'
+    filter: exists(.file.path) && !exists(.file.name)
+
+  - set:
+      file.size:
+        source: FileSize
+        operation: to_int
+
+  # target times: ECS file times
+  - set:
+      file.created:
+        source: TargetCreated
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TargetCreated) && .TargetCreated != ""
+
+  - set:
+      file.mtime:
+        source: TargetModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TargetModified) && .TargetModified != ""
+
+  - set:
+      file.accessed:
+        source: TargetAccessed
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TargetAccessed) && .TargetAccessed != ""
+
+  # source / entry / target / tracker times
+  - set:
+      action.properties.SourceCreated:
+        source: SourceCreated
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.SourceCreated) && .SourceCreated != ""
+
+  - set:
+      action.properties.SourceModified:
+        source: SourceModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.SourceModified) && .SourceModified != ""
+
+  - set:
+      action.properties.SourceAccessed:
+        source: SourceAccessed
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.SourceAccessed) && .SourceAccessed != ""
+
+  - set:
+      action.properties.CreationTime:
+        source: CreationTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.CreationTime) && .CreationTime != ""
+
+  - set:
+      timestamp:
+        source: LastModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      event.created:
+        source: LastModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.timestamp_source:
+        value: jumplist.entry_last_modified
+    filter: exists(.LastModified) && .LastModified != ""
+
+  - set:
+      action.properties.TargetCreated:
+        source: TargetCreated
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TargetCreated) && .TargetCreated != ""
+
+  - set:
+      action.properties.TargetModified:
+        source: TargetModified
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TargetModified) && .TargetModified != ""
+
+  - set:
+      action.properties.TargetAccessed:
+        source: TargetAccessed
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TargetAccessed) && .TargetAccessed != ""
+
+  - set:
+      action.properties.TrackerCreatedOn:
+        source: TrackerCreatedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+    filter: exists(.TrackerCreatedOn) && .TrackerCreatedOn != ""
+
+  - delete:
+      - SourceFile
+      - SourceCreated
+      - SourceModified
+      - SourceAccessed
+      - AppId
+      - AppIdDescription
+      - HasSps
+      - DestListVersion
+      - LastUsedEntryNumber
+      - MRU
+      - EntryNumber
+      - CreationTime
+      - LastModified
+      - Hostname
+      - MacAddress
+      - Path
+      - InteractionCount
+      - PinStatus
+      - FileBirthDroid
+      - FileDroid
+      - VolumeBirthDroid
+      - VolumeDroid
+      - TargetCreated
+      - TargetModified
+      - TargetAccessed
+      - FileSize
+      - RelativePath
+      - WorkingDirectory
+      - FileAttributes
+      - HeaderFlags
+      - DriveType
+      - VolumeSerialNumber
+      - VolumeLabel
+      - LocalPath
+      - CommonPath
+      - TargetIDAbsolutePath
+      - TargetMFTEntryNumber
+      - TargetMFTSequenceNumber
+      - MachineID
+      - MachineMACAddress
+      - TrackerCreatedOn
+      - ExtraBlocksPresent
+      - Arguments
+      - Notes
+      - EntryName

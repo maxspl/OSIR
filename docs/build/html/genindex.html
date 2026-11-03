@@ -26,8 +26,8 @@
   <title>Index | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="Index | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="Index | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="_static/tables.css" />
   <link rel="icon" href="_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -667,10 +670,10 @@
 </li>
       <li><a href="src.osir_lib.osir_lib.modules.windows.html#src.osir_lib.osir_lib.modules.windows.anssi_decode.ANSSI_Decode">ANSSI_Decode() (in module src.osir_lib.osir_lib.modules.windows.anssi_decode)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirClient.OsirClient.api_url">api_url (src.osir_client.osir_client.client.OsirClient.OsirClient attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li><a href="src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.AppLogger">AppLogger() (in module src.osir_lib.osir_lib.logger)</a>
 </li>
       <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin.apply_suffix">apply_suffix() (src.osir_lib.osir_lib.core.OsirPathTransformerMixin.OsirPathTransformerMixin method)</a>
@@ -682,6 +685,8 @@
       <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveRequest">ArchiveRequest (class in src.osir_api.osir_api.api.model.OsirApiFilesModel)</a>
 </li>
       <li><a href="src.osir_lib.osir_lib.modules.windows.live_response.html#src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser.ArpCacheParser">ArpCacheParser (class in src.osir_lib.osir_lib.modules.windows.live_response.arp_cache_parser)</a>
+</li>
+      <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.at_least_one_field_set">at_least_one_field_set() (src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry method)</a>
 </li>
       <li><a href="src.osir_lib.osir_lib.modules.linux.html#src.osir_lib.osir_lib.modules.linux.audit.AuditModule">AuditModule() (in module src.osir_lib.osir_lib.modules.linux.audit)</a>
 </li>
@@ -912,9 +917,11 @@
 </li>
       <li><a href="src.osir_lib.osir_lib.modules.linux.html#src.osir_lib.osir_lib.modules.linux.debug.DebugModule">DebugModule() (in module src.osir_lib.osir_lib.modules.linux.debug)</a>
 </li>
-      <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.DEFAULT_ECS_DIR">DEFAULT_ECS_DIR (src.osir_vrl.OsirVrl.OsirVrl attribute)</a>
+      <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.default">default (src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry attribute)</a>
 </li>
-      <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.DEFAULT_TRANSFORM_DIR">DEFAULT_TRANSFORM_DIR (src.osir_vrl.OsirVrl.OsirVrl attribute)</a>
+      <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.DEFAULT_ECS_DIR">DEFAULT_ECS_DIR (src.osir_vrl.osir_vrl.OsirVrl.OsirVrl attribute)</a>
+</li>
+      <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.DEFAULT_TRANSFORM_DIR">DEFAULT_TRANSFORM_DIR (src.osir_vrl.osir_vrl.OsirVrl.OsirVrl attribute)</a>
 </li>
       <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.delete">delete (src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock attribute)</a>
 </li>
@@ -1177,9 +1184,9 @@
       <ul style="list-style-type:none">
         <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.from_yaml">(src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel class method)</a>
 </li>
-        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.from_yaml">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel class method)</a>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.from_yaml">(src.osir_vrl.osir_vrl.OsirVrl.OsirVrl class method)</a>
 </li>
-        <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.from_yaml">(src.osir_vrl.OsirVrl.OsirVrl class method)</a>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.from_yaml">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel class method)</a>
 </li>
       </ul></li>
       <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FsData">FsData (class in src.osir_api.osir_api.api.model.OsirApiFilesModel)</a>
@@ -1197,9 +1204,9 @@
   <h2 id="G">G</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
-      <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.generate_all">generate_all() (src.osir_vrl.OsirVrl.OsirVrl class method)</a>
+      <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.generate_all">generate_all() (src.osir_vrl.osir_vrl.OsirVrl.OsirVrl class method)</a>
 </li>
-      <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl.generate_from_directory">generate_from_directory() (src.osir_vrl.OsirVrl.OsirVrl class method)</a>
+      <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl.generate_from_directory">generate_from_directory() (src.osir_vrl.osir_vrl.OsirVrl.OsirVrl class method)</a>
 </li>
       <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.get">get() (src.osir_client.osir_client.client.OsirCliCase.OsirCliCase method)</a>
 
@@ -1559,7 +1566,7 @@
       <ul style="list-style-type:none">
         <li><a href="src.osir_client.osir_client.html#src.osir_client.osir_client.OsirClient.main">(in module src.osir_client.osir_client.OsirClient)</a>
 </li>
-        <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.main">(in module src.osir_vrl.OsirVrl)</a>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.main">(in module src.osir_vrl.osir_vrl.OsirVrl)</a>
 </li>
       </ul></li>
       <li><a href="src.osir_service.osir_service.postgres.html#src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask.mark_revoked">mark_revoked() (src.osir_service.osir_service.postgres.OsirDbTask.OsirDbTask method)</a>
@@ -1610,6 +1617,184 @@
 </li>
       <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException.MISSING_PARAMETER">MISSING_PARAMETER() (src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException static method)</a>
 </li>
+      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseHandlerResponse.model_computed_fields">model_computed_fields (src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseHandlerResponse attribute)</a>
+
+      <ul style="list-style-type:none">
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseListResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.PostCaseCreateResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiCaseModel.PostCaseCreateResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveItem.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveItem attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.CreateItemRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.CreateItemRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteItem.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteItem attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteResult.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DirEntry.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DirEntry attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ErrorResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.ErrorResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FileContentResult.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.FileContentResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FileOperationResult.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.FileOperationResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FsData.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.FsData attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.RenameRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.RenameRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.SaveRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.SaveRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.SearchResult.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.SearchResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.TransferRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.TransferRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.UnarchiveRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.UnarchiveRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerStatusResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerStatusResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerTaskLogsResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerTaskLogsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetStopHandlerResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetStopHandlerResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerAdvancedCreateRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerAdvancedCreateRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleExistsResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleExistsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileInfoResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileInfoResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileListResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetRestartTaskResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetRestartTaskResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskInfoResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskInfoResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTasksListResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTasksListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskStatsResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskStatsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.PaginatedTaskResponse.model_computed_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.PaginatedTaskResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponse.model_computed_fields">(src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponseCore.model_computed_fields">(src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponseCore attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponse.model_computed_fields">(src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponseCore.model_computed_fields">(src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponseCore attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.model_computed_fields">(src.osir_client.osir_client.client.OsirCliCase.OsirCliCase attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirClient.OsirClient.model_computed_fields">(src.osir_client.osir_client.client.OsirClient.OsirClient attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliHandler.OsirCliHandler.model_computed_fields">(src.osir_client.osir_client.client.OsirCliHandler.OsirCliHandler attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliModule.OsirCliModule.model_computed_fields">(src.osir_client.osir_client.client.OsirCliModule.OsirCliModule attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliProfile.OsirCliProfile.model_computed_fields">(src.osir_client.osir_client.client.OsirCliProfile.OsirCliProfile attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliTask.OsirCliTask.model_computed_fields">(src.osir_client.osir_client.client.OsirCliTask.OsirCliTask attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.model_computed_fields">(src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.model_computed_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.model_computed_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig.model_computed_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.model_computed_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.model_computed_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirInput.OsirInput.model_computed_fields">(src.osir_lib.osir_lib.core.OsirInput.OsirInput attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirModule.OsirModule.model_computed_fields">(src.osir_lib.osir_lib.core.OsirModule.OsirModule attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.model_computed_fields">(src.osir_lib.osir_lib.core.OsirOutput.OsirOutput attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.model_computed_fields">(src.osir_lib.osir_lib.core.OsirProfile.OsirProfile attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirTool.OsirTool.model_computed_fields">(src.osir_lib.osir_lib.core.OsirTool.OsirTool attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.model_computed_fields">(src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.model_computed_fields">(src.osir_service.osir_service.ipc.model.OsirFileModel.FsData attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.model_computed_fields">(src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.model_computed_fields">(src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.model_computed_fields">(src.osir_service.osir_service.ipc.OsirIpc.OsirIpc attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile.model_computed_fields">(src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirSocket.OsirSocket.model_computed_fields">(src.osir_service.osir_service.ipc.OsirSocket.OsirSocket attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.model_computed_fields">(src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.model_computed_fields">(src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.model_computed_fields">(src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.model_computed_fields">(src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.HandlerManager.HandlerService.model_computed_fields">(src.osir_service.osir_service.watchdog.HandlerManager.HandlerService attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_computed_fields">(src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation attribute)</a>
+</li>
+      </ul></li>
       <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseHandlerResponse.model_config">model_config (src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseHandlerResponse attribute)</a>
 
       <ul style="list-style-type:none">
@@ -1713,6 +1898,8 @@
 </li>
         <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel.model_config">(src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel attribute)</a>
 </li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.model_config">(src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry attribute)</a>
+</li>
         <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.model_config">(src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel attribute)</a>
 </li>
         <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel.model_config">(src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel attribute)</a>
@@ -1786,6 +1973,186 @@
         <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_config">(src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation attribute)</a>
 </li>
       </ul></li>
+      <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseHandlerResponse.model_fields">model_fields (src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseHandlerResponse attribute)</a>
+
+      <ul style="list-style-type:none">
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseListResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiCaseModel.GetCaseListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiCaseModel.PostCaseCreateResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiCaseModel.PostCaseCreateResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveItem.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveItem attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.ArchiveRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.CreateItemRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.CreateItemRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteItem.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteItem attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteResult.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DeleteResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.DirEntry.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.DirEntry attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.ErrorResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.ErrorResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FileContentResult.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.FileContentResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FileOperationResult.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.FileOperationResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.FsData.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.FsData attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.RenameRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.RenameRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.SaveRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.SaveRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.SearchResult.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.SearchResult attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.TransferRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.TransferRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.UnarchiveRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiFilesModel.UnarchiveRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerStatusResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerStatusResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerTaskLogsResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetHandlerTaskLogsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetStopHandlerResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.GetStopHandlerResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerAdvancedCreateRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerAdvancedCreateRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerCreateResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiHandlerModel.PostHandlerDeleteResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleExistsResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleExistsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiModuleModel.GetModuleListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiModuleModel.PostModuleInfoRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiMonitoringModel.GetSystemMetricsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileInfoResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileInfoResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileListResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.GetProfileListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest.model_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunRequest attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiProfileModel.PostProfileRunResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetRestartTaskResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetRestartTaskResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskInfoResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskInfoResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTasksListResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTasksListResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskStatsResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.GetTaskStatsResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiTaskModel.PaginatedTaskResponse.model_fields">(src.osir_api.osir_api.api.model.OsirApiTaskModel.PaginatedTaskResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponse.model_fields">(src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponseCore.model_fields">(src.osir_api.osir_api.api.OsirApiExceptions.HTTPExceptionResponseCore attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponse.model_fields">(src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponse attribute)</a>
+</li>
+        <li><a href="src.osir_api.osir_api.api.html#src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponseCore.model_fields">(src.osir_api.osir_api.api.OsirApiExceptions.UnexpectedExceptionResponseCore attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.model_fields">(src.osir_client.osir_client.client.OsirCliCase.OsirCliCase attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirClient.OsirClient.model_fields">(src.osir_client.osir_client.client.OsirClient.OsirClient attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliHandler.OsirCliHandler.model_fields">(src.osir_client.osir_client.client.OsirCliHandler.OsirCliHandler attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliModule.OsirCliModule.model_fields">(src.osir_client.osir_client.client.OsirCliModule.OsirCliModule attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliProfile.OsirCliProfile.model_fields">(src.osir_client.osir_client.client.OsirCliProfile.OsirCliProfile attribute)</a>
+</li>
+        <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliTask.OsirCliTask.model_fields">(src.osir_client.osir_client.client.OsirCliTask.OsirCliTask attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.model_fields">(src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirMetadataModel.OsirMetadataModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirModuleModel.OsirModuleModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirOutputModel.OsirOutputModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirProfileModel.OsirProfileModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel.model_fields">(src.osir_lib.osir_lib.core.model.OsirToolModel.OsirToolModel attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails.model_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.BoxDetails attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig.model_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.FullAgentConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig.model_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.MasterConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.model_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig.model_fields">(src.osir_lib.osir_lib.core.OsirAgentConfig.WindowsBoxConfig attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirInput.OsirInput.model_fields">(src.osir_lib.osir_lib.core.OsirInput.OsirInput attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirModule.OsirModule.model_fields">(src.osir_lib.osir_lib.core.OsirModule.OsirModule attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirOutput.OsirOutput.model_fields">(src.osir_lib.osir_lib.core.OsirOutput.OsirOutput attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirProfile.OsirProfile.model_fields">(src.osir_lib.osir_lib.core.OsirProfile.OsirProfile attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirTool.OsirTool.model_fields">(src.osir_lib.osir_lib.core.OsirTool.OsirTool attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry.model_fields">(src.osir_service.osir_service.ipc.model.OsirFileModel.DirEntry attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirFileModel.FsData.model_fields">(src.osir_service.osir_service.ipc.model.OsirFileModel.FsData attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest.model_fields">(src.osir_service.osir_service.ipc.model.OsirIpcRequest.OsirIpcRequest attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse.model_fields">(src.osir_service.osir_service.ipc.model.OsirIpcResponse.OsirIpcResponse attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.model_fields">(src.osir_service.osir_service.ipc.OsirIpc.OsirIpc attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile.model_fields">(src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirSocket.OsirSocket.model_fields">(src.osir_service.osir_service.ipc.OsirSocket.OsirSocket attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel.model_fields">(src.osir_service.osir_service.postgres.model.OsirDbCaseModel.OsirDbCaseModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel.model_fields">(src.osir_service.osir_service.postgres.model.OsirDbHandlerModel.OsirDbHandlerModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel.model_fields">(src.osir_service.osir_service.postgres.model.OsirDbMetricsModel.OsirDbMetricsModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.postgres.model.html#src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel.model_fields">(src.osir_service.osir_service.postgres.model.OsirDbTaskModel.OsirDbTaskModel attribute)</a>
+</li>
+        <li><a href="src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.HandlerManager.HandlerService.model_fields">(src.osir_service.osir_service.watchdog.HandlerManager.HandlerService attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock.model_fields">(src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata.model_fields">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlMetadata attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel.model_fields">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlModel attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource.model_fields">(src.osir_vrl.osir_vrl.OsirVrlModel.OsirVrlSource attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition.model_fields">(src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlCondition attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship.model_fields">(src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlRelationship attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry.model_fields">(src.osir_vrl.osir_vrl.OsirVrlTimeline.OsirVrlTimelineEntry attribute)</a>
+</li>
+        <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation.model_fields">(src.osir_vrl.osir_vrl.OsirVrlTransformation.OsirVrlTransformation attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.model_post_init">model_post_init() (src.osir_client.osir_client.client.OsirCliCase.OsirCliCase method)</a>
 
       <ul style="list-style-type:none">
@@ -1917,6 +2284,8 @@
         <li><a href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.LiteralModel">src.osir_lib.osir_lib.core.model.LiteralModel</a>
 </li>
         <li><a href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirConfigurationModel">src.osir_lib.osir_lib.core.model.OsirConfigurationModel</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirExtractedModel">src.osir_lib.osir_lib.core.model.OsirExtractedModel</a>
 </li>
         <li><a href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirInputModel">src.osir_lib.osir_lib.core.model.OsirInputModel</a>
 </li>
@@ -2126,6 +2495,8 @@
 </li>
         <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl">src.osir_vrl.osir_vrl</a>
 </li>
+        <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrl">src.osir_vrl.osir_vrl.OsirVrl</a>
+</li>
         <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlBlock">src.osir_vrl.osir_vrl.OsirVrlBlock</a>
 </li>
         <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlModel">src.osir_vrl.osir_vrl.OsirVrlModel</a>
@@ -2136,11 +2507,7 @@
 </li>
         <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlUtils">src.osir_vrl.osir_vrl.OsirVrlUtils</a>
 </li>
-        <li><a href="src.osir_vrl.html#module-src.osir_vrl.OsirVrl">src.osir_vrl.OsirVrl</a>
-</li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel.module">module (src.osir_lib.osir_lib.core.model.OsirConfigurationModel.OsirConfigurationModel attribute)</a>
 
       <ul style="list-style-type:none">
@@ -2214,6 +2581,8 @@
         <li><a href="src.osir_api.osir_api.api.model.html#src.osir_api.osir_api.api.model.OsirApiFilesModel.RenameRequest.name">(src.osir_api.osir_api.api.model.OsirApiFilesModel.RenameRequest attribute)</a>
 </li>
         <li><a href="src.osir_client.osir_client.client.html#src.osir_client.osir_client.client.OsirCliCase.OsirCliCase.name">(src.osir_client.osir_client.client.OsirCliCase.OsirCliCase attribute)</a>
+</li>
+        <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.name">(src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry attribute)</a>
 </li>
         <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.name">(src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel attribute)</a>
 </li>
@@ -2314,6 +2683,8 @@
 </li>
       <li><a href="src.osir_service.osir_service.ipc.model.html#src.osir_service.osir_service.ipc.model.OsirExceptions.OsirException">OsirException (class in src.osir_service.osir_service.ipc.model.OsirExceptions)</a>
 </li>
+      <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry">OsirExtractedEntry (class in src.osir_lib.osir_lib.core.model.OsirExtractedModel)</a>
+</li>
       <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirInput.OsirInput">OsirInput (class in src.osir_lib.osir_lib.core.OsirInput)</a>
 </li>
   </ul></td>
@@ -2356,7 +2727,7 @@
 </li>
       <li><a href="src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpcTus.OsirTusFile">OsirTusFile (class in src.osir_service.osir_service.ipc.OsirIpcTus)</a>
 </li>
-      <li><a href="src.osir_vrl.html#src.osir_vrl.OsirVrl.OsirVrl">OsirVrl (class in src.osir_vrl.OsirVrl)</a>
+      <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrl.OsirVrl">OsirVrl (class in src.osir_vrl.osir_vrl.OsirVrl)</a>
 </li>
       <li><a href="src.osir_vrl.osir_vrl.html#src.osir_vrl.osir_vrl.OsirVrlBlock.OsirVrlBlock">OsirVrlBlock (class in src.osir_vrl.osir_vrl.OsirVrlBlock)</a>
 </li>
@@ -2480,6 +2851,8 @@
 </li>
       </ul></li>
       <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel.paths">paths (src.osir_lib.osir_lib.core.model.OsirInputModel.OsirInputModel attribute)</a>
+</li>
+      <li><a href="src.osir_lib.osir_lib.core.model.html#src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry.patterns">patterns (src.osir_lib.osir_lib.core.model.OsirExtractedModel.OsirExtractedEntry attribute)</a>
 </li>
       <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirDecorator.pinfo">pinfo() (in module src.osir_lib.osir_lib.core.OsirDecorator)</a>
 </li>
@@ -3134,6 +3507,13 @@
 </li>
       </ul></li>
       <li>
+    src.osir_lib.osir_lib.core.model.OsirExtractedModel
+
+      <ul style="list-style-type:none">
+        <li><a href="src.osir_lib.osir_lib.core.model.html#module-src.osir_lib.osir_lib.core.model.OsirExtractedModel">module</a>
+</li>
+      </ul></li>
+      <li>
     src.osir_lib.osir_lib.core.model.OsirInputModel
 
       <ul style="list-style-type:none">
@@ -3343,6 +3723,8 @@
         <li><a href="src.osir_lib.osir_lib.modules.linux.html#module-src.osir_lib.osir_lib.modules.linux">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li>
     src.osir_lib.osir_lib.modules.linux.apt_history
 
@@ -3350,8 +3732,6 @@
         <li><a href="src.osir_lib.osir_lib.modules.linux.html#module-src.osir_lib.osir_lib.modules.linux.apt_history">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul style="margin-left:0;list-style-type:none">
       <li>
     src.osir_lib.osir_lib.modules.linux.audit
 
@@ -3864,6 +4244,13 @@
 </li>
       </ul></li>
       <li>
+    src.osir_vrl.osir_vrl.OsirVrl
+
+      <ul style="list-style-type:none">
+        <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrl">module</a>
+</li>
+      </ul></li>
+      <li>
     src.osir_vrl.osir_vrl.OsirVrlBlock
 
       <ul style="list-style-type:none">
@@ -3896,13 +4283,6 @@
 
       <ul style="list-style-type:none">
         <li><a href="src.osir_vrl.osir_vrl.html#module-src.osir_vrl.osir_vrl.OsirVrlUtils">module</a>
-</li>
-      </ul></li>
-      <li>
-    src.osir_vrl.OsirVrl
-
-      <ul style="list-style-type:none">
-        <li><a href="src.osir_vrl.html#module-src.osir_vrl.OsirVrl">module</a>
 </li>
       </ul></li>
       <li><a href="src.osir_lib.osir_lib.core.html#src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig.ssl">ssl (src.osir_lib.osir_lib.core.OsirAgentConfig.SplunkConfig attribute)</a>
@@ -4248,16 +4628,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="_static/theme.js?v=5db23cf8"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="_static/theme.js?v=49cc6205"></script>
     <script src="_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

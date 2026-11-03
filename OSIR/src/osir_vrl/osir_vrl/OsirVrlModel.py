@@ -67,7 +67,11 @@ class OsirVrlModel(BaseModel):
             self._normalize_dotted_fields_vrl(),
             self._transformations_to_vrl(),
             self._timeline_to_vrl(),
+            self._cleanup_to_vrl(),
         ])
+
+    def _cleanup_to_vrl(self) -> str:
+        return f"\n{_HR}\n# cleanup: drop null values\n{_HR}\n. = compact!(., recursive: true)"
 
     def save_vrl(self, path: str) -> None:
         with open(path, "w", encoding="utf-8") as f:

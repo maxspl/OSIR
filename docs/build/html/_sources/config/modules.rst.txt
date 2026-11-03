@@ -212,7 +212,7 @@ output: **Required**
         - As a default value exists, no need to define it to use it in command line if default value is desired.
 
 extracted: **Optional**
-**********************
+*************************
 
     - List of named extractions run against the input path, each declared as
       `- <name>:` with:

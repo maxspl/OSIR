@@ -49,14 +49,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:firefox_extension':
+  'windows:firefox_extension':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-firefox-extension'
-    sourcetype: 'windows:ogre:firefox_extension'
+    sourcetype: 'ogre:windows:firefox_extension'
     host_rex: r"([\w\.-]+?)--"
     user_rex: r"--([^-]+)--ogre"
     normalize:
-      - ecs_normalize/windows/browsers.vrl
+      - .vrl/windows/dfir-ogre/browsers.vrl
     artifact: "firefox"
     timestamp_path:
       - "timestamp" 

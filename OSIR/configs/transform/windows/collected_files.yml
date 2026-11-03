@@ -9,20 +9,8 @@ transformation:
       event.original: encode_json!(.)
 
   - set:
-      event.dataset:
-        value: orc.collected_files
-      event.module:
-        value: orc
-      event.kind:
-        value: event
-      event.category:
-        value: [file]
-      event.type:
-        value: [info]
       event.provider:
         value: "DFIR-ORC GetThis"
-      event.outcome:
-        value: success
 
   # -- GetThis (DFIR-ORC) input --------------------------------------------------
 
@@ -39,20 +27,6 @@ transformation:
         source: SizeInBytes
         operation: to_int
       host.name: ComputerName
-      labels.volume_id: VolumeID
-      labels.parent_frn: ParentFRN
-      labels.frn: FRN
-      labels.attr_type: AttrType
-      labels.attr_name: AttrName
-      labels.attr_id:
-        source: AttrID
-        operation: to_int
-      labels.content_type: ContentType
-      labels.snapshot_id: SnapshotID
-      labels.find_match: FindMatch
-      labels.sample_name: SampleName
-      labels.yara_rules: YaraRules
-      labels.record_in_use: RecordInUse
 
   - set:
       timestamp:
@@ -91,8 +65,10 @@ transformation:
           format: "%Y-%m-%d %H:%M:%S%.f"
     filter: exists(.LastAttrChangeDate) && .LastAttrChangeDate != ""
 
+  # $FILE_NAME timestamps, ECS-style naming on the fn_* attributes:
+  # fn_created, fn_mtime, fn_accessed, fn_ctime (attribute/metadata change)
   - set:
-      labels.fn_creation_date:
+      file.fn_created:
         source: FileNameCreationDate
         operation: parse_timestamp
         parameters:
@@ -100,7 +76,7 @@ transformation:
     filter: exists(.FileNameCreationDate) && .FileNameCreationDate != ""
 
   - set:
-      labels.fn_last_modification_date:
+      file.fn_mtime:
         source: FileNameLastModificationDate
         operation: parse_timestamp
         parameters:
@@ -108,7 +84,7 @@ transformation:
     filter: exists(.FileNameLastModificationDate) && .FileNameLastModificationDate != ""
 
   - set:
-      labels.fn_last_access_date:
+      file.fn_accessed:
         source: FileNameLastAccessDate
         operation: parse_timestamp
         parameters:
@@ -116,20 +92,12 @@ transformation:
     filter: exists(.FileNameLastAccessDate) && .FileNameLastAccessDate != ""
 
   - set:
-      labels.fn_last_attr_modification_date:
+      file.fn_ctime:
         source: FileNameLastAttrModificationDate
         operation: parse_timestamp
         parameters:
           format: "%Y-%m-%d %H:%M:%S%.f"
     filter: exists(.FileNameLastAttrModificationDate) && .FileNameLastAttrModificationDate != ""
-
-  - set:
-      labels.sample_collection_date:
-        source: SampleCollectionDate
-        operation: parse_timestamp
-        parameters:
-          format: "%Y-%m-%d %H:%M:%S%.f"
-    filter: exists(.SampleCollectionDate) && .SampleCollectionDate != ""
 
   - set:
       hash.md5: MD5
@@ -147,9 +115,22 @@ transformation:
       hash.ssdeep: SSDeep
     filter: exists(.SSDeep) && .SSDeep != ""
 
+  # complementary info: action.properties, not labels
   - set:
-      labels.tlsh: TLSH
-    filter: exists(.TLSH) && .TLSH != ""
+      action.properties.VolumeID: VolumeID
+      action.properties.ParentFRN: ParentFRN
+      action.properties.FRN: FRN
+      action.properties.AttrType: AttrType
+      action.properties.AttrName: AttrName
+      action.properties.AttrID: AttrID
+      action.properties.ContentType: ContentType
+      action.properties.SnapshotID: SnapshotID
+      action.properties.FindMatch: FindMatch
+      action.properties.SampleName: SampleName
+      action.properties.YaraRules: YaraRules
+      action.properties.RecordInUse: RecordInUse
+      action.properties.TLSH: TLSH
+      action.properties.SampleCollectionDate: SampleCollectionDate
 
   - delete:
       - ComputerName

@@ -1,0 +1,49 @@
+metadata:
+  version: "2.0"
+  author: maxspl
+  description: Parsing of SRUM artifact.
+  os: windows
+
+configuration:
+  module: srum
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool: 
+  path: artemis
+  cmd: acquire --format JSONL --output-dir {output_dir} srum --alt-file {input_file}
+  source: https://github.com/maxspl/artemis
+  version: 1.1
+
+input:
+  type: file
+  name: SRUDB\.dat
+  path: Windows/System32/sru
+
+output:
+  type: multiple_files
+  format: csv
+  output_prefix: "{extracted_endpoint}--{module}-"
+
+extracted:
+  - endpoint:
+      patterns:
+        - r"restore_fs\/(.*?)\/"
+      default: "UNKNOWN"
+
+splunk:
+  'windows:srum':
+    name_rex: r"--srum-.*\.jsonl$"
+    sourcetype: 'artemis:windows:srum'
+    host_rex: r"([\w\.-]+)--"
+    timestamp_path:
+      - "timestamp" 
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    artifact: "SRUM"
+    normalize:
+      - .vrl/windows/artemis/srum.vrl
+    encoding: utf8        

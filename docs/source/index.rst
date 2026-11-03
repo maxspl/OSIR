@@ -33,6 +33,7 @@
    :hidden:
    :caption: Available Modules
 
+   field_search
    extracted_module_info
    modules/index
 

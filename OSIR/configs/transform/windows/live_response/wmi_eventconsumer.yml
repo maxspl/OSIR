@@ -6,20 +6,8 @@ metadata:
 
 transformation:
   - set:
-      event.dataset:
-        value: windows.wmi_eventconsumer
-      event.module:
-        value: windows
-      event.kind:
-        value: event
-      event.category:
-        value: [configuration]
-      event.type:
-        value: [info]
       event.action:
         value: wmi_eventconsumer
-      event.outcome:
-        value: success
   - custom: |2-
       host_name = null
 

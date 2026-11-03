@@ -1,0 +1,52 @@
+metadata:
+  version: "1.0"
+  id: app_compat_cache
+  author: Typ
+  description: AppCompatCache (ShimCache) entries (dfir-ogre registry app_compat_cache JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows AppCompatCache (ShimCache)"
+
+  # index, key_path, key_modif_time, key_security, modification_date, path —
+  # one record per cache entry; modification_date is the entry's last
+  # modified time, key_modif_time the AppCompatCache registry key mtime
+  - set:
+      file.path: path
+      file.name:
+        source: 'split!(replace(to_string!(.path), pattern: "\\", with: "/"), "/")[-1]'
+      action.properties.index:
+        source: index
+        operation: to_int
+      registry.path:
+        source: 'replace(to_string!(.key_path), pattern: "\\\\", with: "\\")'
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+      timestamp:
+        source: modification_date
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.path)
+
+  - delete:
+      - index
+      - key_path
+      - key_modif_time
+      - modification_date
+      - path
+      - ogre_md
+
+timeline:
+  - id: shimcache-entry
+    message: "ShimCache entry exists for {file.path}"
+    conditions:
+      - field: file.path
+        exists: true

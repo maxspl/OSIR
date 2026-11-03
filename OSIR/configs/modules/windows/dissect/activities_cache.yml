@@ -33,8 +33,9 @@ optional:
   plugin: activitiescache
 
 splunk:
-  'windows:activitiescache':
+  'windows:activity_cache':
     name_rex: r"--activities_cache\.jsonl$"
+    sourcetype: 'dissect:windows:activity_cache'
     host_rex: r"([\w\.-]+)--"
     path_suffix: activities_cache
     timestamp_path:
@@ -42,4 +43,4 @@ splunk:
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "ActivitiesCache"
     normalize:
-      - ecs_normalize/windows/activities_cache.vrl
+      - .vrl/windows/dissect/activities_cache.vrl

@@ -49,14 +49,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:chrome_extension':
+  'windows:chrome_extension':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-chrome-extension'
-    sourcetype: 'windows:ogre:chrome_extension'
+    sourcetype: 'ogre:windows:chrome_extension'
     host_rex: r"([\w\.-]+?)--"
     user_rex: r"--([^-]+)--ogre"
     normalize:
-      - ecs_normalize/windows/browsers.vrl
+      - .vrl/windows/dfir-ogre/browsers.vrl
     artifact: "chrome"
     timestamp_path:
       - "install_date" 

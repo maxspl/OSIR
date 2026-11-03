@@ -6,7 +6,7 @@ dfir_orc_decrypt
 Description
 -----------
 
-Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/DFIRORC\_key.pem.
+Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/transform/encryption/DFIRORC\_key.pem.
 
 Timeline
 --------

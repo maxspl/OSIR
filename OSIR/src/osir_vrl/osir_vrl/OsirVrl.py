@@ -4,17 +4,17 @@ import os
 
 from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS
-from osir_vrl.OsirVrlModel import OsirVrlModel
+from .OsirVrlModel import OsirVrlModel
 
 
 class OsirVrl:
     """Class to generate VRL configurations from YAML transform files."""
 
     # Resolved from OSIR_HOME (cf. OsirConstants), like every other OSIR path:
-    #   <OSIR_HOME>/OSIR/configs/dependencies/transform_v2
-    #   <OSIR_HOME>/OSIR/configs/dependencies/ecs_normalize
-    DEFAULT_TRANSFORM_DIR = str(OSIR_PATHS.DEPENDENCIES_DIR / "transform_v2")
-    DEFAULT_ECS_DIR = str(OSIR_PATHS.DEPENDENCIES_DIR / "ecs_normalize")
+    # YAML sources in configs/transform, generated .vrl in configs/transform/.vrl
+    # (gitignored, regenerated at OSIR startup).
+    DEFAULT_TRANSFORM_DIR = str(OSIR_PATHS.TRANSFORM_DIR)
+    DEFAULT_ECS_DIR = str(OSIR_PATHS.TRANSFORM_DIR / ".vrl")
 
     @classmethod
     def from_yaml(cls, yaml_path: str, vrl_path: str = None) -> "OsirVrlModel":
@@ -54,10 +54,10 @@ class OsirVrl:
         Preserves the directory structure relative to transform_dir.
 
         Example:
-            transform_dir = /configs/dependencies/transform_v2
-            yaml_path = /configs/dependencies/transform_v2/windows/defender.yml
-            ecs_dir = /configs/dependencies/ecs_normalize
-            -> /configs/dependencies/ecs_normalize/windows/defender.vrl
+            transform_dir = /configs/transform
+            yaml_path = /configs/transform/windows/defender.yml
+            ecs_dir = /configs/transform/.vrl
+            -> /configs/transform/.vrl/windows/defender.vrl
 
         Args:
             yaml_path: Path to the YAML file

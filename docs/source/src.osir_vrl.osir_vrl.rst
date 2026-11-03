@@ -4,6 +4,14 @@ src.osir\_vrl.osir\_vrl package
 Submodules
 ----------
 
+src.osir\_vrl.osir\_vrl.OsirVrl module
+--------------------------------------
+
+.. automodule:: src.osir_vrl.osir_vrl.OsirVrl
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 src.osir\_vrl.osir\_vrl.OsirVrlBlock module
 -------------------------------------------
 

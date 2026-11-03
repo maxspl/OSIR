@@ -47,7 +47,7 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/evtx.vrl
+      - .vrl/windows/evtx.vrl
 
   'windows:evtx:sysmon':
     name_rex: r"Sysmon.*\.evtx.*\.jsonl$"
@@ -59,7 +59,7 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/evtx.vrl
+      - .vrl/windows/evtx.vrl
 
   'windows:evtx:security':
     name_rex: r"Security\.evtx.*\.jsonl$"
@@ -71,7 +71,7 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/evtx.vrl
+      - .vrl/windows/evtx.vrl
 
   'windows:evtx:powershell:operational':
     name_rex: r"PowerShell.*Operational\.evtx.*\.jsonl$"
@@ -83,7 +83,7 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/evtx.vrl
+      - .vrl/windows/evtx.vrl
 
   'windows:evtx:powershell':
     name_rex: r"PowerShell\.evtx.*\.jsonl$"
@@ -95,7 +95,7 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/evtx.vrl
+      - .vrl/windows/evtx.vrl
 
   'windows:evtx':
     name_rex: r"\.evtx.*\.jsonl$"
@@ -107,4 +107,4 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/evtx.vrl
+      - .vrl/windows/evtx.vrl

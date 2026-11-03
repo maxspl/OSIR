@@ -1,7 +1,7 @@
 metadata:
   version: "2.0"
   author: maxspl
-  description: Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
+  description: Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/transform/encryption/key.age.
   os: generic
 
 configuration:
@@ -18,7 +18,7 @@ tool:
   source: 
   version: 
   cmd: >-
-    --decrypt -i /OSIR/OSIR/configs/dependencies/encryption/key.age -o {output_dir}/{extracted_endpoint} {input_file} &&
+    --decrypt -i /OSIR/OSIR/configs/transform/encryption/key.age -o {output_dir}/{extracted_endpoint} {input_file} &&
     outdir="{output_dir}/$(printf '%s' "{extracted_endpoint}" | sed 's/\.tar\.gz$//')" &&
     mkdir -p "$outdir" &&
     tar -zxvf "{output_dir}/{extracted_endpoint}" -C "$outdir" &&

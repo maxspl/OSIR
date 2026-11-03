@@ -26,8 +26,8 @@
   <title>src.osir_service.osir_service.agent.AgentService | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="src.osir_service.osir_service.agent.AgentService | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="src.osir_service.osir_service.agent.AgentService | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/tables.css" />
   <link rel="icon" href="../../../../../_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -583,35 +586,35 @@
 
     <div id="content" role="main">
       <h1>Source code for src.osir_service.osir_service.agent.AgentService</h1><div class="highlight"><pre>
-<span></span><code><span id="line-1"><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-</span><span id="line-2"><span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
-</span><span id="line-3"><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-</span><span id="line-4"><span class="kn">import</span><span class="w"> </span><span class="nn">signal</span>
-</span><span id="line-5"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-</span><span id="line-6"><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-</span><span id="line-7"><span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">Celery</span>
-</span><span id="line-8"><span class="kn">from</span><span class="w"> </span><span class="nn">celery</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_task</span>
-</span><span id="line-9"><span class="kn">from</span><span class="w"> </span><span class="nn">celery.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ignore</span>
-</span><span id="line-10"><span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span><span class="p">,</span> <span class="n">cpu_count</span>
+<span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="line-2"><span class="kn">import</span> <span class="nn">multiprocessing</span>
+</span><span id="line-3"><span class="kn">import</span> <span class="nn">sys</span>
+</span><span id="line-4"><span class="kn">import</span> <span class="nn">signal</span>
+</span><span id="line-5"><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="line-6"><span class="kn">import</span> <span class="nn">time</span>
+</span><span id="line-7"><span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">Celery</span>
+</span><span id="line-8"><span class="kn">from</span> <span class="nn">celery</span> <span class="kn">import</span> <span class="n">current_task</span>
+</span><span id="line-9"><span class="kn">from</span> <span class="nn">celery.exceptions</span> <span class="kn">import</span> <span class="n">Ignore</span>
+</span><span id="line-10"><span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span><span class="p">,</span> <span class="n">cpu_count</span>
 </span><span id="line-11">
-</span><span id="line-12"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
-</span><span id="line-13"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
-</span><span id="line-14"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
-</span><span id="line-15"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirAgentConfig</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirAgentConfig</span>
-</span><span id="line-16"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">capture_log_output</span>
-</span><span id="line-17"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirDecorator</span><span class="w"> </span><span class="kn">import</span> <span class="n">pop_task_trace</span>
-</span><span id="line-18"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskProcessorService</span><span class="w"> </span><span class="kn">import</span> <span class="n">InternalProcessor</span>
-</span><span id="line-19"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskProcessorService</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExternalProcessor</span>
-</span><span id="line-20"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDbConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessingStatus</span>
-</span><span id="line-21"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
-</span><span id="line-22"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.agent.SystemMetricsSampler</span><span class="w"> </span><span class="kn">import</span> <span class="n">SystemMetricsSampler</span>
+</span><span id="line-12"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirConstants</span> <span class="kn">import</span> <span class="n">OSIR_PATHS</span>
+</span><span id="line-13"><span class="kn">from</span> <span class="nn">osir_lib.logger</span> <span class="kn">import</span> <span class="n">AppLogger</span>
+</span><span id="line-14"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirModule</span> <span class="kn">import</span> <span class="n">OsirModule</span>
+</span><span id="line-15"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirAgentConfig</span> <span class="kn">import</span> <span class="n">OsirAgentConfig</span>
+</span><span id="line-16"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirUtils</span> <span class="kn">import</span> <span class="n">capture_log_output</span>
+</span><span id="line-17"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirDecorator</span> <span class="kn">import</span> <span class="n">pop_task_trace</span>
+</span><span id="line-18"><span class="kn">from</span> <span class="nn">osir_service.orchestration.TaskProcessorService</span> <span class="kn">import</span> <span class="n">InternalProcessor</span>
+</span><span id="line-19"><span class="kn">from</span> <span class="nn">osir_service.orchestration.TaskProcessorService</span> <span class="kn">import</span> <span class="n">ExternalProcessor</span>
+</span><span id="line-20"><span class="kn">from</span> <span class="nn">osir_service.postgres.OsirDbConstants</span> <span class="kn">import</span> <span class="n">ProcessingStatus</span>
+</span><span id="line-21"><span class="kn">from</span> <span class="nn">osir_service.postgres.OsirDb</span> <span class="kn">import</span> <span class="n">OsirDb</span>
+</span><span id="line-22"><span class="kn">from</span> <span class="nn">osir_service.agent.SystemMetricsSampler</span> <span class="kn">import</span> <span class="n">SystemMetricsSampler</span>
 </span><span id="line-23">
 </span><span id="line-24"><span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 </span><span id="line-25">
 </span><span id="line-26">
 <div class="viewcode-block" id="CeleryWorker">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.agent.html#src.osir_service.osir_service.agent.AgentService.CeleryWorker">[docs]</a>
-</span><span id="line-27"><span class="k">class</span><span class="w"> </span><span class="nc">CeleryWorker</span><span class="p">:</span>
+</span><span id="line-27"><span class="k">class</span> <span class="nc">CeleryWorker</span><span class="p">:</span>
 </span><span id="line-28"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-29"><span class="sd">        Orchestrates distributed forensic task execution using Celery.</span>
 </span><span id="line-30">
@@ -621,7 +624,7 @@
 </span><span id="line-34">
 <div class="viewcode-block" id="CeleryWorker.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.agent.html#src.osir_service.osir_service.agent.AgentService.CeleryWorker.__init__">[docs]</a>
-</span><span id="line-35">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-35">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-36"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-37"><span class="sd">        Initializes the Celery worker by setting up the broker and backend configurations, queues, and registering task handlers.</span>
 </span><span id="line-38"><span class="sd">        &quot;&quot;&quot;</span>
@@ -639,7 +642,7 @@
 </span><span id="line-50">        <span class="bp">self</span><span class="o">.</span><span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CELERY_BROKER_URL&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;pyamqp://</span><span class="si">{</span><span class="n">RABBITMQ_USER</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">RABBITMQ_PASSWORD</span><span class="si">}</span><span class="s1">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:5672//&#39;</span><span class="p">)</span>
 </span><span id="line-51">        <span class="bp">self</span><span class="o">.</span><span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
 </span><span id="line-52">            <span class="s1">&#39;CELERY_RESULT_BACKEND&#39;</span><span class="p">,</span>
-</span><span id="line-53">            <span class="sa">f</span><span class="s1">&#39;db+postgresql://</span><span class="si">{</span><span class="n">POSTGRES_USER</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">POSTGRES_PASSWORD</span><span class="si">}</span><span class="s1">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:5432/OSIR_db&#39;</span>
+</span><span id="line-53">            <span class="sa">f</span><span class="s1">&#39;db+postgresql+psycopg2://</span><span class="si">{</span><span class="n">POSTGRES_USER</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">POSTGRES_PASSWORD</span><span class="si">}</span><span class="s1">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">master_host</span><span class="si">}</span><span class="s1">:5432/OSIR_db&#39;</span>
 </span><span id="line-54">        <span class="p">)</span>
 </span><span id="line-55">
 </span><span id="line-56">        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;OSIR&#39;</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CELERY_RESULT_BACKEND</span><span class="p">)</span>
@@ -659,7 +662,7 @@
 </span><span id="line-70">        <span class="bp">self</span><span class="o">.</span><span class="n">_local_count</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 </span><span id="line-71">
-</span><span id="line-72">    <span class="k">def</span><span class="w"> </span><span class="nf">_task_revoked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-72">    <span class="k">def</span> <span class="nf">_task_revoked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-73"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-74"><span class="sd">            Checks whether this task was revoked, so the worker skips it instead</span>
 </span><span id="line-75"><span class="sd">            of processing it.</span>
@@ -684,7 +687,7 @@
 </span><span id="line-94">            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Revocation check failed for task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-95">            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-96">
-</span><span id="line-97">    <span class="k">def</span><span class="w"> </span><span class="nf">_skip_revoked_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-97">    <span class="k">def</span> <span class="nf">_skip_revoked_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-98"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-99"><span class="sd">            Ends the current task as REVOKED, because it was.</span>
 </span><span id="line-100">
@@ -707,7 +710,7 @@
 </span><span id="line-117">            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not mark skipped task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2"> as revoked: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-118">        <span class="k">raise</span> <span class="n">Ignore</span><span class="p">()</span>
 </span><span id="line-119">
-</span><span id="line-120">    <span class="k">def</span><span class="w"> </span><span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">OsirDb</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="line-120">    <span class="k">def</span> <span class="nf">_is_item_in_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">OsirDb</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="line-121"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-122"><span class="sd">            Wait until the input file or directory is free to use, i.e., not being used by another module.</span>
 </span><span id="line-123">
@@ -729,7 +732,7 @@
 </span><span id="line-139">                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </span><span id="line-140">                <span class="n">file_opened</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">check_input</span><span class="p">(</span><span class="n">case_uuid</span><span class="p">,</span> <span class="n">module_instance</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">match</span><span class="p">,</span> <span class="n">exclude_task_id</span><span class="o">=</span><span class="n">exclude_task_id</span><span class="p">)</span>
 </span><span id="line-141">
-</span><span id="line-142">    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_parallel_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standalone</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">windows_cores</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+</span><span id="line-142">    <span class="k">def</span> <span class="nf">_compute_parallel_capacity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">standalone</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">windows_cores</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 </span><span id="line-143"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-144"><span class="sd">            Compute a safe global parallel budget based on available CPU resources,</span>
 </span><span id="line-145"><span class="sd">            then split it across the different processing queues.</span>
@@ -780,7 +783,7 @@
 </span><span id="line-190">            <span class="s2">&quot;unix_disk_parallel&quot;</span><span class="p">:</span> <span class="n">unix_disk_parallel</span><span class="p">,</span>
 </span><span id="line-191">        <span class="p">}</span>
 </span><span id="line-192">
-</span><span id="line-193">    <span class="k">def</span><span class="w"> </span><span class="nf">_wait_for_input_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
+</span><span id="line-193">    <span class="k">def</span> <span class="nf">_wait_for_input_stable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">):</span>
 </span><span id="line-194"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait only when a file input looks too recent or still changing.</span>
 </span><span id="line-195">
 </span><span id="line-196"><span class="sd">        Watchdog already does a check for file in use but safety is kept here</span>
@@ -835,12 +838,12 @@
 </span><span id="line-245">            <span class="p">)</span>
 </span><span id="line-246">            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">check_interval</span><span class="p">)</span>
 </span><span id="line-247">
-</span><span id="line-248">    <span class="k">def</span><span class="w"> </span><span class="nf">_register_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-248">    <span class="k">def</span> <span class="nf">_register_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-249"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-250"><span class="sd">        Registers internal and external processing tasks with Celery, defining their behavior and exception handling.</span>
 </span><span id="line-251"><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="line-252">        <span class="nd">@self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;internal_processor_task&quot;</span><span class="p">)</span>
-</span><span id="line-253">        <span class="k">def</span><span class="w"> </span><span class="nf">task_internal_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+</span><span id="line-253">        <span class="k">def</span> <span class="nf">task_internal_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 </span><span id="line-254"><span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - internal_processor</span>
 </span><span id="line-255">
 </span><span id="line-256"><span class="sd">                Task state lives in the Celery result backend: SUCCESS/FAILURE</span>
@@ -899,7 +902,7 @@
 </span><span id="line-309">                <span class="n">module_logs</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">trace</span> <span class="k">else</span> <span class="n">captured_trace</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 </span><span id="line-310">                <span class="c1"># Re-raise so Celery records FAILURE + traceback (module logs</span>
 </span><span id="line-311">                <span class="c1"># are chained into the stored traceback through the message).</span>
-</span><span id="line-312">                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;internal_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+</span><span id="line-312">                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;internal_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
 </span><span id="line-313">
 </span><span id="line-314">            <span class="n">status</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
 </span><span id="line-315">            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_FAILED</span><span class="p">:</span>
@@ -908,7 +911,7 @@
 </span><span id="line-318">            <span class="k">return</span> <span class="n">trace</span> <span class="ow">or</span> <span class="s2">&quot;internal_processor done&quot;</span>
 </span><span id="line-319">
 </span><span id="line-320">        <span class="nd">@self</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;external_processor_task&quot;</span><span class="p">)</span>
-</span><span id="line-321">        <span class="k">def</span><span class="w"> </span><span class="nf">task_external_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
+</span><span id="line-321">        <span class="k">def</span> <span class="nf">task_external_processor</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">module_bytes</span><span class="p">,</span> <span class="n">case_uuid</span><span class="p">):</span>
 </span><span id="line-322"><span class="w">            </span><span class="sd">&quot;&quot;&quot; celery task - external_processor</span>
 </span><span id="line-323">
 </span><span id="line-324"><span class="sd">                The only direct DB write is set_runtime_info (output path + worker name).</span>
@@ -959,7 +962,7 @@
 </span><span id="line-369">                    <span class="n">captured_trace</span> <span class="o">=</span> <span class="n">log_buffer</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
 </span><span id="line-370">                <span class="n">_</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
 </span><span id="line-371">                <span class="n">module_logs</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">trace</span><span class="p">[</span><span class="s2">&quot;logs&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="n">trace</span> <span class="k">else</span> <span class="n">captured_trace</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="line-372">                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;external_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+</span><span id="line-372">                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;external_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">exc</span>
 </span><span id="line-373">
 </span><span id="line-374">            <span class="n">status</span><span class="p">,</span> <span class="n">trace</span> <span class="o">=</span> <span class="n">pop_task_trace</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
 </span><span id="line-375">            <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="n">ProcessingStatus</span><span class="o">.</span><span class="n">PROCESSING_FAILED</span><span class="p">:</span>
@@ -967,7 +970,7 @@
 </span><span id="line-377">                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;external_processor failed:</span><span class="se">\n</span><span class="si">{</span><span class="n">module_logs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-378">            <span class="k">return</span> <span class="n">trace</span> <span class="ow">or</span> <span class="s2">&quot;external_processor done&quot;</span>
 </span><span id="line-379">
-</span><span id="line-380">    <span class="k">def</span><span class="w"> </span><span class="nf">_start_single_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+</span><span id="line-380">    <span class="k">def</span> <span class="nf">_start_single_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
 </span><span id="line-381"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-382"><span class="sd">        Starts a single Celery worker with the given command-line arguments.</span>
 </span><span id="line-383">
@@ -978,11 +981,11 @@
 </span><span id="line-388">
 <div class="viewcode-block" id="CeleryWorker.start_worker">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.agent.html#src.osir_service.osir_service.agent.AgentService.CeleryWorker.start_worker">[docs]</a>
-</span><span id="line-389">    <span class="k">def</span><span class="w"> </span><span class="nf">start_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-389">    <span class="k">def</span> <span class="nf">start_worker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-390"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-391"><span class="sd">        Starts multiple Celery workers based on system resources and configuration, managing different task queues for processing.</span>
 </span><span id="line-392"><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="line-393">        <span class="k">def</span><span class="w"> </span><span class="nf">signal_handler</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+</span><span id="line-393">        <span class="k">def</span> <span class="nf">signal_handler</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
 </span><span id="line-394">            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Stopping worker...&#39;</span><span class="p">)</span>
 </span><span id="line-395">            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 </span><span id="line-396">
@@ -1099,16 +1102,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="../../../../../_static/theme.js?v=5db23cf8"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="../../../../../_static/theme.js?v=49cc6205"></script>
     <script src="../../../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

@@ -4,7 +4,7 @@ jump_list
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:files:jumplist`` | name_rex: ``r"\.csv$"``
+   * ``eztools:windows:jumplist`` | name_rex: ``r"\.csv$"``
 
 Description
 -----------
@@ -29,77 +29,121 @@ Fields
 
    * - Original
      - ECS field
-   * - ``{}``
-     - ``event``
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.jumplist"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
    * - ``"Windows JumpList (generic)"``
      - ``event.provider``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[process]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"jumplist"``
      - ``event.action``
-   * - ``"jumplist"``
-     - ``event.code``
-   * - ``"success"``
-     - ``event.outcome``
-   * - ``to_string!(del(.SourceFile))``
-     - ``event.Ext.jumplist.source_file``
-   * - ``to_string!(del(.HasSps))``
-     - ``event.Ext.jumplist.has_sps``
-   * - ``custom``
-     - 
-   * - ``to_string!(del(.ExtraBlocksPresent))``
-     - ``event.Ext.jumplist.extra_blocks_present``
-   * - ``to_string!(del(.HeaderFlags))``
-     - ``event.Ext.jumplist.header_flags``
-   * - ``to_string!(del(.FileAttributes))``
+   * - ``SourceFile``
+     - ``action.properties.SourceFile``
+   * - ``AppId``
+     - ``action.properties.AppId``
+   * - ``AppIdDescription``
+     - ``action.properties.AppIdDescription``
+   * - ``to_bool(HasSps)``
+     - ``action.properties.HasSps``
+   * - ``to_int(DestListVersion)``
+     - ``action.properties.DestListVersion``
+   * - ``to_int(LastUsedEntryNumber)``
+     - ``action.properties.LastUsedEntryNumber``
+   * - ``to_int(MRU)``
+     - ``action.properties.MRU``
+   * - ``to_int(InteractionCount)``
+     - ``action.properties.InteractionCount``
+   * - ``to_bool(PinStatus)``
+     - ``action.properties.PinStatus``
+   * - ``EntryName``
+     - ``action.properties.EntryName``
+   * - ``ExtraBlocksPresent``
+     - ``action.properties.ExtraBlocksPresent``
+   * - ``HeaderFlags``
+     - ``action.properties.HeaderFlags``
+   * - ``Arguments``
+     - ``action.properties.Arguments``
+   * - ``Notes``
+     - ``action.properties.Notes``
+   * - ``RelativePath``
+     - ``action.properties.RelativePath``
+   * - ``WorkingDirectory``
+     - ``action.properties.WorkingDirectory``
+   * - ``DriveType``
+     - ``action.properties.DriveType``
+   * - ``VolumeSerialNumber``
+     - ``action.properties.VolumeSerialNumber``
+   * - ``VolumeLabel``
+     - ``action.properties.VolumeLabel``
+   * - ``FileBirthDroid``
+     - ``action.properties.FileBirthDroid``
+   * - ``FileDroid``
+     - ``action.properties.FileDroid``
+   * - ``VolumeBirthDroid``
+     - ``action.properties.VolumeBirthDroid``
+   * - ``VolumeDroid``
+     - ``action.properties.VolumeDroid``
+   * - ``TargetMFTEntryNumber``
+     - ``action.properties.TargetMFTEntryNumber``
+   * - ``TargetMFTSequenceNumber``
+     - ``action.properties.TargetMFTSequenceNumber``
+   * - ``Path``
+     - ``action.properties.Path``
+   * - ``TargetIDAbsolutePath``
+     - ``action.properties.TargetIDAbsolutePath``
+   * - ``LocalPath``
+     - ``action.properties.LocalPath``
+   * - ``CommonPath``
+     - ``action.properties.CommonPath``
+   * - ``FileAttributes``
      - ``file.attributes``
-   * - ``to_string!(del(.AppId))``
-     - ``event.Ext.jumplist.app_id``
-   * - ``to_string!(del(.AppIdDescription))``
-     - ``event.Ext.jumplist.app_description``
-   * - ``to_string!(del(.EntryName))``
-     - ``event.Ext.jumplist.entry_name``
-   * - ``custom``
-     - 
-   * - ``to_string!(del(.Notes))``
-     - ``event.Ext.jumplist.notes``
-   * - ``custom``
-     - 
-   * - ``to_string!(del(.RelativePath))``
-     - ``file.Ext.jumplist.relative_path``
-   * - ``to_string!(del(.WorkingDirectory))``
-     - ``file.Ext.jumplist.working_directory``
-   * - ``to_string!(del(.Arguments))``
-     - ``file.Ext.jumplist.arguments``
-   * - ``custom``
-     - 
-   * - ``to_string!(del(.DriveType))``
-     - ``file.Ext.jumplist.drive_type``
-   * - ``to_string!(del(.VolumeSerialNumber))``
-     - ``file.Ext.jumplist.volume_serial_number``
-   * - ``to_string!(del(.VolumeLabel))``
-     - ``file.Ext.jumplist.volume_label``
-   * - ``to_string!(del(.FileBirthDroid))``
-     - ``file.Ext.jumplist.file_birth_droid``
-   * - ``to_string!(del(.FileDroid))``
-     - ``file.Ext.jumplist.file_droid``
-   * - ``to_string!(del(.VolumeBirthDroid))``
-     - ``file.Ext.jumplist.volume_birth_droid``
-   * - ``to_string!(del(.VolumeDroid))``
-     - ``file.Ext.jumplist.volume_droid``
-   * - ``to_string!(del(.TargetMFTEntryNumber))``
-     - ``file.Ext.jumplist.target_mft_entry_number``
-   * - ``to_string!(del(.TargetMFTSequenceNumber))``
-     - ``file.Ext.jumplist.target_mft_sequence_number``
-   * - ``custom``
-     - 
+   * - ``to_int(EntryNumber)``
+     - ``event.sequence``
+   * - ``Hostname``
+     - ``host.name``
+   * - ``MacAddress``
+     - ``host.mac``
+   * - ``MachineID``
+     - ``host.id``
+   * - ``MachineID``
+     - ``host.name``
+   * - ``MachineMACAddress``
+     - ``host.mac``
+   * - ``Path``
+     - ``file.path``
+   * - ``TargetIDAbsolutePath``
+     - ``file.path``
+   * - ``LocalPath``
+     - ``file.path``
+   * - ``CommonPath``
+     - ``file.path``
+   * - ``split!(to_string!(.file.path), "\\")[-1]``
+     - ``file.name``
+   * - ``to_int(FileSize)``
+     - ``file.size``
+   * - ``parse_timestamp(TargetCreated)``
+     - ``file.created``
+   * - ``parse_timestamp(TargetModified)``
+     - ``file.mtime``
+   * - ``parse_timestamp(TargetAccessed)``
+     - ``file.accessed``
+   * - ``parse_timestamp(SourceCreated)``
+     - ``action.properties.SourceCreated``
+   * - ``parse_timestamp(SourceModified)``
+     - ``action.properties.SourceModified``
+   * - ``parse_timestamp(SourceAccessed)``
+     - ``action.properties.SourceAccessed``
+   * - ``parse_timestamp(CreationTime)``
+     - ``action.properties.CreationTime``
+   * - ``parse_timestamp(LastModified)``
+     - ``timestamp``
+   * - ``parse_timestamp(LastModified)``
+     - ``event.created``
+   * - ``"jumplist.entry_last_modified"``
+     - ``action.properties.timestamp_source``
+   * - ``parse_timestamp(TargetCreated)``
+     - ``action.properties.TargetCreated``
+   * - ``parse_timestamp(TargetModified)``
+     - ``action.properties.TargetModified``
+   * - ``parse_timestamp(TargetAccessed)``
+     - ``action.properties.TargetAccessed``
+   * - ``parse_timestamp(TrackerCreatedOn)``
+     - ``action.properties.TrackerCreatedOn``

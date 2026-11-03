@@ -1,0 +1,99 @@
+metadata:
+  version: "1.0"
+  id: shell_bags
+  author: Typ
+  description: Windows ShellBags (dfir-ogre registry shell_bag plugin JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  # -- OGRE (dfir-ogre registry shell_bag plugin) input ----------------------
+
+  - set:
+      action.properties.value: name
+      action.properties.shell_type: type
+      action.properties.localized_name: localized_name
+      action.properties.description: description
+      file.inode: file_reference
+
+  - set:
+      action.properties.AbsolutePath:
+        source: 'replace(to_string!(.path), pattern: "\\\\", with: "\\")'
+    filter: exists(.path)
+
+  - set:
+      timestamp:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.mtime:
+        source: modification_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.accessed:
+        source: access_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      file.created:
+        source: creation_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+
+  - set:
+      registry.path:
+        source: 'replace(to_string!(.key_path), pattern: "\\\\", with: "\\")'
+    filter: exists(.key_path)
+
+  # OGRE entries have no HasExplored source: default to true
+  - set:
+      action.properties.HasExplored:
+        value: true
+    filter: '!exists(.action.properties.HasExplored)'
+
+  - delete:
+      - name
+      - type
+      - path
+      - file_reference
+      - modification_time
+      - access_time
+      - creation_time
+      - key_path
+      - key_modif_time
+      - ogre_md
+      - localized_name
+      - description
+
+timeline:
+  - id: interacted-with
+    message: "User {user.name} interacted with {action.properties.AbsolutePath}"
+    conditions:
+      - field: action.properties.HasExplored
+        value: true
+
+  - id: referenced
+    message: "Shellbag entry exists for {action.properties.AbsolutePath} (no evidence of user interaction)"
+    conditions:
+      - field: action.properties.HasExplored
+        value: false
+
+relationships:
+  - id: interacted-with
+    source: user.name
+    target: action.properties.value
+    type: interacted with
+
+  - id: referenced
+    source: user.name
+    target: action.properties.value
+    type: referenced

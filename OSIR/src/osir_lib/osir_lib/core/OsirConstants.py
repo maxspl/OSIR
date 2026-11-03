@@ -67,14 +67,14 @@ class OsirPaths(BaseModel):
 
     @computed_field
     @property
-    def DEPENDENCIES_DIR(self) -> Path:
+    def TRANSFORM_DIR(self) -> Path:
         """
-            Resolves the directory containing indexation and normalization
-            dependencies (indexer patterns, ECS normalize VRL, transforms).
+            Resolves the directory holding the ECS transform sources and the
+            generated .vrl files (configs/transform/.vrl).
         """
         if self.osir_home_env:
-            return self.base_dir.joinpath("OSIR/configs/dependencies/")
-        return Path("/OSIR/OSIR/configs/dependencies/")
+            return self.base_dir.joinpath("OSIR/configs/transform/")
+        return Path("/OSIR/OSIR/configs/transform/")
 
     @computed_field
     @property

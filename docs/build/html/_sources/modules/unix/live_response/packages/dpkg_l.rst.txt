@@ -42,8 +42,8 @@ Fields
    * - ``"dpkg"``
      - ``package.type``
    * - ``to_string!(.status)``
-     - ``labels.package_status``
+     - ``action.properties.package_status``
    * - ``to_string!(.codes)``
-     - ``labels.package_codes``
+     - ``action.properties.package_codes``
    * - ``custom``
      - 

@@ -4,7 +4,7 @@ prefetch
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:files:prefetch`` | name_rex: ``r"\.jsonl$"``
+   * ``eztools:windows:prefetch`` | name_rex: ``r"\.jsonl$"``
 
 Description
 -----------
@@ -14,20 +14,20 @@ Eric Zimmerman - PECmd.exe
 Timeline
 --------
 
-.. _tl-windows-prefetch-executed:
+.. _tl-windows-zimmerman-prefetch-executed:
 
 .. list-table::
    :header-rows: 1
 
    * - Relation
      - Message
-   * - `executed <rel-windows-prefetch-executed_>`_
+   * - `executed <rel-windows-zimmerman-prefetch-executed_>`_
      - ``Program {process.name} was executed (last run {timestamp})``
 
 Relationships
 -------------
 
-.. _rel-windows-prefetch-executed:
+.. _rel-windows-zimmerman-prefetch-executed:
 
 .. list-table::
    :header-rows: 1
@@ -36,7 +36,7 @@ Relationships
      - Source
      - Target
      - Type
-   * - `executed <tl-windows-prefetch-executed_>`_
+   * - `executed <tl-windows-zimmerman-prefetch-executed_>`_
      - ``process.name``
      - ``file.path``
      - ``recorded in``
@@ -51,36 +51,24 @@ Fields
      - ECS field
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.prefetch"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[process]``
-     - ``event.category``
-   * - ``[start, info]``
-     - ``event.type``
    * - ``"Windows Prefetch"``
      - ``event.provider``
    * - ``"prefetch_entry"``
      - ``event.action``
-   * - ``"success"``
-     - ``event.outcome``
-   * - ``SourceFilename``
-     - ``file.path``
    * - ``ExecutableName``
      - ``process.name``
    * - ``Hash``
-     - ``labels.hash``
+     - ``action.properties.Hash``
    * - ``Version``
-     - ``labels.version``
+     - ``action.properties.Version``
+   * - ``custom``
+     - 
    * - ``parse_timestamp(LastRun)``
      - ``timestamp``
    * - ``parse_timestamp(LastRun)``
      - ``event.start``
    * - ``parse_timestamp(LastRun)``
-     - ``labels.last_run``
+     - ``action.properties.LastRun``
    * - ``parse_timestamp(SourceCreated)``
      - ``file.created``
    * - ``parse_timestamp(SourceModified)``
@@ -90,34 +78,34 @@ Fields
    * - ``to_int(Size)``
      - ``file.size``
    * - ``to_int(RunCount)``
-     - ``labels.run_count``
+     - ``action.properties.RunCount``
    * - ``parse_timestamp(PreviousRun0)``
-     - ``labels.previous_run0``
+     - ``action.properties.PreviousRun0``
    * - ``parse_timestamp(PreviousRun1)``
-     - ``labels.previous_run1``
+     - ``action.properties.PreviousRun1``
    * - ``parse_timestamp(PreviousRun2)``
-     - ``labels.previous_run2``
+     - ``action.properties.PreviousRun2``
    * - ``parse_timestamp(PreviousRun3)``
-     - ``labels.previous_run3``
+     - ``action.properties.PreviousRun3``
    * - ``parse_timestamp(PreviousRun4)``
-     - ``labels.previous_run4``
+     - ``action.properties.PreviousRun4``
    * - ``parse_timestamp(PreviousRun5)``
-     - ``labels.previous_run5``
+     - ``action.properties.PreviousRun5``
    * - ``parse_timestamp(PreviousRun6)``
-     - ``labels.previous_run6``
+     - ``action.properties.PreviousRun6``
    * - ``Volume0Name``
-     - ``labels.volume0_name``
+     - ``action.properties.Volume0Name``
    * - ``Volume0Serial``
-     - ``labels.volume0_serial``
+     - ``action.properties.Volume0Serial``
    * - ``Volume1Name``
-     - ``labels.volume1_name``
+     - ``action.properties.Volume1Name``
    * - ``Volume1Serial``
-     - ``labels.volume1_serial``
+     - ``action.properties.Volume1Serial``
    * - ``parse_timestamp(Volume0Created)``
-     - ``labels.volume0_created``
+     - ``action.properties.Volume0Created``
    * - ``parse_timestamp(Volume1Created)``
-     - ``labels.volume1_created``
+     - ``action.properties.Volume1Created``
    * - ``split(Directories)``
-     - ``labels.directories``
+     - ``action.properties.Directories``
    * - ``split(FilesLoaded)``
-     - ``labels.files_loaded``
+     - ``action.properties.FilesLoaded``

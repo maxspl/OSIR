@@ -36,9 +36,15 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:srum:ecmd':
+  'windows:srum':
     name_rex: r"\.csv$"
     path_suffix: 'srum_ecmd'
-    sourcetype: 'windows:srum:ecmd'
+    sourcetype: 'eztools:windows:srum'
     host_rex: r"([\w\.-]+?)--"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "SRUM"
+    normalize:
+      - .vrl/windows/zimmerman/srum_ecmd.vrl
+    encoding: utf8

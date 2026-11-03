@@ -44,14 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:autoruns':
+  'windows:sysinternals:autoruns':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-autoruns'
-    sourcetype: 'windows:ogre:autoruns'
+    sourcetype: 'ogre:windows:sysinternals:autoruns'
     host_rex: r"([\w\.-]+)--"
     artifact: "Autoruns"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/autoruns.vrl
+      - .vrl/windows/dfir-ogre/autoruns.vrl

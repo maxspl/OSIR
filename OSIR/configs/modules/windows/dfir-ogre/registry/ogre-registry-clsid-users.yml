@@ -49,12 +49,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:registry_clsid_users':
+  'windows:registry:clsid_users':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-clsid-users'
-    sourcetype: 'windows:ogre:registry_clsid_users'
+    sourcetype: 'ogre:windows:registry:clsid_users'
     host_rex: r"([\w\.-]+?)--"
     artifact: "hive"
     timestamp_path:
-      - "key_modif_time" 
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/dfir-ogre/registry/registry.vrl

@@ -162,7 +162,7 @@ task = case.tasks.get_task_info("task_id", print=False)
 
 Create a `.env` file:
 
-```env
+```bash
 OSIR_API_URL="http://127.0.0.1:8502"
 ```
 

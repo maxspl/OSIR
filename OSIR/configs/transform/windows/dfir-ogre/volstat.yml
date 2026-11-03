@@ -1,0 +1,34 @@
+metadata:
+  version: "1.0"
+  id: volstat
+  author: Typ
+  description: Windows volume statistics (dfir-ogre FatInfo volstats) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows volume statistics (FatInfo volstats)"
+
+  # -- OGRE (dfir-ogre volstat) input ----------------------------------------------
+  # computer_name, volumeid, location, volume_type, is_parsed, mount_point
+  # Volume-level inventory: no per-file ECS field applies, everything
+  # complementary goes to action.properties
+  - set:
+      host.name: computer_name
+      action.properties.volumeid: volumeid
+      action.properties.location: location
+      action.properties.volume_type: volume_type
+      action.properties.is_parsed: is_parsed
+      action.properties.mount_point: mount_point
+
+  - delete:
+      - computer_name
+      - volumeid
+      - location
+      - volume_type
+      - is_parsed
+      - mount_point
+      - ogre_md

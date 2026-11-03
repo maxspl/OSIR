@@ -26,8 +26,8 @@
   <title>src.osir_service.osir_service.ipc.OsirIpc | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="src.osir_service.osir_service.ipc.OsirIpc | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="src.osir_service.osir_service.ipc.OsirIpc | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/tables.css" />
   <link rel="icon" href="../../../../../_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -583,32 +586,32 @@
 
     <div id="content" role="main">
       <h1>Source code for src.osir_service.osir_service.ipc.OsirIpc</h1><div class="highlight"><pre>
-<span></span><code><span id="line-1"><span class="kn">import</span><span class="w"> </span><span class="nn">socket</span>
-</span><span id="line-2"><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
-</span><span id="line-3"><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
-</span><span id="line-4"><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
-</span><span id="line-5"><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-</span><span id="line-6"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-</span><span id="line-7"><span class="kn">from</span><span class="w"> </span><span class="nn">celery.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncResult</span>
-</span><span id="line-8"><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">socket</span>
+</span><span id="line-2"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="line-3"><span class="kn">import</span> <span class="nn">threading</span>
+</span><span id="line-4"><span class="kn">import</span> <span class="nn">time</span>
+</span><span id="line-5"><span class="kn">import</span> <span class="nn">re</span>
+</span><span id="line-6"><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="line-7"><span class="kn">from</span> <span class="nn">celery.result</span> <span class="kn">import</span> <span class="n">AsyncResult</span>
+</span><span id="line-8"><span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
 </span><span id="line-9">
-</span><span id="line-10"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.FileManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileManager</span>
-</span><span id="line-11"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
-</span><span id="line-12"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-</span><span id="line-13"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcTus</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcTus</span>
-</span><span id="line-14"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
-</span><span id="line-15"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcResponse</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcResponse</span>
-</span><span id="line-16"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirIpcRequest</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcRequest</span>
-</span><span id="line-17"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
-</span><span id="line-18"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.HandlerManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandlerService</span>
-</span><span id="line-19"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirSocket</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirSocket</span>
-</span><span id="line-20"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
-</span><span id="line-21"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span><span class="p">,</span> <span class="n">_get_celery_app</span>
-</span><span id="line-22"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.HandlerManager</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandlerManager</span>
-</span><span id="line-23"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirFileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">FsData</span>
-</span><span id="line-24"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirAction</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_ACTIONS</span><span class="p">,</span> <span class="n">register_action</span>
-</span><span id="line-25"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.OsirIpcFiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirIpcFiles</span>
-</span><span id="line-26"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
+</span><span id="line-10"><span class="kn">from</span> <span class="nn">osir_lib.core.FileManager</span> <span class="kn">import</span> <span class="n">FileManager</span>
+</span><span id="line-11"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirConstants</span> <span class="kn">import</span> <span class="n">OSIR_PATHS</span>
+</span><span id="line-12"><span class="kn">from</span> <span class="nn">osir_lib.core.model.OsirModuleModel</span> <span class="kn">import</span> <span class="n">OsirModuleModel</span>
+</span><span id="line-13"><span class="kn">from</span> <span class="nn">osir_service.ipc.OsirIpcTus</span> <span class="kn">import</span> <span class="n">OsirIpcTus</span>
+</span><span id="line-14"><span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirExceptions</span> <span class="kn">import</span> <span class="n">OsirException</span>
+</span><span id="line-15"><span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirIpcResponse</span> <span class="kn">import</span> <span class="n">OsirIpcResponse</span>
+</span><span id="line-16"><span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirIpcRequest</span> <span class="kn">import</span> <span class="n">OsirIpcRequest</span>
+</span><span id="line-17"><span class="kn">from</span> <span class="nn">osir_service.postgres.OsirDb</span> <span class="kn">import</span> <span class="n">OsirDb</span>
+</span><span id="line-18"><span class="kn">from</span> <span class="nn">osir_service.watchdog.HandlerManager</span> <span class="kn">import</span> <span class="n">HandlerService</span>
+</span><span id="line-19"><span class="kn">from</span> <span class="nn">osir_service.ipc.OsirSocket</span> <span class="kn">import</span> <span class="n">OsirSocket</span>
+</span><span id="line-20"><span class="kn">from</span> <span class="nn">osir_service.postgres.model.OsirDbHandlerModel</span> <span class="kn">import</span> <span class="n">OsirDbHandlerModel</span>
+</span><span id="line-21"><span class="kn">from</span> <span class="nn">osir_service.orchestration.TaskService</span> <span class="kn">import</span> <span class="n">TaskService</span><span class="p">,</span> <span class="n">_get_celery_app</span>
+</span><span id="line-22"><span class="kn">from</span> <span class="nn">osir_service.watchdog.HandlerManager</span> <span class="kn">import</span> <span class="n">HandlerManager</span>
+</span><span id="line-23"><span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirFileModel</span> <span class="kn">import</span> <span class="n">FsData</span>
+</span><span id="line-24"><span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirAction</span> <span class="kn">import</span> <span class="n">OSIR_ACTIONS</span><span class="p">,</span> <span class="n">register_action</span>
+</span><span id="line-25"><span class="kn">from</span> <span class="nn">osir_service.ipc.OsirIpcFiles</span> <span class="kn">import</span> <span class="n">OsirIpcFiles</span>
+</span><span id="line-26"><span class="kn">from</span> <span class="nn">osir_lib.logger</span> <span class="kn">import</span> <span class="n">AppLogger</span>
 </span><span id="line-27">
 </span><span id="line-28"><span class="n">handler_manager</span> <span class="o">=</span> <span class="n">HandlerManager</span><span class="p">()</span>
 </span><span id="line-29"><span class="n">logger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
@@ -616,7 +619,7 @@
 </span><span id="line-31">
 <div class="viewcode-block" id="OsirIpc">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc">[docs]</a>
-</span><span id="line-32"><span class="k">class</span><span class="w"> </span><span class="nc">OsirIpc</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="line-32"><span class="k">class</span> <span class="nc">OsirIpc</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 </span><span id="line-33"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-34"><span class="sd">    Core IPC (Inter-Process Communication) service for the OSIR framework.</span>
 </span><span id="line-35"><span class="sd">    Listens on a TCP socket and dispatches JSON requests to registered action handlers.</span>
@@ -630,7 +633,7 @@
 </span><span id="line-43">
 <div class="viewcode-block" id="OsirIpc.listen">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.listen">[docs]</a>
-</span><span id="line-44">    <span class="k">def</span><span class="w"> </span><span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-44">    <span class="k">def</span> <span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-45"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-46"><span class="sd">        Main server loop that maintains the TCP socket.</span>
 </span><span id="line-47">
@@ -650,7 +653,7 @@
 </span><span id="line-61">                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span></div>
 
 </span><span id="line-62">
-</span><span id="line-63">    <span class="k">def</span><span class="w"> </span><span class="nf">_accept_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">):</span>
+</span><span id="line-63">    <span class="k">def</span> <span class="nf">_accept_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">):</span>
 </span><span id="line-64"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Accepts and handles incoming client connections.&quot;&quot;&quot;</span>
 </span><span id="line-65">        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
 </span><span id="line-66">            <span class="k">try</span><span class="p">:</span>
@@ -664,7 +667,7 @@
 </span><span id="line-74">                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error accepting connection: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-75">                <span class="k">continue</span>
 </span><span id="line-76">
-</span><span id="line-77">    <span class="k">def</span><span class="w"> </span><span class="nf">_request_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">):</span>
+</span><span id="line-77">    <span class="k">def</span> <span class="nf">_request_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">:</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">):</span>
 </span><span id="line-78"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Processes incoming requests on an established connection.&quot;&quot;&quot;</span>
 </span><span id="line-79">        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
 </span><span id="line-80">            <span class="k">try</span><span class="p">:</span>
@@ -682,7 +685,7 @@
 </span><span id="line-92">
 <div class="viewcode-block" id="OsirIpc.start">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.start">[docs]</a>
-</span><span id="line-93">    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-93">    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-94"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Launches the IPC listener in a dedicated background thread.&quot;&quot;&quot;</span>
 </span><span id="line-95">        <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">listen</span><span class="p">,</span> <span class="n">daemon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="line-96">        <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
@@ -691,7 +694,7 @@
 </span><span id="line-98">
 <div class="viewcode-block" id="OsirIpc.action">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.ipc.html#src.osir_service.osir_service.ipc.OsirIpc.OsirIpc.action">[docs]</a>
-</span><span id="line-99">    <span class="k">def</span><span class="w"> </span><span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+</span><span id="line-99">    <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 </span><span id="line-100"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-101"><span class="sd">        Dispatches incoming JSON requests to the appropriate registered handler.</span>
 </span><span id="line-102">
@@ -733,12 +736,12 @@
 
 </span><span id="line-138">
 </span><span id="line-139">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;socket_on&#39;</span><span class="p">)</span>
-</span><span id="line-140">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_socket_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-140">    <span class="k">def</span> <span class="nf">_handle_socket_on</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-141">        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;SOCKET READY&quot;</span>
 </span><span id="line-142">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-143">
 </span><span id="line-144">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;exec_module&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">,</span> <span class="s1">&#39;case_path&#39;</span><span class="p">])</span>
-</span><span id="line-145">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exec_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-145">    <span class="k">def</span> <span class="nf">_handle_exec_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-146">        <span class="k">if</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;input_path&#39;</span><span class="p">):</span>
 </span><span id="line-147">            <span class="c1"># TODO: Security check on input file</span>
 </span><span id="line-148">            <span class="n">module_model</span> <span class="o">=</span> <span class="n">OsirModuleModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
@@ -766,10 +769,10 @@
 </span><span id="line-170">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-171">
 </span><span id="line-172">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;exec_profile&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;profile&#39;</span><span class="p">])</span>
-</span><span id="line-173">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_exec_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-173">    <span class="k">def</span> <span class="nf">_handle_exec_profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-174">        <span class="n">profile_data</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">)</span>
 </span><span id="line-175">        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">profile_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="line-176">            <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirProfileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirProfileModel</span>
+</span><span id="line-176">            <span class="kn">from</span> <span class="nn">osir_lib.core.model.OsirProfileModel</span> <span class="kn">import</span> <span class="n">OsirProfileModel</span>
 </span><span id="line-177">            <span class="n">profile_data</span> <span class="o">=</span> <span class="n">OsirProfileModel</span><span class="o">.</span><span class="n">from_name</span><span class="p">(</span><span class="n">profile_data</span><span class="p">)</span>
 </span><span id="line-178">        
 </span><span id="line-179">        <span class="n">case_name</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_name&#39;</span><span class="p">)</span>
@@ -786,10 +789,10 @@
 </span><span id="line-190">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-191">
 </span><span id="line-192">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;create_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
-</span><span id="line-193">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-193">    <span class="k">def</span> <span class="nf">_handle_create_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-194"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a handler with profile/modules validation and start processing.&quot;&quot;&quot;</span>
-</span><span id="line-195">        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirProfileModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirProfileModel</span>
-</span><span id="line-196">        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
+</span><span id="line-195">        <span class="kn">from</span> <span class="nn">osir_lib.core.model.OsirProfileModel</span> <span class="kn">import</span> <span class="n">OsirProfileModel</span>
+</span><span id="line-196">        <span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirExceptions</span> <span class="kn">import</span> <span class="n">OsirException</span>
 </span><span id="line-197">
 </span><span id="line-198">        <span class="n">params</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span>
 </span><span id="line-199">        <span class="n">profile_instance</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;profile&#39;</span><span class="p">,</span> <span class="p">[])</span>
@@ -858,8 +861,8 @@
 </span><span id="line-262">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-263">
 </span><span id="line-264">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;create_advanced_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
-</span><span id="line-265">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_advanced_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
-</span><span id="line-266">        <span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.ipc.model.OsirExceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirException</span>
+</span><span id="line-265">    <span class="k">def</span> <span class="nf">_handle_create_advanced_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-266">        <span class="kn">from</span> <span class="nn">osir_service.ipc.model.OsirExceptions</span> <span class="kn">import</span> <span class="n">OsirException</span>
 </span><span id="line-267">
 </span><span id="line-268">        <span class="n">params</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span>
 </span><span id="line-269">        <span class="n">files_module</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;files_modules&#39;</span><span class="p">)</span>
@@ -938,7 +941,7 @@
 </span><span id="line-342">        <span class="p">}</span>
 </span><span id="line-343">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-344">
-</span><span id="line-345">    <span class="k">def</span><span class="w"> </span><span class="nf">_watch_advanced_handler_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_wait</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">):</span>
+</span><span id="line-345">    <span class="k">def</span> <span class="nf">_watch_advanced_handler_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler_uuid</span><span class="p">,</span> <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_wait</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">):</span>
 </span><span id="line-346"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-347"><span class="sd">            Mark an &#39;advanced&#39; flow handler (run module on file/folder) as &#39;processing_done&#39;</span>
 </span><span id="line-348"><span class="sd">            (or &#39;processing_failed&#39;) as soon as all its tasks are finished.</span>
@@ -963,7 +966,7 @@
 </span><span id="line-367">            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error while watching advanced handler </span><span class="si">{</span><span class="n">handler_uuid</span><span class="si">}</span><span class="s2"> completion: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="line-368">
 </span><span id="line-369">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;delete_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;handler_uuid&#39;</span><span class="p">])</span>
-</span><span id="line-370">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_delete_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-370">    <span class="k">def</span> <span class="nf">_handle_delete_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-371">        
 </span><span id="line-372">        <span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;handler_uuid&quot;</span><span class="p">]</span>
 </span><span id="line-373">
@@ -978,7 +981,7 @@
 </span><span id="line-382">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-383">
 </span><span id="line-384">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;stop_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;handler_uuid&#39;</span><span class="p">])</span>
-</span><span id="line-385">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_stop_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-385">    <span class="k">def</span> <span class="nf">_handle_stop_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-386">        
 </span><span id="line-387">        <span class="n">handler_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;handler_uuid&quot;</span><span class="p">]</span>
 </span><span id="line-388">
@@ -991,7 +994,7 @@
 </span><span id="line-395">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-396">
 </span><span id="line-397">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_system_metrics&#39;</span><span class="p">)</span>
-</span><span id="line-398">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_system_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-398">    <span class="k">def</span> <span class="nf">_handle_get_system_metrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-399"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return recent host resource samples (per agent) for the web UI graphs.&quot;&quot;&quot;</span>
 </span><span id="line-400">        <span class="n">window_seconds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;window_seconds&quot;</span><span class="p">,</span> <span class="mi">900</span><span class="p">))</span>
 </span><span id="line-401">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
@@ -999,7 +1002,7 @@
 </span><span id="line-403">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-404">
 </span><span id="line-405">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;restart_task&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">])</span>
-</span><span id="line-406">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-406">    <span class="k">def</span> <span class="nf">_handle_create_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-407">        <span class="c1"># TODO: Maybe Wrap this in TaskService ?</span>
 </span><span id="line-408">        <span class="n">app</span> <span class="o">=</span> <span class="n">_get_celery_app</span><span class="p">()</span> 
 </span><span id="line-409">
@@ -1028,7 +1031,7 @@
 </span><span id="line-432">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-433">
 </span><span id="line-434">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;create_case&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
-</span><span id="line-435">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_create_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-435">    <span class="k">def</span> <span class="nf">_handle_create_case</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-436">        <span class="n">case_name</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">]</span>
 </span><span id="line-437">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-438">            <span class="n">case</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">case_name</span><span class="p">)</span>
@@ -1038,7 +1041,7 @@
 </span><span id="line-442">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-443">
 </span><span id="line-444">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_cases&#39;</span><span class="p">)</span>
-</span><span id="line-445">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-445">    <span class="k">def</span> <span class="nf">_handle_get_cases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-446">
 </span><span id="line-447">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-448">            <span class="n">all_cases_in_db</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">case</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
@@ -1065,7 +1068,7 @@
 </span><span id="line-469">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-470">
 </span><span id="line-471">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_tasks&#39;</span><span class="p">)</span>
-</span><span id="line-472">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-472">    <span class="k">def</span> <span class="nf">_handle_get_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-473">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-474">            <span class="c1"># Get handler_id for handler-specific filtering</span>
 </span><span id="line-475">            <span class="n">handler_id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;handler_id&#39;</span><span class="p">)</span>
@@ -1137,7 +1140,7 @@
 </span><span id="line-541">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-542">
 </span><span id="line-543">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_task_stats&#39;</span><span class="p">)</span>
-</span><span id="line-544">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_task_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-544">    <span class="k">def</span> <span class="nf">_handle_get_task_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-545">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-546">            <span class="n">handler_id</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;handler_id&#39;</span><span class="p">)</span>
 </span><span id="line-547">            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">)</span>
@@ -1152,7 +1155,7 @@
 </span><span id="line-556">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-557">
 </span><span id="line-558">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_task_log&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">])</span>
-</span><span id="line-559">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_task_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-559">    <span class="k">def</span> <span class="nf">_handle_get_task_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-560">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-561">            <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;task_id&#39;</span><span class="p">])</span>
 </span><span id="line-562">        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Task log retrieved&quot;</span>
@@ -1160,14 +1163,14 @@
 </span><span id="line-564">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-565">
 </span><span id="line-566">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_handler_status&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;handler_id&#39;</span><span class="p">])</span>
-</span><span id="line-567">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_handler_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-567">    <span class="k">def</span> <span class="nf">_handle_get_handler_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-568">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-569">            <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler Status retrieved&quot;</span>
 </span><span id="line-570">            <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">handler_id</span><span class="o">=</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;handler_id&#39;</span><span class="p">])</span>
 </span><span id="line-571">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-572">
 </span><span id="line-573">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_case_handler&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;case_name&#39;</span><span class="p">])</span>
-</span><span id="line-574">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_case_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-574">    <span class="k">def</span> <span class="nf">_handle_get_case_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-575">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-576">            <span class="n">case_uuid</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;case_uuid&#39;</span><span class="p">)</span>
 </span><span id="line-577">            <span class="k">if</span> <span class="ow">not</span> <span class="n">case_uuid</span><span class="p">:</span>
@@ -1186,7 +1189,7 @@
 </span><span id="line-590">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-591">
 </span><span id="line-592">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_handler_task_info&#39;</span><span class="p">)</span>
-</span><span id="line-593">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_handler_task_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-593">    <span class="k">def</span> <span class="nf">_handle_get_handler_task_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-594">        <span class="k">with</span> <span class="n">OsirDb</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
 </span><span id="line-595">            <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get_all_task_logs</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;handler_id&#39;</span><span class="p">])</span>
 </span><span id="line-596">        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Handler Task log retrieved&quot;</span>
@@ -1194,13 +1197,13 @@
 </span><span id="line-598">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-599">
 </span><span id="line-600">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_modules&#39;</span><span class="p">)</span>
-</span><span id="line-601">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-601">    <span class="k">def</span> <span class="nf">_handle_get_modules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-602">        <span class="n">resp</span><span class="o">.</span><span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;Modules retrieved&quot;</span>
 </span><span id="line-603">        <span class="n">resp</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">FileManager</span><span class="o">.</span><span class="n">all_modules</span><span class="p">(</span><span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="line-604">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-605">
 </span><span id="line-606">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;get_module_info&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">])</span>
-</span><span id="line-607">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_get_module_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-607">    <span class="k">def</span> <span class="nf">_handle_get_module_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-608">        <span class="n">keys</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;keys&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">])</span>
 </span><span id="line-609">        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
 </span><span id="line-610">        <span class="k">for</span> <span class="n">module_name</span> <span class="ow">in</span> <span class="n">req</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]:</span>
@@ -1220,59 +1223,59 @@
 </span><span id="line-624">        <span class="k">return</span> <span class="n">resp</span>
 </span><span id="line-625">
 </span><span id="line-626">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_list&#39;</span><span class="p">)</span>
-</span><span id="line-627">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-627">    <span class="k">def</span> <span class="nf">_handle_files_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-628">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_list</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-629">
 </span><span id="line-630">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_delete&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-631">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-631">    <span class="k">def</span> <span class="nf">_handle_files_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-632">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_delete</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-633">
 </span><span id="line-634">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_rename&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-635">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-635">    <span class="k">def</span> <span class="nf">_handle_files_rename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-636">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_rename</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-637">
 </span><span id="line-638">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_copy&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-639">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-639">    <span class="k">def</span> <span class="nf">_handle_files_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-640">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_copy</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-641">
 </span><span id="line-642">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_move&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-643">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-643">    <span class="k">def</span> <span class="nf">_handle_files_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-644">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_move</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-645">
 </span><span id="line-646">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_archive&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-647">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-647">    <span class="k">def</span> <span class="nf">_handle_files_archive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-648">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_archive</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-649">
 </span><span id="line-650">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_unarchive&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-651">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_unarchive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-651">    <span class="k">def</span> <span class="nf">_handle_files_unarchive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-652">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_unarchive</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-653">
 </span><span id="line-654">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_create_folder&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">])</span>
-</span><span id="line-655">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_create_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-655">    <span class="k">def</span> <span class="nf">_handle_files_create_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-656">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_create_folder</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-657">
 </span><span id="line-658">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_download&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span>
-</span><span id="line-659">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-659">    <span class="k">def</span> <span class="nf">_handle_files_download</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-660">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_download</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-661">
 </span><span id="line-662">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;files_search&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span>
-</span><span id="line-663">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_files_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-663">    <span class="k">def</span> <span class="nf">_handle_files_search</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-664">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_files_handler</span><span class="o">.</span><span class="n">handle_files_search</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-665">
 </span><span id="line-666">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;tus_upload_options&#39;</span><span class="p">)</span>
-</span><span id="line-667">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_tus_upload_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-667">    <span class="k">def</span> <span class="nf">_handle_tus_upload_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-668">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tus_handler</span><span class="o">.</span><span class="n">handle_tus_upload_options</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-669">    
 </span><span id="line-670">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;tus_upload_post&#39;</span><span class="p">)</span>
-</span><span id="line-671">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_tus_upload_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-671">    <span class="k">def</span> <span class="nf">_handle_tus_upload_post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-672">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tus_handler</span><span class="o">.</span><span class="n">handle_tus_upload_post</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-673">    
 </span><span id="line-674">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;tus_upload_patch&#39;</span><span class="p">)</span>
-</span><span id="line-675">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_tus_upload_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-675">    <span class="k">def</span> <span class="nf">_handle_tus_upload_patch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-676">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tus_handler</span><span class="o">.</span><span class="n">handle_tus_upload_patch</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span>
 </span><span id="line-677">
 </span><span id="line-678">    <span class="nd">@register_action</span><span class="p">(</span><span class="s1">&#39;tus_upload_head&#39;</span><span class="p">,</span> <span class="n">required_fields</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;uuid&#39;</span><span class="p">])</span>
-</span><span id="line-679">    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_tus_upload_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
+</span><span id="line-679">    <span class="k">def</span> <span class="nf">_handle_tus_upload_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="p">:</span> <span class="n">OsirIpcRequest</span><span class="p">,</span> <span class="n">resp</span><span class="p">:</span> <span class="n">OsirIpcResponse</span><span class="p">):</span>
 </span><span id="line-680">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tus_handler</span><span class="o">.</span><span class="n">handle_tus_upload_head</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">resp</span><span class="p">)</span></div>
 
 </span></code></pre></div>
@@ -1284,16 +1287,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="../../../../../_static/theme.js?v=5db23cf8"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="../../../../../_static/theme.js?v=49cc6205"></script>
     <script src="../../../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

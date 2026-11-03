@@ -4,7 +4,7 @@ amcache
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:files:amcache`` | name_rex: ``r"\.csv$"``
+   * ``eztools:windows:amcache`` | name_rex: ``r"\.csv$"``
 
 Description
 -----------
@@ -14,23 +14,23 @@ Parsing of amcache artifact.
 Timeline
 --------
 
-.. _tl-windows-amcache-file-entry:
-.. _tl-windows-amcache-device-connected:
+.. _tl-windows-zimmerman-amcache-file-entry:
+.. _tl-windows-zimmerman-amcache-device-connected:
 
 .. list-table::
    :header-rows: 1
 
    * - Relation
      - Message
-   * - `file-entry <rel-windows-amcache-file-entry_>`_
-     - ``Amcache file entry exists for {file.path} (SHA1 {file.hash.sha1})``
+   * - `file-entry <rel-windows-zimmerman-amcache-file-entry_>`_
+     - ``Amcache file entry exists for {file.path} (SHA1 {hash.sha1})``
    * - ``device-connected``
-     - ``Device {labels.friendly_name} was connected``
+     - ``Device {action.properties.FriendlyName} was connected``
 
 Relationships
 -------------
 
-.. _rel-windows-amcache-file-entry:
+.. _rel-windows-zimmerman-amcache-file-entry:
 
 .. list-table::
    :header-rows: 1
@@ -39,9 +39,9 @@ Relationships
      - Source
      - Target
      - Type
-   * - `file-entry <tl-windows-amcache-file-entry_>`_
+   * - `file-entry <tl-windows-zimmerman-amcache-file-entry_>`_
      - ``file.path``
-     - ``file.hash.sha1``
+     - ``hash.sha1``
      - ``hashed as``
 
 Fields
@@ -54,20 +54,8 @@ Fields
      - ECS field
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.amcache"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[file, driver, device]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
    * - ``"Windows AmCache"``
      - ``event.provider``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``parse_timestamp(FileKeyLastWriteTimestamp)``
      - ``timestamp``
    * - ``parse_timestamp(FileKeyLastWriteTimestamp)``
@@ -83,7 +71,7 @@ Fields
    * - ``FileExtension``
      - ``file.extension``
    * - ``SHA1``
-     - ``file.hash.sha1``
+     - ``hash.sha1``
    * - ``Description``
      - ``file.description``
    * - ``Version``
@@ -91,31 +79,31 @@ Fields
    * - ``parse_timestamp(LinkDate)``
      - ``file.mtime``
    * - ``ApplicationName``
-     - ``labels.application_name``
+     - ``action.properties.ApplicationName``
    * - ``ProgramId``
-     - ``labels.program_id``
+     - ``action.properties.ProgramId``
    * - ``to_bool(IsOsComponent)``
-     - ``labels.is_os_component``
+     - ``action.properties.IsOsComponent``
    * - ``to_bool(IsPeFile)``
-     - ``labels.is_pe_file``
+     - ``action.properties.IsPeFile``
    * - ``BinaryType``
-     - ``labels.binary_type``
+     - ``action.properties.BinaryType``
    * - ``ProductName``
-     - ``labels.product_name``
+     - ``action.properties.ProductName``
    * - ``ProductVersion``
-     - ``labels.product_version``
+     - ``action.properties.ProductVersion``
    * - ``BinFileVersion``
-     - ``labels.bin_file_version``
+     - ``action.properties.BinFileVersion``
    * - ``BinProductVersion``
-     - ``labels.bin_product_version``
+     - ``action.properties.BinProductVersion``
    * - ``LongPathHash``
-     - ``labels.long_path_hash``
+     - ``action.properties.LongPathHash``
    * - ``to_int(Usn)``
-     - ``labels.usn``
+     - ``action.properties.Usn``
    * - ``Language``
-     - ``labels.language``
+     - ``action.properties.Language``
    * - ``OriginalFileName``
-     - ``labels.original_file_name``
+     - ``action.properties.OriginalFileName``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
      - ``timestamp``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
@@ -123,37 +111,37 @@ Fields
    * - ``"Amcache"``
      - ``registry.hive``
    * - ``KeyName``
-     - ``labels.key_name``
+     - ``action.properties.KeyName``
    * - ``Manufacturer``
      - ``device.manufacturer``
    * - ``ModelName``
      - ``device.model.name``
    * - ``ModelNumber``
-     - ``labels.model_number``
+     - ``action.properties.ModelNumber``
    * - ``ModelId``
-     - ``labels.model_id``
+     - ``action.properties.ModelId``
    * - ``FriendlyName``
-     - ``labels.friendly_name``
+     - ``action.properties.FriendlyName``
    * - ``Categories``
-     - ``labels.categories``
+     - ``action.properties.Categories``
    * - ``PrimaryCategory``
-     - ``labels.primary_category``
+     - ``action.properties.PrimaryCategory``
    * - ``DiscoveryMethod``
-     - ``labels.discovery_method``
+     - ``action.properties.DiscoveryMethod``
    * - ``Icon``
-     - ``labels.icon``
+     - ``action.properties.Icon``
    * - ``to_bool(IsActive)``
-     - ``labels.is_active``
+     - ``action.properties.IsActive``
    * - ``to_bool(IsConnected)``
-     - ``labels.is_connected``
+     - ``action.properties.IsConnected``
    * - ``to_bool(IsMachineContainer)``
-     - ``labels.is_machine_container``
+     - ``action.properties.IsMachineContainer``
    * - ``to_bool(IsNetworked)``
-     - ``labels.is_networked``
+     - ``action.properties.IsNetworked``
    * - ``to_bool(IsPaired)``
-     - ``labels.is_paired``
+     - ``action.properties.IsPaired``
    * - ``to_int(State)``
-     - ``labels.state``
+     - ``action.properties.State``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
      - ``timestamp``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
@@ -161,51 +149,51 @@ Fields
    * - ``"Amcache"``
      - ``registry.hive``
    * - ``KeyName``
-     - ``labels.key_name``
+     - ``action.properties.KeyName``
    * - ``BusReportedDescription``
-     - ``labels.bus_reported_description``
+     - ``action.properties.BusReportedDescription``
    * - ``Class``
-     - ``labels.class``
+     - ``action.properties.Class``
    * - ``ClassGuid``
-     - ``labels.class_guid``
+     - ``action.properties.ClassGuid``
    * - ``Compid``
-     - ``labels.compid``
+     - ``action.properties.Compid``
    * - ``ContainerId``
-     - ``labels.container_id``
+     - ``action.properties.ContainerId``
    * - ``Description``
-     - ``labels.description``
+     - ``action.properties.Description``
    * - ``DriverId``
-     - ``labels.driver_id``
+     - ``action.properties.DriverId``
    * - ``DriverName``
-     - ``labels.driver_name``
+     - ``action.properties.DriverName``
    * - ``parse_timestamp(DriverVerDate)``
-     - ``labels.driver_ver_date``
+     - ``action.properties.DriverVerDate``
    * - ``DriverVerVersion``
-     - ``labels.driver_ver_version``
+     - ``action.properties.DriverVerVersion``
    * - ``Enumerator``
-     - ``labels.enumerator``
+     - ``action.properties.Enumerator``
    * - ``HWID``
-     - ``labels.hwid``
+     - ``action.properties.HWID``
    * - ``Inf``
-     - ``labels.inf``
+     - ``action.properties.Inf``
    * - ``to_int(InstallState)``
-     - ``labels.install_state``
+     - ``action.properties.InstallState``
    * - ``Manufacturer``
-     - ``labels.manufacturer``
+     - ``action.properties.Manufacturer``
    * - ``MatchingId``
-     - ``labels.matching_id``
+     - ``action.properties.MatchingId``
    * - ``Model``
-     - ``labels.model``
+     - ``action.properties.Model``
    * - ``ParentId``
-     - ``labels.parent_id``
+     - ``action.properties.ParentId``
    * - ``to_int(ProblemCode)``
-     - ``labels.problem_code``
+     - ``action.properties.ProblemCode``
    * - ``Provider``
-     - ``labels.provider``
+     - ``action.properties.Provider``
    * - ``Service``
-     - ``labels.service``
+     - ``action.properties.Service``
    * - ``Stackid``
-     - ``labels.stackid``
+     - ``action.properties.Stackid``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
      - ``timestamp``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
@@ -213,43 +201,43 @@ Fields
    * - ``"Amcache"``
      - ``registry.hive``
    * - ``KeyName``
-     - ``labels.key_name``
+     - ``action.properties.KeyName``
    * - ``parse_timestamp(DriverTimeStamp)``
-     - ``labels.driver_time_stamp``
+     - ``action.properties.DriverTimeStamp``
    * - ``parse_timestamp(DriverLastWriteTime)``
-     - ``labels.driver_last_write_time``
+     - ``action.properties.DriverLastWriteTime``
    * - ``DriverName``
-     - ``labels.driver_name``
+     - ``action.properties.DriverName``
    * - ``to_bool(DriverInBox)``
-     - ``labels.driver_in_box``
+     - ``action.properties.DriverInBox``
    * - ``to_bool(DriverIsKernelMode)``
-     - ``labels.driver_is_kernel_mode``
+     - ``action.properties.DriverIsKernelMode``
    * - ``to_bool(DriverSigned)``
-     - ``labels.driver_signed``
+     - ``action.properties.DriverSigned``
    * - ``DriverCheckSum``
-     - ``labels.driver_check_sum``
+     - ``action.properties.DriverCheckSum``
    * - ``DriverCompany``
-     - ``labels.driver_company``
+     - ``action.properties.DriverCompany``
    * - ``DriverId``
-     - ``labels.driver_id``
+     - ``action.properties.DriverId``
    * - ``DriverPackageStrongName``
-     - ``labels.driver_package_strong_name``
+     - ``action.properties.DriverPackageStrongName``
    * - ``DriverType``
-     - ``labels.driver_type``
+     - ``action.properties.DriverType``
    * - ``DriverVersion``
-     - ``labels.driver_version``
+     - ``action.properties.DriverVersion``
    * - ``to_int(ImageSize)``
-     - ``labels.image_size``
+     - ``action.properties.ImageSize``
    * - ``Inf``
-     - ``labels.inf``
+     - ``action.properties.Inf``
    * - ``Product``
-     - ``labels.product``
+     - ``action.properties.Product``
    * - ``ProductVersion``
-     - ``labels.product_version``
+     - ``action.properties.ProductVersion``
    * - ``Service``
-     - ``labels.service``
+     - ``action.properties.Service``
    * - ``WdfVersion``
-     - ``labels.wdf_version``
+     - ``action.properties.WdfVersion``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
      - ``timestamp``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
@@ -257,27 +245,27 @@ Fields
    * - ``"Amcache"``
      - ``registry.hive``
    * - ``KeyName``
-     - ``labels.key_name``
+     - ``action.properties.KeyName``
    * - ``parse_timestamp(Date)``
-     - ``labels.date``
+     - ``action.properties.Date``
    * - ``Class``
-     - ``labels.class``
+     - ``action.properties.Class``
    * - ``Directory``
-     - ``labels.directory``
+     - ``action.properties.Directory``
    * - ``to_bool(DriverInBox)``
-     - ``labels.driver_in_box``
+     - ``action.properties.DriverInBox``
    * - ``Hwids``
-     - ``labels.hwids``
+     - ``action.properties.Hwids``
    * - ``Inf``
-     - ``labels.inf``
+     - ``action.properties.Inf``
    * - ``Provider``
-     - ``labels.provider``
+     - ``action.properties.Provider``
    * - ``SubmissionId``
-     - ``labels.submission_id``
+     - ``action.properties.SubmissionId``
    * - ``SYSFILE``
-     - ``labels.sysfile``
+     - ``action.properties.SYSFILE``
    * - ``Version``
-     - ``labels.version``
+     - ``action.properties.Version``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
      - ``timestamp``
    * - ``parse_timestamp(KeyLastWriteTimestamp)``
@@ -285,26 +273,6 @@ Fields
    * - ``"Amcache"``
      - ``registry.hive``
    * - ``KeyName``
-     - ``labels.key_name``
+     - ``action.properties.KeyName``
    * - ``LnkName``
      - ``file.path``
-   * - ``"Amcache"``
-     - ``registry.hive``
-   * - ``replace(to_string!(.path), pattern: "\\\\", with: "\\")``
-     - ``registry.path``
-   * - ``name``
-     - ``registry.value``
-   * - ``type``
-     - ``registry.data.type``
-   * - ``data``
-     - ``labels.value_data``
-   * - ``parse_timestamp(mtime)``
-     - ``timestamp``
-   * - ``parse_timestamp(mtime)``
-     - ``registry.mtime``
-   * - ``to_int(size)``
-     - ``labels.value_size``
-   * - ``to_bool(is_placeholder)``
-     - ``labels.is_placeholder``
-   * - ``ogre_md``
-     - ``labels.ogre_md``

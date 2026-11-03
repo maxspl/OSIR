@@ -2,218 +2,194 @@ metadata:
   version: "1.0"
   id: anssi_decode
   author: Typ
-  description: ANSSI decode_result_C.csv
+  description: ANSSI decode (decode_result_C.csv) → ECS
 
 transformation:
-  - custom: |2-
-      if !exists(.event) || !exists(.event.original) {
-          .event.original = encode_json!(.)
-      }
   - set:
-      event.dataset:
-        value: windows.anssi_decode
-      event.module:
-        value: windows
-      event.kind:
-        value: state
-      event.category:
-        value: [file]
-      event.type:
-        value: [info]
-      event.outcome:
-        value: success
+      event.original: encode_json!(.)
+
+  - set:
       event.provider:
         value: ANSSI decode
-  - custom: |2-
-      if exists(.ComputerName) {
-          comp = to_string!(del(.ComputerName))
-          if !exists(.host.name) {
-              .host.name = comp
-          }
-          .host.Ext.anssi.computer_name = comp
-      }
+
+  # -- decode_result_C.csv input --------------------------------------------------
+  # (hashes may be empty or "NaN" when the tool could not compute them)
+
   - set:
-      host.Ext.anssi.volume_id: to_string!(del(.VolumeID))
-      host.Ext.anssi.volume_info: to_string!(del(.VolumeInfo))
-      host.Ext.anssi.snapshot_id: to_string!(del(.SnapshotID))
-      file.path: to_string!(del(.FullPath))
-  - custom: |2-
-      if exists(.ParentName) {
-          parent = to_string!(del(.ParentName))
-          .file.directory = parent
-          .file.Ext.anssi.parent_name = parent
-      }
+      host.name: ComputerName
+      action.properties.computer_name: ComputerName
+      action.properties.volume_id: VolumeID
+      action.properties.volume_info: VolumeInfo
+      action.properties.snapshot_id: SnapshotID
+      file.path: FullPath
+      file.directory: ParentName
+      action.properties.parent_name: ParentName
+      file.name: File
+      file.attributes: Attributes
+      action.properties.attributes_raw: Attributes
+      pe.file_version: Version
+      action.properties.original_file_name: OriginalFileName
+      action.properties.platform: Platform
+      action.properties.subsystem: SubSystem
+      action.properties.file_type: FileType
+      action.properties.file_os: FileOS
+      action.properties.signer_thumbprint: AuthenticodeSignerThumbprint
+      action.properties.ca_thumbprint: AuthenticodeCAThumbprint
+      action.properties.filename_creation_date: FileNameCreationDate
+      action.properties.filename_last_modification_date: FileNameLastModificationDate
+      action.properties.filename_last_access_date: FileNameLastAccessDate
+      action.properties.filename_last_attr_modification_date: FileNameLastAttrModificationDate
+      action.properties.analysis_flag: Analysis
+      action.properties.isolated: Isolated
+      action.properties.isolated_pval: isolated_pval
+      action.properties.features: Features
+      action.properties.path_model: Path
+      action.properties.path_pval: path_pval
+      action.properties.if_features_pval: if_features_pval
+      action.properties.db_features: db_features
+      action.properties.features_core_pnt: features_core_pnt
+      action.properties.db_features_pval: db_features_pval
+      action.properties.features_pval: features_pval
+      action.properties.final_score: final_score
+      action.properties.warning_in_listdlls: WarningInListDLLs
+
   - set:
-      file.name: to_string!(del(.File))
-  - custom: |2-
-      if exists(.Extension) {
-          ext_raw = to_string!(del(.Extension))
-          ext_norm = downcase(replace(ext_raw, ".", ""))
-          .file.extension = ext_norm
-      }
+      file.extension:
+        source: 'downcase(replace(to_string!(.Extension), pattern: ".", with: ""))'
+    filter: exists(.Extension) && .Extension != ""
 
-      if exists(.SizeInBytes) {
-          size_raw = to_string!(del(.SizeInBytes))
-          size_int = parse_int(size_raw) ?? null
-
-          if size_int != null {
-              .file.size = size_int
-          } else {
-              .file.Ext.anssi.size_raw = size_raw
-          }
-      }
-
-      if exists(.Attributes) {
-          attrs = to_string!(del(.Attributes))
-          .file.attributes = attrs
-          .file.Ext.anssi.attributes_raw = attrs
-      }
-
-      if exists(.CreationDate) {
-          cd_raw = to_string!(del(.CreationDate))
-          cd_ts = parse_timestamp(cd_raw, "%+") ?? null
-          if cd_ts != null {
-              .file.created = cd_ts
-          } else {
-              .file.Ext.anssi.creation_date_raw = cd_raw
-          }
-      }
-
-      if exists(.LastModificationDate) {
-          lm_raw = to_string!(del(.LastModificationDate))
-          lm_ts = parse_timestamp(lm_raw, "%+") ?? null
-          if lm_ts != null {
-              .file.mtime = lm_ts
-          } else {
-              .file.Ext.anssi.last_modification_date_raw = lm_raw
-          }
-      }
-
-      if exists(.LastAccessDate) {
-          la_raw = to_string!(del(.LastAccessDate))
-          la_ts = parse_timestamp(la_raw, "%+") ?? null
-          if la_ts != null {
-              .file.accessed = la_ts
-          } else {
-              .file.Ext.anssi.last_access_date_raw = la_raw
-          }
-      }
-
-      if exists(.LastAttrChangeDate) {
-          lac_raw = to_string!(del(.LastAttrChangeDate))
-          lac_ts = parse_timestamp(lac_raw, "%+") ?? null
-          if lac_ts != null {
-              .file.Ext.anssi.last_attr_change = lac_ts
-          } else {
-              .file.Ext.anssi.last_attr_change_raw = lac_raw
-          }
-      }
   - set:
-      file.Ext.anssi.filename_creation_date: to_string!(del(.FileNameCreationDate))
-      file.Ext.anssi.filename_last_modification_date: to_string!(del(.FileNameLastModificationDate))
-      file.Ext.anssi.filename_last_access_date: to_string!(del(.FileNameLastAccessDate))
-      file.Ext.anssi.filename_last_attr_modification_date: to_string!(del(.FileNameLastAttrModificationDate))
-  - custom: |2-
-      if exists(.SHA1) {
-          sha1 = to_string!(del(.SHA1))
-          if sha1 != "" && sha1 != "NaN" {
-              .file.hash.sha1 = sha1
-          }
-      }
+      file.size:
+        source: SizeInBytes
+        operation: to_int
 
-      if exists(.PeSHA1) {
-          p_sha1 = to_string!(del(.PeSHA1))
-          if p_sha1 != "" && p_sha1 != "NaN" {
-              .file.Ext.pe.sha1 = p_sha1
-          }
-      }
-
-      if exists(.PeSHA256) {
-          p_sha256 = to_string!(del(.PeSHA256))
-          if p_sha256 != "" && p_sha256 != "NaN" {
-              .file.Ext.pe.sha256 = p_sha256
-          }
-      }
-
-      if exists(.PeMD5) {
-          p_md5 = to_string!(del(.PeMD5))
-          if p_md5 != "" && p_md5 != "NaN" {
-              .file.Ext.pe.md5 = p_md5
-          }
-      }
-
-      if exists(.SignedHash) {
-          s_hash = to_string!(del(.SignedHash))
-          if s_hash != "" && s_hash != "NaN" {
-              .file.Ext.pe.signed_hash = s_hash
-          }
-      }
   - set:
-      file.version: to_string!(del(.Version))
-      file.Ext.pe.original_file_name: to_string!(del(.OriginalFileName))
-      file.Ext.pe.platform: to_string!(del(.Platform))
-  - custom: |2-
-      if exists(.TimeStamp) {
-          ts_raw = to_string!(del(.TimeStamp))
-          ts_pe = parse_timestamp(ts_raw, "%+") ?? null
-          if ts_pe != null {
-              .file.Ext.pe.timestamp = ts_pe
-          } else {
-              .file.Ext.pe.timestamp_raw = ts_raw
-          }
-      }
+      file.created:
+        source: CreationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.CreationDate) && .CreationDate != ""
+
   - set:
-      file.Ext.pe.subsystem: to_string!(del(.SubSystem))
-      file.Ext.pe.file_type: to_string!(del(.FileType))
-      file.Ext.pe.file_os: to_string!(del(.FileOS))
-  - custom: |2-
-      if exists(.AuthenticodeStatus) {
-          a_status = to_string!(del(.AuthenticodeStatus))
-          .file.code_signature.status = a_status
-          .file.Ext.code_signature.status_raw = a_status
-      }
+      file.mtime:
+        source: LastModificationDate
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.LastModificationDate) && .LastModificationDate != ""
 
-      signer_name = null
-
-      if exists(.AuthenticodeSigner) {
-          signer_name = to_string!(del(.AuthenticodeSigner))
-          .file.code_signature.subject_name = signer_name
-      }
-
-      issuer_name = null
-
-      if exists(.AuthenticodeCA) {
-          issuer_name = to_string!(del(.AuthenticodeCA))
-          .file.code_signature.issuer_name = issuer_name
-      }
   - set:
-      file.code_signature.exists:
+      file.accessed:
+        source: LastAccessDate
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.LastAccessDate) && .LastAccessDate != ""
+
+  - set:
+      action.properties.last_attr_change:
+        source: LastAttrChangeDate
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.LastAttrChangeDate) && .LastAttrChangeDate != ""
+
+  - set:
+      hash.sha1: SHA1
+    filter: exists(.SHA1) && .SHA1 != "" && .SHA1 != "NaN"
+
+  - set:
+      action.properties.sha1: PeSHA1
+    filter: exists(.PeSHA1) && .PeSHA1 != "" && .PeSHA1 != "NaN"
+
+  - set:
+      action.properties.sha256: PeSHA256
+    filter: exists(.PeSHA256) && .PeSHA256 != "" && .PeSHA256 != "NaN"
+
+  - set:
+      action.properties.md5: PeMD5
+    filter: exists(.PeMD5) && .PeMD5 != "" && .PeMD5 != "NaN"
+
+  - set:
+      action.properties.signed_hash: SignedHash
+    filter: exists(.SignedHash) && .SignedHash != "" && .SignedHash != "NaN"
+
+  - set:
+      action.properties.timestamp:
+        source: TimeStamp
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.TimeStamp) && .TimeStamp != ""
+
+  - set:
+      code_signature.status: AuthenticodeStatus
+      action.properties.status_raw: AuthenticodeStatus
+
+  - set:
+      code_signature.subject_name: AuthenticodeSigner
+
+  - set:
+      code_signature.issuer_name: AuthenticodeCA
+
+  - set:
+      code_signature.exists:
         value: true
-    filter: signer_name != null || issuer_name != null
+    filter: exists(.code_signature.subject_name) || exists(.code_signature.issuer_name)
+
   - set:
-      file.Ext.code_signature.signer_thumbprint: to_string!(del(.AuthenticodeSignerThumbprint))
-      file.Ext.code_signature.ca_thumbprint: to_string!(del(.AuthenticodeCAThumbprint))
-  - custom: |2-
-      if exists(.FilesCreatedAtSameTime) {
-          fcts_raw = to_string!(del(.FilesCreatedAtSameTime))
-          fcts_int = parse_int(fcts_raw) ?? null
-          if fcts_int != null {
-              .file.Ext.anssi.files_created_same_time = fcts_int
-          } else {
-              .file.Ext.anssi.files_created_same_time_raw = fcts_raw
-          }
-      }
-  - set:
-      file.Ext.anssi.analysis_flag: to_string!(del(.Analysis))
-      file.Ext.anssi.isolated: to_string!(del(.Isolated))
-      file.Ext.anssi.isolated_pval: to_string!(del(.isolated_pval))
-      file.Ext.anssi.features: to_string!(del(.Features))
-      file.Ext.anssi.path_model: to_string!(del(.Path))
-      file.Ext.anssi.path_pval: to_string!(del(.path_pval))
-      file.Ext.anssi.if_features_pval: to_string!(del(.if_features_pval))
-      file.Ext.anssi.db_features: to_string!(del(.db_features))
-      file.Ext.anssi.features_core_pnt: to_string!(del(.features_core_pnt))
-      file.Ext.anssi.db_features_pval: to_string!(del(.db_features_pval))
-      file.Ext.anssi.features_pval: to_string!(del(.features_pval))
-      file.Ext.anssi.final_score: to_string!(del(.final_score))
-      file.Ext.anssi.warning_in_listdlls: to_string!(del(.WarningInListDLLs))
+      action.properties.files_created_same_time:
+        source: FilesCreatedAtSameTime
+        operation: to_int
+
+  - delete:
+      - ComputerName
+      - VolumeID
+      - VolumeInfo
+      - SnapshotID
+      - FullPath
+      - ParentName
+      - File
+      - Extension
+      - SizeInBytes
+      - Attributes
+      - CreationDate
+      - LastModificationDate
+      - LastAccessDate
+      - LastAttrChangeDate
+      - FileNameCreationDate
+      - FileNameLastModificationDate
+      - FileNameLastAccessDate
+      - FileNameLastAttrModificationDate
+      - SHA1
+      - PeSHA1
+      - PeSHA256
+      - PeMD5
+      - SignedHash
+      - Version
+      - OriginalFileName
+      - Platform
+      - TimeStamp
+      - SubSystem
+      - FileType
+      - FileOS
+      - AuthenticodeStatus
+      - AuthenticodeSigner
+      - AuthenticodeCA
+      - AuthenticodeSignerThumbprint
+      - AuthenticodeCAThumbprint
+      - FilesCreatedAtSameTime
+      - Analysis
+      - Isolated
+      - isolated_pval
+      - Features
+      - Path
+      - path_pval
+      - if_features_pval
+      - db_features
+      - features_core_pnt
+      - db_features_pval
+      - features_pval
+      - final_score
+      - WarningInListDLLs

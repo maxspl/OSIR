@@ -42,12 +42,13 @@ modules:
   - win_dns_cache.yml
   - win_dns_records.yml
   - win_enumlocs.yml
-  - win_handle.yml
-  - win_listdlls.yml
   - win_netstat.yml
   - win_routes.yml
-  - win_tcpvcon.yml
   - win_wmi_eventconsumer.yml
+  # Sysinternals (embedded in DFIR ORC: handle.exe, Listdlls, Tcpvcon)
+  - win_handle.yml
+  - win_listdlls.yml
+  - win_tcpvcon.yml
   # DFIR-OGRE (except evtx and lnk)
   - ogre-activity-cache.yml
   - ogre-autoruns.yml

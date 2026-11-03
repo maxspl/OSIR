@@ -1,5 +1,5 @@
 metadata:
-  version: "2.1"
+  version: "2.0"
   author: maxspl
   description: Parsing of lnk artifact.
   os: windows
@@ -24,7 +24,6 @@ input:
   paths: 
   - "**/Artefacts/lnk"
   - "**/lnk"
-  - "**/AppData/Roaming/Microsoft/Windows/Recent"
 
 output:
   type: single_file
@@ -41,11 +40,11 @@ splunk:
   'windows:lnk':
     name_rex: r"\.csv$"
     path_suffix: 'lnk'
-    sourcetype: 'windows:files:lnk'
+    sourcetype: 'eztools:windows:lnk'
     host_rex: r"([\w\.-]+)--"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "Lnk"
     normalize:
-      - ecs_normalize/windows/lnk.vrl
+      - .vrl/windows/zimmerman/lnk.vrl

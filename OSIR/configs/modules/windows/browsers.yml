@@ -35,6 +35,78 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
+  'application:firefox:history':
+    name_rex: r".*firefox.*_history\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:firefox:history'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "firefox"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:firefox:historyvisits':
+    name_rex: r".*firefox.*_historyvisits\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:firefox:historyvisits'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "firefox"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:firefox:download':
+    name_rex: r".*firefox.*_downloads\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:firefox:download'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "firefox"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:firefox:bookmarks':
+    name_rex: r".*firefox.*_bookmarks\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:firefox:bookmarks'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "firefox"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:firefox:cookies':
+    name_rex: r".*firefox.*_cookies\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:firefox:cookies'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "firefox"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:firefox:metadata':
+    name_rex: r".*firefox.*_metadata\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:firefox:metadata'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "firefox"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
   'application:firefox':
     name_rex: r".*firefox.*\.csv$"
     path_suffix: 'browsers'
@@ -45,7 +117,43 @@ splunk:
       - "timestamp"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/browsers.vrl
+      - .vrl/windows/browsers.vrl
+  'application:chrome:history':
+    name_rex: r".*chrome.*_history\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:chrome:history'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "chrome"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:chrome:download':
+    name_rex: r".*chrome.*_downloads\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:chrome:download'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "chrome"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:chrome:cookies':
+    name_rex: r".*chrome.*_cookies\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:chrome:cookies'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "chrome"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
   'application:chrome':
     name_rex: r".*chrome.*\.csv$"
     path_suffix: 'browsers'
@@ -56,7 +164,43 @@ splunk:
       - "timestamp"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/browsers.vrl
+      - .vrl/windows/browsers.vrl
+  'application:edge:history':
+    name_rex: r".*edge.*_history\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:edge:history'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "edge"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:edge:download':
+    name_rex: r".*edge.*_downloads\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:edge:download'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "edge"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
+  'application:edge:cookies':
+    name_rex: r".*edge.*_cookies\.csv$"
+    path_suffix: 'browsers'
+    sourcetype: 'application:edge:cookies'
+    host_rex: r"([\w\.-]+)--"
+    user_rex: r"browsers-([^-_]+)_"
+    artifact: "edge"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/browsers.vrl
   'application:edge':
     name_rex: r".*edge.*\.csv$"
     path_suffix: 'browsers'
@@ -67,4 +211,4 @@ splunk:
       - "timestamp"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/browsers.vrl
+      - .vrl/windows/browsers.vrl

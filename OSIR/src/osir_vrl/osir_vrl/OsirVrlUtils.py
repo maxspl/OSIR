@@ -9,6 +9,9 @@ def extract_vrl_fields(expr: str) -> list[str]:
     Supports plain fields (.foo.bar), quoted segments (."#text"), and mixed chains
     (.Event.System.EventID."#text").
     """
+    # strip double-quoted string literals first, but keep quoted path
+    # segments: ."#text" follows a dot, literals ("foo", ".") do not
+    expr = re.sub(r'(?<![.\w\]])"(?:[^"\\]|\\.)*"', '', expr)
     # One segment: either .<ident> or ."<any chars>"
     _SEG = r'(?:\.[a-zA-Z_@][a-zA-Z0-9_]*|\.\"[^\"]+\")'
     # A field path is one or more segments

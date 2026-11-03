@@ -29,29 +29,27 @@ Fields
 
    * - Original
      - ECS field
-   * - ``custom``
-     - 
-   * - ``"windows.arp_cache"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[network]``
-     - ``event.category``
-   * - ``[info, arp]``
-     - ``event.type``
-   * - ``"success"``
-     - ``event.outcome``
+   * - ``encode_json!(.)``
+     - ``event.original``
    * - ``"Windows ARP Cache"``
      - ``event.provider``
    * - ``"arp"``
      - ``network.protocol``
    * - ``"ipv4"``
      - ``network.type``
-   * - ``custom``
-     - 
-   * - ``to_string!(del(.interface_index))``
-     - ``network.Ext.arp.interface_index``
-   * - ``custom``
-     - 
+   * - ``type``
+     - ``action.properties.type``
+   * - ``interface_ip``
+     - ``source.ip``
+   * - ``[to_string!(.interface_ip)]``
+     - ``host.ip``
+   * - ``interface_index``
+     - ``action.properties.interface_index``
+   * - ``ip_address``
+     - ``destination.ip``
+   * - ``downcase(replace(to_string!(.mac_address), "-", ":"))``
+     - ``destination.mac``
+   * - ``"ipv6"``
+     - ``network.type``
+   * - ``entry_type``
+     - ``action.properties.entry_type_raw``

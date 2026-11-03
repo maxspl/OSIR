@@ -40,20 +40,20 @@ extracted:
 splunk:
   'filesystem:ntfs:info':
     name_rex: r"\$MFT.*\.csv$"
-    sourcetype: 'filesystem:ntfs:info'
+    sourcetype: 'eztools:filesystem:ntfs:info'
     host_rex: r"([\w\.-]+)--"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%d %H:%M:%S%.f"
     artifact: "mft"
     normalize:
-      - ecs_normalize/windows/mft.vrl
+      - .vrl/windows/zimmerman/mft.vrl
   'filesystem:ntfs:usn':
     name_rex: r"\$J.*.csv$"
-    sourcetype: 'filesystem:ntfs:usn'
+    sourcetype: 'eztools:filesystem:ntfs:usn'
     host_rex: r"([\w\.-]+)--"
     timestamp_path: 
         - "timestamp"
     timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
     normalize:
-      - ecs_normalize/windows/usn.vrl
+      - .vrl/windows/zimmerman/usn.vrl

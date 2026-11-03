@@ -13,7 +13,7 @@ Supported Modules
      - Tool Path
    * - generic
      - age\_decrypt.yml
-     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
+     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/transform/encryption/key.age.
      - maxspl
      - 2.0
      - external
@@ -33,15 +33,8 @@ Supported Modules
      - internal
      - json2splunk-rs
    * - generic
-     - loki\_orc.yml
-     - YARA/IOC scan of the filesystem rebuilt from a DFIR ORC collection (output of the restore\_fs module) using Loki-RS.
-     - maxspl
-     - 1.0
-     - external
-     - loki-rs/loki\_scan.sh
-   * - generic
-     - loki\_uac.yml
-     - YARA/IOC scan of the files collected by UAC (output of the extract\_uac module) using Loki-RS.
+     - loki.yml
+     - YARA/IOC scan of the filesystem using Loki-RS.
      - maxspl
      - 1.0
      - external
@@ -54,40 +47,19 @@ Supported Modules
      - external
      - json2splunk-rs
    * - generic
-     - thor\_lite\_orc.yml
+     - thor.yml
+     - Scan of file system using Thor (requires Forensic license).
+     - maxspl
+     - 2.0
+     - external
+     - thor/thor-linux-64
+   * - generic
+     - thor\_lite.yml
      - Scan of collected file using Thor Lite.
      - maxspl
      - 1.0
      - external
      - thor-lite/thor-lite-linux-64
-   * - generic
-     - thor\_lite\_uac.yml
-     - Scan of collected file using Thor Lite.
-     - maxspl
-     - 1.0
-     - external
-     - thor-lite/thor-lite-linux-64
-   * - generic
-     - thor\_orc.yml
-     - Scan of collected DFIR ORC (output of restore\_fs module) file using Thor (requires Forensic license).
-     - maxspl
-     - 2.0
-     - external
-     - thor/thor-linux-64
-   * - generic
-     - thor\_orc\_ram.yml
-     - Scan of RAM restored file system from MemProcFS using Thor (requires Forensic license).
-     - maxspl
-     - 2.0
-     - external
-     - thor/thor-linux-64
-   * - generic
-     - thor\_uac.yml
-     - Scan of collected UAC (output of extract\_uac module) files using Thor (requires Forensic license).
-     - Typ
-     - 2.0
-     - external
-     - thor/thor-linux-64
    * - generic
      - thor\_update.yml
      - Update Thor signature files using thor-util.
@@ -119,7 +91,7 @@ Supported Modules
    * - unix
      - arp.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command arp or arp -a
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -168,7 +140,7 @@ Supported Modules
    * - unix
      - blkid.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command blkid
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -224,14 +196,14 @@ Supported Modules
    * - unix
      - df.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command df and df -h
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - dmidecode.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command dmidecode
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -259,7 +231,7 @@ Supported Modules
    * - unix
      - dpkg\_l.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command dpkg -l
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -273,7 +245,7 @@ Supported Modules
    * - unix
      - env.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command env
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -287,14 +259,14 @@ Supported Modules
    * - unix
      - findmnt.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command findmnt
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - free.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command free
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -343,14 +315,14 @@ Supported Modules
    * - unix
      - ip\_route.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command ip route
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - iptables.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command iptables
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -399,7 +371,7 @@ Supported Modules
    * - unix
      - last.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command last and lastb
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -420,28 +392,28 @@ Supported Modules
    * - unix
      - lsblk.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lsblk
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - lscpu.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lscpu
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - lsmod.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lsmod
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - lsusb.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command lsusb
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -462,21 +434,21 @@ Supported Modules
    * - unix
      - mount.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command mount
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - netstat.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command netstat
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
    * - unix
      - nmcli.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command nmcli
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -511,7 +483,7 @@ Supported Modules
    * - unix
      - ps.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command ps and ps -ef
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -539,7 +511,7 @@ Supported Modules
    * - unix
      - snap.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command snap
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -574,7 +546,7 @@ Supported Modules
    * - unix
      - sysctl.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command sysctl -a
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -595,7 +567,7 @@ Supported Modules
    * - unix
      - systemctl\_luf.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command systemctl list-unit-files
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -623,7 +595,7 @@ Supported Modules
    * - unix
      - top.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command top and top -b
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -693,7 +665,7 @@ Supported Modules
    * - unix
      - vmstat.yml
      - Kelly Brazil - JsonConverter - Parsing the output of the command vmstat
-     - Kelly Brazil
+     - Typ
      - 2.0
      - external
      - cat
@@ -804,7 +776,7 @@ Supported Modules
      - /usr/bin/find
    * - windows
      - dfir\_orc\_decrypt.yml
-     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/DFIRORC\_key.pem.
+     - Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/transform/encryption/DFIRORC\_key.pem.
      - maxspl
      - 3.0
      - external
@@ -823,6 +795,13 @@ Supported Modules
      - 2.0
      - external
      - evtx\_dump
+   * - windows
+     - evtx\_ecmd.yml
+     - Parsing of Windows event logs with EvtxECmd (Zimmerman)
+     - Typ
+     - 1.0
+     - external
+     - net9/EvtxeCmd/EvtxECmd.exe
    * - windows
      - extract\_orc.yml
      - Used to execute internal pre-processing for DFIR-ORC capture
@@ -1358,14 +1337,14 @@ Supported Modules
    * - windows
      - prefetch.yml
      - Eric Zimmerman - PECmd.exe
-     - Eric Zimmerman
+     - Typ
      - 2.0
      - external
      - net9/PECmd.exe
    * - windows
      - prefetch\_orc.yml
      - Eric Zimmerman - PECmd.exe
-     - Eric Zimmerman
+     - Typ
      - 2.0
      - external
      - net9/PECmd.exe
@@ -1390,6 +1369,13 @@ Supported Modules
      - 2.0
      - external
      - python
+   * - windows
+     - recent\_file\_cache.yml
+     - Parsing of RecentFileCache.bcf with RecentFileCacheParser
+     - maxspl
+     - 1.0
+     - external
+     - net9/RecentFileCacheParser.exe
    * - windows
      - recycle\_bin.yml
      - Parsing of recycle bin artifact.
@@ -1419,12 +1405,33 @@ Supported Modules
      - external
      - net9/AppCompatCacheParser.exe
    * - windows
+     - sqlecmd.yml
+     - Parsing of browser SQLite files (Chrome, Edge, Firefox...) with SQLECmd maps
+     - Typ
+     - 1.0
+     - external
+     - net9/SQLECmd/SQLECmd.exe
+   * - windows
      - srum.yml
      - Parsing of SRUM artifact.
      - maxspl
      - 2.0
      - external
      - artemis
+   * - windows
+     - srum\_ecmd.yml
+     - Parsing of SRUDB.dat (SRUM) with SrumECmd
+     - Typ
+     - 1.0
+     - external
+     - net9/SrumECmd.exe
+   * - windows
+     - sum.yml
+     - Parsing of Microsoft User Access Logs (UAL) with SumECmd
+     - Typ
+     - 1.0
+     - external
+     - net9/SumECmd.exe
    * - windows
      - test\_process\_dir.yml
      - description
@@ -1544,3 +1551,10 @@ Supported Modules
      - 2.0
      - internal
      - 
+   * - windows
+     - wxt.yml
+     - Parsing of Windows 10 Timeline database (ActivitiesCache.db) with WxTCmd
+     - Typ
+     - 1.0
+     - external
+     - net9/WxTCmd.exe

@@ -9,6 +9,7 @@ import os
 
 from osir_lib.core.model.OsirProfileModel import OsirProfileModel
 from osir_lib.logger import AppLogger
+from osir_vrl.OsirVrl import OsirVrl
 
 # TOREMOVE
 import osir_service.agent.AgentService as tasks
@@ -88,6 +89,14 @@ def main():
     and potentially starting Celery workers if running in agent mode.
     """
     args = parse_args()
+
+    # (Re)generate the VRL normalizations from the transform configs at every
+    # launch (master and --web/--dev), so only the YAML sources are maintained.
+    try:
+        generated = OsirVrl.generate_all(force=True)
+        logger.info(f"Generated {len(generated)} VRL files from transform configs")
+    except Exception as e:
+        logger.error(f"VRL generation from transform configs failed: {e}")
 
     # If agent mode
     if args.agent:

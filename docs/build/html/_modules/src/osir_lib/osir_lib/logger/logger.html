@@ -26,8 +26,8 @@
   <title>src.osir_lib.osir_lib.logger.logger | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="src.osir_lib.osir_lib.logger.logger | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="src.osir_lib.osir_lib.logger.logger | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/tables.css" />
   <link rel="icon" href="../../../../../_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -583,27 +586,27 @@
 
     <div id="content" role="main">
       <h1>Source code for src.osir_lib.osir_lib.logger.logger</h1><div class="highlight"><pre>
-<span></span><code><span id="line-1"><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-</span><span id="line-2"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-</span><span id="line-3"><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-</span><span id="line-4"><span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
-</span><span id="line-5"><span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
-</span><span id="line-6"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirConstants</span><span class="w"> </span><span class="kn">import</span> <span class="n">OSIR_PATHS</span>
-</span><span id="line-7"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirSingleton</span><span class="w"> </span><span class="kn">import</span> <span class="n">singleton</span>
+<span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">logging</span>
+</span><span id="line-2"><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="line-3"><span class="kn">import</span> <span class="nn">sys</span>
+</span><span id="line-4"><span class="kn">import</span> <span class="nn">threading</span>
+</span><span id="line-5"><span class="kn">import</span> <span class="nn">traceback</span>
+</span><span id="line-6"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirConstants</span> <span class="kn">import</span> <span class="n">OSIR_PATHS</span>
+</span><span id="line-7"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirSingleton</span> <span class="kn">import</span> <span class="n">singleton</span>
 </span><span id="line-8">
 </span><span id="line-9">
 <div class="viewcode-block" id="CustomLogger">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.CustomLogger">[docs]</a>
-</span><span id="line-10"><span class="k">class</span><span class="w"> </span><span class="nc">CustomLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLoggerClass</span><span class="p">()):</span>
+</span><span id="line-10"><span class="k">class</span> <span class="nc">CustomLogger</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">getLoggerClass</span><span class="p">()):</span>
 <div class="viewcode-block" id="CustomLogger.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.CustomLogger.__init__">[docs]</a>
-</span><span id="line-11">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">):</span>
+</span><span id="line-11">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">NOTSET</span><span class="p">):</span>
 </span><span id="line-12">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span></div>
 
 </span><span id="line-13">
 <div class="viewcode-block" id="CustomLogger.error_handler">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.CustomLogger.error_handler">[docs]</a>
-</span><span id="line-14">    <span class="k">def</span><span class="w"> </span><span class="nf">error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ex</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="line-14">    <span class="k">def</span> <span class="nf">error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ex</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="line-15"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-16"><span class="sd">            Captures detailed exception information, including the exact file and line number of the failure.</span>
 </span><span id="line-17">
@@ -641,17 +644,17 @@
 </span><span id="line-47">
 <div class="viewcode-block" id="LevelBasedHandler">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LevelBasedHandler">[docs]</a>
-</span><span id="line-48"><span class="k">class</span><span class="w"> </span><span class="nc">LevelBasedHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">):</span>
+</span><span id="line-48"><span class="k">class</span> <span class="nc">LevelBasedHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">):</span>
 <div class="viewcode-block" id="LevelBasedHandler.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LevelBasedHandler.__init__">[docs]</a>
-</span><span id="line-49">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level_formatter_map</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="line-49">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level_formatter_map</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="line-50">        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="line-51">        <span class="bp">self</span><span class="o">.</span><span class="n">level_formatter_map</span> <span class="o">=</span> <span class="n">level_formatter_map</span></div>
 
 </span><span id="line-52">
 <div class="viewcode-block" id="LevelBasedHandler.emit">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LevelBasedHandler.emit">[docs]</a>
-</span><span id="line-53">    <span class="k">def</span><span class="w"> </span><span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+</span><span id="line-53">    <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
 </span><span id="line-54"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-55"><span class="sd">            Intercepts log records to apply specific formatters based on their severity level.</span>
 </span><span id="line-56">
@@ -670,7 +673,7 @@
 </span><span id="line-67">
 <div class="viewcode-block" id="LogFormatter">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LogFormatter">[docs]</a>
-</span><span id="line-68"><span class="k">class</span><span class="w"> </span><span class="nc">LogFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
+</span><span id="line-68"><span class="k">class</span> <span class="nc">LogFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">):</span>
 </span><span id="line-69">
 </span><span id="line-70">    <span class="n">COLOR_CODES</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="line-71">        <span class="n">logging</span><span class="o">.</span><span class="n">CRITICAL</span><span class="p">:</span> <span class="s2">&quot;</span><span class="se">\033</span><span class="s2">[0;95m&quot;</span><span class="p">,</span>  <span class="c1"># bright/bold magenta</span>
@@ -685,14 +688,14 @@
 </span><span id="line-80">
 <div class="viewcode-block" id="LogFormatter.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LogFormatter.__init__">[docs]</a>
-</span><span id="line-81">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="line-81">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="line-82">        <span class="nb">super</span><span class="p">(</span><span class="n">LogFormatter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="line-83">        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">color</span></div>
 
 </span><span id="line-84">
 <div class="viewcode-block" id="LogFormatter.format">
 <a class="viewcode-back" href="../../../../../src.osir_lib.osir_lib.logger.html#src.osir_lib.osir_lib.logger.logger.LogFormatter.format">[docs]</a>
-</span><span id="line-85">    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="line-85">    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="line-86"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-87"><span class="sd">            Formats the log record by injecting OSIR-specific metadata like task IDs and component origins.</span>
 </span><span id="line-88">
@@ -729,8 +732,8 @@
 </span><span id="line-117">
 </span><span id="line-118">
 </span><span id="line-119"><span class="nd">@singleton</span>
-</span><span id="line-120"><span class="k">class</span><span class="w"> </span><span class="nc">AppLogger</span><span class="p">:</span>
-</span><span id="line-121">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s1">&#39;OSIR.log&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="line-120"><span class="k">class</span> <span class="nc">AppLogger</span><span class="p">:</span>
+</span><span id="line-121">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">log_file</span><span class="o">=</span><span class="s1">&#39;OSIR.log&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="line-122"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-123"><span class="sd">            Initializes the global logging system as a singleton, setting up both console and file handlers.</span>
 </span><span id="line-124">
@@ -793,11 +796,11 @@
 </span><span id="line-181">        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">file_handler</span><span class="p">)</span>
 </span><span id="line-182">
 </span><span id="line-183">    <span class="nd">@staticmethod</span>
-</span><span id="line-184">    <span class="k">def</span><span class="w"> </span><span class="nf">_user_log_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-184">    <span class="k">def</span> <span class="nf">_user_log_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 </span><span id="line-185"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Per-user fallback log directory for out-of-appliance usage.&quot;&quot;&quot;</span>
 </span><span id="line-186">        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">),</span> <span class="s2">&quot;.osir&quot;</span><span class="p">,</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
 </span><span id="line-187">
-</span><span id="line-188">    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_log_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="line-188">    <span class="k">def</span> <span class="nf">_resolve_log_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 </span><span id="line-189"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-190"><span class="sd">            Picks the log directory in order of preference:</span>
 </span><span id="line-191"><span class="sd">            1. OSIR_LOG_DIR environment variable, if set;</span>
@@ -823,10 +826,10 @@
 </span><span id="line-211">        <span class="c1"># Last resort: current directory (always lets the logger come up).</span>
 </span><span id="line-212">        <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
 </span><span id="line-213">
-</span><span id="line-214">    <span class="k">def</span><span class="w"> </span><span class="nf">get_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-214">    <span class="k">def</span> <span class="nf">get_logger</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-215">        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
 </span><span id="line-216">
-</span><span id="line-217">    <span class="k">def</span><span class="w"> </span><span class="nf">handle_uncaught_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">):</span>
+</span><span id="line-217">    <span class="k">def</span> <span class="nf">handle_uncaught_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">):</span>
 </span><span id="line-218"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-219"><span class="sd">            Intercepts any exception that reaches the top-level of the main execution thread.</span>
 </span><span id="line-220">
@@ -844,7 +847,7 @@
 </span><span id="line-232">            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;origin&#39;</span><span class="p">:</span> <span class="s1">&#39;UNCAUGHT&#39;</span><span class="p">}</span>
 </span><span id="line-233">        <span class="p">)</span>
 </span><span id="line-234">
-</span><span id="line-235">    <span class="k">def</span><span class="w"> </span><span class="nf">handle_thread_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+</span><span id="line-235">    <span class="k">def</span> <span class="nf">handle_thread_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
 </span><span id="line-236"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-237"><span class="sd">            Captures unhandled exceptions occurring within background threads.</span>
 </span><span id="line-238">
@@ -885,16 +888,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="../../../../../_static/theme.js?v=5db23cf8"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="../../../../../_static/theme.js?v=49cc6205"></script>
     <script src="../../../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

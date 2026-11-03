@@ -37,6 +37,7 @@ optional:
 splunk:
   'windows:iis':
     name_rex: r"--IIS\.jsonl$"
+    sourcetype: 'dissect:windows:iis'
     host_rex: r"([\w\.-]+)--"
     path_suffix: IIS
     timestamp_path:
@@ -44,5 +45,4 @@ splunk:
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     artifact: "IIS"
     normalize:
-      - ecs_normalize/windows/iis.vrl    
-      
+      - .vrl/windows/dissect/iis.vrl

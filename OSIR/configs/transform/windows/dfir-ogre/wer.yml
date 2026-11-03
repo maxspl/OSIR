@@ -1,0 +1,167 @@
+metadata:
+  version: "2.0"
+  id: wer
+  author: Typ
+  description: Windows Error Reporting (WER) (dfir-ogre JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Error Reporting (WER)"
+
+  # -- event type -> event.code ------------------------------------------------------
+  - custom: |2-
+      if exists(.event_type) {
+          event_type = to_string!(del(.event_type))
+          .event.code = event_type
+          event_type_l = downcase(event_type)
+          if event_type_l == "appcrash" || event_type_l == "bex" || contains(event_type_l, "failureinfo") {
+              .event.type = ["error"]
+              .log.level = "error"
+          } else {
+              .event.type = ["info"]
+          }
+      }
+
+      if exists(.is_fatal) {
+          is_fatal = to_string!(del(.is_fatal))
+          if is_fatal == "1" || is_fatal == "4294967295" {
+              .event.outcome = "failure"
+              .event.severity = 3
+          }
+      }
+  # -- timestamps (ISO 8601) ---------------------------------------------------------
+  - custom: |2-
+      if exists(.event_time) {
+          ts = parse_timestamp(to_string!(del(.event_time)), "%+") ?? null
+          if ts != null {
+              .timestamp = ts
+              .event.created = ts
+          }
+      }
+
+      if exists(.upload_time) {
+          ts = parse_timestamp(to_string!(del(.upload_time)), "%+") ?? null
+          if ts != null {
+              .event.ingested = ts
+          }
+      }
+  # -- process -----------------------------------------------------------------------
+  - custom: |2-
+      if exists(.app_name) {
+          .process.name = to_string!(del(.app_name))
+      } else if exists(.ns_app_name) {
+          .process.name = to_string!(del(.ns_app_name))
+      } else if exists(.PS_Application_name) {
+          .process.name = to_string!(del(.PS_Application_name))
+      } else if exists(.PS_Application_Name) {
+          .process.name = to_string!(del(.PS_Application_Name))
+      } else if exists(."PS_Nom_de_l’application") {
+          .process.name = to_string!(del(."PS_Nom_de_l’application"))
+      }
+
+      if exists(.app_path) {
+          .process.executable = to_string!(del(.app_path))
+      }
+
+      if exists(."UI[2]") {
+          .process.command_line = to_string!(del(."UI[2]"))
+      }
+  - set:
+      process.pe.original_file_name: original_filename
+      process.entity_id: application_identity
+      process.session_leader.id: app_session_guid
+      host.boot.id: boot_id
+      event.reason: friendly_event_name
+      message: report_description
+  # -- error signature (PS_*) --------------------------------------------------------
+  - custom: |2-
+      if exists(.PS_Message) {
+          .error.message = to_string!(del(.PS_Message))
+      }
+
+      if exists(."PS_Code_de_l’exception") {
+          .error.code = to_string!(del(."PS_Code_de_l’exception"))
+      } else if exists(.PS_Exception_Code) {
+          .error.code = to_string!(del(.PS_Exception_Code))
+      } else if exists(.PS_Error_Code) {
+          .error.code = to_string!(del(.PS_Error_Code))
+      } else if exists(.PS_Code) {
+          .error.code = to_string!(del(.PS_Code))
+      }
+
+      if exists(."PS_Nom_du_module_défaillant") {
+          .error.culprit = to_string!(del(."PS_Nom_du_module_défaillant"))
+      } else if exists(.PS_Fault_Module_Name) {
+          .error.culprit = to_string!(del(.PS_Fault_Module_Name))
+      }
+
+      if exists(.PS_Application_Version) {
+          .process.pe.file_version = to_string!(del(.PS_Application_Version))
+      } else if exists(."PS_Version_de_l’application") {
+          .process.pe.file_version = to_string!(del(."PS_Version_de_l’application"))
+      }
+  # -- os_info -----------------------------------------------------------------------
+  - custom: |2-
+      os = null
+
+      if exists(.OsInfo) {
+          os = del(.OsInfo)
+      }
+
+      if os != null {
+          .host.os.type = "windows"
+          .host.os.name = "Windows"
+
+          if exists(os.osver) {
+              .host.os.version = to_string!(os.osver)
+          }
+          if exists(os.verbld) {
+              .host.os.build = to_string!(os.verbld)
+          }
+          if exists(os.edition) {
+              .host.os.full = "Windows " + to_string!(os.edition)
+          }
+          if exists(os.osver) && contains(to_string!(os.osver), "amd64") {
+              .host.architecture = "x86_64"
+          }
+
+          .action.properties.os_info = os
+      }
+
+      if exists(."PS_Version_du_système_d’exploitation") {
+          .host.os.version = to_string!(del(."PS_Version_du_système_d’exploitation"))
+      } else if exists(.PS_OsVersion) {
+          .host.os.version = to_string!(del(.PS_OsVersion))
+      } else if exists(.PS_OSVersion) {
+          .host.os.version = to_string!(del(.PS_OSVersion))
+      }
+  # every remaining WER field moves verbatim to action.properties, whatever
+  # the ogre record emitted: PS_* signatures, Ns[*], File[*], Sig, DynamicSig,
+  # State, UI[*], Response, consent/report/target/wow64 identifiers,
+  # loaded_module, files, ...
+  - custom: |2-
+      known = ["event", "action", "user", "host", "process", "file", "log", "error", "message", "timestamp", "original_filename", "application_identity", "app_session_guid", "boot_id", "friendly_event_name", "report_description", "ogre_md"]
+      rest = .
+      ap = {}
+      for_each(keys(rest)) -> |_, k| {
+          if !includes(known, k) {
+              v = get!(rest, [k])
+              ap = set!(ap, [k], v)
+              rest = remove!(rest, [k])
+          }
+      }
+      . = rest
+      .action.properties = merge(object(.action.properties) ?? {}, ap)
+
+  - delete:
+      - original_filename
+      - application_identity
+      - app_session_guid
+      - boot_id
+      - friendly_event_name
+      - report_description
+      - ogre_md

@@ -1,0 +1,69 @@
+metadata:
+  version: "1.0"
+  id: pca_general_record
+  author: Typ
+  description: Program Compatibility Assistant general records (dfir-ogre pca_general_record JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Program Compatibility Assistant (PCA)"
+
+  # executable_path, exitcode_value, file_description, file_version,
+  # program_id, run_status, run_time, software_vendor, ogre_md
+  - set:
+      process.executable: executable_path
+      file.path: executable_path
+      file.name:
+        source: 'split!(to_string!(.executable_path), "\\")[-1]'
+      file.description: file_description
+      file.version: file_version
+      process.pe.company: software_vendor
+      action.properties.program_id: program_id
+      action.properties.run_status:
+        source: run_status
+        operation: to_int
+      action.properties.exitcode_value: exitcode_value
+      timestamp:
+        source: run_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.executable_path)
+
+  # host name from the ogre metadata, then drop ogre_md
+  - custom: |2-
+      if exists(.ogre_md) {
+          om = object!(.ogre_md)
+          if exists(om.computer) {
+              .host.name = to_string!(om.computer)
+          }
+          del(.ogre_md)
+      }
+
+  - delete:
+      - executable_path
+      - exitcode_value
+      - file_description
+      - file_version
+      - program_id
+      - run_status
+      - run_time
+      - software_vendor
+      - ogre_md
+
+timeline:
+  - id: app-launch
+    message: "Program {process.executable} was launched"
+    conditions:
+      - field: process.executable
+        exists: true
+
+relationships:
+  - id: app-launch
+    source: host.name
+    target: process.executable
+    type: launched

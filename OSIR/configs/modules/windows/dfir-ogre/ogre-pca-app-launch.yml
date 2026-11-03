@@ -44,12 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:pca_app_launch':
+  'windows:pca_app_launch':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-pca-app-launch'
-    sourcetype: 'windows:ogre:pca_app_launch'
+    sourcetype: 'ogre:windows:pca_app_launch'
     host_rex: r"([\w\.-]+)--"
     artifact: "PCA"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+    normalize:
+      - .vrl/windows/dfir-ogre/pca_app_launch.vrl

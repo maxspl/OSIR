@@ -7,16 +7,6 @@ metadata:
 transformation:
   - set:
       timestamp: parse_timestamp(.ts, "%s") ?? .ts
-      event.kind:
-        value: event
-      event.category:
-        value: [network]
-      event.type:
-        value: [connection]
-      event.dataset:
-        value: zeek.conn
-      event.module:
-        value: zeek
       event.id: to_string!(.uid)
       event.duration: to_int!(float!(.duration))
   - translate:

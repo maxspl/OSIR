@@ -44,12 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:registry_amcache_files':
+  'windows:registry:amcache_files':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-amcache-files'
-    sourcetype: 'windows:ogre:registry_amcache_files'
+    sourcetype: 'ogre:windows:registry:amcache_files'
     host_rex: r"([\w\.-]+)--"
     artifact: "hive"
     timestamp_path:
-      - "link_date" 
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/dfir-ogre/registry/registry.vrl

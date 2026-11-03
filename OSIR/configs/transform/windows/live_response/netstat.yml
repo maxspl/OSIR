@@ -7,21 +7,9 @@ metadata:
 transformation:
   - set:
       event.original: encode_json(.)
-      event.dataset:
-        value: windows.netstat
-      event.module:
-        value: windows
-      event.kind:
-        value: event
-      event.category:
-        value: [network]
-      event.type:
-        value: [info]
   - custom: |2-
       if exists(.type) {
-          t = to_string(del(.type)) ?? ""
-          .event.code   = t
-          .event.action = downcase(t)
+          .action.properties.type = to_string(del(.type)) ?? ""
       }
 
       if exists(.protocol) {

@@ -31,18 +31,6 @@ Fields
      - ECS field
    * - ``custom``
      - 
-   * - ``"windows.routes"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"state"``
-     - ``event.kind``
-   * - ``[network, configuration]``
-     - ``event.category``
-   * - ``[info, routing]``
-     - ``event.type``
-   * - ``"success"``
-     - ``event.outcome``
    * - ``"Windows routes"``
      - ``event.provider``
    * - ``"ipv4"``

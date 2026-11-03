@@ -44,6 +44,15 @@ extensions = [
 # descriptions already produced by autodoc for the real class attributes.
 napoleon_use_ivar = True
 
+# Heavy third-party deps not required to build the API docs: mock them so
+# autodoc can import every module without the full runtime stack.
+autodoc_mock_imports = [
+    "xxhash",
+    "sqlalchemy",
+    "dissect",
+    "flow",
+]
+
 # Some module YAML files contain regexes with "\/" escapes in double-quoted
 # strings, which the pygments YAML lexer rejects (they are still highlighted
 # in relaxed mode). The proper fix belongs to the module configuration files.

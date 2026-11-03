@@ -44,12 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:registry_subject_interface_package':
+  'windows:registry:subject_interface_package':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-subject-interface-package'
-    sourcetype: 'windows:ogre:registry_subject_interface_package'
+    sourcetype: 'ogre:windows:registry:subject_interface_package'
     host_rex: r"([\w\.-]+)--"
     artifact: "hive"
     timestamp_path:
-      - "key_modif_time" 
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/dfir-ogre/registry/registry.vrl

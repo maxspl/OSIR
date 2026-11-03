@@ -1,0 +1,57 @@
+metadata:
+  version: "1.0"
+  id: vss_snapshot
+  author: Typ
+  description: Volume Shadow Copy snapshots (dfir-ogre vss_snapshot JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Volume Shadow Copy Service (VSS)"
+
+  # snapshot_id, volume_name, device_instance, creation_time, attributes, ogre_md
+  - set:
+      action.properties.snapshot_id: snapshot_id
+      action.properties.volume_name: volume_name
+      action.properties.device_instance: device_instance
+      action.properties.attributes: attributes
+      timestamp:
+        source: creation_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.snapshot_id)
+
+  # host name from the ogre metadata, then drop ogre_md
+  - custom: |2-
+      if exists(.ogre_md) {
+          om = object!(.ogre_md)
+          if exists(om.computer) {
+              .host.name = to_string!(om.computer)
+          }
+          del(.ogre_md)
+      }
+
+  - delete:
+      - snapshot_id
+      - volume_name
+      - device_instance
+      - creation_time
+      - attributes
+      - ogre_md
+
+timeline:
+  - id: vss-snapshot
+    message: "VSS snapshot {action.properties.snapshot_id} exists on volume {action.properties.volume_name}"
+    conditions:
+      - field: action.properties.snapshot_id
+        exists: true
+
+relationships:
+  - id: vss-snapshot
+    source: host.name
+    target: action.properties.snapshot_id
+    type: has snapshot

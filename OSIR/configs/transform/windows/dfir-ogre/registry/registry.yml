@@ -1,0 +1,75 @@
+metadata:
+  version: "1.0"
+  id: registry
+  author: Typ
+  description: dfir-ogre registry profiles (generic key/value records) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  # amcache_files profile: sha1 value field -> hash.sha1
+  - set:
+      hash.sha1:
+        source: sha1
+    filter: exists(.sha1) && !is_nullish(.sha1)
+
+  # profile payload: every non-backbone field moves verbatim to
+  # action.properties, whatever the ogre registry profile emitted
+  - custom: |2-
+      known = ["key_path", "key_modif_time", "key_security", "ogre_md", "sha1", "hash", "event"]
+      rest = .
+      ap = {}
+      for_each(keys(rest)) -> |_, k| {
+          if !includes(known, k) {
+              v = get!(rest, [k])
+              ap = set!(ap, [k], v)
+              rest = remove!(rest, [k])
+          }
+      }
+      . = rest
+      .action.properties = ap
+
+  - set:
+      event.provider:
+        value: "Windows Registry"
+
+  - set:
+      registry.path:
+        source: 'replace(to_string!(.key_path), pattern: "\\\\", with: "\\")'
+    filter: exists(.key_path)
+
+  - set:
+      timestamp:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+    filter: exists(.key_modif_time) && !is_nullish(.key_modif_time)
+
+  # hive: first segment of key_path (HKLM, HKCU, ...)
+  - custom: |2-
+      if exists(.key_path) {
+          seg = split!(to_string!(.key_path), "\\\\")
+          if length(seg) > 0 {
+              .registry.hive = seg[0]
+          }
+      }
+
+  - delete:
+      - key_path
+      - key_modif_time
+      - sha1
+      - ogre_md
+
+timeline:
+  - id: registry-key
+    message: "Registry key {registry.path} exists"
+    conditions:
+      - field: registry.path
+        exists: true

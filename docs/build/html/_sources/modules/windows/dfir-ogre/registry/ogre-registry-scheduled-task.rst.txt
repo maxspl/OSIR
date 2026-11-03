@@ -4,7 +4,7 @@ ogre-registry-scheduled-task
 .. tip:: In Splunk you can find the result of the module after
    ingestion with the following sourcetype:
 
-   * ``windows:ogre:registry_scheduled_task`` | name_rex: ``r"\.jsonl$"``
+   * ``ogre:windows:registry:scheduled_task`` | name_rex: ``r"\.jsonl$"``
 
 Description
 -----------
@@ -14,14 +14,44 @@ Parsing of scheduled\_tasks - using ANSSI DFIR OGRE
 Timeline
 --------
 
-No transform configuration found for this module.
+.. _tl-windows-dfir-ogre-registry-registry-registry-key:
+
+.. list-table::
+   :header-rows: 1
+
+   * - registry.path
+     - Relation
+     - Message
+   * - 
+     - ``registry-key``
+     - ``Registry key {registry.path} exists``
 
 Relationships
 -------------
 
-No transform configuration found for this module.
+No relationships.
 
 Fields
 ------
 
-No transform configuration found for this module.
+.. list-table::
+   :header-rows: 1
+
+   * - Original
+     - ECS field
+   * - ``encode_json!(.)``
+     - ``event.original``
+   * - ``sha1``
+     - ``hash.sha1``
+   * - ``custom``
+     - 
+   * - ``"Windows Registry"``
+     - ``event.provider``
+   * - ``replace(to_string!(.key_path), pattern: "\\\\", with: "\\")``
+     - ``registry.path``
+   * - ``parse_timestamp(key_modif_time)``
+     - ``timestamp``
+   * - ``parse_timestamp(key_modif_time)``
+     - ``registry.mtime``
+   * - ``custom``
+     - 

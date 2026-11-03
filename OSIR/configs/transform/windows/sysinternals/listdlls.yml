@@ -1,0 +1,48 @@
+metadata:
+  version: "1.0"
+  id: listdlls
+  author: Typ
+  description: Sysinternals ListDLLs (ORC live response JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: Sysinternals ListDLLs
+
+  # type, process_name, pid, base_address, size, path
+  # (size stays verbatim: it is a hex string, e.g. 0xf4000)
+  - set:
+      action.properties.type: type
+      process.name: process_name
+      process.pid:
+        source: pid
+        operation: to_int
+      action.properties.base_address: base_address
+      action.properties.size: size
+
+  - set:
+      dll.path: path
+      file.path: path
+
+  - set:
+      dll.name:
+        source: 'split!(to_string!(.path), "\\")[-1]'
+      file.name:
+        source: 'split!(to_string!(.path), "\\")[-1]'
+    filter: exists(.path)
+
+  # the DLL entry whose path is the process image itself
+  - set:
+      process.executable: path
+    filter: 'exists(.path) && exists(.process.name) && (ends_with(downcase(to_string!(.path)), "\\" + downcase(to_string!(.process.name))) || ends_with(downcase(to_string!(.path)), "/" + downcase(to_string!(.process.name))))'
+
+  - delete:
+      - type
+      - process_name
+      - pid
+      - base_address
+      - size
+      - path

@@ -2,87 +2,60 @@ metadata:
   version: "1.0"
   id: arp_cache
   author: Typ
-  description: Windows ARP Cache
+  description: Windows ARP Cache (live response JSONL) → ECS
 
 transformation:
-  - custom: |2-
-      if !exists(.event) || !exists(.event.original) {
-          .event.original = encode_json!(.)
-      }
   - set:
-      event.dataset:
-        value: windows.arp_cache
-      event.module:
-        value: windows
-      event.kind:
-        value: state
-      event.category:
-        value: [network]
-      event.type:
-        value: [info, arp]
-      event.outcome:
-        value: success
+      event.original: encode_json!(.)
+
+  - set:
       event.provider:
         value: Windows ARP Cache
       network.protocol:
         value: arp
       network.type:
         value: ipv4
-  - custom: |2-
-      rec_type = null
 
-      if exists(.type) {
-          rec_type = to_string!(del(.type))
-          .event.code   = rec_type
-          .event.action = downcase(rec_type)
-      }
+  # -- live response ARP cache input ---------------------------------------------
+  # type, interface_ip, interface_index, ip_address, mac_address, entry_type
+  # (entry_type is localized: dynamique / statique on a French Windows)
 
-      if exists(.interface_ip) {
-          iface_ip = to_string!(del(.interface_ip))
-
-          .source.ip = iface_ip
-          .network.Ext.arp.interface_ip = iface_ip
-
-          .host.ip = [iface_ip]
-      }
   - set:
-      network.Ext.arp.interface_index: to_string!(del(.interface_index))
-  - custom: |2-
-      if exists(.ip_address) {
-          neigh_ip = to_string!(del(.ip_address))
-          .destination.ip = neigh_ip
-          .network.Ext.arp.neighbor_ip = neigh_ip
+      action.properties.type: type
+      source.ip: interface_ip
+      host.ip:
+        source: '[to_string!(.interface_ip)]'
+      action.properties.interface_index: interface_index
 
-          ip_str = neigh_ip
-          if contains(ip_str, ":") {
-              .network.type = "ipv6"
-          } else {
-              .network.type = "ipv4"
-          }
-      }
+  - set:
+      destination.ip: ip_address
+    filter: exists(.ip_address) && .ip_address != ""
 
-      if exists(.mac_address) {
-          mac_raw = to_string!(del(.mac_address))
-          .network.Ext.arp.neighbor_mac_raw = mac_raw
+  - set:
+      destination.mac:
+        source: 'downcase(replace(to_string!(.mac_address), "-", ":"))'
+    filter: exists(.mac_address) && .mac_address != ""
 
-          mac_norm = downcase(replace(mac_raw, "-", ":"))
-          .network.Ext.arp.neighbor_mac = mac_norm
+  - set:
+      network.type:
+        value: ipv6
+    filter: exists(.ip_address) && contains(to_string!(.ip_address), ":")
 
-          .destination.mac = mac_norm
-      }
+  - set:
+      action.properties.entry_type_raw: entry_type
 
-      if exists(.entry_type) {
-          et_raw = to_string!(del(.entry_type))
-          et_l   = downcase(et_raw)
+  - translate:
+      mapping:
+        action.properties.entry_type: entry_type
+      dictionary:
+        "dynamique": dynamic
+        "statique": static
+      fallback: unknown
 
-          .network.Ext.arp.entry_type_raw = et_raw
-
-          norm = et_l
-          if et_l == "dynamique" {
-              norm = "dynamic"
-          } else if et_l == "statique" {
-              norm = "static"
-          }
-
-          .network.Ext.arp.entry_type = norm
-      }
+  - delete:
+      - type
+      - interface_ip
+      - interface_index
+      - ip_address
+      - mac_address
+      - entry_type

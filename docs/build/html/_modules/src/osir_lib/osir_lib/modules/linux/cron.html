@@ -26,8 +26,8 @@
   <title>src.osir_lib.osir_lib.modules.linux.cron | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="src.osir_lib.osir_lib.modules.linux.cron | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="src.osir_lib.osir_lib.modules.linux.cron | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="../../../../../../_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="../../../../../../_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="../../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../../_static/tables.css" />
   <link rel="icon" href="../../../../../../_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../../modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -583,10 +586,10 @@
 
     <div id="content" role="main">
       <h1>Source code for src.osir_lib.osir_lib.modules.linux.cron</h1><div class="highlight"><pre>
-<span></span><code><span id="line-1"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.LogUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogUtils</span>
-</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirDecorator</span><span class="w"> </span><span class="kn">import</span> <span class="n">osir_internal_module</span>
-</span><span id="line-3"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirModule</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModule</span>
-</span><span id="line-4"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span><span class="p">,</span> <span class="n">CustomLogger</span>
+<span></span><code><span id="line-1"><span class="kn">from</span> <span class="nn">osir_lib.core.LogUtils</span> <span class="kn">import</span> <span class="n">LogUtils</span>
+</span><span id="line-2"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirDecorator</span> <span class="kn">import</span> <span class="n">osir_internal_module</span>
+</span><span id="line-3"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirModule</span> <span class="kn">import</span> <span class="n">OsirModule</span>
+</span><span id="line-4"><span class="kn">from</span> <span class="nn">osir_lib.logger</span> <span class="kn">import</span> <span class="n">AppLogger</span><span class="p">,</span> <span class="n">CustomLogger</span>
 </span><span id="line-5">
 </span><span id="line-6"><span class="n">logger</span><span class="p">:</span> <span class="n">CustomLogger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">()</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 </span><span id="line-7">
@@ -594,12 +597,12 @@
 <div class="viewcode-block" id="CronModule">
 <a class="viewcode-back" href="../../../../../../src.osir_lib.osir_lib.modules.linux.html#src.osir_lib.osir_lib.modules.linux.cron.CronModule">[docs]</a>
 </span><span id="line-9"><span class="nd">@osir_internal_module</span>
-</span><span id="line-10"><span class="k">class</span><span class="w"> </span><span class="nc">CronModule</span><span class="p">(</span><span class="n">LogUtils</span><span class="p">):</span>
+</span><span id="line-10"><span class="k">class</span> <span class="nc">CronModule</span><span class="p">(</span><span class="n">LogUtils</span><span class="p">):</span>
 </span><span id="line-11"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-12"><span class="sd">    PyModule to perform processing operations on Cron logs.</span>
 </span><span id="line-13"><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="line-14">
-</span><span id="line-15">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">):</span>
+</span><span id="line-15">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="n">OsirModule</span><span class="p">):</span>
 </span><span id="line-16"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-17"><span class="sd">        Initializes the Module.</span>
 </span><span id="line-18">
@@ -625,7 +628,7 @@
 </span><span id="line-38">            <span class="p">(</span><span class="s2">&quot;service_related&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">log</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;LIST\s\(([^\)]*)\)&quot;</span><span class="p">,</span> <span class="n">log</span><span class="p">))</span>
 </span><span id="line-39">        <span class="p">]</span>
 </span><span id="line-40">
-</span><span id="line-41">    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="line-41">    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 </span><span id="line-42"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-43"><span class="sd">        Execute the internal processor of the module.</span>
 </span><span id="line-44">
@@ -648,7 +651,7 @@
 </span><span id="line-61">            <span class="n">logger</span><span class="o">.</span><span class="n">error_handler</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
 </span><span id="line-62">            <span class="k">return</span> <span class="kc">False</span>
 </span><span id="line-63">
-</span><span id="line-64">    <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+</span><span id="line-64">    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
 </span><span id="line-65"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-66"><span class="sd">        Parse a single log entry based on the structure defined.</span>
 </span><span id="line-67">
@@ -660,7 +663,7 @@
 </span><span id="line-73"><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="line-74">        <span class="k">return</span> <span class="p">{</span><span class="n">field</span><span class="p">:</span> <span class="n">parser</span><span class="p">(</span><span class="n">log</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">structure</span><span class="p">}</span>
 </span><span id="line-75">
-</span><span id="line-76">    <span class="k">def</span><span class="w"> </span><span class="nf">get_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
+</span><span id="line-76">    <span class="k">def</span> <span class="nf">get_event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log</span><span class="p">):</span>
 </span><span id="line-77"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-78"><span class="sd">        Determines the event type from the log.</span>
 </span><span id="line-79">
@@ -691,16 +694,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="../../../../../../_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="../../../../../../_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="../../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="../../../../../../_static/theme.js?v=5db23cf8"></script>
+    <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="../../../../../../_static/theme.js?v=49cc6205"></script>
     <script src="../../../../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

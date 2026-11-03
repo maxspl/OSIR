@@ -11,10 +11,6 @@ transformation:
       - field: event.original
         exists: false
   - set:
-      event.kind:
-        value: alert
-      event.module:
-        value: thor
       event.provider:
         value: Nextron THOR
       observer.vendor:
@@ -48,10 +44,6 @@ transformation:
   - set:
       event.dataset: '"thor." + downcase!(to_string!(.module))'
       log.logger: to_string!(.module)
-  - set:
-      event.dataset:
-        value: thor
-    filter: '!exists(.event.dataset)'
   - set:
       message: to_string(.message) ?? null
       thor.scan.id: to_string(.scanid) ?? null
@@ -102,40 +94,24 @@ transformation:
   - set:
       module_lower: 'downcase!(to_string!(.module))'
   - set:
-      event.category:
-        value: [file, malware]
-      event.type:
-        value: [info]
       event.action:
         value: thor-filescan-match
     conditions:
       - field: module_lower
         value: filescan
   - set:
-      event.category:
-        value: [file, malware]
-      event.type:
-        value: [info]
       event.action:
         value: thor-logscan-match
     conditions:
       - field: module_lower
         value: logscan
   - set:
-      event.category:
-        value: [malware]
-      event.type:
-        value: [info]
       event.action:
         value: thor-evtx-match
     conditions:
       - field: module_lower
         value: evtx
   - set:
-      event.category:
-        value: [malware]
-      event.type:
-        value: [info]
       event.action:
         value: thor-match
     filter: '!exists(.event.action)'

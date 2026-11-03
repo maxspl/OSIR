@@ -1,0 +1,66 @@
+metadata:
+  version: "1.0"
+  id: shimcache
+  author: Typ
+  description: Windows ShimCache / AppCompatCache (AppCompatCacheParser CSV) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows AppCompatCache (ShimCache)"
+
+  # -- AppCompatCacheParser (Zimmerman) input ------------------------------------
+
+  # ControlSet, CacheEntryPosition, Path, LastModifiedTimeUTC, Executed,
+  # Duplicate, SourceFile
+  - set:
+      file.path: Path
+      file.mtime:
+        source: LastModifiedTimeUTC
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      timestamp:
+        source: LastModifiedTimeUTC
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T"
+      action.properties.ControlSet:
+        source: ControlSet
+        operation: to_int
+      action.properties.CacheEntryPosition:
+        source: CacheEntryPosition
+        operation: to_int
+      action.properties.Executed:
+        source: Executed
+        operation: to_bool
+      action.properties.Duplicate:
+        source: Duplicate
+        operation: to_bool
+      action.properties.SourceFile: SourceFile
+    filter: exists(.Path) && exists(.CacheEntryPosition)
+
+  - delete:
+      - ControlSet
+      - CacheEntryPosition
+      - Path
+      - LastModifiedTimeUTC
+      - Executed
+      - Duplicate
+      - SourceFile
+
+timeline:
+  - id: shimcache-entry
+    message: "ShimCache entry exists for {file.path}"
+    conditions:
+      - field: file.path
+        exists: true
+
+relationships:
+  - id: shimcache-entry
+    source: file.path
+    target: action.properties.Executed
+    type: executed

@@ -1,0 +1,124 @@
+metadata:
+  version: "1.0"
+  id: srum
+  author: Typ
+  description: Windows SRUM (Artemis JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows System Resource Usage Monitor (SRUM)"
+
+  # auto_inc_id, timestamp, app_id, user_id, facetime, foreground_*/background_*
+  - set:
+      timestamp:
+        source: timestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      action.properties.auto_inc_id:
+        source: auto_inc_id
+        operation: to_int
+      action.properties.app_id: app_id
+      user.id: user_id
+      action.properties.facetime:
+        source: facetime
+        operation: to_int
+      action.properties.foreground_cycle_time:
+        source: foreground_cycle_time
+        operation: to_int
+      action.properties.background_cycle_time:
+        source: background_cycle_time
+        operation: to_int
+      action.properties.foreground_context_switches:
+        source: foreground_context_switches
+        operation: to_int
+      action.properties.background_context_switches:
+        source: background_context_switches
+        operation: to_int
+      action.properties.foreground_bytes_read:
+        source: foreground_bytes_read
+        operation: to_int
+      action.properties.foreground_bytes_written:
+        source: foreground_bytes_written
+        operation: to_int
+      action.properties.background_bytes_read:
+        source: background_bytes_read
+        operation: to_int
+      action.properties.background_bytes_written:
+        source: background_bytes_written
+        operation: to_int
+      action.properties.foreground_num_read_operations:
+        source: foreground_num_read_operations
+        operation: to_int
+      action.properties.foreground_num_write_options:
+        source: foreground_num_write_options
+        operation: to_int
+      action.properties.background_num_read_operations:
+        source: background_num_read_operations
+        operation: to_int
+      action.properties.background_num_write_operations:
+        source: background_num_write_operations
+        operation: to_int
+      action.properties.foreground_number_of_flushes:
+        source: foreground_number_of_flushes
+        operation: to_int
+      action.properties.background_number_of_flushes:
+        source: background_number_of_flushes
+        operation: to_int
+    filter: exists(.auto_inc_id) && exists(.app_id)
+
+  # every other SRUM table field moves verbatim to action.properties
+  # (collection_metadata, ...)
+  - custom: |2-
+      known = ["event", "action", "user", "timestamp", "auto_inc_id", "app_id", "user_id", "facetime", "foreground_cycle_time", "background_cycle_time", "foreground_context_switches", "background_context_switches", "foreground_bytes_read", "foreground_bytes_written", "background_bytes_read", "background_bytes_written", "foreground_num_read_operations", "foreground_num_write_options", "foreground_num_write_operations", "background_num_read_operations", "background_num_write_operations", "foreground_number_of_flushes", "background_number_of_flushes", "collection_metadata"]
+      rest = .
+      ap = {}
+      for_each(keys(rest)) -> |_, k| {
+          if !includes(known, k) {
+              v = get!(rest, [k])
+              ap = set!(ap, [k], v)
+              rest = remove!(rest, [k])
+          }
+      }
+      . = rest
+      .action.properties = merge(object(.action.properties) ?? {}, ap)
+
+  - delete:
+      - auto_inc_id
+      - timestamp
+      - app_id
+      - user_id
+      - facetime
+      - foreground_cycle_time
+      - background_cycle_time
+      - foreground_context_switches
+      - background_context_switches
+      - foreground_bytes_read
+      - foreground_bytes_written
+      - background_bytes_read
+      - background_bytes_written
+      - foreground_num_read_operations
+      - foreground_num_write_options
+      - foreground_num_write_operations
+      - background_num_read_operations
+      - background_num_write_operations
+      - foreground_number_of_flushes
+      - background_number_of_flushes
+      - collection_metadata
+
+timeline:
+  - id: app-usage
+    message: "Application {action.properties.app_id} was used by user {user.id}"
+    conditions:
+      - field: action.properties.app_id
+        exists: true
+
+relationships:
+  - id: app-usage
+    source: user.id
+    target: action.properties.app_id
+    type: used

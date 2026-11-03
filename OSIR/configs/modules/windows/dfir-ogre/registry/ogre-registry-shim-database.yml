@@ -44,14 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:registry_shim_database':
+  'windows:registry:shim_database':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-shim-database'
-    sourcetype: 'windows:ogre:registry_shim_database'
+    sourcetype: 'ogre:windows:registry:shim_database'
     host_rex: r"([\w\.-]+)--"
     artifact: "hive"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/hives.vrl
+      - .vrl/windows/dfir-ogre/hives.vrl

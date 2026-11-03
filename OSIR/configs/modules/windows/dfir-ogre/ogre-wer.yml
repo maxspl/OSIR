@@ -44,12 +44,14 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:wer':
+  'windows:wer':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-wer'
-    sourcetype: 'windows:ogre:wer'
+    sourcetype: 'ogre:windows:wer'
     host_rex: r"([\w\.-]+)--"
     artifact: "WER"
     timestamp_path:
-      - "modification_time" 
-    timestamp_format: "%Y-%m-%dT%H:%M:%S.%f%z"
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    normalize:
+      - .vrl/windows/dfir-ogre/wer.vrl

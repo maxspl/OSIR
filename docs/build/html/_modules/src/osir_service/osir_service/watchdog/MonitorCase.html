@@ -26,8 +26,8 @@
   <title>src.osir_service.osir_service.watchdog.MonitorCase | Orchestration Software for Incident Response</title>
   <meta property="og:title" content="src.osir_service.osir_service.watchdog.MonitorCase | Orchestration Software for Incident Response" />
   <meta name="twitter:title" content="src.osir_service.osir_service.watchdog.MonitorCase | Orchestration Software for Incident Response" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=e72c8e07" />
-  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=d6d7c91b" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=8d216cef" />
+  <link rel="stylesheet" type="text/css" href="../../../../../_static/theme.css?v=009055c6" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/module-cards.css?v=438e39cc" />
   <link rel="stylesheet" type="text/css" href="../../../../../_static/tables.css" />
   <link rel="icon" href="../../../../../_static/OSIR_LOGO.png" />
@@ -138,6 +138,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Available Modules</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../field_search.html">Field Search</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../extracted_module_info.html">Supported Modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../modules/index.html">Modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/common/index.html">Common</a><ul>
@@ -165,13 +166,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../modules/scan/index.html">Scan</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/hayabusa.html">hayabusa</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_orc.html">loki_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki_uac.html">loki_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_orc.html">thor_lite_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite_uac.html">thor_lite_uac</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc.html">thor_orc</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_orc_ram.html">thor_orc_ram</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_uac.html">thor_uac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/loki.html">loki</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor.html">thor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_lite.html">thor_lite</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/scan/thor_update.html">thor_update</a></li>
 </ul>
 </li>
@@ -291,9 +288,12 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_security.html">pstree_security</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/pstree_sysmon.html">pstree_sysmon</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/restore_fs.html">restore_fs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/srum.html">srum</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/wer.html">wer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/win_memory.html">win_memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/artemis/index.html">Windows / Artemis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/artemis/srum.html">srum</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/index.html">Windows / DFIR-OGRE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-activity-cache.html">ogre-activity-cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/dfir-ogre/ogre-autoruns.html">ogre-autoruns</a></li>
@@ -370,12 +370,15 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_cache.html">win_dns_cache</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_dns_records.html">win_dns_records</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_enumlocs.html">win_enumlocs</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_handle.html">win_handle</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_listdlls.html">win_listdlls</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_netstat.html">win_netstat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_routes.html">win_routes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_tcpvcon.html">win_tcpvcon</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/live_response/win_wmi_eventconsumer.html">win_wmi_eventconsumer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/sysinternals/index.html">Windows / Sysinternals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_handle.html">win_handle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_listdlls.html">win_listdlls</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../../modules/windows/sysinternals/win_tcpvcon.html">win_tcpvcon</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../../../modules/windows/zimmerman/index.html">Windows / Zimmerman</a><ul>
@@ -583,35 +586,35 @@
 
     <div id="content" role="main">
       <h1>Source code for src.osir_service.osir_service.watchdog.MonitorCase</h1><div class="highlight"><pre>
-<span></span><code><span id="line-1"><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-</span><span id="line-2"><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-</span><span id="line-3"><span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span></span><code><span id="line-1"><span class="kn">import</span> <span class="nn">os</span>
+</span><span id="line-2"><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+</span><span id="line-3"><span class="kn">import</span> <span class="nn">uuid</span>
 </span><span id="line-4">
-</span><span id="line-5"><span class="kn">from</span><span class="w"> </span><span class="nn">threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span> <span class="n">Event</span>
+</span><span id="line-5"><span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">Thread</span><span class="p">,</span> <span class="n">Event</span>
 </span><span id="line-6">
-</span><span id="line-7"><span class="kn">import</span><span class="w"> </span><span class="nn">concurrent</span>
-</span><span id="line-8"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.model.OsirModuleModel</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirModuleModel</span>
-</span><span id="line-9"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">AppLogger</span>
-</span><span id="line-10"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.logger.logger</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomLogger</span>
-</span><span id="line-11"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_lib.core.OsirUtils</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_osir_path</span>
+</span><span id="line-7"><span class="kn">import</span> <span class="nn">concurrent</span>
+</span><span id="line-8"><span class="kn">from</span> <span class="nn">osir_lib.core.model.OsirModuleModel</span> <span class="kn">import</span> <span class="n">OsirModuleModel</span>
+</span><span id="line-9"><span class="kn">from</span> <span class="nn">osir_lib.logger</span> <span class="kn">import</span> <span class="n">AppLogger</span>
+</span><span id="line-10"><span class="kn">from</span> <span class="nn">osir_lib.logger.logger</span> <span class="kn">import</span> <span class="n">CustomLogger</span>
+</span><span id="line-11"><span class="kn">from</span> <span class="nn">osir_lib.core.OsirUtils</span> <span class="kn">import</span> <span class="n">normalize_osir_path</span>
 </span><span id="line-12">
-</span><span id="line-13"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.orchestration.TaskService</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskService</span>
-</span><span id="line-14"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.postgres.OsirDb</span><span class="w"> </span><span class="kn">import</span> <span class="n">OsirDb</span>
-</span><span id="line-15"><span class="kn">from</span><span class="w"> </span><span class="nn">osir_service.watchdog.WatchdogService</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleHandler</span>
+</span><span id="line-13"><span class="kn">from</span> <span class="nn">osir_service.orchestration.TaskService</span> <span class="kn">import</span> <span class="n">TaskService</span>
+</span><span id="line-14"><span class="kn">from</span> <span class="nn">osir_service.postgres.OsirDb</span> <span class="kn">import</span> <span class="n">OsirDb</span>
+</span><span id="line-15"><span class="kn">from</span> <span class="nn">osir_service.watchdog.WatchdogService</span> <span class="kn">import</span> <span class="n">ModuleHandler</span>
 </span><span id="line-16">
 </span><span id="line-17"><span class="n">logger</span><span class="p">:</span> <span class="n">CustomLogger</span> <span class="o">=</span> <span class="n">AppLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 </span><span id="line-18">
 </span><span id="line-19">
 <div class="viewcode-block" id="MonitorCase">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase">[docs]</a>
-</span><span id="line-20"><span class="k">class</span><span class="w"> </span><span class="nc">MonitorCase</span><span class="p">:</span>
+</span><span id="line-20"><span class="k">class</span> <span class="nc">MonitorCase</span><span class="p">:</span>
 </span><span id="line-21"><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-22"><span class="sd">    Monitors a specified case path for changes that trigger module actions based on the defined module configurations.</span>
 </span><span id="line-23"><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="line-24">
 <div class="viewcode-block" id="MonitorCase.__init__">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.__init__">[docs]</a>
-</span><span id="line-25">    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="p">):</span>
+</span><span id="line-25">    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">case_path</span><span class="p">,</span> <span class="n">modules</span><span class="p">,</span> <span class="n">reprocess_case</span><span class="p">):</span>
 </span><span id="line-26"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-27"><span class="sd">        Initializes the monitoring setup with the specified case path and modules.</span>
 </span><span id="line-28">
@@ -639,14 +642,14 @@
 </span><span id="line-49">
 <div class="viewcode-block" id="MonitorCase.on_inactivity">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.on_inactivity">[docs]</a>
-</span><span id="line-50">    <span class="k">def</span><span class="w"> </span><span class="nf">on_inactivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-50">    <span class="k">def</span> <span class="nf">on_inactivity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-51"><span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to be called when inactivity is detected.&quot;&quot;&quot;</span>
 </span><span id="line-52">        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Updated Handler status to processing_done due to inactivity.&quot;</span><span class="p">)</span></div>
 
 </span><span id="line-53">
 <div class="viewcode-block" id="MonitorCase.run_task">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.run_task">[docs]</a>
-</span><span id="line-54">    <span class="k">def</span><span class="w"> </span><span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">,</span> <span class="n">handler_uuid</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+</span><span id="line-54">    <span class="k">def</span> <span class="nf">run_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module_instance</span><span class="p">:</span> <span class="n">OsirModuleModel</span><span class="p">,</span> <span class="n">handler_uuid</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 </span><span id="line-55"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-56"><span class="sd">            Pushes a task to the task queue for processing, without seting up the handler, based on the current module configuration.</span>
 </span><span id="line-57">
@@ -663,7 +666,7 @@
 </span><span id="line-67">
 <div class="viewcode-block" id="MonitorCase.setup_handler">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.setup_handler">[docs]</a>
-</span><span id="line-68">    <span class="k">def</span><span class="w"> </span><span class="nf">setup_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-68">    <span class="k">def</span> <span class="nf">setup_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-69"><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="line-70"><span class="sd">        Sets up file and directory event handlers for each module, configuring and starting an observer to monitor the filesystem.</span>
 </span><span id="line-71"><span class="sd">        &quot;&quot;&quot;</span>
@@ -679,7 +682,7 @@
 </span><span id="line-80">
 <div class="viewcode-block" id="MonitorCase.start">
 <a class="viewcode-back" href="../../../../../src.osir_service.osir_service.watchdog.html#src.osir_service.osir_service.watchdog.MonitorCase.MonitorCase.start">[docs]</a>
-</span><span id="line-81">    <span class="k">def</span><span class="w"> </span><span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="line-81">    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="line-82">        <span class="k">try</span><span class="p">:</span>
 </span><span id="line-83">            <span class="n">executor</span> <span class="o">=</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </span><span id="line-84">            <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setup_handler</span><span class="p">)</span>
@@ -696,16 +699,16 @@
       <div class="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
         <p class="text-sm leading-loose text-center text-muted-foreground md:text-left">© 2024, maxspl - Typ&nbsp;Built with <a class="font-medium underline underline-offset-4"
     href="https://www.sphinx-doc.org"
-    rel="noreferrer">Sphinx 9.1.0</a></p>
+    rel="noreferrer">Sphinx 8.1.3</a></p>
 </div>
 </div>
 </footer>
     </div>
     
     <script src="../../../../../_static/documentation_options.js?v=d45e8c67"></script>
-    <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
-    <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
-    <script defer="defer" src="../../../../../_static/theme.js?v=5db23cf8"></script>
+    <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script defer="defer" src="../../../../../_static/theme.js?v=49cc6205"></script>
     <script src="../../../../../_static/sidebar-scroll.js?v=2c5053c4"></script>
     
 </body>

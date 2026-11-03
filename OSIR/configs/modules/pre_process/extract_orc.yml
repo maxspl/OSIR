@@ -48,7 +48,7 @@ splunk:
         - "timestamp" 
       timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
       normalize:
-        - ecs_normalize/windows/live_response/systeminfo.vrl    
+        - .vrl/windows/live_response/systeminfo.vrl    
   'windows:live_response:processes':
       name_rex: r"(?i)(?:^|/)processes(?:\d+|_[^/]+)?\.csv$"
       path_rex: r".*\/extract_orc.*"
@@ -58,7 +58,7 @@ splunk:
         - "timestamp" 
       timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
       normalize:
-        - ecs_normalize/windows/live_response/ps1_processes.vrl         
+        - .vrl/windows/live_response/ps1_processes.vrl         
   'filesystem:ntfs:info':
     name_rex: r"NTFSInfo.*.csv$"
     path_rex: r".*\/extract_orc.*"
@@ -69,15 +69,18 @@ splunk:
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     encoding: utf-8
     normalize:
-      - ecs_normalize/windows/NTFSInfo.vrl        
+      - .vrl/windows/NTFSInfo.vrl        
   'filesystem:ntfs:usn':
     name_rex: r"USNInfo.*.csv$"
     path_rex: r".*\/extract_orc.*"
     sourcetype: 'filesystem:ntfs:usn'
     host_rex: r"\/Endpoint_(.*?)\/"
-    timestamp_path: 
-        - "TimeStamp"
-    timestamp_format: "%Y-%m-%d %H:%M:%S.%f"
+    timestamp_path:
+      - "timestamp"
+    timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
+    encoding: utf-8
+    normalize:
+      - .vrl/windows/NTFSInfo_usn.vrl
   'filesystem:ntfs:i30':
     name_rex: r"I30Info.*.csv$"
     path_rex: r".*\/extract_orc.*"
@@ -88,17 +91,17 @@ splunk:
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     encoding: utf-8
     normalize:
-      - ecs_normalize/windows/NTFSInfo_i30.vrl
-  'windows:live_response:autoruns':
+      - .vrl/windows/NTFSInfo_i30.vrl
+  'windows:sysinternals:autoruns':
     name_rex: r"autoruns.*csv$"
     path_rex: r".*\/extract_orc.*"
-    sourcetype: 'windows:autoruns'
+    sourcetype: 'windows:sysinternals:autoruns'
     host_rex: r"\/Endpoint_(.*?)\/"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/live_response/autoruns.vrl                   
+      - .vrl/windows/live_response/autoruns.vrl                   
   'orc:collected_files':
     name_rex: r"GetThis.csv$"
     path_rex: r".*\/extract_orc.*"
@@ -108,7 +111,7 @@ splunk:
       - "timestamp"
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/collected_files.vrl
+      - .vrl/windows/collected_files.vrl
   'orc:csv':
     name_rex: r"\.csv$"
     path_rex: r".*\/extract_orc.*"

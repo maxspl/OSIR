@@ -1,0 +1,223 @@
+metadata:
+  version: "1.0"
+  id: hives
+  author: Typ
+  description: Registry artifacts (RECmd CSV + DFIRBatch SAM) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Registry"
+
+  # -- RECmd (Zimmerman) input --------------------------------------------------
+
+  # HivePath, HiveType, Description, Category, KeyPath, ValueName, ValueType,
+  # ValueData, ValueData2, ValueData3, Comment, Recursive, Deleted,
+  # LastWriteTimestamp, PluginDetailFile
+  - set:
+      registry.path: KeyPath
+      registry.value: ValueName
+      registry.data.type: ValueType
+      registry.hive: HiveType
+      action.properties.HivePath: HivePath
+      action.properties.Description: Description
+      action.properties.Category: Category
+      action.properties.Comment: Comment
+      action.properties.value_data: ValueData
+      action.properties.ValueData2: ValueData2
+      action.properties.ValueData3: ValueData3
+      action.properties.Recursive:
+        source: Recursive
+        operation: to_bool
+      action.properties.Deleted:
+        source: Deleted
+        operation: to_bool
+      action.properties.PluginDetailFile: PluginDetailFile
+      timestamp:
+        source: LastWriteTimestamp
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.HiveType) && exists(.KeyPath)
+
+  # -- RECmd DFIRBatch UserAccounts (SAM) input ---------------------------------
+
+  # ValidUserId, BatchKeyPath, BatchValueName, UserId, InvalidLoginCount,
+  # TotalLoginCount, CreatedOn, LastLoginTime, LastPasswordChange,
+  # LastIncorrectPassword, ExpiresOn, UserName, FullName, PasswordHint, Groups,
+  # Comment, UserComment, HomeDirectory, InternetUserName, ResetData,
+  # AccountDisabled, HomeDirectoryRequired, PasswordNotRequired,
+  # TempDuplicateAccount, NormalUserAccount, MnsLogonAccount,
+  # InterdomainTrustAccount, WorkstationTrustAccount, ServerTrustAccount,
+  # PasswordDoesNotExpire, AutoLocked
+  - set:
+      registry.path: BatchKeyPath
+      registry.value: BatchValueName
+      registry.hive:
+        value: SAM
+      user.id: UserId
+      user.name: UserName
+      user.full_name: FullName
+      user.email: InternetUserName
+      action.properties.PasswordHint: PasswordHint
+      action.properties.Groups: Groups
+      action.properties.Comment: Comment
+      action.properties.UserComment: UserComment
+      action.properties.HomeDirectory: HomeDirectory
+      action.properties.ValidUserId:
+        source: ValidUserId
+        operation: to_bool
+      action.properties.InvalidLoginCount:
+        source: InvalidLoginCount
+        operation: to_int
+      action.properties.TotalLoginCount:
+        source: TotalLoginCount
+        operation: to_int
+      action.properties.ResetData:
+        source: ResetData
+        operation: to_bool
+      action.properties.AccountDisabled:
+        source: AccountDisabled
+        operation: to_bool
+      action.properties.HomeDirectoryRequired:
+        source: HomeDirectoryRequired
+        operation: to_bool
+      action.properties.PasswordNotRequired:
+        source: PasswordNotRequired
+        operation: to_bool
+      action.properties.TempDuplicateAccount:
+        source: TempDuplicateAccount
+        operation: to_bool
+      action.properties.NormalUserAccount:
+        source: NormalUserAccount
+        operation: to_bool
+      action.properties.MnsLogonAccount:
+        source: MnsLogonAccount
+        operation: to_bool
+      action.properties.InterdomainTrustAccount:
+        source: InterdomainTrustAccount
+        operation: to_bool
+      action.properties.WorkstationTrustAccount:
+        source: WorkstationTrustAccount
+        operation: to_bool
+      action.properties.ServerTrustAccount:
+        source: ServerTrustAccount
+        operation: to_bool
+      action.properties.PasswordDoesNotExpire:
+        source: PasswordDoesNotExpire
+        operation: to_bool
+      action.properties.AutoLocked:
+        source: AutoLocked
+        operation: to_bool
+    filter: exists(.BatchKeyPath) && exists(.UserId)
+
+  - set:
+      timestamp:
+        source: CreatedOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.CreatedOn) && .CreatedOn != ""
+
+  - set:
+      action.properties.LastLoginTime:
+        source: LastLoginTime
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastLoginTime) && .LastLoginTime != ""
+
+  - set:
+      action.properties.LastPasswordChange:
+        source: LastPasswordChange
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastPasswordChange) && .LastPasswordChange != ""
+
+  - set:
+      action.properties.LastIncorrectPassword:
+        source: LastIncorrectPassword
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.LastIncorrectPassword) && .LastIncorrectPassword != ""
+
+  - set:
+      action.properties.ExpiresOn:
+        source: ExpiresOn
+        operation: parse_timestamp
+        parameters:
+          format: "%F %T%.f"
+    filter: exists(.ExpiresOn) && .ExpiresOn != ""
+
+  - delete:
+      - HivePath
+      - HiveType
+      - Description
+      - Category
+      - KeyPath
+      - ValueName
+      - ValueType
+      - ValueData
+      - ValueData2
+      - ValueData3
+      - Comment
+      - Recursive
+      - Deleted
+      - LastWriteTimestamp
+      - PluginDetailFile
+      - ValidUserId
+      - BatchKeyPath
+      - BatchValueName
+      - UserId
+      - InvalidLoginCount
+      - TotalLoginCount
+      - CreatedOn
+      - LastLoginTime
+      - LastPasswordChange
+      - LastIncorrectPassword
+      - ExpiresOn
+      - UserName
+      - FullName
+      - PasswordHint
+      - Groups
+      - UserComment
+      - HomeDirectory
+      - InternetUserName
+      - ResetData
+      - AccountDisabled
+      - HomeDirectoryRequired
+      - PasswordNotRequired
+      - TempDuplicateAccount
+      - NormalUserAccount
+      - MnsLogonAccount
+      - InterdomainTrustAccount
+      - WorkstationTrustAccount
+      - ServerTrustAccount
+      - PasswordDoesNotExpire
+      - AutoLocked
+
+timeline:
+  - id: registry-value
+    message: "Registry value {registry.value} exists in key {registry.path}"
+    conditions:
+      - field: registry.path
+        exists: true
+
+  - id: user-account
+    message: "User account {user.name} (RID {user.id}) exists in SAM"
+    conditions:
+      - field: registry.hive
+        value: SAM
+      - field: user.id
+        exists: true
+
+relationships:
+  - id: registry-value
+    source: registry.path
+    target: registry.value
+    type: contains

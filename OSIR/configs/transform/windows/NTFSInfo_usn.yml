@@ -1,0 +1,66 @@
+metadata:
+  version: "1.1"
+  id: NTFSInfo_usn
+  author: Typ
+  description: Windows NTFS USN Journal (NTFSInfo CSV, DFIR-ORC) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows NTFS USN Journal (detail)"
+
+  # ComputerName, USN, FRN, ParentFRN, TimeStamp, File, FullPath, FileAttributes,
+  # Reason, VolumeID, SnapshotID
+  - set:
+      file.name: File
+      file.path: FullPath
+      file.attributes: FileAttributes
+      host.name: ComputerName
+      action.properties.USN: USN
+      action.properties.FRN: FRN
+      action.properties.ParentFRN: ParentFRN
+      action.properties.VolumeID: VolumeID
+      action.properties.SnapshotID: SnapshotID
+
+  - set:
+      timestamp:
+        source: TimeStamp
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%d %H:%M:%S%.f"
+    filter: exists(.TimeStamp) && .TimeStamp != ""
+
+  # Reason: pipe-separated USN reasons, e.g. CLOSE|SECURITY_CHANGE
+  - set:
+      event.action:
+        source: Reason
+        operation: downcase
+    filter: exists(.Reason) && .Reason != ""
+
+  - set:
+      action.properties.Reason: Reason
+
+  - delete:
+      - ComputerName
+      - USN
+      - FRN
+      - ParentFRN
+      - TimeStamp
+      - File
+      - FullPath
+      - FileAttributes
+      - Reason
+      - VolumeID
+      - SnapshotID
+
+timeline:
+  - id: usn-record
+    message: "USN record for file {file.name}: {event.action}"
+    conditions:
+      - field: file.name
+        exists: true
+      - field: event.action
+        exists: true

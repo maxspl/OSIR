@@ -44,9 +44,11 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:volstat':
+  'filesystem:volume:info':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-volstat'
-    sourcetype: 'windows:ogre:volstat'
+    sourcetype: 'ogre:filesystem:volume:info'
     host_rex: r"([\w\.-]+)--"
     artifact: "volstat"
+    normalize:
+      - .vrl/windows/dfir-ogre/volstat.vrl

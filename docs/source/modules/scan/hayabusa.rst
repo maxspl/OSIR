@@ -33,10 +33,6 @@ Fields
      - ``event.original``
    * - ``custom``
      - 
-   * - ``"event"``
-     - ``event.kind``
-   * - ``"hayabusa"``
-     - ``event.module``
    * - ``"hayabusa"``
      - ``agent.type``
    * - ``del(.RuleTitle)``
@@ -63,12 +59,6 @@ Fields
      - ``winlog.channel``
    * - ``downcase(string!(.Channel))``
      - ``channel_lower``
-   * - ``"windows.security"``
-     - ``event.dataset``
-   * - ``"windows.system"``
-     - ``event.dataset``
-   * - ``"windows.defender"``
-     - ``event.dataset``
    * - ``"hayabusa." + string!(.channel_lower)``
      - ``event.dataset``
    * - ``to_string!(.EventID)``
@@ -141,47 +131,25 @@ Fields
      - ``process.executable``
    * - ``to_int(.hayabusa.extra.ProcessId) ?? null``
      - ``process.pid``
-   * - ``[authentication]``
-     - ``event.category``
-   * - ``[start, denied]``
-     - ``event.type``
    * - ``"logon_failed"``
      - ``event.action``
-   * - ``"failure"``
-     - ``event.outcome``
    * - ``[.source.ip]``
      - ``related.ip``
    * - ``.user.target.name``
      - ``user.name``
    * - ``[.user.name]``
      - ``related.user``
-   * - ``[iam]``
-     - ``event.category``
-   * - ``[change]``
-     - ``event.type``
    * - ``"password_reset_attempt"``
      - ``event.action``
    * - ``[.user.target.name]``
      - ``related.user``
-   * - ``[process, persistence]``
-     - ``event.category``
-   * - ``[creation, start]``
-     - ``event.type``
    * - ``"service_installed"``
      - ``event.action``
    * - ``basename!(.process.executable)``
      - ``file.name``
    * - ``[.file.path]``
      - ``related.files``
-   * - ``[malware, configuration]``
-     - ``event.category``
-   * - ``[change]``
-     - ``event.type``
    * - ``"defender_scanning_disabled"``
      - ``event.action``
-   * - ``[authentication]``
-     - ``event.category``
-   * - ``[protocol]``
-     - ``event.type``
    * - ``"ntlmv1_authentication_detected"``
      - ``event.action``

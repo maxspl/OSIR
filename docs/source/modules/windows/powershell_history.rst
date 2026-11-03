@@ -14,7 +14,15 @@ Parse ConsoleHost\_history.txt
 Timeline
 --------
 
-No timeline messages.
+.. _tl-windows-powershell_history-executed:
+
+.. list-table::
+   :header-rows: 1
+
+   * - Relation
+     - Message
+   * - ``executed``
+     - ``PowerShell command was executed: {process.command_line}``
 
 Relationships
 -------------
@@ -31,19 +39,7 @@ Fields
      - ECS field
    * - ``encode_json!(.)``
      - ``event.original``
-   * - ``"windows.powershell_history"``
-     - ``event.dataset``
-   * - ``"windows"``
-     - ``event.module``
-   * - ``"event"``
-     - ``event.kind``
-   * - ``[process]``
-     - ``event.category``
-   * - ``[info]``
-     - ``event.type``
-   * - ``"success"``
-     - ``event.outcome``
-   * - ``"PowerShell History"``
-     - ``event.provider``
-   * - ``custom``
-     - 
+   * - ``command``
+     - ``process.command_line``
+   * - ``to_int(line_number)``
+     - ``event.sequence``

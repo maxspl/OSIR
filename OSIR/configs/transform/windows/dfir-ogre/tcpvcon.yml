@@ -1,0 +1,66 @@
+metadata:
+  version: "1.0"
+  id: tcpvcon
+  author: Typ
+  description: Sysinternals Tcpvcon (dfir-ogre tcp_connection JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: Sysinternals Tcpvcon
+      network.protocol:
+        value: ip
+
+  # process_name, pid, protocol, state, local_adress, remote_adress
+  # (ogre spells it "adress"), ogre_md
+  - set:
+      network.transport:
+        source: protocol
+        operation: downcase
+      network.protocol:
+        source: protocol
+        operation: downcase
+
+  - set:
+      process.name: process_name
+      process.pid:
+        source: pid
+        operation: to_int
+
+  - set:
+      action.properties.tcp_state: state
+
+  - set:
+      network.direction:
+        value: ingress
+    filter: 'exists(.state) && downcase!(to_string!(.state)) == "listening"'
+
+  - set:
+      source.ip: local_adress
+    filter: exists(.local_adress) && .local_adress != ""
+
+  - set:
+      destination.ip: remote_adress
+    filter: exists(.remote_adress) && .remote_adress != ""
+
+  - set:
+      network.type:
+        value: ipv4
+    filter: '(exists(.source.ip) && !contains(to_string!(.source.ip), ":")) || (exists(.destination.ip) && !contains(to_string!(.destination.ip), ":"))'
+
+  - set:
+      network.type:
+        value: ipv6
+    filter: '(exists(.source.ip) && contains(to_string!(.source.ip), ":")) || (exists(.destination.ip) && contains(to_string!(.destination.ip), ":"))'
+
+  - delete:
+      - protocol
+      - process_name
+      - pid
+      - state
+      - local_adress
+      - remote_adress
+      - ogre_md

@@ -9,7 +9,7 @@ from filelock import FileLock
 from pydantic import BaseModel 
 from pathlib import Path
 
-from osir_service.ipc.OsirIpc import FileManager
+from osir_lib.core.FileManager import FileManager
 from osir_lib.core.OsirConstants import OSIR_PATHS, Path
 from osir_lib.logger import AppLogger
 

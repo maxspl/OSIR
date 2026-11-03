@@ -1,0 +1,103 @@
+metadata:
+  version: "1.0"
+  id: systeminfo
+  author: Typ
+  description: Windows system information (dfir-ogre systeminfo JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows System Information"
+
+  - set:
+      host.name: host_name
+      os.name: os_name
+      os.version: os_version
+      os.full:
+        source: 'to_string!(.os_name) + " " + to_string!(.os_version)'
+      action.properties.os_manufacturer: os_manufacturer
+      action.properties.os_configuration: os_configuration
+      action.properties.os_build_type: os_build_type
+      action.properties.registered_owner: registered_owner
+      action.properties.registered_organization: registered_organization
+      action.properties.product_id: product_id
+      event.start:
+        source: system_boot_time
+        operation: parse_timestamp
+        parameters:
+          format: "%d/%m/%Y, %H:%M:%S"
+      timestamp:
+        source: system_boot_time
+        operation: parse_timestamp
+        parameters:
+          format: "%d/%m/%Y, %H:%M:%S"
+      action.properties.original_install_date: original_install_date
+      action.properties.system_manufacturer: system_manufacturer
+      action.properties.system_model: system_model
+      action.properties.system_type: system_type
+      action.properties.processors: processors
+      action.properties.bios_version: bios_version
+      action.properties.windows_directory: windows_directory
+      action.properties.system_directory: system_directory
+      action.properties.boot_device: boot_device
+      action.properties.system_locale: system_locale
+      action.properties.input_locale: input_locale
+      action.properties.time_zone: time_zone
+      action.properties.total_physical_memory: total_physical_memory
+      action.properties.available_physical_memory: available_physical_memory
+      action.properties.virtual_memory_max_size: virtual_memory_max_size
+      action.properties.virtual_memory_available: virtual_memory_available
+      action.properties.virtual_memory_in_use: virtual_memory_in_use
+      action.properties.page_file_location: page_file_location
+      action.properties.domain: domain
+      action.properties.logon_server: logon_server
+      action.properties.hotfix: hotfix
+      action.properties.network_cards: network_cards
+      action.properties.hyper_v_requirements: hyper_v_requirements
+    filter: exists(.host_name) && exists(.os_name)
+
+  - delete:
+      - host_name
+      - os_name
+      - os_version
+      - os_manufacturer
+      - os_configuration
+      - os_build_type
+      - registered_owner
+      - registered_organization
+      - product_id
+      - original_install_date
+      - system_boot_time
+      - system_manufacturer
+      - system_model
+      - system_type
+      - processors
+      - bios_version
+      - windows_directory
+      - system_directory
+      - boot_device
+      - system_locale
+      - input_locale
+      - time_zone
+      - total_physical_memory
+      - available_physical_memory
+      - virtual_memory_max_size
+      - virtual_memory_available
+      - virtual_memory_in_use
+      - page_file_location
+      - domain
+      - logon_server
+      - hotfix
+      - network_cards
+      - hyper_v_requirements
+      - ogre_md
+
+timeline:
+  - id: host-state
+    message: "Host {host.name} runs {os.full} (booted on {timestamp})"
+    conditions:
+      - field: host.name
+        exists: true

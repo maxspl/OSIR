@@ -1,0 +1,150 @@
+metadata:
+  version: "1.1"
+  id: activities_cache
+  author: Typ
+  description: Windows ActivitiesCache (dissect JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: Windows ActivitiesCache
+
+  - set:
+      host.name: hostname
+      host.hostname: hostname
+      host.domain: domain
+      user.name: username
+      user.full_name: username
+      user.id: user_id
+      file.path: source
+      event.id: activity_id
+
+  - set:
+      event.start:
+        source: start_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+      timestamp:
+        source: start_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.start_time) && !is_nullish(.start_time)
+
+  - set:
+      event.end:
+        source: end_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.end_time) && !is_nullish(.end_time)
+
+  - set:
+      event.created:
+        source: last_modified_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: exists(.last_modified_time) && !is_nullish(.last_modified_time)
+
+  - set:
+      timestamp:
+        source: last_modified_time
+        operation: parse_timestamp
+        parameters:
+          format: "%+"
+    filter: '!exists(.timestamp) && exists(.last_modified_time) && !is_nullish(.last_modified_time)'
+
+  - set:
+      event.severity:
+        source: activity_priority
+        operation: to_int
+    filter: exists(.activity_priority) && !is_nullish(.activity_priority)
+
+  # complementary info: action.properties, not user.Ext / event.Ext
+  - set:
+      action.properties.user_home: user_home
+      action.properties.user_group: user_group
+      action.properties.enterprise_id: enterprise_id
+      action.properties.activity_type: activity_type
+      action.properties.activity_status: activity_status
+      action.properties.etag: etag
+      action.properties.tag: tag
+      action.properties.match_id: match_id
+      action.properties.group: group
+      action.properties.app_activity_id: app_activity_id
+      action.properties.group_app_activity_id: group_app_activity_id
+      action.properties.is_local_only: is_local_only
+      action.properties.platform_device_id: platform_device_id
+      action.properties.package_id_hash: package_id_hash
+      action.properties.app_id: app_id
+      action.properties.payload: payload
+      action.properties.original_payload: original_payload
+      action.properties.clipboard_payload: clipboard_payload
+      action.properties.start_time: start_time
+      action.properties.end_time: end_time
+      action.properties.last_modified_time: last_modified_time
+      action.properties.last_modified_on_client: last_modified_on_client
+      action.properties.original_last_modified_on_client: original_last_modified_on_client
+      action.properties.expiration_time: expiration_time
+      action.properties.created_in_cloud: created_in_cloud
+      action.properties.db_path: source
+
+  # every remaining field moves verbatim to action.properties (dissect extras)
+  - custom: |2-
+      known = ["event", "action", "user", "host", "file", "timestamp", "hostname", "domain", "username", "user_id", "user_home", "user_group", "enterprise_id", "start_time", "end_time", "last_modified_time", "last_modified_on_client", "original_last_modified_on_client", "expiration_time", "created_in_cloud", "activity_id", "activity_type", "activity_status", "activity_priority", "etag", "tag", "match_id", "group", "app_activity_id", "group_app_activity_id", "is_local_only", "platform_device_id", "package_id_hash", "app_id", "payload", "original_payload", "clipboard_payload", "source", "_source", "_classification", "_generated", "_version", "_type", "_recorddescriptor"]
+      rest = .
+      ap = {}
+      for_each(keys(rest)) -> |_, k| {
+          if !includes(known, k) {
+              v = get!(rest, [k])
+              ap = set!(ap, [k], v)
+              rest = remove!(rest, [k])
+          }
+      }
+      . = rest
+      .action.properties = merge(object(.action.properties) ?? {}, ap)
+
+  - delete:
+      - hostname
+      - domain
+      - username
+      - user_id
+      - user_home
+      - user_group
+      - enterprise_id
+      - start_time
+      - end_time
+      - last_modified_time
+      - last_modified_on_client
+      - original_last_modified_on_client
+      - expiration_time
+      - created_in_cloud
+      - activity_id
+      - activity_type
+      - activity_status
+      - activity_priority
+      - etag
+      - tag
+      - match_id
+      - group
+      - app_activity_id
+      - group_app_activity_id
+      - is_local_only
+      - platform_device_id
+      - package_id_hash
+      - app_id
+      - payload
+      - original_payload
+      - clipboard_payload
+      - source
+      - _source
+      - _classification
+      - _generated
+      - _version
+      - _type
+      - _recorddescriptor

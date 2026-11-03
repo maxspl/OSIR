@@ -6,7 +6,7 @@ age_decrypt
 Description
 -----------
 
-Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/key.age.
+Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/transform/encryption/key.age.
 
 Timeline
 --------

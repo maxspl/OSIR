@@ -1,7 +1,7 @@
 metadata:
   version: "3.0"
   author: maxspl
-  description: Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/dependencies/encryption/DFIRORC_key.pem.
+  description: Used to decrypt age files. Don't forget to put the key in /OSIR/OSIR/configs/transform/encryption/DFIRORC_key.pem.
   os: windows
 
 configuration:
@@ -17,7 +17,7 @@ tool:
   path: orc-decrypt-rs
   source: 
   version: 
-  cmd: -k /OSIR/OSIR/configs/dependencies/encryption/DFIRORC_key.pem --output-dir {output_dir}/{extracted_endpoint} -f {input_file}
+  cmd: -k /OSIR/OSIR/configs/transform/encryption/DFIRORC_key.pem --output-dir {output_dir}/{extracted_endpoint} -f {input_file}
 
 input:
   type: file

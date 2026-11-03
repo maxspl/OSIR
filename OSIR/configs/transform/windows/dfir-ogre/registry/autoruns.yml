@@ -1,0 +1,46 @@
+metadata:
+  version: "1.0"
+  id: autoruns
+  author: Typ
+  description: Persistence artifacts (dfir-ogre registry autoruns hive plugin JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: "Windows Autoruns (dfir-ogre)"
+
+  # type, values, key_path, key_modif_time, key_security, ogre_md
+  - set:
+      registry.path: key_path
+      registry.mtime:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      timestamp:
+        source: key_modif_time
+        operation: parse_timestamp
+        parameters:
+          format: "%Y-%m-%dT%H:%M:%S%.f%z"
+      action.properties.type: type
+      action.properties.values: values
+      action.properties.image_path: image_path
+      action.properties.enabled: enabled
+    filter: exists(.key_path)
+
+  - delete:
+      - key_path
+      - key_modif_time
+      - type
+      - values
+      - ogre_md
+
+timeline:
+  - id: autoruns-key
+    message: "Autoruns registry key {registry.path} of type {action.properties.type} exists"
+    conditions:
+      - field: action.properties.type
+        exists: true

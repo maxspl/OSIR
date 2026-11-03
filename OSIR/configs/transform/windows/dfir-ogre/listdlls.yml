@@ -1,0 +1,49 @@
+metadata:
+  version: "1.0"
+  id: listdlls
+  author: Typ
+  description: Sysinternals ListDLLs (dfir-ogre list_dll JSONL) → ECS
+
+transformation:
+  - set:
+      event.original: encode_json!(.)
+
+  - set:
+      event.provider:
+        value: Sysinternals ListDLLs
+
+  # process_name, pid, command_line, base_addr, size, path, ogre_md
+  # (size stays verbatim: it is a hex string, e.g. 0xf4000)
+  - set:
+      process.name: process_name
+      process.pid:
+        source: pid
+        operation: to_int
+      process.command_line: command_line
+      action.properties.base_addr: base_addr
+      action.properties.size: size
+
+  - set:
+      dll.path: path
+      file.path: path
+
+  - set:
+      dll.name:
+        source: 'split!(to_string!(.path), "\\")[-1]'
+      file.name:
+        source: 'split!(to_string!(.path), "\\")[-1]'
+    filter: exists(.path)
+
+  # the DLL entry whose path is the process image itself
+  - set:
+      process.executable: path
+    filter: 'exists(.path) && exists(.process.name) && (ends_with(downcase(to_string!(.path)), "\\" + downcase(to_string!(.process.name))) || ends_with(downcase(to_string!(.path)), "/" + downcase(to_string!(.process.name))))'
+
+  - delete:
+      - process_name
+      - pid
+      - command_line
+      - base_addr
+      - size
+      - path
+      - ogre_md

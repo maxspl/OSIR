@@ -49,10 +49,10 @@ extracted:
       default: "UNKNOWN"
 
 splunk:
-  'windows:ogre:registry_shell_bag':
+  'windows:registry:shell_bag':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-registry-shell-bag'
-    sourcetype: 'windows:ogre:registry_shell_bag'
+    sourcetype: 'ogre:windows:registry:shell_bag'
     host_rex: r"([\w\.-]+?)--"
     user_rex: r"--([^-]+)--ogre-registry-shell-bag"
     artifact: "hive"
@@ -60,4 +60,4 @@ splunk:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/shell_bags.vrl
+      - .vrl/windows/dfir-ogre/registry/shell_bags.vrl

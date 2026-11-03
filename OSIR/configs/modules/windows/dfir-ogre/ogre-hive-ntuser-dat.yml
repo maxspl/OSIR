@@ -50,14 +50,14 @@ extracted:
       default: "UNKNOWN"
       
 splunk:
-  'windows:ogre:hive_ntuser_dat':
+  'windows:registry:ntuser_dat':
     name_rex: r"\.jsonl$"
     path_suffix: 'ogre-hive-ntuser-dat'
-    sourcetype: 'windows:ogre:hive_ntuser_dat'
+    sourcetype: 'ogre:windows:registry:ntuser_dat'
     host_rex: r"([\w\.-]+?)--"
     artifact: "hive"
     timestamp_path:
       - "timestamp" 
     timestamp_format: "%Y-%m-%dT%H:%M:%SZ"
     normalize:
-      - ecs_normalize/windows/hives.vrl
+      - .vrl/windows/dfir-ogre/hives.vrl
