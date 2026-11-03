@@ -35,7 +35,7 @@ MASTER_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 SETUP_SCRIPT_PATH=$(realpath "$MASTER_DIR/../setup_scripts")
 CONF_PATH=$(realpath "$MASTER_DIR/../conf")
 
-debug_mode=false
+debug_mode=true
 config_mode=false # If set, nothing is ask to the user. Configuration is pulled from agent.yml
 offline_mode=false 
 
@@ -756,7 +756,7 @@ main() {
         is_admin=$(echo $is_admin | tr -d '\r')
 
         if [ "$is_admin" != "True" ]; then
-            (echo >&2 "${ERROR} WSL must be launched as administrator.")
+            (echo >&2 "${ERROR} The current Windows session is not elevated. WSL inherits the Windows privileges of the terminal that started it. Open a Windows terminal as administrator, run 'wsl' from it, then relaunch this script from that session.")
             exit 1
         fi
     fi
