@@ -1,0 +1,109 @@
+metadata:
+  version: "1.0"
+  author: maxspl
+  description: Convert the Microsoft 365 / Entra ID / Azure logs collected with Microsoft-Extractor-Suite (JSON arrays and CSV) into JSONL
+  os: generic
+
+configuration:
+  module: o365_extractor_suite
+  type: process
+  disk_only: false
+  no_multithread: false
+  processor_type:
+  - external
+  processor_os: unix
+
+tool:
+  path: python
+  cmd: /OSIR/OSIR/bin/o365_extractor_suite.py --input "{input_file}" --output "{output_file}" --dedup-dir "{output_dir}/.dedup"
+  source: https://github.com/invictus-ir/Microsoft-Extractor-Suite
+  version: 2026.11.10
+
+input:
+  type: file
+  paths:
+    # Logs
+    - r"(?:^|/)UAL-\d{14}-\d{14}\.(?:json|jsonl|csv)$"
+    - r"SignInLogs\.(?:json|jsonl|csv)$"
+    - r"\d-AuditLogs\.(?:json|jsonl|csv)$"
+    - r"ActivityLogs?\.(?:json|jsonl|csv)$"
+    - r"-MTL\.csv$"
+    - r"Risky(?:Events|Detections|Users)[^/]*\.csv$"
+    - r"(?:AdminAuditLog|mailboxAuditLog)[^/]*\.(?:json|csv)$"
+    # Inventories (state at the time of the collection)
+    - r"/\d{8,14}-(?:\d{6}-)?(?:MailboxRules|TransportRules|AuthenticationMethods|UserRegistrationDetails|UserApplications|OAuthPermissions|ConditionalAccessPolicy|ConditionalAccessPolicies|Devices|Users)\.csv$"
+    - r"/\d{8}-(?!All-)[^/]*Administrator\.csv$"
+
+output:
+  type: single_file
+  format: jsonl
+  output_file: "{endpoint_name}--{module}-{input_path_hash}-{input_file}.jsonl"
+
+endpoint:
+  default: "o365"
+
+splunk:
+  'o365:ual':
+    name_rex: -UAL-\d{14}-\d{14}\.\w+\.jsonl$
+    sourcetype: 'o365:ual'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_ual"
+  'o365:entra:signin':
+    name_rex: SignInLogs\.\w+\.jsonl$
+    sourcetype: 'o365:entra:signin'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_entra_signin"
+  'o365:entra:audit':
+    name_rex: \d-AuditLogs\.\w+\.jsonl$
+    sourcetype: 'o365:entra:audit'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_entra_audit"
+  'o365:azure:activity':
+    name_rex: ActivityLogs?\.\w+\.jsonl$
+    sourcetype: 'o365:azure:activity'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_azure_activity"
+  'o365:message_trace':
+    name_rex: -MTL\.csv\.jsonl$
+    sourcetype: 'o365:message_trace'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_message_trace"
+  'o365:risky':
+    name_rex: Risky(?:Events|Detections|Users)[^/]*\.csv\.jsonl$
+    sourcetype: 'o365:risky'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_risky"
+  'o365:exchange:audit':
+    name_rex: (?:AdminAuditLog|mailboxAuditLog)[^/]*\.\w+\.jsonl$
+    sourcetype: 'o365:exchange:audit'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_exchange_audit"
+  'o365:inventory':
+    name_rex: (?:MailboxRules|TransportRules|AuthenticationMethods|UserRegistrationDetails|UserApplications|OAuthPermissions|ConditionalAccessPolicy|ConditionalAccessPolicies|-Devices|-Users|Administrator)\.csv\.jsonl$
+    sourcetype: 'o365:inventory'
+    host_rex: ^(.+?)--
+    timestamp_path:
+      - "ts"
+    timestamp_format: "%Y-%m-%dT%H:%M:%S.%fZ"
+    artifact: "o365_inventory"
