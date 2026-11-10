@@ -124,7 +124,7 @@ def search_files(
     path: str = Query(..., description="Base path to search within (including storage prefix)"),
     filter: Optional[str] = Query(None, description="Search query string (e.g. '*.pdf')"),
     deep: bool = Query(False, description="Search subdirectories recursively"),
-    size: Optional[str] = Query("all", description="File size filter", enum=["all", "small", "medium", "large"]),
+    size: Optional[str] = Query("all", description="File size filter"),
 ):
     return OsirIpcCall("files_search", params={"path": path, "filter": filter, "deep": deep, "size": size}, response_only=True)
 
